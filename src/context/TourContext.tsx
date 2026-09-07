@@ -707,10 +707,20 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const loginWithGoogle = async (customAccount?: { name?: string; email?: string; avatar?: string; phone?: string }) => {
     try {
+      const hostname = typeof window !== 'undefined' ? window.location.hostname : '';
+      const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1' || hostname.startsWith('192.168.');
+      
+      let redirectUrl = 'https://mybhaktisathi.com/profile';
+      if (isLocalhost) {
+        redirectUrl = window.location.origin + '/profile';
+      } else if (typeof window !== 'undefined' && (window.location.origin.includes('.run.app') || window.location.origin.includes('aistudio'))) {
+        redirectUrl = window.location.origin + '/profile';
+      }
+
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: window.location.origin + '/profile',
+          redirectTo: redirectUrl,
         },
       });
       if (error) {
