@@ -105,6 +105,7 @@ interface TourContextType {
   setTravelerUser: (user: TravelerUserProfile | null) => void;
   updateTravelerProfile: (updatedData: Partial<TravelerUserProfile>) => void;
   loginWithGoogle: (customAccount?: { name?: string; email?: string; avatar?: string; phone?: string }) => void;
+  loginWithMagicLink: (email: string) => Promise<void>;
   connectGoogleCalendar: () => Promise<void>;
   logoutTraveler: () => void;
   isTravelerAuthModalOpen: boolean;
@@ -771,6 +772,34 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     } catch (err) {
       console.error('Failed to initiate Google Sign-In with Supabase:', err);
+      throw err;
+    }
+  };
+
+  const loginWithMagicLink = async (email: string) => {
+    try {
+      const hostname = typeof window !== 'undefined' ? window.location.hostname : '';
+      const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1' || hostname.startsWith('192.168.');
+      
+      let redirectUrl = 'https://mybhaktisathi.com/profile';
+      if (isLocalhost) {
+        redirectUrl = window.location.origin + '/profile';
+      } else if (typeof window !== 'undefined' && (window.location.origin.includes('.run.app') || window.location.origin.includes('aistudio'))) {
+        redirectUrl = window.location.origin + '/profile';
+      }
+
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          emailRedirectTo: redirectUrl,
+        },
+      });
+      if (error) {
+        console.error('Supabase OTP Error:', error.message);
+        throw error;
+      }
+    } catch (err) {
+      console.error('Failed to initiate Magic Link with Supabase:', err);
       throw err;
     }
   };
@@ -2231,6 +2260,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setTravelerUser,
         updateTravelerProfile,
         loginWithGoogle,
+        loginWithMagicLink,
         connectGoogleCalendar,
         logoutTraveler,
         isTravelerAuthModalOpen,

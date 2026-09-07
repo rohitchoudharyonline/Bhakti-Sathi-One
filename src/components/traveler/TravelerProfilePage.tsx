@@ -41,6 +41,7 @@ import {
   Trash2,
   UserPlus,
   LogIn,
+  Loader2,
   HelpCircle,
 } from 'lucide-react';
 import { generatePaymentReceiptPdf } from '../../utils/paymentReceiptPdf';
@@ -123,6 +124,7 @@ export const TravelerProfilePage: React.FC = () => {
     setTravelerUser,
     updateTravelerProfile,
     loginWithGoogle,
+    loginWithMagicLink,
     connectGoogleCalendar,
     googleToken,
     logoutTraveler,
@@ -273,6 +275,10 @@ export const TravelerProfilePage: React.FC = () => {
   const [guestAuthMode, setGuestAuthMode] = useState<'signin' | 'signup' | 'guest'>('signin');
   const [guestAuthLoading, setGuestAuthLoading] = useState(false);
   const [guestAuthError, setGuestAuthError] = useState('');
+
+  // Email Magic Link States
+  const [profileMagicEmail, setProfileMagicEmail] = useState('');
+  const [profileMagicSent, setProfileMagicSent] = useState(false);
 
   // Guest Continuation States
   const [profileGuestName, setProfileGuestName] = useState('');
@@ -562,6 +568,28 @@ export const TravelerProfilePage: React.FC = () => {
       }
     };
 
+    const handleProfileMagicSubmit = async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!profileMagicEmail.trim()) return;
+
+      const rateCheck = authRateLimiter.checkAllowed();
+      if (!rateCheck.allowed) {
+        setGuestAuthError(rateCheck.reason || 'Please wait before trying again.');
+        return;
+      }
+      setGuestAuthError('');
+      setGuestAuthLoading(true);
+
+      try {
+        await loginWithMagicLink(profileMagicEmail.trim());
+        setProfileMagicSent(true);
+      } catch (err: any) {
+        setGuestAuthError(err?.message || 'Failed to send login email. Please try again.');
+      } finally {
+        setGuestAuthLoading(false);
+      }
+    };
+
     return (
       <div className="w-full min-h-screen bg-stone-50/70 py-10 px-4 sm:px-6 flex flex-col items-center justify-center">
         <div className="w-full max-w-md space-y-6">
@@ -667,6 +695,49 @@ export const TravelerProfilePage: React.FC = () => {
                       : 'Sign up with Google'}
                   </span>
                 </button>
+
+                <div className="relative flex py-2 items-center">
+                  <div className="flex-grow border-t border-stone-200"></div>
+                  <span className="flex-shrink mx-4 text-stone-400 text-[10px] font-bold uppercase tracking-wider">or bypass google block</span>
+                  <div className="flex-grow border-t border-stone-200"></div>
+                </div>
+
+                {/* Passwordless Email Login */}
+                {profileMagicSent ? (
+                  <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl text-center space-y-2">
+                    <p className="text-xs font-bold text-emerald-800">✨ Magic Login Link Sent!</p>
+                    <p className="text-[11px] text-emerald-600">Please check your inbox at <strong>{profileMagicEmail}</strong> and click the link to log in automatically.</p>
+                    <button type="button" onClick={() => setProfileMagicSent(false)} className="text-[10px] text-[#FF4B00] font-black underline hover:text-[#E04200] cursor-pointer">Use another email</button>
+                  </div>
+                ) : (
+                  <form onSubmit={handleProfileMagicSubmit} className="space-y-3">
+                    <div className="text-center">
+                      <p className="text-[11px] font-bold text-stone-600 mb-2">
+                        Sign In instantly with a standard Email Link:
+                      </p>
+                    </div>
+                    <div className="flex gap-2">
+                      <input
+                        type="email"
+                        required
+                        placeholder="Type your email (e.g. name@domain.com)"
+                        value={profileMagicEmail}
+                        onChange={(e) => setProfileMagicEmail(e.target.value)}
+                        className="flex-1 px-3.5 py-2.5 text-xs font-semibold rounded-xl border border-stone-300 focus:outline-none focus:ring-1 focus:ring-stone-900"
+                      />
+                      <button
+                        type="submit"
+                        disabled={guestAuthLoading}
+                        className="px-4 py-2.5 bg-stone-900 hover:bg-stone-800 text-white font-extrabold text-xs rounded-xl transition cursor-pointer disabled:opacity-55 flex items-center justify-center gap-1"
+                      >
+                        {guestAuthLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : 'Get Link'}
+                      </button>
+                    </div>
+                    <p className="text-[10px] text-center text-stone-400 font-medium">
+                      No passwords or Google validation required. Works automatically for everyone!
+                    </p>
+                  </form>
+                )}
 
                 <div className="relative flex py-2 items-center">
                   <div className="flex-grow border-t border-stone-200"></div>
