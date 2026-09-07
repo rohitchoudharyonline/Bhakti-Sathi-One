@@ -123,6 +123,7 @@ export const TravelerProfilePage: React.FC = () => {
     setTravelerUser,
     updateTravelerProfile,
     loginWithGoogle,
+    googleToken,
     logoutTraveler,
     inquiries,
     packages,
@@ -136,23 +137,61 @@ export const TravelerProfilePage: React.FC = () => {
     navigateToJapCounter,
   } = useTours();
 
-  // Load Jap Counter statistics for the profile dashboard card
-  const japStats = useMemo(() => {
-    try {
-      const saved = localStorage.getItem('hh_jap_counter_data_v2');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        const records = Array.isArray(parsed.records) ? parsed.records : [];
-        const todayStr = new Date().toISOString().split('T')[0];
-        const todayRecords = records.filter((r: any) => r.dateStr === todayStr);
-        const todayChants = todayRecords.reduce((sum: number, r: any) => sum + (r.beadCount || 0), 0);
-        const lifetimeChants = records.reduce((sum: number, r: any) => sum + (r.beadCount || 0), 0);
-        const lifetimeMalas = records.reduce((sum: number, r: any) => sum + (r.malasCompleted || 0), 0);
-        return { todayChants, lifetimeChants, lifetimeMalas };
+  // Load Jap Counter statistics for the profile dashboard card dynamically
+  const [japStats, setJapStats] = useState({ todayChants: 0, lifetimeChants: 0, lifetimeMalas: 0 });
+
+  useEffect(() => {
+    const loadJapStats = () => {
+      try {
+        const saved = localStorage.getItem('hh_jap_counter_data_v2');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          const records = Array.isArray(parsed.records) ? parsed.records : [];
+          const todayStr = new Date().toISOString().split('T')[0];
+          const todayRecords = records.filter((r: any) => r.dateStr === todayStr);
+          const todayChants = todayRecords.reduce((sum: number, r: any) => sum + (r.beadCount || 0), 0);
+          const lifetimeChants = records.reduce((sum: number, r: any) => sum + (r.beadCount || 0), 0);
+          const lifetimeMalas = records.reduce((sum: number, r: any) => sum + (r.malasCompleted || 0), 0);
+          setJapStats({ todayChants, lifetimeChants, lifetimeMalas });
+        }
+      } catch (e) {
+        console.error('Failed to load jap stats:', e);
       }
-    } catch {}
-    return { todayChants: 0, lifetimeChants: 0, lifetimeMalas: 0 };
+    };
+
+    loadJapStats();
+    
+    // Refresh stats when user returns to this page/window tab or localStorage updates
+    window.addEventListener('storage', loadJapStats);
+    window.addEventListener('focus', loadJapStats);
+
+    return () => {
+      window.removeEventListener('storage', loadJapStats);
+      window.removeEventListener('focus', loadJapStats);
+    };
   }, []);
+
+  // Google Calendar Integration states in Settings
+  const [autoSyncEnabled, setAutoSyncEnabled] = useState(() => {
+    try {
+      return localStorage.getItem('hh_jap_auto_sync') === 'true';
+    } catch {
+      return false;
+    }
+  });
+
+  const handleToggleAutoSync = async () => {
+    if (!googleToken) {
+      // Directs user to grant calendar scopes with Supabase Auth
+      await loginWithGoogle();
+      return;
+    }
+    const newValue = !autoSyncEnabled;
+    setAutoSyncEnabled(newValue);
+    try {
+      localStorage.setItem('hh_jap_auto_sync', newValue ? 'true' : 'false');
+    } catch {}
+  };
 
   // Active Main Navigation Tab
   const [activeTab, setActiveTab] = useState<'trips' | 'payments' | 'cotravelers' | 'wishlist' | 'settings'>('trips');
@@ -676,16 +715,16 @@ export const TravelerProfilePage: React.FC = () => {
             
             {/* Left: Avatar & Identity */}
             <div className="flex items-center gap-4 sm:gap-5">
-              <div className="relative group">
+              <div className="relative group shrink-0">
                 {travelerUser.avatar ? (
                   <img
                     src={travelerUser.avatar}
                     alt={travelerUser.name}
                     referrerPolicy="no-referrer"
-                    className="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover border border-stone-200 shadow-sm"
+                    className="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover border border-stone-200 shadow-sm shrink-0"
                   />
                 ) : (
-                  <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 text-white font-black text-xl sm:text-2xl flex items-center justify-center shadow-sm">
+                  <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 text-white font-black text-xl sm:text-2xl flex items-center justify-center shadow-sm shrink-0">
                     {travelerUser.name.charAt(0).toUpperCase()}
                   </div>
                 )}
@@ -923,7 +962,7 @@ export const TravelerProfilePage: React.FC = () => {
             <button
               type="button"
               onClick={() => setActiveTab('settings')}
-              className={`p-4 rounded-2xl text-left transition-all duration-200 cursor-pointer flex flex-col justify-between border-2 relative overflow-hidden group col-span-2 sm:col-span-1 ${
+              className={`p-4 rounded-2xl text-left transition-all duration-200 cursor-pointer flex flex-col justify-between border-2 relative overflow-hidden group col-span-1 ${
                 activeTab === 'settings'
                   ? 'bg-white border-[#FF4B00] shadow-md ring-4 ring-[#FF4B00]/10'
                   : 'bg-stone-50/80 hover:bg-white border-stone-200/90 hover:border-stone-300'
@@ -1643,6 +1682,75 @@ export const TravelerProfilePage: React.FC = () => {
                   </span>
                 </div>
               </div>
+            </div>
+
+            {/* Google Calendar Sync Settings */}
+            <div className="bg-white p-6 sm:p-8 rounded-3xl border border-stone-200 shadow-xs space-y-4">
+              <div className="flex items-center gap-3 pb-3 border-b border-stone-100">
+                <div className="w-8 h-8 rounded-lg bg-orange-50 flex items-center justify-center text-orange-600 shrink-0">
+                  <Calendar className="w-4 h-4 text-[#FF4B00]" />
+                </div>
+                <div>
+                  <h3 className="text-base font-black text-stone-900">Google Calendar Synchronization</h3>
+                  <p className="text-[11px] text-stone-500">Log your spiritual chanting progress as visual events in your calendar</p>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between py-2">
+                <div className="max-w-md pr-4">
+                  <p className="text-xs font-black text-stone-900">Daily Sadhana Sync</p>
+                  <p className="text-[11px] text-stone-500 mt-0.5 leading-relaxed">
+                    Once enabled, completing your mala rounds in the Jap Counter will automatically write an elegant, orange-colored "Jap Sadhana" event to your primary Google Calendar.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleToggleAutoSync}
+                  className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                    autoSyncEnabled && googleToken ? 'bg-[#FF4B00]' : 'bg-stone-200'
+                  }`}
+                  role="switch"
+                  aria-checked={autoSyncEnabled && !!googleToken}
+                >
+                  <span
+                    aria-hidden="true"
+                    className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${
+                      autoSyncEnabled && googleToken ? 'translate-x-5' : 'translate-x-0'
+                    }`}
+                  />
+                </button>
+              </div>
+
+              {!googleToken ? (
+                <div className="bg-stone-50 rounded-2xl p-4 border border-stone-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div className="flex items-start gap-2.5">
+                    <AlertCircle className="w-4 h-4 text-stone-500 shrink-0 mt-0.5" />
+                    <p className="text-[11px] text-stone-600 leading-relaxed">
+                      Google Calendar access has not been authorized yet. Tap to connect your Gmail account and enable syncing.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => loginWithGoogle()}
+                    className="shrink-0 py-1.5 px-3 rounded-lg bg-white border border-stone-300 hover:border-stone-400 text-stone-800 text-[10px] font-extrabold transition cursor-pointer flex items-center justify-center gap-1.5 shadow-xs"
+                  >
+                    <svg className="w-3.5 h-3.5" viewBox="0 0 24 24">
+                      <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                      <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                      <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
+                      <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
+                    </svg>
+                    <span>Connect Google Calendar</span>
+                  </button>
+                </div>
+              ) : (
+                <div className="bg-emerald-50/50 rounded-2xl p-4 border border-emerald-100 flex items-start gap-2.5">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  <p className="text-[11px] text-emerald-700 leading-relaxed">
+                    Google Calendar is successfully authorized! Completing a 108-bead mala round on the Jap Counter will instantly log your sadhana in real-time.
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* Danger Zone: Logout */}
