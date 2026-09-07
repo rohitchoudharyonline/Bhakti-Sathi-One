@@ -312,12 +312,12 @@ export const JapCounterPageV2: React.FC = () => {
                   )}
                 </h3>
                 <p className="text-xs text-stone-500 mt-1 max-w-xl leading-relaxed">
-                  Automatically or manually log your spiritual progress in your Gmail Calendar as an elegant orange-colored Sadhana event each day!
+                  Log your spiritual progress in your Google Calendar as a sacred Sadhana event each day.
                 </p>
               </div>
             </div>
 
-            <div className="flex flex-wrap items-center gap-3">
+            <div className="flex flex-wrap items-center gap-2.5">
               {googleToken && (
                 <label className="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-stone-50 border border-stone-200 text-xs font-bold cursor-pointer hover:bg-stone-100 transition">
                   <input
@@ -330,6 +330,18 @@ export const JapCounterPageV2: React.FC = () => {
                 </label>
               )}
 
+              {/* Direct 1-Click Google Calendar Event (No OAuth / No Warning Screen) */}
+              <a
+                href={`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(`📿 Jap Sadhana: ${todayChants} Chants (${todayMalas} Malas)`)}&details=${encodeURIComponent(`Daily spiritual japa sadhana practice logged with Bhakti Sathi.\n\n• Mantra: ॥ ${activeMantra} ॥\n• Total Chants: ${todayChants} beads\n• Malas Completed: ${todayMalas}\n• Website: https://mybhaktisathi.com\n\nMay the divine blessings always be with you!`)}&dates=${new Date().toISOString().replace(/-|:|\.\d\d\d/g, '').slice(0, 8)}/${new Date().toISOString().replace(/-|:|\.\d\d\d/g, '').slice(0, 8)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-3.5 py-2.5 rounded-xl text-xs font-bold bg-amber-50 text-amber-900 border border-amber-200 hover:bg-amber-100 transition flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
+                title="Instant 1-click add to Google Calendar without logging in"
+              >
+                <Calendar className="w-3.5 h-3.5 text-amber-700" />
+                <span>Instant 1-Click Add</span>
+              </a>
+
               <button
                 type="button"
                 onClick={handleManualSync}
@@ -339,7 +351,7 @@ export const JapCounterPageV2: React.FC = () => {
                     ? 'bg-stone-100 text-stone-400 border border-stone-200 cursor-not-allowed'
                     : googleToken
                     ? 'bg-[#FF4B00] text-white hover:bg-[#FF4B00]/90'
-                    : 'bg-white text-[#FF4B00] hover:bg-orange-50 border-2 border-[#FF4B00]'
+                    : 'bg-[#FF4B00] text-white hover:bg-[#FF4B00]/90 border-2 border-[#FF4B00]'
                 }`}
               >
                 {syncStatus === 'syncing' ? (
@@ -360,12 +372,22 @@ export const JapCounterPageV2: React.FC = () => {
                 ) : (
                   <>
                     <Calendar className="w-3.5 h-3.5" />
-                    <span>Connect Gmail Calendar</span>
+                    <span>Sync via Gmail Account</span>
                   </>
                 )}
               </button>
             </div>
           </div>
+
+          {!googleToken && (
+            <div className="mt-3.5 p-3 rounded-xl bg-amber-50/70 border border-amber-200/80 text-[11px] text-amber-900 flex items-start gap-2">
+              <Sparkles className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+              <div>
+                <span className="font-black">Google Sign-in Tip: </span>
+                When Google shows <em>"Google hasn't verified this app"</em>, tap <strong className="underline">Advanced</strong> at the bottom left, then tap <strong className="underline font-bold">Go to Bhakti Sathi (unsafe)</strong> &rarr; <strong className="font-bold">Continue</strong>. Or use the <strong>Instant 1-Click Add</strong> button!
+              </div>
+            </div>
+          )}
 
           {syncStatus === 'error' && syncErrorMessage && (
             <div className="mt-3 flex items-start gap-2 text-xs text-red-600 bg-red-50 border border-red-200 rounded-xl p-3">

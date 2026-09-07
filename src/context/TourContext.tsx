@@ -105,6 +105,7 @@ interface TourContextType {
   setTravelerUser: (user: TravelerUserProfile | null) => void;
   updateTravelerProfile: (updatedData: Partial<TravelerUserProfile>) => void;
   loginWithGoogle: (customAccount?: { name?: string; email?: string; avatar?: string; phone?: string }) => void;
+  loginWithGoogleIdToken: (idToken: string) => Promise<void>;
   loginWithMagicLink: (email: string) => Promise<void>;
   connectGoogleCalendar: () => Promise<void>;
   logoutTraveler: () => void;
@@ -772,6 +773,22 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     } catch (err) {
       console.error('Failed to initiate Google Sign-In with Supabase:', err);
+      throw err;
+    }
+  };
+
+  const loginWithGoogleIdToken = async (idToken: string) => {
+    try {
+      const { data, error } = await supabase.auth.signInWithIdToken({
+        provider: 'google',
+        token: idToken,
+      });
+      if (error) {
+        console.error('Supabase signInWithIdToken Error:', error.message);
+        throw error;
+      }
+    } catch (err) {
+      console.error('Failed to authenticate Google ID Token with Supabase:', err);
       throw err;
     }
   };
@@ -2260,6 +2277,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setTravelerUser,
         updateTravelerProfile,
         loginWithGoogle,
+        loginWithGoogleIdToken,
         loginWithMagicLink,
         connectGoogleCalendar,
         logoutTraveler,
