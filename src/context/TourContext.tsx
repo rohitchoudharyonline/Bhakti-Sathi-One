@@ -105,6 +105,7 @@ interface TourContextType {
   setTravelerUser: (user: TravelerUserProfile | null) => void;
   updateTravelerProfile: (updatedData: Partial<TravelerUserProfile>) => void;
   loginWithGoogle: (customAccount?: { name?: string; email?: string; avatar?: string; phone?: string }) => void;
+  connectGoogleCalendar: () => Promise<void>;
   logoutTraveler: () => void;
   isTravelerAuthModalOpen: boolean;
   setIsTravelerAuthModalOpen: (open: boolean) => void;
@@ -758,6 +759,38 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
         provider: 'google',
         options: {
           redirectTo: redirectUrl,
+          scopes: 'openid email profile',
+          queryParams: {
+            prompt: 'select_account',
+          },
+        },
+      });
+      if (error) {
+        console.error('Supabase OAuth Error:', error.message);
+        throw error;
+      }
+    } catch (err) {
+      console.error('Failed to initiate Google Sign-In with Supabase:', err);
+      throw err;
+    }
+  };
+
+  const connectGoogleCalendar = async () => {
+    try {
+      const hostname = typeof window !== 'undefined' ? window.location.hostname : '';
+      const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1' || hostname.startsWith('192.168.');
+      
+      let redirectUrl = 'https://mybhaktisathi.com/profile';
+      if (isLocalhost) {
+        redirectUrl = window.location.origin + '/profile';
+      } else if (typeof window !== 'undefined' && (window.location.origin.includes('.run.app') || window.location.origin.includes('aistudio'))) {
+        redirectUrl = window.location.origin + '/profile';
+      }
+
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: redirectUrl,
           scopes: 'openid email profile https://www.googleapis.com/auth/calendar.events',
           queryParams: {
             prompt: 'consent',
@@ -770,7 +803,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
         throw error;
       }
     } catch (err) {
-      console.error('Failed to initiate Google Sign-In with Supabase:', err);
+      console.error('Failed to connect Google Calendar with Supabase:', err);
       throw err;
     }
   };
@@ -2198,6 +2231,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setTravelerUser,
         updateTravelerProfile,
         loginWithGoogle,
+        connectGoogleCalendar,
         logoutTraveler,
         isTravelerAuthModalOpen,
         setIsTravelerAuthModalOpen,

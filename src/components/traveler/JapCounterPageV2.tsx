@@ -76,7 +76,7 @@ const syncToGoogleCalendar = async (token: string, mantra: string, totalChants: 
 };
 
 export const JapCounterPageV2: React.FC = () => {
-  const { navigateToHome, agencySettings, travelerUser, googleToken, loginWithGoogle } = useTours();
+  const { navigateToHome, agencySettings, travelerUser, googleToken, connectGoogleCalendar } = useTours();
   const [currentBead, setCurrentBead] = useState(0);
   const [currentMalaRound, setCurrentMalaRound] = useState(0);
   const [activeMantra, setActiveMantra] = useState(() => agencySettings?.sacredMantra || 'साम्ब सदाशिव');
@@ -238,7 +238,7 @@ export const JapCounterPageV2: React.FC = () => {
 
   const handleManualSync = async () => {
     if (!googleToken) {
-      loginWithGoogle();
+      await connectGoogleCalendar();
       return;
     }
     
