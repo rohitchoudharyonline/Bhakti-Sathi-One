@@ -758,9 +758,10 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
         provider: 'google',
         options: {
           redirectTo: redirectUrl,
-          scopes: 'https://www.googleapis.com/auth/calendar.events',
+          scopes: 'openid email profile https://www.googleapis.com/auth/calendar.events',
           queryParams: {
-            prompt: 'select_account',
+            prompt: 'consent',
+            access_type: 'offline',
           },
         },
       });
