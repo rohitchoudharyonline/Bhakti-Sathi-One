@@ -101,6 +101,7 @@ interface TourContextType {
 
   // Traveler Authentication State
   travelerUser: TravelerUserProfile | null;
+  googleToken: string | null;
   setTravelerUser: (user: TravelerUserProfile | null) => void;
   updateTravelerProfile: (updatedData: Partial<TravelerUserProfile>) => void;
   loginWithGoogle: (customAccount?: { name?: string; email?: string; avatar?: string; phone?: string }) => void;
@@ -653,6 +654,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Traveler Auth States
   const [travelerUser, setTravelerUserRaw] = useState<TravelerUserProfile | null>(null);
+  const [googleToken, setGoogleToken] = useState<string | null>(null);
 
   // Synchronize with Supabase Auth session
   useEffect(() => {
@@ -661,8 +663,26 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const { data: { session } } = await supabase.auth.getSession();
         if (session?.user) {
           setTravelerUserRaw(mapSupabaseUserToProfile(session.user));
+          if (session.provider_token) {
+            setGoogleToken(session.provider_token);
+            try {
+              localStorage.setItem('hh_supabase_google_oauth_token', session.provider_token);
+            } catch {}
+          } else {
+            // Check if we have a persisted token in localStorage
+            try {
+              const persisted = localStorage.getItem('hh_supabase_google_oauth_token');
+              if (persisted) {
+                setGoogleToken(persisted);
+              }
+            } catch {}
+          }
         } else {
           setTravelerUserRaw(null);
+          setGoogleToken(null);
+          try {
+            localStorage.removeItem('hh_supabase_google_oauth_token');
+          } catch {}
         }
       } catch (err) {
         console.error('Supabase session initialization error:', err);
@@ -674,8 +694,25 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session?.user) {
         setTravelerUserRaw(mapSupabaseUserToProfile(session.user));
+        if (session.provider_token) {
+          setGoogleToken(session.provider_token);
+          try {
+            localStorage.setItem('hh_supabase_google_oauth_token', session.provider_token);
+          } catch {}
+        } else {
+          try {
+            const persisted = localStorage.getItem('hh_supabase_google_oauth_token');
+            if (persisted) {
+              setGoogleToken(persisted);
+            }
+          } catch {}
+        }
       } else {
         setTravelerUserRaw(null);
+        setGoogleToken(null);
+        try {
+          localStorage.removeItem('hh_supabase_google_oauth_token');
+        } catch {}
       }
     });
 
@@ -721,6 +758,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
         provider: 'google',
         options: {
           redirectTo: redirectUrl,
+          scopes: 'https://www.googleapis.com/auth/calendar.events',
           queryParams: {
             prompt: 'select_account',
           },
@@ -2155,6 +2193,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setRegisteredUsers((prev) => prev.filter((u) => u.id !== id));
         },
         travelerUser,
+        googleToken,
         setTravelerUser,
         updateTravelerProfile,
         loginWithGoogle,

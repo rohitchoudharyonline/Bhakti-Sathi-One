@@ -133,7 +133,26 @@ export const TravelerProfilePage: React.FC = () => {
     navigateToAllTours,
     setIsTravelerAuthModalOpen,
     agencySettings,
+    navigateToJapCounter,
   } = useTours();
+
+  // Load Jap Counter statistics for the profile dashboard card
+  const japStats = useMemo(() => {
+    try {
+      const saved = localStorage.getItem('hh_jap_counter_data_v2');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        const records = Array.isArray(parsed.records) ? parsed.records : [];
+        const todayStr = new Date().toISOString().split('T')[0];
+        const todayRecords = records.filter((r: any) => r.dateStr === todayStr);
+        const todayChants = todayRecords.reduce((sum: number, r: any) => sum + (r.beadCount || 0), 0);
+        const lifetimeChants = records.reduce((sum: number, r: any) => sum + (r.beadCount || 0), 0);
+        const lifetimeMalas = records.reduce((sum: number, r: any) => sum + (r.malasCompleted || 0), 0);
+        return { todayChants, lifetimeChants, lifetimeMalas };
+      }
+    } catch {}
+    return { todayChants: 0, lifetimeChants: 0, lifetimeMalas: 0 };
+  }, []);
 
   // Active Main Navigation Tab
   const [activeTab, setActiveTab] = useState<'trips' | 'payments' | 'cotravelers' | 'wishlist' | 'settings'>('trips');
@@ -663,17 +682,17 @@ export const TravelerProfilePage: React.FC = () => {
                     src={travelerUser.avatar}
                     alt={travelerUser.name}
                     referrerPolicy="no-referrer"
-                    className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover ring-4 ring-orange-50 border-2 border-[#FF4B00]/40 shadow-sm"
+                    className="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover border border-stone-200 shadow-sm"
                   />
                 ) : (
-                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-[#FF4B00] to-orange-600 text-white font-black text-2xl sm:text-3xl flex items-center justify-center shadow-sm">
+                  <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 text-white font-black text-xl sm:text-2xl flex items-center justify-center shadow-sm">
                     {travelerUser.name.charAt(0).toUpperCase()}
                   </div>
                 )}
                 {/* Google or Verified Provider Icon Badge */}
-                <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-white shadow-md border border-stone-200 flex items-center justify-center">
+                <div className="absolute -bottom-0.5 -right-0.5 w-5 h-5 rounded-full bg-white shadow-md border border-stone-100 flex items-center justify-center">
                   {travelerUser.authProvider === 'google' ? (
-                    <svg className="w-3.5 h-3.5" viewBox="0 0 24 24">
+                    <svg className="w-3 h-3" viewBox="0 0 24 24">
                       <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
                       <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
                       <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
@@ -744,7 +763,7 @@ export const TravelerProfilePage: React.FC = () => {
           </div>
 
           {/* Main Profile Navigation as Interactive Cards with Brand Color */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mt-6 pt-5 border-t border-stone-100">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mt-6 pt-5 border-t border-stone-100">
             {/* Card 1: My Trips & Bookings */}
             <button
               type="button"
@@ -869,7 +888,38 @@ export const TravelerProfilePage: React.FC = () => {
               )}
             </button>
 
-            {/* Card 5: Account & Security */}
+            {/* Card 5: Jap Counter */}
+            <button
+              type="button"
+              onClick={navigateToJapCounter}
+              className="p-4 rounded-2xl text-left transition-all duration-200 cursor-pointer flex flex-col justify-between border-2 relative overflow-hidden group bg-stone-50/80 hover:bg-white border-stone-200/90 hover:border-stone-300 hover:shadow-sm"
+            >
+              <div className="flex items-center justify-between w-full mb-2">
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-orange-100 text-brand-orange">
+                  <span className="text-base">📿</span>
+                </div>
+                {japStats.todayChants > 0 ? (
+                  <span className="px-2 py-0.5 rounded-full text-[9px] font-black bg-brand-orange text-white whitespace-nowrap">
+                    Today: {japStats.todayChants}
+                  </span>
+                ) : (
+                  <span className="px-2 py-0.5 rounded-full text-[9px] font-black bg-stone-200 text-stone-600 whitespace-nowrap">
+                    Sadhana
+                  </span>
+                )}
+              </div>
+              <div>
+                <p className="text-xs font-black text-stone-900 flex items-center gap-1">
+                  <span>Jap Counter</span>
+                  <Sparkles className="w-3 h-3 text-amber-500 fill-amber-500 animate-pulse shrink-0" />
+                </p>
+                <p className="text-[11px] font-bold text-stone-500 mt-0.5 whitespace-nowrap overflow-hidden text-ellipsis" title={japStats.lifetimeMalas > 0 ? `${japStats.lifetimeMalas} Malas Done` : 'Mantra chanting tool'}>
+                  {japStats.lifetimeMalas > 0 ? `${japStats.lifetimeMalas} Malas Completed` : 'Mantra chanting tool'}
+                </p>
+              </div>
+            </button>
+
+            {/* Card 6: Account & Security */}
             <button
               type="button"
               onClick={() => setActiveTab('settings')}
@@ -1516,22 +1566,7 @@ export const TravelerProfilePage: React.FC = () => {
                     />
                   </div>
 
-                  <div>
-                    <label className="block text-[11px] font-extrabold text-stone-700 uppercase tracking-wider mb-1">
-                      Diet / Meal Preference
-                    </label>
-                    <select
-                      disabled={!isEditingProfile}
-                      value={profileForm.dietPreference || 'Vegetarian'}
-                      onChange={(e) => setProfileForm({ ...profileForm, dietPreference: e.target.value })}
-                      className="w-full px-3.5 py-2.5 text-xs font-bold rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#FF4B00]/40 disabled:bg-stone-50 disabled:text-stone-600"
-                    >
-                      <option value="Vegetarian">Vegetarian</option>
-                      <option value="Jain Food">Jain Food (No Onion/Garlic)</option>
-                      <option value="Non-Vegetarian">Non-Vegetarian</option>
-                      <option value="Vegan">Vegan</option>
-                    </select>
-                  </div>
+
 
                   <div>
                     <label className="block text-[11px] font-extrabold text-stone-700 uppercase tracking-wider mb-1">
