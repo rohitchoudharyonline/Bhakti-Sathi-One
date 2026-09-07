@@ -469,7 +469,7 @@ export const TravelerProfilePage: React.FC = () => {
   // VIEW: GUEST / NOT LOGGED IN STATE
   // -------------------------------------------------------------
   if (!travelerUser) {
-    const handleGuestGoogleAuth = () => {
+    const handleGuestGoogleAuth = async () => {
       const rateCheck = authRateLimiter.checkAllowed();
       if (!rateCheck.allowed) {
         setGuestAuthError(rateCheck.reason || 'Please wait before trying again.');
@@ -478,14 +478,13 @@ export const TravelerProfilePage: React.FC = () => {
       setGuestAuthError('');
       setGuestAuthLoading(true);
 
-      setTimeout(() => {
-        loginWithGoogle({
-          email: 'care@mybhaktisathi.com',
-          name: 'Bhakti Sathi',
-          avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80',
-        });
+      try {
+        await loginWithGoogle();
+      } catch (err: any) {
+        setGuestAuthError(err?.message || 'Failed to authenticate with Google. Please try again.');
+      } finally {
         setGuestAuthLoading(false);
-      }, 400);
+      }
     };
 
     return (

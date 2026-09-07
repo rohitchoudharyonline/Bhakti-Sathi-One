@@ -27,6 +27,7 @@ import { DESTINATIONS_REGISTRY, DestinationMeta } from '../data/destinationsData
 import { DEFAULT_BLOG_POSTS, DEFAULT_BLOG_CATEGORIES } from '../data/defaultBlogData';
 import { DEFAULT_CUSTOM_PAGES } from '../data/defaultPagesData';
 import { DEFAULT_PUSH_NOTIFICATIONS, DEFAULT_PUSH_SUBSCRIBERS, DEFAULT_PUSH_SETTINGS } from '../data/defaultPushData';
+import { supabase } from '../utils/supabaseClient';
 
 export interface SystemSearchParams {
   destinationSlug?: string;
@@ -616,110 +617,28 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [activeInfoPage, setActiveInfoPageRaw] = useState<string | null>(null);
   const [isJapCounterOpen, setIsJapCounterOpen] = useState<boolean>(false);
 
-  // Traveler Auth States
-  const [travelerUser, setTravelerUserRaw] = useState<TravelerUserProfile | null>(() => {
-    try {
-      const saved = localStorage.getItem('hh_traveler_user_v2') || localStorage.getItem('hh_traveler_user_v1');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (parsed && parsed.email) {
-          return {
-            name: parsed.name || 'Traveler Guest',
-            email: parsed.email,
-            phone: parsed.phone || '+91 94199 15255',
-            avatar: parsed.avatar || (parsed.email.includes('google') || parsed.email.includes('gmail') ? 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80' : undefined),
-            city: parsed.city || 'New Delhi',
-            state: parsed.state || 'Delhi',
-            country: parsed.country || 'India',
-            passportNo: parsed.passportNo || '',
-            idType: parsed.idType || 'Aadhaar Card',
-            idNumber: parsed.idNumber || '',
-            dietPreference: parsed.dietPreference || 'Vegetarian',
-            roomPreference: parsed.roomPreference || 'Mountain View / King Bed',
-            emergencyContact: parsed.emergencyContact || '',
-            authProvider: parsed.authProvider || (parsed.email.includes('gmail') ? 'google' : 'email'),
-            memberTier: parsed.memberTier || 'Bhakti Sathi Elite',
-            memberSince: parsed.memberSince || 'August 2026',
-            rewardCoins: parsed.rewardCoins !== undefined ? parsed.rewardCoins : 2500,
-            coTravelers: parsed.coTravelers || [
-              {
-                id: 'cotrav-01',
-                fullName: 'Priya Sharma',
-                relationship: 'Spouse',
-                gender: 'Female',
-                age: 29,
-                idNumber: 'XXXX-XXXX-4819',
-              }
-            ],
-          };
-        }
-      }
-    } catch {}
-    return null;
-  });
-
-  const setTravelerUser = (user: TravelerUserProfile | null) => {
-    if (user) {
-      const enriched: TravelerUserProfile = {
-        name: user.name || 'Traveler',
-        email: user.email,
-        phone: user.phone || '+91 94199 15255',
-        avatar: user.avatar,
-        city: user.city || 'New Delhi',
-        state: user.state || 'Delhi',
-        country: user.country || 'India',
-        passportNo: user.passportNo || '',
-        idType: user.idType || 'Aadhaar Card',
-        idNumber: user.idNumber || '',
-        dietPreference: user.dietPreference || 'Vegetarian',
-        roomPreference: user.roomPreference || 'Mountain View / King Bed',
-        emergencyContact: user.emergencyContact || '',
-        authProvider: user.authProvider || (user.email.toLowerCase().includes('gmail') ? 'google' : 'email'),
-        memberTier: user.memberTier || 'Bhakti Sathi Elite',
-        memberSince: user.memberSince || 'August 2026',
-        rewardCoins: user.rewardCoins !== undefined ? user.rewardCoins : 2500,
-        coTravelers: user.coTravelers || [],
-      };
-      setTravelerUserRaw(enriched);
-      localStorage.setItem('hh_traveler_user_v2', JSON.stringify(enriched));
-      localStorage.setItem('hh_traveler_user_v1', JSON.stringify({ name: enriched.name, email: enriched.email }));
-    } else {
-      setTravelerUserRaw(null);
-      localStorage.removeItem('hh_traveler_user_v2');
-      localStorage.removeItem('hh_traveler_user_v1');
-    }
-  };
-
-  const updateTravelerProfile = (updatedData: Partial<TravelerUserProfile>) => {
-    if (!travelerUser) return;
-    const merged: TravelerUserProfile = {
-      ...travelerUser,
-      ...updatedData,
-    };
-    setTravelerUser(merged);
-  };
-
-  const loginWithGoogle = (customAccount?: { name?: string; email?: string; avatar?: string; phone?: string }) => {
-    const email = customAccount?.email || 'care@mybhaktisathi.com';
-    const name = customAccount?.name || (email === 'care@mybhaktisathi.com' ? 'Bhakti Sathi VIP' : email.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, l => l.toUpperCase()));
-    const avatar = customAccount?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80';
-    
-    const newUser: TravelerUserProfile = {
-      name,
-      email,
-      phone: customAccount?.phone || '+91 94199 15255',
-      avatar,
-      city: 'Srinagar / New Delhi',
-      state: 'Jammu & Kashmir',
-      country: 'India',
+  // Map Supabase user metadata to TravelerUserProfile
+  const mapSupabaseUserToProfile = (user: any): TravelerUserProfile => {
+    const metadata = user.user_metadata || {};
+    return {
+      name: metadata.name || metadata.full_name || user.email?.split('@')[0] || 'Traveler Guest',
+      email: user.email || '',
+      phone: metadata.phone || user.phone || '+91 94199 15255',
+      avatar: metadata.avatar_url || metadata.picture || undefined,
+      city: metadata.city || 'New Delhi',
+      state: metadata.state || 'Delhi',
+      country: metadata.country || 'India',
+      passportNo: metadata.passportNo || '',
+      idType: metadata.idType || 'Aadhaar Card',
+      idNumber: metadata.idNumber || '',
+      dietPreference: metadata.dietPreference || 'Vegetarian',
+      roomPreference: metadata.roomPreference || 'Mountain View / King Bed',
+      emergencyContact: metadata.emergencyContact || '',
       authProvider: 'google',
-      memberTier: 'Bhakti Sathi Elite',
-      memberSince: 'August 2026',
-      rewardCoins: 3500,
-      dietPreference: 'Vegetarian',
-      roomPreference: 'Luxury Houseboat / Mountain View',
-      idType: 'Passport / Aadhaar',
-      coTravelers: [
+      memberTier: metadata.memberTier || 'Bhakti Sathi Elite',
+      memberSince: new Date(user.created_at || Date.now()).toLocaleDateString('en-IN', { month: 'long', year: 'numeric' }),
+      rewardCoins: metadata.rewardCoins !== undefined ? metadata.rewardCoins : 2500,
+      coTravelers: metadata.coTravelers || [
         {
           id: 'cotrav-01',
           fullName: 'Priya Sharma',
@@ -728,15 +647,93 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
           age: 29,
           idNumber: 'XXXX-XXXX-4819',
         }
-      ]
+      ],
     };
-    setTravelerUser(newUser);
-    setIsTravelerAuthModalOpen(false);
   };
 
-  const logoutTraveler = () => {
-    setTravelerUser(null);
+  // Traveler Auth States
+  const [travelerUser, setTravelerUserRaw] = useState<TravelerUserProfile | null>(null);
+
+  // Synchronize with Supabase Auth session
+  useEffect(() => {
+    const initAuth = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+          setTravelerUserRaw(mapSupabaseUserToProfile(session.user));
+        } else {
+          setTravelerUserRaw(null);
+        }
+      } catch (err) {
+        console.error('Supabase session initialization error:', err);
+      }
+    };
+
+    initAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        setTravelerUserRaw(mapSupabaseUserToProfile(session.user));
+      } else {
+        setTravelerUserRaw(null);
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  const setTravelerUser = (user: TravelerUserProfile | null) => {
+    setTravelerUserRaw(user);
+  };
+
+  const updateTravelerProfile = async (updatedData: Partial<TravelerUserProfile>) => {
+    if (!travelerUser) return;
+    const merged: TravelerUserProfile = {
+      ...travelerUser,
+      ...updatedData,
+    };
+    setTravelerUserRaw(merged);
+
+    try {
+      await supabase.auth.updateUser({
+        data: updatedData,
+      });
+    } catch (err) {
+      console.error('Failed to update Supabase user metadata:', err);
+    }
+  };
+
+  const loginWithGoogle = async (customAccount?: { name?: string; email?: string; avatar?: string; phone?: string }) => {
+    try {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: window.location.origin + '/profile',
+        },
+      });
+      if (error) {
+        console.error('Supabase OAuth Error:', error.message);
+        throw error;
+      }
+    } catch (err) {
+      console.error('Failed to initiate Google Sign-In with Supabase:', err);
+      throw err;
+    }
+  };
+
+  const logoutTraveler = async () => {
+    try {
+      await supabase.auth.signOut();
+    } catch (err) {
+      console.error('Failed to sign out from Supabase:', err);
+    }
+    setTravelerUserRaw(null);
     setIsTravelerProfileOpen(false);
+    if (typeof window !== 'undefined' && window.history.pushState) {
+      window.history.pushState({}, '', '/');
+    }
   };
 
   const [isTravelerAuthModalOpen, setIsTravelerAuthModalOpen] = useState<boolean>(false);
