@@ -1,0 +1,8 @@
+{
+  "name": "Bhakti Sathi",
+  "description": "Bhakti Sathi — India's Premier Sacred Pilgrimage & Yatra Tour Packages across Mata Vaishno Devi, Himachal Devi Darshan, Varanasi, Ayodhya, Chardham Yatra, Mathura Vrindavan, Dwarka Somnath, Kali Mata Kolkata, Golden Temple Amritsar, and Tirupati Balaji.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

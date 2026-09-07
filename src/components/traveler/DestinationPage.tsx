@@ -1,0 +1,810 @@
+import React, { useState, useMemo } from 'react';
+import {
+  ArrowLeft,
+  Calendar,
+  Check,
+  ChevronRight,
+  Clock,
+  Compass,
+  Heart,
+  Hotel,
+  Info,
+  MapPin,
+  MessageCircle,
+  Phone,
+  Plane,
+  ShieldCheck,
+  Sparkles,
+  Star,
+  Train,
+  Users,
+  Utensils,
+  X,
+  Car,
+  Filter,
+  ArrowRight,
+  Tag,
+  CheckCircle2,
+  Share2,
+  Compass as SightseeingIcon,
+  Ticket,
+} from 'lucide-react';
+import { useTours } from '../../context/TourContext';
+import { DESTINATIONS_REGISTRY, matchPackageToDestination } from '../../data/destinationsData';
+import { TourPackage } from '../../types/tour';
+import { InquiryModal } from './InquiryModal';
+import { formatPackagePrice } from '../../utils/priceHelper';
+import { FreeTravelInsuranceCard } from './FreeTravelInsuranceCard';
+import { Footer } from './Footer';
+import { isValidEmail } from '../../utils/validation';
+import { EmailVerificationInput } from '../common/EmailVerificationInput';
+
+export const DestinationPage: React.FC = () => {
+  const {
+    selectedDestinationSlug,
+    navigateToHome,
+    navigateToPackage,
+    packages,
+    agencySettings,
+    toggleWishlist,
+    isWishlisted,
+    submitInquiry,
+  } = useTours();
+
+  const currentSlug = selectedDestinationSlug || 'kashmir';
+  const destinationMeta =
+    DESTINATIONS_REGISTRY[currentSlug] ||
+    DESTINATIONS_REGISTRY['kashmir'] ||
+    DESTINATIONS_REGISTRY['jammu'];
+
+  // Active view: Packages or Destination Guide
+  const [activeTab, setActiveTab] = useState<'packages' | 'guide'>('packages');
+
+  // Filters
+  const [selectedDuration, setSelectedDuration] = useState<'all' | 'short' | 'medium' | 'long'>('all');
+  const [sortBy, setSortBy] = useState<'recommended' | 'price_low' | 'price_high' | 'rating'>('recommended');
+
+  // Active pricing tier per package card: { [packageId]: 'star2' | 'star3' | 'star4' | 'star5' }
+  const [selectedTiers, setSelectedTiers] = useState<Record<string, string>>({});
+
+  // Custom Lead Modal
+  const [inquiryPackage, setInquiryPackage] = useState<TourPackage | null>(null);
+  const [isCustomLeadOpen, setIsCustomLeadOpen] = useState(false);
+  const [leadName, setLeadName] = useState('');
+  const [leadEmail, setLeadEmail] = useState('');
+  const [leadPhone, setLeadPhone] = useState('');
+  const [leadTravelDate, setLeadTravelDate] = useState('');
+  const [leadGuests, setLeadGuests] = useState('2 Adults');
+  const [leadHotelPref, setLeadHotelPref] = useState('3_star');
+  const [leadSuccess, setLeadSuccess] = useState(false);
+
+  // Filter packages specifically for this destination
+  const destinationPackages = useMemo(() => {
+    return packages.filter((pkg) => {
+      if (pkg.status && pkg.status !== 'published') return false;
+      return matchPackageToDestination(pkg, currentSlug);
+    });
+  }, [packages, currentSlug]);
+
+  // Apply filters and sorting
+  const filteredPackages = useMemo(() => {
+    let result = destinationPackages.filter((pkg) => {
+      if (selectedDuration === 'short' && (pkg.durationDays || 0) > 4) return false;
+      if (selectedDuration === 'medium' && ((pkg.durationDays || 0) < 5 || (pkg.durationDays || 0) > 7)) return false;
+      if (selectedDuration === 'long' && (pkg.durationDays || 0) < 8) return false;
+      return true;
+    });
+
+    result.sort((a, b) => {
+      const priceA = a.discountedPrice ?? a.price;
+      const priceB = b.discountedPrice ?? b.price;
+      if (sortBy === 'price_low') return priceA - priceB;
+      if (sortBy === 'price_high') return priceB - priceA;
+      if (sortBy === 'rating') return (b.rating || 0) - (a.rating || 0);
+      return 0;
+    });
+
+    return result;
+  }, [destinationPackages, selectedDuration, sortBy]);
+
+  const isLeadFormValid = Boolean(
+    leadName.trim() &&
+    leadPhone.trim() &&
+    isValidEmail(leadEmail)
+  );
+
+  const handleCustomLeadSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!leadName.trim() || !leadPhone.trim() || !isValidEmail(leadEmail)) return;
+
+    submitInquiry({
+      travelerName: leadName,
+      phone: leadPhone,
+      email: leadEmail.trim().toLowerCase(),
+      packageTitle: `Custom ${destinationMeta.name} Tour (${leadHotelPref.replace('_', ' ').toUpperCase()})`,
+      travelDate: leadTravelDate || 'Flexible',
+      adults: 2,
+      children: 0,
+      specialRequests: `Custom inquiry for ${destinationMeta.name}. Guests: ${leadGuests}. Preferred Hotel: ${leadHotelPref}`,
+      estimatedTotal: destinationMeta.startingPrice * 2,
+    });
+
+    setLeadSuccess(true);
+    setTimeout(() => {
+      setLeadSuccess(false);
+      setIsCustomLeadOpen(false);
+      setLeadName('');
+      setLeadEmail('');
+      setLeadPhone('');
+      setLeadTravelDate('');
+    }, 2000);
+  };
+
+  const handleWhatsAppInquiry = (pkgTitle?: string, currentTierLabel?: string, currentPriceVal?: number) => {
+    const rawPhone = agencySettings.whatsappConciergeNumber || agencySettings.primaryPhone || '+919419915255';
+    const cleanPhone = rawPhone.replace(/[^0-9]/g, '');
+    const priceText = currentPriceVal ? ` (Approx ₹${currentPriceVal.toLocaleString('en-IN')}/person)` : '';
+    const tierText = currentTierLabel ? ` [${currentTierLabel}]` : '';
+    const message = encodeURIComponent(
+      `Hello Bhakti Sathi! I am interested in booking "${pkgTitle || `${destinationMeta.name} Tour Package`}"${tierText}${priceText}. Please share the detailed itinerary and customized quotation.`
+    );
+    window.open(`https://wa.me/${cleanPhone}?text=${message}`, '_blank');
+  };
+
+  return (
+    <div className="min-h-screen bg-stone-100/70 text-stone-900 flex flex-col font-sans">
+      {/* 1. CLEAN TOP NAVBAR */}
+      <header className="sticky top-0 z-40 bg-white border-b border-stone-200 shadow-2xs">
+        {/* 2px Orange Brand Color Line at Top of Header */}
+        <div className="h-[2px] w-full bg-[#FF4B00]" />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={navigateToHome}
+              className="flex items-center gap-1.5 text-xs font-bold text-stone-700 hover:text-stone-900 bg-stone-100 hover:bg-stone-200/70 px-3 py-1.5 rounded-full transition cursor-pointer"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>Home</span>
+            </button>
+
+            <span className="text-sm font-black text-stone-900 tracking-tight">
+              {destinationMeta.name} Yatra & Tours
+            </span>
+          </div>
+
+          {/* Quick Contact */}
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => handleWhatsAppInquiry()}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition shadow-2xs cursor-pointer"
+            >
+              <MessageCircle className="w-3.5 h-3.5" />
+              <span className="hidden md:inline">WhatsApp</span>
+            </button>
+
+            <a
+              href={`tel:${agencySettings.primaryPhone || '+919419915255'}`}
+              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-stone-900 hover:bg-stone-800 text-white text-xs font-bold transition shadow-2xs"
+            >
+              <Phone className="w-3.5 h-3.5" />
+              <span>Call</span>
+            </a>
+          </div>
+        </div>
+      </header>
+
+      {/* 2. CLEARTRIP STYLE CLEAN DESTINATION HEADER */}
+      <section className="bg-white border-b border-stone-200 py-5 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          {/* Breadcrumb */}
+          <div className="flex items-center gap-1.5 text-xs text-stone-500 mb-1.5 font-medium">
+            <button type="button" onClick={navigateToHome} className="hover:text-stone-900 transition">
+              Home
+            </button>
+            <ChevronRight className="w-3.5 h-3.5 text-stone-400" />
+            <span>Destinations</span>
+            <ChevronRight className="w-3.5 h-3.5 text-stone-400" />
+            <span className="text-stone-900 font-bold">{destinationMeta.name}</span>
+          </div>
+
+          {/* Title & Stats */}
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+            <div>
+              <div className="flex items-center gap-2 mb-0.5">
+                <h1 className="text-xl sm:text-2xl font-black text-stone-900 tracking-tight">
+                  {destinationMeta.name} Tour Packages
+                </h1>
+                <span
+                  className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-md ${
+                    destinationMeta.state === 'International'
+                      ? 'bg-stone-100 text-stone-800 border border-stone-200'
+                      : 'bg-stone-100 text-stone-900 border border-stone-200'
+                  }`}
+                >
+                  {destinationMeta.state === 'International' ? 'International' : 'Domestic'}
+                </span>
+              </div>
+              <p className="text-xs text-stone-600 font-medium">
+                {destinationPackages.length} curated itineraries with verified hotels, private cabs & 24/7 support.
+              </p>
+            </div>
+
+            {/* Custom Quote Button */}
+            <div className="flex items-center gap-2.5 shrink-0">
+              <button
+                type="button"
+                onClick={() => setIsCustomLeadOpen(true)}
+                className="px-3.5 py-1.5 rounded-xl bg-stone-900 hover:bg-stone-800 text-white text-xs font-bold transition shadow-2xs cursor-pointer"
+              >
+                Custom Plan
+              </button>
+              <button
+                type="button"
+                onClick={() => handleWhatsAppInquiry()}
+                className="px-3.5 py-1.5 rounded-xl bg-stone-900 hover:bg-black text-white text-xs font-bold transition shadow-2xs cursor-pointer"
+              >
+                Get Best Deal
+              </button>
+            </div>
+          </div>
+
+          {/* Tab Switcher: Packages vs Travel Guide */}
+          <div className="flex items-center gap-4 mt-4 border-b border-stone-200">
+            <button
+              type="button"
+              onClick={() => setActiveTab('packages')}
+              className={`pb-2.5 text-xs sm:text-sm font-black transition relative cursor-pointer ${
+                activeTab === 'packages' ? 'text-[#FF4B00]' : 'text-stone-500 hover:text-stone-800'
+              }`}
+            >
+              Tour Packages ({destinationPackages.length})
+              {activeTab === 'packages' && <span className="absolute bottom-0 inset-x-0 h-0.5 bg-[#FF4B00]" />}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveTab('guide')}
+              className={`pb-2.5 text-xs sm:text-sm font-black transition relative cursor-pointer ${
+                activeTab === 'guide' ? 'text-[#FF4B00]' : 'text-stone-500 hover:text-stone-800'
+              }`}
+            >
+              Travel Guide & FAQs
+              {activeTab === 'guide' && <span className="absolute bottom-0 inset-x-0 h-0.5 bg-[#FF4B00]" />}
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* 3. MAIN CONTENT AREA */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex-1 w-full">
+        {activeTab === 'packages' ? (
+          <div>
+            {/* Filter & Sort Bar */}
+            <div className="bg-white rounded-xl border border-stone-200 p-2.5 sm:p-3 mb-4 shadow-2xs flex flex-wrap items-center justify-between gap-2.5">
+              {/* Duration Pills */}
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <span className="text-xs font-bold text-stone-500 mr-1">Duration:</span>
+                {[
+                  { id: 'all', label: 'All' },
+                  { id: 'short', label: '3-4 Days' },
+                  { id: 'medium', label: '5-7 Days' },
+                  { id: 'long', label: '8+ Days' },
+                ].map((dur) => (
+                  <button
+                    key={dur.id}
+                    type="button"
+                    onClick={() => setSelectedDuration(dur.id as any)}
+                    className={`px-3 py-1 rounded-full text-xs font-bold transition cursor-pointer ${
+                      selectedDuration === dur.id
+                        ? 'bg-[#FF4B00] text-white shadow-2xs'
+                        : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
+                    }`}
+                  >
+                    {dur.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Sort By Dropdown */}
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs font-bold text-stone-500">Sort:</span>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as any)}
+                  aria-label="Sort packages by"
+                  className="text-xs font-bold text-stone-900 bg-stone-50 border border-stone-200 rounded-lg px-2 py-1 outline-none focus:border-stone-900 cursor-pointer"
+                >
+                  <option value="recommended">Recommended</option>
+                  <option value="price_low">Price: Low to High</option>
+                  <option value="price_high">Price: High to Low</option>
+                  <option value="rating">Top Rated</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Packages List */}
+            {filteredPackages.length === 0 ? (
+              <div className="bg-white border border-stone-200 rounded-2xl p-10 text-center shadow-2xs">
+                <Compass className="w-10 h-10 text-stone-300 mx-auto mb-2" />
+                <h3 className="text-base font-black text-stone-900">No packages match the selected duration</h3>
+                <p className="text-xs text-stone-500 max-w-md mx-auto mt-1">
+                  Try selecting "All" or request a customized itinerary tailored specifically to your dates.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setIsCustomLeadOpen(true)}
+                  className="mt-3 px-4 py-2 rounded-xl bg-stone-900 text-white text-xs font-bold cursor-pointer hover:bg-black transition"
+                >
+                  Request Custom Itinerary
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {filteredPackages.map((pkg) => {
+                  const tiers = pkg.pricingTiers;
+                  const currentTierKey = selectedTiers[pkg.id] || 'star3';
+
+                  // Compute price based on chosen tier
+                  let rawPrice = pkg.price;
+                  let rawDiscounted = pkg.discountedPrice;
+                  let isTierOnRequest = pkg.priceOnRequest;
+
+                  if (tiers) {
+                    const activeTierObj = tiers[currentTierKey as keyof typeof tiers];
+                    if (activeTierObj) {
+                      rawPrice = activeTierObj.price;
+                      rawDiscounted = activeTierObj.discountedPrice;
+                      if (activeTierObj.priceOnRequest) isTierOnRequest = true;
+                    }
+                  }
+
+                  const priceResult = formatPackagePrice(
+                    rawPrice,
+                    rawDiscounted,
+                    agencySettings.currencySymbol || '₹',
+                    isTierOnRequest
+                  );
+
+                  const isHeliPackage = pkg.title.toLowerCase().includes('helicopter') || pkg.slug.includes('helicopter');
+
+                  return (
+                    <article
+                      key={pkg.id}
+                      className="bg-white rounded-2xl border border-stone-200/90 hover:border-stone-300 overflow-hidden shadow-2xs hover:shadow-md transition-all duration-200 flex flex-col md:flex-row"
+                    >
+                      {/* ================= 1. LEFT: MEDIA BANNER ================= */}
+                      <div
+                        className="md:w-64 lg:w-72 h-44 sm:h-48 md:h-auto shrink-0 relative overflow-hidden bg-stone-100 cursor-pointer"
+                        onClick={() => navigateToPackage(pkg.id)}
+                      >
+                        <img
+                          src={pkg.coverImage}
+                          alt={pkg.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          loading="lazy"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-stone-950/75 via-stone-950/20 to-transparent pointer-events-none" />
+
+                        {/* Top Badges */}
+                        <div className="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between pointer-events-auto">
+                          <div className="flex items-center gap-1">
+                            {isHeliPackage ? (
+                              <span className="px-2 py-0.5 rounded-md bg-stone-900 text-white text-[10px] font-black uppercase tracking-wider shadow-2xs">
+                                VIP Helicopter
+                              </span>
+                            ) : (
+                              <span className="px-2 py-0.5 rounded-md bg-stone-900/85 backdrop-blur-md text-white text-[10px] font-black uppercase tracking-wider shadow-2xs">
+                                {pkg.badge || pkg.category || 'Featured'}
+                              </span>
+                            )}
+                          </div>
+
+                          {/* Wishlist Button */}
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleWishlist(pkg.id);
+                            }}
+                            className={`w-7 h-7 rounded-full grid place-items-center backdrop-blur-md transition cursor-pointer ${
+                              isWishlisted(pkg.id)
+                                ? 'bg-stone-900 text-white'
+                                : 'bg-white/90 text-stone-700 hover:bg-white'
+                            }`}
+                            title={isWishlisted(pkg.id) ? 'Remove from Saved' : 'Save to Wishlist'}
+                          >
+                            <Heart className={`w-3.5 h-3.5 ${isWishlisted(pkg.id) ? 'fill-white text-white' : 'text-stone-700'}`} />
+                          </button>
+                        </div>
+
+                        {/* Bottom Overlay: Duration & Star Rating */}
+                        <div className="absolute bottom-2.5 left-2.5 right-2.5 flex items-center justify-between text-white pointer-events-none">
+                          <div className="flex items-center gap-1 text-[11px] font-black bg-stone-950/75 backdrop-blur-md px-2 py-0.5 rounded-md">
+                            <Clock className="w-3 h-3 text-stone-300" />
+                            <span>{pkg.durationDays}D / {pkg.durationNights}N</span>
+                          </div>
+
+                          <div className="flex items-center gap-1 text-[11px] font-black bg-amber-400 text-stone-950 px-1.5 py-0.5 rounded-md shadow-2xs">
+                            <Star className="w-3 h-3 fill-stone-950 text-stone-950" />
+                            <span>{pkg.rating?.toFixed(1) || '4.9'}</span>
+                            <span className="text-[9px] font-bold text-stone-800">({pkg.reviewCount || 120})</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* ================= 2. MIDDLE: CLEAN DETAILS & INCLUSIONS ICONS ================= */}
+                      <div className="flex-1 p-4 sm:p-5 flex flex-col justify-between">
+                        <div>
+                          {/* Breadcrumb indicator */}
+                          <div className="flex items-center gap-1.5 text-[10px] font-bold text-stone-900 uppercase tracking-wider mb-1">
+                            <MapPin className="w-3 h-3" />
+                            <span>{pkg.destinationTag?.toUpperCase() || destinationMeta.name} • {pkg.category}</span>
+                          </div>
+
+                          {/* Tour Title */}
+                          <h2
+                            onClick={() => navigateToPackage(pkg.id)}
+                            className="text-base sm:text-lg font-black text-stone-900 hover:text-stone-600 transition cursor-pointer leading-snug"
+                          >
+                            {pkg.title}
+                          </h2>
+
+                          {/* Tagline */}
+                          <p className="text-xs text-stone-500 mt-1 line-clamp-2 leading-relaxed">
+                            {pkg.tagline || pkg.overview}
+                          </p>
+
+                          {/* Clean Icons for Inclusions (No bulky itinerary) */}
+                          <div className="mt-3 pt-3 border-t border-stone-100 flex items-center flex-wrap gap-2 text-xs font-bold text-stone-700">
+                            <div className="flex items-center gap-1.5 bg-stone-50 hover:bg-stone-100 px-2.5 py-1 rounded-lg border border-stone-200/70" title="Hotel stay included">
+                              <Hotel className="w-3.5 h-3.5 text-stone-900" />
+                              <span>Hotel Stay</span>
+                            </div>
+                            <div className="flex items-center gap-1.5 bg-stone-50 hover:bg-stone-100 px-2.5 py-1 rounded-lg border border-stone-200/70" title="Private dedicated transport">
+                              <Car className="w-3.5 h-3.5 text-stone-900" />
+                              <span>Private Cab</span>
+                            </div>
+                            <div className="flex items-center gap-1.5 bg-stone-50 hover:bg-stone-100 px-2.5 py-1 rounded-lg border border-stone-200/70" title="Meals included">
+                              <Utensils className="w-3.5 h-3.5 text-emerald-600" />
+                              <span>Daily Meals</span>
+                            </div>
+                            <div className="flex items-center gap-1.5 bg-stone-50 hover:bg-stone-100 px-2.5 py-1 rounded-lg border border-stone-200/70" title="Guided sightseeing">
+                              <SightseeingIcon className="w-3.5 h-3.5 text-blue-600" />
+                              <span>Sightseeing</span>
+                            </div>
+                            {isHeliPackage && (
+                              <div className="flex items-center gap-1.5 bg-stone-100 px-2.5 py-1 rounded-lg border border-stone-200 text-stone-900" title="Helicopter tickets included">
+                                <Sparkles className="w-3.5 h-3.5 text-stone-900" />
+                                <span>Helicopter Tickets</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Hotel Tier Pills (Compact) */}
+                        {tiers && (
+                          <div className="mt-3 pt-2.5 border-t border-stone-100 flex items-center gap-2 overflow-x-auto no-scrollbar">
+                            <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider shrink-0">
+                              Hotel Tier:
+                            </span>
+                            <div className="flex items-center gap-1 shrink-0">
+                              {[
+                                { key: 'star3', label: '3★ Deluxe' },
+                                { key: 'star4', label: '4★ Premium' },
+                                { key: 'star5', label: '5★ Luxury' },
+                              ]
+                                .filter((t) => !!(tiers as any)[t.key])
+                                .map((tier) => {
+                                  const isSelected = currentTierKey === tier.key;
+                                  return (
+                                    <button
+                                      key={tier.key}
+                                      type="button"
+                                      onClick={() => setSelectedTiers({ ...selectedTiers, [pkg.id]: tier.key })}
+                                      className={`px-2 py-0.5 rounded-md text-[11px] font-bold transition cursor-pointer ${
+                                        isSelected
+                                          ? 'bg-stone-900 text-white shadow-2xs'
+                                          : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+                                      }`}
+                                    >
+                                      {tier.label}
+                                    </button>
+                                  );
+                                })}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* ================= 3. RIGHT: PRICING & CALL TO ACTIONS ================= */}
+                      <div className="md:w-56 lg:w-60 p-4 sm:p-5 bg-stone-50/70 border-t md:border-t-0 md:border-l border-stone-200 flex flex-col justify-between shrink-0">
+                        <div>
+                          <span className="text-[10px] font-extrabold text-stone-400 uppercase tracking-wider block">
+                            {priceResult.isPriceOnRequest ? 'Quotation' : 'Starting from'}
+                          </span>
+
+                          <div className="flex items-baseline gap-1.5 mt-0.5">
+                            {priceResult.isPriceOnRequest ? (
+                              <span className="text-base sm:text-lg font-black text-stone-900 tracking-tight">
+                                Price on Request
+                              </span>
+                            ) : (
+                              <>
+                                <span className="text-xl sm:text-2xl font-black text-stone-900 tracking-tight">
+                                  {priceResult.displayPrice}
+                                </span>
+                                {priceResult.originalPrice && (
+                                  <span className="text-xs text-stone-400 line-through font-semibold">
+                                    {priceResult.originalPrice}
+                                  </span>
+                                )}
+                              </>
+                            )}
+                          </div>
+
+                          <div className="flex items-center gap-1.5 mt-0.5">
+                            <span className="text-[10px] text-stone-500 font-medium">
+                              {priceResult.isPriceOnRequest ? 'customized plan' : 'per person'}
+                            </span>
+                            {!priceResult.isPriceOnRequest && priceResult.savingsText && (
+                              <span className="text-[9px] font-black text-emerald-800 bg-emerald-100 border border-emerald-200 px-1 py-0.2 rounded">
+                                {priceResult.savingsText}
+                              </span>
+                            )}
+                          </div>
+
+                          <div className="mt-2 text-[10px] text-stone-500 font-medium flex items-center gap-1">
+                            <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
+                            <span>Taxes & Permits Included</span>
+                          </div>
+
+                          {/* Free Travel Insurance Badge below Price */}
+                          <div className="mt-2.5">
+                            <FreeTravelInsuranceCard variant="compact" />
+                          </div>
+                        </div>
+
+                        {/* CTA Buttons - 50/50 side by side in one single line */}
+                        <div className="grid grid-cols-2 gap-2 mt-3">
+                          <button
+                            type="button"
+                            onClick={() => navigateToPackage(pkg.id)}
+                            className="py-2.5 px-2 rounded-xl bg-[#FF4B00] hover:bg-[#E04200] text-white border border-[#FF4B00] text-xs font-black transition shadow-xs flex items-center justify-center gap-1 cursor-pointer"
+                          >
+                            <span>View Itinerary</span>
+                            <ArrowRight className="w-3.5 h-3.5" />
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() =>
+                              handleWhatsAppInquiry(
+                                pkg.title,
+                                currentTierKey.replace('star', '') + '★',
+                                priceResult.isPriceOnRequest ? undefined : priceResult.rawPrice
+                              )
+                            }
+                            className="py-2.5 px-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
+                          >
+                            <MessageCircle className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                            <span>WhatsApp Quote</span>
+                          </button>
+                        </div>
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        ) : (
+          /* 4. CLEAN DESTINATION GUIDE & FAQS */
+          <div className="space-y-4">
+            {/* Overview Card */}
+            <div className="bg-white rounded-2xl border border-stone-200 p-5 sm:p-6 shadow-2xs">
+              <h2 className="text-lg sm:text-xl font-black text-stone-900 mb-2">
+                About {destinationMeta.name}
+              </h2>
+              <p className="text-stone-700 text-xs sm:text-sm leading-relaxed font-medium">
+                {destinationMeta.guide.overview}
+              </p>
+            </div>
+
+            {/* Quick Travel Facts */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div className="bg-white rounded-xl border border-stone-200 p-3.5 shadow-2xs">
+                <div className="flex items-center gap-1.5 text-[10px] font-bold text-stone-900 uppercase mb-0.5">
+                  <Calendar className="w-3.5 h-3.5" />
+                  <span>Best Time</span>
+                </div>
+                <p className="text-xs font-bold text-stone-900">{destinationMeta.guide.bestTimeToVisit}</p>
+              </div>
+
+              <div className="bg-white rounded-xl border border-stone-200 p-3.5 shadow-2xs">
+                <div className="flex items-center gap-1.5 text-[10px] font-bold text-stone-900 uppercase mb-0.5">
+                  <Clock className="w-3.5 h-3.5" />
+                  <span>Ideal Duration</span>
+                </div>
+                <p className="text-xs font-bold text-stone-900">{destinationMeta.guide.idealDuration}</p>
+              </div>
+
+              <div className="bg-white rounded-xl border border-stone-200 p-3.5 shadow-2xs">
+                <div className="flex items-center gap-1.5 text-[10px] font-bold text-stone-900 uppercase mb-0.5">
+                  <Plane className="w-3.5 h-3.5" />
+                  <span>Airport</span>
+                </div>
+                <p className="text-xs font-bold text-stone-900">{destinationMeta.guide.nearestAirport}</p>
+              </div>
+
+              <div className="bg-white rounded-xl border border-stone-200 p-3.5 shadow-2xs">
+                <div className="flex items-center gap-1.5 text-[10px] font-bold text-stone-900 uppercase mb-0.5">
+                  <Train className="w-3.5 h-3.5" />
+                  <span>Railway</span>
+                </div>
+                <p className="text-xs font-bold text-stone-900">{destinationMeta.guide.nearestRailway}</p>
+              </div>
+            </div>
+
+            {/* Top Attractions */}
+            <div className="bg-white rounded-2xl border border-stone-200 p-5 shadow-2xs">
+              <h3 className="text-base font-black text-stone-900 mb-3">
+                Top Attractions in {destinationMeta.name}
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {destinationMeta.guide.topAttractions.map((attraction, idx) => (
+                  <div key={idx} className="rounded-xl border border-stone-200 overflow-hidden bg-stone-50">
+                    <img
+                      src={attraction.image}
+                      alt={attraction.name}
+                      className="w-full h-32 object-cover"
+                      loading="lazy"
+                    />
+                    <div className="p-2.5">
+                      <h4 className="text-xs font-black text-stone-900">{attraction.name}</h4>
+                      <p className="text-[11px] text-stone-500 mt-0.5 line-clamp-2">{attraction.description}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* FAQs Accordion */}
+            <div className="bg-white rounded-2xl border border-stone-200 p-5 shadow-2xs">
+              <h3 className="text-base font-black text-stone-900 mb-3">
+                Frequently Asked Questions
+              </h3>
+              <div className="space-y-2.5">
+                {destinationMeta.guide.faqs.map((faq, idx) => (
+                  <div key={idx} className="border border-stone-200 rounded-xl p-3.5 bg-stone-50">
+                    <h4 className="text-xs font-bold text-stone-900">{faq.question}</h4>
+                    <p className="text-[11px] text-stone-600 mt-1 font-medium leading-relaxed">{faq.answer}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+      </main>
+
+      {/* 5. CUSTOM TRIP INQUIRY MODAL */}
+      {isCustomLeadOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-950/60 backdrop-blur-xs">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-xl relative animate-in fade-in zoom-in-95 duration-200">
+            <button
+              type="button"
+              onClick={() => setIsCustomLeadOpen(false)}
+              className="absolute top-4 right-4 p-2 text-stone-400 hover:text-stone-700 rounded-full hover:bg-stone-100 transition cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            {leadSuccess ? (
+              <div className="text-center py-6">
+                <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 grid place-items-center mx-auto mb-3">
+                  <Check className="w-6 h-6" />
+                </div>
+                <h3 className="text-lg font-black text-stone-900">Custom Request Received!</h3>
+                <p className="text-xs text-stone-500 mt-1">
+                  Our destination specialist will contact you on WhatsApp / Phone within 15 minutes.
+                </p>
+              </div>
+            ) : (
+              <div>
+                <span className="text-[10px] font-black uppercase text-stone-900 tracking-wider block mb-1">
+                  Tailored Travel
+                </span>
+                <h3 className="text-lg font-black text-stone-900">
+                  Custom {destinationMeta.name} Itinerary
+                </h3>
+                <p className="text-xs text-stone-500 mt-1">
+                  Share your requirements and we will send you a personalized quote with hotels & cabs.
+                </p>
+
+                <form onSubmit={handleCustomLeadSubmit} className="mt-4 space-y-3">
+                  <div>
+                    <label className="text-[11px] font-bold text-stone-600 block mb-1">Your Full Name</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. Rahul Sharma"
+                      value={leadName}
+                      onChange={(e) => setLeadName(e.target.value)}
+                      className="w-full text-xs font-semibold px-3 py-2.5 rounded-xl border border-stone-200 outline-none focus:border-stone-900"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[11px] font-bold text-stone-600 block mb-1">WhatsApp / Phone Number</label>
+                    <input
+                      type="tel"
+                      required
+                      placeholder="+91 98765 43210"
+                      value={leadPhone}
+                      onChange={(e) => setLeadPhone(e.target.value)}
+                      className="w-full text-xs font-semibold px-3 py-2.5 rounded-xl border border-stone-200 outline-none focus:border-stone-900"
+                    />
+                  </div>
+
+                  <EmailVerificationInput
+                    id="destination-lead-email"
+                    value={leadEmail}
+                    onChange={(val) => setLeadEmail(val)}
+                    label="Email Address (Verification Step)"
+                    placeholder="e.g. yourname@gmail.com"
+                    required
+                    helperText="Required to enable quote submission and sync quotes to your traveler profile."
+                    inputClassName="px-3 py-2.5 rounded-xl border border-stone-200"
+                  />
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="text-[11px] font-bold text-stone-600 block mb-1">Tentative Date</label>
+                      <input
+                        type="date"
+                        value={leadTravelDate}
+                        onChange={(e) => setLeadTravelDate(e.target.value)}
+                        className="w-full text-xs font-semibold px-2.5 py-2 rounded-xl border border-stone-200 outline-none focus:border-stone-900"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[11px] font-bold text-stone-600 block mb-1">Hotel Category</label>
+                      <select
+                        value={leadHotelPref}
+                        onChange={(e) => setLeadHotelPref(e.target.value)}
+                        className="w-full text-xs font-semibold px-2.5 py-2 rounded-xl border border-stone-200 outline-none focus:border-stone-900"
+                      >
+                        <option value="3_star">3★ Deluxe</option>
+                        <option value="4_star">4★ Super Dlx</option>
+                        <option value="5_star">5★ Luxury</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <button
+                      type="submit"
+                      disabled={!isLeadFormValid}
+                      className="w-full py-3 rounded-xl bg-stone-900 hover:bg-black disabled:bg-stone-300 disabled:cursor-not-allowed disabled:hover:bg-stone-300 text-white text-xs font-black transition shadow-2xs mt-2 cursor-pointer"
+                    >
+                      Request Free Custom Quote
+                    </button>
+                    {!isValidEmail(leadEmail) && (
+                      <p className="text-[10px] text-center text-stone-500 mt-1.5 font-medium">
+                        * Enter a correctly formatted email address above to enable the submission button.
+                      </p>
+                    )}
+                  </div>
+                </form>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Footer */}
+      <Footer />
+    </div>
+  );
+};
