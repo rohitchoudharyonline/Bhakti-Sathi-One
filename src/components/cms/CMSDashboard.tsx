@@ -738,7 +738,7 @@ export const CMSDashboard: React.FC = () => {
         {/* TAB 4: CUSTOM PAGES CMS */}
         {activeCmsTab === 'pages' && canAccess('pages') && <CustomPagesManager />}
 
-        {/* TAB 5: CLOUDFLARE R2 & SUPABASE MEDIA STUDIO */}
+        {/* TAB 5: CLOUDFLARE R2 & D1 MEDIA STUDIO */}
         {activeCmsTab === 'media' && canAccess('media') && <MediaR2StorageManager />}
 
         {/* TAB 5.5: PUSH NOTIFICATIONS BROADCAST CENTER */}

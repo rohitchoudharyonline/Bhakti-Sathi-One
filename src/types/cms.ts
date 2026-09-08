@@ -72,10 +72,10 @@ export interface MediaAsset {
   name: string;
   fileName: string;
   fileType: 'png' | 'jpg' | 'jpeg' | 'webp' | 'gif' | 'svg';
-  url: string; // R2 CDN / Supabase URL
+  url: string; // R2 CDN / Cloudflare D1 URL
   dataUrl?: string; // Local preview data url
   storagePath: string; // e.g. "uploads/2026/08/kashmir-snow.webp"
-  storageProvider: 'cloudflare_r2' | 'supabase_storage' | 'local_cdn';
+  storageProvider: 'cloudflare_r2' | 'cloudflare_d1' | 'supabase_storage' | 'local_cdn';
   originalSizeKb: number;
   compressedSizeKb: number;
   compressionRatioPercent: number;
@@ -92,13 +92,19 @@ export interface CloudStorageSettings {
   r2BucketName: string;
   r2AccessKeyId: string;
   r2SecretAccessKey: string;
-  r2PublicDomain: string; // e.g. "https://cdn.mybhaktisathi.com" or "https://pub-r2.mybhaktisathi.com"
+  r2PublicDomain: string; // e.g. "https://pub-r2.mybhaktisathi.com"
   
-  // Supabase (Postgres & Storage)
-  supabaseUrl: string;
-  supabaseAnonKey: string;
-  supabaseServiceRoleKey: string;
-  supabaseBucket: string;
+  // Cloudflare D1 Database & Text Storage
+  d1DatabaseId: string;
+  d1DatabaseName: string;
+  d1ApiToken: string;
+  d1BucketName: string;
+  
+  // Backwards Compatibility / Legacy aliases
+  supabaseUrl?: string;
+  supabaseAnonKey?: string;
+  supabaseServiceRoleKey?: string;
+  supabaseBucket?: string;
   
   // Auto Image Compression Settings
   autoCompressOnUpload: boolean;

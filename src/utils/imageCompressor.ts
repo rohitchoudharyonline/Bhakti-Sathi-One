@@ -20,7 +20,7 @@ export interface CompressionResult {
 
 /**
  * Compresses an image file (PNG, JPG, JPEG, WEBP, GIF) in browser using Canvas
- * and generates Cloudflare R2 / Supabase cloud storage metadata.
+ * and generates Cloudflare R2 / D1 cloud storage metadata.
  */
 export async function compressAndProcessImage(
   file: File,

@@ -171,7 +171,7 @@ interface TourContextType {
   updateCustomPage: (updatedPage: CustomPage) => void;
   deleteCustomPage: (id: string) => void;
 
-  // Media Library & Cloudflare R2 / Supabase Storage
+  // Media Library & Cloudflare R2 / D1 Storage
   mediaAssets: MediaAsset[];
   cloudStorageSettings: CloudStorageSettings;
   addMediaAsset: (asset: MediaAsset) => void;
@@ -284,14 +284,18 @@ const STORAGE_KEYS = {
 
 const DEFAULT_CLOUD_SETTINGS: CloudStorageSettings = {
   r2AccountId: 'a9e18b43f76902cd98ef11',
-  r2BucketName: 'mybhaktisathi-media-r2',
+  r2BucketName: 'bhakti-sathi',
   r2AccessKeyId: 'r2_prod_key_77a9',
   r2SecretAccessKey: '********************************',
   r2PublicDomain: 'https://pub-r2.mybhaktisathi.com',
+  d1DatabaseId: 'bhakti-sathi-db',
+  d1DatabaseName: 'bhakti-sathi-db',
+  d1ApiToken: 'd1_token_bhaktisathi_prod_882',
+  d1BucketName: 'bhakti-sathi',
   supabaseUrl: 'https://jhyxopkmtuvbrlzp.supabase.co',
   supabaseAnonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.mybhaktisathi',
   supabaseServiceRoleKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.service_role',
-  supabaseBucket: 'mybhaktisathi-storage',
+  supabaseBucket: 'bhakti-sathi',
   autoCompressOnUpload: true,
   compressionQuality: 0.78,
   maxImageWidth: 1920,

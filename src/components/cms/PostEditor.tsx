@@ -46,6 +46,7 @@ import {
   Sliders,
   HardDrive,
   Copy,
+  Save,
 } from 'lucide-react';
 
 const POPULAR_TAGS = [
@@ -471,7 +472,9 @@ Carry layered clothing, comfortable walking footwear, and keep valid ID proofs h
   };
 
   // Save / Publish post handler
-  const handleSavePost = () => {
+  const handleSavePost = (overrideStatus?: 'published' | 'draft') => {
+    const finalStatus = overrideStatus || formData.status;
+
     const cleanSlug =
       formData.slug.trim() ||
       formData.title
@@ -501,7 +504,7 @@ Carry layered clothing, comfortable walking footwear, and keep valid ID proofs h
         avatar: formData.authorAvatar,
         bio: 'Bhakti Sathi Travel Writer & Himalayan Destination Expert.',
       },
-      status: formData.status,
+      status: finalStatus,
       publishedAt: initialPost?.publishedAt || new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       readTimeMinutes: Math.max(1, Math.ceil(wordCount / 200)),
@@ -572,13 +575,28 @@ Carry layered clothing, comfortable walking footwear, and keep valid ID proofs h
                 <option value="draft">🟡 Save as Draft</option>
               </select>
 
+              {/* Save Draft Button */}
               <button
                 type="button"
-                onClick={handleSavePost}
-                className="px-4 py-2 bg-stone-900 hover:bg-black text-white rounded-xl text-xs font-black flex items-center gap-1.5 shadow-sm hover:shadow-md transition cursor-pointer"
+                onClick={() => handleSavePost('draft')}
+                className="px-3 py-2 border border-stone-300 hover:bg-stone-100 text-stone-700 bg-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-2xs cursor-pointer"
               >
-                <Check className="w-4 h-4 text-emerald-400" />
-                <span>{initialPost ? 'Update Post' : 'Publish Post'}</span>
+                <Save className="w-3.5 h-3.5 text-stone-500" />
+                <span className="hidden sm:inline">Save Draft</span>
+              </button>
+
+              {/* Publish / Update Live Button */}
+              <button
+                type="button"
+                onClick={() => handleSavePost('published')}
+                className="px-4 py-2 bg-[#FC3200] hover:bg-[#e02c00] text-white rounded-xl text-xs font-black flex items-center gap-1.5 shadow-sm hover:shadow-md transition cursor-pointer"
+              >
+                <Check className="w-4 h-4 text-white" />
+                <span>
+                  {formData.status === 'published' && initialPost
+                    ? 'Update Live'
+                    : 'Publish Live'}
+                </span>
               </button>
             </div>
           </div>
@@ -1312,7 +1330,7 @@ Carry layered clothing, comfortable walking footwear, and keep valid ID proofs h
               <div className="flex items-center gap-2">
                 <HardDrive className="w-5 h-5 text-amber-400" />
                 <h3 className="text-sm font-black">
-                  Pick Compressed Asset from Cloudflare R2 / Supabase Storage
+                  Pick Compressed Asset from Cloudflare R2 / D1 Storage
                 </h3>
               </div>
               <button

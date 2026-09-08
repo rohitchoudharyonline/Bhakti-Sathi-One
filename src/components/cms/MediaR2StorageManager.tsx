@@ -127,14 +127,14 @@ export const MediaR2StorageManager: React.FC<MediaR2StorageManagerProps> = ({
           <div className="flex items-center gap-2 mb-1">
             <Cloud className="w-5 h-5 text-amber-400" />
             <span className="text-xs uppercase tracking-wider font-semibold text-amber-400">
-              Cloudflare R2 & Supabase Asset CDN
+              Cloudflare R2 & D1 Database Storage
             </span>
           </div>
           <h2 className="text-xl md:text-2xl font-bold tracking-tight">
             Cloud Media & Auto-Compressor Studio
           </h2>
           <p className="text-stone-400 text-xs sm:text-sm mt-1">
-            Auto-compresses PNG, JPG, GIF & WebP before pushing to Cloudflare R2 bucket. Saves bandwidth & boosts Google Core Web Vitals.
+            Auto-compresses PNG, JPG, GIF & WebP before pushing to Cloudflare R2 bucket (<span className="text-amber-300 font-mono font-semibold">bhakti-sathi</span>). Saves bandwidth & boosts Google Core Web Vitals.
           </p>
         </div>
 
@@ -144,7 +144,7 @@ export const MediaR2StorageManager: React.FC<MediaR2StorageManagerProps> = ({
             className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-stone-900 hover:bg-stone-800 border border-stone-700 text-stone-200 text-xs font-semibold transition cursor-pointer"
           >
             <Settings className="w-4 h-4 text-amber-400" />
-            <span>R2 / Supabase API Keys</span>
+            <span>R2 / D1 API Keys</span>
           </button>
 
           <button
@@ -494,7 +494,7 @@ export const MediaR2StorageManager: React.FC<MediaR2StorageManagerProps> = ({
         </div>
       )}
 
-      {/* Cloudflare R2 & Supabase Credentials Modal */}
+      {/* Cloudflare R2 & Cloudflare D1 Credentials Modal */}
       {showConfigModal && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl max-w-xl w-full p-6 shadow-2xl space-y-5 max-h-[90vh] overflow-y-auto">
@@ -502,19 +502,19 @@ export const MediaR2StorageManager: React.FC<MediaR2StorageManagerProps> = ({
               <div className="flex items-center gap-2">
                 <Cloud className="w-5 h-5 text-amber-500" />
                 <h3 className="text-base font-bold text-black">
-                  Cloudflare R2 & Supabase Storage Configuration
+                  Cloudflare R2 & Cloudflare D1 Storage Configuration
                 </h3>
               </div>
               <button
                 onClick={() => setShowConfigModal(false)}
-                className="text-stone-400 hover:text-black font-bold"
+                className="text-stone-400 hover:text-black font-bold cursor-pointer"
               >
                 ✕
               </button>
             </div>
 
             <p className="text-xs text-stone-600">
-              Configure your Cloudflare R2 Bucket and Supabase Database settings for persistent production hosting.
+              Configure your Cloudflare R2 Bucket (<strong className="text-black font-mono">bhakti-sathi</strong>) and Cloudflare D1 Database settings for persistent production hosting.
             </p>
 
             <div className="space-y-4 text-xs">
@@ -546,14 +546,15 @@ export const MediaR2StorageManager: React.FC<MediaR2StorageManagerProps> = ({
                     <label className="block text-stone-500 font-medium mb-1">R2 Bucket Name</label>
                     <input
                       type="text"
-                      value={cloudStorageSettings.r2BucketName}
+                      value={cloudStorageSettings.r2BucketName || 'bhakti-sathi'}
                       onChange={(e) =>
                         updateCloudStorageSettings({
                           ...cloudStorageSettings,
                           r2BucketName: e.target.value,
                         })
                       }
-                      className="w-full p-2 bg-white border border-stone-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-black"
+                      placeholder="bhakti-sathi"
+                      className="w-full p-2 bg-white border border-stone-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-black font-mono"
                     />
                   </div>
                   <div>
@@ -567,31 +568,66 @@ export const MediaR2StorageManager: React.FC<MediaR2StorageManagerProps> = ({
                           r2AccountId: e.target.value,
                         })
                       }
-                      className="w-full p-2 bg-white border border-stone-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-black"
+                      className="w-full p-2 bg-white border border-stone-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-black font-mono"
                     />
                   </div>
                 </div>
               </div>
 
-              {/* Supabase Section */}
+              {/* Cloudflare D1 Database Section */}
               <div className="p-3.5 bg-stone-50 border border-stone-200 rounded-xl space-y-3">
                 <span className="font-bold text-black uppercase tracking-wider text-[11px] flex items-center gap-1.5">
                   <Database className="w-4 h-4 text-emerald-600" />
-                  Supabase Database & Text Storage
+                  Cloudflare D1 Database & Text Storage
                 </span>
 
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="block text-stone-500 font-medium mb-1">D1 Database ID / Binding</label>
+                    <input
+                      type="text"
+                      value={cloudStorageSettings.d1DatabaseId || 'bhakti-sathi-db'}
+                      onChange={(e) =>
+                        updateCloudStorageSettings({
+                          ...cloudStorageSettings,
+                          d1DatabaseId: e.target.value,
+                          supabaseUrl: e.target.value,
+                        })
+                      }
+                      placeholder="bhakti-sathi-db"
+                      className="w-full p-2 bg-white border border-stone-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-black font-mono"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-stone-500 font-medium mb-1">D1 Database Name</label>
+                    <input
+                      type="text"
+                      value={cloudStorageSettings.d1DatabaseName || 'bhakti-sathi-db'}
+                      onChange={(e) =>
+                        updateCloudStorageSettings({
+                          ...cloudStorageSettings,
+                          d1DatabaseName: e.target.value,
+                        })
+                      }
+                      placeholder="bhakti-sathi-db"
+                      className="w-full p-2 bg-white border border-stone-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-black font-mono"
+                    />
+                  </div>
+                </div>
+
                 <div>
-                  <label className="block text-stone-500 font-medium mb-1">Supabase Project URL</label>
+                  <label className="block text-stone-500 font-medium mb-1">D1 API Token / Worker Binding</label>
                   <input
-                    type="text"
-                    value={cloudStorageSettings.supabaseUrl}
+                    type="password"
+                    value={cloudStorageSettings.d1ApiToken || '********************************'}
                     onChange={(e) =>
                       updateCloudStorageSettings({
                         ...cloudStorageSettings,
-                        supabaseUrl: e.target.value,
+                        d1ApiToken: e.target.value,
                       })
                     }
-                    className="w-full p-2 bg-white border border-stone-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-black"
+                    placeholder="d1_token_bhaktisathi_prod_882"
+                    className="w-full p-2 bg-white border border-stone-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-black font-mono"
                   />
                 </div>
               </div>

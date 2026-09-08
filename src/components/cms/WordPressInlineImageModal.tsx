@@ -72,7 +72,7 @@ export const WordPressInlineImageModal: React.FC<WordPressInlineImageModalProps>
       addMediaAsset(result.asset);
 
       const cleanAlt = file.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ');
-      setSelectedImageUrl(result.asset.url);
+      setSelectedImageUrl(result.asset.dataUrl || result.asset.url);
       setSelectedAsset(result.asset);
       setAltText(cleanAlt);
       setCaption(cleanAlt);
@@ -89,7 +89,7 @@ export const WordPressInlineImageModal: React.FC<WordPressInlineImageModalProps>
   };
 
   const handleSelectFromLibrary = (asset: MediaAsset) => {
-    setSelectedImageUrl(asset.url);
+    setSelectedImageUrl(asset.dataUrl || asset.url);
     setSelectedAsset(asset);
     setAltText(asset.altText || asset.name);
     setCaption(asset.caption || asset.altText || asset.name);

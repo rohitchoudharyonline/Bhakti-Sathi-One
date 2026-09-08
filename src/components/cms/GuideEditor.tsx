@@ -423,24 +423,26 @@ export const GuideEditor: React.FC<GuideEditorProps> = ({
             </button>
           )}
 
-          {/* Publish Guide */}
-          {status !== 'published' ? (
-            <button
-              onClick={() => handleSave('published')}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition shadow-sm cursor-pointer"
-            >
-              <Check className="w-3.5 h-3.5" />
-              <span>Publish Live</span>
-            </button>
-          ) : (
+          {/* Unpublish option if currently published */}
+          {status === 'published' && (
             <button
               onClick={() => handleSave('draft')}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-amber-300 text-amber-800 bg-amber-50 hover:bg-amber-100 text-xs font-bold transition cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-amber-300 text-amber-800 bg-amber-50 hover:bg-amber-100 text-xs font-bold transition cursor-pointer"
+              title="Convert back to draft status"
             >
               <RotateCcw className="w-3.5 h-3.5 text-amber-600" />
-              <span>Unpublish (To Draft)</span>
+              <span>Unpublish</span>
             </button>
           )}
+
+          {/* Publish / Update Live Button */}
+          <button
+            onClick={() => handleSave('published')}
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition shadow-sm cursor-pointer"
+          >
+            <Check className="w-3.5 h-3.5" />
+            <span>{status === 'published' ? 'Update & Publish Live' : 'Publish Live'}</span>
+          </button>
         </div>
       </div>
 

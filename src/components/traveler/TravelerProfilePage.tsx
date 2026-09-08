@@ -187,7 +187,7 @@ export const TravelerProfilePage: React.FC = () => {
 
   const handleToggleAutoSync = async () => {
     if (!googleToken) {
-      // Directs user to grant calendar scopes with Supabase Auth
+      // Directs user to grant calendar scopes with Cloudflare Auth
       await connectGoogleCalendar();
       return;
     }
