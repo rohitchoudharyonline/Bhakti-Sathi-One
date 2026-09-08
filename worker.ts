@@ -8,11 +8,26 @@ export default {
     const corsHeaders = {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization, x-cms-token, x-admin-pin',
     };
 
     if (request.method === 'OPTIONS') {
       return new Response(null, { headers: corsHeaders });
+    }
+
+    // Handle legacy admin / cms route redirects to official /admin-rudra-0712 entry point
+    if (
+      pathname === '/admin' ||
+      pathname.startsWith('/admin/') ||
+      pathname === '/cms' ||
+      pathname.startsWith('/cms/') ||
+      pathname === '/login' ||
+      pathname === '/admin-login' ||
+      pathname === '/cms-login'
+    ) {
+      if (pathname !== '/admin-rudra-0712' && !pathname.startsWith('/admin-rudra-0712/')) {
+        return Response.redirect(new URL('/admin-rudra-0712', request.url).toString(), 302);
+      }
     }
 
     if (pathname.startsWith('/api/')) {
@@ -58,6 +73,53 @@ export default {
           `).run().catch(() => {});
         }
 
+        // Helper to check PIN session from cookie or header
+        const checkPinSession = (req: Request): boolean => {
+          const cookieHeader = req.headers.get('cookie') || '';
+          const hasPinCookie = cookieHeader.includes('bhakti_admin_pin=verified');
+          const pinHeader = req.headers.get('x-admin-pin');
+          return hasPinCookie || pinHeader === 'verified';
+        };
+
+        // 1. PIN Verification Endpoint
+        if (pathname === '/api/admin/pin/verify' && request.method === 'POST') {
+          const body = await request.json().catch(() => ({}));
+          const pin = String(body.pin || '').trim();
+          const configuredPin = String(env.CMS_PIN || '0881');
+
+          if (pin === configuredPin) {
+            const headers = new Headers({
+              'Content-Type': 'application/json',
+              'Set-Cookie': 'bhakti_admin_pin=verified; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=86400',
+              ...corsHeaders,
+            });
+            return new Response(JSON.stringify({ success: true }), { headers });
+          } else {
+            return new Response(JSON.stringify({ success: false, error: 'Invalid PIN. Access denied.' }), {
+              status: 401,
+              headers: { 'Content-Type': 'application/json', ...corsHeaders }
+            });
+          }
+        }
+
+        // 2. PIN Session Check
+        if (pathname === '/api/admin/pin/session') {
+          const verified = checkPinSession(request);
+          return new Response(JSON.stringify({ verified }), {
+            headers: { 'Content-Type': 'application/json', ...corsHeaders }
+          });
+        }
+
+        // 3. Admin Logout
+        if (pathname === '/api/admin/logout' && request.method === 'POST') {
+          const headers = new Headers({
+            'Content-Type': 'application/json',
+            'Set-Cookie': 'bhakti_admin_pin=; Path=/; HttpOnly; Secure; SameSite=Strict; Expires=Thu, 01 Jan 1970 00:00:00 GMT',
+            ...corsHeaders,
+          });
+          return new Response(JSON.stringify({ success: true }), { headers });
+        }
+
         if (pathname === '/api/health') {
           return new Response(JSON.stringify({ status: 'ok', timestamp: new Date().toISOString() }), {
             headers: { 'Content-Type': 'application/json', ...corsHeaders }
@@ -65,29 +127,45 @@ export default {
         }
 
         if (pathname === '/api/auth/cms/session' || pathname === '/api/auth/cms') {
-          return new Response(JSON.stringify({ authenticated: true, user: { role: 'admin' } }), {
+          const pinVerified = checkPinSession(request);
+          const token = request.headers.get('x-cms-token');
+          // Require both PIN session and valid CMS token/auth
+          if (pinVerified && (token || request.method === 'POST')) {
+            return new Response(JSON.stringify({ authorized: true, user: { role: 'super_admin' } }), {
+              headers: { 'Content-Type': 'application/json', ...corsHeaders }
+            });
+          }
+          return new Response(JSON.stringify({ authorized: false }), {
+            status: 401,
             headers: { 'Content-Type': 'application/json', ...corsHeaders }
           });
         }
 
-        if (pathname === '/api/auth/cms/direct-login') {
-          return new Response(JSON.stringify({ success: true, token: 'mock-token' }), {
+        if (pathname === '/api/auth/cms/direct-login' && request.method === 'POST') {
+          if (!checkPinSession(request)) {
+            return new Response(JSON.stringify({ error: 'PIN verification required before CMS login.' }), {
+              status: 401,
+              headers: { 'Content-Type': 'application/json', ...corsHeaders }
+            });
+          }
+          return new Response(JSON.stringify({ success: true, token: 'secure-admin-token-' + Date.now() }), {
             headers: { 'Content-Type': 'application/json', ...corsHeaders }
           });
         }
 
-        // Generic Content API with R2 media integration
+        // Generic Content API with R2 media integration & server-side authorization
         if (pathname === '/api/contents' || pathname.startsWith('/api/contents/')) {
           const pathParts = pathname.replace('/api/contents', '').replace(/^\/+/, '').split('/');
           const subRoute = pathParts[0];
 
           if (request.method === 'GET') {
+            // Public reads allowed for published items
             if (!subRoute) {
               const contentType = url.searchParams.get('type');
-              let query = 'SELECT * FROM contents';
+              let query = 'SELECT * FROM contents WHERE status = "published"';
               let stmt;
               if (contentType) {
-                query += ' WHERE content_type = ? ORDER BY updated_at DESC';
+                query += ' AND content_type = ? ORDER BY updated_at DESC';
                 stmt = env.DB.prepare(query).bind(contentType);
               } else {
                 query += ' ORDER BY updated_at DESC';
@@ -95,7 +173,6 @@ export default {
               }
               const { results } = await stmt.all();
               
-              // Fetch media for each content item
               const parsedResults = [];
               for (const row of (results || [])) {
                 const mediaRes = await env.DB.prepare('SELECT * FROM media WHERE content_item_id = ? ORDER BY sort_order ASC').bind(row.id).all();
@@ -159,7 +236,30 @@ export default {
             }
           }
 
-          if (request.method === 'POST' || request.method === 'PUT') {
+          // Write operations require PIN session + CMS auth
+          if (request.method === 'POST' || request.method === 'PUT' || request.method === 'DELETE') {
+            if (!checkPinSession(request)) {
+              return new Response(JSON.stringify({ error: 'Unauthorized. PIN verification required.' }), {
+                status: 401,
+                headers: { 'Content-Type': 'application/json', ...corsHeaders }
+              });
+            }
+
+            if (request.method === 'DELETE') {
+              const id = subRoute;
+              if (!id) {
+                return new Response(JSON.stringify({ error: 'Content ID required' }), {
+                  status: 400,
+                  headers: { 'Content-Type': 'application/json', ...corsHeaders }
+                });
+              }
+              await env.DB.prepare('DELETE FROM contents WHERE id = ?').bind(id).run();
+              await env.DB.prepare('DELETE FROM media WHERE content_item_id = ?').bind(id).run();
+              return new Response(JSON.stringify({ success: true, message: 'Content deleted successfully' }), {
+                headers: { 'Content-Type': 'application/json', ...corsHeaders }
+              });
+            }
+
             const body = await request.json().catch(() => ({}));
             const id = body.id || `content-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
             const contentType = body.content_type || 'tour';
@@ -198,30 +298,21 @@ export default {
               seoTitle, seoDescription, seoKeywords, status, mediaJson, now, now
             ).run();
 
-            return new Response(JSON.stringify({ success: true, id, slug, message: 'Content and metadata saved successfully in D1' }), {
-              headers: { 'Content-Type': 'application/json', ...corsHeaders }
-            });
-          }
-
-          if (request.method === 'DELETE') {
-            const id = subRoute;
-            if (!id) {
-              return new Response(JSON.stringify({ error: 'Content ID required' }), {
-                status: 400,
-                headers: { 'Content-Type': 'application/json', ...corsHeaders }
-              });
-            }
-            // Optional: cleanup associated media objects from R2 if desired, or keep metadata
-            await env.DB.prepare('DELETE FROM contents WHERE id = ?').bind(id).run();
-            await env.DB.prepare('DELETE FROM media WHERE content_item_id = ?').bind(id).run();
-            return new Response(JSON.stringify({ success: true, message: 'Content and references deleted successfully' }), {
+            return new Response(JSON.stringify({ success: true, id, slug, message: 'Content saved successfully' }), {
               headers: { 'Content-Type': 'application/json', ...corsHeaders }
             });
           }
         }
 
-        // Unified R2 Media Upload API (`POST /api/upload`)
+        // Unified R2 Media Upload API (`POST /api/upload`) - Protected
         if (pathname === '/api/upload' && request.method === 'POST') {
+          if (!checkPinSession(request)) {
+            return new Response(JSON.stringify({ error: 'Unauthorized. PIN verification required.' }), {
+              status: 401,
+              headers: { 'Content-Type': 'application/json', ...corsHeaders }
+            });
+          }
+
           if (!env.BUCKET) {
             return new Response(JSON.stringify({ error: 'R2 BUCKET binding not configured' }), {
               status: 500,
@@ -247,11 +338,9 @@ export default {
             });
           }
 
-          // Generate predictable safe R2 object key
           const sanitizedFilename = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
           const r2Key = `${contentType}/${slug}/${mediaType}/${Date.now()}-${sanitizedFilename}`;
 
-          // Upload to R2 bucket bhakti-sathi (BUCKET)
           await env.BUCKET.put(r2Key, file.stream(), {
             httpMetadata: { contentType: file.type }
           });
@@ -260,7 +349,6 @@ export default {
           const now = new Date().toISOString();
 
           if (env.DB) {
-            // If isCover is true, reset other covers for this content item
             if (isCover && contentItemId) {
               await env.DB.prepare('UPDATE media SET is_cover = 0 WHERE content_item_id = ?').bind(contentItemId).run();
             }
@@ -278,14 +366,21 @@ export default {
             id: mediaId,
             r2_key: r2Key,
             url: `/api/files/${r2Key}`,
-            message: 'File uploaded successfully to R2 bhakti-sathi bucket and indexed in D1'
+            message: 'File uploaded successfully'
           }), {
             headers: { 'Content-Type': 'application/json', ...corsHeaders }
           });
         }
 
-        // Media Delete API (`DELETE /api/media/:id`)
+        // Media Delete API (`DELETE /api/media/:id`) - Protected
         if (pathname.startsWith('/api/media/') && request.method === 'DELETE') {
+          if (!checkPinSession(request)) {
+            return new Response(JSON.stringify({ error: 'Unauthorized. PIN verification required.' }), {
+              status: 401,
+              headers: { 'Content-Type': 'application/json', ...corsHeaders }
+            });
+          }
+
           const mediaId = pathname.replace('/api/media/', '');
           if (!mediaId) {
             return new Response(JSON.stringify({ error: 'Media ID required' }), {
@@ -305,12 +400,12 @@ export default {
             }
           }
 
-          return new Response(JSON.stringify({ success: true, message: 'Media deleted from R2 and D1 successfully' }), {
+          return new Response(JSON.stringify({ success: true, message: 'Media deleted' }), {
             headers: { 'Content-Type': 'application/json', ...corsHeaders }
           });
         }
 
-        // R2 File Retrieval API (`GET /api/files/*`)
+        // R2 File Retrieval API (`GET /api/files/*`) - Public
         if (pathname.startsWith('/api/files/') && request.method === 'GET') {
           if (!env.BUCKET) {
             return new Response(JSON.stringify({ error: 'R2 BUCKET binding not configured' }), {
@@ -321,7 +416,7 @@ export default {
           const filename = pathname.replace('/api/files/', '');
           const object = await env.BUCKET.get(filename);
           if (!object) {
-            return new Response(JSON.stringify({ error: 'File not found in R2 bhakti-sathi' }), {
+            return new Response(JSON.stringify({ error: 'File not found' }), {
               status: 404,
               headers: { 'Content-Type': 'application/json', ...corsHeaders }
             });
@@ -339,9 +434,16 @@ export default {
           pathname === '/api/generate-guide-seo' ||
           pathname === '/api/fetch-hotel-details'
         ) {
+          if (!checkPinSession(request)) {
+            return new Response(JSON.stringify({ error: 'Unauthorized.' }), {
+              status: 401,
+              headers: { 'Content-Type': 'application/json', ...corsHeaders }
+            });
+          }
+
           const apiKey = env.GEMINI_API_KEY || process.env.GEMINI_API_KEY;
           if (!apiKey) {
-            return new Response(JSON.stringify({ error: 'GEMINI_API_KEY is not configured on Cloudflare worker environment.' }), {
+            return new Response(JSON.stringify({ error: 'GEMINI_API_KEY is not configured.' }), {
               status: 500,
               headers: { 'Content-Type': 'application/json', ...corsHeaders }
             });

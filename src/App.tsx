@@ -66,12 +66,7 @@ const MainAppContent: React.FC = () => {
         <TravelerAuthModal />
         <PWAInstallButton />
         {isHome && <></>}
-        {activeView === 'traveler' && (
-          <button type="button" onClick={() => { setActiveView('cms'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="fixed left-3 bottom-20 md:bottom-6 sm:left-6 z-[90] flex items-center gap-2 px-3.5 py-2.5 sm:px-5 sm:py-3 rounded-full shadow-xl border transition-all duration-300 cursor-pointer text-[11px] sm:text-xs font-black tracking-wider bg-stone-900/95 backdrop-blur-md text-white border-stone-700/80 hover:bg-black hover:scale-105 shadow-stone-900/25" title="Open CMS / Operations Hub">
-            <Settings className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#FC3200]" />
-            <span className="hidden xs:inline">CMS HUB</span><span className="xs:hidden">CMS</span>
-          </button>
-        )}
+
       </div>
     </>
   );

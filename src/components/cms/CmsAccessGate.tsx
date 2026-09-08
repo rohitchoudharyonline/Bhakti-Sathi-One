@@ -10,10 +10,12 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { useTours } from '../../context/TourContext';
+import { CmsPinGate } from './CmsPinGate';
 
 export const CmsAccessGate: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { setActiveView } = useTours();
   const [checking, setChecking] = useState(true);
+  const [pinVerified, setPinVerified] = useState(false);
   const [authorized, setAuthorized] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -21,6 +23,21 @@ export const CmsAccessGate: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const checkSession = async () => {
     try {
+      // 1. Check PIN session
+      const pinRes = await fetch('/api/admin/pin/session', {
+        credentials: 'include',
+        cache: 'no-store',
+      });
+      const pinData = await pinRes.json().catch(() => ({}));
+      if (pinRes.ok && pinData.verified === true) {
+        setPinVerified(true);
+      } else {
+        setPinVerified(false);
+        setChecking(false);
+        return;
+      }
+
+      // 2. Check CMS staff session
       const savedToken = localStorage.getItem('bhakti_cms_token');
       const headers: Record<string, string> = {};
       if (savedToken) {
@@ -39,6 +56,7 @@ export const CmsAccessGate: React.FC<{ children: React.ReactNode }> = ({ childre
         setAuthorized(false);
       }
     } catch {
+      setPinVerified(false);
       setAuthorized(false);
     } finally {
       setChecking(false);
@@ -118,6 +136,12 @@ export const CmsAccessGate: React.FC<{ children: React.ReactNode }> = ({ childre
     );
   }
 
+  // Step 1: PIN Gate if PIN not verified
+  if (!pinVerified) {
+    return <CmsPinGate onPinVerified={() => setPinVerified(true)} />;
+  }
+
+  // Step 2: CMS Staff Login Gate if PIN verified but not logged in as staff
   if (!authorized) {
     const googleConfigured = Boolean(import.meta.env.VITE_GOOGLE_CLIENT_ID);
 
@@ -133,7 +157,7 @@ export const CmsAccessGate: React.FC<{ children: React.ReactNode }> = ({ childre
               <div className="flex items-center gap-2">
                 <h1 className="text-lg sm:text-xl font-black text-white">Staff CMS</h1>
                 <span className="text-[10px] font-black uppercase tracking-wider bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full">
-                  Portal
+                  Verified Gate
                 </span>
               </div>
               <p className="text-xs text-stone-400 font-medium">Bhakti Bharat Operations & ERP</p>
@@ -221,10 +245,15 @@ export const CmsAccessGate: React.FC<{ children: React.ReactNode }> = ({ childre
           <div className="mt-5 pt-3 border-t border-stone-800/80 text-center">
             <button
               type="button"
-              onClick={() => setActiveView('traveler')}
+              onClick={() => {
+                // Also logout / clear PIN session if returning
+                void fetch('/api/admin/logout', { method: 'POST', credentials: 'include' });
+                setPinVerified(false);
+                setActiveView('traveler');
+              }}
               className="text-xs font-bold text-stone-400 hover:text-white transition py-1 cursor-pointer"
             >
-              ← Return to Traveler Website
+              ← Return to Traveler Website & Lock Gate
             </button>
           </div>
         </div>

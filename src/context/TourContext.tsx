@@ -1151,7 +1151,19 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const path = window.location.pathname.toLowerCase();
 
       // Reset all modals/views
-      if (path.includes('/admin') || path.includes('/cms') || path.includes('/erp')) {
+      if (path === '/admin' || path === '/cms' || path === '/login' || path === '/admin-login' || path === '/cms-login' || path.startsWith('/admin/') || path.startsWith('/cms/')) {
+        if (!path.startsWith('/admin-rudra-0712')) {
+          window.history.replaceState({}, '', '/admin-rudra-0712');
+        }
+        setActiveView('cms');
+        setIsDestinationsExplorerOpen(false);
+        setIsToursDirectoryOpen(false);
+        setIsBlogHubOpen(false);
+        setActiveBlogSlug(null);
+        setActiveCustomPageSlug(null);
+        setSelectedPackageId(null);
+        setSelectedDestinationSlug(null);
+      } else if (path.startsWith('/admin-rudra-0712')) {
         setActiveView('cms');
         setIsDestinationsExplorerOpen(false);
         setIsToursDirectoryOpen(false);

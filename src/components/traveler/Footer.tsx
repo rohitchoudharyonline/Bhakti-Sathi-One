@@ -353,17 +353,6 @@ export const Footer: React.FC<FooterProps> = ({ onSelectDestination, onSelectDha
           {/* Bottom Copyright Strip */}
           <div className="pt-6 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-slate-400">
             <p>© 2026 Bhakti Sathi, a brand name of Holidays Hunt Travel and Hospitality Pvt Ltd. All Rights Reserved.</p>
-            <button
-              type="button"
-              onClick={() => {
-                setActiveView('cms');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
-              className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-stone-300 hover:text-white font-bold transition flex items-center gap-1.5 cursor-pointer border border-slate-700"
-            >
-              <Building2 className="w-3.5 h-3.5 text-stone-300" />
-              <span>Agency Staff & CMS Login</span>
-            </button>
           </div>
 
         </div>
