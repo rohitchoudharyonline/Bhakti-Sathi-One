@@ -18,10 +18,14 @@ import { MediaR2StorageManager } from './MediaR2StorageManager';
 import { PushNotificationsManager } from './PushNotificationsManager';
 import { UsersManager } from './UsersManager';
 import { GroupToursManager } from './GroupToursManager';
+import { GuideManager } from './GuideManager';
+import { GuideEditor } from './GuideEditor';
+import { GuideArticle } from '../../types/guide';
 import { PDFBrochureModal } from '../traveler/PDFBrochureModal';
 import { TourContentStudio } from './TourContentStudio';
 import {
   LayoutDashboard,
+  BookOpen,
   PackagePlus,
   Compass,
   MessageSquare,
@@ -77,6 +81,9 @@ export const CMSDashboard: React.FC = () => {
     agencySettings,
     pushNotifications,
     registeredUsers,
+    guides,
+    addGuide,
+    updateGuide,
     deletePackage,
     duplicatePackage,
     togglePublishStatus,
@@ -89,6 +96,7 @@ export const CMSDashboard: React.FC = () => {
     | 'dashboard'
     | 'packages'
     | 'group-tours'
+    | 'guides'
     | 'editor'
     | 'blog'
     | 'post-editor'
@@ -107,6 +115,8 @@ export const CMSDashboard: React.FC = () => {
 
   const [editingPackage, setEditingPackage] = useState<TourPackage | null>(null);
   const [editingBlogPost, setEditingBlogPost] = useState<BlogPost | null>(null);
+  const [editingGuide, setEditingGuide] = useState<GuideArticle | null>(null);
+  const [guidesSubView, setGuidesSubView] = useState<'list' | 'editor'>('list');
   const [pdfModalPkg, setPdfModalPkg] = useState<TourPackage | null>(null);
   const [contentStudioPackageId, setContentStudioPackageId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -124,6 +134,7 @@ export const CMSDashboard: React.FC = () => {
       case 'dashboard':
         return true;
       case 'blog':
+      case 'guides':
       case 'post-editor':
       case 'destinations':
       case 'pages':
@@ -241,6 +252,7 @@ export const CMSDashboard: React.FC = () => {
       show: canAccess('group-tours'),
     },
     { id: 'blog', label: 'Blog & Articles', icon: Newspaper, count: null, show: canAccess('blog') },
+    { id: 'guides', label: 'Pilgrimage Guides (AI SEO)', icon: BookOpen, count: guides.length, show: canAccess('guides') },
     { id: 'post-editor', label: 'Post Editor', icon: FileEdit, count: null, show: canAccess('post-editor') },
     { id: 'destinations', label: 'Destinations Hub', icon: MapPin, count: null, show: canAccess('destinations') },
     { id: 'pages', label: 'Custom Pages', icon: FileEdit, count: null, show: canAccess('pages') },
@@ -665,6 +677,39 @@ export const CMSDashboard: React.FC = () => {
 
         {/* TAB 2: BLOG & ARTICLES (WORDPRESS STYLE CMS) */}
         {activeCmsTab === 'blog' && canAccess('blog') && <BlogManager />}
+
+        {/* TAB 2.5: PILGRIMAGE & TRAVEL GUIDES CMS (WITH AI SEO GENERATOR) */}
+        {activeCmsTab === 'guides' && canAccess('guides') && (
+          guidesSubView === 'editor' ? (
+            <GuideEditor
+              initialGuide={editingGuide}
+              onSave={(savedGuide) => {
+                if (editingGuide) {
+                  updateGuide(savedGuide);
+                } else {
+                  addGuide(savedGuide);
+                }
+                setGuidesSubView('list');
+                setEditingGuide(null);
+              }}
+              onBack={() => {
+                setGuidesSubView('list');
+                setEditingGuide(null);
+              }}
+            />
+          ) : (
+            <GuideManager
+              onCreateGuide={() => {
+                setEditingGuide(null);
+                setGuidesSubView('editor');
+              }}
+              onEditGuide={(g) => {
+                setEditingGuide(g);
+                setGuidesSubView('editor');
+              }}
+            />
+          )
+        )}
 
         {/* TAB 3: DESTINATIONS & TRAVEL GUIDES CMS */}
         {activeCmsTab === 'destinations' && canAccess('destinations') && <DestinationsManager />}

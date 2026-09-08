@@ -54,7 +54,7 @@ interface FooterProps {
 }
 
 export const Footer: React.FC<FooterProps> = ({ onSelectDestination, onSelectDham, onSelectInfoPage }) => {
-  const { agencySettings, navigateToHome, openDestinationsExplorer, navigateToDestination, setActiveInfoPage, setActiveView } = useTours();
+  const { agencySettings, navigateToHome, openDestinationsExplorer, navigateToDestination, setActiveInfoPage, setActiveView, navigateToGuideHub } = useTours();
 
       const handleShare = async () => {
         if (navigator.share) {
@@ -260,8 +260,8 @@ export const Footer: React.FC<FooterProps> = ({ onSelectDestination, onSelectDha
                   </button>
                 </li>
                 <li>
-                  <button onClick={() => openInfo('guidelines')} className="hover:text-white transition cursor-pointer text-left">
-                    • Travel Guide
+                  <button onClick={navigateToGuideHub} className="hover:text-white transition cursor-pointer text-left">
+                    • Guide
                   </button>
                 </li>
               </ul>

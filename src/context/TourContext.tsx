@@ -25,6 +25,8 @@ import { DEFAULT_REGISTERED_USERS } from '../data/defaultUsersData';
 import { generateBookingNumber, formatBookingNumber } from '../utils/bookingHelper';
 import { DESTINATIONS_REGISTRY, DestinationMeta } from '../data/destinationsData';
 import { DEFAULT_BLOG_POSTS, DEFAULT_BLOG_CATEGORIES } from '../data/defaultBlogData';
+import { GuideArticle, GuideCategory } from '../types/guide';
+import { DEFAULT_GUIDES, DEFAULT_GUIDE_CATEGORIES } from '../data/defaultGuidesData';
 import { DEFAULT_CUSTOM_PAGES } from '../data/defaultPagesData';
 import { DEFAULT_PUSH_NOTIFICATIONS, DEFAULT_PUSH_SUBSCRIBERS, DEFAULT_PUSH_SETTINGS } from '../data/defaultPushData';
 import { supabase } from '../utils/supabaseClient';
@@ -90,6 +92,8 @@ interface TourContextType {
   navigateToDestinationTours: (destinationSlug: string) => void;
   navigateToBlogHub: () => void;
   navigateToBlogPost: (slug: string) => void;
+  navigateToGuideHub: () => void;
+  navigateToGuideDetail: (slug: string) => void;
   navigateToCustomPage: (slug: string) => void;
   navigateToDestinationsExplorer: () => void;
   
@@ -141,6 +145,25 @@ interface TourContextType {
   addBlogCategory: (cat: Omit<BlogCategory, 'id'>) => void;
   updateBlogCategory: (cat: BlogCategory) => void;
   deleteBlogCategory: (id: string) => void;
+
+  // Guides CRUD
+  guides: GuideArticle[];
+  guideCategories: GuideCategory[];
+  activeGuideSlug: string | null;
+  setActiveGuideSlug: (slug: string | null) => void;
+  isGuidesHubOpen: boolean;
+  setIsGuidesHubOpen: (open: boolean) => void;
+  addGuide: (newGuide: Omit<GuideArticle, 'id' | 'createdAt' | 'updatedAt'>) => string;
+  updateGuide: (updatedGuide: GuideArticle) => void;
+  deleteGuide: (id: string) => void;
+  duplicateGuide: (id: string) => void;
+  moveGuideToReview: (id: string) => void;
+  publishGuide: (id: string) => void;
+  unpublishGuide: (id: string) => void;
+  returnGuideToDraft: (id: string) => void;
+  addGuideCategory: (cat: Omit<GuideCategory, 'id'>) => void;
+  updateGuideCategory: (cat: GuideCategory) => void;
+  deleteGuideCategory: (id: string) => void;
 
   // Custom Pages CRUD
   customPages: CustomPage[];
@@ -237,6 +260,8 @@ const STORAGE_KEYS = {
   DESTINATIONS: 'hh_destinations_registry_v2',
   BLOG_POSTS: 'hh_blog_posts_v2',
   BLOG_CATEGORIES: 'hh_blog_categories_v2',
+  GUIDES: 'hh_guide_articles_v1',
+  GUIDE_CATEGORIES: 'hh_guide_categories_v1',
   CUSTOM_PAGES: 'hh_custom_pages_v2',
   MEDIA_ASSETS: 'hh_media_assets_v2',
   CLOUD_STORAGE_CONFIG: 'hh_cloud_storage_config_v2',
@@ -479,6 +504,37 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return DEFAULT_BLOG_CATEGORIES;
   });
 
+  // Guides State
+  const [guides, setGuides] = useState<GuideArticle[]>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.GUIDES);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const existingIds = new Set(parsed.map((g: GuideArticle) => g.id));
+          const missing = DEFAULT_GUIDES.filter((dg) => !existingIds.has(dg.id));
+          return [...parsed, ...missing];
+        }
+      }
+    } catch {}
+    return DEFAULT_GUIDES;
+  });
+
+  const [guideCategories, setGuideCategories] = useState<GuideCategory[]>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.GUIDE_CATEGORIES);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const existingSlugs = new Set(parsed.map((c: GuideCategory) => c.slug));
+          const missing = DEFAULT_GUIDE_CATEGORIES.filter((dc) => !existingSlugs.has(dc.slug));
+          return [...parsed, ...missing];
+        }
+      }
+    } catch {}
+    return DEFAULT_GUIDE_CATEGORIES;
+  });
+
   // 4. Custom Pages State
   const [customPages, setCustomPages] = useState<CustomPage[]>(() => {
     try {
@@ -617,6 +673,8 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [systemSearchParams, setSystemSearchParams] = useState<SystemSearchParams | null>(null);
   const [isBlogHubOpen, setIsBlogHubOpen] = useState<boolean>(false);
   const [activeBlogSlug, setActiveBlogSlug] = useState<string | null>(null);
+  const [isGuidesHubOpen, setIsGuidesHubOpen] = useState<boolean>(false);
+  const [activeGuideSlug, setActiveGuideSlug] = useState<string | null>(null);
   const [activeCustomPageSlug, setActiveCustomPageSlug] = useState<string | null>(null);
   const [activeInfoPage, setActiveInfoPageRaw] = useState<string | null>(null);
   const [isJapCounterOpen, setIsJapCounterOpen] = useState<boolean>(false);
@@ -1116,16 +1174,35 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setActiveView('traveler');
         setIsDestinationsExplorerOpen(false);
         setIsToursDirectoryOpen(false);
+        setIsBlogHubOpen(false);
+        setActiveBlogSlug(null);
         setSelectedPackageId(null);
         setSelectedDestinationSlug(null);
         setActiveCustomPageSlug(null);
         const subParts = path.replace('/travel-blog', '').replace(/^\/+/, '').split('/');
         if (subParts[0] && subParts[0].length > 0) {
-          setIsBlogHubOpen(false);
-          setActiveBlogSlug(subParts[0]);
+          setIsGuidesHubOpen(false);
+          setActiveGuideSlug(subParts[0]);
         } else {
-          setIsBlogHubOpen(true);
-          setActiveBlogSlug(null);
+          setIsGuidesHubOpen(true);
+          setActiveGuideSlug(null);
+        }
+      } else if (path.startsWith('/guide')) {
+        setActiveView('traveler');
+        setIsDestinationsExplorerOpen(false);
+        setIsToursDirectoryOpen(false);
+        setIsBlogHubOpen(false);
+        setActiveBlogSlug(null);
+        setSelectedPackageId(null);
+        setSelectedDestinationSlug(null);
+        setActiveCustomPageSlug(null);
+        const subParts = path.replace('/guide', '').replace(/^\/+/, '').split('/');
+        if (subParts[0] && subParts[0].length > 0) {
+          setIsGuidesHubOpen(false);
+          setActiveGuideSlug(subParts[0]);
+        } else {
+          setIsGuidesHubOpen(true);
+          setActiveGuideSlug(null);
         }
       } else if (path.startsWith('/tours')) {
         setActiveView('traveler');
@@ -1234,6 +1311,18 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
       localStorage.setItem(STORAGE_KEYS.BLOG_CATEGORIES, JSON.stringify(blogCategories));
     } catch {}
   }, [blogCategories]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEYS.GUIDES, JSON.stringify(guides));
+    } catch {}
+  }, [guides]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEYS.GUIDE_CATEGORIES, JSON.stringify(guideCategories));
+    } catch {}
+  }, [guideCategories]);
 
   useEffect(() => {
     try {
@@ -1406,8 +1495,18 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const navigateToBlogHub = () => {
+    navigateToGuideHub();
+  };
+
+  const navigateToBlogPost = (slug: string) => {
+    navigateToGuideDetail(slug);
+  };
+
+  const navigateToGuideHub = () => {
     setActiveView('traveler');
-    setIsBlogHubOpen(true);
+    setIsGuidesHubOpen(true);
+    setActiveGuideSlug(null);
+    setIsBlogHubOpen(false);
     setActiveBlogSlug(null);
     setIsToursDirectoryOpen(false);
     setSelectedPackageId(null);
@@ -1415,22 +1514,24 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsDestinationsExplorerOpen(false);
     setActiveCustomPageSlug(null);
     if (typeof window !== 'undefined' && window.history.pushState) {
-      window.history.pushState({}, '', '/travel-blog');
+      window.history.pushState({}, '', '/guide');
     }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const navigateToBlogPost = (slug: string) => {
+  const navigateToGuideDetail = (slug: string) => {
     setActiveView('traveler');
+    setIsGuidesHubOpen(false);
+    setActiveGuideSlug(slug);
     setIsBlogHubOpen(false);
-    setActiveBlogSlug(slug);
+    setActiveBlogSlug(null);
     setIsToursDirectoryOpen(false);
     setSelectedPackageId(null);
     setSelectedDestinationSlug(null);
     setIsDestinationsExplorerOpen(false);
     setActiveCustomPageSlug(null);
     if (typeof window !== 'undefined' && window.history.pushState) {
-      window.history.pushState({}, '', `/travel-blog/${slug}`);
+      window.history.pushState({}, '', `/guide/${slug}`);
     }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -1672,6 +1773,97 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const deleteBlogCategory = (id: string) => {
     setBlogCategories((prev) => prev.filter((c) => c.id !== id));
+  };
+
+  // Pilgrimage & Travel Guides Operations
+  const addGuide = (newGuide: Omit<GuideArticle, 'id' | 'createdAt' | 'updatedAt'>): string => {
+    const id = `guide-${Date.now()}`;
+    const now = new Date().toISOString();
+    const created: GuideArticle = {
+      ...newGuide,
+      id,
+      createdAt: now,
+      updatedAt: now,
+      status: 'draft', // Critical rule: newly created article always starts as draft!
+    };
+    setGuides((prev) => [created, ...prev]);
+    return id;
+  };
+
+  const updateGuide = (updated: GuideArticle) => {
+    setGuides((prev) =>
+      prev.map((g) => (g.id === updated.id ? { ...updated, updatedAt: new Date().toISOString() } : g))
+    );
+  };
+
+  const deleteGuide = (id: string) => {
+    setGuides((prev) => prev.filter((g) => g.id !== id));
+  };
+
+  const moveGuideToReview = (id: string) => {
+    setGuides((prev) =>
+      prev.map((g) => (g.id === id ? { ...g, status: 'review', updatedAt: new Date().toISOString() } : g))
+    );
+  };
+
+  const publishGuide = (id: string) => {
+    setGuides((prev) =>
+      prev.map((g) =>
+        g.id === id
+          ? {
+              ...g,
+              status: 'published',
+              publishedAt: g.publishedAt || new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+            }
+          : g
+      )
+    );
+  };
+
+  const unpublishGuide = (id: string) => {
+    setGuides((prev) =>
+      prev.map((g) => (g.id === id ? { ...g, status: 'draft', updatedAt: new Date().toISOString() } : g))
+    );
+  };
+
+  const returnGuideToDraft = (id: string) => {
+    setGuides((prev) =>
+      prev.map((g) => (g.id === id ? { ...g, status: 'draft', updatedAt: new Date().toISOString() } : g))
+    );
+  };
+
+  const duplicateGuide = (id: string) => {
+    const existing = guides.find((g) => g.id === id);
+    if (!existing) return;
+    const now = new Date().toISOString();
+    const duplicated: GuideArticle = {
+      ...existing,
+      id: `guide-${Date.now()}`,
+      slug: `${existing.slug}-copy-${Date.now().toString().slice(-4)}`,
+      title: `${existing.title} (Copy)`,
+      status: 'draft',
+      createdAt: now,
+      updatedAt: now,
+    };
+    setGuides((prev) => [duplicated, ...prev]);
+  };
+
+  const addGuideCategory = (cat: Omit<GuideCategory, 'id'>) => {
+    const newCat: GuideCategory = {
+      ...cat,
+      id: `cat-${Date.now()}`,
+      guideCount: 0,
+    };
+    setGuideCategories((prev) => [...prev, newCat]);
+  };
+
+  const updateGuideCategory = (cat: GuideCategory) => {
+    setGuideCategories((prev) => prev.map((c) => (c.id === cat.id ? cat : c)));
+  };
+
+  const deleteGuideCategory = (id: string) => {
+    setGuideCategories((prev) => prev.filter((c) => c.id !== id));
   };
 
   // Custom Pages Operations
@@ -2169,6 +2361,12 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
         navigateToDestinationTours,
         navigateToBlogHub,
         navigateToBlogPost,
+        navigateToGuideHub,
+        navigateToGuideDetail,
+        isGuidesHubOpen,
+        setIsGuidesHubOpen,
+        activeGuideSlug,
+        setActiveGuideSlug,
         navigateToCustomPage,
         navigateToDestinationsExplorer,
         wishlistIds,
@@ -2197,6 +2395,19 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
         addBlogCategory,
         updateBlogCategory,
         deleteBlogCategory,
+        guides,
+        guideCategories,
+        addGuide,
+        updateGuide,
+        deleteGuide,
+        duplicateGuide,
+        moveGuideToReview,
+        publishGuide,
+        unpublishGuide,
+        returnGuideToDraft,
+        addGuideCategory,
+        updateGuideCategory,
+        deleteGuideCategory,
         customPages,
         addCustomPage,
         updateCustomPage,

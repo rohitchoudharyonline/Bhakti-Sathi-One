@@ -31,10 +31,12 @@ export const Navbar: React.FC = () => {
     navigateToHome,
     navigateToAllTours,
     navigateToBlogHub,
+    navigateToGuideHub,
     navigateToDestinationsExplorer,
     navigateToJapCounter,
     isJapCounterOpen,
     isBlogHubOpen,
+    isGuidesHubOpen,
     isToursDirectoryOpen,
     isDestinationsExplorerOpen,
     selectedDestinationSlug,
@@ -130,14 +132,14 @@ export const Navbar: React.FC = () => {
 
             <button
               type="button"
-              onClick={navigateToBlogHub}
+              onClick={navigateToGuideHub}
               className={`transition cursor-pointer py-1 ${
-                isBlogHubOpen
+                isGuidesHubOpen || isBlogHubOpen
                   ? 'text-[#FF4B00] font-black border-b-2 border-[#FF4B00]'
                   : 'text-[#1A1A1A]/80 hover:text-[#1A1A1A]'
               }`}
             >
-              Travel Blog & Guides
+              Guide
             </button>
 
             <button
@@ -285,12 +287,12 @@ export const Navbar: React.FC = () => {
             <button
               type="button"
               onClick={() => {
-                navigateToBlogHub();
+                navigateToGuideHub();
                 setMobileMenuOpen(false);
               }}
               className="w-full text-left block py-2.5 px-3 rounded-lg text-xs font-bold text-[#FF4B00] bg-[#FFF0EB] border border-[#FF4B00]/30"
             >
-              ✍️ Travel Blog & Destination Guides
+              📖 Guide
             </button>
 
             <button

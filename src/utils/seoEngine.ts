@@ -654,3 +654,61 @@ export function generateFAQPageSchema(faqs: { question: string; answer: string }
     })),
   };
 }
+
+/**
+ * Generates Article Schema for Guides
+ */
+export function generateGuideArticleSchema(
+  guide: {
+    title: string;
+    slug: string;
+    excerpt: string;
+    content: string;
+    featuredImage?: string;
+    publishedAt?: string;
+    updatedAt?: string;
+    authorName?: string;
+    category?: string;
+    tags?: string[];
+    seo?: { primaryKeyword?: string };
+  },
+  agency: AgencySettings
+) {
+  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://mybhaktisathi.com';
+  const guideUrl = `${origin}/guide/${guide.slug}`;
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    '@id': `${guideUrl}#article`,
+    isPartOf: {
+      '@type': 'WebPage',
+      url: `${origin}/guide`,
+      name: 'Pilgrimage & Travel Guides',
+    },
+    headline: guide.title,
+    description: guide.excerpt,
+    image: guide.featuredImage ? [guide.featuredImage] : undefined,
+    datePublished: guide.publishedAt || new Date().toISOString(),
+    dateModified: guide.updatedAt || guide.publishedAt || new Date().toISOString(),
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': guideUrl,
+    },
+    author: {
+      '@type': 'Organization',
+      name: guide.authorName || 'Bhakti Sathi Yatra Team',
+      url: origin,
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: agency.agencyName || 'Bhakti Sathi',
+      logo: {
+        '@type': 'ImageObject',
+        url: 'https://images.unsplash.com/photo-1598091383021-15ddea10925d?auto=format&fit=crop&w=800&q=80',
+      },
+    },
+    articleSection: guide.category || 'Pilgrimage Guides',
+    keywords: guide.seo?.primaryKeyword || guide.tags?.join(', ') || 'Pilgrimage Guide, Yatra',
+  };
+}
