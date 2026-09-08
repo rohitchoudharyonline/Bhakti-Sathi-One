@@ -27,6 +27,7 @@ import {
   List,
   Sparkles,
   ExternalLink,
+  BadgeCheck,
 } from 'lucide-react';
 
 interface GuideDetailViewProps {
@@ -276,19 +277,23 @@ export const GuideDetailView: React.FC<GuideDetailViewProps> = ({ slug }) => {
 
           <div className="flex flex-wrap items-center justify-between gap-4 pt-2 border-t border-stone-200/80 text-xs text-stone-500">
             <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-full bg-amber-700 text-white flex items-center justify-center font-bold text-xs">
-                {guide.authorName?.charAt(0) || 'B'}
-              </div>
+              <img
+                src="/icon.png"
+                alt="Bhakti Sathi"
+                className="w-7 h-7 rounded-full object-cover bg-white border border-stone-100"
+              />
               <div>
-                <span className="font-semibold text-stone-800">{guide.authorName || 'Bhakti Sathi Yatra Team'}</span>
-                <span className="text-stone-400 block sm:inline sm:ml-2">Editorial Staff</span>
+                <div className="flex items-center gap-1">
+                  <span className="font-bold text-stone-800">Posted by Bhakti Sathi</span>
+                  <BadgeCheck className="w-4 h-4 text-blue-600 fill-blue-50" />
+                </div>
+                <span className="text-stone-400 block sm:inline">Editorial Staff</span>
               </div>
             </div>
 
             <div className="flex items-center gap-1 text-stone-400">
               <Calendar className="w-3.5 h-3.5" />
               <span>
-                Updated:{' '}
                 {new Date(guide.updatedAt || guide.createdAt).toLocaleDateString('en-IN', {
                   day: 'numeric',
                   month: 'long',
