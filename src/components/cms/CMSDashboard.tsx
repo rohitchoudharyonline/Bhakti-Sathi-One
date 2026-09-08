@@ -3,7 +3,6 @@ import { useTours } from '../../context/TourContext';
 import { TourPackage, BookingInquiry } from '../../types/tour';
 import { BlogPost } from '../../types/cms';
 import { PackageEditor } from './PackageEditor';
-import { PostEditor } from './PostEditor';
 import { InquiriesManager } from './InquiriesManager';
 import { SettingsManager } from './SettingsManager';
 import { StaffManager } from './StaffManager';
@@ -18,6 +17,8 @@ import { PushNotificationsManager } from './PushNotificationsManager';
 import { UsersManager } from './UsersManager';
 import { GroupToursManager } from './GroupToursManager';
 import { GuideManager } from './GuideManager';
+import { CategoriesManager } from "./CategoriesManager";
+import { SEOManager } from "./SEOManager";
 import { GuideEditor } from './GuideEditor';
 import { GuideArticle } from '../../types/guide';
 import { PDFBrochureModal } from '../traveler/PDFBrochureModal';
@@ -29,6 +30,8 @@ import {
   Compass,
   MessageSquare,
   Settings,
+  Tag,
+  Globe,
   Search,
   Plus,
   ImagePlus,
@@ -44,7 +47,6 @@ import {
   Star,
   MapPin,
   Building,
-  Globe,
   Layers,
   Filter,
   FileText,
@@ -65,7 +67,7 @@ import {
   FileEdit,
   Bell,
   Bus,
-  LogOut,
+  LogOut
 } from 'lucide-react';
 
 export const CMSDashboard: React.FC = () => {
@@ -92,13 +94,14 @@ export const CMSDashboard: React.FC = () => {
     setActiveView,
   } = useTours();
 
-  const [activeCmsTab, setActiveCmsTab] = useState<
+    const [activeCmsTab, setActiveCmsTab] = useState<
     | 'dashboard'
     | 'packages'
     | 'group-tours'
     | 'guides'
+    | 'categories'
+    | 'seo'
     | 'editor'
-    | 'post-editor'
     | 'destinations'
     | 'pages'
     | 'media'
@@ -133,7 +136,8 @@ export const CMSDashboard: React.FC = () => {
       case 'dashboard':
         return true;
       case 'guides':
-      case 'post-editor':
+      case 'categories':
+      case 'seo':
       case 'destinations':
       case 'pages':
       case 'media':
@@ -222,25 +226,17 @@ export const CMSDashboard: React.FC = () => {
     );
   }
 
-  // If on post-editor tab, render the dedicated PostEditor module
-  if (activeCmsTab === 'post-editor') {
-    return (
-      <PostEditor
-        initialPost={editingBlogPost}
-        onSaveComplete={() => {
-          setActiveCmsTab('blog');
-          setEditingBlogPost(null);
-        }}
-        onCancel={() => {
-          setActiveCmsTab('blog');
-          setEditingBlogPost(null);
-        }}
-      />
-    );
-  }
 
-  const tabsConfig = [
+    const tabsConfig = [
     { id: 'dashboard', label: 'Operations Hub', icon: LayoutDashboard, count: null, show: canAccess('dashboard') },
+    
+    // Core WordPress-style Tabs
+    { id: 'guides', label: 'All Posts (Guides)', icon: BookOpen, count: guides.length, show: canAccess('guides') },
+    { id: 'categories', label: 'Categories & Tags', icon: Tag, count: null, show: canAccess('guides') },
+    { id: 'pages', label: 'Pages', icon: FileEdit, count: null, show: canAccess('pages') },
+    { id: 'media', label: 'Media Library', icon: Cloud, count: null, show: canAccess('media') },
+    { id: 'seo', label: 'Rank Math SEO', icon: Globe, count: null, show: canAccess('guides') },
+
     { id: 'packages', label: 'Tour Packages', icon: Compass, count: packages.length, show: canAccess('packages') },
     {
       id: 'group-tours',
@@ -249,11 +245,7 @@ export const CMSDashboard: React.FC = () => {
       count: packages.filter((p) => p.isGroupTour || p.tourType === 'Group Tour').length,
       show: canAccess('group-tours'),
     },
-    { id: 'guides', label: 'Guides', icon: BookOpen, count: guides.length, show: canAccess('guides') },
-    { id: 'post-editor', label: 'Post Editor', icon: FileEdit, count: null, show: canAccess('post-editor') },
     { id: 'destinations', label: 'Destinations Hub', icon: MapPin, count: null, show: canAccess('destinations') },
-    { id: 'pages', label: 'Custom Pages', icon: FileEdit, count: null, show: canAccess('pages') },
-    { id: 'media', label: 'R2 Cloud Media', icon: Cloud, count: null, show: canAccess('media') },
     { id: 'push-notifications', label: 'Push Broadcasts', icon: Bell, count: pushNotifications.length, show: true },
     { id: 'inquiries', label: 'Inquiries & Leads', icon: MessageSquare, count: inquiries.length, badgeNew: newInquiriesCount > 0, show: canAccess('inquiries') },
     { id: 'users', label: 'Travelers & Signups', icon: Users, count: registeredUsers?.length || 0, show: true },
@@ -689,6 +681,12 @@ export const CMSDashboard: React.FC = () => {
             </div>
           </div>
         )}
+
+                {/* WORDPRESS STYLE: RANK MATH SEO */}
+        {activeCmsTab === 'seo' && canAccess('guides') && <SEOManager />}
+
+        {/* WORDPRESS STYLE: CATEGORIES & TAGS */}
+        {activeCmsTab === 'categories' && canAccess('guides') && <CategoriesManager />}
 
         {/* TAB 2.5: PILGRIMAGE & TRAVEL GUIDES CMS (WITH AI SEO GENERATOR) */}
         {activeCmsTab === 'guides' && canAccess('guides') && (
