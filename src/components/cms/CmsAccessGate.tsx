@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { useGoogleLogin } from '@react-oauth/google';
 import {
   ShieldCheck,
   Loader2,
   LogIn,
   AlertCircle,
   Mail,
+  Lock,
   ArrowRight,
-  Sparkles,
 } from 'lucide-react';
 import { useTours } from '../../context/TourContext';
 import { CmsPinGate } from './CmsPinGate';
@@ -19,7 +18,8 @@ export const CmsAccessGate: React.FC<{ children: React.ReactNode }> = ({ childre
   const [authorized, setAuthorized] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [staffEmail, setStaffEmail] = useState('holidayshunt@gmail.com');
+  const [staffEmail, setStaffEmail] = useState('rohitchoudharyonline@gmail.com');
+  const [password, setPassword] = useState('');
 
   const checkSession = async () => {
     try {
@@ -38,16 +38,9 @@ export const CmsAccessGate: React.FC<{ children: React.ReactNode }> = ({ childre
       }
 
       // 2. Check CMS staff session
-      const savedToken = localStorage.getItem('bhakti_cms_token');
-      const headers: Record<string, string> = {};
-      if (savedToken) {
-        headers['x-cms-token'] = savedToken;
-      }
-
       const response = await fetch('/api/auth/cms/session', {
         credentials: 'include',
         cache: 'no-store',
-        headers,
       });
       const data = await response.json().catch(() => ({}));
       if (response.ok && data.authorized === true) {
@@ -67,66 +60,33 @@ export const CmsAccessGate: React.FC<{ children: React.ReactNode }> = ({ childre
     void checkSession();
   }, []);
 
-  const handleDirectLogin = async (emailToUse?: string) => {
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
     setLoading(true);
     setError('');
-    const targetEmail = (emailToUse || staffEmail || 'holidayshunt@gmail.com').trim().toLowerCase();
 
     try {
-      const response = await fetch('/api/auth/cms/direct-login', {
+      const response = await fetch('/api/auth/cms/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ email: targetEmail }),
+        body: JSON.stringify({ email: staffEmail, password }),
       });
 
       const data = await response.json().catch(() => ({}));
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to authenticate staff access.');
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || 'Authentication failed. Invalid credentials or IP locked.');
       }
 
-      if (data.token) {
-        localStorage.setItem('bhakti_cms_token', data.token);
-      }
       setAuthorized(true);
       setActiveView('cms');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Staff login failed.');
+      setError(err instanceof Error ? err.message : 'Authentication failed.');
+      setPassword('');
     } finally {
       setLoading(false);
     }
   };
-
-  const googleLogin = useGoogleLogin({
-    scope: 'openid email profile',
-    onSuccess: async ({ access_token }) => {
-      setLoading(true);
-      setError('');
-      try {
-        const response = await fetch('/api/auth/cms', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify({ accessToken: access_token }),
-        });
-        const data = await response.json().catch(() => ({}));
-        if (!response.ok) throw new Error(data.error || 'CMS access was not approved.');
-        if (data.token) {
-          localStorage.setItem('bhakti_cms_token', data.token);
-        }
-        setAuthorized(true);
-        setActiveView('cms');
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'CMS authentication failed.');
-      } finally {
-        setLoading(false);
-      }
-    },
-    onError: () => {
-      setLoading(false);
-      setError('Google sign-in was cancelled or failed.');
-    },
-  });
 
   if (checking) {
     return (
@@ -141,10 +101,8 @@ export const CmsAccessGate: React.FC<{ children: React.ReactNode }> = ({ childre
     return <CmsPinGate onPinVerified={() => setPinVerified(true)} />;
   }
 
-  // Step 2: CMS Staff Login Gate if PIN verified but not logged in as staff
+  // Step 2: CMS Staff Login Gate (Email + Password) if PIN verified but not logged in
   if (!authorized) {
-    const googleConfigured = Boolean(import.meta.env.VITE_GOOGLE_CLIENT_ID);
-
     return (
       <div className="min-h-screen flex items-center justify-center bg-stone-950 p-4 sm:p-6 text-white selection:bg-[#FF4B00]">
         <div className="w-full max-w-md rounded-3xl border border-stone-800 bg-stone-900/95 backdrop-blur-xl p-6 sm:p-8 shadow-2xl">
@@ -155,12 +113,12 @@ export const CmsAccessGate: React.FC<{ children: React.ReactNode }> = ({ childre
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-lg sm:text-xl font-black text-white">Staff CMS</h1>
+                <h1 className="text-lg sm:text-xl font-black text-white">Secure CMS Login</h1>
                 <span className="text-[10px] font-black uppercase tracking-wider bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full">
-                  Verified Gate
+                  PIN Verified
                 </span>
               </div>
-              <p className="text-xs text-stone-400 font-medium">Bhakti Bharat Operations & ERP</p>
+              <p className="text-xs text-stone-400 font-medium">Bhakti Sathi One • Restricted Access</p>
             </div>
           </div>
 
@@ -172,32 +130,38 @@ export const CmsAccessGate: React.FC<{ children: React.ReactNode }> = ({ childre
             </div>
           )}
 
-          {/* Direct Staff Sign-In Form */}
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              void handleDirectLogin();
-            }}
-            className="space-y-3.5"
-          >
+          {/* Login Form */}
+          <form onSubmit={handleLogin} className="space-y-4">
             <div>
               <label className="block text-xs font-bold text-stone-300 mb-1.5 flex items-center gap-1.5">
                 <Mail className="w-3.5 h-3.5 text-[#FF4B00]" />
-                <span>Authorized Staff Email</span>
+                <span>Authorized Administrator Email</span>
               </label>
-              <div className="relative">
-                <input
-                  type="email"
-                  value={staffEmail}
-                  onChange={(e) => setStaffEmail(e.target.value)}
-                  placeholder="admin@bhaktibharatyatra.com"
-                  className="w-full rounded-2xl bg-stone-800/90 border border-stone-700 px-4 py-3 text-sm text-white placeholder-stone-500 focus:outline-hidden focus:border-[#FF4B00] focus:ring-1 focus:ring-[#FF4B00] transition"
-                  required
-                />
-              </div>
+              <input
+                type="email"
+                value={staffEmail}
+                onChange={(e) => setStaffEmail(e.target.value)}
+                placeholder="rohitchoudharyonline@gmail.com"
+                className="w-full rounded-2xl bg-stone-800/90 border border-stone-700 px-4 py-3 text-sm text-white placeholder-stone-500 focus:outline-hidden focus:border-[#FF4B00] focus:ring-1 focus:ring-[#FF4B00] transition"
+                required
+              />
             </div>
 
-            {/* Primary Sign In Button */}
+            <div>
+              <label className="block text-xs font-bold text-stone-300 mb-1.5 flex items-center gap-1.5">
+                <Lock className="w-3.5 h-3.5 text-[#FF4B00]" />
+                <span>Administrator Password</span>
+              </label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••••••"
+                className="w-full rounded-2xl bg-stone-800/90 border border-stone-700 px-4 py-3 text-sm text-white placeholder-stone-500 focus:outline-hidden focus:border-[#FF4B00] focus:ring-1 focus:ring-[#FF4B00] transition"
+                required
+              />
+            </div>
+
             <button
               type="submit"
               disabled={loading}
@@ -208,45 +172,16 @@ export const CmsAccessGate: React.FC<{ children: React.ReactNode }> = ({ childre
               ) : (
                 <LogIn className="w-4 h-4" />
               )}
-              <span>{loading ? 'Authenticating Staff…' : 'Enter CMS Dashboard'}</span>
+              <span>{loading ? 'Authenticating…' : 'Access CMS Dashboard'}</span>
               {!loading && <ArrowRight className="w-4 h-4" />}
             </button>
           </form>
 
-          {/* 1-Tap Quick Login Shortcut */}
-          <div className="mt-3">
-            <button
-              type="button"
-              onClick={() => void handleDirectLogin('holidayshunt@gmail.com')}
-              disabled={loading}
-              className="w-full py-2.5 px-4 rounded-xl border border-stone-700/80 bg-stone-800/50 hover:bg-stone-800 text-stone-300 hover:text-white text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer"
-            >
-              <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-              <span>1-Tap Sign In as <strong>holidayshunt@gmail.com</strong></span>
-            </button>
-          </div>
-
-          {/* Google OAuth Option (if configured) */}
-          {googleConfigured && (
-            <div className="mt-4 pt-4 border-t border-stone-800">
-              <button
-                type="button"
-                onClick={() => googleLogin()}
-                disabled={loading}
-                className="w-full rounded-2xl bg-white hover:bg-stone-100 text-stone-900 py-3 px-4 font-extrabold text-xs flex items-center justify-center gap-2 transition cursor-pointer"
-              >
-                <LogIn className="w-4 h-4" />
-                <span>Continue with Google</span>
-              </button>
-            </div>
-          )}
-
           {/* Return to website */}
-          <div className="mt-5 pt-3 border-t border-stone-800/80 text-center">
+          <div className="mt-6 pt-4 border-t border-stone-800/80 text-center">
             <button
               type="button"
               onClick={() => {
-                // Also logout / clear PIN session if returning
                 void fetch('/api/admin/logout', { method: 'POST', credentials: 'include' });
                 setPinVerified(false);
                 setActiveView('traveler');

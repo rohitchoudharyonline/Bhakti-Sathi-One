@@ -15,6 +15,9 @@ export default {
       return new Response(null, { headers: corsHeaders });
     }
 
+    // Extract client IP securely from Cloudflare headers
+    const clientIp = request.headers.get('cf-connecting-ip') || request.headers.get('x-real-ip') || '127.0.0.1';
+
     // Handle legacy admin / cms route redirects to official /admin-rudra-0712 entry point
     if (
       pathname === '/admin' ||
@@ -23,7 +26,8 @@ export default {
       pathname.startsWith('/cms/') ||
       pathname === '/login' ||
       pathname === '/admin-login' ||
-      pathname === '/cms-login'
+      pathname === '/cms-login' ||
+      pathname.startsWith('/dashboard')
     ) {
       if (pathname !== '/admin-rudra-0712' && !pathname.startsWith('/admin-rudra-0712/')) {
         return Response.redirect(new URL('/admin-rudra-0712', request.url).toString(), 302);
@@ -32,7 +36,7 @@ export default {
 
     if (pathname.startsWith('/api/')) {
       try {
-        // Ensure tables exist in D1
+        // Ensure tables exist in D1 (contents, media, leads, ip_blocks)
         if (env.DB) {
           await env.DB.prepare(`
             CREATE TABLE IF NOT EXISTS contents (
@@ -71,14 +75,90 @@ export default {
               updated_at TEXT
             )
           `).run().catch(() => {});
+
+          await env.DB.prepare(`
+            CREATE TABLE IF NOT EXISTS ip_blocks (
+              ip TEXT PRIMARY KEY,
+              failed_attempts INTEGER DEFAULT 0,
+              blocked_until TEXT,
+              created_at TEXT
+            )
+          `).run().catch(() => {});
         }
 
-        // Helper to check PIN session from cookie or header
-        const checkPinSession = (req: Request): boolean => {
+        // Helper to check if IP is blocked
+        const checkIpBlocked = async (): Promise<boolean> => {
+          if (!env.DB) return false;
+          try {
+            const { results } = await env.DB.prepare('SELECT failed_attempts, blocked_until FROM ip_blocks WHERE ip = ?').bind(clientIp).all();
+            if (results && results.length > 0) {
+              const row: any = results[0];
+              if (row.failed_attempts >= 3) {
+                return true;
+              }
+              if (row.blocked_until && new Date(row.blocked_until) > new Date()) {
+                return true;
+              }
+            }
+          } catch (e) {
+            console.error('IP block check error:', e);
+          }
+          return false;
+        };
+
+        // Helper to record failed attempt (3 attempts = IP block)
+        const recordFailedAttempt = async () => {
+          if (!env.DB) return;
+          try {
+            const { results } = await env.DB.prepare('SELECT failed_attempts FROM ip_blocks WHERE ip = ?').bind(clientIp).all();
+            let attempts = 1;
+            const now = new Date().toISOString();
+            let blockedUntil = null;
+
+            if (results && results.length > 0) {
+              attempts = (results[0] as any).failed_attempts + 1;
+              if (attempts >= 3) {
+                // Block for 24 hours or permanently
+                const future = new Date(Date.now() + 24 * 60 * 60 * 1000);
+                blockedUntil = future.toISOString();
+              }
+              await env.DB.prepare('UPDATE ip_blocks SET failed_attempts = ?, blocked_until = ? WHERE ip = ?').bind(attempts, blockedUntil, clientIp).run();
+            } else {
+              if (attempts >= 3) {
+                const future = new Date(Date.now() + 24 * 60 * 60 * 1000);
+                blockedUntil = future.toISOString();
+              }
+              await env.DB.prepare('INSERT INTO ip_blocks (ip, failed_attempts, blocked_until, created_at) VALUES (?, ?, ?, ?)').bind(clientIp, attempts, blockedUntil, now).run();
+            }
+          } catch (e) {
+            console.error('Record failed attempt error:', e);
+          }
+        };
+
+        // Helper to reset failed attempts on successful login
+        const resetFailedAttempts = async () => {
+          if (!env.DB) return;
+          try {
+            await env.DB.prepare('DELETE FROM ip_blocks WHERE ip = ?').bind(clientIp).run();
+          } catch (e) {
+            console.error('Reset failed attempts error:', e);
+          }
+        };
+
+        // Check IP block first for all API requests
+        if (await checkIpBlocked()) {
+          return new Response(JSON.stringify({ error: 'Access denied. IP blocked due to repeated security failures.' }), {
+            status: 403,
+            headers: { 'Content-Type': 'application/json', ...corsHeaders }
+          });
+        }
+
+        // Helper to check sessions from cookies
+        const checkSessions = (req: Request): { pinVerified: boolean; cmsAuthorized: boolean } => {
           const cookieHeader = req.headers.get('cookie') || '';
-          const hasPinCookie = cookieHeader.includes('bhakti_admin_pin=verified');
-          const pinHeader = req.headers.get('x-admin-pin');
-          return hasPinCookie || pinHeader === 'verified';
+          const pinVerified = cookieHeader.includes('bhakti_admin_pin=verified') || req.headers.get('x-admin-pin') === 'verified';
+          const cmsAuthorized = cookieHeader.includes('bhakti_admin_session=authenticated') || req.headers.get('x-cms-token') === 'verified';
+          return { pinVerified, cmsAuthorized };
         };
 
         // 1. PIN Verification Endpoint
@@ -95,6 +175,7 @@ export default {
             });
             return new Response(JSON.stringify({ success: true }), { headers });
           } else {
+            await recordFailedAttempt();
             return new Response(JSON.stringify({ success: false, error: 'Invalid PIN. Access denied.' }), {
               status: 401,
               headers: { 'Content-Type': 'application/json', ...corsHeaders }
@@ -104,34 +185,53 @@ export default {
 
         // 2. PIN Session Check
         if (pathname === '/api/admin/pin/session') {
-          const verified = checkPinSession(request);
-          return new Response(JSON.stringify({ verified }), {
+          const { pinVerified } = checkSessions(request);
+          return new Response(JSON.stringify({ verified: pinVerified }), {
             headers: { 'Content-Type': 'application/json', ...corsHeaders }
           });
         }
 
-        // 3. Admin Logout
-        if (pathname === '/api/admin/logout' && request.method === 'POST') {
+        // 3. CMS Login Endpoint (Email + Password Authentication)
+        if (pathname === '/api/auth/cms/login' && request.method === 'POST') {
+          const { pinVerified } = checkSessions(request);
+          if (!pinVerified) {
+            await recordFailedAttempt();
+            return new Response(JSON.stringify({ error: 'PIN verification required first.' }), {
+              status: 401,
+              headers: { 'Content-Type': 'application/json', ...corsHeaders }
+            });
+          }
+
+          const body = await request.json().catch(() => ({}));
+          const email = String(body.email || '').trim().toLowerCase();
+          const password = String(body.password || '');
+
+          const authorizedEmail = 'rohitchoudharyonline@gmail.com';
+          const configuredPassword = String(env.CMS_PASSWORD || 'BhaktiSathiAdmin#2026');
+
+          if (email !== authorizedEmail || password !== configuredPassword) {
+            await recordFailedAttempt();
+            return new Response(JSON.stringify({ success: false, error: 'Invalid credentials or unauthorized account.' }), {
+              status: 401,
+              headers: { 'Content-Type': 'application/json', ...corsHeaders }
+            });
+          }
+
+          // Successful authentication
+          await resetFailedAttempts();
           const headers = new Headers({
             'Content-Type': 'application/json',
-            'Set-Cookie': 'bhakti_admin_pin=; Path=/; HttpOnly; Secure; SameSite=Strict; Expires=Thu, 01 Jan 1970 00:00:00 GMT',
+            'Set-Cookie': 'bhakti_admin_session=authenticated; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=86400',
             ...corsHeaders,
           });
-          return new Response(JSON.stringify({ success: true }), { headers });
+          return new Response(JSON.stringify({ success: true, authorized: true, user: { email: authorizedEmail, role: 'super_admin' } }), { headers });
         }
 
-        if (pathname === '/api/health') {
-          return new Response(JSON.stringify({ status: 'ok', timestamp: new Date().toISOString() }), {
-            headers: { 'Content-Type': 'application/json', ...corsHeaders }
-          });
-        }
-
+        // 4. CMS Session Check
         if (pathname === '/api/auth/cms/session' || pathname === '/api/auth/cms') {
-          const pinVerified = checkPinSession(request);
-          const token = request.headers.get('x-cms-token');
-          // Require both PIN session and valid CMS token/auth
-          if (pinVerified && (token || request.method === 'POST')) {
-            return new Response(JSON.stringify({ authorized: true, user: { role: 'super_admin' } }), {
+          const { pinVerified, cmsAuthorized } = checkSessions(request);
+          if (pinVerified && cmsAuthorized) {
+            return new Response(JSON.stringify({ authorized: true, user: { email: 'rohitchoudharyonline@gmail.com', role: 'super_admin' } }), {
               headers: { 'Content-Type': 'application/json', ...corsHeaders }
             });
           }
@@ -141,14 +241,20 @@ export default {
           });
         }
 
-        if (pathname === '/api/auth/cms/direct-login' && request.method === 'POST') {
-          if (!checkPinSession(request)) {
-            return new Response(JSON.stringify({ error: 'PIN verification required before CMS login.' }), {
-              status: 401,
-              headers: { 'Content-Type': 'application/json', ...corsHeaders }
-            });
-          }
-          return new Response(JSON.stringify({ success: true, token: 'secure-admin-token-' + Date.now() }), {
+        // 5. Admin Logout
+        if (pathname === '/api/admin/logout' && request.method === 'POST') {
+          const headers = new Headers({
+            'Content-Type': 'application/json',
+            ...corsHeaders,
+          });
+          headers.append('Set-Cookie', 'bhakti_admin_session=; Path=/; HttpOnly; Secure; SameSite=Strict; Expires=Thu, 01 Jan 1970 00:00:00 GMT');
+          headers.append('Set-Cookie', 'bhakti_admin_pin=; Path=/; HttpOnly; Secure; SameSite=Strict; Expires=Thu, 01 Jan 1970 00:00:00 GMT');
+          
+          return new Response(JSON.stringify({ success: true }), { headers });
+        }
+
+        if (pathname === '/api/health') {
+          return new Response(JSON.stringify({ status: 'ok', timestamp: new Date().toISOString() }), {
             headers: { 'Content-Type': 'application/json', ...corsHeaders }
           });
         }
@@ -159,7 +265,6 @@ export default {
           const subRoute = pathParts[0];
 
           if (request.method === 'GET') {
-            // Public reads allowed for published items
             if (!subRoute) {
               const contentType = url.searchParams.get('type');
               let query = 'SELECT * FROM contents WHERE status = "published"';
@@ -236,10 +341,11 @@ export default {
             }
           }
 
-          // Write operations require PIN session + CMS auth
+          // Write operations require full authentication (PIN session + CMS session)
           if (request.method === 'POST' || request.method === 'PUT' || request.method === 'DELETE') {
-            if (!checkPinSession(request)) {
-              return new Response(JSON.stringify({ error: 'Unauthorized. PIN verification required.' }), {
+            const { pinVerified, cmsAuthorized } = checkSessions(request);
+            if (!pinVerified || !cmsAuthorized) {
+              return new Response(JSON.stringify({ error: 'Unauthorized. Authentication required.' }), {
                 status: 401,
                 headers: { 'Content-Type': 'application/json', ...corsHeaders }
               });
@@ -306,8 +412,9 @@ export default {
 
         // Unified R2 Media Upload API (`POST /api/upload`) - Protected
         if (pathname === '/api/upload' && request.method === 'POST') {
-          if (!checkPinSession(request)) {
-            return new Response(JSON.stringify({ error: 'Unauthorized. PIN verification required.' }), {
+          const { pinVerified, cmsAuthorized } = checkSessions(request);
+          if (!pinVerified || !cmsAuthorized) {
+            return new Response(JSON.stringify({ error: 'Unauthorized. Authentication required.' }), {
               status: 401,
               headers: { 'Content-Type': 'application/json', ...corsHeaders }
             });
@@ -374,8 +481,9 @@ export default {
 
         // Media Delete API (`DELETE /api/media/:id`) - Protected
         if (pathname.startsWith('/api/media/') && request.method === 'DELETE') {
-          if (!checkPinSession(request)) {
-            return new Response(JSON.stringify({ error: 'Unauthorized. PIN verification required.' }), {
+          const { pinVerified, cmsAuthorized } = checkSessions(request);
+          if (!pinVerified || !cmsAuthorized) {
+            return new Response(JSON.stringify({ error: 'Unauthorized. Authentication required.' }), {
               status: 401,
               headers: { 'Content-Type': 'application/json', ...corsHeaders }
             });
@@ -434,7 +542,8 @@ export default {
           pathname === '/api/generate-guide-seo' ||
           pathname === '/api/fetch-hotel-details'
         ) {
-          if (!checkPinSession(request)) {
+          const { pinVerified, cmsAuthorized } = checkSessions(request);
+          if (!pinVerified || !cmsAuthorized) {
             return new Response(JSON.stringify({ error: 'Unauthorized.' }), {
               status: 401,
               headers: { 'Content-Type': 'application/json', ...corsHeaders }

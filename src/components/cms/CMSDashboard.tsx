@@ -66,6 +66,7 @@ import {
   FileEdit,
   Bell,
   Bus,
+  LogOut,
 } from 'lucide-react';
 
 export const CMSDashboard: React.FC = () => {
@@ -272,39 +273,40 @@ export const CMSDashboard: React.FC = () => {
       {/* 1. Clean Top Header Bar */}
       <div className="bg-white border-b border-stone-200 sticky top-0 z-30 shadow-2xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
-          <div className="flex items-center justify-between gap-3">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
             {/* Title & Badge */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 min-w-0">
               <div className="w-10 h-10 rounded-2xl bg-[#FF4B00] text-white flex items-center justify-center font-sans text-lg font-black shadow-xs shrink-0">
                 HH
               </div>
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
-                  <h1 className="text-base sm:text-lg font-black text-[#1A1A1A] truncate font-sans tracking-tight">
+                  <h1 className="text-sm sm:text-lg font-black text-[#1A1A1A] truncate font-sans tracking-tight">
                     {agencySettings.agencyName} ERP
                   </h1>
-                  <span className="hidden sm:inline-flex bg-[#FFF0EB] border border-[#FF4B00]/30 text-[#FF4B00] text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">
+                  <span className="hidden lg:inline-flex bg-[#FFF0EB] border border-[#FF4B00]/30 text-[#FF4B00] text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">
                     Operations
                   </span>
                 </div>
-                <p className="text-[11px] text-[#1A1A1A]/60 truncate font-medium">
+                <p className="text-[10px] sm:text-[11px] text-[#1A1A1A]/60 truncate font-medium">
                   Travel & Hospitality Management • RBAC Staff Access
                 </p>
               </div>
             </div>
 
             {/* Top Quick Actions */}
-            <div className="flex items-center gap-2 shrink-0">
+            <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 shrink-0">
               <StaffRoleSwitcher />
 
               <button
                 type="button"
                 onClick={() => setActiveView('traveler')}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-[#1A1A1A] text-xs font-bold border border-stone-200 transition cursor-pointer"
+                className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-[#1A1A1A] text-[11px] sm:text-xs font-bold border border-stone-200 transition cursor-pointer"
                 title="Switch to Storefront"
               >
                 <Globe className="w-3.5 h-3.5 text-[#FF4B00]" />
-                <span className="hidden sm:inline">Storefront</span>
+                <span className="hidden md:inline">Storefront</span>
+                <span className="md:hidden">Web</span>
               </button>
 
               {canAccess('packages') && (
@@ -312,13 +314,30 @@ export const CMSDashboard: React.FC = () => {
                   type="button"
                   id="cms-create-package-btn"
                   onClick={handleStartCreate}
-                  className="px-3.5 py-1.5 rounded-xl bg-[#FF4B00] hover:bg-[#E04200] text-white text-xs font-bold flex items-center gap-1.5 shadow-xs transition cursor-pointer"
+                  className="px-2.5 sm:px-3.5 py-1.5 rounded-xl bg-[#FF4B00] hover:bg-[#E04200] text-white text-[11px] sm:text-xs font-bold flex items-center gap-1.5 shadow-xs transition cursor-pointer"
                 >
                   <Plus className="w-3.5 h-3.5" />
-                  <span className="hidden sm:inline">New Tour Package</span>
-                  <span className="sm:hidden">New</span>
+                  <span className="hidden md:inline">New Tour Package</span>
+                  <span className="md:hidden">New</span>
                 </button>
               )}
+
+              <button
+                type="button"
+                onClick={async () => {
+                  try {
+                    await fetch('/api/admin/logout', { method: 'POST', credentials: 'include' });
+                    window.location.href = '/admin-rudra-0712';
+                  } catch (e) {
+                    console.error('Logout failed', e);
+                  }
+                }}
+                className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 text-[11px] sm:text-xs font-bold border border-red-200 transition cursor-pointer"
+                title="Sign Out"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Sign out</span>
+              </button>
             </div>
           </div>
         </div>
