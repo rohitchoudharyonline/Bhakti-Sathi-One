@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useTours } from '../../context/TourContext';
 import { GuideArticle, GuideFaq } from '../../types/guide';
+import { ArticleContentRenderer } from '../common/ArticleContentRenderer';
 import {
   generateGuideArticleSchema,
   generateFAQPageSchema,
@@ -332,89 +333,8 @@ export const GuideDetailView: React.FC<GuideDetailViewProps> = ({ slug }) => {
         )}
 
         {/* Article Body Content */}
-        <div className="prose prose-stone max-w-none space-y-6 text-stone-800 leading-relaxed text-sm sm:text-base">
-          {guide.content.split('\n\n').map((block, idx) => {
-            // Heading 2
-            if (block.startsWith('## ')) {
-              const text = block.replace('## ', '').trim();
-              const id = text
-                .toLowerCase()
-                .replace(/[^\w\s-]/g, '')
-                .replace(/\s+/g, '-');
-              return (
-                <h2
-                  key={idx}
-                  id={id}
-                  className="text-xl sm:text-2xl font-bold text-stone-900 pt-6 pb-2 border-b border-stone-200 scroll-mt-20"
-                >
-                  {text}
-                </h2>
-              );
-            }
-
-            // Heading 3
-            if (block.startsWith('### ')) {
-              const text = block.replace('### ', '').trim();
-              return (
-                <h3 key={idx} className="text-lg font-bold text-stone-900 pt-3 pb-1">
-                  {text}
-                </h3>
-              );
-            }
-
-            // Blockquote
-            if (block.startsWith('> ')) {
-              const text = block.replace(/^>\s*/gm, '');
-              return (
-                <blockquote
-                  key={idx}
-                  className="border-l-4 border-amber-600 bg-amber-50/40 p-4 rounded-r-xl italic text-stone-700 my-4 text-sm"
-                >
-                  {text}
-                </blockquote>
-              );
-            }
-
-            // Horizontal rule
-            if (block.trim() === '---') {
-              return <hr key={idx} className="my-8 border-stone-200" />;
-            }
-
-            // Bullet list
-            if (block.startsWith('- ') || block.startsWith('* ')) {
-              const items = block.split('\n').map((l) => l.replace(/^[-*]\s+/, ''));
-              return (
-                <ul key={idx} className="list-disc list-inside space-y-1.5 pl-2 my-3">
-                  {items.map((item, i) => (
-                    <li key={i} className="text-stone-700 text-sm sm:text-base">
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              );
-            }
-
-            // Numbered list
-            if (/^\d+\.\s+/.test(block)) {
-              const items = block.split('\n').map((l) => l.replace(/^\d+\.\s+/, ''));
-              return (
-                <ol key={idx} className="list-decimal list-inside space-y-1.5 pl-2 my-3">
-                  {items.map((item, i) => (
-                    <li key={i} className="text-stone-700 text-sm sm:text-base">
-                      {item}
-                    </li>
-                  ))}
-                </ol>
-              );
-            }
-
-            // Normal paragraph
-            return (
-              <p key={idx} className="text-stone-700 leading-relaxed text-sm sm:text-base">
-                {block}
-              </p>
-            );
-          })}
+        <div className="prose prose-stone max-w-none">
+          <ArticleContentRenderer content={guide.content} />
         </div>
 
         {/* FAQs Accordion Section */}

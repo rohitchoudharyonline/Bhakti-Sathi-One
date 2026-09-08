@@ -5,6 +5,7 @@ import { analyzeOnPageSeo, generateBlogPostingSchema } from '../../utils/seoEngi
 import { compressAndProcessImage } from '../../utils/imageCompressor';
 import { MediaR2StorageManager } from './MediaR2StorageManager';
 import { UniversalImageUploader } from './UniversalImageUploader';
+import { WordPressInlineImageModal } from './WordPressInlineImageModal';
 import {
   FileText,
   Eye,
@@ -97,6 +98,7 @@ export const PostEditor: React.FC<PostEditorProps> = ({
 
   // Media Pick Modal
   const [showMediaModal, setShowMediaModal] = useState(false);
+  const [showWpImgModal, setShowWpImgModal] = useState(false);
   const [mediaModalTarget, setMediaModalTarget] = useState<'featured' | 'inline'>('featured');
 
   // Inline Category Creator Modal
@@ -800,34 +802,27 @@ Carry layered clothing, comfortable walking footwear, and keep valid ID proofs h
 
                     <button
                       type="button"
-                      disabled={isCompressingInline}
-                      onClick={() => inlineFileInputRef.current?.click()}
-                      className="px-2.5 py-1.5 bg-[#FC3200] hover:bg-[#e02c00] text-white rounded-lg text-xs font-bold flex items-center gap-1.5 transition cursor-pointer shadow-xs"
-                      title="Upload image with automated WebP compression and insert markdown"
+                      onClick={() => setShowWpImgModal(true)}
+                      className="px-3 py-1.5 bg-[#FC3200] hover:bg-[#e02c00] text-white rounded-lg text-xs font-black flex items-center gap-1.5 transition cursor-pointer shadow-xs"
+                      title="WordPress-style inline image builder (Upload to R2, set alignment & caption)"
                     >
-                      {isCompressingInline ? (
-                        <>
-                          <RefreshCw className="w-3.5 h-3.5 animate-spin text-white" />
-                          <span>Compressing WebP...</span>
-                        </>
-                      ) : (
-                        <>
-                          <UploadCloud className="w-3.5 h-3.5 text-white" />
-                          <span>Insert Image (R2)</span>
-                        </>
-                      )}
+                      <FileImage className="w-3.5 h-3.5 text-white" />
+                      <span>📷 Add Photo (WordPress Builder)</span>
                     </button>
 
                     <button
                       type="button"
-                      onClick={() => {
-                        setMediaModalTarget('inline');
-                        setShowMediaModal(true);
-                      }}
-                      className="px-2 py-1.5 bg-stone-200 hover:bg-stone-300 text-stone-800 rounded-lg text-xs font-bold transition cursor-pointer"
-                      title="Pick from R2 Media Catalog"
+                      disabled={isCompressingInline}
+                      onClick={() => inlineFileInputRef.current?.click()}
+                      className="px-2 py-1.5 bg-stone-200 hover:bg-stone-300 text-stone-800 rounded-lg text-xs font-bold flex items-center gap-1 transition cursor-pointer"
+                      title="Quick upload image to R2"
                     >
-                      <FileImage className="w-3.5 h-3.5" />
+                      {isCompressingInline ? (
+                        <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                      ) : (
+                        <UploadCloud className="w-3.5 h-3.5" />
+                      )}
+                      <span className="hidden sm:inline">Quick Upload</span>
                     </button>
                   </div>
                 </div>
@@ -1339,6 +1334,14 @@ Carry layered clothing, comfortable walking footwear, and keep valid ID proofs h
           </div>
         </div>
       )}
+
+      {/* WordPress Style Inline Image Tool Modal */}
+      <WordPressInlineImageModal
+        isOpen={showWpImgModal}
+        onClose={() => setShowWpImgModal(false)}
+        onInsertImage={(snippet) => insertTextAtCursor(snippet)}
+        folder="blogs"
+      />
     </div>
   );
 };

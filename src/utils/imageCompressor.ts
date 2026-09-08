@@ -53,7 +53,8 @@ export async function compressAndProcessImage(
       name: file.name.replace(/\.[^/.]+$/, ''),
       fileName: cleanName,
       fileType: fileExt as any,
-      url: dataUrl, // In client preview, dataUrl or simulated R2
+      url: `${r2PublicDomain.replace(/\/$/, '')}/${storagePath}`,
+      dataUrl,
       storagePath,
       storageProvider: 'cloudflare_r2',
       originalSizeKb,
@@ -150,7 +151,8 @@ export async function compressAndProcessImage(
               name: file.name.replace(/\.[^/.]+$/, ''),
               fileName: finalFileName,
               fileType: targetExt as any,
-              url: compressedDataUrl, // Data URL for instant rendering & local storage
+              url: `${r2PublicDomain.replace(/\/$/, '')}/${storagePath}`,
+              dataUrl: compressedDataUrl,
               storagePath,
               storageProvider: 'cloudflare_r2',
               originalSizeKb,

@@ -3,6 +3,7 @@ import { useTours } from '../../context/TourContext';
 import { updatePageSeo } from '../../utils/seo';
 import { generateBreadcrumbSchema } from '../../utils/seoEngine';
 import { Navbar } from '../common/Navbar';
+import { ArticleContentRenderer } from '../common/ArticleContentRenderer';
 import { GlobalFooter } from './GlobalFooter';
 import { ChevronRight, ArrowLeft, ShieldCheck, Sparkles, Phone, Mail } from 'lucide-react';
 
@@ -94,39 +95,7 @@ export const CustomPageDetailView: React.FC<CustomPageDetailViewProps> = ({ slug
 
         {/* Content Body */}
         <main className="max-w-4xl mx-auto px-4 sm:px-8 py-12 sm:py-16 space-y-8">
-          <div className="prose max-w-none text-stone-800 text-sm sm:text-base leading-relaxed space-y-6">
-            {page.content.split('\n\n').map((paragraph, index) => {
-              if (paragraph.startsWith('## ')) {
-                return (
-                  <h2 key={index} className="text-xl sm:text-2xl font-bold text-black mt-8 mb-3 pt-4 border-t border-stone-100">
-                    {paragraph.replace('## ', '')}
-                  </h2>
-                );
-              }
-              if (paragraph.startsWith('### ')) {
-                return (
-                  <h3 key={index} className="text-lg sm:text-xl font-bold text-black mt-6 mb-2">
-                    {paragraph.replace('### ', '')}
-                  </h3>
-                );
-              }
-              if (paragraph.startsWith('- ')) {
-                const items = paragraph.split('\n').filter((l) => l.startsWith('- '));
-                return (
-                  <ul key={index} className="space-y-2 my-4 pl-4 list-disc text-stone-700">
-                    {items.map((item, i) => (
-                      <li key={i}>{item.replace('- ', '')}</li>
-                    ))}
-                  </ul>
-                );
-              }
-              return (
-                <p key={index} className="text-stone-700 leading-relaxed">
-                  {paragraph}
-                </p>
-              );
-            })}
-          </div>
+          <ArticleContentRenderer content={page.content} />
 
           {/* Direct Support Box */}
           <div className="p-6 bg-stone-50 border border-stone-200 rounded-3xl mt-12 flex flex-col sm:flex-row sm:items-center justify-between gap-4">

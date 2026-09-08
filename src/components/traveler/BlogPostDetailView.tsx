@@ -3,6 +3,7 @@ import { useTours } from '../../context/TourContext';
 import { BlogPost } from '../../types/cms';
 import { updatePageSeo } from '../../utils/seo';
 import { generateBlogPostingSchema, generateBreadcrumbSchema } from '../../utils/seoEngine';
+import { ArticleContentRenderer } from '../common/ArticleContentRenderer';
 import { Navbar } from '../common/Navbar';
 import { GlobalFooter } from './GlobalFooter';
 import {
@@ -188,40 +189,8 @@ export const BlogPostDetailView: React.FC<BlogPostDetailViewProps> = ({ slug }) 
             </div>
           </div>
 
-          {/* Article Main Body (Markdown / Clean Typography) */}
-          <div className="space-y-6 text-stone-800 text-sm sm:text-base leading-relaxed">
-            {post.content.split('\n\n').map((paragraph, index) => {
-              if (paragraph.startsWith('## ')) {
-                return (
-                  <h2 key={index} className="text-xl sm:text-2xl font-bold text-black mt-8 mb-3 pt-4 border-t border-stone-100">
-                    {paragraph.replace('## ', '')}
-                  </h2>
-                );
-              }
-              if (paragraph.startsWith('### ')) {
-                return (
-                  <h3 key={index} className="text-lg sm:text-xl font-bold text-black mt-6 mb-2">
-                    {paragraph.replace('### ', '')}
-                  </h3>
-                );
-              }
-              if (paragraph.startsWith('- ')) {
-                const items = paragraph.split('\n').filter((l) => l.startsWith('- '));
-                return (
-                  <ul key={index} className="space-y-2 my-4 pl-4 list-disc text-stone-700">
-                    {items.map((item, i) => (
-                      <li key={i}>{item.replace('- ', '')}</li>
-                    ))}
-                  </ul>
-                );
-              }
-              return (
-                <p key={index} className="text-stone-700 leading-relaxed">
-                  {paragraph}
-                </p>
-              );
-            })}
-          </div>
+          {/* Article Main Body (Markdown / Clean Typography / WordPress Inline Images) */}
+          <ArticleContentRenderer content={post.content} />
 
           {/* Tags */}
           {post.tags && post.tags.length > 0 && (

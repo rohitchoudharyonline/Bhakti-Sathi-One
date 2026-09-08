@@ -73,6 +73,7 @@ export interface MediaAsset {
   fileName: string;
   fileType: 'png' | 'jpg' | 'jpeg' | 'webp' | 'gif' | 'svg';
   url: string; // R2 CDN / Supabase URL
+  dataUrl?: string; // Local preview data url
   storagePath: string; // e.g. "uploads/2026/08/kashmir-snow.webp"
   storageProvider: 'cloudflare_r2' | 'supabase_storage' | 'local_cdn';
   originalSizeKb: number;

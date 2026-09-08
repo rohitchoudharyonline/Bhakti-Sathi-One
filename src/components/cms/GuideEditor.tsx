@@ -2,6 +2,8 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { useTours } from '../../context/TourContext';
 import { GuideArticle, GuideFaq, GuideSeo, GuideStatus } from '../../types/guide';
 import { analyzeOnPageSeo } from '../../utils/seoEngine';
+import { UniversalImageUploader } from './UniversalImageUploader';
+import { WordPressInlineImageModal } from './WordPressInlineImageModal';
 import {
   ArrowLeft,
   Save,
@@ -92,6 +94,7 @@ export const GuideEditor: React.FC<GuideEditorProps> = ({
   // UI Active Sub-tab
   const [activeTab, setActiveTab] = useState<'content' | 'seo' | 'faqs' | 'settings'>('content');
   const [previewMode, setPreviewMode] = useState(false);
+  const [showWpImgModal, setShowWpImgModal] = useState(false);
 
   // AI Loading states
   const [isGeneratingArticle, setIsGeneratingArticle] = useState(false);
@@ -643,18 +646,19 @@ export const GuideEditor: React.FC<GuideEditorProps> = ({
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-stone-700">Featured Image URL (CDN / R2 / Unsplash)</label>
-                <input
-                  type="text"
-                  value={featuredImage}
-                  onChange={(e) => setFeaturedImage(e.target.value)}
-                  placeholder="https://..."
-                  className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-xs text-stone-800 font-mono focus:outline-none"
-                />
-              </div>
-              <div className="space-y-1.5">
+            <div className="space-y-3">
+              <label className="text-xs font-bold text-stone-700 block">Featured Cover Image (R2 / Cloud Catalog)</label>
+              <UniversalImageUploader
+                label="Upload Guide Cover"
+                description="Compresses to R2 Cloudflare with custom dimension & format"
+                folder="guides"
+                defaultWidth={1200}
+                defaultFormat="webp"
+                currentUrl={featuredImage}
+                onImageSelected={(url) => setFeaturedImage(url)}
+              />
+
+              <div className="space-y-1.5 pt-1">
                 <label className="text-xs font-bold text-stone-700">Image Alt Text (Crucial for Google Image SEO)</label>
                 <input
                   type="text"
@@ -672,6 +676,16 @@ export const GuideEditor: React.FC<GuideEditorProps> = ({
             {/* Toolbar */}
             <div className="flex flex-wrap items-center justify-between p-3 border-b border-stone-200 bg-stone-50/70 gap-2">
               <div className="flex flex-wrap items-center gap-1 text-stone-600">
+                <button
+                  type="button"
+                  onClick={() => setShowWpImgModal(true)}
+                  className="px-2.5 py-1 bg-[#FC3200] hover:bg-[#e02c00] text-white rounded-lg text-xs font-black flex items-center gap-1 transition cursor-pointer shadow-xs mr-1"
+                  title="WordPress-style inline image builder (Upload to R2, set alignment & caption)"
+                >
+                  <ImageIcon className="w-3.5 h-3.5 text-white" />
+                  <span>📷 Add Photo</span>
+                </button>
+                <span className="w-px h-4 bg-stone-300 mx-1" />
                 <button
                   type="button"
                   onClick={() => insertMarkdown('## ', '\n', 'Heading 2')}
@@ -1140,6 +1154,14 @@ export const GuideEditor: React.FC<GuideEditorProps> = ({
           </div>
         </div>
       )}
+
+      {/* WordPress Style Inline Image Tool Modal */}
+      <WordPressInlineImageModal
+        isOpen={showWpImgModal}
+        onClose={() => setShowWpImgModal(false)}
+        onInsertImage={(snippet) => insertMarkdown(snippet, '', '')}
+        folder="guides"
+      />
     </div>
   );
 };

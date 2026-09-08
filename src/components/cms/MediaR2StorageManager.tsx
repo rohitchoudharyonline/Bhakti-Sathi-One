@@ -342,9 +342,14 @@ export const MediaR2StorageManager: React.FC<MediaR2StorageManagerProps> = ({
             {/* Image Thumbnail */}
             <div className="relative aspect-4/3 bg-stone-100 overflow-hidden">
               <img
-                src={asset.url}
+                src={asset.dataUrl || asset.url}
                 alt={asset.altText}
                 className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                onError={(e) => {
+                  if (asset.dataUrl) {
+                    (e.target as HTMLImageElement).src = asset.dataUrl;
+                  }
+                }}
               />
               <span className="absolute top-1 left-1 px-1.5 py-0.5 rounded text-[9px] font-bold uppercase bg-black/75 text-white backdrop-blur-xs">
                 {asset.fileType}
