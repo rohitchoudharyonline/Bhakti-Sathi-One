@@ -21,23 +21,7 @@ export const ArticleContentRenderer: React.FC<ArticleContentRendererProps> = ({
   if (!content) return null;
 
   const resolveArticleImg = (url: string) => {
-    if (!url) return url;
-    if (url.startsWith('data:')) return url;
-    const pathFilename = url.split('/').pop()?.split('.')[0] || '';
-    const match = mediaAssets.find((a) => {
-      if (!a) return false;
-      if (a.url === url || a.dataUrl === url) return true;
-      if (a.storagePath && url.includes(a.storagePath)) return true;
-      if (
-        pathFilename &&
-        ((a.fileName && a.fileName.includes(pathFilename)) ||
-          (a.name && a.name.includes(pathFilename)) ||
-          (a.storagePath && a.storagePath.includes(pathFilename)))
-      )
-        return true;
-      return false;
-    });
-    return match?.dataUrl || url;
+    return url;
   };
 
   // Helper to parse inline formatting like **bold**, *italic*, and [link](url)
@@ -362,11 +346,17 @@ export const ArticleContentRenderer: React.FC<ArticleContentRendererProps> = ({
 
         // 10. Raw HTML snippet support (<figure...>, <img...>)
         if (trimmed.startsWith('<figure') || trimmed.startsWith('<img')) {
+          // Process any embedded src="..." URLs to ensure R2 URLs resolve to dataUrl
+          const processedHtml = trimmed.replace(
+            /src=["']([^"']+)["']/gi,
+            (_match, p1) => `src="${resolveArticleImg(p1)}"`
+          );
+
           return (
             <div
               key={idx}
               className="my-6 overflow-hidden rounded-2xl"
-              dangerouslySetInnerHTML={{ __html: trimmed }}
+              dangerouslySetInnerHTML={{ __html: processedHtml }}
             />
           );
         }

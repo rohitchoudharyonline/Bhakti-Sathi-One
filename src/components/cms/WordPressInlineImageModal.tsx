@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import { useTours } from '../../context/TourContext';
 import { MediaAsset } from '../../types/cms';
-import { compressAndProcessImage } from '../../utils/imageCompressor';
+import { compressAndProcessImage, uploadToR2 } from '../../utils/imageCompressor';
 
 interface WordPressInlineImageModalProps {
   isOpen: boolean;
@@ -69,10 +69,19 @@ export const WordPressInlineImageModal: React.FC<WordPressInlineImageModalProps>
         folder,
       });
 
+      // Upload directly to real Cloudflare R2 bucket via server-side proxy
+      await uploadToR2(
+        result.dataUrl,
+        result.asset.fileName,
+        result.blob.type,
+        result.asset.storagePath,
+        cloudStorageSettings
+      );
+
       addMediaAsset(result.asset);
 
       const cleanAlt = file.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ');
-      setSelectedImageUrl(result.asset.dataUrl || result.asset.url);
+      setSelectedImageUrl(result.asset.url);
       setSelectedAsset(result.asset);
       setAltText(cleanAlt);
       setCaption(cleanAlt);
@@ -89,7 +98,7 @@ export const WordPressInlineImageModal: React.FC<WordPressInlineImageModalProps>
   };
 
   const handleSelectFromLibrary = (asset: MediaAsset) => {
-    setSelectedImageUrl(asset.dataUrl || asset.url);
+    setSelectedImageUrl(asset.url);
     setSelectedAsset(asset);
     setAltText(asset.altText || asset.name);
     setCaption(asset.caption || asset.altText || asset.name);

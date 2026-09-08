@@ -228,3 +228,89 @@ export async function compressPaymentProof(file: File): Promise<{
   };
 }
 
+/**
+ * Uploads a base64 encoded file to Cloudflare R2 bucket using the secure server-side API proxy.
+ */
+export async function uploadToR2(
+  fileBase64: string,
+  fileName: string,
+  contentType: string,
+  storagePath: string,
+  settings: CloudStorageSettings
+): Promise<boolean> {
+  if (!settings?.r2AccountId || !settings?.r2AccessKeyId || !settings?.r2SecretAccessKey || !settings?.r2BucketName) {
+    console.warn('Skipping physical upload: R2 storage credentials are not configured in settings.');
+    return false;
+  }
+
+  try {
+    const response = await fetch('/api/media/upload', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        fileBase64,
+        fileName,
+        contentType,
+        storagePath,
+        r2AccountId: settings.r2AccountId,
+        r2AccessKeyId: settings.r2AccessKeyId,
+        r2SecretAccessKey: settings.r2SecretAccessKey,
+        r2BucketName: settings.r2BucketName,
+      }),
+    });
+
+    if (!response.ok) {
+      const errData = await response.json().catch(() => ({}));
+      throw new Error(errData.error || `HTTP ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.success === true;
+  } catch (error) {
+    console.error('Failed to upload image to Cloudflare R2:', error);
+    throw error;
+  }
+}
+
+/**
+ * Deletes a file from Cloudflare R2 bucket using the secure server-side API proxy.
+ */
+export async function deleteFromR2(
+  storagePath: string,
+  settings: CloudStorageSettings
+): Promise<boolean> {
+  if (!settings?.r2AccountId || !settings?.r2AccessKeyId || !settings?.r2SecretAccessKey || !settings?.r2BucketName) {
+    console.warn('Skipping physical deletion: R2 storage credentials are not configured in settings.');
+    return false;
+  }
+
+  try {
+    const response = await fetch('/api/media/delete', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        storagePath,
+        r2AccountId: settings.r2AccountId,
+        r2AccessKeyId: settings.r2AccessKeyId,
+        r2SecretAccessKey: settings.r2SecretAccessKey,
+        r2BucketName: settings.r2BucketName,
+      }),
+    });
+
+    if (!response.ok) {
+      const errData = await response.json().catch(() => ({}));
+      throw new Error(errData.error || `HTTP ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.success === true;
+  } catch (error) {
+    console.error('Failed to delete image from Cloudflare R2:', error);
+    return false;
+  }
+}
+

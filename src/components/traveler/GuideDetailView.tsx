@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { useTours } from '../../context/TourContext';
 import { GuideArticle, GuideFaq } from '../../types/guide';
 import { ArticleContentRenderer } from '../common/ArticleContentRenderer';
+import { resolveDisplayImage, handleImageError } from '../../utils/imageResolver';
 import {
   generateGuideArticleSchema,
   generateFAQPageSchema,
@@ -37,6 +38,7 @@ export const GuideDetailView: React.FC<GuideDetailViewProps> = ({ slug }) => {
     guides,
     packages,
     agencySettings,
+    mediaAssets,
     navigateToGuideHub,
     navigateToGuideDetail,
     navigateToHome,
@@ -300,13 +302,11 @@ export const GuideDetailView: React.FC<GuideDetailViewProps> = ({ slug }) => {
         {/* Featured Image */}
         <div className="rounded-3xl overflow-hidden shadow-sm border border-stone-200/90 aspect-16/9 bg-stone-100">
           <img
-            src={
-              guide.featuredImage ||
-              'https://images.unsplash.com/photo-1598091383021-15ddea10925d?auto=format&fit=crop&w=1200&q=80'
-            }
+            src={resolveDisplayImage(guide.featuredImage, mediaAssets)}
             alt={guide.imageAlt || guide.title}
             className="w-full h-full object-cover"
             loading="eager"
+            onError={(e) => handleImageError(e, guide.featuredImage, mediaAssets)}
           />
         </div>
 

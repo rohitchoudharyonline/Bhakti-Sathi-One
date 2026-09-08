@@ -2,10 +2,12 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useTours } from '../../context/TourContext';
 import { BlogPost, BlogCategory, MediaAsset } from '../../types/cms';
 import { analyzeOnPageSeo, generateBlogPostingSchema } from '../../utils/seoEngine';
-import { compressAndProcessImage } from '../../utils/imageCompressor';
+import { compressAndProcessImage, uploadToR2 } from '../../utils/imageCompressor';
 import { MediaR2StorageManager } from './MediaR2StorageManager';
 import { UniversalImageUploader } from './UniversalImageUploader';
 import { WordPressInlineImageModal } from './WordPressInlineImageModal';
+import { ArticleContentRenderer } from '../common/ArticleContentRenderer';
+import { resolveDisplayImage, handleImageError } from '../../utils/imageResolver';
 import {
   FileText,
   Eye,
@@ -87,6 +89,7 @@ export const PostEditor: React.FC<PostEditorProps> = ({
     updateBlogPost,
     addBlogCategory,
     addMediaAsset,
+    mediaAssets,
     cloudStorageSettings,
     agencySettings,
     navigateToBlogPost,
@@ -320,13 +323,22 @@ Carry layered clothing, comfortable walking footwear, and keep valid ID proofs h
         folder: 'blog-covers',
       });
 
+      // Upload directly to real Cloudflare R2 bucket via server-side proxy
+      await uploadToR2(
+        result.dataUrl,
+        result.asset.fileName,
+        result.blob.type,
+        result.asset.storagePath,
+        cloudStorageSettings
+      );
+
       // Save to media assets catalog
       addMediaAsset(result.asset);
 
       // Update form state with compressed image URL and metadata
       setFormData((prev) => ({
         ...prev,
-        featuredImage: result.asset.dataUrl || result.asset.url,
+        featuredImage: result.asset.url,
         featuredImageAlt: prev.featuredImageAlt || file.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' '),
       }));
 
@@ -361,10 +373,19 @@ Carry layered clothing, comfortable walking footwear, and keep valid ID proofs h
         folder: 'blog-inline',
       });
 
+      // Upload directly to real Cloudflare R2 bucket via server-side proxy
+      await uploadToR2(
+        result.dataUrl,
+        result.asset.fileName,
+        result.blob.type,
+        result.asset.storagePath,
+        cloudStorageSettings
+      );
+
       addMediaAsset(result.asset);
 
       const altText = file.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ');
-      const imageUrlToInsert = result.asset.dataUrl || result.asset.url;
+      const imageUrlToInsert = result.asset.url;
       const markdownSnippet = `\n\n![${altText}](${imageUrlToInsert})\n*Caption: ${altText} (Compressed WebP ${result.compressedSizeKb} KB)*\n\n`;
 
       insertTextAtCursor(markdownSnippet);
@@ -1137,15 +1158,16 @@ Carry layered clothing, comfortable walking footwear, and keep valid ID proofs h
                 {formData.featuredImage && (
                   <div className="aspect-video bg-stone-100 rounded-2xl overflow-hidden border border-stone-200">
                     <img
-                      src={formData.featuredImage}
+                      src={resolveDisplayImage(formData.featuredImage, mediaAssets)}
                       alt={formData.featuredImageAlt}
                       className="w-full h-full object-cover"
+                      onError={(e) => handleImageError(e, formData.featuredImage, mediaAssets)}
                     />
                   </div>
                 )}
 
-                <div className="prose prose-stone max-w-none text-stone-800 text-sm leading-relaxed whitespace-pre-line">
-                  {formData.content}
+                <div className="prose prose-stone max-w-none text-stone-800 text-sm leading-relaxed">
+                  <ArticleContentRenderer content={formData.content} />
                 </div>
 
                 <div className="pt-6 border-t border-stone-200 flex flex-wrap gap-1.5">

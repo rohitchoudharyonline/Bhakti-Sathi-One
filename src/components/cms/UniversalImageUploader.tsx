@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import { useTours } from '../../context/TourContext';
 import { MediaAsset } from '../../types/cms';
-import { compressAndProcessImage } from '../../utils/imageCompressor';
+import { compressAndProcessImage, uploadToR2 } from '../../utils/imageCompressor';
 import { MediaR2StorageManager } from './MediaR2StorageManager';
 
 export interface CompressionStats {
@@ -125,6 +125,15 @@ export const UniversalImageUploader: React.FC<UniversalImageUploaderProps> = ({
         folder,
       });
 
+      // Upload directly to real Cloudflare R2 bucket via server-side proxy
+      await uploadToR2(
+        result.dataUrl,
+        result.asset.fileName,
+        result.blob.type,
+        result.asset.storagePath,
+        cloudStorageSettings
+      );
+
       // Save to media assets in state/local storage
       addMediaAsset(result.asset);
 
@@ -138,7 +147,7 @@ export const UniversalImageUploader: React.FC<UniversalImageUploaderProps> = ({
       };
 
       setLastStats(stats);
-      const finalSelectedUrl = result.asset.dataUrl || result.asset.url;
+      const finalSelectedUrl = result.asset.url;
       onImageSelected(finalSelectedUrl, result.asset, stats);
     } catch (err) {
       console.error('Failed to compress and upload image:', err);

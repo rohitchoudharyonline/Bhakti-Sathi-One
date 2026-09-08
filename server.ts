@@ -5,6 +5,7 @@ import nodemailer from 'nodemailer';
 import { createServer as createViteServer } from 'vite';
 import { GoogleGenAI, Type } from '@google/genai';
 import dotenv from 'dotenv';
+import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 
 dotenv.config();
 
@@ -16,7 +17,7 @@ const CMS_SESSION_MAX_AGE_MS = 8 * 60 * 60 * 1000;
 
 app.disable('x-powered-by');
 app.set('trust proxy', 1);
-app.use(express.json({ limit: '100kb' }));
+app.use(express.json({ limit: '15mb' }));
 
 app.use((_req, res, next) => {
   res.setHeader('X-Content-Type-Options', 'nosniff');
@@ -708,6 +709,97 @@ app.post('/api/fetch-hotel-details', publicApiRateLimit, requireCmsSession, asyn
   const url = cleanText(req.body?.url, 500);
   if (!url) return res.status(400).json({ error: 'Hotel URL or name is required.' });
   return res.json(generateUnverifiedHotel(url));
+});
+
+// Real R2 Media Upload & Deletion endpoints proxies
+app.post('/api/media/upload', requireCmsSession, async (req, res) => {
+  const {
+    fileBase64,
+    fileName,
+    contentType,
+    storagePath,
+    r2AccountId,
+    r2AccessKeyId,
+    r2SecretAccessKey,
+    r2BucketName,
+  } = req.body;
+
+  if (!fileBase64 || !fileName || !storagePath) {
+    return res.status(400).json({ error: 'Missing required parameters.' });
+  }
+
+  if (!r2AccountId || !r2AccessKeyId || !r2SecretAccessKey || !r2BucketName) {
+    return res.status(400).json({ error: 'R2 storage credentials are not configured.' });
+  }
+
+  try {
+    const s3 = new S3Client({
+      region: 'auto',
+      endpoint: `https://${r2AccountId}.r2.cloudflarestorage.com`,
+      credentials: {
+        accessKeyId: r2AccessKeyId,
+        secretAccessKey: r2SecretAccessKey,
+      },
+    });
+
+    const base64Data = fileBase64.replace(/^data:image\/\w+;base64,/, '');
+    const buffer = Buffer.from(base64Data, 'base64');
+
+    await s3.send(
+      new PutObjectCommand({
+        Bucket: r2BucketName,
+        Key: storagePath,
+        Body: buffer,
+        ContentType: contentType || 'image/webp',
+      })
+    );
+
+    return res.json({ success: true, storagePath });
+  } catch (error: any) {
+    console.error('R2 upload failed:', error);
+    return res.status(500).json({ error: `R2 upload failed: ${error.message || error}` });
+  }
+});
+
+app.post('/api/media/delete', requireCmsSession, async (req, res) => {
+  const {
+    storagePath,
+    r2AccountId,
+    r2AccessKeyId,
+    r2SecretAccessKey,
+    r2BucketName,
+  } = req.body;
+
+  if (!storagePath) {
+    return res.status(400).json({ error: 'storagePath (Key) is required.' });
+  }
+
+  if (!r2AccountId || !r2AccessKeyId || !r2SecretAccessKey || !r2BucketName) {
+    return res.status(400).json({ error: 'R2 storage credentials are not configured.' });
+  }
+
+  try {
+    const s3 = new S3Client({
+      region: 'auto',
+      endpoint: `https://${r2AccountId}.r2.cloudflarestorage.com`,
+      credentials: {
+        accessKeyId: r2AccessKeyId,
+        secretAccessKey: r2SecretAccessKey,
+      },
+    });
+
+    await s3.send(
+      new DeleteObjectCommand({
+        Bucket: r2BucketName,
+        Key: storagePath,
+      })
+    );
+
+    return res.json({ success: true });
+  } catch (error: any) {
+    console.error('R2 deletion failed:', error);
+    return res.status(500).json({ error: `R2 deletion failed: ${error.message || error}` });
+  }
 });
 
 app.post('/api/notify-lead', leadRateLimit, async (req, res) => {

@@ -2,7 +2,8 @@ import React, { useState, useRef } from 'react';
 import { useTours } from '../../context/TourContext';
 import { BlogPost, BlogCategory, MediaAsset } from '../../types/cms';
 import { analyzeOnPageSeo, generateBlogPostingSchema } from '../../utils/seoEngine';
-import { compressAndProcessImage } from '../../utils/imageCompressor';
+import { compressAndProcessImage, uploadToR2 } from '../../utils/imageCompressor';
+import { resolveDisplayImage, handleImageError } from '../../utils/imageResolver';
 import { MediaR2StorageManager } from './MediaR2StorageManager';
 import { PostEditor } from './PostEditor';
 import {
@@ -345,13 +346,22 @@ Bring thermal layers in winter, comfortable walking boots, and modest attire for
         folder: 'blog-covers',
       });
 
+      // Upload directly to real Cloudflare R2 bucket via server-side proxy
+      await uploadToR2(
+        result.dataUrl,
+        result.asset.fileName,
+        result.blob.type,
+        result.asset.storagePath,
+        cloudStorageSettings
+      );
+
       // Save to cloud assets
       addMediaAsset(result.asset);
 
       // Update form state with compressed image URL
       setFormData((prev) => ({
         ...prev,
-        featuredImage: result.asset.dataUrl || result.asset.url,
+        featuredImage: result.asset.url,
         featuredImageAlt: prev.featuredImageAlt || file.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' '),
       }));
 
@@ -383,10 +393,19 @@ Bring thermal layers in winter, comfortable walking boots, and modest attire for
         folder: 'blog-inline',
       });
 
+      // Upload directly to real Cloudflare R2 bucket via server-side proxy
+      await uploadToR2(
+        result.dataUrl,
+        result.asset.fileName,
+        result.blob.type,
+        result.asset.storagePath,
+        cloudStorageSettings
+      );
+
       addMediaAsset(result.asset);
 
       const altText = file.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ');
-      const imageUrlToInsert = result.asset.dataUrl || result.asset.url;
+      const imageUrlToInsert = result.asset.url;
       const markdownSnippet = `\n\n![${altText}](${imageUrlToInsert})\n*Caption: ${altText}*\n\n`;
 
       insertTextAtCursor(markdownSnippet);
@@ -850,9 +869,10 @@ Bring thermal layers in winter, comfortable walking boots, and modest attire for
                           <div className="flex items-center gap-3">
                             <div className="w-14 h-11 rounded-lg overflow-hidden bg-stone-100 border border-stone-200 shrink-0 relative group">
                               <img
-                                src={post.featuredImage}
+                                src={resolveDisplayImage(post.featuredImage, mediaAssets)}
                                 alt={post.title}
                                 className="w-full h-full object-cover group-hover:scale-105 transition"
+                                onError={(e) => handleImageError(e, post.featuredImage, mediaAssets)}
                               />
                             </div>
                             <div className="space-y-0.5 max-w-md">
@@ -984,7 +1004,12 @@ Bring thermal layers in winter, comfortable walking boots, and modest attire for
               {filteredPosts.map((post) => (
                 <div key={post.id} className="bg-white rounded-2xl border border-stone-200 shadow-2xs overflow-hidden flex flex-col justify-between">
                   <div className="relative aspect-[16/10] bg-stone-100">
-                    <img src={post.featuredImage} alt={post.title} className="w-full h-full object-cover" />
+                    <img
+                      src={resolveDisplayImage(post.featuredImage, mediaAssets)}
+                      alt={post.title}
+                      className="w-full h-full object-cover"
+                      onError={(e) => handleImageError(e, post.featuredImage, mediaAssets)}
+                    />
                     <div className="absolute top-2 left-2 flex items-center gap-1">
                       <button
                         onClick={() => toggleBlogPostStatus(post.id)}

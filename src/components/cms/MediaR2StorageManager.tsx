@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useTours } from '../../context/TourContext';
 import { MediaAsset } from '../../types/cms';
-import { compressAndProcessImage } from '../../utils/imageCompressor';
+import { compressAndProcessImage, uploadToR2, deleteFromR2 } from '../../utils/imageCompressor';
 import { runR2Diagnostic, R2DiagnosticReport } from '../../utils/r2Diagnostic';
 import {
   UploadCloud,
@@ -103,6 +103,15 @@ export const MediaR2StorageManager: React.FC<MediaR2StorageManagerProps> = ({
           folder: selectedFolder === 'all' ? 'uploads' : selectedFolder,
         });
 
+        // Upload directly to real Cloudflare R2 bucket via server-side proxy
+        await uploadToR2(
+          result.dataUrl,
+          result.asset.fileName,
+          result.blob.type,
+          result.asset.storagePath,
+          cloudStorageSettings
+        );
+
         addMediaAsset(result.asset);
         logs.push({
           name: file.name,
@@ -122,10 +131,24 @@ export const MediaR2StorageManager: React.FC<MediaR2StorageManagerProps> = ({
   };
 
   const handleCopyUrl = (asset: MediaAsset) => {
-    const urlToCopy = asset.dataUrl || asset.url;
+    const urlToCopy = asset.url;
     navigator.clipboard.writeText(urlToCopy);
     setCopiedId(asset.id);
     setTimeout(() => setCopiedId(null), 2000);
+  };
+
+  const handleDeleteAsset = async (asset: MediaAsset) => {
+    if (window.confirm(`Are you sure you want to delete "${asset.name}"? This will physically remove it from your Cloudflare R2 bucket.`)) {
+      try {
+        if (asset.storagePath) {
+          await deleteFromR2(asset.storagePath, cloudStorageSettings);
+        }
+        deleteMediaAsset(asset.id);
+      } catch (err) {
+        console.error('Failed to physically delete from R2:', err);
+        deleteMediaAsset(asset.id);
+      }
+    }
   };
 
   const filteredAssets = mediaAssets.filter((asset) => {
@@ -411,7 +434,7 @@ export const MediaR2StorageManager: React.FC<MediaR2StorageManagerProps> = ({
             <div className="p-1.5 bg-stone-50 border-t border-stone-100 flex items-center justify-between gap-1">
               {onSelectMedia ? (
                 <button
-                  onClick={() => onSelectMedia(asset.dataUrl || asset.url, asset)}
+                  onClick={() => onSelectMedia(asset.url, asset)}
                   className="flex-1 py-1 px-2 bg-black hover:bg-stone-800 text-white rounded-md text-[10px] font-bold transition text-center cursor-pointer"
                 >
                   Insert
@@ -445,7 +468,7 @@ export const MediaR2StorageManager: React.FC<MediaR2StorageManagerProps> = ({
               </button>
 
               <button
-                onClick={() => deleteMediaAsset(asset.id)}
+                onClick={() => handleDeleteAsset(asset)}
                 className="p-1 hover:bg-rose-50 rounded text-stone-400 hover:text-rose-600 transition cursor-pointer"
                 title="Delete Media"
               >
@@ -521,14 +544,50 @@ export const MediaR2StorageManager: React.FC<MediaR2StorageManagerProps> = ({
               </div>
             </div>
 
-            <div className="flex gap-2 pt-2">
+            <div className="flex flex-col sm:flex-row gap-2 pt-2">
               <button
-                onClick={() => handleCopyUrl(selectedAssetForPreview)}
+                onClick={() => {
+                  navigator.clipboard.writeText(selectedAssetForPreview.url);
+                  setCopiedId(selectedAssetForPreview.id + '_url');
+                  setTimeout(() => setCopiedId(null), 2000);
+                }}
                 className="flex-1 py-2 bg-black hover:bg-stone-800 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 cursor-pointer"
               >
-                <Copy className="w-3.5 h-3.5" />
-                <span>Copy Direct CDN Link</span>
+                {copiedId === selectedAssetForPreview.id + '_url' ? (
+                  <>
+                    <Check className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>Copied R2 URL!</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-3.5 h-3.5" />
+                    <span>Copy R2 CDN URL</span>
+                  </>
+                )}
               </button>
+
+              {selectedAssetForPreview.dataUrl && (
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(selectedAssetForPreview.dataUrl!);
+                    setCopiedId(selectedAssetForPreview.id + '_data');
+                    setTimeout(() => setCopiedId(null), 2000);
+                  }}
+                  className="py-2 px-4 bg-stone-100 hover:bg-stone-200 border border-stone-200 text-stone-800 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  {copiedId === selectedAssetForPreview.id + '_data' ? (
+                    <>
+                      <Check className="w-3.5 h-3.5 text-emerald-600" />
+                      <span>Copied Data URL!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-3.5 h-3.5 text-stone-600" />
+                      <span>Copy Data URL (Offline)</span>
+                    </>
+                  )}
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -566,7 +625,10 @@ export const MediaR2StorageManager: React.FC<MediaR2StorageManagerProps> = ({
                 </span>
 
                 <div>
-                  <label className="block text-stone-500 font-medium mb-1">R2 Public CDN Domain</label>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block text-stone-500 font-medium">R2 Public CDN Domain</label>
+                    <span className="text-[10px] text-stone-400 font-mono">Current: {cloudStorageSettings.r2PublicDomain || 'https://pub-r2.mybhaktisathi.com'}</span>
+                  </div>
                   <input
                     type="text"
                     value={cloudStorageSettings.r2PublicDomain}
@@ -576,9 +638,45 @@ export const MediaR2StorageManager: React.FC<MediaR2StorageManagerProps> = ({
                         r2PublicDomain: e.target.value,
                       })
                     }
-                    placeholder="https://pub-r2.mybhaktisathi.com"
-                    className="w-full p-2 bg-white border border-stone-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-black"
+                    placeholder="https://pub-r2.mybhaktisathi.com or https://pub-xxxx.r2.dev"
+                    className="w-full p-2 bg-white border border-stone-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-black font-mono"
                   />
+                  
+                  <div className="mt-1.5 flex items-center gap-1.5 flex-wrap">
+                    <span className="text-[10px] text-stone-400 font-bold">Presets:</span>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        updateCloudStorageSettings({
+                          ...cloudStorageSettings,
+                          r2PublicDomain: 'https://pub-r2.mybhaktisathi.com',
+                        })
+                      }
+                      className="px-2 py-0.5 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded text-[10px] font-mono cursor-pointer border border-stone-200"
+                    >
+                      pub-r2.mybhaktisathi.com
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const devDomain = prompt('Enter your Cloudflare R2 Public Subdomain (e.g. pub-123456789.r2.dev):', 'https://pub-bhaktisathi.r2.dev');
+                        if (devDomain) {
+                          updateCloudStorageSettings({
+                            ...cloudStorageSettings,
+                            r2PublicDomain: devDomain.startsWith('http') ? devDomain : `https://${devDomain}`,
+                          });
+                        }
+                      }}
+                      className="px-2 py-0.5 bg-amber-50 hover:bg-amber-100 text-amber-800 rounded text-[10px] font-mono cursor-pointer border border-amber-200"
+                    >
+                      Use R2.dev Subdomain
+                    </button>
+                  </div>
+
+                  <p className="mt-2 text-[11px] text-stone-600 bg-amber-50/80 border border-amber-200/80 rounded-lg p-2.5 leading-normal">
+                    <strong className="text-amber-900 block font-bold mb-0.5">💡 DNS_PROBE_FINISHED_NXDOMAIN Fix:</strong>
+                    If opening the URL in a browser tab gives a DNS error, your custom domain <code className="bg-amber-100 px-1 rounded font-mono text-[10px]">pub-r2.mybhaktisathi.com</code> is not mapped in Cloudflare DNS. In Cloudflare Dashboard, go to <strong>R2 &gt; bhakti-sathi &gt; Settings &gt; Custom Domains</strong> and add it, or use your <code className="bg-amber-100 px-1 rounded font-mono text-[10px]">*.r2.dev</code> public bucket URL above. All images in the app continue to load instantly via data backup.
+                  </p>
                 </div>
 
                 <div className="grid grid-cols-2 gap-2">

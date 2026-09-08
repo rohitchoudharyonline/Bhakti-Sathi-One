@@ -4,6 +4,7 @@ import { BlogPost } from '../../types/cms';
 import { updatePageSeo } from '../../utils/seo';
 import { generateBlogPostingSchema, generateBreadcrumbSchema } from '../../utils/seoEngine';
 import { ArticleContentRenderer } from '../common/ArticleContentRenderer';
+import { resolveDisplayImage, handleImageError } from '../../utils/imageResolver';
 import { Navbar } from '../common/Navbar';
 import { GlobalFooter } from './GlobalFooter';
 import {
@@ -36,6 +37,7 @@ export const BlogPostDetailView: React.FC<BlogPostDetailViewProps> = ({ slug }) 
     navigateToAllTours,
     packages,
     agencySettings,
+    mediaAssets,
   } = useTours();
 
   const [copied, setCopied] = useState(false);
@@ -162,9 +164,10 @@ export const BlogPostDetailView: React.FC<BlogPostDetailViewProps> = ({ slug }) 
           {/* Featured Image */}
           <div className="aspect-16/9 bg-stone-100 rounded-3xl overflow-hidden border border-stone-200 shadow-sm">
             <img
-              src={post.featuredImage}
+              src={resolveDisplayImage(post.featuredImage, mediaAssets)}
               alt={post.featuredImageAlt || post.title}
               className="w-full h-full object-cover"
+              onError={(e) => handleImageError(e, post.featuredImage, mediaAssets)}
             />
           </div>
 
