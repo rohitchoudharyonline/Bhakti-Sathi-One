@@ -1408,6 +1408,12 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch {}
   }, [registeredUsers]);
 
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEYS.GUIDE_CATEGORIES, JSON.stringify(guideCategories));
+    } catch {}
+  }, [guideCategories]);
+
   // High-Level Navigation Handlers
   const navigateToHome = () => {
     setActiveView('traveler');

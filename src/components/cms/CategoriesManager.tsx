@@ -67,7 +67,7 @@ export const CategoriesManager: React.FC = () => {
   };
 
   const handleDelete = (id: string, name: string) => {
-    if (confirm(`Are you sure you want to delete category "${name}"?`)) {
+    if (window.confirm(`Are you sure you want to delete category "${name}"?`)) {
       deleteGuideCategory(id);
     }
   };
@@ -81,110 +81,185 @@ export const CategoriesManager: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Top Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <div className="flex items-center gap-2">
             <Folder className="w-6 h-6 text-[#FF4B00]" />
-            <h2 className="text-2xl font-black text-stone-900">Category</h2>
+            <h2 className="text-2xl font-black text-stone-900">Category Manager</h2>
           </div>
           <p className="text-stone-500 text-sm mt-1">
-            Organize posts and guides into hierarchical categories (WordPress Taxonomy).
+            Organize posts and guides into hierarchical categories.
           </p>
         </div>
         <button
+          type="button"
           onClick={openCreateModal}
-          className="flex items-center gap-2 px-4 py-2.5 bg-[#FF4B00] text-white rounded-xl font-bold hover:bg-[#e04200] transition shadow-sm cursor-pointer"
+          className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-3 bg-[#FF4B00] active:bg-[#d43e00] text-white rounded-xl font-bold hover:bg-[#e04200] transition shadow-xs cursor-pointer text-sm"
         >
           <Plus className="w-4 h-4" />
           Add Category
         </button>
       </div>
 
-      {/* Filter and Table Card */}
-      <div className="bg-white border border-stone-200 rounded-xl overflow-hidden shadow-xs">
-        <div className="p-4 border-b border-stone-200 bg-stone-50/50 flex items-center justify-between gap-4">
-          <div className="relative flex-1 max-w-xs">
-            <Search className="w-4 h-4 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
-              placeholder="Filter categories..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-9 pr-4 py-1.5 border border-stone-200 rounded-lg text-sm bg-white outline-none focus:border-[#FF4B00]"
-            />
-          </div>
-          <span className="text-xs font-semibold text-stone-500">
-            {filteredCategories.length} Categories Total
-          </span>
+      {/* Filter Bar */}
+      <div className="bg-white border border-stone-200 rounded-2xl p-4 shadow-2xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+        <div className="relative flex-1">
+          <Search className="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+          <input
+            type="text"
+            placeholder="Search categories..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-10 pr-4 py-2 border border-stone-200 rounded-xl text-sm bg-white outline-none focus:border-[#FF4B00]"
+          />
         </div>
+        <span className="text-xs font-bold text-stone-500 self-end sm:self-center">
+          {filteredCategories.length} Categories Total
+        </span>
+      </div>
 
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="bg-stone-50 border-b border-stone-200 text-stone-500 text-xs font-bold uppercase tracking-wider">
-              <th className="p-4">Category Name</th>
-              <th className="p-4">Slug</th>
-              <th className="p-4">Description</th>
-              <th className="p-4">Posts Count</th>
-              <th className="p-4 text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-stone-100">
-            {filteredCategories.length === 0 ? (
-              <tr>
-                <td colSpan={5} className="p-8 text-center text-stone-400">
-                  No categories found. Click "Add Category" to create one.
-                </td>
-              </tr>
-            ) : (
-              filteredCategories.map((cat) => {
-                const count = guides.filter(
-                  (g) => g.category?.toLowerCase() === cat.name.toLowerCase() || g.category?.toLowerCase() === cat.slug.toLowerCase()
-                ).length;
+      {/* 1. MOBILE CARD LIST (visible on phones < 768px) */}
+      <div className="block md:hidden space-y-3">
+        {filteredCategories.length === 0 ? (
+          <div className="bg-white p-8 rounded-2xl border border-stone-200 text-center text-stone-400 text-sm">
+            No categories found. Click "Add Category" to create one.
+          </div>
+        ) : (
+          filteredCategories.map((cat) => {
+            const count = guides.filter(
+              (g) =>
+                g.category?.toLowerCase() === cat.name.toLowerCase() ||
+                g.category?.toLowerCase() === cat.slug.toLowerCase()
+            ).length;
 
-                return (
-                  <tr key={cat.id} className="hover:bg-stone-50/80 transition-colors">
-                    <td className="p-4">
-                      <div className="font-bold text-stone-900 flex items-center gap-2">
-                        <Folder className="w-4 h-4 text-amber-500 shrink-0" />
-                        {cat.name}
-                      </div>
-                    </td>
-                    <td className="p-4 font-mono text-xs text-stone-500">
+            return (
+              <div
+                key={`mobile-cat-${cat.id}`}
+                className="bg-white border border-stone-200 rounded-2xl p-4 space-y-3 shadow-2xs"
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <div className="font-black text-stone-900 text-base flex items-center gap-2">
+                      <Folder className="w-5 h-5 text-amber-500 shrink-0" />
+                      {cat.name}
+                    </div>
+                    <div className="text-xs font-mono text-stone-500 mt-1">
                       /category/{cat.slug}
-                    </td>
-                    <td className="p-4 text-sm text-stone-600 max-w-xs truncate">
-                      {cat.description || <span className="text-stone-300 italic">No description</span>}
-                    </td>
-                    <td className="p-4">
-                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-stone-100 text-stone-700 text-xs font-bold">
-                        <FileText className="w-3 h-3" />
-                        {count} posts
-                      </span>
-                    </td>
-                    <td className="p-4 text-right">
-                      <div className="flex items-center justify-end gap-1">
-                        <button
-                          onClick={() => openEditModal(cat)}
-                          className="p-1.5 text-stone-500 hover:text-[#FF4B00] transition rounded-lg hover:bg-stone-100 cursor-pointer"
-                          title="Edit Category"
-                        >
-                          <Edit3 className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(cat.id, cat.name)}
-                          className="p-1.5 text-stone-500 hover:text-red-600 transition rounded-lg hover:bg-stone-100 cursor-pointer"
-                          title="Delete Category"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })
-            )}
-          </tbody>
-        </table>
+                    </div>
+                  </div>
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-stone-100 text-stone-700 text-xs font-bold shrink-0">
+                    <FileText className="w-3 h-3" />
+                    {count} posts
+                  </span>
+                </div>
+
+                {cat.description && (
+                  <p className="text-xs text-stone-600 line-clamp-2 bg-stone-50 p-2.5 rounded-xl border border-stone-100">
+                    {cat.description}
+                  </p>
+                )}
+
+                <div className="pt-2 border-t border-stone-100 flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => openEditModal(cat)}
+                    className="flex-1 min-h-[44px] flex items-center justify-center gap-1.5 px-3 py-2 bg-stone-100 active:bg-stone-200 hover:bg-stone-200 text-stone-800 font-bold text-xs rounded-xl transition cursor-pointer"
+                  >
+                    <Edit3 className="w-4 h-4 text-[#FF4B00]" />
+                    Edit
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleDelete(cat.id, cat.name)}
+                    className="flex-1 min-h-[44px] flex items-center justify-center gap-1.5 px-3 py-2 bg-rose-50 active:bg-rose-100 hover:bg-rose-100 text-rose-700 font-bold text-xs rounded-xl transition cursor-pointer"
+                  >
+                    <Trash2 className="w-4 h-4 text-rose-600" />
+                    Delete
+                  </button>
+                </div>
+              </div>
+            );
+          })
+        )}
+      </div>
+
+      {/* 2. DESKTOP TABLE VIEW (visible on md screens and up) */}
+      <div className="hidden md:block bg-white border border-stone-200 rounded-2xl overflow-hidden shadow-2xs">
+        <div className="overflow-x-auto w-full">
+          <table className="w-full text-left border-collapse min-w-[650px]">
+            <thead>
+              <tr className="bg-stone-50 border-b border-stone-200 text-stone-500 text-xs font-bold uppercase tracking-wider">
+                <th className="p-4">Category Name</th>
+                <th className="p-4">Slug</th>
+                <th className="p-4">Description</th>
+                <th className="p-4">Posts Count</th>
+                <th className="p-4 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-stone-100">
+              {filteredCategories.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="p-8 text-center text-stone-400">
+                    No categories found. Click "Add Category" to create one.
+                  </td>
+                </tr>
+              ) : (
+                filteredCategories.map((cat) => {
+                  const count = guides.filter(
+                    (g) =>
+                      g.category?.toLowerCase() === cat.name.toLowerCase() ||
+                      g.category?.toLowerCase() === cat.slug.toLowerCase()
+                  ).length;
+
+                  return (
+                    <tr key={`desktop-cat-${cat.id}`} className="hover:bg-stone-50/80 transition-colors">
+                      <td className="p-4">
+                        <div className="font-bold text-stone-900 flex items-center gap-2">
+                          <Folder className="w-4 h-4 text-amber-500 shrink-0" />
+                          {cat.name}
+                        </div>
+                      </td>
+                      <td className="p-4 font-mono text-xs text-stone-500 whitespace-nowrap">
+                        /category/{cat.slug}
+                      </td>
+                      <td className="p-4 text-sm text-stone-600 max-w-xs truncate">
+                        {cat.description || <span className="text-stone-300 italic">No description</span>}
+                      </td>
+                      <td className="p-4 whitespace-nowrap">
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-stone-100 text-stone-700 text-xs font-bold">
+                          <FileText className="w-3 h-3" />
+                          {count} posts
+                        </span>
+                      </td>
+                      <td className="p-4 text-right whitespace-nowrap">
+                        <div className="flex items-center justify-end gap-2">
+                          <button
+                            type="button"
+                            onClick={() => openEditModal(cat)}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-stone-100 hover:bg-stone-200 text-stone-800 text-xs font-bold rounded-xl transition cursor-pointer"
+                            title="Edit Category"
+                          >
+                            <Edit3 className="w-3.5 h-3.5 text-[#FF4B00]" />
+                            Edit
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDelete(cat.id, cat.name)}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold rounded-xl transition cursor-pointer"
+                            title="Delete Category"
+                          >
+                            <Trash2 className="w-3.5 h-3.5 text-rose-600" />
+                            Delete
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* Add / Edit Category Modal */}
@@ -197,6 +272,7 @@ export const CategoriesManager: React.FC = () => {
                 {editingCategory ? 'Edit Category' : 'Add New Category'}
               </h3>
               <button
+                type="button"
                 onClick={() => setIsModalOpen(false)}
                 className="p-1.5 text-stone-400 hover:text-stone-700 transition rounded-lg hover:bg-stone-100 cursor-pointer"
               >
@@ -215,7 +291,7 @@ export const CategoriesManager: React.FC = () => {
                   placeholder="e.g. Jyotirlinga Yatra"
                   value={formData.name}
                   onChange={(e) => handleNameChange(e.target.value)}
-                  className="w-full px-3.5 py-2 border border-stone-200 rounded-xl text-sm outline-none focus:border-[#FF4B00]"
+                  className="w-full px-3.5 py-2.5 border border-stone-200 rounded-xl text-sm outline-none focus:border-[#FF4B00]"
                 />
               </div>
 
@@ -228,7 +304,7 @@ export const CategoriesManager: React.FC = () => {
                   placeholder="jyotirlinga-yatra"
                   value={formData.slug}
                   onChange={(e) => setFormData((p) => ({ ...p, slug: e.target.value }))}
-                  className="w-full px-3.5 py-2 border border-stone-200 rounded-xl text-sm font-mono outline-none focus:border-[#FF4B00]"
+                  className="w-full px-3.5 py-2.5 border border-stone-200 rounded-xl text-sm font-mono outline-none focus:border-[#FF4B00]"
                 />
                 <p className="text-[11px] text-stone-400 mt-1">
                   URL-friendly version of the name. Auto-generated if left untouched.
@@ -244,7 +320,7 @@ export const CategoriesManager: React.FC = () => {
                   placeholder="Brief description for SEO archive pages..."
                   value={formData.description}
                   onChange={(e) => setFormData((p) => ({ ...p, description: e.target.value }))}
-                  className="w-full px-3.5 py-2 border border-stone-200 rounded-xl text-sm outline-none focus:border-[#FF4B00] resize-none"
+                  className="w-full px-3.5 py-2.5 border border-stone-200 rounded-xl text-sm outline-none focus:border-[#FF4B00] resize-none"
                 />
               </div>
 
@@ -252,13 +328,13 @@ export const CategoriesManager: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 rounded-xl text-sm font-bold text-stone-600 hover:bg-stone-100 transition cursor-pointer"
+                  className="px-4 py-2.5 rounded-xl text-sm font-bold text-stone-600 hover:bg-stone-100 transition cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl text-sm font-bold text-white bg-[#FF4B00] hover:bg-[#e04200] shadow-sm transition flex items-center gap-1.5 cursor-pointer"
+                  className="px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-[#FF4B00] hover:bg-[#e04200] shadow-xs transition flex items-center gap-1.5 cursor-pointer"
                 >
                   <Save className="w-4 h-4" />
                   {editingCategory ? 'Update Category' : 'Save Category'}
