@@ -11,7 +11,6 @@ import { VendorsManager } from './VendorsManager';
 import { VendorPaymentsManager } from './VendorPaymentsManager';
 import { InvoicesManager } from './InvoicesManager';
 import { StaffRoleSwitcher } from './StaffRoleSwitcher';
-import { BlogManager } from './BlogManager';
 import { DestinationsManager } from './DestinationsManager';
 import { CustomPagesManager } from './CustomPagesManager';
 import { MediaR2StorageManager } from './MediaR2StorageManager';
@@ -99,7 +98,6 @@ export const CMSDashboard: React.FC = () => {
     | 'group-tours'
     | 'guides'
     | 'editor'
-    | 'blog'
     | 'post-editor'
     | 'destinations'
     | 'pages'
@@ -134,7 +132,6 @@ export const CMSDashboard: React.FC = () => {
     switch (tab) {
       case 'dashboard':
         return true;
-      case 'blog':
       case 'guides':
       case 'post-editor':
       case 'destinations':
@@ -692,9 +689,6 @@ export const CMSDashboard: React.FC = () => {
             </div>
           </div>
         )}
-
-        {/* TAB 2: BLOG & ARTICLES (WORDPRESS STYLE CMS) */}
-        {activeCmsTab === 'blog' && canAccess('blog') && <BlogManager />}
 
         {/* TAB 2.5: PILGRIMAGE & TRAVEL GUIDES CMS (WITH AI SEO GENERATOR) */}
         {activeCmsTab === 'guides' && canAccess('guides') && (
