@@ -1,0 +1,20 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "bhakti-sathi-one",
+  "main": "server.ts",
+  "compatibility_date": "2026-03-01",
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "bhakti-sathi-db",
+      "database_id": "165b7b99-72e3-443e-aee9-8bf0f8c6c26b"
+    }
+  ]
+}
