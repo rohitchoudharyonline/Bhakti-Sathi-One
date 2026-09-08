@@ -60,6 +60,32 @@ export const CmsAccessGate: React.FC<{ children: React.ReactNode }> = ({ childre
     void checkSession();
   }, []);
 
+  const handleUnblock = async () => {
+    if (!password) {
+      setError('Please enter the administrator password to clear blocks.');
+      return;
+    }
+    setLoading(true);
+    try {
+      const response = await fetch('/api/admin/unblock-all', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ password }),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (response.ok && data.success) {
+        setError('IP blocks cleared. You can now log in.');
+      } else {
+        throw new Error(data.error || 'Failed to clear IP blocks. Incorrect password?');
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to clear IP blocks.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -124,9 +150,21 @@ export const CmsAccessGate: React.FC<{ children: React.ReactNode }> = ({ childre
 
           {/* Error Message */}
           {error && (
-            <div className="mb-5 rounded-2xl border border-red-500/30 bg-red-500/10 p-3.5 text-xs font-semibold text-red-200 flex gap-2.5 items-start">
-              <AlertCircle className="w-4 h-4 shrink-0 text-red-400 mt-0.5" />
-              <span>{error}</span>
+            <div className="mb-5 rounded-2xl border border-red-500/30 bg-red-500/10 p-3.5 text-xs font-semibold flex flex-col gap-2">
+              <div className="flex gap-2.5 items-start text-red-200">
+                <AlertCircle className="w-4 h-4 shrink-0 text-red-400 mt-0.5" />
+                <span>{error}</span>
+              </div>
+              {error.toLowerCase().includes('blocked') && (
+                <button
+                  type="button"
+                  onClick={handleUnblock}
+                  className="mt-1 self-start bg-red-500/20 hover:bg-red-500/30 text-red-300 px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5"
+                >
+                  <ShieldCheck className="w-3.5 h-3.5" />
+                  Clear IP Blocks
+                </button>
+              )}
             </div>
           )}
 

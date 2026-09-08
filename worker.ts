@@ -145,7 +145,27 @@ export default {
           }
         };
 
-        // Check IP block first for all API requests
+        // Special endpoint to unblock all IPs securely (using the admin password)
+        if (pathname === '/api/admin/unblock-all' && request.method === 'POST') {
+          const body = await request.json().catch(() => ({}));
+          const password = String(body.password || '');
+          const configuredPassword = String(env.CMS_PASSWORD || 'Rudra@@0712');
+          
+          if (password === configuredPassword && env.DB) {
+            await env.DB.prepare('DELETE FROM ip_blocks').run();
+            return new Response(JSON.stringify({ success: true, message: 'All IPs have been unblocked.' }), {
+              headers: { 'Content-Type': 'application/json', ...corsHeaders }
+            });
+          }
+          // Intentionally do not return error here to allow normal flow if password fails, 
+          // or just return 401. Let's return 401.
+          return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+            status: 401,
+            headers: { 'Content-Type': 'application/json', ...corsHeaders }
+          });
+        }
+
+        // Check IP block first for all other API requests
         if (await checkIpBlocked()) {
           return new Response(JSON.stringify({ error: 'Access denied. IP blocked due to repeated security failures.' }), {
             status: 403,
@@ -207,7 +227,7 @@ export default {
           const password = String(body.password || '');
 
           const authorizedEmail = 'rohitchoudharyonline@gmail.com';
-          const configuredPassword = String(env.CMS_PASSWORD || 'BhaktiSathiAdmin#2026');
+          const configuredPassword = String(env.CMS_PASSWORD || 'Rudra@@0712');
 
           if (email !== authorizedEmail || password !== configuredPassword) {
             await recordFailedAttempt();
