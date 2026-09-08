@@ -92,37 +92,8 @@ export const TravelBlogHub: React.FC = () => {
 
 
 
-        {/* Category Pills Bar */}
-        <div className="bg-white border-b border-stone-200 sticky top-0 z-20 shadow-xs">
-          <div className="max-w-7xl mx-auto px-4 sm:px-8 py-3 flex items-center gap-2 overflow-x-auto no-scrollbar">
-            <button
-              onClick={() => setSelectedCategory('all')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition cursor-pointer ${
-                selectedCategory === 'all'
-                  ? 'bg-black text-white shadow-xs'
-                  : 'bg-stone-100 hover:bg-stone-200 text-stone-700'
-              }`}
-            >
-              All Guides ({publishedPosts.length})
-            </button>
-            {blogCategories.map((cat) => (
-              <button
-                key={cat.id}
-                onClick={() => setSelectedCategory(cat.slug)}
-                className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition cursor-pointer ${
-                  selectedCategory === cat.slug
-                    ? 'bg-black text-white shadow-xs'
-                    : 'bg-stone-100 hover:bg-stone-200 text-stone-700'
-                }`}
-              >
-                {cat.name}
-              </button>
-            ))}
-          </div>
-        </div>
-
         {/* Main Content Hub */}
-        <main className="max-w-7xl mx-auto px-4 sm:px-8 py-10 sm:py-12 space-y-12">
+        <main className="max-w-7xl mx-auto px-4 sm:px-8 pt-10 pb-36 sm:pt-12 sm:pb-16 space-y-12">
           {/* Featured Hero Article */}
           {featuredPost && selectedCategory === 'all' && !searchQuery && (
             <div

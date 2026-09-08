@@ -198,7 +198,7 @@ export const GuideDetailView: React.FC<GuideDetailViewProps> = ({ slug }) => {
   }
 
   return (
-    <div className="min-h-screen bg-[#faf8f5] text-stone-900 pb-24">
+    <div className="min-h-screen bg-[#faf8f5] text-stone-900 pb-36 md:pb-24">
       {/* Top Breadcrumb Bar */}
       <div className="border-b border-stone-200/80 bg-white/70 backdrop-blur-xs sticky top-0 z-20">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-4">

@@ -90,7 +90,7 @@ export const PublicGuidesHub: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#faf8f5] text-stone-900 flex flex-col justify-between">
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 w-full space-y-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-36 md:pt-12 md:pb-16 w-full space-y-8">
         {/* Breadcrumb Bar */}
         <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs text-stone-500">
           <button
@@ -120,9 +120,8 @@ export const PublicGuidesHub: React.FC = () => {
           </p>
         </div>
 
-        {/* Search & Category Filter Bar */}
-        <div className="space-y-4 pt-2">
-          {/* Search Box */}
+        {/* Search Bar */}
+        <div className="pt-2">
           <div className="relative max-w-xl mx-auto">
             <Search className="w-5 h-5 text-stone-400 absolute left-4 top-1/2 -translate-y-1/2" />
             <input
@@ -132,33 +131,6 @@ export const PublicGuidesHub: React.FC = () => {
               placeholder="Search temple guides, darshan tips, yatra routes..."
               className="w-full pl-12 pr-4 py-3.5 bg-white border border-stone-200 rounded-2xl text-sm text-stone-900 placeholder:text-stone-400 shadow-xs focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition"
             />
-          </div>
-
-          {/* Category Filter Pills */}
-          <div className="flex flex-wrap items-center justify-center gap-2 pt-2">
-            <button
-              onClick={() => setSelectedCategory('all')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition shadow-2xs ${
-                selectedCategory === 'all'
-                  ? 'bg-amber-700 text-white shadow-xs'
-                  : 'bg-white border border-stone-200 text-stone-600 hover:border-stone-300'
-              }`}
-            >
-              All Guides
-            </button>
-            {guideCategories.map((c) => (
-              <button
-                key={c.id}
-                onClick={() => setSelectedCategory(c.name)}
-                className={`px-4 py-2 rounded-xl text-xs font-bold transition shadow-2xs ${
-                  selectedCategory === c.name
-                    ? 'bg-amber-700 text-white shadow-xs'
-                    : 'bg-white border border-stone-200 text-stone-600 hover:border-stone-300'
-                }`}
-              >
-                {c.name}
-              </button>
-            ))}
           </div>
         </div>
 
