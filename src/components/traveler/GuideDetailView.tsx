@@ -285,20 +285,21 @@ export const GuideDetailView: React.FC<GuideDetailViewProps> = ({ slug }) => {
               <div>
                 <div className="flex items-center gap-1">
                   <span className="font-bold text-stone-800">Posted by Bhakti Sathi</span>
-                  <BadgeCheck className="w-4 h-4 text-blue-600 fill-blue-50" />
+                  <BadgeCheck className="w-4 h-4 text-orange-600 fill-orange-50" />
                 </div>
-                <span className="text-stone-400 block sm:inline">Editorial Staff</span>
               </div>
             </div>
 
             <div className="flex items-center gap-1 text-stone-400">
               <Calendar className="w-3.5 h-3.5" />
               <span>
-                {new Date(guide.updatedAt || guide.createdAt).toLocaleDateString('en-IN', {
-                  day: 'numeric',
-                  month: 'long',
-                  year: 'numeric',
-                })}
+                {(() => {
+                  const date = new Date(guide.updatedAt || guide.createdAt);
+                  const day = String(date.getDate()).padStart(2, '0');
+                  const month = String(date.getMonth() + 1).padStart(2, '0');
+                  const year = date.getFullYear();
+                  return `${day}-${month}-${year}`;
+                })()}
               </span>
             </div>
           </div>
