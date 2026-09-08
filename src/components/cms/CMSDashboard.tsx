@@ -252,8 +252,7 @@ export const CMSDashboard: React.FC = () => {
       count: packages.filter((p) => p.isGroupTour || p.tourType === 'Group Tour').length,
       show: canAccess('group-tours'),
     },
-    { id: 'blog', label: 'Blog & Articles', icon: Newspaper, count: null, show: canAccess('blog') },
-    { id: 'guides', label: 'Pilgrimage Guides (AI SEO)', icon: BookOpen, count: guides.length, show: canAccess('guides') },
+    { id: 'guides', label: 'Guides', icon: BookOpen, count: guides.length, show: canAccess('guides') },
     { id: 'post-editor', label: 'Post Editor', icon: FileEdit, count: null, show: canAccess('post-editor') },
     { id: 'destinations', label: 'Destinations Hub', icon: MapPin, count: null, show: canAccess('destinations') },
     { id: 'pages', label: 'Custom Pages', icon: FileEdit, count: null, show: canAccess('pages') },
@@ -547,7 +546,7 @@ export const CMSDashboard: React.FC = () => {
                     </div>
                     <div>
                       <p className="text-sm font-black text-stone-900 group-hover:text-amber-600 transition-colors">Post Editor</p>
-                      <p className="text-[11px] text-stone-500 font-medium line-clamp-1">Blog & R2 media</p>
+                      <p className="text-[11px] text-stone-500 font-medium line-clamp-1">Guides & R2 media</p>
                     </div>
                   </button>
                 )}

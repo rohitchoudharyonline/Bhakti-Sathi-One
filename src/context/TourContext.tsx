@@ -1199,7 +1199,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setIsGuidesHubOpen(true);
           setActiveGuideSlug(null);
         }
-      } else if (path.startsWith('/guide')) {
+      } else if (path.startsWith('/guides') || path.startsWith('/guide')) {
         setActiveView('traveler');
         setIsDestinationsExplorerOpen(false);
         setIsToursDirectoryOpen(false);
@@ -1208,7 +1208,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setSelectedPackageId(null);
         setSelectedDestinationSlug(null);
         setActiveCustomPageSlug(null);
-        const subParts = path.replace('/guide', '').replace(/^\/+/, '').split('/');
+        const subParts = path.replace('/guides', '').replace('/guide', '').replace(/^\/+/, '').split('/');
         if (subParts[0] && subParts[0].length > 0) {
           setIsGuidesHubOpen(false);
           setActiveGuideSlug(subParts[0]);
@@ -1526,7 +1526,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsDestinationsExplorerOpen(false);
     setActiveCustomPageSlug(null);
     if (typeof window !== 'undefined' && window.history.pushState) {
-      window.history.pushState({}, '', '/guide');
+      window.history.pushState({}, '', '/guides');
     }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -1543,7 +1543,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsDestinationsExplorerOpen(false);
     setActiveCustomPageSlug(null);
     if (typeof window !== 'undefined' && window.history.pushState) {
-      window.history.pushState({}, '', `/guide/${slug}`);
+      window.history.pushState({}, '', `/guides/${slug}`);
     }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };

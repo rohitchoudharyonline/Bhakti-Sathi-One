@@ -56,7 +56,7 @@ export const DEFAULT_GUIDES: GuideArticle[] = [
     id: 'guide-hp-devi-darshan',
     slug: 'himachal-pradesh-devi-darshan-guide',
     title: 'Himachal Pradesh Devi Darshan Guide',
-    excerpt: 'A comprehensive pilgrimage guide to the revered Devi shrines of Himachal Pradesh, with route circuits, darshan tips, and seasonal travel advice.',
+    excerpt: 'A comprehensive guide to the revered Devi shrines of Himachal Pradesh, with route circuits, darshan tips, and seasonal travel advice.',
     content: `## Sacred Shrines of the Divine Mother in Himachal Pradesh
 
 Himachal Pradesh is popularly venerated as *Devbhoomi* (the Abode of Gods). Nestled amidst the verdant valleys and snow-dusted Dhauladhar ranges are sacred Shaktipeeths where devotees have journeyed for centuries to seek blessings of the Divine Mother.
@@ -431,7 +431,7 @@ The New Delhi - Amb Andaura Vande Bharat Express (Train No. 22447) reaches Una H
 - **Day 2:** Maa Chintpurni morning darshan → Proceed to Jwala Ji → Afternoon darshan of the eternal flames → Night stay at Kangra / Dharamshala
 - **Day 3:** Kangra Brajeshwari Devi → Maa Chamunda Devi → Evening spiritual relaxation in Dharamshala
 - **Day 4:** Smooth highway return journey back to Delhi NCR`,
-    category: 'Pilgrimage Guides',
+    category: 'guides',
     destinationSlug: 'himachal-pradesh',
     destinationName: 'Himachal Pradesh',
     tags: ['Delhi to Himachal', 'Devi Darshan Route', 'Yatra Plan', 'Road Trip'],

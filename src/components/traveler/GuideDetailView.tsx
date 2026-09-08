@@ -114,7 +114,7 @@ export const GuideDetailView: React.FC<GuideDetailViewProps> = ({ slug }) => {
     descEl.setAttribute('content', metaDesc);
 
     // 2. Canonical Tag
-    const canonicalUrl = guide.seo?.canonicalUrl || `https://mybhaktisathi.com/guide/${guide.slug}`;
+    const canonicalUrl = guide.seo?.canonicalUrl || `https://mybhaktisathi.com/guides/${guide.slug}`;
     let canonEl = document.querySelector('link[rel="canonical"]');
     if (!canonEl) {
       canonEl = document.createElement('link');
@@ -145,7 +145,7 @@ export const GuideDetailView: React.FC<GuideDetailViewProps> = ({ slug }) => {
     // 5. Inject Breadcrumb Schema
     const breadcrumbSchema = generateBreadcrumbSchema([
       { name: 'Home', url: 'https://mybhaktisathi.com/' },
-      { name: 'Pilgrimage & Travel Guides', url: 'https://mybhaktisathi.com/guide' },
+      { name: 'Pilgrimage & Travel Guides', url: 'https://mybhaktisathi.com/guides' },
       { name: guide.title, url: canonicalUrl },
     ]);
     const breadcrumbScript = document.createElement('script');
@@ -171,8 +171,8 @@ export const GuideDetailView: React.FC<GuideDetailViewProps> = ({ slug }) => {
 
   const handleShareWhatsApp = () => {
     if (!guide) return;
-    const url = typeof window !== 'undefined' ? window.location.href : `https://mybhaktisathi.com/guide/${guide.slug}`;
-    const text = encodeURIComponent(`*${guide.title}*\n\nRead this holy pilgrimage guide by Bhakti Sathi:\n${url}`);
+    const url = typeof window !== 'undefined' ? window.location.href : `https://mybhaktisathi.com/guides/${guide.slug}`;
+    const text = encodeURIComponent(`*${guide.title}*\n\nRead this holy Guide by Bhakti Sathi:\n${url}`);
     window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
   };
 
@@ -183,7 +183,7 @@ export const GuideDetailView: React.FC<GuideDetailViewProps> = ({ slug }) => {
           <BookOpen className="w-12 h-12 text-stone-300 mx-auto" />
           <h2 className="text-xl font-bold text-stone-900">Guide Not Found</h2>
           <p className="text-xs text-stone-600">
-            The pilgrimage guide you are looking for may have moved or is currently in draft review.
+            The Guide you are looking for may have moved or is currently in draft review.
           </p>
           <button
             onClick={navigateToGuideHub}
@@ -314,7 +314,7 @@ export const GuideDetailView: React.FC<GuideDetailViewProps> = ({ slug }) => {
           <div className="bg-stone-50 border border-stone-200/90 rounded-2xl p-5 space-y-3">
             <div className="flex items-center gap-2 text-xs font-bold text-stone-800 uppercase tracking-wider">
               <List className="w-4 h-4 text-amber-700" />
-              <span>In This Pilgrimage Guide</span>
+              <span>In This Guide</span>
             </div>
             <nav className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
               {tableOfContents.map((item, i) => (
@@ -532,7 +532,7 @@ export const GuideDetailView: React.FC<GuideDetailViewProps> = ({ slug }) => {
         {/* Other Published Guides */}
         {otherGuides.length > 0 && (
           <section className="space-y-4 pt-6 border-t border-stone-200">
-            <h2 className="text-lg font-bold text-stone-900">Explore More Pilgrimage Guides</h2>
+            <h2 className="text-lg font-bold text-stone-900">Explore More Guides</h2>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               {otherGuides.map((item) => (
                 <div

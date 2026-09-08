@@ -708,7 +708,7 @@ export function generateGuideArticleSchema(
         url: 'https://images.unsplash.com/photo-1598091383021-15ddea10925d?auto=format&fit=crop&w=800&q=80',
       },
     },
-    articleSection: guide.category || 'Pilgrimage Guides',
-    keywords: guide.seo?.primaryKeyword || guide.tags?.join(', ') || 'Pilgrimage Guide, Yatra',
+    articleSection: guide.category || 'guides',
+    keywords: guide.seo?.primaryKeyword || guide.tags?.join(', ') || 'guide, Yatra',
   };
 }

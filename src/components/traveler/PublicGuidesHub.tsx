@@ -41,13 +41,13 @@ export const PublicGuidesHub: React.FC = () => {
     }
     metaDesc.setAttribute(
       'content',
-      'Explore useful pilgrimage guides, temple information, travel tips and yatra planning resources curated for devotees and travelers by Bhakti Sathi.'
+      'Explore useful guides, temple information, travel tips and yatra planning resources curated for devotees and travelers by Bhakti Sathi.'
     );
 
     // Inject Breadcrumb JSON-LD
     const breadcrumbData = generateBreadcrumbSchema([
       { name: 'Home', url: 'https://mybhaktisathi.com/' },
-      { name: 'Pilgrimage & Travel Guides', url: 'https://mybhaktisathi.com/guide' },
+      { name: 'Pilgrimage & Travel Guides', url: 'https://mybhaktisathi.com/guides' },
     ]);
 
     const script = document.createElement('script');
@@ -116,7 +116,7 @@ export const PublicGuidesHub: React.FC = () => {
           </h1>
 
           <p className="text-base sm:text-lg text-stone-600 leading-relaxed max-w-2xl mx-auto">
-            Explore useful pilgrimage guides, temple information, travel tips and yatra planning resources curated for devotees and travelers.
+            Explore useful guides, temple information, travel tips and yatra planning resources curated for devotees and travelers.
           </p>
         </div>
 
@@ -168,7 +168,7 @@ export const PublicGuidesHub: React.FC = () => {
             <BookOpen className="w-12 h-12 text-stone-300 mx-auto" />
             <h3 className="text-base font-bold text-stone-900">No guides found</h3>
             <p className="text-xs text-stone-500">
-              No published pilgrimage guides match your search criteria. Try a different search term or category.
+              No published guides match your search criteria. Try a different search term or category.
             </p>
             <button
               onClick={() => {

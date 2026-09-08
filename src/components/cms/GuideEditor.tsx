@@ -467,7 +467,7 @@ export const GuideEditor: React.FC<GuideEditorProps> = ({
           </span>
         </div>
         <p className="text-xs text-stone-600">
-          Use Gemini to craft rich, respectful pilgrimage guides with local darshan tips, SEO metadata, and FAQ schema.
+          Use Gemini to craft rich, respectful guides with local darshan tips, SEO metadata, and FAQ schema.
         </p>
 
         <div className="flex flex-wrap items-center gap-2 pt-1">
@@ -804,7 +804,7 @@ export const GuideEditor: React.FC<GuideEditorProps> = ({
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
                 rows={18}
-                placeholder="Write your comprehensive pilgrimage guide in Markdown... (Use ## Headings to automatically create an interactive Table of Contents for devotees!)"
+                placeholder="Write your comprehensive guide in Markdown... (Use ## Headings to automatically create an interactive Table of Contents for devotees!)"
                 className="w-full p-4 text-sm font-mono text-stone-800 focus:outline-none resize-y leading-relaxed"
               />
             )}
