@@ -351,7 +351,7 @@ Bring thermal layers in winter, comfortable walking boots, and modest attire for
       // Update form state with compressed image URL
       setFormData((prev) => ({
         ...prev,
-        featuredImage: result.asset.url,
+        featuredImage: result.asset.dataUrl || result.asset.url,
         featuredImageAlt: prev.featuredImageAlt || file.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' '),
       }));
 
@@ -386,7 +386,8 @@ Bring thermal layers in winter, comfortable walking boots, and modest attire for
       addMediaAsset(result.asset);
 
       const altText = file.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ');
-      const markdownSnippet = `\n\n![${altText}](${result.asset.url})\n*Caption: ${altText}*\n\n`;
+      const imageUrlToInsert = result.asset.dataUrl || result.asset.url;
+      const markdownSnippet = `\n\n![${altText}](${imageUrlToInsert})\n*Caption: ${altText}*\n\n`;
 
       insertTextAtCursor(markdownSnippet);
 

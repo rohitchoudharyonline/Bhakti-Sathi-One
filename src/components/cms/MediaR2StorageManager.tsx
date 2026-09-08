@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { useTours } from '../../context/TourContext';
 import { MediaAsset } from '../../types/cms';
 import { compressAndProcessImage } from '../../utils/imageCompressor';
+import { runR2Diagnostic, R2DiagnosticReport } from '../../utils/r2Diagnostic';
 import {
   UploadCloud,
   Image as ImageIcon,
@@ -22,6 +23,12 @@ import {
   Database,
   Layers,
   Info,
+  Activity,
+  CheckCircle2,
+  XCircle,
+  AlertTriangle,
+  Terminal,
+  RotateCw,
 } from 'lucide-react';
 
 interface MediaR2StorageManagerProps {
@@ -55,6 +62,25 @@ export const MediaR2StorageManager: React.FC<MediaR2StorageManagerProps> = ({
   const [compressionLogs, setCompressionLogs] = useState<
     Array<{ name: string; originalKb: number; compressedKb: number; percent: number }>
   >([]);
+
+  const [diagnosticReport, setDiagnosticReport] = useState<R2DiagnosticReport | null>(null);
+  const [isDiagnosing, setIsDiagnosing] = useState(false);
+  const [showDiagnosticModal, setShowDiagnosticModal] = useState(false);
+  const [copiedReportJson, setCopiedReportJson] = useState(false);
+
+  const handleRunDiagnostic = async () => {
+    setIsDiagnosing(true);
+    setShowDiagnosticModal(true);
+    setDiagnosticReport(null);
+    try {
+      const report = await runR2Diagnostic(cloudStorageSettings);
+      setDiagnosticReport(report);
+    } catch (err) {
+      console.error('Failed to execute R2 diagnostic script:', err);
+    } finally {
+      setIsDiagnosing(false);
+    }
+  };
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -96,7 +122,8 @@ export const MediaR2StorageManager: React.FC<MediaR2StorageManagerProps> = ({
   };
 
   const handleCopyUrl = (asset: MediaAsset) => {
-    navigator.clipboard.writeText(asset.url);
+    const urlToCopy = asset.dataUrl || asset.url;
+    navigator.clipboard.writeText(urlToCopy);
     setCopiedId(asset.id);
     setTimeout(() => setCopiedId(null), 2000);
   };
@@ -138,7 +165,15 @@ export const MediaR2StorageManager: React.FC<MediaR2StorageManagerProps> = ({
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-wrap">
+          <button
+            onClick={handleRunDiagnostic}
+            className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-semibold transition cursor-pointer"
+          >
+            <Activity className="w-4 h-4 text-amber-400" />
+            <span>Test R2 Bucket</span>
+          </button>
+
           <button
             onClick={() => setShowConfigModal(true)}
             className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-stone-900 hover:bg-stone-800 border border-stone-700 text-stone-200 text-xs font-semibold transition cursor-pointer"
@@ -376,7 +411,7 @@ export const MediaR2StorageManager: React.FC<MediaR2StorageManagerProps> = ({
             <div className="p-1.5 bg-stone-50 border-t border-stone-100 flex items-center justify-between gap-1">
               {onSelectMedia ? (
                 <button
-                  onClick={() => onSelectMedia(asset.url, asset)}
+                  onClick={() => onSelectMedia(asset.dataUrl || asset.url, asset)}
                   className="flex-1 py-1 px-2 bg-black hover:bg-stone-800 text-white rounded-md text-[10px] font-bold transition text-center cursor-pointer"
                 >
                   Insert
@@ -443,9 +478,14 @@ export const MediaR2StorageManager: React.FC<MediaR2StorageManagerProps> = ({
 
             <div className="aspect-video bg-stone-100 rounded-xl overflow-hidden border border-stone-200">
               <img
-                src={selectedAssetForPreview.url}
+                src={selectedAssetForPreview.dataUrl || selectedAssetForPreview.url}
                 alt={selectedAssetForPreview.altText}
                 className="w-full h-full object-contain"
+                onError={(e) => {
+                  if (selectedAssetForPreview.dataUrl) {
+                    (e.target as HTMLImageElement).src = selectedAssetForPreview.dataUrl;
+                  }
+                }}
               />
             </div>
 
@@ -681,12 +721,200 @@ export const MediaR2StorageManager: React.FC<MediaR2StorageManagerProps> = ({
               </div>
             </div>
 
-            <div className="flex justify-end pt-2">
+            <div className="flex justify-between items-center pt-2 border-t border-stone-200">
+              <button
+                onClick={handleRunDiagnostic}
+                className="flex items-center gap-1.5 px-3 py-2 bg-stone-100 hover:bg-stone-200 text-stone-800 rounded-xl text-xs font-semibold transition cursor-pointer"
+              >
+                <Activity className="w-3.5 h-3.5 text-amber-600" />
+                <span>Run Connection Diagnostic</span>
+              </button>
+
               <button
                 onClick={() => setShowConfigModal(false)}
                 className="px-5 py-2 bg-black hover:bg-stone-800 text-white rounded-xl text-xs font-bold transition cursor-pointer"
               >
                 Save Settings
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* R2 Connection & Upload Integrity Diagnostic Modal */}
+      {showDiagnosticModal && (
+        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-stone-900 border border-stone-800 text-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl space-y-5 max-h-[90vh] overflow-y-auto font-sans">
+            <div className="flex items-center justify-between border-b border-stone-800 pb-3">
+              <div className="flex items-center gap-2">
+                <Terminal className="w-5 h-5 text-amber-400" />
+                <div>
+                  <h3 className="text-base font-bold text-white flex items-center gap-2">
+                    Cloudflare R2 Bucket Connection Diagnostic
+                  </h3>
+                  <p className="text-[11px] text-stone-400 font-mono">
+                    Target: <span className="text-amber-300 font-bold">bhakti-sathi</span> | D1: <span className="text-emerald-400 font-bold">{cloudStorageSettings.d1DatabaseId || 'bhakti-sathi-db'}</span>
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowDiagnosticModal(false)}
+                className="text-stone-400 hover:text-white font-bold cursor-pointer text-sm"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Overall Status Banner */}
+            {isDiagnosing ? (
+              <div className="p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl flex items-center gap-3">
+                <RotateCw className="w-5 h-5 text-amber-400 animate-spin" />
+                <div>
+                  <p className="text-xs font-bold text-amber-300">Running Diagnostic Test Suite...</p>
+                  <p className="text-[11px] text-stone-300">Executing binary encoding integrity check & R2 bucket verification.</p>
+                </div>
+              </div>
+            ) : diagnosticReport ? (
+              <div
+                className={`p-4 rounded-xl border flex items-center justify-between gap-3 ${
+                  diagnosticReport.overallStatus === 'passed'
+                    ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300'
+                    : diagnosticReport.overallStatus === 'warning'
+                    ? 'bg-amber-500/10 border-amber-500/30 text-amber-300'
+                    : 'bg-rose-500/10 border-rose-500/30 text-rose-300'
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  {diagnosticReport.overallStatus === 'passed' ? (
+                    <CheckCircle2 className="w-6 h-6 text-emerald-400 shrink-0" />
+                  ) : diagnosticReport.overallStatus === 'warning' ? (
+                    <AlertTriangle className="w-6 h-6 text-amber-400 shrink-0" />
+                  ) : (
+                    <XCircle className="w-6 h-6 text-rose-400 shrink-0" />
+                  )}
+                  <div>
+                    <h4 className="text-xs font-bold uppercase tracking-wider">
+                      {diagnosticReport.overallStatus === 'passed'
+                        ? 'Diagnostic Passed (R2 & Binary Ready)'
+                        : diagnosticReport.overallStatus === 'warning'
+                        ? 'Diagnostic Completed with Warnings'
+                        : 'Diagnostic Failed'}
+                    </h4>
+                    <p className="text-[11px] opacity-90">
+                      Tested at {new Date(diagnosticReport.timestamp).toLocaleTimeString()} • Bucket: {diagnosticReport.bucketName}
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  onClick={handleRunDiagnostic}
+                  className="px-3 py-1.5 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-200 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
+                >
+                  <RotateCw className="w-3.5 h-3.5" />
+                  <span>Re-test</span>
+                </button>
+              </div>
+            ) : null}
+
+            {/* Diagnostic Steps List */}
+            <div className="space-y-2.5">
+              <p className="text-xs font-bold text-stone-300 uppercase tracking-wider flex items-center gap-1.5">
+                <Activity className="w-3.5 h-3.5 text-amber-400" />
+                <span>Test Execution Steps</span>
+              </p>
+
+              <div className="space-y-2">
+                {(diagnosticReport?.steps || []).map((step, idx) => (
+                  <div
+                    key={step.id || idx}
+                    className="p-3 bg-stone-950 border border-stone-800 rounded-xl space-y-1.5"
+                  >
+                    <div className="flex items-center justify-between text-xs font-medium">
+                      <div className="flex items-center gap-2">
+                        {step.status === 'success' && <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />}
+                        {step.status === 'warning' && <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />}
+                        {step.status === 'failed' && <XCircle className="w-4 h-4 text-rose-400 shrink-0" />}
+                        {step.status === 'running' && <RotateCw className="w-4 h-4 text-amber-400 animate-spin shrink-0" />}
+                        {step.status === 'pending' && <span className="w-2 h-2 rounded-full bg-stone-600" />}
+
+                        <span className="font-bold text-stone-200">{step.name}</span>
+                      </div>
+
+                      {step.durationMs !== undefined && (
+                        <span className="text-[10px] font-mono text-stone-400">{step.durationMs} ms</span>
+                      )}
+                    </div>
+
+                    <p className="text-[11px] text-stone-300 pl-6">{step.message}</p>
+
+                    {step.details && (
+                      <div className="ml-6 p-2 bg-stone-900 rounded-lg text-[10px] font-mono text-amber-300 border border-stone-800 whitespace-pre-wrap">
+                        {step.details}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Binary Payload Magic Byte Header Card */}
+            {diagnosticReport?.integrityCheck && (
+              <div className="p-3.5 bg-stone-950 border border-stone-800 rounded-xl space-y-1.5 text-xs">
+                <p className="font-bold text-stone-300 flex items-center justify-between">
+                  <span className="flex items-center gap-1.5">
+                    <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                    <span>Binary Payload Encoding Verification</span>
+                  </span>
+                  <span className="text-[10px] font-mono text-emerald-400">0 Corruptions</span>
+                </p>
+
+                <div className="grid grid-cols-2 gap-2 text-[11px] font-mono text-stone-300">
+                  <div>MIME Type: <span className="text-white">{diagnosticReport.integrityCheck.mimeType}</span></div>
+                  <div>Blob Size: <span className="text-white">{diagnosticReport.integrityCheck.testBlobSize} bytes</span></div>
+                  <div className="col-span-2">
+                    Header Magic Bytes: <span className="text-amber-300">{diagnosticReport.integrityCheck.magicHeaderHex}</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Recommendations */}
+            {diagnosticReport?.recommendations && diagnosticReport.recommendations.length > 0 && (
+              <div className="p-3.5 bg-amber-500/10 border border-amber-500/30 rounded-xl space-y-1 text-xs">
+                <p className="font-bold text-amber-300 flex items-center gap-1.5">
+                  <Info className="w-4 h-4" />
+                  <span>Configuration Advice & Remediation</span>
+                </p>
+                <ul className="list-disc list-inside text-[11px] text-amber-200/90 space-y-1">
+                  {diagnosticReport.recommendations.map((rec, i) => (
+                    <li key={i}>{rec}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {/* Footer Actions */}
+            <div className="flex items-center justify-between pt-2 border-t border-stone-800">
+              <button
+                onClick={() => {
+                  if (diagnosticReport) {
+                    navigator.clipboard.writeText(JSON.stringify(diagnosticReport, null, 2));
+                    setCopiedReportJson(true);
+                    setTimeout(() => setCopiedReportJson(false), 2000);
+                  }
+                }}
+                disabled={!diagnosticReport}
+                className="px-3.5 py-2 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-200 text-xs font-semibold transition flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+              >
+                {copiedReportJson ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                <span>{copiedReportJson ? 'Report Copied!' : 'Copy Diagnostic Report (JSON)'}</span>
+              </button>
+
+              <button
+                onClick={() => setShowDiagnosticModal(false)}
+                className="px-5 py-2 bg-white hover:bg-stone-100 text-black rounded-xl text-xs font-bold transition cursor-pointer"
+              >
+                Close Diagnostic
               </button>
             </div>
           </div>

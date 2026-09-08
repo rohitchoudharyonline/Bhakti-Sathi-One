@@ -79,7 +79,21 @@ export const UniversalImageUploader: React.FC<UniversalImageUploaderProps> = ({
   aspectRatio = 'aspect-[16/9]',
   showR2LibraryPicker = true,
 }) => {
-  const { addMediaAsset, cloudStorageSettings } = useTours();
+  const { addMediaAsset, cloudStorageSettings, mediaAssets } = useTours();
+
+  const resolveDisplayUrl = (url?: string) => {
+    if (!url) return '';
+    if (url.startsWith('data:')) return url;
+    const match = mediaAssets?.find(
+      (a) =>
+        a &&
+        (a.url === url ||
+          a.dataUrl === url ||
+          (a.storagePath && url.includes(a.storagePath)) ||
+          (a.name && url.toLowerCase().includes(a.name.toLowerCase().replace(/\.[^/.]+$/, ''))))
+    );
+    return match?.dataUrl || url;
+  };
 
   const [targetWidth, setTargetWidth] = useState<number>(defaultWidth);
   const [targetFormat, setTargetFormat] = useState<'webp' | 'png' | 'jpeg' | 'gif'>(defaultFormat);
@@ -124,7 +138,8 @@ export const UniversalImageUploader: React.FC<UniversalImageUploaderProps> = ({
       };
 
       setLastStats(stats);
-      onImageSelected(result.asset.url, result.asset, stats);
+      const finalSelectedUrl = result.asset.dataUrl || result.asset.url;
+      onImageSelected(finalSelectedUrl, result.asset, stats);
     } catch (err) {
       console.error('Failed to compress and upload image:', err);
     } finally {
@@ -182,7 +197,7 @@ export const UniversalImageUploader: React.FC<UniversalImageUploaderProps> = ({
           {/* Thumbnail preview if URL exists */}
           {currentUrl ? (
             <div className="relative w-12 h-12 rounded-xl overflow-hidden border border-stone-200 shrink-0 bg-stone-100">
-              <img src={currentUrl} alt="" className="w-full h-full object-cover" />
+              <img src={resolveDisplayUrl(currentUrl)} alt="" className="w-full h-full object-cover" />
             </div>
           ) : (
             <div className="w-12 h-12 rounded-xl border border-dashed border-stone-300 bg-stone-50 flex items-center justify-center shrink-0 text-stone-400">
@@ -590,9 +605,15 @@ export const UniversalImageUploader: React.FC<UniversalImageUploaderProps> = ({
             className={`relative rounded-2xl overflow-hidden border border-stone-200 bg-stone-900 ${aspectRatio} max-h-64`}
           >
             <img
-              src={currentUrl}
+              src={resolveDisplayUrl(currentUrl)}
               alt="Preview"
               className="w-full h-full object-cover"
+              onError={(e) => {
+                const resolved = resolveDisplayUrl(currentUrl);
+                if (resolved && e.currentTarget.src !== resolved) {
+                  e.currentTarget.src = resolved;
+                }
+              }}
             />
             <div className="absolute bottom-2 left-2 bg-black/70 backdrop-blur-xs text-white text-[10px] font-black px-2.5 py-1 rounded-lg flex items-center gap-1.5">
               <ShieldCheck className="w-3 h-3 text-amber-400" />

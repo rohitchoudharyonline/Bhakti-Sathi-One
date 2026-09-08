@@ -20,6 +20,26 @@ export const ArticleContentRenderer: React.FC<ArticleContentRendererProps> = ({
 
   if (!content) return null;
 
+  const resolveArticleImg = (url: string) => {
+    if (!url) return url;
+    if (url.startsWith('data:')) return url;
+    const pathFilename = url.split('/').pop()?.split('.')[0] || '';
+    const match = mediaAssets.find((a) => {
+      if (!a) return false;
+      if (a.url === url || a.dataUrl === url) return true;
+      if (a.storagePath && url.includes(a.storagePath)) return true;
+      if (
+        pathFilename &&
+        ((a.fileName && a.fileName.includes(pathFilename)) ||
+          (a.name && a.name.includes(pathFilename)) ||
+          (a.storagePath && a.storagePath.includes(pathFilename)))
+      )
+        return true;
+      return false;
+    });
+    return match?.dataUrl || url;
+  };
+
   // Helper to parse inline formatting like **bold**, *italic*, and [link](url)
   const renderFormattedText = (text: string) => {
     // If text contains an inline image, render it as an image
@@ -35,20 +55,14 @@ export const ArticleContentRenderer: React.FC<ArticleContentRendererProps> = ({
       return (
         <span className="inline-block my-2 max-w-full">
           <img
-            src={imgUrl}
+            src={resolveArticleImg(imgUrl)}
             alt={altText}
             className="rounded-xl shadow-xs max-h-96 object-cover border border-stone-200"
             onError={(e) => {
               const currentSrc = e.currentTarget.src;
-              const found = mediaAssets.find(
-                (a) =>
-                  a &&
-                  (a.dataUrl === currentSrc ||
-                    a.url === currentSrc ||
-                    (a.storagePath && currentSrc.includes(a.storagePath)))
-              );
-              if (found?.dataUrl) {
-                e.currentTarget.src = found.dataUrl;
+              const resolved = resolveArticleImg(currentSrc);
+              if (resolved && resolved !== currentSrc) {
+                e.currentTarget.src = resolved;
               }
             }}
           />
@@ -155,33 +169,19 @@ export const ArticleContentRenderer: React.FC<ArticleContentRendererProps> = ({
             <figure key={idx} className={containerClasses}>
               <div className="relative group overflow-hidden rounded-2xl inline-block w-full">
                 <img
-                  src={imgUrl}
+                  src={resolveArticleImg(imgUrl)}
                   alt={altText}
                   className={`${imgClasses} cursor-zoom-in transition duration-300 group-hover:scale-[1.02]`}
-                  onClick={() => setActiveLightboxImg({ url: imgUrl, alt: altText, caption })}
+                  onClick={() =>
+                    setActiveLightboxImg({ url: resolveArticleImg(imgUrl), alt: altText, caption })
+                  }
                   loading="lazy"
                   onError={(e) => {
-                    // Search mediaAssets in context for matching dataUrl if remote R2 URL is unresolved
                     const targetSrc = e.currentTarget.src;
-                    const matched = mediaAssets.find((a) => {
-                      if (!a) return false;
-                      if (a.url && targetSrc.includes(a.url)) return true;
-                      if (a.dataUrl && targetSrc.includes(a.dataUrl)) return true;
-                      if (a.storagePath && targetSrc.includes(a.storagePath)) return true;
-                      if (
-                        a.name &&
-                        targetSrc
-                          .toLowerCase()
-                          .includes(a.name.toLowerCase().replace(/\.[^/.]+$/, ''))
-                      )
-                        return true;
-                      return false;
-                    });
-
-                    if (matched?.dataUrl && e.currentTarget.src !== matched.dataUrl) {
-                      e.currentTarget.src = matched.dataUrl;
+                    const resolved = resolveArticleImg(targetSrc);
+                    if (resolved && resolved !== targetSrc) {
+                      e.currentTarget.src = resolved;
                     } else if (!e.currentTarget.src.includes('unsplash.com')) {
-                      // Fallback HD destination image if missing
                       e.currentTarget.src =
                         'https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=1200&q=80';
                     }
