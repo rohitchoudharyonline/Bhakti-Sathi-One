@@ -496,9 +496,9 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [blogCategories, setBlogCategories] = useState<BlogCategory[]>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.BLOG_CATEGORIES);
-      if (saved) {
+      if (saved !== null) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (Array.isArray(parsed)) return parsed;
       }
     } catch {}
     return DEFAULT_BLOG_CATEGORIES;
@@ -508,13 +508,9 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [guides, setGuides] = useState<GuideArticle[]>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.GUIDES);
-      if (saved) {
+      if (saved !== null) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          const existingIds = new Set(parsed.map((g: GuideArticle) => g.id));
-          const missing = DEFAULT_GUIDES.filter((dg) => !existingIds.has(dg.id));
-          return [...parsed, ...missing];
-        }
+        if (Array.isArray(parsed)) return parsed;
       }
     } catch {}
     return DEFAULT_GUIDES;
@@ -523,13 +519,9 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [guideCategories, setGuideCategories] = useState<GuideCategory[]>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.GUIDE_CATEGORIES);
-      if (saved) {
+      if (saved !== null) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          const existingSlugs = new Set(parsed.map((c: GuideCategory) => c.slug));
-          const missing = DEFAULT_GUIDE_CATEGORIES.filter((dc) => !existingSlugs.has(dc.slug));
-          return [...parsed, ...missing];
-        }
+        if (Array.isArray(parsed)) return parsed;
       }
     } catch {}
     return DEFAULT_GUIDE_CATEGORIES;
@@ -539,9 +531,9 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [customPages, setCustomPages] = useState<CustomPage[]>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.CUSTOM_PAGES);
-      if (saved) {
+      if (saved !== null) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (Array.isArray(parsed)) return parsed;
       }
     } catch {}
     return DEFAULT_CUSTOM_PAGES;

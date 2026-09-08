@@ -93,7 +93,7 @@ export const TravelBlogHub: React.FC = () => {
 
 
         {/* Main Content Hub */}
-        <main className="max-w-7xl mx-auto px-4 sm:px-8 pt-10 pb-36 sm:pt-12 sm:pb-16 space-y-12">
+        <main className="max-w-7xl mx-auto px-4 sm:px-8 pt-10 pb-48 sm:pt-12 sm:pb-28 space-y-12">
           {/* Featured Hero Article */}
           {featuredPost && selectedCategory === 'all' && !searchQuery && (
             <div

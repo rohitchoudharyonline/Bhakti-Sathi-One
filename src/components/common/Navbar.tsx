@@ -173,26 +173,6 @@ export const Navbar: React.FC = () => {
 
           {/* Right Action Icons & Mobile / Desktop Controls */}
           <div className="flex items-center gap-2 sm:gap-4">
-            {/* Push Notifications Bell Button - Very small, transparent, motion on bell */}
-            <button
-              type="button"
-              onClick={() => setIsNotificationDrawerOpen(!isNotificationDrawerOpen)}
-              className="p-1 bg-transparent border-none text-stone-700 hover:text-[#FF4B00] transition cursor-pointer relative shrink-0"
-              title="Travel Alerts & Notifications"
-              aria-label="View Push Notifications"
-            >
-              <motion.div
-                animate={{ rotate: [0, -12, 12, -10, 10, -5, 5, 0] }}
-                transition={{ repeat: Infinity, repeatDelay: 5, duration: 1 }}
-              >
-                <Bell className="w-4 h-4 text-stone-700 hover:text-[#FF4B00] transition-colors" />
-              </motion.div>
-              {unreadNotificationsCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-[#FF4B00] text-white text-[8px] font-black rounded-full grid place-items-center ring-1 ring-white animate-pulse">
-                  {unreadNotificationsCount}
-                </span>
-              )}
-            </button>
 
             {/* Helpline Call Button - Direct Phone Link ONLY */}
             <a

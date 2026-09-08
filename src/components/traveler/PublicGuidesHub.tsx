@@ -90,7 +90,7 @@ export const PublicGuidesHub: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#faf8f5] text-stone-900 flex flex-col justify-between">
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-36 md:pt-12 md:pb-16 w-full space-y-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-48 md:pt-12 md:pb-28 w-full space-y-8">
         {/* Breadcrumb Bar */}
         <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs text-stone-500">
           <button

@@ -198,7 +198,7 @@ export const GuideDetailView: React.FC<GuideDetailViewProps> = ({ slug }) => {
   }
 
   return (
-    <div className="min-h-screen bg-[#faf8f5] text-stone-900 pb-36 md:pb-24">
+    <div className="min-h-screen bg-[#faf8f5] text-stone-900 pb-48 md:pb-28">
       {/* Top Breadcrumb Bar */}
       <div className="border-b border-stone-200/80 bg-white/70 backdrop-blur-xs sticky top-0 z-20">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
@@ -529,6 +529,40 @@ export const GuideDetailView: React.FC<GuideDetailViewProps> = ({ slug }) => {
           </section>
         )}
 
+        {/* Pilgrimage Support Banner */}
+        <div className="bg-stone-900 text-white rounded-3xl p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-6 my-8 shadow-md">
+          <div className="space-y-2 text-center md:text-left">
+            <span className="text-xs font-bold text-amber-400 uppercase tracking-wider">
+              Need Personalized Yatra Guidance?
+            </span>
+            <h2 className="text-lg sm:text-2xl font-bold">
+              Plan Your Sacred Yatra With Bhakti Sathi
+            </h2>
+            <p className="text-xs text-stone-300 max-w-xl">
+              From VIP darshan logistics and local shrine guides to verified clean accommodation, our team helps ensure a hassle-free pilgrimage.
+            </p>
+          </div>
+
+          <div className="flex flex-wrap items-center justify-center gap-3 w-full md:w-auto">
+            <a
+              href={`https://wa.me/${(agencySettings.whatsapp || '919419915255').replace(/\D/g, '')}?text=Namaste%20Bhakti%20Sathi%2C%20I%20am%20reading%20${encodeURIComponent(guide.title)}%20and%20need%20yatra%20guidance`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm transition w-full sm:w-auto"
+            >
+              <MessageSquare className="w-4 h-4" />
+              <span>Inquire on WhatsApp</span>
+            </a>
+            <a
+              href={`tel:${agencySettings.phone || '+91 94199 15255'}`}
+              className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold border border-white/10 transition w-full sm:w-auto"
+            >
+              <PhoneCall className="w-4 h-4" />
+              <span>Call Yatra Desk</span>
+            </a>
+          </div>
+        </div>
+
         {/* Other Published Guides */}
         {otherGuides.length > 0 && (
           <section className="space-y-4 pt-6 border-t border-stone-200">
@@ -553,25 +587,6 @@ export const GuideDetailView: React.FC<GuideDetailViewProps> = ({ slug }) => {
           </section>
         )}
       </article>
-
-      {/* Floating Yatra Desk Inquiry Pill for Mobile Devotees */}
-      <div className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:w-auto z-40">
-        <a
-          href={`https://wa.me/${(agencySettings.whatsapp || '919419915255').replace(/\D/g, '')}?text=Namaste%20Bhakti%20Sathi%2C%20I%20am%20reading%20the%20${encodeURIComponent(guide.title)}%20and%20would%20like%20to%20plan%20my%20yatra`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center justify-between sm:justify-start gap-3 bg-stone-900 text-white px-5 py-3 rounded-full shadow-lg border border-stone-800 hover:bg-black transition"
-        >
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="text-xs font-bold">Have questions about this yatra?</span>
-          </div>
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-600 text-white text-xs font-bold">
-            <MessageSquare className="w-3.5 h-3.5" />
-            <span>Chat on WhatsApp</span>
-          </span>
-        </a>
-      </div>
     </div>
   );
 };

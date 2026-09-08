@@ -17,8 +17,6 @@ import { EnhancedERP } from './components/cms/EnhancedERP';
 import { SplashScreen } from './components/common/SplashScreen';
 import { MobileBottomNav } from './components/common/MobileBottomNav';
 import { FloatingSupportWidget } from './components/common/FloatingSupportWidget';
-import { PushNotificationDrawer } from './components/common/PushNotificationDrawer';
-import { PushPermissionBanner } from './components/common/PushPermissionBanner';
 import { TravelerProfilePage } from './components/traveler/TravelerProfilePage';
 import { TravelerAuthModal } from './components/traveler/TravelerAuthModal';
 import { PWAInstallButton } from './components/common/PWAInstallButton';
@@ -61,8 +59,6 @@ const MainAppContent: React.FC = () => {
         {activeView !== 'traveler' ? <EnhancedERP /> : isPanchangOpen ? <PanchangCalendarPageV3 /> : isHoroscopeOpen ? <HoroscopePage /> : isJapCounterOpen ? <JapCounterPageV2 /> : isTravelerProfileOpen ? <TravelerProfilePage /> : activeGuideSlug ? <GuideDetailView slug={activeGuideSlug} /> : isGuidesHubOpen ? <PublicGuidesHub /> : activeBlogSlug ? <BlogPostDetailView slug={activeBlogSlug} /> : isBlogHubOpen ? <TravelBlogHub /> : isToursDirectoryOpen ? <AllToursDirectory initialDestinationSlug={selectedToursDestination || undefined} /> : activeCustomPageSlug ? <CustomPageDetailView slug={activeCustomPageSlug} /> : activeInfoPage ? <InfoPageView pageSlug={activeInfoPage} onBack={() => setActiveInfoPage(null)} /> : selectedPackageId ? <EnhancedTourExperience /> : selectedDestinationSlug ? <DestinationPage /> : isDestinationsExplorerOpen ? <AllDestinationsExplorer /> : <LuxuryHomepage />}
         {activeView === 'traveler' && !isPanchangOpen && !isHoroscopeOpen && <MobileBottomNav />}
         {activeView === 'traveler' && !isPanchangOpen && !isHoroscopeOpen && <FloatingSupportWidget />}
-        <PushNotificationDrawer />
-        {activeView === 'traveler' && !isPanchangOpen && !isHoroscopeOpen && <PushPermissionBanner />}
         <TravelerAuthModal />
         <PWAInstallButton />
         {isHome && <></>}
