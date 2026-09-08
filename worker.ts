@@ -92,6 +92,51 @@ export default {
           });
         }
 
+        if (pathname === '/api/upload' && request.method === 'POST') {
+          if (!env.BUCKET) {
+            return new Response(JSON.stringify({ error: 'R2 BUCKET binding not configured' }), {
+              status: 500,
+              headers: { 'Content-Type': 'application/json', ...corsHeaders }
+            });
+          }
+          const formData = await request.formData();
+          const file = formData.get('file') as File;
+          if (!file) {
+            return new Response(JSON.stringify({ error: 'No file provided' }), {
+              status: 400,
+              headers: { 'Content-Type': 'application/json', ...corsHeaders }
+            });
+          }
+          const filename = `${Date.now()}-${file.name}`;
+          await env.BUCKET.put(filename, file.stream(), {
+            httpMetadata: { contentType: file.type }
+          });
+          return new Response(JSON.stringify({ success: true, filename, url: `/api/files/${filename}` }), {
+            headers: { 'Content-Type': 'application/json', ...corsHeaders }
+          });
+        }
+
+        if (pathname.startsWith('/api/files/') && request.method === 'GET') {
+          if (!env.BUCKET) {
+            return new Response(JSON.stringify({ error: 'R2 BUCKET binding not configured' }), {
+              status: 500,
+              headers: { 'Content-Type': 'application/json', ...corsHeaders }
+            });
+          }
+          const filename = pathname.replace('/api/files/', '');
+          const object = await env.BUCKET.get(filename);
+          if (!object) {
+            return new Response(JSON.stringify({ error: 'File not found' }), {
+              status: 404,
+              headers: { 'Content-Type': 'application/json', ...corsHeaders }
+            });
+          }
+          const headers = new Headers(corsHeaders);
+          object.writeHttpMetadata(headers);
+          headers.set('etag', object.httpEtag);
+          return new Response(object.body, { headers });
+        }
+
         return new Response(JSON.stringify({ error: 'API endpoint not found' }), {
           status: 404,
           headers: { 'Content-Type': 'application/json', ...corsHeaders }
