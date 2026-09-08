@@ -18,6 +18,7 @@ import { UsersManager } from './UsersManager';
 import { GroupToursManager } from './GroupToursManager';
 import { GuideManager } from './GuideManager';
 import { CategoriesManager } from "./CategoriesManager";
+import { TagsManager } from "./TagsManager";
 import { SEOManager } from "./SEOManager";
 import { GuideEditor } from './GuideEditor';
 import { GuideArticle } from '../../types/guide';
@@ -31,6 +32,7 @@ import {
   MessageSquare,
   Settings,
   Tag,
+  Folder,
   Globe,
   Search,
   Plus,
@@ -84,6 +86,9 @@ export const CMSDashboard: React.FC = () => {
     pushNotifications,
     registeredUsers,
     guides,
+    guideCategories,
+    customPages,
+    mediaAssets,
     addGuide,
     updateGuide,
     deletePackage,
@@ -100,6 +105,7 @@ export const CMSDashboard: React.FC = () => {
     | 'group-tours'
     | 'guides'
     | 'categories'
+    | 'tags'
     | 'seo'
     | 'editor'
     | 'destinations'
@@ -137,6 +143,7 @@ export const CMSDashboard: React.FC = () => {
         return true;
       case 'guides':
       case 'categories':
+      case 'tags':
       case 'seo':
       case 'destinations':
       case 'pages':
@@ -230,12 +237,13 @@ export const CMSDashboard: React.FC = () => {
     const tabsConfig = [
     { id: 'dashboard', label: 'Operations Hub', icon: LayoutDashboard, count: null, show: canAccess('dashboard') },
     
-    // Core WordPress-style Tabs
-    { id: 'guides', label: 'All Posts (Guides)', icon: BookOpen, count: guides.length, show: canAccess('guides') },
-    { id: 'categories', label: 'Categories & Tags', icon: Tag, count: null, show: canAccess('guides') },
-    { id: 'pages', label: 'Pages', icon: FileEdit, count: null, show: canAccess('pages') },
-    { id: 'media', label: 'Media Library', icon: Cloud, count: null, show: canAccess('media') },
-    { id: 'seo', label: 'Rank Math SEO', icon: Globe, count: null, show: canAccess('guides') },
+    // Core WordPress-style Content Management Tabs
+    { id: 'guides', label: 'All Posts', icon: BookOpen, count: guides.length, show: canAccess('guides') },
+    { id: 'categories', label: 'Category', icon: Folder, count: guideCategories.length, show: canAccess('guides') },
+    { id: 'tags', label: 'Tags', icon: Tag, count: null, show: canAccess('tags') },
+    { id: 'media', label: 'Image Library', icon: ImagePlus, count: mediaAssets.length, show: canAccess('media') },
+    { id: 'pages', label: 'Pages', icon: FileEdit, count: customPages.length, show: canAccess('pages') },
+    { id: 'seo', label: 'SEO Meta', icon: Globe, count: null, show: canAccess('seo') },
 
     { id: 'packages', label: 'Tour Packages', icon: Compass, count: packages.length, show: canAccess('packages') },
     {
@@ -683,10 +691,13 @@ export const CMSDashboard: React.FC = () => {
         )}
 
                 {/* WORDPRESS STYLE: RANK MATH SEO */}
-        {activeCmsTab === 'seo' && canAccess('guides') && <SEOManager />}
+        {activeCmsTab === 'seo' && canAccess('seo') && <SEOManager />}
 
-        {/* WORDPRESS STYLE: CATEGORIES & TAGS */}
+        {/* WORDPRESS STYLE: CATEGORIES */}
         {activeCmsTab === 'categories' && canAccess('guides') && <CategoriesManager />}
+
+        {/* WORDPRESS STYLE: TAGS */}
+        {activeCmsTab === 'tags' && canAccess('tags') && <TagsManager />}
 
         {/* TAB 2.5: PILGRIMAGE & TRAVEL GUIDES CMS (WITH AI SEO GENERATOR) */}
         {activeCmsTab === 'guides' && canAccess('guides') && (
