@@ -52,7 +52,7 @@ export const CustomPageDetailView: React.FC<CustomPageDetailViewProps> = ({ slug
   }
 
   return (
-    <div className="min-h-screen bg-white text-stone-900 flex flex-col justify-between font-sans selection:bg-stone-900 selection:text-white pb-20 lg:pb-0">
+    <div className="min-h-screen bg-white text-stone-900 flex flex-col justify-between font-sans selection:bg-stone-900 selection:text-white pb-48 md:pb-28">
       <div>
         {/* Unified Top Navbar */}
         <Navbar />

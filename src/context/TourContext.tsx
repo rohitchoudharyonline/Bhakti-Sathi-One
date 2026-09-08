@@ -1416,9 +1416,12 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setSelectedToursDestination(null);
     setIsBlogHubOpen(false);
     setActiveBlogSlug(null);
+    setIsGuidesHubOpen(false);
+    setActiveGuideSlug(null);
     setActiveCustomPageSlug(null);
     setActiveInfoPage(null);
     setIsJapCounterOpen(false);
+    setIsTravelerProfileOpen(false);
     if (typeof window !== 'undefined' && window.history.pushState) {
       window.history.pushState({}, '', '/');
     }
@@ -1433,8 +1436,11 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsToursDirectoryOpen(false);
     setIsBlogHubOpen(false);
     setActiveBlogSlug(null);
+    setIsGuidesHubOpen(false);
+    setActiveGuideSlug(null);
     setActiveCustomPageSlug(null);
     setIsJapCounterOpen(false);
+    setIsTravelerProfileOpen(false);
     if (typeof window !== 'undefined' && window.history.pushState) {
       window.history.pushState({}, '', `/holidays/${slug}`);
     }
@@ -1449,8 +1455,11 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsToursDirectoryOpen(false);
     setIsBlogHubOpen(false);
     setActiveBlogSlug(null);
+    setIsGuidesHubOpen(false);
+    setActiveGuideSlug(null);
     setActiveCustomPageSlug(null);
     setIsJapCounterOpen(false);
+    setIsTravelerProfileOpen(false);
     if (typeof window !== 'undefined' && window.history.pushState) {
       window.history.pushState({}, '', `/package/${id}`);
     }
@@ -1469,6 +1478,8 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsDestinationsExplorerOpen(false);
     setIsBlogHubOpen(false);
     setActiveBlogSlug(null);
+    setIsGuidesHubOpen(false);
+    setActiveGuideSlug(null);
     setActiveCustomPageSlug(null);
     setActiveInfoPageRaw(null);
     setIsJapCounterOpen(false);
@@ -1497,7 +1508,10 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsDestinationsExplorerOpen(false);
     setIsBlogHubOpen(false);
     setActiveBlogSlug(null);
+    setIsGuidesHubOpen(false);
+    setActiveGuideSlug(null);
     setActiveCustomPageSlug(null);
+    setIsTravelerProfileOpen(false);
     if (typeof window !== 'undefined' && window.history.pushState) {
       window.history.pushState({}, '', `/tours/${destinationSlug}`);
     }
@@ -1523,6 +1537,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setSelectedDestinationSlug(null);
     setIsDestinationsExplorerOpen(false);
     setActiveCustomPageSlug(null);
+    setIsTravelerProfileOpen(false);
     if (typeof window !== 'undefined' && window.history.pushState) {
       window.history.pushState({}, '', '/guides');
     }
@@ -1540,6 +1555,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setSelectedDestinationSlug(null);
     setIsDestinationsExplorerOpen(false);
     setActiveCustomPageSlug(null);
+    setIsTravelerProfileOpen(false);
     if (typeof window !== 'undefined' && window.history.pushState) {
       window.history.pushState({}, '', `/guides/${slug}`);
     }
@@ -1551,10 +1567,13 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setActiveCustomPageSlug(slug);
     setIsBlogHubOpen(false);
     setActiveBlogSlug(null);
+    setIsGuidesHubOpen(false);
+    setActiveGuideSlug(null);
     setIsToursDirectoryOpen(false);
     setSelectedPackageId(null);
     setSelectedDestinationSlug(null);
     setIsDestinationsExplorerOpen(false);
+    setIsTravelerProfileOpen(false);
     if (typeof window !== 'undefined' && window.history.pushState) {
       window.history.pushState({}, '', `/page/${slug}`);
     }
@@ -1570,6 +1589,8 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsToursDirectoryOpen(false);
     setIsBlogHubOpen(false);
     setActiveBlogSlug(null);
+    setIsGuidesHubOpen(false);
+    setActiveGuideSlug(null);
     setActiveCustomPageSlug(null);
     setActiveInfoPageRaw(null);
     setIsTravelerProfileOpen(false);
@@ -1585,9 +1606,12 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsToursDirectoryOpen(false);
     setIsBlogHubOpen(false);
     setActiveBlogSlug(null);
+    setIsGuidesHubOpen(false);
+    setActiveGuideSlug(null);
     setActiveCustomPageSlug(null);
     setSelectedPackageId(null);
     setSelectedDestinationSlug(null);
+    setIsTravelerProfileOpen(false);
     if (typeof window !== 'undefined' && window.history.pushState) {
       window.history.pushState({}, '', '/destinations');
     }

@@ -31,7 +31,8 @@ export const BlogPostDetailView: React.FC<BlogPostDetailViewProps> = ({ slug }) 
     blogPosts,
     navigateToBlogHub,
     navigateToHome,
-    navigateToPackageDetail,
+    navigateToBlogPost,
+    navigateToAllTours,
     packages,
     agencySettings,
   } = useTours();
@@ -114,7 +115,7 @@ export const BlogPostDetailView: React.FC<BlogPostDetailViewProps> = ({ slug }) 
   };
 
   return (
-    <div className="min-h-screen bg-white text-stone-900 flex flex-col justify-between font-sans selection:bg-stone-900 selection:text-white pb-20 lg:pb-0">
+    <div className="min-h-screen bg-white text-stone-900 flex flex-col justify-between font-sans selection:bg-stone-900 selection:text-white pb-48 md:pb-28">
       <div>
         {/* Unified Top Navbar */}
         <Navbar />
@@ -292,10 +293,7 @@ export const BlogPostDetailView: React.FC<BlogPostDetailViewProps> = ({ slug }) 
                 {otherPosts.map((other) => (
                   <div
                     key={other.id}
-                    onClick={() => {
-                      window.history.pushState({}, '', `/travel-blog/${other.slug}`);
-                      window.location.reload();
-                    }}
+                    onClick={() => navigateToBlogPost(other.slug)}
                     className="p-4 bg-stone-50 hover:bg-stone-100 rounded-2xl border border-stone-200 transition cursor-pointer space-y-2 group"
                   >
                     <div className="aspect-16/10 rounded-xl overflow-hidden bg-stone-200">
@@ -335,10 +333,7 @@ export const BlogPostDetailView: React.FC<BlogPostDetailViewProps> = ({ slug }) 
                 Request Custom Itinerary & Quote
               </button>
               <button
-                onClick={() => {
-                  window.history.pushState({}, '', '/tours');
-                  window.location.reload();
-                }}
+                onClick={navigateToAllTours}
                 className="px-5 py-3 bg-stone-900 border border-stone-700 text-white text-xs font-bold rounded-xl hover:bg-stone-800 transition cursor-pointer"
               >
                 Browse All Tour Packages
