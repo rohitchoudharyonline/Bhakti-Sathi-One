@@ -1,6 +1,6 @@
 {
   "name": "bhakti-sathi-one",
-  "main": "worker.ts",
+  "main": "worker-auth-wrapper.ts",
   "compatibility_date": "2026-09-10",
   "compatibility_flags": [
     "nodejs_compat"
