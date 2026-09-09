@@ -29,7 +29,7 @@ export const TravelBlogHub: React.FC = () => {
     navigateToBlogPost,
     navigateToHome,
     agencySettings,
-    customPages,
+    pageSeoConfigs,
   } = useTours();
 
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
@@ -47,17 +47,20 @@ export const TravelBlogHub: React.FC = () => {
       { name: 'Home', url: origin },
       { name: 'Travel Blog & Guides', url: `${origin}/travel-blog` },
     ]);
-    const blogPage = customPages?.find(p => p.slug === 'blog');
+    const blogSeo = pageSeoConfigs?.['blog'];
 
     updatePageSeo({
-      title: blogPage?.seo?.metaTitle || 'Sacred Yatra Blog & Pilgrimage Destination Guides (2026) | Bhakti Sathi',
+      title: blogSeo?.metaTitle || 'Sacred Yatra Blog & Pilgrimage Destination Guides (2026) | Bhakti Sathi',
       description:
-        blogPage?.seo?.metaDescription || 'Read expert pilgrimage travel guides, Vaishno Devi SMVDSB yatra registration instructions, Char Dham advisories, Kashi Vishwanath darshan tips, and transparent yatra packages.',
+        blogSeo?.metaDescription || 'Read expert pilgrimage travel guides, Vaishno Devi SMVDSB yatra registration instructions, Char Dham advisories, Kashi Vishwanath darshan tips, and transparent yatra packages.',
+      canonicalUrl: blogSeo?.canonicalUrl || 'https://mybhaktisathi.com/travel-blog',
       canonicalPath: '/travel-blog',
       schemaData: breadcrumbSchema,
+      noIndex: blogSeo?.noIndex,
+      noFollow: blogSeo?.noFollow,
     });
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [customPages]);
+  }, [pageSeoConfigs]);
 
   const publishedPosts = blogPosts.filter((p) => p.status === 'published');
 

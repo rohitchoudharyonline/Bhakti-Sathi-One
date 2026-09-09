@@ -12,7 +12,7 @@ import {
   TravelerUserProfile,
   CoTraveler,
 } from '../types/tour';
-import { BlogPost, BlogCategory, CustomPage, MediaAsset, CloudStorageSettings, RegisteredTravelerUser } from '../types/cms';
+import { BlogPost, BlogCategory, CustomPage, MediaAsset, CloudStorageSettings, RegisteredTravelerUser, PageSeoConfig } from '../types/cms';
 import { PushNotification, PushSubscriber, PushSettings } from '../types/pushNotification';
 import { DEFAULT_PACKAGES, DEFAULT_AGENCY_SETTINGS } from '../data/defaultPackages';
 import {
@@ -28,6 +28,7 @@ import { DEFAULT_BLOG_POSTS, DEFAULT_BLOG_CATEGORIES } from '../data/defaultBlog
 import { GuideArticle, GuideCategory } from '../types/guide';
 import { DEFAULT_GUIDES, DEFAULT_GUIDE_CATEGORIES } from '../data/defaultGuidesData';
 import { DEFAULT_CUSTOM_PAGES } from '../data/defaultPagesData';
+import { DEFAULT_PAGE_SEO_CONFIGS } from '../data/defaultPageSeoData';
 import { DEFAULT_PUSH_NOTIFICATIONS, DEFAULT_PUSH_SUBSCRIBERS, DEFAULT_PUSH_SETTINGS } from '../data/defaultPushData';
 import { supabase } from '../utils/supabaseClient';
 
@@ -171,6 +172,11 @@ interface TourContextType {
   updateCustomPage: (updatedPage: CustomPage) => void;
   deleteCustomPage: (id: string) => void;
 
+  // Website Pages SEO (All Core Site Pages)
+  pageSeoConfigs: Record<string, PageSeoConfig>;
+  updatePageSeoConfig: (config: PageSeoConfig) => void;
+  getPageSeoConfig: (idOrPath: string) => PageSeoConfig | undefined;
+
   // Media Library & Cloudflare R2 / D1 Storage
   mediaAssets: MediaAsset[];
   cloudStorageSettings: CloudStorageSettings;
@@ -263,6 +269,7 @@ const STORAGE_KEYS = {
   GUIDES: 'hh_guide_articles_v1',
   GUIDE_CATEGORIES: 'hh_guide_categories_v1',
   CUSTOM_PAGES: 'hh_custom_pages_v2',
+  PAGE_SEO_CONFIGS: 'hh_page_seo_configs_v1',
   MEDIA_ASSETS: 'hh_media_assets_v2',
   CLOUD_STORAGE_CONFIG: 'hh_cloud_storage_config_v2',
   INQUIRIES: 'hh_booking_inquiries_v2',
@@ -538,20 +545,61 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (saved !== null) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed)) {
-          // Self-heal and merge any missing default pages (e.g. system pages like 'home', 'tours', 'destinations', 'blog', 'faq')
-          const merged = [...parsed];
+          // Filter out unwanted dummy pages: 'home', 'tours', 'destinations', 'blog', 'faq'
+          const cleaned = parsed.filter(p => 
+            !['page-home', 'page-tours', 'page-destinations', 'page-blog', 'page-faq', 'home', 'tours', 'destinations', 'blog', 'faq'].includes(p.id) &&
+            !['home', 'tours', 'destinations', 'blog', 'faq'].includes(p.slug)
+          );
           DEFAULT_CUSTOM_PAGES.forEach(defPage => {
-            const exists = merged.some(p => p.slug === defPage.slug || p.id === defPage.id);
+            const exists = cleaned.some(p => p.slug === defPage.slug || p.id === defPage.id);
             if (!exists) {
-              merged.push(defPage);
+              cleaned.push(defPage);
             }
           });
-          return merged;
+          return cleaned;
         }
       }
     } catch {}
     return DEFAULT_CUSTOM_PAGES;
   });
+
+  // 4.1. Website Pages SEO State (All Core Pages: Home, Tours, Destinations, Blog, FAQ, etc.)
+  const [pageSeoConfigs, setPageSeoConfigs] = useState<Record<string, PageSeoConfig>>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.PAGE_SEO_CONFIGS);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed && typeof parsed === 'object') {
+          return { ...DEFAULT_PAGE_SEO_CONFIGS, ...parsed };
+        }
+      }
+    } catch {}
+    return DEFAULT_PAGE_SEO_CONFIGS;
+  });
+
+  const updatePageSeoConfig = (config: PageSeoConfig) => {
+    setPageSeoConfigs(prev => {
+      const updated = {
+        ...prev,
+        [config.id]: {
+          ...config,
+          updatedAt: new Date().toISOString()
+        }
+      };
+      try {
+        localStorage.setItem(STORAGE_KEYS.PAGE_SEO_CONFIGS, JSON.stringify(updated));
+      } catch (err) {
+        console.error('Failed to save page SEO config:', err);
+      }
+      return updated;
+    });
+  };
+
+  const getPageSeoConfig = (idOrPath: string): PageSeoConfig | undefined => {
+    if (pageSeoConfigs && pageSeoConfigs[idOrPath]) return pageSeoConfigs[idOrPath];
+    const list: PageSeoConfig[] = Object.values(pageSeoConfigs || {});
+    return list.find(p => p.path === idOrPath || p.id === idOrPath);
+  };
 
   // 5. Media Assets & Cloud Storage Settings State
   const [mediaAssets, setMediaAssets] = useState<MediaAsset[]>(() => {
@@ -1427,6 +1475,12 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     try {
+      localStorage.setItem(STORAGE_KEYS.PAGE_SEO_CONFIGS, JSON.stringify(pageSeoConfigs));
+    } catch {}
+  }, [pageSeoConfigs]);
+
+  useEffect(() => {
+    try {
       localStorage.setItem(STORAGE_KEYS.MEDIA_ASSETS, JSON.stringify(mediaAssets));
     } catch {}
   }, [mediaAssets]);
@@ -2016,8 +2070,8 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const deleteCustomPage = (id: string) => {
     const page = customPages.find(p => p.id === id);
-    if (page && ['home', 'tours', 'destinations', 'blog', 'faq', 'about-us'].includes(page.slug)) {
-      alert("This is a system-required SEO page and cannot be deleted.");
+    if (page && (page.isSystemPage || page.slug === 'about-us')) {
+      alert("This is a core system page and cannot be deleted.");
       return;
     }
     setCustomPages((prev) => prev.filter((p) => p.id !== id));
@@ -2437,6 +2491,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setBlogPosts(DEFAULT_BLOG_POSTS);
     setBlogCategories(DEFAULT_BLOG_CATEGORIES);
     setCustomPages(DEFAULT_CUSTOM_PAGES);
+    setPageSeoConfigs(DEFAULT_PAGE_SEO_CONFIGS);
     setMediaAssets(DEFAULT_SAMPLE_MEDIA);
     setCloudStorageSettings(DEFAULT_CLOUD_SETTINGS);
     setAgencySettings(DEFAULT_AGENCY_SETTINGS);
@@ -2542,6 +2597,9 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
         addCustomPage,
         updateCustomPage,
         deleteCustomPage,
+        pageSeoConfigs,
+        updatePageSeoConfig,
+        getPageSeoConfig,
         mediaAssets,
         cloudStorageSettings,
         addMediaAsset,

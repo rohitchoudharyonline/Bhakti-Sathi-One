@@ -8,7 +8,7 @@ import { DESTINATIONS_REGISTRY, DestinationMeta } from '../../data/destinationsD
 import { motion } from 'motion/react';
 
 export const AllDestinationsExplorer: React.FC = () => {
-  const { destinations, navigateToHome, navigateToDestination, agencySettings, customPages } = useTours();
+  const { destinations, navigateToHome, navigateToDestination, agencySettings, pageSeoConfigs } = useTours();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFilter, setSelectedFilter] = useState<string>('all');
 
@@ -19,16 +19,19 @@ export const AllDestinationsExplorer: React.FC = () => {
 
   // SEO Update on mount
   useEffect(() => {
-    const destinationsPage = customPages?.find(p => p.slug === 'destinations');
+    const destinationsSeo = pageSeoConfigs?.['destinations'];
     updatePageSeo({
-      title: destinationsPage?.seo?.metaTitle || "Jammu Kashmir, Himachal Pradesh & Amritsar Tour Packages | Bhakti Sathi",
-      description: destinationsPage?.seo?.metaDescription || "Book premium, custom-tailored Jammu Kashmir, Himachal Pradesh, and Amritsar tour packages. Unbeatable local prices, private chauffeur cabs, and 24/7 travel desk support.",
-      canonicalPath: "/holidays/destinations",
+      title: destinationsSeo?.metaTitle || "Sacred Destinations & Temple Circuits in India | Bhakti Sathi",
+      description: destinationsSeo?.metaDescription || "Explore India’s most revered holy destinations including Katra Vaishno Devi, Varanasi, Ayodhya Ram Mandir, Mathura Vrindavan, and Himachal Devi Temples.",
+      canonicalUrl: destinationsSeo?.canonicalUrl || "https://mybhaktisathi.com/destinations",
+      canonicalPath: "/destinations",
+      noIndex: destinationsSeo?.noIndex,
+      noFollow: destinationsSeo?.noFollow,
       schemaData: {
         "@context": "https://schema.org",
         "@type": "ItemList",
         "name": "Holiday Destinations",
-        "description": "Comprehensive list of premium travel packages for Jammu Kashmir, Himachal Pradesh, and Amritsar available on Bhakti Sathi.",
+        "description": "Comprehensive list of pilgrimage travel packages available on Bhakti Sathi.",
         "itemListElement": destinationsList.map((dest, index) => ({
           "@type": "ListItem",
           "position": index + 1,
@@ -39,7 +42,7 @@ export const AllDestinationsExplorer: React.FC = () => {
       },
     });
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [destinationsList, customPages]);
+  }, [destinationsList, pageSeoConfigs]);
 
   const filteredDestinations = useMemo(() => {
     const q = searchQuery.toLowerCase().trim();

@@ -38,7 +38,7 @@ interface InfoPageViewProps {
 }
 
 export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, onSelectDestination }) => {
-  const { agencySettings, packages, destinations, setSelectedPackageId, setSelectedDestinationSlug, customPages } = useTours();
+  const { agencySettings, packages, destinations, setSelectedPackageId, setSelectedDestinationSlug, customPages, pageSeoConfigs } = useTours();
   const [selectedState, setSelectedState] = useState<'jk' | 'hp'>('jk');
   const [activeFaqCity, setActiveFaqCity] = useState<string>('vaishnodevi');
   const [selectedRegion, setSelectedRegion] = useState<string>('All Regions');
@@ -75,17 +75,22 @@ export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, on
   const pageTitle = titleMap[pageSlug] || pageSlug.replace(/_/g, ' ').toUpperCase();
 
   useEffect(() => {
+    const pageSeo = pageSeoConfigs?.[pageSlug] || pageSeoConfigs?.[pageSlug.replace(/_/g, '-')];
     const customPageData = customPages?.find((p) => p.slug === pageSlug);
-    const metaTitle = customPageData?.seo?.metaTitle || `${pageTitle} | Bhakti Sathi`;
-    const metaDescription = customPageData?.seo?.metaDescription || `Read detailed information on ${pageTitle} with Bhakti Sathi. Verified guides, transparent quotes, and absolute safety guarantee.`;
+    
+    const metaTitle = pageSeo?.metaTitle || customPageData?.seo?.metaTitle || `${pageTitle} | Bhakti Sathi`;
+    const metaDescription = pageSeo?.metaDescription || customPageData?.seo?.metaDescription || `Read detailed information on ${pageTitle} with Bhakti Sathi. Verified guides, transparent quotes, and absolute safety guarantee.`;
 
     updatePageSeo({
       title: metaTitle,
       description: metaDescription,
-      canonicalPath: `/info/${pageSlug}`,
+      canonicalUrl: pageSeo?.canonicalUrl || undefined,
+      canonicalPath: pageSeo?.path || `/info/${pageSlug}`,
+      noIndex: pageSeo?.noIndex,
+      noFollow: pageSeo?.noFollow,
     });
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [pageSlug, pageTitle, customPages]);
+  }, [pageSlug, pageTitle, customPages, pageSeoConfigs]);
 
   const officesList = [
     { city: 'New Delhi (HQ)', address: 'Connaught Place & Aerocity Hospitality Hub, New Delhi', phone: '+91 94199 15255' },

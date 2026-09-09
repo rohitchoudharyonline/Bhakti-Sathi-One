@@ -60,6 +60,7 @@ export interface CustomPage {
   showInFooterNav: boolean;
   createdAt: string;
   updatedAt: string;
+  isSystemPage?: boolean;
   seo: {
     focusKeyword: string;
     metaTitle: string;
@@ -155,3 +156,18 @@ export interface RegisteredTravelerUser {
   bookingIds?: string[];
 }
 
+export interface PageSeoConfig {
+  id: string; // unique identifier: 'home', 'tours', 'destinations', 'blog', 'faq', 'about-us', 'locate_us', 'cancellation', 'terms', 'privacy', 'security'
+  pageName: string; // readable page label
+  path: string; // route path: '/', '/tours', '/destinations', etc.
+  canonicalUrl: string;
+  focusKeyword: string;
+  metaTitle: string;
+  metaDescription: string;
+  ogTitle?: string;
+  ogDescription?: string;
+  ogImage?: string;
+  noIndex?: boolean;
+  noFollow?: boolean;
+  updatedAt: string;
+}

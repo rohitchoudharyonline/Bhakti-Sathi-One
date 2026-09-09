@@ -241,13 +241,15 @@ export const CustomPagesManager: React.FC = () => {
                         >
                           <Edit className="w-4 h-4" />
                         </button>
-                        <button
-                          onClick={() => deleteCustomPage(page.id)}
-                          className="p-1.5 hover:bg-rose-50 text-stone-400 hover:text-rose-600 rounded-md transition cursor-pointer"
-                          title="Delete"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                        {!page.isSystemPage && page.slug !== 'about-us' && (
+                          <button
+                            onClick={() => deleteCustomPage(page.id)}
+                            className="p-1.5 hover:bg-rose-50 text-stone-400 hover:text-rose-600 rounded-md transition cursor-pointer"
+                            title="Delete"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        )}
                       </div>
                     </td>
                   </tr>

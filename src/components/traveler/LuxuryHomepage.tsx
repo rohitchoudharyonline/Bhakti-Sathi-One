@@ -285,20 +285,23 @@ export const LuxuryHomepage: React.FC = () => {
     submitInquiry,
     navigateToDestination,
     navigateToSearch,
-    customPages,
+    pageSeoConfigs,
   } = useTours();
 
   useEffect(() => {
     const agencySchema = generateAgencyReviewSchema(agencySettings);
-    const homePage = customPages?.find((p) => p.slug === 'home');
+    const homeSeo = pageSeoConfigs?.['home'];
     
     updatePageSeo({
-      title: homePage?.seo?.metaTitle || "Bhakti Sathi — All India Sacred Pilgrimage & Yatra Packages",
-      description: homePage?.seo?.metaDescription || "Book customized sacred pilgrimage and yatra tour packages across India with verified hotel stays, priority darshan support, 1,300+ 5-star traveler reviews, and dedicated private transfers.",
-      canonicalPath: "/holidays",
+      title: homeSeo?.metaTitle || "Bhakti Sathi — All India Sacred Pilgrimage & Yatra Packages",
+      description: homeSeo?.metaDescription || "Book customized sacred pilgrimage and yatra tour packages across India with verified hotel stays, priority darshan support, 1,300+ 5-star traveler reviews, and dedicated private transfers.",
+      canonicalUrl: homeSeo?.canonicalUrl || "https://mybhaktisathi.com",
+      canonicalPath: "/",
       schemaData: agencySchema,
+      noIndex: homeSeo?.noIndex,
+      noFollow: homeSeo?.noFollow,
     });
-  }, [agencySettings, customPages]);
+  }, [agencySettings, pageSeoConfigs]);
 
   // Filter States
   const [destinationScope, setDestinationScope] = useState<'all' | 'domestic' | 'international'>('domestic');

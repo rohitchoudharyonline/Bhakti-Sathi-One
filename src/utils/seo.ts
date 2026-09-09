@@ -10,10 +10,13 @@
 export interface SeoConfig {
   title: string;
   description: string;
-  canonicalPath: string;
+  canonicalPath?: string;
+  canonicalUrl?: string;
   ogImage?: string;
   schemaData?: Record<string, unknown> | Array<Record<string, unknown>>;
   type?: string;
+  noIndex?: boolean;
+  noFollow?: boolean;
 }
 
 export function updatePageSeo(config: SeoConfig) {
@@ -38,7 +41,9 @@ export function updatePageSeo(config: SeoConfig) {
     metaRobots.setAttribute('name', 'robots');
     document.head.appendChild(metaRobots);
   }
-  metaRobots.setAttribute('content', 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1');
+  const robotsIndex = config.noIndex ? 'noindex' : 'index';
+  const robotsFollow = config.noFollow ? 'nofollow' : 'follow';
+  metaRobots.setAttribute('content', `${robotsIndex}, ${robotsFollow}, max-snippet:-1, max-image-preview:large, max-video-preview:-1`);
 
   // 4. Update Canonical Link
   let linkCanonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
@@ -47,14 +52,15 @@ export function updatePageSeo(config: SeoConfig) {
     linkCanonical.setAttribute('rel', 'canonical');
     document.head.appendChild(linkCanonical);
   }
-  const baseUrl = window.location.origin;
-  const canonicalUrl = `${baseUrl}${config.canonicalPath.startsWith('/') ? config.canonicalPath : `/${config.canonicalPath}`}`;
-  linkCanonical.setAttribute('href', canonicalUrl);
+  const targetCanonical = config.canonicalUrl || (config.canonicalPath
+    ? `${window.location.origin}${config.canonicalPath.startsWith('/') ? config.canonicalPath : `/${config.canonicalPath}`}`
+    : window.location.href.split('?')[0]);
+  linkCanonical.setAttribute('href', targetCanonical);
 
   // 5. Update Open Graph & Twitter Card Meta
   updateMetaTag('property', 'og:title', config.title);
   updateMetaTag('property', 'og:description', config.description);
-  updateMetaTag('property', 'og:url', canonicalUrl);
+  updateMetaTag('property', 'og:url', targetCanonical);
   updateMetaTag('property', 'og:type', config.type || 'website');
   
   updateMetaTag('name', 'twitter:card', 'summary_large_image');
