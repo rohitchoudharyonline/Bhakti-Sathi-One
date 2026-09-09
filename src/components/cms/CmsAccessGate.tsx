@@ -68,27 +68,27 @@ export const CmsAccessGate: React.FC<{ children: React.ReactNode }> = ({ childre
     setError('');
 
     try {
-      // Re-verify immediately before credential submission. This guarantees
-      // the backend has a fresh PIN session even if the first cookie was stale,
-      // missing, or the browser restored an old page state.
-      if (verifiedPin.length === 6) {
-        const pinResponse = await fetch('/api/admin/pin/verify', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          cache: 'no-store',
-          body: JSON.stringify({ pin: verifiedPin }),
-        });
-        const pinData = await pinResponse.json().catch(() => ({}));
-        if (!pinResponse.ok || !pinData.success) throw new Error(pinData.error || 'PIN verification failed. Please re-enter your PIN.');
-      }
+      if (verifiedPin.length !== 6) throw new Error('PIN verification required first.');
+
+      // Refresh the short-lived server-side PIN gate, then include the same
+      // verified PIN in the credential request so login does not depend on
+      // browser cookie timing/persistence.
+      const pinResponse = await fetch('/api/admin/pin/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        cache: 'no-store',
+        body: JSON.stringify({ pin: verifiedPin }),
+      });
+      const pinData = await pinResponse.json().catch(() => ({}));
+      if (!pinResponse.ok || !pinData.success) throw new Error(pinData.error || 'PIN verification failed. Please re-enter your PIN.');
 
       const response = await fetch('/api/auth/cms/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         cache: 'no-store',
-        body: JSON.stringify({ email: staffEmail, password }),
+        body: JSON.stringify({ email: staffEmail, password, pin: verifiedPin }),
       });
 
       const data = await response.json().catch(() => ({}));
