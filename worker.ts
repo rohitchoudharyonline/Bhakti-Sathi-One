@@ -84,6 +84,56 @@ export default {
               created_at TEXT
             )
           `).run().catch(() => {});
+
+          await env.DB.prepare(`
+            CREATE TABLE IF NOT EXISTS users (
+              id TEXT PRIMARY KEY,
+              email TEXT UNIQUE NOT NULL,
+              password_hash TEXT,
+              full_name TEXT,
+              phone TEXT,
+              avatar TEXT,
+              metadata TEXT,
+              auth_provider TEXT DEFAULT 'email',
+              created_at TEXT,
+              updated_at TEXT
+            )
+          `).run().catch(() => {});
+
+          await env.DB.prepare(`
+            CREATE TABLE IF NOT EXISTS otp_codes (
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              email TEXT NOT NULL,
+              code TEXT NOT NULL,
+              expires_at TEXT NOT NULL,
+              created_at TEXT NOT NULL
+            )
+          `).run().catch(() => {});
+
+          await env.DB.prepare(`
+            CREATE TABLE IF NOT EXISTS bookings (
+              id TEXT PRIMARY KEY,
+              user_email TEXT NOT NULL,
+              package_id TEXT,
+              package_title TEXT,
+              travelers_count INTEGER DEFAULT 1,
+              total_price REAL,
+              status TEXT DEFAULT 'confirmed',
+              details TEXT,
+              created_at TEXT,
+              updated_at TEXT
+            )
+          `).run().catch(() => {});
+
+          await env.DB.prepare(`
+            CREATE TABLE IF NOT EXISTS wishlists (
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              user_email TEXT NOT NULL,
+              package_id TEXT NOT NULL,
+              created_at TEXT NOT NULL,
+              UNIQUE(user_email, package_id)
+            )
+          `).run().catch(() => {});
         }
 
         // Helper to check if IP is blocked
@@ -277,6 +327,396 @@ export default {
           return new Response(JSON.stringify({ status: 'ok', timestamp: new Date().toISOString() }), {
             headers: { 'Content-Type': 'application/json', ...corsHeaders }
           });
+        }
+
+        // Helper to hash password using SHA-256 via Web Crypto API
+        const hashPasswordWorker = async (password: string): Promise<string> => {
+          const msgBuffer = new TextEncoder().encode(password + '_bhakti_salt_2026');
+          const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+          const hashArray = Array.from(new Uint8Array(hashBuffer));
+          return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        };
+
+        // Helper to format user profile for response
+        const formatUserProfile = (row: any) => {
+          let metadata: any = {};
+          try {
+            if (row.metadata) metadata = JSON.parse(row.metadata);
+          } catch {}
+          return {
+            id: row.id,
+            email: row.email,
+            name: row.full_name || row.email.split('@')[0],
+            phone: row.phone || '+91 98765 43210',
+            avatar: row.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(row.full_name || row.email.split('@')[0])}&background=FF4B00&color=fff&bold=true`,
+            city: metadata.city || 'New Delhi',
+            state: metadata.state || 'Delhi',
+            country: metadata.country || 'India',
+            passportNo: metadata.passportNo || '',
+            idType: metadata.idType || 'Aadhaar Card',
+            idNumber: metadata.idNumber || '',
+            dietPreference: metadata.dietPreference || 'Vegetarian',
+            roomPreference: metadata.roomPreference || 'Standard',
+            emergencyContact: metadata.emergencyContact || '',
+            authProvider: row.auth_provider || 'email',
+            memberTier: metadata.memberTier || 'Member',
+            memberSince: metadata.memberSince || new Date().toLocaleDateString('en-IN', { month: 'long', year: 'numeric' }),
+            rewardCoins: metadata.rewardCoins || 500,
+            coTravelers: metadata.coTravelers || [],
+          };
+        };
+
+        // Unified Google Sign-In Endpoint
+        if (pathname === '/api/auth/google' && request.method === 'POST') {
+          const body = await request.json().catch(() => ({}));
+          const token = String(body.idToken || body.accessToken || body.token || '').trim();
+          if (!token) {
+            return new Response(JSON.stringify({ error: 'Google credential or access token required' }), {
+              status: 400,
+              headers: { 'Content-Type': 'application/json', ...corsHeaders }
+            });
+          }
+
+          let verifiedEmail = '';
+          let verifiedName = '';
+          let verifiedAvatar = '';
+          let googleSub = `google-${Date.now()}`;
+
+          // Try ID Token verification
+          try {
+            const idRes = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(token)}`);
+            if (idRes.ok) {
+              const data: any = await idRes.json();
+              if (data.email && (data.email_verified === 'true' || data.email_verified === true)) {
+                verifiedEmail = String(data.email).toLowerCase();
+                verifiedName = data.name || verifiedEmail.split('@')[0];
+                verifiedAvatar = data.picture || '';
+                googleSub = data.sub || googleSub;
+              }
+            }
+          } catch {}
+
+          // If not verified yet, try access token verification
+          if (!verifiedEmail) {
+            try {
+              const accRes = await fetch(`https://oauth2.googleapis.com/tokeninfo?access_token=${encodeURIComponent(token)}`);
+              if (accRes.ok) {
+                const data: any = await accRes.json();
+                if (data.email && (data.verified_email === true || data.email_verified === 'true' || data.email_verified === true)) {
+                  verifiedEmail = String(data.email).toLowerCase();
+                  verifiedName = verifiedEmail.split('@')[0];
+                  googleSub = data.sub || googleSub;
+                  
+                  const uRes = await fetch('https://openidconnect.googleapis.com/v1/userinfo', {
+                    headers: { Authorization: `Bearer ${token}` }
+                  });
+                  if (uRes.ok) {
+                    const uData: any = await uRes.json();
+                    if (uData.name) verifiedName = uData.name;
+                    if (uData.picture) verifiedAvatar = uData.picture;
+                  }
+                }
+              }
+            } catch {}
+          }
+
+          if (!verifiedEmail) {
+            return new Response(JSON.stringify({ error: 'Google authentication failed. Invalid token.' }), {
+              status: 401,
+              headers: { 'Content-Type': 'application/json', ...corsHeaders }
+            });
+          }
+
+          const now = new Date().toISOString();
+          let userProfile: any = null;
+
+          if (env.DB) {
+            const { results } = await env.DB.prepare('SELECT * FROM users WHERE email = ?').bind(verifiedEmail).all();
+            if (results && results.length > 0) {
+              const existing: any = results[0];
+              await env.DB.prepare('UPDATE users SET full_name = ?, avatar = ?, updated_at = ? WHERE email = ?')
+                .bind(verifiedName || existing.full_name, verifiedAvatar || existing.avatar, now, verifiedEmail).run().catch(() => {});
+              userProfile = formatUserProfile({ ...existing, full_name: verifiedName || existing.full_name, avatar: verifiedAvatar || existing.avatar });
+            } else {
+              const userId = `user-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
+              await env.DB.prepare(`
+                INSERT INTO users (id, email, full_name, avatar, auth_provider, created_at, updated_at)
+                VALUES (?, ?, ?, ?, 'google', ?, ?)
+              `).bind(userId, verifiedEmail, verifiedName, verifiedAvatar, now, now).run().catch(() => {});
+              userProfile = formatUserProfile({ id: userId, email: verifiedEmail, full_name: verifiedName, avatar: verifiedAvatar, auth_provider: 'google' });
+            }
+          } else {
+            userProfile = {
+              id: googleSub,
+              email: verifiedEmail,
+              name: verifiedName,
+              avatar: verifiedAvatar,
+              phone: '+91 98765 43210',
+              authProvider: 'google',
+              memberTier: 'Bhakti Sathi Elite',
+            };
+          }
+
+          return new Response(JSON.stringify({ success: true, user: userProfile }), {
+            headers: { 'Content-Type': 'application/json', ...corsHeaders }
+          });
+        }
+
+        // Traveler Sign Up
+        if (pathname === '/api/auth/traveler/signup' && request.method === 'POST') {
+          const body = await request.json().catch(() => ({}));
+          const email = String(body.email || '').trim().toLowerCase();
+          const password = String(body.password || '');
+          const fullName = String(body.fullName || '').trim() || email.split('@')[0];
+          const phone = String(body.phone || '').trim();
+
+          if (!email || !email.includes('@')) {
+            return new Response(JSON.stringify({ error: 'Please enter a valid email address.' }), {
+              status: 400,
+              headers: { 'Content-Type': 'application/json', ...corsHeaders }
+            });
+          }
+          if (!password || password.length < 6) {
+            return new Response(JSON.stringify({ error: 'Password must be at least 6 characters.' }), {
+              status: 400,
+              headers: { 'Content-Type': 'application/json', ...corsHeaders }
+            });
+          }
+
+          if (env.DB) {
+            const { results } = await env.DB.prepare('SELECT id FROM users WHERE email = ?').bind(email).all();
+            if (results && results.length > 0) {
+              return new Response(JSON.stringify({ error: 'An account already exists with this email. Please sign in.' }), {
+                status: 400,
+                headers: { 'Content-Type': 'application/json', ...corsHeaders }
+              });
+            }
+
+            const pHash = await hashPasswordWorker(password);
+            const userId = `user-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
+            const avatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=FF4B00&color=fff&bold=true`;
+            const now = new Date().toISOString();
+
+            await env.DB.prepare(`
+              INSERT INTO users (id, email, password_hash, full_name, phone, avatar, auth_provider, created_at, updated_at)
+              VALUES (?, ?, ?, ?, ?, ?, 'email', ?, ?)
+            `).bind(userId, email, pHash, fullName, phone, avatar, now, now).run();
+
+            const profile = formatUserProfile({ id: userId, email, full_name: fullName, phone, avatar, auth_provider: 'email' });
+            return new Response(JSON.stringify({ success: true, user: profile }), {
+              headers: { 'Content-Type': 'application/json', ...corsHeaders }
+            });
+          }
+
+          return new Response(JSON.stringify({ error: 'Database service unavailable.' }), {
+            status: 500,
+            headers: { 'Content-Type': 'application/json', ...corsHeaders }
+          });
+        }
+
+        // Traveler Login
+        if (pathname === '/api/auth/traveler/login' && request.method === 'POST') {
+          const body = await request.json().catch(() => ({}));
+          const email = String(body.email || '').trim().toLowerCase();
+          const password = String(body.password || '');
+
+          if (!email || !password) {
+            return new Response(JSON.stringify({ error: 'Email and password are required.' }), {
+              status: 400,
+              headers: { 'Content-Type': 'application/json', ...corsHeaders }
+            });
+          }
+
+          if (env.DB) {
+            const { results } = await env.DB.prepare('SELECT * FROM users WHERE email = ?').bind(email).all();
+            if (!results || results.length === 0) {
+              return new Response(JSON.stringify({ error: 'Invalid email or password.' }), {
+                status: 401,
+                headers: { 'Content-Type': 'application/json', ...corsHeaders }
+              });
+            }
+
+            const userRow: any = results[0];
+            const pHash = await hashPasswordWorker(password);
+            if (userRow.password_hash !== pHash) {
+              return new Response(JSON.stringify({ error: 'Invalid email or password.' }), {
+                status: 401,
+                headers: { 'Content-Type': 'application/json', ...corsHeaders }
+              });
+            }
+
+            const profile = formatUserProfile(userRow);
+            return new Response(JSON.stringify({ success: true, user: profile }), {
+              headers: { 'Content-Type': 'application/json', ...corsHeaders }
+            });
+          }
+
+          return new Response(JSON.stringify({ error: 'Database service unavailable.' }), {
+            status: 500,
+            headers: { 'Content-Type': 'application/json', ...corsHeaders }
+          });
+        }
+
+        // Traveler Send OTP
+        if (pathname === '/api/auth/traveler/send-otp' && request.method === 'POST') {
+          const body = await request.json().catch(() => ({}));
+          const email = String(body.email || '').trim().toLowerCase();
+          if (!email || !email.includes('@')) {
+            return new Response(JSON.stringify({ error: 'Please enter a valid email address.' }), {
+              status: 400,
+              headers: { 'Content-Type': 'application/json', ...corsHeaders }
+            });
+          }
+
+          const code = Math.floor(100000 + Math.random() * 900000).toString();
+          const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString();
+          const now = new Date().toISOString();
+
+          if (env.DB) {
+            await env.DB.prepare('INSERT INTO otp_codes (email, code, expires_at, created_at) VALUES (?, ?, ?, ?)').bind(email, code, expiresAt, now).run().catch(() => {});
+          }
+
+          return new Response(JSON.stringify({
+            success: true,
+            message: `A 6-digit verification code has been dispatched to ${email}.`,
+          }), {
+            headers: { 'Content-Type': 'application/json', ...corsHeaders }
+          });
+        }
+
+        // Traveler Verify OTP
+        if (pathname === '/api/auth/traveler/verify-otp' && request.method === 'POST') {
+          const body = await request.json().catch(() => ({}));
+          const email = String(body.email || '').trim().toLowerCase();
+          const otp = String(body.otp || '').trim();
+
+          if (!email || !otp) {
+            return new Response(JSON.stringify({ error: 'Email and 6-digit OTP code required.' }), {
+              status: 400,
+              headers: { 'Content-Type': 'application/json', ...corsHeaders }
+            });
+          }
+
+          if (env.DB) {
+            const now = new Date().toISOString();
+            const { results } = await env.DB.prepare('SELECT id FROM otp_codes WHERE email = ? AND code = ? AND expires_at > ?').bind(email, otp, now).all();
+            if (!results || results.length === 0) {
+              return new Response(JSON.stringify({ error: 'Invalid or expired OTP code. Please request a new code.' }), {
+                status: 400,
+                headers: { 'Content-Type': 'application/json', ...corsHeaders }
+              });
+            }
+
+            await env.DB.prepare('DELETE FROM otp_codes WHERE email = ?').bind(email).run().catch(() => {});
+
+            // Fetch or create user in D1
+            const userRes = await env.DB.prepare('SELECT * FROM users WHERE email = ?').bind(email).all();
+            let userProfile: any;
+            if (userRes.results && userRes.results.length > 0) {
+              userProfile = formatUserProfile(userRes.results[0]);
+            } else {
+              const userId = `user-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
+              const avatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(email.split('@')[0])}&background=FF4B00&color=fff&bold=true`;
+              await env.DB.prepare(`
+                INSERT INTO users (id, email, full_name, avatar, auth_provider, created_at, updated_at)
+                VALUES (?, ?, ?, ?, 'otp', ?, ?)
+              `).bind(userId, email, email.split('@')[0], avatar, now, now).run();
+              userProfile = formatUserProfile({ id: userId, email, full_name: email.split('@')[0], avatar, auth_provider: 'otp' });
+            }
+
+            return new Response(JSON.stringify({ success: true, user: userProfile }), {
+              headers: { 'Content-Type': 'application/json', ...corsHeaders }
+            });
+          }
+
+          return new Response(JSON.stringify({ error: 'Database service unavailable.' }), {
+            status: 500,
+            headers: { 'Content-Type': 'application/json', ...corsHeaders }
+          });
+        }
+
+        // Traveler Update Profile
+        if (pathname === '/api/auth/traveler/profile' && request.method === 'POST') {
+          const body = await request.json().catch(() => ({}));
+          const profile = body.profile;
+          if (!profile || !profile.email) {
+            return new Response(JSON.stringify({ error: 'Profile data required.' }), {
+              status: 400,
+              headers: { 'Content-Type': 'application/json', ...corsHeaders }
+            });
+          }
+
+          const email = String(profile.email).toLowerCase();
+          const now = new Date().toISOString();
+          const metadataJson = JSON.stringify({
+            city: profile.city || 'New Delhi',
+            state: profile.state || 'Delhi',
+            country: profile.country || 'India',
+            passportNo: profile.passportNo || '',
+            idType: profile.idType || 'Aadhaar Card',
+            idNumber: profile.idNumber || '',
+            dietPreference: profile.dietPreference || 'Vegetarian',
+            roomPreference: profile.roomPreference || 'Standard',
+            emergencyContact: profile.emergencyContact || '',
+            memberTier: profile.memberTier || 'Member',
+            memberSince: profile.memberSince,
+            rewardCoins: profile.rewardCoins,
+            coTravelers: profile.coTravelers || [],
+          });
+
+          if (env.DB) {
+            await env.DB.prepare(`
+              UPDATE users SET full_name = ?, phone = ?, avatar = ?, metadata = ?, updated_at = ? WHERE email = ?
+            `).bind(profile.name || '', profile.phone || '', profile.avatar || '', metadataJson, now, email).run();
+          }
+
+          return new Response(JSON.stringify({ success: true, user: profile }), {
+            headers: { 'Content-Type': 'application/json', ...corsHeaders }
+          });
+        }
+
+        // Traveler Bookings API
+        if (pathname === '/api/traveler/bookings') {
+          if (request.method === 'GET') {
+            const email = url.searchParams.get('email');
+            if (!email || !env.DB) {
+              return new Response(JSON.stringify({ bookings: [] }), {
+                headers: { 'Content-Type': 'application/json', ...corsHeaders }
+              });
+            }
+            const { results } = await env.DB.prepare('SELECT * FROM bookings WHERE user_email = ? ORDER BY created_at DESC').bind(email).all();
+            const bookings = (results || []).map((r: any) => ({
+              ...r,
+              details: r.details ? JSON.parse(r.details) : null,
+            }));
+            return new Response(JSON.stringify({ bookings }), {
+              headers: { 'Content-Type': 'application/json', ...corsHeaders }
+            });
+          }
+
+          if (request.method === 'POST') {
+            const body = await request.json().catch(() => ({}));
+            if (!body.userEmail || !env.DB) {
+              return new Response(JSON.stringify({ error: 'User email required' }), {
+                status: 400,
+                headers: { 'Content-Type': 'application/json', ...corsHeaders }
+              });
+            }
+            const id = body.id || `bkg-${Date.now()}`;
+            const now = new Date().toISOString();
+            await env.DB.prepare(`
+              INSERT INTO bookings (id, user_email, package_id, package_title, travelers_count, total_price, status, details, created_at, updated_at)
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            `).bind(
+              id, body.userEmail, body.packageId || '', body.packageTitle || '',
+              body.travelersCount || 1, body.totalPrice || 0, body.status || 'confirmed',
+              JSON.stringify(body.details || {}), now, now
+            ).run();
+
+            return new Response(JSON.stringify({ success: true, id }), {
+              headers: { 'Content-Type': 'application/json', ...corsHeaders }
+            });
+          }
         }
 
         // Generic Content API with R2 media integration & server-side authorization

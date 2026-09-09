@@ -817,7 +817,6 @@ export const MediaR2StorageManager: React.FC<MediaR2StorageManagerProps> = ({
                         updateCloudStorageSettings({
                           ...cloudStorageSettings,
                           d1DatabaseId: e.target.value,
-                          supabaseUrl: e.target.value,
                         })
                       }
                       placeholder="165b7b99-72e3-443e-aee9-8bf0f8c6c26b"

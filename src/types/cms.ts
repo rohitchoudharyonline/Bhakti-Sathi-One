@@ -77,7 +77,7 @@ export interface MediaAsset {
   url: string; // R2 CDN / Cloudflare D1 URL
   dataUrl?: string; // Local preview data url
   storagePath: string; // e.g. "uploads/2026/08/kashmir-snow.webp"
-  storageProvider: 'cloudflare_r2' | 'cloudflare_d1' | 'supabase_storage' | 'local_cdn';
+  storageProvider: 'cloudflare_r2' | 'cloudflare_d1' | 'local_cdn';
   originalSizeKb: number;
   compressedSizeKb: number;
   compressionRatioPercent: number;
@@ -97,17 +97,11 @@ export interface CloudStorageSettings {
   r2SecretAccessKey: string;
   r2PublicDomain: string; // e.g. "https://pub-r2.mybhaktisathi.com"
   
-  // Cloudflare D1 Database & Text Storage
+  // Cloudflare D1 Database & Storage
   d1DatabaseId: string;
   d1DatabaseName: string;
   d1ApiToken: string;
   d1BucketName: string;
-  
-  // Backwards Compatibility / Legacy aliases
-  supabaseUrl?: string;
-  supabaseAnonKey?: string;
-  supabaseServiceRoleKey?: string;
-  supabaseBucket?: string;
   
   // Auto Image Compression Settings
   autoCompressOnUpload: boolean;

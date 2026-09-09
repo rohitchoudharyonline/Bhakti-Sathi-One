@@ -8,12 +8,14 @@ import {
   Mail,
   User,
   Phone,
-  Sparkles,
+  Lock,
   ArrowRight,
   Info,
   Copy,
   Check,
   KeyRound,
+  Eye,
+  EyeOff,
 } from 'lucide-react';
 import { GoogleLogin } from '@react-oauth/google';
 
@@ -22,28 +24,41 @@ export const TravelerAuthModal: React.FC = () => {
     isTravelerAuthModalOpen,
     setIsTravelerAuthModalOpen,
     loginWithGoogleIdToken,
-    loginWithDirectCredentials,
-    loginWithMagicLink,
+    loginWithPassword,
+    signupWithPassword,
+    sendOtpCode,
+    verifyOtpCode,
     navigateToTravelerProfile,
   } = useTours();
 
-  const [activeAuthTab, setActiveAuthTab] = useState<'instant' | 'google' | 'otp'>('instant');
+  const [activeAuthTab, setActiveAuthTab] = useState<'google' | 'password' | 'otp'>('google');
+  const [passwordMode, setPasswordMode] = useState<'login' | 'signup'>('login');
+  const [showPassword, setShowPassword] = useState(false);
+
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [showConsoleGuide, setShowConsoleGuide] = useState(false);
   const [copiedUrl, setCopiedUrl] = useState<string | null>(null);
 
-  // Instant / Direct form state
-  const [fullName, setFullName] = useState('Rohit Choudhary');
-  const [email, setEmail] = useState('holidayshunt@gmail.com');
-  const [phone, setPhone] = useState('+91 98765 43210');
+  // Password / Signup Form
+  const [fullName, setFullName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [password, setPassword] = useState('');
+
+  // OTP Form
+  const [otpEmail, setOtpEmail] = useState('');
+  const [otpCode, setOtpCode] = useState('');
+  const [otpSent, setOtpSent] = useState(false);
 
   useEffect(() => {
     if (isTravelerAuthModalOpen) {
       setErrorMessage('');
       setSuccessMessage('');
       setIsLoading(false);
+      setOtpSent(false);
+      setOtpCode('');
     }
   }, [isTravelerAuthModalOpen]);
 
@@ -54,43 +69,80 @@ export const TravelerAuthModal: React.FC = () => {
     setIsLoading(false);
   };
 
-  const handleDirectLogin = (e: React.FormEvent) => {
+  const handlePasswordAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.trim() || !email.includes('@')) {
-      setErrorMessage('Please provide a valid email address.');
+      setErrorMessage('Please enter a valid email address.');
       return;
     }
+    if (!password || password.length < 6) {
+      setErrorMessage('Password must be at least 6 characters.');
+      return;
+    }
+
     setIsLoading(true);
     setErrorMessage('');
     try {
-      loginWithDirectCredentials({
-        fullName: fullName.trim() || 'Devotee Traveler',
-        email: email.trim(),
-        phone: phone.trim() || undefined,
-      });
+      if (passwordMode === 'login') {
+        await loginWithPassword({ email: email.trim(), password });
+      } else {
+        if (!fullName.trim()) {
+          setErrorMessage('Please enter your full name.');
+          setIsLoading(false);
+          return;
+        }
+        await signupWithPassword({
+          email: email.trim(),
+          password,
+          fullName: fullName.trim(),
+          phone: phone.trim() || undefined,
+        });
+      }
       handleClose();
       navigateToTravelerProfile();
     } catch (err: any) {
-      setErrorMessage(err?.message || 'Failed to sign in. Please check your credentials.');
+      setErrorMessage(err?.message || 'Authentication failed. Please verify your credentials.');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleMagicLinkSubmit = async (e: React.FormEvent) => {
+  const handleSendOtp = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email.trim() || !email.includes('@')) {
-      setErrorMessage('Please provide a valid email address.');
+    if (!otpEmail.trim() || !otpEmail.includes('@')) {
+      setErrorMessage('Please enter a valid email address.');
       return;
     }
+
     setIsLoading(true);
     setErrorMessage('');
     setSuccessMessage('');
     try {
-      await loginWithMagicLink(email.trim());
-      setSuccessMessage(`Magic login link sent to ${email.trim()}! Please check your inbox.`);
+      const res = await sendOtpCode(otpEmail.trim());
+      setOtpSent(true);
+      setSuccessMessage(res.message || `Verification code sent to ${otpEmail.trim()}`);
     } catch (err: any) {
-      setErrorMessage(err?.message || 'Failed to send login link. You can use Instant Sign-In above.');
+      setErrorMessage(err?.message || 'Failed to send OTP. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleVerifyOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!otpCode.trim() || otpCode.trim().length < 4) {
+      setErrorMessage('Please enter the 6-digit verification code.');
+      return;
+    }
+
+    setIsLoading(true);
+    setErrorMessage('');
+    try {
+      await verifyOtpCode(otpEmail.trim(), otpCode.trim());
+      handleClose();
+      navigateToTravelerProfile();
+    } catch (err: any) {
+      setErrorMessage(err?.message || 'Invalid or expired OTP code.');
     } finally {
       setIsLoading(false);
     }
@@ -126,30 +178,16 @@ export const TravelerAuthModal: React.FC = () => {
             </span>
           </div>
           <h2 className="text-xl sm:text-2xl font-black tracking-tight text-white flex items-center gap-2">
-            Sign In to Your Account
+            {activeAuthTab === 'password' && passwordMode === 'signup'
+              ? 'Create Traveler Account'
+              : 'Sign In to Your Account'}
           </h2>
           <p className="text-xs text-stone-300 mt-1">
-            Access customized itineraries, booking inquiries, wishlists & daily Jap Sadhana.
+            Access your sacred itineraries, booking inquiries, wishlists & Jap Sadhana counter.
           </p>
 
           {/* Navigation Tabs */}
-          <div className="flex items-center gap-2 mt-4 bg-white/10 p-1 rounded-2xl">
-            <button
-              type="button"
-              onClick={() => {
-                setActiveAuthTab('instant');
-                setErrorMessage('');
-              }}
-              className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
-                activeAuthTab === 'instant'
-                  ? 'bg-[#FF4B00] text-white shadow-md'
-                  : 'text-stone-300 hover:text-white hover:bg-white/5'
-              }`}
-            >
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Instant Sign-In</span>
-            </button>
-
+          <div className="flex items-center gap-1.5 mt-4 bg-white/10 p-1 rounded-2xl">
             <button
               type="button"
               onClick={() => {
@@ -162,7 +200,7 @@ export const TravelerAuthModal: React.FC = () => {
                   : 'text-stone-300 hover:text-white hover:bg-white/5'
               }`}
             >
-              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24">
+              <svg className="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24">
                 <path
                   fill="#4285F4"
                   d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -180,7 +218,23 @@ export const TravelerAuthModal: React.FC = () => {
                   d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
                 />
               </svg>
-              <span>Google OAuth</span>
+              <span>Google</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setActiveAuthTab('password');
+                setErrorMessage('');
+              }}
+              className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
+                activeAuthTab === 'password'
+                  ? 'bg-[#FF4B00] text-white shadow-md'
+                  : 'text-stone-300 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              <Lock className="w-3.5 h-3.5 shrink-0" />
+              <span>Password</span>
             </button>
 
             <button
@@ -195,8 +249,8 @@ export const TravelerAuthModal: React.FC = () => {
                   : 'text-stone-300 hover:text-white hover:bg-white/5'
               }`}
             >
-              <KeyRound className="w-3.5 h-3.5" />
-              <span>Email Link</span>
+              <KeyRound className="w-3.5 h-3.5 shrink-0" />
+              <span>OTP Code</span>
             </button>
           </div>
         </div>
@@ -205,17 +259,17 @@ export const TravelerAuthModal: React.FC = () => {
         <div className="p-6 space-y-5 overflow-y-auto">
           
           {errorMessage && (
-            <div className="p-3.5 bg-red-50 border border-red-200 rounded-2xl text-xs font-bold text-red-700 flex items-start gap-2.5">
+            <div className="p-3.5 bg-red-50 border border-red-200 rounded-2xl text-xs font-bold text-red-700 flex items-start gap-2.5 animate-in fade-in">
               <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
               <div className="space-y-1">
                 <p>{errorMessage}</p>
                 {activeAuthTab === 'google' && (
                   <button
                     type="button"
-                    onClick={() => setActiveAuthTab('instant')}
+                    onClick={() => setActiveAuthTab('password')}
                     className="text-[11px] underline text-[#FF4B00] hover:text-[#e04300] font-bold cursor-pointer"
                   >
-                    Use Instant Email/Phone Login instead &rarr;
+                    Use Email &amp; Password Sign-In instead &rarr;
                   </button>
                 )}
               </div>
@@ -223,134 +277,19 @@ export const TravelerAuthModal: React.FC = () => {
           )}
 
           {successMessage && (
-            <div className="p-3.5 bg-emerald-50 border border-emerald-200 rounded-2xl text-xs font-bold text-emerald-800 flex items-center gap-2.5">
+            <div className="p-3.5 bg-emerald-50 border border-emerald-200 rounded-2xl text-xs font-bold text-emerald-800 flex items-center gap-2.5 animate-in fade-in">
               <Check className="w-4 h-4 text-emerald-600 shrink-0" />
               <span>{successMessage}</span>
             </div>
           )}
 
-          {/* TAB 1: INSTANT SIGN-IN */}
-          {activeAuthTab === 'instant' && (
-            <form onSubmit={handleDirectLogin} className="space-y-4">
-              <div className="p-3 bg-amber-50/80 border border-amber-200/80 rounded-2xl text-amber-900 text-xs flex items-center gap-2.5">
-                <Sparkles className="w-4 h-4 text-amber-600 shrink-0" />
-                <p className="font-medium">
-                  <strong>Zero-Wait Sign-In:</strong> Enter your details below for instant verified access without Google origin hurdles.
-                </p>
-              </div>
-
-              <div className="space-y-3">
-                <div>
-                  <label className="block text-xs font-bold text-stone-700 mb-1 flex items-center gap-1.5">
-                    <User className="w-3.5 h-3.5 text-stone-400" /> Full Name
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. Rohit Choudhary"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-bold text-stone-800 focus:bg-white focus:border-[#FF4B00] focus:outline-hidden transition"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-stone-700 mb-1 flex items-center gap-1.5">
-                    <Mail className="w-3.5 h-3.5 text-stone-400" /> Email Address
-                  </label>
-                  <input
-                    type="email"
-                    required
-                    placeholder="e.g. holidayshunt@gmail.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-bold text-stone-800 focus:bg-white focus:border-[#FF4B00] focus:outline-hidden transition"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-stone-700 mb-1 flex items-center gap-1.5">
-                    <Phone className="w-3.5 h-3.5 text-stone-400" /> WhatsApp / Mobile Number (Optional)
-                  </label>
-                  <input
-                    type="tel"
-                    placeholder="e.g. +91 98765 43210"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-bold text-stone-800 focus:bg-white focus:border-[#FF4B00] focus:outline-hidden transition"
-                  />
-                </div>
-              </div>
-
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="w-full py-3.5 px-4 rounded-xl bg-[#FF4B00] hover:bg-[#e04300] text-white text-xs font-black tracking-wide shadow-lg shadow-[#FF4B00]/20 flex items-center justify-center gap-2 transition cursor-pointer disabled:opacity-50"
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    <span>Signing In...</span>
-                  </>
-                ) : (
-                  <>
-                    <span>Sign In to Traveler Portal</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </>
-                )}
-              </button>
-
-              {/* Quick 1-Click test accounts */}
-              <div className="pt-2 border-t border-stone-100 space-y-2">
-                <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block">
-                  Quick 1-Click Verification:
-                </span>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      loginWithDirectCredentials({
-                        fullName: 'Rohit Choudhary',
-                        email: 'holidayshunt@gmail.com',
-                        phone: '+91 98765 43210',
-                      });
-                      handleClose();
-                      navigateToTravelerProfile();
-                    }}
-                    className="p-2 bg-stone-50 hover:bg-amber-50 hover:border-amber-300 border border-stone-200 rounded-xl text-left transition cursor-pointer"
-                  >
-                    <p className="text-[11px] font-bold text-stone-800 truncate">Rohit Choudhary</p>
-                    <p className="text-[9.5px] text-stone-500 truncate">holidayshunt@gmail.com</p>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      loginWithDirectCredentials({
-                        fullName: 'Priya Sharma',
-                        email: 'priya.sharma@gmail.com',
-                        phone: '+91 98123 45678',
-                      });
-                      handleClose();
-                      navigateToTravelerProfile();
-                    }}
-                    className="p-2 bg-stone-50 hover:bg-amber-50 hover:border-amber-300 border border-stone-200 rounded-xl text-left transition cursor-pointer"
-                  >
-                    <p className="text-[11px] font-bold text-stone-800 truncate">Priya Sharma</p>
-                    <p className="text-[9.5px] text-stone-500 truncate">priya.sharma@gmail.com</p>
-                  </button>
-                </div>
-              </div>
-            </form>
-          )}
-
-          {/* TAB 2: GOOGLE SIGN-IN */}
+          {/* TAB 1: GOOGLE SIGN-IN */}
           {activeAuthTab === 'google' && (
             <div className="space-y-4">
               <div className="text-center space-y-1.5">
                 <p className="text-xs font-bold text-stone-700">Official Google Authentication</p>
                 <p className="text-[11.5px] text-stone-500">
-                  Sign in directly using your Google / Gmail account with 1-Tap identity verification.
+                  Sign in instantly using your Google account with token verification.
                 </p>
               </div>
 
@@ -360,52 +299,54 @@ export const TravelerAuthModal: React.FC = () => {
                   <p className="text-xs font-bold text-stone-600">Verifying session with Google...</p>
                 </div>
               ) : (
-                <div className="flex flex-col items-center justify-center py-3 space-y-4">
-                  <GoogleLogin
-                    onSuccess={async (credentialResponse) => {
-                      if (credentialResponse.credential) {
-                        setIsLoading(true);
-                        setErrorMessage('');
-                        try {
-                          await loginWithGoogleIdToken(credentialResponse.credential);
-                          handleClose();
-                          navigateToTravelerProfile();
-                        } catch (err: any) {
-                          setErrorMessage(
-                            err?.message ||
-                              'Google token validation failed. You can use the Instant Sign-In tab!'
-                          );
-                        } finally {
-                          setIsLoading(false);
+                <div className="flex flex-col items-center justify-center py-4 space-y-4">
+                  <div className="w-full max-w-xs flex justify-center">
+                    <GoogleLogin
+                      onSuccess={async (credentialResponse) => {
+                        if (credentialResponse.credential) {
+                          setIsLoading(true);
+                          setErrorMessage('');
+                          try {
+                            await loginWithGoogleIdToken(credentialResponse.credential);
+                            handleClose();
+                            navigateToTravelerProfile();
+                          } catch (err: any) {
+                            setErrorMessage(
+                              err?.message ||
+                                'Google token validation failed. Please check your credentials.'
+                            );
+                          } finally {
+                            setIsLoading(false);
+                          }
                         }
-                      }
-                    }}
-                    onError={() => {
-                      setErrorMessage(
-                        'Google OAuth returned error (Origin Mismatch or closed). If you see "Error 400: origin_mismatch", please use the Instant Sign-In tab or follow Google Cloud Console setup below.'
-                      );
-                    }}
-                    useOneTap
-                    theme="filled_blue"
-                    size="large"
-                    shape="pill"
-                    text="signin_with"
-                  />
+                      }}
+                      onError={() => {
+                        setErrorMessage(
+                          'Google OAuth returned error (Origin Mismatch or closed popup). Please ensure your origin is configured in Google Cloud Console or switch to Password/OTP tab.'
+                        );
+                      }}
+                      useOneTap
+                      theme="filled_blue"
+                      size="large"
+                      shape="pill"
+                      text="signin_with"
+                    />
+                  </div>
 
                   <div className="text-center pt-2">
                     <button
                       type="button"
-                      onClick={() => setActiveAuthTab('instant')}
+                      onClick={() => setActiveAuthTab('password')}
                       className="inline-flex items-center gap-1.5 text-xs font-bold text-[#FF4B00] hover:underline cursor-pointer"
                     >
-                      <Sparkles className="w-3.5 h-3.5" />
-                      <span>Switch to 1-Click Instant Sign-In</span>
+                      <Lock className="w-3.5 h-3.5" />
+                      <span>Prefer Email &amp; Password? Sign In Here</span>
                     </button>
                   </div>
                 </div>
               )}
 
-              {/* Developer / Admin Google Cloud Console Info */}
+              {/* Developer / Origin Whitelist Guide */}
               <div className="pt-3 border-t border-stone-100">
                 <button
                   type="button"
@@ -414,7 +355,7 @@ export const TravelerAuthModal: React.FC = () => {
                 >
                   <span className="flex items-center gap-1.5">
                     <Info className="w-3.5 h-3.5 text-blue-600" />
-                    <span>How to fix "Error 400: origin_mismatch" in Google Cloud Console</span>
+                    <span>Google OAuth Setup &amp; Authorized Origins</span>
                   </span>
                   <span>{showConsoleGuide ? '▲ Hide' : '▼ View'}</span>
                 </button>
@@ -425,13 +366,13 @@ export const TravelerAuthModal: React.FC = () => {
                       Why does Google show "Error 400: origin_mismatch"?
                     </p>
                     <p className="text-stone-300 leading-relaxed">
-                      Google OAuth requires you to whitelist your website origin in the Google Cloud Console.
+                      Google OAuth requires you to whitelist your domain in Google Cloud Console under "Authorized JavaScript origins".
                     </p>
                     <div className="space-y-1.5 pt-1">
                       <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block">
-                        Add to "Authorized JavaScript origins":
+                        Add these origins in GCP:
                       </span>
-                      {['https://mybhaktisathi.com', 'https://www.mybhaktisathi.com', window.location.origin].map(
+                      {['https://mybhaktisathi.com', 'https://www.mybhaktisathi.com', typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'].map(
                         (url) => (
                           <div
                             key={url}
@@ -460,57 +401,239 @@ export const TravelerAuthModal: React.FC = () => {
             </div>
           )}
 
-          {/* TAB 3: PASSWORDLESS MAGIC LINK */}
-          {activeAuthTab === 'otp' && (
-            <form onSubmit={handleMagicLinkSubmit} className="space-y-4">
-              <div className="text-center space-y-1.5">
-                <p className="text-xs font-bold text-stone-700">Passwordless Email Sign-In</p>
-                <p className="text-[11.5px] text-stone-500">
-                  We'll send an authentication link directly to your inbox.
-                </p>
+          {/* TAB 2: PASSWORD AUTH (SIGN IN & REGISTER) */}
+          {activeAuthTab === 'password' && (
+            <form onSubmit={handlePasswordAuth} className="space-y-4">
+              <div className="flex items-center justify-between bg-stone-100 p-1 rounded-xl">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPasswordMode('login');
+                    setErrorMessage('');
+                  }}
+                  className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition ${
+                    passwordMode === 'login' ? 'bg-white text-stone-900 shadow-xs' : 'text-stone-500 hover:text-stone-800'
+                  }`}
+                >
+                  Sign In
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPasswordMode('signup');
+                    setErrorMessage('');
+                  }}
+                  className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition ${
+                    passwordMode === 'signup' ? 'bg-white text-stone-900 shadow-xs' : 'text-stone-500 hover:text-stone-800'
+                  }`}
+                >
+                  New Account (Sign Up)
+                </button>
               </div>
 
-              <div>
-                <label className="block text-xs font-bold text-stone-700 mb-1 flex items-center gap-1.5">
-                  <Mail className="w-3.5 h-3.5 text-stone-400" /> Email Address
-                </label>
-                <input
-                  type="email"
-                  required
-                  placeholder="e.g. holidayshunt@gmail.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-bold text-stone-800 focus:bg-white focus:border-[#FF4B00] focus:outline-hidden transition"
-                />
+              <div className="space-y-3">
+                {passwordMode === 'signup' && (
+                  <div>
+                    <label className="block text-xs font-bold text-stone-700 mb-1 flex items-center gap-1.5">
+                      <User className="w-3.5 h-3.5 text-stone-400" /> Full Name
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. Rohit Choudhary"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-bold text-stone-800 focus:bg-white focus:border-[#FF4B00] focus:outline-hidden transition"
+                    />
+                  </div>
+                )}
+
+                <div>
+                  <label className="block text-xs font-bold text-stone-700 mb-1 flex items-center gap-1.5">
+                    <Mail className="w-3.5 h-3.5 text-stone-400" /> Email Address
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    placeholder="e.g. rohit@gmail.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-bold text-stone-800 focus:bg-white focus:border-[#FF4B00] focus:outline-hidden transition"
+                  />
+                </div>
+
+                {passwordMode === 'signup' && (
+                  <div>
+                    <label className="block text-xs font-bold text-stone-700 mb-1 flex items-center gap-1.5">
+                      <Phone className="w-3.5 h-3.5 text-stone-400" /> WhatsApp / Mobile Number (Optional)
+                    </label>
+                    <input
+                      type="tel"
+                      placeholder="e.g. +91 98765 43210"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-bold text-stone-800 focus:bg-white focus:border-[#FF4B00] focus:outline-hidden transition"
+                    />
+                  </div>
+                )}
+
+                <div>
+                  <label className="block text-xs font-bold text-stone-700 mb-1 flex items-center gap-1.5">
+                    <Lock className="w-3.5 h-3.5 text-stone-400" /> Password
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      required
+                      placeholder="At least 6 characters"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-bold text-stone-800 focus:bg-white focus:border-[#FF4B00] focus:outline-hidden transition pr-10"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 p-1"
+                    >
+                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                </div>
               </div>
 
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full py-3.5 px-4 rounded-xl bg-stone-900 hover:bg-black text-white text-xs font-black tracking-wide shadow-md flex items-center justify-center gap-2 transition cursor-pointer disabled:opacity-50"
+                className="w-full py-3.5 px-4 rounded-xl bg-[#FF4B00] hover:bg-[#e04300] text-white text-xs font-black tracking-wide shadow-lg shadow-[#FF4B00]/20 flex items-center justify-center gap-2 transition cursor-pointer disabled:opacity-50"
               >
                 {isLoading ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    <span>Sending Link...</span>
+                    <span>{passwordMode === 'login' ? 'Signing In...' : 'Creating Account...'}</span>
                   </>
                 ) : (
                   <>
-                    <Mail className="w-4 h-4" />
-                    <span>Send Login Link</span>
+                    <span>{passwordMode === 'login' ? 'Sign In Securely' : 'Create &amp; Sign In'}</span>
+                    <ArrowRight className="w-4 h-4" />
                   </>
                 )}
               </button>
             </form>
           )}
 
+          {/* TAB 3: 6-DIGIT EMAIL OTP AUTH */}
+          {activeAuthTab === 'otp' && (
+            <div className="space-y-4">
+              <div className="text-center space-y-1.5">
+                <p className="text-xs font-bold text-stone-700">Verified Email OTP Login</p>
+                <p className="text-[11.5px] text-stone-500">
+                  Receive a secure 6-digit verification code directly to your email inbox.
+                </p>
+              </div>
+
+              {!otpSent ? (
+                <form onSubmit={handleSendOtp} className="space-y-4">
+                  <div>
+                    <label className="block text-xs font-bold text-stone-700 mb-1 flex items-center gap-1.5">
+                      <Mail className="w-3.5 h-3.5 text-stone-400" /> Email Address
+                    </label>
+                    <input
+                      type="email"
+                      required
+                      placeholder="e.g. rohit@gmail.com"
+                      value={otpEmail}
+                      onChange={(e) => setOtpEmail(e.target.value)}
+                      className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-bold text-stone-800 focus:bg-white focus:border-[#FF4B00] focus:outline-hidden transition"
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={isLoading}
+                    className="w-full py-3.5 px-4 rounded-xl bg-stone-900 hover:bg-black text-white text-xs font-black tracking-wide shadow-md flex items-center justify-center gap-2 transition cursor-pointer disabled:opacity-50"
+                  >
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span>Sending Code...</span>
+                      </>
+                    ) : (
+                      <>
+                        <KeyRound className="w-4 h-4" />
+                        <span>Send 6-Digit Code</span>
+                      </>
+                    )}
+                  </button>
+                </form>
+              ) : (
+                <form onSubmit={handleVerifyOtp} className="space-y-4">
+                  <div className="p-3 bg-stone-50 border border-stone-200 rounded-xl text-xs text-stone-600 flex items-center justify-between">
+                    <span>Sent to: <strong>{otpEmail}</strong></span>
+                    <button
+                      type="button"
+                      onClick={() => setOtpSent(false)}
+                      className="text-[#FF4B00] font-bold hover:underline"
+                    >
+                      Change
+                    </button>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-stone-700 mb-1 flex items-center gap-1.5">
+                      <KeyRound className="w-3.5 h-3.5 text-stone-400" /> 6-Digit Verification Code
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      maxLength={6}
+                      placeholder="Enter 6 digits"
+                      value={otpCode}
+                      onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
+                      className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-center text-lg font-mono font-bold tracking-widest text-stone-800 focus:bg-white focus:border-[#FF4B00] focus:outline-hidden transition"
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={isLoading}
+                    className="w-full py-3.5 px-4 rounded-xl bg-[#FF4B00] hover:bg-[#e04300] text-white text-xs font-black tracking-wide shadow-lg shadow-[#FF4B00]/20 flex items-center justify-center gap-2 transition cursor-pointer disabled:opacity-50"
+                  >
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span>Verifying Code...</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>Confirm &amp; Sign In</span>
+                        <ArrowRight className="w-4 h-4" />
+                      </>
+                    )}
+                  </button>
+
+                  <div className="text-center pt-1">
+                    <button
+                      type="button"
+                      onClick={handleSendOtp}
+                      disabled={isLoading}
+                      className="text-xs text-stone-500 hover:text-stone-800 underline font-medium"
+                    >
+                      Resend Verification Code
+                    </button>
+                  </div>
+                </form>
+              )}
+            </div>
+          )}
+
           {/* Security Guarantee Badge */}
           <div className="pt-2 border-t border-stone-100 flex items-center justify-center gap-2 text-[11.5px] font-bold text-stone-500">
             <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
-            <span>256-Bit SSL Encrypted &bull; 100% Privacy Protected</span>
+            <span>256-Bit SSL Encrypted &bull; Cloudflare D1 Protected</span>
           </div>
         </div>
       </div>
     </div>
   );
 };
+

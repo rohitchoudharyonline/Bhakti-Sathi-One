@@ -52,19 +52,29 @@ const FALLBACK: Record<string, HoroscopeContent> = Object.fromEntries(ZODIAC_SIG
 
 export const getFallbackHoroscope = (signId: string): HoroscopeContent => FALLBACK[signId] || FALLBACK.mesha;
 
-/** Optional first-party Supabase content source. No third-party horoscope API is used. */
+/** First-party horoscope content source. No third-party horoscope API is used. */
 export async function getHoroscopeContent(signId: string, date: string): Promise<HoroscopeContent> {
   const fallback = getFallbackHoroscope(signId);
-  const baseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
-  const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
-  if (!baseUrl || !anonKey) return fallback;
   try {
-    const params = new URLSearchParams({ select: 'overview,career,finance,health,love,family,lucky_number,lucky_color,remedy,mantra,auspicious_window', sign_id: `eq.${signId}`, date: `eq.${date}`, limit: '1' });
-    const response = await fetch(`${baseUrl.replace(/\/$/, '')}/rest/v1/horoscope_daily?${params.toString()}`, { headers: { apikey: anonKey, Authorization: `Bearer ${anonKey}` } });
+    const params = new URLSearchParams({ sign_id: signId, date });
+    const response = await fetch(`/api/horoscope?${params.toString()}`);
     if (!response.ok) return fallback;
-    const rows = await response.json() as Array<Record<string, string>>;
-    const row = rows[0];
-    if (!row) return fallback;
-    return { overview: row.overview || fallback.overview, career: row.career || fallback.career, finance: row.finance || fallback.finance, health: row.health || fallback.health, love: row.love || fallback.love, family: row.family || fallback.family, luckyNumber: row.lucky_number || fallback.luckyNumber, luckyColor: row.lucky_color || fallback.luckyColor, remedy: row.remedy || fallback.remedy, mantra: row.mantra || fallback.mantra, auspiciousWindow: row.auspicious_window || fallback.auspiciousWindow };
-  } catch { return fallback; }
+    const data = await response.json() as any;
+    if (!data || !data.overview) return fallback;
+    return {
+      overview: data.overview || fallback.overview,
+      career: data.career || fallback.career,
+      finance: data.finance || fallback.finance,
+      health: data.health || fallback.health,
+      love: data.love || fallback.love,
+      family: data.family || fallback.family,
+      luckyNumber: data.luckyNumber || fallback.luckyNumber,
+      luckyColor: data.luckyColor || fallback.luckyColor,
+      remedy: data.remedy || fallback.remedy,
+      mantra: data.mantra || fallback.mantra,
+      auspiciousWindow: data.auspiciousWindow || fallback.auspiciousWindow,
+    };
+  } catch {
+    return fallback;
+  }
 }

@@ -125,10 +125,11 @@ export const TravelerProfilePage: React.FC = () => {
     travelerUser,
     setTravelerUser,
     updateTravelerProfile,
-    loginWithGoogle,
     loginWithGoogleIdToken,
-    loginWithMagicLink,
-    loginWithDirectCredentials,
+    loginWithPassword,
+    signupWithPassword,
+    sendOtpCode,
+    verifyOtpCode,
     connectGoogleCalendar,
     googleToken,
     logoutTraveler,
@@ -275,19 +276,21 @@ export const TravelerProfilePage: React.FC = () => {
   // Logout confirmation modal
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
-  // Guest Google Login States
+  // Guest / Traveler Login States
   const [guestAuthMode, setGuestAuthMode] = useState<'signin' | 'signup' | 'guest'>('signin');
   const [guestAuthLoading, setGuestAuthLoading] = useState(false);
   const [guestAuthError, setGuestAuthError] = useState('');
 
-  // Email Magic Link States
+  // Email OTP States
   const [profileMagicEmail, setProfileMagicEmail] = useState('');
   const [profileMagicSent, setProfileMagicSent] = useState(false);
+  const [profileOtpCode, setProfileOtpCode] = useState('');
 
-  // Guest Continuation States
+  // Password & Profile States
   const [profileGuestName, setProfileGuestName] = useState('');
   const [profileGuestEmail, setProfileGuestEmail] = useState('');
   const [profileGuestPhone, setProfileGuestPhone] = useState('');
+  const [profileGuestPassword, setProfileGuestPassword] = useState('');
 
   // Filter inquiries relevant to current traveler user
   const userInquiries = useMemo(() => {
@@ -543,52 +546,41 @@ export const TravelerProfilePage: React.FC = () => {
   // VIEW: GUEST / NOT LOGGED IN STATE
   // -------------------------------------------------------------
   if (!travelerUser) {
-    const handleProfileGuestSubmit = (e: React.FormEvent) => {
+    const handlePasswordSubmit = async (e: React.FormEvent) => {
       e.preventDefault();
-      if (!profileGuestName.trim() || !profileGuestEmail.trim()) return;
-      setTravelerUser({
-        name: profileGuestName.trim(),
-        email: profileGuestEmail.trim().toLowerCase(),
-        phone: profileGuestPhone.trim(),
-        isGuest: true,
-      });
-    };
-
-    const handleGuestGoogleAuth = async () => {
-      const rateCheck = authRateLimiter.checkAllowed();
-      if (!rateCheck.allowed) {
-        setGuestAuthError(rateCheck.reason || 'Please wait before trying again.');
+      if (!profileGuestEmail.trim() || !profileGuestEmail.includes('@')) {
+        setGuestAuthError('Please provide a valid email address.');
         return;
       }
+      if (!profileGuestPassword || profileGuestPassword.length < 6) {
+        setGuestAuthError('Password must be at least 6 characters.');
+        return;
+      }
+
       setGuestAuthError('');
       setGuestAuthLoading(true);
 
       try {
-        await loginWithGoogle();
+        if (guestAuthMode === 'signin') {
+          await loginWithPassword({
+            email: profileGuestEmail.trim(),
+            password: profileGuestPassword,
+          });
+        } else {
+          if (!profileGuestName.trim()) {
+            setGuestAuthError('Please enter your full name.');
+            setGuestAuthLoading(false);
+            return;
+          }
+          await signupWithPassword({
+            email: profileGuestEmail.trim(),
+            password: profileGuestPassword,
+            fullName: profileGuestName.trim(),
+            phone: profileGuestPhone.trim() || undefined,
+          });
+        }
       } catch (err: any) {
-        setGuestAuthError(err?.message || 'Failed to authenticate with Google. Please try again.');
-      } finally {
-        setGuestAuthLoading(false);
-      }
-    };
-
-    const handleProfileMagicSubmit = async (e: React.FormEvent) => {
-      e.preventDefault();
-      if (!profileMagicEmail.trim()) return;
-
-      const rateCheck = authRateLimiter.checkAllowed();
-      if (!rateCheck.allowed) {
-        setGuestAuthError(rateCheck.reason || 'Please wait before trying again.');
-        return;
-      }
-      setGuestAuthError('');
-      setGuestAuthLoading(true);
-
-      try {
-        await loginWithMagicLink(profileMagicEmail.trim());
-        setProfileMagicSent(true);
-      } catch (err: any) {
-        setGuestAuthError(err?.message || 'Failed to send login email. Please try again.');
+        setGuestAuthError(err?.message || 'Authentication failed. Please check your credentials.');
       } finally {
         setGuestAuthLoading(false);
       }
@@ -629,7 +621,7 @@ export const TravelerProfilePage: React.FC = () => {
             </div>
 
             {/* Auth Mode Tabs */}
-            <div className="flex items-center gap-2 bg-stone-100 p-1 rounded-2xl">
+            <div className="flex items-center gap-1.5 bg-stone-100 p-1 rounded-2xl">
               <button
                 type="button"
                 onClick={() => {
@@ -642,8 +634,8 @@ export const TravelerProfilePage: React.FC = () => {
                     : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200/60'
                 }`}
               >
-                <Sparkles className="w-3.5 h-3.5" />
-                <span>Instant Login</span>
+                <Lock className="w-3.5 h-3.5" />
+                <span>Password</span>
               </button>
 
               <button
@@ -658,7 +650,23 @@ export const TravelerProfilePage: React.FC = () => {
                     : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200/60'
                 }`}
               >
-                <span>Google OAuth</span>
+                <span>Google</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setGuestAuthMode('signup');
+                  setGuestAuthError('');
+                }}
+                className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
+                  guestAuthMode === 'signup'
+                    ? 'bg-stone-800 text-white shadow-md'
+                    : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200/60'
+                }`}
+              >
+                <UserPlus className="w-3.5 h-3.5" />
+                <span>Register</span>
               </button>
             </div>
 
@@ -669,36 +677,25 @@ export const TravelerProfilePage: React.FC = () => {
               </div>
             )}
 
-            {/* Instant Login Form */}
-            {guestAuthMode === 'signin' && (
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  if (!profileGuestEmail.trim()) {
-                    setGuestAuthError('Please provide a valid email address.');
-                    return;
-                  }
-                  loginWithDirectCredentials({
-                    fullName: profileGuestName.trim() || 'Rohit Choudhary',
-                    email: profileGuestEmail.trim() || 'holidayshunt@gmail.com',
-                    phone: profileGuestPhone.trim() || '+91 98765 43210',
-                  });
-                }}
-                className="space-y-4"
-              >
+            {/* Password Sign In & Sign Up Form */}
+            {(guestAuthMode === 'signin' || guestAuthMode === 'signup') && (
+              <form onSubmit={handlePasswordSubmit} className="space-y-4">
                 <div className="space-y-3">
-                  <div>
-                    <label className="block text-xs font-bold text-stone-700 mb-1">
-                      Full Name
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="Rohit Choudhary"
-                      value={profileGuestName}
-                      onChange={(e) => setProfileGuestName(e.target.value)}
-                      className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-bold text-stone-800 focus:bg-white focus:border-[#FF4B00] focus:outline-hidden transition"
-                    />
-                  </div>
+                  {guestAuthMode === 'signup' && (
+                    <div>
+                      <label className="block text-xs font-bold text-stone-700 mb-1">
+                        Full Name
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="e.g. Rohit Choudhary"
+                        value={profileGuestName}
+                        onChange={(e) => setProfileGuestName(e.target.value)}
+                        className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-bold text-stone-800 focus:bg-white focus:border-[#FF4B00] focus:outline-hidden transition"
+                      />
+                    </div>
+                  )}
 
                   <div>
                     <label className="block text-xs font-bold text-stone-700 mb-1">
@@ -707,22 +704,38 @@ export const TravelerProfilePage: React.FC = () => {
                     <input
                       type="email"
                       required
-                      placeholder="holidayshunt@gmail.com"
+                      placeholder="e.g. rohit@gmail.com"
                       value={profileGuestEmail}
                       onChange={(e) => setProfileGuestEmail(e.target.value)}
                       className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-bold text-stone-800 focus:bg-white focus:border-[#FF4B00] focus:outline-hidden transition"
                     />
                   </div>
 
+                  {guestAuthMode === 'signup' && (
+                    <div>
+                      <label className="block text-xs font-bold text-stone-700 mb-1">
+                        Phone Number (Optional)
+                      </label>
+                      <input
+                        type="tel"
+                        placeholder="e.g. +91 98765 43210"
+                        value={profileGuestPhone}
+                        onChange={(e) => setProfileGuestPhone(e.target.value)}
+                        className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-bold text-stone-800 focus:bg-white focus:border-[#FF4B00] focus:outline-hidden transition"
+                      />
+                    </div>
+                  )}
+
                   <div>
                     <label className="block text-xs font-bold text-stone-700 mb-1">
-                      Phone Number (Optional)
+                      Password
                     </label>
                     <input
-                      type="tel"
-                      placeholder="+91 98765 43210"
-                      value={profileGuestPhone}
-                      onChange={(e) => setProfileGuestPhone(e.target.value)}
+                      type="password"
+                      required
+                      placeholder="At least 6 characters"
+                      value={profileGuestPassword}
+                      onChange={(e) => setProfileGuestPassword(e.target.value)}
                       className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-bold text-stone-800 focus:bg-white focus:border-[#FF4B00] focus:outline-hidden transition"
                     />
                   </div>
@@ -730,35 +743,21 @@ export const TravelerProfilePage: React.FC = () => {
 
                 <button
                   type="submit"
-                  className="w-full py-3.5 px-4 rounded-xl bg-[#FF4B00] hover:bg-[#e04300] text-white text-xs font-black tracking-wide shadow-lg shadow-[#FF4B00]/20 flex items-center justify-center gap-2 transition cursor-pointer"
+                  disabled={guestAuthLoading}
+                  className="w-full py-3.5 px-4 rounded-xl bg-[#FF4B00] hover:bg-[#e04300] text-white text-xs font-black tracking-wide shadow-lg shadow-[#FF4B00]/20 flex items-center justify-center gap-2 transition cursor-pointer disabled:opacity-50"
                 >
-                  <span>Sign In Immediately</span>
-                  <ArrowRight className="w-4 h-4" />
+                  {guestAuthLoading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Authenticating...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>{guestAuthMode === 'signin' ? 'Sign In Securely' : 'Create Traveler Account'}</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </>
+                  )}
                 </button>
-
-                {/* Quick 1-Click login */}
-                <div className="pt-2 border-t border-stone-100 space-y-1.5">
-                  <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block">
-                    Quick 1-Click Sign-In:
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      loginWithDirectCredentials({
-                        fullName: 'Rohit Choudhary',
-                        email: 'holidayshunt@gmail.com',
-                        phone: '+91 98765 43210',
-                      });
-                    }}
-                    className="w-full p-2.5 bg-stone-50 hover:bg-amber-50 hover:border-amber-300 border border-stone-200 rounded-xl text-left transition cursor-pointer flex items-center justify-between"
-                  >
-                    <div>
-                      <p className="text-xs font-bold text-stone-800">Rohit Choudhary</p>
-                      <p className="text-[10px] text-stone-500">holidayshunt@gmail.com</p>
-                    </div>
-                    <span className="text-xs font-bold text-[#FF4B00]">Sign In &rarr;</span>
-                  </button>
-                </div>
               </form>
             )}
 
@@ -772,33 +771,31 @@ export const TravelerProfilePage: React.FC = () => {
                   </div>
                 ) : (
                   <div className="flex flex-col items-center justify-center py-2 space-y-3">
-                    <GoogleLogin
-                      onSuccess={async (credentialResponse) => {
-                        if (credentialResponse.credential) {
-                          setGuestAuthLoading(true);
-                          setGuestAuthError('');
-                          try {
-                            await loginWithGoogleIdToken(credentialResponse.credential);
-                          } catch (err: any) {
-                            setGuestAuthError(err?.message || 'Authentication with Google failed.');
-                          } finally {
-                            setGuestAuthLoading(false);
+                    <div className="w-full max-w-xs flex justify-center">
+                      <GoogleLogin
+                        onSuccess={async (credentialResponse) => {
+                          if (credentialResponse.credential) {
+                            setGuestAuthLoading(true);
+                            setGuestAuthError('');
+                            try {
+                              await loginWithGoogleIdToken(credentialResponse.credential);
+                            } catch (err: any) {
+                              setGuestAuthError(err?.message || 'Authentication with Google failed.');
+                            } finally {
+                              setGuestAuthLoading(false);
+                            }
                           }
-                        }
-                      }}
-                      onError={() => {
-                        setGuestAuthError('Google Sign-In returned an error. You can use the Instant Login tab for immediate access!');
-                      }}
-                      useOneTap
-                      theme="filled_blue"
-                      size="large"
-                      shape="pill"
-                      text="signin_with"
-                    />
-
-                    <p className="text-[11px] text-stone-500 text-center">
-                      If Google displays <em>"Error 400: origin_mismatch"</em>, please click the <strong>Instant Login</strong> tab above.
-                    </p>
+                        }}
+                        onError={() => {
+                          setGuestAuthError('Google Sign-In returned an error. You can use the Password tab for direct access.');
+                        }}
+                        useOneTap
+                        theme="filled_blue"
+                        size="large"
+                        shape="pill"
+                        text="signin_with"
+                      />
+                    </div>
                   </div>
                 )}
               </div>
@@ -807,7 +804,7 @@ export const TravelerProfilePage: React.FC = () => {
             {/* Security Guarantee Badge */}
             <div className="pt-2 border-t border-stone-100 flex items-center justify-center gap-2 text-[11.5px] font-bold text-stone-500">
               <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
-              <span>Official Google Identity &bull; Secure Encrypted Session</span>
+              <span>256-Bit SSL Encrypted &bull; Cloudflare D1 Backend</span>
             </div>
           </div>
         </div>

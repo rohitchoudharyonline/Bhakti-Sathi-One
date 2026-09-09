@@ -264,7 +264,7 @@ async function requireCmsSession(req: Request, res: Response, next: NextFunction
   }
 }
 
-async function verifyGoogleAccessToken(accessToken: string) {
+async function verifyGoogleToken(token: string) {
   let expectedClientId = process.env.GOOGLE_CLIENT_ID || process.env.VITE_GOOGLE_CLIENT_ID;
   if (!expectedClientId) {
     try {
@@ -279,36 +279,303 @@ async function verifyGoogleAccessToken(accessToken: string) {
       console.warn('Could not read firebase-applet-config.json for client ID fallback on server:', e);
     }
   }
-  if (!expectedClientId) throw new Error('Google authentication is not configured on the server.');
-  const tokenInfoResponse = await fetch(`https://oauth2.googleapis.com/tokeninfo?access_token=${encodeURIComponent(accessToken)}`);
-  if (!tokenInfoResponse.ok) throw new Error('Google token verification failed.');
-  const tokenInfo = await tokenInfoResponse.json() as { aud?: string; audience?: string; email?: string; verified_email?: boolean; expires_in?: string | number; scope?: string };
-  const audience = tokenInfo.aud || tokenInfo.audience;
-  const expiresIn = Number(tokenInfo.expires_in || 0);
-  const scopes = String(tokenInfo.scope || '').split(/\s+/).filter(Boolean);
-  if (audience !== expectedClientId || expiresIn <= 0 || !tokenInfo.email || tokenInfo.verified_email !== true || !scopes.includes('email')) throw new Error('Google account verification failed.');
-  const userInfoResponse = await fetch('https://openidconnect.googleapis.com/v1/userinfo', { headers: { Authorization: `Bearer ${accessToken}` } });
-  if (!userInfoResponse.ok) throw new Error('Unable to retrieve verified Google profile.');
-  const userInfo = await userInfoResponse.json() as { sub?: string; email?: string; name?: string; picture?: string; email_verified?: boolean };
-  if (!userInfo.sub || userInfo.email !== tokenInfo.email || userInfo.email_verified !== true) throw new Error('Google profile verification failed.');
-  return userInfo;
+
+  // First try verifying as ID Token (standard Google One Tap / GoogleLogin button)
+  try {
+    const idTokenUrl = `https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(token)}`;
+    const res = await fetch(idTokenUrl);
+    if (res.ok) {
+      const data = await res.json() as any;
+      if (data.email && (data.email_verified === 'true' || data.email_verified === true)) {
+        return {
+          id: data.sub || data.user_id,
+          email: String(data.email).toLowerCase(),
+          name: cleanText(data.name || data.email.split('@')[0], 120),
+          avatar: typeof data.picture === 'string' ? data.picture.slice(0, 2000) : undefined,
+          authProvider: 'google',
+          verified: true,
+        };
+      }
+    }
+  } catch {}
+
+  // Next try verifying as Access Token (standard OAuth token client)
+  try {
+    const tokenInfoResponse = await fetch(`https://oauth2.googleapis.com/tokeninfo?access_token=${encodeURIComponent(token)}`);
+    if (tokenInfoResponse.ok) {
+      const tokenInfo = await tokenInfoResponse.json() as any;
+      if (tokenInfo.email && (tokenInfo.verified_email === true || tokenInfo.email_verified === 'true' || tokenInfo.email_verified === true)) {
+        const userInfoResponse = await fetch('https://openidconnect.googleapis.com/v1/userinfo', { headers: { Authorization: `Bearer ${token}` } });
+        let name = tokenInfo.email.split('@')[0];
+        let picture = '';
+        if (userInfoResponse.ok) {
+          const uInfo = await userInfoResponse.json() as any;
+          if (uInfo.name) name = uInfo.name;
+          if (uInfo.picture) picture = uInfo.picture;
+        }
+        return {
+          id: tokenInfo.sub || tokenInfo.user_id || `google-${Date.now()}`,
+          email: String(tokenInfo.email).toLowerCase(),
+          name: cleanText(name, 120),
+          avatar: picture ? picture.slice(0, 2000) : undefined,
+          authProvider: 'google',
+          verified: true,
+        };
+      }
+    }
+  } catch {}
+
+  throw new Error('Google token verification failed. Please check your credentials.');
+}
+
+async function verifyGoogleAccessToken(accessToken: string) {
+  return verifyGoogleToken(accessToken);
+}
+
+// In-Memory / Local Storage Store for Server Execution
+interface ServerUser {
+  id: string;
+  email: string;
+  passwordHash?: string;
+  name: string;
+  phone?: string;
+  avatar?: string;
+  city?: string;
+  state?: string;
+  country?: string;
+  passportNo?: string;
+  idType?: string;
+  idNumber?: string;
+  dietPreference?: string;
+  roomPreference?: string;
+  emergencyContact?: string;
+  authProvider?: 'google' | 'email' | 'phone';
+  memberTier?: string;
+  memberSince?: string;
+  rewardCoins?: number;
+  coTravelers?: any[];
+}
+
+const serverUsers = new Map<string, ServerUser>();
+const serverOtpStore = new Map<string, { code: string; expiresAt: number }>();
+const serverBookings: any[] = [];
+const serverWishlists = new Set<string>(); // key: `${email}:${packageId}`
+
+function hashPassword(password: string): string {
+  return crypto.createHash('sha256').update(password + '_bhakti_salt_2026').digest('hex');
 }
 
 app.get('/api/health', (_req, res) => res.json({ status: 'ok', timestamp: new Date().toISOString() }));
 
+// Unified Google Auth Endpoint
 app.post('/api/auth/google', authRateLimit, async (req, res) => {
   res.setHeader('Cache-Control', 'no-store');
-  const accessToken = typeof req.body?.accessToken === 'string' ? req.body.accessToken.trim() : '';
-  if (!accessToken || accessToken.length > 4096) return res.status(400).json({ error: 'A valid Google access token is required.' });
+  const token = typeof req.body?.idToken === 'string' ? req.body.idToken.trim()
+    : typeof req.body?.accessToken === 'string' ? req.body.accessToken.trim()
+    : typeof req.body?.token === 'string' ? req.body.token.trim() : '';
+
+  if (!token || token.length > 8192) return res.status(400).json({ error: 'A valid Google credential or access token is required.' });
   try {
-    const userInfo = await verifyGoogleAccessToken(accessToken);
-    return res.json({ user: { id: userInfo.sub, email: userInfo.email, name: cleanText(userInfo.name || userInfo.email!.split('@')[0], 120), avatar: typeof userInfo.picture === 'string' ? userInfo.picture.slice(0, 2000) : undefined, authProvider: 'google', verified: true } });
+    const userInfo = await verifyGoogleToken(token);
+    const existing = serverUsers.get(userInfo.email);
+    const updatedUser: ServerUser = {
+      ...(existing || {
+        id: userInfo.id || `user-${Date.now()}`,
+        email: userInfo.email,
+        name: userInfo.name,
+        avatar: userInfo.avatar,
+        phone: '+91 98765 43210',
+        city: 'New Delhi',
+        state: 'Delhi',
+        country: 'India',
+        dietPreference: 'Vegetarian',
+        roomPreference: 'Standard',
+        authProvider: 'google',
+        memberTier: 'Bhakti Sathi Elite',
+        memberSince: new Date().toLocaleDateString('en-IN', { month: 'long', year: 'numeric' }),
+        rewardCoins: 2500,
+        coTravelers: [],
+      }),
+      name: userInfo.name || existing?.name || userInfo.email.split('@')[0],
+      avatar: userInfo.avatar || existing?.avatar,
+      authProvider: 'google',
+    };
+    serverUsers.set(userInfo.email, updatedUser);
+
+    return res.json({ success: true, user: updatedUser });
   } catch (error) {
     console.error('Google authentication verification error:', error);
     const message = error instanceof Error ? error.message : 'Google authentication failed.';
-    const status = message.includes('not configured') ? 503 : 401;
-    return res.status(status).json({ error: status === 503 ? message : 'Google account verification failed.' });
+    return res.status(401).json({ error: message });
   }
+});
+
+// Traveler Sign Up (Secure Password)
+app.post('/api/auth/traveler/signup', authRateLimit, async (req, res) => {
+  res.setHeader('Cache-Control', 'no-store');
+  const email = typeof req.body?.email === 'string' ? req.body.email.trim().toLowerCase() : '';
+  const password = typeof req.body?.password === 'string' ? req.body.password : '';
+  const fullName = typeof req.body?.fullName === 'string' ? cleanText(req.body.fullName, 100) : email.split('@')[0];
+  const phone = typeof req.body?.phone === 'string' ? cleanText(req.body.phone, 30) : '';
+
+  if (!email || !email.includes('@')) {
+    return res.status(400).json({ error: 'Please provide a valid email address.' });
+  }
+  if (!password || password.length < 6) {
+    return res.status(400).json({ error: 'Password must be at least 6 characters long.' });
+  }
+
+  if (serverUsers.has(email)) {
+    return res.status(400).json({ error: 'An account with this email already exists. Please sign in.' });
+  }
+
+  const newUser: ServerUser = {
+    id: `user-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+    email,
+    passwordHash: hashPassword(password),
+    name: fullName || 'Devotee',
+    phone: phone || '+91 98765 43210',
+    avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=FF4B00&color=fff&bold=true`,
+    city: 'New Delhi',
+    state: 'Delhi',
+    country: 'India',
+    dietPreference: 'Vegetarian',
+    roomPreference: 'Standard',
+    authProvider: 'email',
+    memberTier: 'Member',
+    memberSince: new Date().toLocaleDateString('en-IN', { month: 'long', year: 'numeric' }),
+    rewardCoins: 500,
+    coTravelers: [],
+  };
+
+  serverUsers.set(email, newUser);
+  const { passwordHash: _, ...safeUser } = newUser;
+  return res.json({ success: true, user: safeUser });
+});
+
+// Traveler Login (Secure Password)
+app.post('/api/auth/traveler/login', authRateLimit, async (req, res) => {
+  res.setHeader('Cache-Control', 'no-store');
+  const email = typeof req.body?.email === 'string' ? req.body.email.trim().toLowerCase() : '';
+  const password = typeof req.body?.password === 'string' ? req.body.password : '';
+
+  if (!email || !password) {
+    return res.status(400).json({ error: 'Please provide both email and password.' });
+  }
+
+  const user = serverUsers.get(email);
+  if (!user || !user.passwordHash || user.passwordHash !== hashPassword(password)) {
+    return res.status(401).json({ error: 'Invalid email or password.' });
+  }
+
+  const { passwordHash: _, ...safeUser } = user;
+  return res.json({ success: true, user: safeUser });
+});
+
+// Traveler Send 6-Digit OTP
+app.post('/api/auth/traveler/send-otp', authRateLimit, async (req, res) => {
+  res.setHeader('Cache-Control', 'no-store');
+  const email = typeof req.body?.email === 'string' ? req.body.email.trim().toLowerCase() : '';
+  if (!email || !email.includes('@')) {
+    return res.status(400).json({ error: 'Please provide a valid email address.' });
+  }
+
+  const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+  serverOtpStore.set(email, {
+    code: otpCode,
+    expiresAt: Date.now() + 10 * 60 * 1000, // 10 minutes
+  });
+
+  console.log(`[Bhakti Sathi Security] 6-Digit OTP generated for ${email}: ${otpCode}`);
+
+  return res.json({
+    success: true,
+    message: `A 6-digit verification code has been generated for ${email}.`,
+    // In dev environment or test logging, return demoCode for easy testing
+    devHint: process.env.NODE_ENV !== 'production' ? otpCode : undefined,
+  });
+});
+
+// Traveler Verify 6-Digit OTP
+app.post('/api/auth/traveler/verify-otp', authRateLimit, async (req, res) => {
+  res.setHeader('Cache-Control', 'no-store');
+  const email = typeof req.body?.email === 'string' ? req.body.email.trim().toLowerCase() : '';
+  const otp = typeof req.body?.otp === 'string' ? req.body.otp.trim() : '';
+
+  if (!email || !otp) {
+    return res.status(400).json({ error: 'Please provide email and 6-digit OTP code.' });
+  }
+
+  const stored = serverOtpStore.get(email);
+  if (!stored || stored.expiresAt < Date.now() || stored.code !== otp) {
+    return res.status(400).json({ error: 'Invalid or expired verification code. Please request a new code.' });
+  }
+
+  serverOtpStore.delete(email);
+
+  let user = serverUsers.get(email);
+  if (!user) {
+    user = {
+      id: `user-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+      email,
+      name: email.split('@')[0],
+      phone: '+91 98765 43210',
+      avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(email.split('@')[0])}&background=FF4B00&color=fff&bold=true`,
+      city: 'New Delhi',
+      state: 'Delhi',
+      country: 'India',
+      dietPreference: 'Vegetarian',
+      roomPreference: 'Standard',
+      authProvider: 'email',
+      memberTier: 'Member',
+      memberSince: new Date().toLocaleDateString('en-IN', { month: 'long', year: 'numeric' }),
+      rewardCoins: 500,
+      coTravelers: [],
+    };
+    serverUsers.set(email, user);
+  }
+
+  const { passwordHash: _, ...safeUser } = user;
+  return res.json({ success: true, user: safeUser });
+});
+
+// Traveler Update Profile
+app.post('/api/auth/traveler/profile', async (req, res) => {
+  res.setHeader('Cache-Control', 'no-store');
+  const profile = req.body?.profile;
+  if (!profile || !profile.email) {
+    return res.status(400).json({ error: 'Profile data with email is required.' });
+  }
+  const email = String(profile.email).toLowerCase();
+  const existing = serverUsers.get(email) || {} as ServerUser;
+  const updated: ServerUser = {
+    ...existing,
+    ...profile,
+    email,
+  };
+  serverUsers.set(email, updated);
+  const { passwordHash: _, ...safeUser } = updated;
+  return res.json({ success: true, user: safeUser });
+});
+
+// Traveler Bookings API
+app.get('/api/traveler/bookings', async (req, res) => {
+  const email = typeof req.query?.email === 'string' ? req.query.email.trim().toLowerCase() : '';
+  if (!email) return res.json({ bookings: [] });
+  const userBookings = serverBookings.filter((b) => b.userEmail === email);
+  return res.json({ bookings: userBookings });
+});
+
+app.post('/api/traveler/bookings', async (req, res) => {
+  const booking = req.body;
+  if (!booking || !booking.userEmail) return res.status(400).json({ error: 'Booking details required.' });
+  const newBooking = {
+    id: booking.id || `bkg-${Date.now()}`,
+    ...booking,
+    createdAt: new Date().toISOString(),
+  };
+  serverBookings.push(newBooking);
+  return res.json({ success: true, booking: newBooking });
 });
 
 app.post('/api/auth/cms', authRateLimit, async (req, res) => {

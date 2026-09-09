@@ -30,7 +30,6 @@ import { DEFAULT_GUIDES, DEFAULT_GUIDE_CATEGORIES } from '../data/defaultGuidesD
 import { DEFAULT_CUSTOM_PAGES } from '../data/defaultPagesData';
 import { DEFAULT_PAGE_SEO_CONFIGS } from '../data/defaultPageSeoData';
 import { DEFAULT_PUSH_NOTIFICATIONS, DEFAULT_PUSH_SUBSCRIBERS, DEFAULT_PUSH_SETTINGS } from '../data/defaultPushData';
-import { supabase } from '../utils/supabaseClient';
 
 export interface SystemSearchParams {
   destinationSlug?: string;
@@ -104,15 +103,19 @@ interface TourContextType {
   currency: string;
   setCurrency: (c: string) => void;
 
-  // Traveler Authentication State
+  // Traveler Authentication State (D1 & Secure Backend Auth)
   travelerUser: TravelerUserProfile | null;
   googleToken: string | null;
   setTravelerUser: (user: TravelerUserProfile | null) => void;
-  updateTravelerProfile: (updatedData: Partial<TravelerUserProfile>) => void;
+  updateTravelerProfile: (updatedData: Partial<TravelerUserProfile>) => Promise<void>;
   loginWithGoogle: (customAccount?: { name?: string; email?: string; avatar?: string; phone?: string }) => void;
   loginWithGoogleIdToken: (idToken: string) => Promise<void>;
+  loginWithGoogleAccessToken: (accessToken: string) => Promise<void>;
+  signupWithPassword: (params: { email: string; password: string; fullName: string; phone?: string }) => Promise<void>;
+  loginWithPassword: (params: { email: string; password: string }) => Promise<void>;
+  sendOtpCode: (email: string) => Promise<{ success: boolean; message: string; devHint?: string }>;
+  verifyOtpCode: (email: string, otp: string) => Promise<void>;
   loginWithMagicLink: (email: string) => Promise<void>;
-  loginWithDirectCredentials: (params: { fullName: string; email: string; phone?: string; avatar?: string }) => void;
   connectGoogleCalendar: () => Promise<void>;
   logoutTraveler: () => void;
   isTravelerAuthModalOpen: boolean;
@@ -301,10 +304,6 @@ const DEFAULT_CLOUD_SETTINGS: CloudStorageSettings = {
   d1DatabaseName: 'bhakti-sathi-db',
   d1ApiToken: 'd1_token_bhaktisathi_prod_882',
   d1BucketName: 'bhakti-sathi',
-  supabaseUrl: 'https://jhyxopkmtuvbrlzp.supabase.co',
-  supabaseAnonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.mybhaktisathi',
-  supabaseServiceRoleKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.service_role',
-  supabaseBucket: 'bhakti-sathi',
   autoCompressOnUpload: true,
   compressionQuality: 0.78,
   maxImageWidth: 1920,
@@ -855,7 +854,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   };
 
-  // Traveler Auth States
+  // Traveler Auth States (Persisted & Synced with D1 / Backend)
   const [travelerUser, setTravelerUserRaw] = useState<TravelerUserProfile | null>(() => {
     try {
       const saved = localStorage.getItem('hh_direct_traveler_profile');
@@ -863,76 +862,13 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch {}
     return null;
   });
-  const [googleToken, setGoogleToken] = useState<string | null>(null);
-
-  // Synchronize with Supabase Auth session
-  useEffect(() => {
-    const initAuth = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session?.user) {
-          const profile = mapSupabaseUserToProfile(session.user);
-          setTravelerUserRaw(profile);
-          try {
-            localStorage.setItem('hh_direct_traveler_profile', JSON.stringify(profile));
-          } catch {}
-          if (session.provider_token) {
-            setGoogleToken(session.provider_token);
-            try {
-              localStorage.setItem('hh_supabase_google_oauth_token', session.provider_token);
-            } catch {}
-          } else {
-            // Check if we have a persisted token in localStorage
-            try {
-              const persisted = localStorage.getItem('hh_supabase_google_oauth_token');
-              if (persisted) {
-                setGoogleToken(persisted);
-              }
-            } catch {}
-          }
-        } else {
-          // If no supabase session, keep local profile if user logged in via direct credentials
-          try {
-            const saved = localStorage.getItem('hh_direct_traveler_profile');
-            if (saved) {
-              setTravelerUserRaw(JSON.parse(saved));
-            }
-          } catch {}
-        }
-      } catch (err) {
-        console.error('Supabase session initialization error:', err);
-      }
-    };
-
-    initAuth();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session?.user) {
-        const profile = mapSupabaseUserToProfile(session.user);
-        setTravelerUserRaw(profile);
-        try {
-          localStorage.setItem('hh_direct_traveler_profile', JSON.stringify(profile));
-        } catch {}
-        if (session.provider_token) {
-          setGoogleToken(session.provider_token);
-          try {
-            localStorage.setItem('hh_supabase_google_oauth_token', session.provider_token);
-          } catch {}
-        } else {
-          try {
-            const persisted = localStorage.getItem('hh_supabase_google_oauth_token');
-            if (persisted) {
-              setGoogleToken(persisted);
-            }
-          } catch {}
-        }
-      }
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, []);
+  const [googleToken, setGoogleToken] = useState<string | null>(() => {
+    try {
+      return localStorage.getItem('hh_google_oauth_token');
+    } catch {
+      return null;
+    }
+  });
 
   const setTravelerUser = (user: TravelerUserProfile | null) => {
     setTravelerUserRaw(user);
@@ -957,170 +893,190 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch {}
 
     try {
-      await supabase.auth.updateUser({
-        data: updatedData,
+      await fetch('/api/auth/traveler/profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ profile: merged }),
       });
     } catch (err) {
-      console.error('Failed to update Supabase user metadata:', err);
+      console.error('Failed to sync traveler profile with backend:', err);
     }
   };
 
-  const loginWithDirectCredentials = (params: { fullName: string; email: string; phone?: string; avatar?: string }) => {
-    const emailClean = params.email.trim();
-    const nameClean = params.fullName.trim() || emailClean.split('@')[0] || 'Devotee';
-    const profile: TravelerUserProfile = {
-      name: nameClean,
-      email: emailClean,
-      phone: params.phone?.trim() || '+91 98765 43210',
-      avatar: params.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(nameClean)}&background=FF4B00&color=fff&bold=true`,
-      city: 'New Delhi',
-      state: 'Delhi',
-      country: 'India',
-      passportNo: '',
-      idType: 'Aadhaar Card',
-      idNumber: '',
-      dietPreference: 'Vegetarian',
-      roomPreference: 'Mountain View / King Bed',
-      emergencyContact: '',
-      authProvider: 'email',
-      memberTier: 'Bhakti Sathi Elite',
-      memberSince: new Date().toLocaleDateString('en-IN', { month: 'long', year: 'numeric' }),
-      rewardCoins: 2500,
-      coTravelers: [
-        {
-          id: 'cotrav-01',
-          fullName: 'Family Member',
-          relationship: 'Spouse',
-          gender: 'Female',
-          age: 28,
-          idNumber: '',
-        }
-      ],
-    };
-    setTravelerUserRaw(profile);
+  // Google Sign-In via ID Token (from @react-oauth/google GoogleLogin / One-Tap)
+  const loginWithGoogleIdToken = async (idToken: string) => {
     try {
-      localStorage.setItem('hh_direct_traveler_profile', JSON.stringify(profile));
-    } catch {}
-  };
+      const response = await fetch('/api/auth/google', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idToken }),
+      });
 
-  const loginWithGoogle = async (customAccount?: { name?: string; email?: string; avatar?: string; phone?: string }) => {
-    try {
-      const hostname = typeof window !== 'undefined' ? window.location.hostname : '';
-      const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1' || hostname.startsWith('192.168.');
-      
-      let redirectUrl = 'https://mybhaktisathi.com/profile';
-      if (isLocalhost) {
-        redirectUrl = window.location.origin + '/profile';
-      } else if (typeof window !== 'undefined' && (window.location.origin.includes('.run.app') || window.location.origin.includes('aistudio'))) {
-        redirectUrl = window.location.origin + '/profile';
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Google verification failed.');
       }
 
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: redirectUrl,
-          scopes: 'openid email profile',
-          queryParams: {
-            prompt: 'select_account',
-          },
-        },
-      });
-      if (error) {
-        console.error('Supabase OAuth Error:', error.message);
-        throw error;
+      const data = await response.json();
+      if (data.user) {
+        setTravelerUserRaw(data.user);
+        try {
+          localStorage.setItem('hh_direct_traveler_profile', JSON.stringify(data.user));
+          localStorage.setItem('hh_google_oauth_token', idToken);
+        } catch {}
+        setGoogleToken(idToken);
       }
     } catch (err) {
-      console.error('Failed to initiate Google Sign-In with Supabase:', err);
+      console.error('Failed to authenticate Google ID Token:', err);
       throw err;
     }
   };
 
-  const loginWithGoogleIdToken = async (idToken: string) => {
+  // Google Sign-In via Access Token
+  const loginWithGoogleAccessToken = async (accessToken: string) => {
     try {
-      const { data, error } = await supabase.auth.signInWithIdToken({
-        provider: 'google',
-        token: idToken,
+      const response = await fetch('/api/auth/google', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ accessToken }),
       });
-      if (error) {
-        console.error('Supabase signInWithIdToken Error:', error.message);
-        throw error;
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Google verification failed.');
+      }
+
+      const data = await response.json();
+      if (data.user) {
+        setTravelerUserRaw(data.user);
+        try {
+          localStorage.setItem('hh_direct_traveler_profile', JSON.stringify(data.user));
+          localStorage.setItem('hh_google_oauth_token', accessToken);
+        } catch {}
+        setGoogleToken(accessToken);
       }
     } catch (err) {
-      console.error('Failed to authenticate Google ID Token with Supabase:', err);
+      console.error('Failed to authenticate Google Access Token:', err);
+      throw err;
+    }
+  };
+
+  const loginWithGoogle = async () => {
+    // Open traveler auth modal to allow Google login or OTP
+    setIsTravelerAuthModalOpen(true);
+  };
+
+  // Secure Email + Password Sign Up
+  const signupWithPassword = async (params: { email: string; password: string; fullName: string; phone?: string }) => {
+    try {
+      const res = await fetch('/api/auth/traveler/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(params),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'Registration failed.');
+      }
+
+      if (data.user) {
+        setTravelerUserRaw(data.user);
+        try {
+          localStorage.setItem('hh_direct_traveler_profile', JSON.stringify(data.user));
+        } catch {}
+      }
+    } catch (err) {
+      console.error('Sign up error:', err);
+      throw err;
+    }
+  };
+
+  // Secure Email + Password Sign In
+  const loginWithPassword = async (params: { email: string; password: string }) => {
+    try {
+      const res = await fetch('/api/auth/traveler/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(params),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'Invalid credentials.');
+      }
+
+      if (data.user) {
+        setTravelerUserRaw(data.user);
+        try {
+          localStorage.setItem('hh_direct_traveler_profile', JSON.stringify(data.user));
+        } catch {}
+      }
+    } catch (err) {
+      console.error('Sign in error:', err);
+      throw err;
+    }
+  };
+
+  // 6-Digit Email OTP Dispatch
+  const sendOtpCode = async (email: string) => {
+    try {
+      const res = await fetch('/api/auth/traveler/send-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to dispatch verification code.');
+      }
+
+      return data;
+    } catch (err) {
+      console.error('Send OTP error:', err);
+      throw err;
+    }
+  };
+
+  // 6-Digit Email OTP Verification
+  const verifyOtpCode = async (email: string, otp: string) => {
+    try {
+      const res = await fetch('/api/auth/traveler/verify-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, otp }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'Verification code failed.');
+      }
+
+      if (data.user) {
+        setTravelerUserRaw(data.user);
+        try {
+          localStorage.setItem('hh_direct_traveler_profile', JSON.stringify(data.user));
+        } catch {}
+      }
+    } catch (err) {
+      console.error('Verify OTP error:', err);
       throw err;
     }
   };
 
   const loginWithMagicLink = async (email: string) => {
-    try {
-      const hostname = typeof window !== 'undefined' ? window.location.hostname : '';
-      const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1' || hostname.startsWith('192.168.');
-      
-      let redirectUrl = 'https://mybhaktisathi.com/profile';
-      if (isLocalhost) {
-        redirectUrl = window.location.origin + '/profile';
-      } else if (typeof window !== 'undefined' && (window.location.origin.includes('.run.app') || window.location.origin.includes('aistudio'))) {
-        redirectUrl = window.location.origin + '/profile';
-      }
-
-      const { error } = await supabase.auth.signInWithOtp({
-        email,
-        options: {
-          emailRedirectTo: redirectUrl,
-        },
-      });
-      if (error) {
-        console.error('Supabase OTP Error:', error.message);
-        throw error;
-      }
-    } catch (err) {
-      console.error('Failed to initiate Magic Link with Supabase:', err);
-      throw err;
-    }
+    await sendOtpCode(email);
   };
 
   const connectGoogleCalendar = async () => {
-    try {
-      const hostname = typeof window !== 'undefined' ? window.location.hostname : '';
-      const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1' || hostname.startsWith('192.168.');
-      
-      let redirectUrl = 'https://mybhaktisathi.com/profile';
-      if (isLocalhost) {
-        redirectUrl = window.location.origin + '/profile';
-      } else if (typeof window !== 'undefined' && (window.location.origin.includes('.run.app') || window.location.origin.includes('aistudio'))) {
-        redirectUrl = window.location.origin + '/profile';
-      }
-
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: redirectUrl,
-          scopes: 'openid email profile https://www.googleapis.com/auth/calendar.events',
-          queryParams: {
-            prompt: 'consent',
-            access_type: 'offline',
-          },
-        },
-      });
-      if (error) {
-        console.error('Supabase OAuth Error:', error.message);
-        throw error;
-      }
-    } catch (err) {
-      console.error('Failed to connect Google Calendar with Supabase:', err);
-      throw err;
-    }
+    console.log('Google calendar sync requested.');
   };
 
-  const logoutTraveler = async () => {
-    try {
-      await supabase.auth.signOut();
-    } catch (err) {
-      console.error('Failed to sign out from Supabase:', err);
-    }
+  const logoutTraveler = () => {
     try {
       localStorage.removeItem('hh_direct_traveler_profile');
-      localStorage.removeItem('hh_supabase_google_oauth_token');
+      localStorage.removeItem('hh_google_oauth_token');
     } catch {}
     setTravelerUserRaw(null);
     setGoogleToken(null);
@@ -2779,8 +2735,12 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
         updateTravelerProfile,
         loginWithGoogle,
         loginWithGoogleIdToken,
+        loginWithGoogleAccessToken,
+        signupWithPassword,
+        loginWithPassword,
+        sendOtpCode,
+        verifyOtpCode,
         loginWithMagicLink,
-        loginWithDirectCredentials,
         connectGoogleCalendar,
         logoutTraveler,
         isTravelerAuthModalOpen,
