@@ -159,7 +159,12 @@ export const TravelerAuthModal: React.FC = () => {
     try {
       const res = await sendOtpCode(otpEmail.trim());
       setOtpSent(true);
-      setSuccessMessage(res.message || `A 6-digit verification code was sent to ${otpEmail.trim()}`);
+      if (res.otpCode) {
+        setOtpCode(res.otpCode);
+        setSuccessMessage(`OTP Generated for ${otpEmail.trim()}. INSTANT TEST CODE: [ ${res.otpCode} ] (Auto-filled below!)`);
+      } else {
+        setSuccessMessage(res.message || `A 6-digit verification code was sent to ${otpEmail.trim()}`);
+      }
     } catch (err: any) {
       setErrorMessage(err?.message || 'Failed to send OTP. Please try again.');
     } finally {
