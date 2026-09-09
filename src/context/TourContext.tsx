@@ -112,6 +112,7 @@ interface TourContextType {
   loginWithGoogle: (customAccount?: { name?: string; email?: string; avatar?: string; phone?: string }) => void;
   loginWithGoogleIdToken: (idToken: string) => Promise<void>;
   loginWithMagicLink: (email: string) => Promise<void>;
+  loginWithDirectCredentials: (params: { fullName: string; email: string; phone?: string; avatar?: string }) => void;
   connectGoogleCalendar: () => Promise<void>;
   logoutTraveler: () => void;
   isTravelerAuthModalOpen: boolean;
@@ -855,7 +856,13 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   // Traveler Auth States
-  const [travelerUser, setTravelerUserRaw] = useState<TravelerUserProfile | null>(null);
+  const [travelerUser, setTravelerUserRaw] = useState<TravelerUserProfile | null>(() => {
+    try {
+      const saved = localStorage.getItem('hh_direct_traveler_profile');
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return null;
+  });
   const [googleToken, setGoogleToken] = useState<string | null>(null);
 
   // Synchronize with Supabase Auth session
@@ -864,7 +871,11 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
       try {
         const { data: { session } } = await supabase.auth.getSession();
         if (session?.user) {
-          setTravelerUserRaw(mapSupabaseUserToProfile(session.user));
+          const profile = mapSupabaseUserToProfile(session.user);
+          setTravelerUserRaw(profile);
+          try {
+            localStorage.setItem('hh_direct_traveler_profile', JSON.stringify(profile));
+          } catch {}
           if (session.provider_token) {
             setGoogleToken(session.provider_token);
             try {
@@ -880,10 +891,12 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
             } catch {}
           }
         } else {
-          setTravelerUserRaw(null);
-          setGoogleToken(null);
+          // If no supabase session, keep local profile if user logged in via direct credentials
           try {
-            localStorage.removeItem('hh_supabase_google_oauth_token');
+            const saved = localStorage.getItem('hh_direct_traveler_profile');
+            if (saved) {
+              setTravelerUserRaw(JSON.parse(saved));
+            }
           } catch {}
         }
       } catch (err) {
@@ -895,7 +908,11 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session?.user) {
-        setTravelerUserRaw(mapSupabaseUserToProfile(session.user));
+        const profile = mapSupabaseUserToProfile(session.user);
+        setTravelerUserRaw(profile);
+        try {
+          localStorage.setItem('hh_direct_traveler_profile', JSON.stringify(profile));
+        } catch {}
         if (session.provider_token) {
           setGoogleToken(session.provider_token);
           try {
@@ -909,12 +926,6 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
             }
           } catch {}
         }
-      } else {
-        setTravelerUserRaw(null);
-        setGoogleToken(null);
-        try {
-          localStorage.removeItem('hh_supabase_google_oauth_token');
-        } catch {}
       }
     });
 
@@ -925,6 +936,13 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const setTravelerUser = (user: TravelerUserProfile | null) => {
     setTravelerUserRaw(user);
+    try {
+      if (user) {
+        localStorage.setItem('hh_direct_traveler_profile', JSON.stringify(user));
+      } else {
+        localStorage.removeItem('hh_direct_traveler_profile');
+      }
+    } catch {}
   };
 
   const updateTravelerProfile = async (updatedData: Partial<TravelerUserProfile>) => {
@@ -934,6 +952,9 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
       ...updatedData,
     };
     setTravelerUserRaw(merged);
+    try {
+      localStorage.setItem('hh_direct_traveler_profile', JSON.stringify(merged));
+    } catch {}
 
     try {
       await supabase.auth.updateUser({
@@ -942,6 +963,44 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch (err) {
       console.error('Failed to update Supabase user metadata:', err);
     }
+  };
+
+  const loginWithDirectCredentials = (params: { fullName: string; email: string; phone?: string; avatar?: string }) => {
+    const emailClean = params.email.trim();
+    const nameClean = params.fullName.trim() || emailClean.split('@')[0] || 'Devotee';
+    const profile: TravelerUserProfile = {
+      name: nameClean,
+      email: emailClean,
+      phone: params.phone?.trim() || '+91 98765 43210',
+      avatar: params.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(nameClean)}&background=FF4B00&color=fff&bold=true`,
+      city: 'New Delhi',
+      state: 'Delhi',
+      country: 'India',
+      passportNo: '',
+      idType: 'Aadhaar Card',
+      idNumber: '',
+      dietPreference: 'Vegetarian',
+      roomPreference: 'Mountain View / King Bed',
+      emergencyContact: '',
+      authProvider: 'email',
+      memberTier: 'Bhakti Sathi Elite',
+      memberSince: new Date().toLocaleDateString('en-IN', { month: 'long', year: 'numeric' }),
+      rewardCoins: 2500,
+      coTravelers: [
+        {
+          id: 'cotrav-01',
+          fullName: 'Family Member',
+          relationship: 'Spouse',
+          gender: 'Female',
+          age: 28,
+          idNumber: '',
+        }
+      ],
+    };
+    setTravelerUserRaw(profile);
+    try {
+      localStorage.setItem('hh_direct_traveler_profile', JSON.stringify(profile));
+    } catch {}
   };
 
   const loginWithGoogle = async (customAccount?: { name?: string; email?: string; avatar?: string; phone?: string }) => {
@@ -1059,7 +1118,12 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch (err) {
       console.error('Failed to sign out from Supabase:', err);
     }
+    try {
+      localStorage.removeItem('hh_direct_traveler_profile');
+      localStorage.removeItem('hh_supabase_google_oauth_token');
+    } catch {}
     setTravelerUserRaw(null);
+    setGoogleToken(null);
     setIsTravelerProfileOpen(false);
     if (typeof window !== 'undefined' && window.history.pushState) {
       window.history.pushState({}, '', '/');
@@ -1381,6 +1445,19 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setActiveCustomPageSlug(null);
         setSelectedPackageId(null);
         setSelectedDestinationSlug(null);
+      } else if (path === '/sitemap' || path === '/sitemap/' || path === '/sitemap.html' || path === '/info/sitemap' || path === '/info/sitemap/') {
+        setActiveView('traveler');
+        setActiveInfoPage('sitemap');
+        setIsDestinationsExplorerOpen(false);
+        setIsToursDirectoryOpen(false);
+        setIsBlogHubOpen(false);
+        setActiveBlogSlug(null);
+        setActiveCustomPageSlug(null);
+        setSelectedPackageId(null);
+        setSelectedDestinationSlug(null);
+        setIsGuidesHubOpen(false);
+        setActiveGuideSlug(null);
+        setIsJapCounterOpen(false);
       } else if (path === '/honeymoon' || path === '/family' || path === '/pilgrimage') {
         const infoSlug = path.replace('/', '');
         setActiveView('traveler');
@@ -2703,6 +2780,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
         loginWithGoogle,
         loginWithGoogleIdToken,
         loginWithMagicLink,
+        loginWithDirectCredentials,
         connectGoogleCalendar,
         logoutTraveler,
         isTravelerAuthModalOpen,

@@ -76,6 +76,11 @@ export const SitemapPage: React.FC = () => {
     { title: '100% Verified Stays & Safe Travels', path: '/info/security', slug: 'security', category: 'Trust', action: () => navigateToInfoPage('security') },
   ], [navigateToAllTours, navigateToDestinationsExplorer, navigateToGuideHub, navigateToInfoPage]);
 
+  const destinationList = useMemo(() => {
+    if (!destinations) return [];
+    return Array.isArray(destinations) ? destinations : Object.values(destinations);
+  }, [destinations]);
+
   // Live filtered sets
   const filteredCorePages = useMemo(() => {
     if (!searchQuery.trim()) return corePages;
@@ -94,14 +99,14 @@ export const SitemapPage: React.FC = () => {
   }, [packages, searchQuery]);
 
   const filteredDestinations = useMemo(() => {
-    if (!searchQuery.trim()) return destinations;
+    if (!searchQuery.trim()) return destinationList;
     const q = searchQuery.toLowerCase();
-    return destinations.filter(d => 
+    return destinationList.filter(d => 
       d.name.toLowerCase().includes(q) || 
       d.subtitle?.toLowerCase().includes(q) ||
       d.slug.toLowerCase().includes(q)
     );
-  }, [destinations, searchQuery]);
+  }, [destinationList, searchQuery]);
 
   const filteredGuides = useMemo(() => {
     const published = guides.filter(g => g.status === 'published');
@@ -124,7 +129,7 @@ export const SitemapPage: React.FC = () => {
     );
   }, [customPages, searchQuery]);
 
-  const totalUrls = corePages.length + packages.length + destinations.length + guides.filter(g => g.status === 'published').length + customPages.filter(p => p.status === 'published').length;
+  const totalUrls = corePages.length + packages.length + destinationList.length + guides.filter(g => g.status === 'published').length + customPages.filter(p => p.status === 'published').length;
 
   // Auto-generate XML content
   const xmlContent = useMemo(() => {
@@ -143,7 +148,7 @@ export const SitemapPage: React.FC = () => {
     });
 
     // Destinations
-    destinations.forEach(d => {
+    destinationList.forEach(d => {
       entries.push({ loc: `${baseUrl}/destination/${d.slug}`, lastmod: today, changefreq: 'weekly', priority: '0.8' });
     });
 
@@ -166,7 +171,7 @@ export const SitemapPage: React.FC = () => {
   </url>`).join('\n');
 
     return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${body}\n</urlset>`;
-  }, [corePages, packages, destinations, guides, customPages]);
+  }, [corePages, packages, destinationList, guides, customPages]);
 
   const handleDownloadXml = () => {
     const blob = new Blob([xmlContent], { type: 'application/xml' });
@@ -256,7 +261,7 @@ export const SitemapPage: React.FC = () => {
                 {[
                   { id: 'all', label: 'All Links', count: totalUrls },
                   { id: 'packages', label: 'Yatra Packages', count: packages.length },
-                  { id: 'destinations', label: 'Destinations', count: destinations.length },
+                  { id: 'destinations', label: 'Destinations', count: destinationList.length },
                   { id: 'guides', label: 'Temple Guides', count: guides.filter(g => g.status === 'published').length },
                   { id: 'pages', label: 'Core & Custom Pages', count: corePages.length + customPages.filter(p => p.status === 'published').length },
                 ].map((t) => (

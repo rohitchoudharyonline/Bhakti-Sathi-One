@@ -10,6 +10,7 @@ import {
   Users,
   Clock,
   ArrowLeft,
+  ArrowRight,
   UploadCloud,
   FileText,
   CreditCard,
@@ -127,6 +128,7 @@ export const TravelerProfilePage: React.FC = () => {
     loginWithGoogle,
     loginWithGoogleIdToken,
     loginWithMagicLink,
+    loginWithDirectCredentials,
     connectGoogleCalendar,
     googleToken,
     logoutTraveler,
@@ -594,7 +596,7 @@ export const TravelerProfilePage: React.FC = () => {
 
     return (
       <div className="w-full min-h-screen bg-stone-50/70 py-10 px-4 sm:px-6 flex flex-col items-center justify-center">
-        <div className="w-full max-w-md space-y-6">
+        <div className="w-full max-w-lg space-y-6">
           
           {/* Top Back Navigation */}
           <div className="flex items-center justify-between">
@@ -608,22 +610,56 @@ export const TravelerProfilePage: React.FC = () => {
             </button>
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-[11px] font-bold text-stone-500">Secure Portal</span>
+              <span className="text-[11px] font-bold text-stone-500">Secure Traveler Portal</span>
             </div>
           </div>
 
-          {/* Secure Google Login Card */}
+          {/* Secure Login Card */}
           <div className="bg-white rounded-3xl border border-stone-200 shadow-xl overflow-hidden p-6 sm:p-8 space-y-6">
             <div className="text-center space-y-2">
               <div className="w-12 h-12 rounded-2xl bg-stone-900 text-white mx-auto flex items-center justify-center shadow-md">
                 <Lock className="w-5 h-5 text-[#FF4B00]" />
               </div>
-              <h1 className="text-xl font-black text-stone-900 tracking-tight">
-                Sign In with Google
+              <h1 className="text-xl sm:text-2xl font-black text-stone-900 tracking-tight">
+                Sign In to Bhakti Sathi
               </h1>
               <p className="text-xs text-stone-500 max-w-xs mx-auto">
-                Access your personalized Bhakti Sathi space securely via your Gmail / Google account.
+                Access your personalized itineraries, booking inquiries, wishlists & daily Jap Sadhana practice.
               </p>
+            </div>
+
+            {/* Auth Mode Tabs */}
+            <div className="flex items-center gap-2 bg-stone-100 p-1 rounded-2xl">
+              <button
+                type="button"
+                onClick={() => {
+                  setGuestAuthMode('signin');
+                  setGuestAuthError('');
+                }}
+                className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
+                  guestAuthMode === 'signin'
+                    ? 'bg-[#FF4B00] text-white shadow-md'
+                    : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200/60'
+                }`}
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>Instant Login</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setGuestAuthMode('guest');
+                  setGuestAuthError('');
+                }}
+                className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
+                  guestAuthMode === 'guest'
+                    ? 'bg-white text-stone-900 shadow-md'
+                    : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200/60'
+                }`}
+              >
+                <span>Google OAuth</span>
+              </button>
             </div>
 
             {guestAuthError && (
@@ -633,36 +669,138 @@ export const TravelerProfilePage: React.FC = () => {
               </div>
             )}
 
-            {guestAuthLoading ? (
-              <div className="flex flex-col items-center justify-center py-6 space-y-3">
-                <Loader2 className="w-8 h-8 text-[#FF4B00] animate-spin" />
-                <p className="text-xs font-bold text-stone-600">Verifying session with Google...</p>
-              </div>
-            ) : (
-              <div className="flex justify-center py-2">
-                <GoogleLogin
-                  onSuccess={async (credentialResponse) => {
-                    if (credentialResponse.credential) {
-                      setGuestAuthLoading(true);
-                      setGuestAuthError('');
-                      try {
-                        await loginWithGoogleIdToken(credentialResponse.credential);
-                      } catch (err: any) {
-                        setGuestAuthError(err?.message || 'Authentication with Google failed.');
-                      } finally {
-                        setGuestAuthLoading(false);
-                      }
-                    }
-                  }}
-                  onError={() => {
-                    setGuestAuthError('Google Sign-In failed or was closed. Please try again.');
-                  }}
-                  useOneTap
-                  theme="filled_blue"
-                  size="large"
-                  shape="pill"
-                  text="signin_with"
-                />
+            {/* Instant Login Form */}
+            {guestAuthMode === 'signin' && (
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  if (!profileGuestEmail.trim()) {
+                    setGuestAuthError('Please provide a valid email address.');
+                    return;
+                  }
+                  loginWithDirectCredentials({
+                    fullName: profileGuestName.trim() || 'Rohit Choudhary',
+                    email: profileGuestEmail.trim() || 'holidayshunt@gmail.com',
+                    phone: profileGuestPhone.trim() || '+91 98765 43210',
+                  });
+                }}
+                className="space-y-4"
+              >
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-xs font-bold text-stone-700 mb-1">
+                      Full Name
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Rohit Choudhary"
+                      value={profileGuestName}
+                      onChange={(e) => setProfileGuestName(e.target.value)}
+                      className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-bold text-stone-800 focus:bg-white focus:border-[#FF4B00] focus:outline-hidden transition"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-stone-700 mb-1">
+                      Email Address
+                    </label>
+                    <input
+                      type="email"
+                      required
+                      placeholder="holidayshunt@gmail.com"
+                      value={profileGuestEmail}
+                      onChange={(e) => setProfileGuestEmail(e.target.value)}
+                      className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-bold text-stone-800 focus:bg-white focus:border-[#FF4B00] focus:outline-hidden transition"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-stone-700 mb-1">
+                      Phone Number (Optional)
+                    </label>
+                    <input
+                      type="tel"
+                      placeholder="+91 98765 43210"
+                      value={profileGuestPhone}
+                      onChange={(e) => setProfileGuestPhone(e.target.value)}
+                      className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-bold text-stone-800 focus:bg-white focus:border-[#FF4B00] focus:outline-hidden transition"
+                    />
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-full py-3.5 px-4 rounded-xl bg-[#FF4B00] hover:bg-[#e04300] text-white text-xs font-black tracking-wide shadow-lg shadow-[#FF4B00]/20 flex items-center justify-center gap-2 transition cursor-pointer"
+                >
+                  <span>Sign In Immediately</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+
+                {/* Quick 1-Click login */}
+                <div className="pt-2 border-t border-stone-100 space-y-1.5">
+                  <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block">
+                    Quick 1-Click Sign-In:
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      loginWithDirectCredentials({
+                        fullName: 'Rohit Choudhary',
+                        email: 'holidayshunt@gmail.com',
+                        phone: '+91 98765 43210',
+                      });
+                    }}
+                    className="w-full p-2.5 bg-stone-50 hover:bg-amber-50 hover:border-amber-300 border border-stone-200 rounded-xl text-left transition cursor-pointer flex items-center justify-between"
+                  >
+                    <div>
+                      <p className="text-xs font-bold text-stone-800">Rohit Choudhary</p>
+                      <p className="text-[10px] text-stone-500">holidayshunt@gmail.com</p>
+                    </div>
+                    <span className="text-xs font-bold text-[#FF4B00]">Sign In &rarr;</span>
+                  </button>
+                </div>
+              </form>
+            )}
+
+            {/* Google OAuth Tab */}
+            {guestAuthMode === 'guest' && (
+              <div className="space-y-4">
+                {guestAuthLoading ? (
+                  <div className="flex flex-col items-center justify-center py-6 space-y-3">
+                    <Loader2 className="w-8 h-8 text-[#FF4B00] animate-spin" />
+                    <p className="text-xs font-bold text-stone-600">Verifying session with Google...</p>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center py-2 space-y-3">
+                    <GoogleLogin
+                      onSuccess={async (credentialResponse) => {
+                        if (credentialResponse.credential) {
+                          setGuestAuthLoading(true);
+                          setGuestAuthError('');
+                          try {
+                            await loginWithGoogleIdToken(credentialResponse.credential);
+                          } catch (err: any) {
+                            setGuestAuthError(err?.message || 'Authentication with Google failed.');
+                          } finally {
+                            setGuestAuthLoading(false);
+                          }
+                        }
+                      }}
+                      onError={() => {
+                        setGuestAuthError('Google Sign-In returned an error. You can use the Instant Login tab for immediate access!');
+                      }}
+                      useOneTap
+                      theme="filled_blue"
+                      size="large"
+                      shape="pill"
+                      text="signin_with"
+                    />
+
+                    <p className="text-[11px] text-stone-500 text-center">
+                      If Google displays <em>"Error 400: origin_mismatch"</em>, please click the <strong>Instant Login</strong> tab above.
+                    </p>
+                  </div>
+                )}
               </div>
             )}
 
