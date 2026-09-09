@@ -230,124 +230,168 @@ export const Footer: React.FC<FooterProps> = ({ onSelectDestination, onSelectDha
 
           {/* Multi-Column Navigational Links */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 pt-2 text-xs">
-            {/* Column 1: Discover Us */}
-            <div className="space-y-3">
-              <h4 className="text-[11px] font-black text-slate-400 uppercase tracking-wider">
-                DISCOVER US
-              </h4>
-              <ul className="space-y-2 font-medium text-slate-300">
-                <li>
-                  <button onClick={() => openInfo('about')} className="hover:text-white transition cursor-pointer text-left">
-                    • About us
-                  </button>
-                </li>
-                <li className="flex items-center gap-1.5">
-                  <button onClick={() => openInfo('careers')} className="hover:text-white transition cursor-pointer text-left">
-                    • Careers
-                  </button>
-                  <span className="text-[9px] font-extrabold bg-slate-800 text-slate-200 border border-slate-700 px-1.5 py-0.5 rounded-full">
-                    Hiring!
-                  </span>
-                </li>
-                <li>
-                  <button onClick={() => openInfo('locate_us')} className="hover:text-white transition cursor-pointer text-left">
-                    • Contact us
-                  </button>
-                </li>
-                <li>
-                  <button onClick={() => openInfo('faq')} className="hover:text-white transition cursor-pointer text-left">
-                    • FAQ
-                  </button>
-                </li>
-                <li>
-                  <button onClick={navigateToGuideHub} className="hover:text-white transition cursor-pointer text-left">
-                    • Guide
-                  </button>
-                </li>
-              </ul>
-            </div>
+            {agencySettings?.footerMenus && agencySettings.footerMenus.length > 0 ? (
+              agencySettings.footerMenus.map((section) => (
+                <div key={section.id} className="space-y-3">
+                  <h4 className="text-[11px] font-black text-slate-400 uppercase tracking-wider">
+                    {section.title}
+                  </h4>
+                  <ul className="space-y-2 font-medium text-slate-300">
+                    {section.items.map((item) => (
+                      <li key={item.id}>
+                        {item.url.startsWith('http') ? (
+                          <a
+                            href={item.url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="hover:text-white transition cursor-pointer text-left block"
+                          >
+                            • {item.label}
+                          </a>
+                        ) : (
+                          <button
+                            onClick={() => {
+                              const infoSlugs = ['about', 'careers', 'locate_us', 'faq', 'terms', 'cancellation', 'privacy', 'security', 'pilgrimage', 'family'];
+                              if (item.url === 'guide') {
+                                navigateToGuideHub();
+                              } else if (infoSlugs.includes(item.url)) {
+                                openInfo(item.url);
+                              } else {
+                                handleDestinationClick(item.url);
+                              }
+                            }}
+                            className="hover:text-white transition cursor-pointer text-left block"
+                          >
+                            • {item.label}
+                          </button>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))
+            ) : (
+              <>
+                {/* Column 1: Discover Us */}
+                <div className="space-y-3">
+                  <h4 className="text-[11px] font-black text-slate-400 uppercase tracking-wider">
+                    DISCOVER US
+                  </h4>
+                  <ul className="space-y-2 font-medium text-slate-300">
+                    <li>
+                      <button onClick={() => openInfo('about')} className="hover:text-white transition cursor-pointer text-left">
+                        • About us
+                      </button>
+                    </li>
+                    <li className="flex items-center gap-1.5">
+                      <button onClick={() => openInfo('careers')} className="hover:text-white transition cursor-pointer text-left">
+                        • Careers
+                      </button>
+                      <span className="text-[9px] font-extrabold bg-slate-800 text-slate-200 border border-slate-700 px-1.5 py-0.5 rounded-full">
+                        Hiring!
+                      </span>
+                    </li>
+                    <li>
+                      <button onClick={() => openInfo('locate_us')} className="hover:text-white transition cursor-pointer text-left">
+                        • Contact us
+                      </button>
+                    </li>
+                    <li>
+                      <button onClick={() => openInfo('faq')} className="hover:text-white transition cursor-pointer text-left">
+                        • FAQ
+                      </button>
+                    </li>
+                    <li>
+                      <button onClick={navigateToGuideHub} className="hover:text-white transition cursor-pointer text-left">
+                        • Guide
+                      </button>
+                    </li>
+                  </ul>
+                </div>
 
-            {/* Column 2: Sacred Yatras */}
-            <div className="space-y-3">
-              <h4 className="text-[11px] font-black text-slate-400 uppercase tracking-wider">
-                SACRED YATRAS
-              </h4>
-              <ul className="space-y-2 font-medium text-slate-300">
-                <li>
-                  <button onClick={() => openInfo('pilgrimage')} className="hover:text-white transition cursor-pointer text-left">
-                    • Vaishno Devi Yatra
-                  </button>
-                </li>
-                <li>
-                  <button onClick={() => openInfo('pilgrimage')} className="hover:text-white transition cursor-pointer text-left">
-                    • Himachal Devi Darshan
-                  </button>
-                </li>
-                <li>
-                  <button onClick={() => openInfo('family')} className="hover:text-white transition cursor-pointer text-left">
-                    • Family Devotional Tours
-                  </button>
-                </li>
-              </ul>
-            </div>
+                {/* Column 2: Sacred Yatras */}
+                <div className="space-y-3">
+                  <h4 className="text-[11px] font-black text-slate-400 uppercase tracking-wider">
+                    SACRED YATRAS
+                  </h4>
+                  <ul className="space-y-2 font-medium text-slate-300">
+                    <li>
+                      <button onClick={() => openInfo('pilgrimage')} className="hover:text-white transition cursor-pointer text-left">
+                        • Vaishno Devi Yatra
+                      </button>
+                    </li>
+                    <li>
+                      <button onClick={() => openInfo('pilgrimage')} className="hover:text-white transition cursor-pointer text-left">
+                        • Himachal Devi Darshan
+                      </button>
+                    </li>
+                    <li>
+                      <button onClick={() => openInfo('family')} className="hover:text-white transition cursor-pointer text-left">
+                        • Family Devotional Tours
+                      </button>
+                    </li>
+                  </ul>
+                </div>
 
-            {/* Column 3: Top Destinations */}
-            <div className="space-y-3">
-              <h4 className="text-[11px] font-black text-slate-400 uppercase tracking-wider">
-                TOP TOURS
-              </h4>
-              <ul className="space-y-2 font-medium text-slate-300">
-                <li>
-                  <button onClick={() => handleDestinationClick('kashmir')} className="hover:text-white transition cursor-pointer text-left">
-                    • Kashmir Paradise
-                  </button>
-                </li>
-                <li>
-                  <button onClick={() => handleDestinationClick('himachal')} className="hover:text-white transition cursor-pointer text-left">
-                    • Himachal Mountains
-                  </button>
-                </li>
-                <li>
-                  <button onClick={() => handleDestinationClick('jammu')} className="hover:text-white transition cursor-pointer text-left">
-                    • Mata Vaishno Devi
-                  </button>
-                </li>
-                <li>
-                  <button onClick={() => handleDestinationClick('himachal_devi')} className="hover:text-white transition cursor-pointer text-left">
-                    • Himachal Devi Darshan
-                  </button>
-                </li>
-              </ul>
-            </div>
+                {/* Column 3: Top Destinations */}
+                <div className="space-y-3">
+                  <h4 className="text-[11px] font-black text-slate-400 uppercase tracking-wider">
+                    TOP TOURS
+                  </h4>
+                  <ul className="space-y-2 font-medium text-slate-300">
+                    <li>
+                      <button onClick={() => handleDestinationClick('kashmir')} className="hover:text-white transition cursor-pointer text-left">
+                        • Kashmir Paradise
+                      </button>
+                    </li>
+                    <li>
+                      <button onClick={() => handleDestinationClick('himachal')} className="hover:text-white transition cursor-pointer text-left">
+                        • Himachal Mountains
+                      </button>
+                    </li>
+                    <li>
+                      <button onClick={() => handleDestinationClick('jammu')} className="hover:text-white transition cursor-pointer text-left">
+                        • Mata Vaishno Devi
+                      </button>
+                    </li>
+                    <li>
+                      <button onClick={() => handleDestinationClick('himachal_devi')} className="hover:text-white transition cursor-pointer text-left">
+                        • Himachal Devi Darshan
+                      </button>
+                    </li>
+                  </ul>
+                </div>
 
-            {/* Column 4: Legal & Accreditations */}
-            <div className="space-y-3">
-              <h4 className="text-[11px] font-black text-slate-400 uppercase tracking-wider">
-                SECURITY & TRUST
-              </h4>
-              <ul className="space-y-2 font-medium text-slate-300">
-                <li>
-                  <button onClick={() => openInfo('terms')} className="hover:text-white transition cursor-pointer text-left">
-                    • Terms & Conditions
-                  </button>
-                </li>
-                <li>
-                  <button onClick={() => openInfo('cancellation')} className="hover:text-white transition cursor-pointer text-left">
-                    • Cancellation Policy
-                  </button>
-                </li>
-                <li>
-                  <button onClick={() => openInfo('privacy')} className="hover:text-white transition cursor-pointer text-left">
-                    • Privacy Policy
-                  </button>
-                </li>
-                <li>
-                  <button onClick={() => openInfo('security')} className="hover:text-white transition cursor-pointer text-left">
-                    • 100% Verified Stays
-                  </button>
-                </li>
-              </ul>
-            </div>
+                {/* Column 4: Legal & Accreditations */}
+                <div className="space-y-3">
+                  <h4 className="text-[11px] font-black text-slate-400 uppercase tracking-wider">
+                    SECURITY & TRUST
+                  </h4>
+                  <ul className="space-y-2 font-medium text-slate-300">
+                    <li>
+                      <button onClick={() => openInfo('terms')} className="hover:text-white transition cursor-pointer text-left">
+                        • Terms & Conditions
+                      </button>
+                    </li>
+                    <li>
+                      <button onClick={() => openInfo('cancellation')} className="hover:text-white transition cursor-pointer text-left">
+                        • Cancellation Policy
+                      </button>
+                    </li>
+                    <li>
+                      <button onClick={() => openInfo('privacy')} className="hover:text-white transition cursor-pointer text-left">
+                        • Privacy Policy
+                      </button>
+                    </li>
+                    <li>
+                      <button onClick={() => openInfo('security')} className="hover:text-white transition cursor-pointer text-left">
+                        • 100% Verified Stays
+                      </button>
+                    </li>
+                  </ul>
+                </div>
+              </>
+            )}
           </div>
 
           {/* Bottom Copyright Strip */}

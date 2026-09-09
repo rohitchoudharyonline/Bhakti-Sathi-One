@@ -62,6 +62,8 @@ import { JapCounterIcon } from './JapCounterIcon';
 import { PencilTempleIllustration } from './PencilTempleIllustration';
 import { HandpickedYatraPackagesSection } from './HandpickedYatraPackagesSection';
 import { GroupToursSection } from './GroupToursSection';
+import { PullToRefresh } from '../common/PullToRefresh';
+import { FaqSection } from './FaqSection';
 
 // ==========================================
 // SEARCH WIDGET OPTION DATA (NO EMOJIS, CLEAN LUXURY)
@@ -311,6 +313,12 @@ export const LuxuryHomepage: React.FC = () => {
     return DESTINATION_LOCATIONS;
   }, []);
 
+  const handleRefresh = async () => {
+    // Simulate real-time server check/refresh for latest yatra packages and agency settings
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+    setLoadedImages({});
+  };
+
 
   // Close dropdowns on outside click or escape
   useEffect(() => {
@@ -414,9 +422,10 @@ export const LuxuryHomepage: React.FC = () => {
       <Navbar />
 
       <main className="flex-1 pb-20 md:pb-6">
-        {/* ========================================================
-            MAKEMYTRIP / CLEARTRIP STYLE CLEAN HERO WITH MASTER SEARCH
-            ======================================================== */}
+        <PullToRefresh onRefresh={handleRefresh}>
+          {/* ========================================================
+              MAKEMYTRIP / CLEARTRIP STYLE CLEAN HERO WITH MASTER SEARCH
+              ======================================================== */}
         <section className="relative bg-[#FFFDF9] border-b border-stone-200/80 pt-12 sm:pt-16 pb-12 sm:pb-14 px-4 sm:px-6 lg:px-8">
           {/* Aesthetic Temple Pencil Illustration covering the whole hero section */}
           <PencilTempleIllustration className="absolute inset-0 w-full h-full pointer-events-none" />
@@ -1085,8 +1094,12 @@ export const LuxuryHomepage: React.FC = () => {
           </div>
         </section>
 
+        {/* Frequently Asked Questions (FAQ) Section */}
+        <FaqSection />
+
         {/* Compact Google Rating Card */}
         <TravelerReviewsSection />
+        </PullToRefresh>
       </main>
 
       {/* Footer */}

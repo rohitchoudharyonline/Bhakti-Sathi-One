@@ -5,6 +5,7 @@ import { BlogPost } from '../../types/cms';
 import { PackageEditor } from './PackageEditor';
 import { InquiriesManager } from './InquiriesManager';
 import { SettingsManager } from './SettingsManager';
+import { FaqsManager } from './FaqsManager';
 import { StaffManager } from './StaffManager';
 import { VendorsManager } from './VendorsManager';
 import { VendorPaymentsManager } from './VendorPaymentsManager';
@@ -69,6 +70,7 @@ import {
   FileEdit,
   Bell,
   Bus,
+  HelpCircle,
   LogOut
 } from 'lucide-react';
 
@@ -119,6 +121,7 @@ export const CMSDashboard: React.FC = () => {
     | 'vendors'
     | 'staff'
     | 'settings'
+    | 'faqs'
   >('dashboard');
 
   const [editingPackage, setEditingPackage] = useState<TourPackage | null>(null);
@@ -149,6 +152,7 @@ export const CMSDashboard: React.FC = () => {
       case 'pages':
       case 'media':
       case 'users':
+      case 'faqs':
         return true;
       case 'inquiries':
         return perms.canManageInquiries;
@@ -261,6 +265,7 @@ export const CMSDashboard: React.FC = () => {
     { id: 'payments', label: 'Vendor Payouts', icon: CreditCard, count: vendorPayments.length, show: canAccess('payments') },
     { id: 'vendors', label: 'Vendors & Fleets', icon: Car, count: vendors.length, show: canAccess('vendors') },
     { id: 'staff', label: 'Staff & RBAC', icon: Shield, count: staff.length, show: canAccess('staff') },
+    { id: 'faqs', label: 'FAQ Management', icon: HelpCircle, count: agencySettings.faqs?.length || 10, show: canAccess('faqs') },
     { id: 'settings', label: 'Agency Settings', icon: Settings, count: null, show: canAccess('settings') },
   ];
 
@@ -774,6 +779,9 @@ export const CMSDashboard: React.FC = () => {
 
         {/* TAB 8: SETTINGS */}
         {activeCmsTab === 'settings' && canAccess('settings') && <SettingsManager />}
+
+        {/* TAB 8.5: FAQ MANAGEMENT */}
+        {activeCmsTab === 'faqs' && canAccess('faqs') && <FaqsManager />}
 
         {/* TAB: GROUP TOURS & FIXED DEPARTURES ERP */}
         {activeCmsTab === 'group-tours' && canAccess('group-tours') && (

@@ -5,6 +5,7 @@ import { updatePageSeo } from '../../utils/seo';
 import { generateBreadcrumbSchema } from '../../utils/seoEngine';
 import { Navbar } from '../common/Navbar';
 import { GlobalFooter } from './GlobalFooter';
+import { PullToRefresh } from '../common/PullToRefresh';
 import {
   Compass,
   Search,
@@ -32,6 +33,11 @@ export const TravelBlogHub: React.FC = () => {
 
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
+
+  const handleRefresh = async () => {
+    // Simulate real-time check/refresh for new blogs & destination guides
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+  };
 
   // SEO & Schema Initialization
   useEffect(() => {
@@ -94,7 +100,8 @@ export const TravelBlogHub: React.FC = () => {
 
         {/* Main Content Hub */}
         <main className="max-w-7xl mx-auto px-4 sm:px-8 pt-10 pb-48 sm:pt-12 sm:pb-28 space-y-12">
-          {/* Featured Hero Article */}
+          <PullToRefresh onRefresh={handleRefresh}>
+            {/* Featured Hero Article */}
           {featuredPost && selectedCategory === 'all' && !searchQuery && (
             <div
               onClick={() => navigateToBlogPost(featuredPost.slug)}
@@ -249,6 +256,7 @@ export const TravelBlogHub: React.FC = () => {
               </div>
             )}
           </div>
+          </PullToRefresh>
         </main>
       </div>
 

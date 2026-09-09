@@ -447,6 +447,24 @@ export interface AgencyBankDetails {
   upiId?: string;
 }
 
+export interface FAQItem {
+  id: string;
+  question: string;
+  answer: string;
+}
+
+export interface FooterMenuItem {
+  id: string;
+  label: string;
+  url: string;
+}
+
+export interface FooterMenuSection {
+  id: string;
+  title: string;
+  items: FooterMenuItem[];
+}
+
 export interface AgencySettings {
   agencyName: string;
   tagline: string;
@@ -466,4 +484,6 @@ export interface AgencySettings {
   invoicePrefix?: string;
   voucherPrefix?: string;
   invoiceTerms?: string[];
+  faqs?: FAQItem[];
+  footerMenus?: FooterMenuSection[];
 }

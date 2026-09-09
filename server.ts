@@ -265,7 +265,20 @@ async function requireCmsSession(req: Request, res: Response, next: NextFunction
 }
 
 async function verifyGoogleAccessToken(accessToken: string) {
-  const expectedClientId = process.env.GOOGLE_CLIENT_ID || process.env.VITE_GOOGLE_CLIENT_ID;
+  let expectedClientId = process.env.GOOGLE_CLIENT_ID || process.env.VITE_GOOGLE_CLIENT_ID;
+  if (!expectedClientId) {
+    try {
+      const fs = require('fs');
+      const path = require('path');
+      const configPath = path.join(__dirname, 'firebase-applet-config.json');
+      if (fs.existsSync(configPath)) {
+        const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+        expectedClientId = config.oAuthClientId;
+      }
+    } catch (e) {
+      console.warn('Could not read firebase-applet-config.json for client ID fallback on server:', e);
+    }
+  }
   if (!expectedClientId) throw new Error('Google authentication is not configured on the server.');
   const tokenInfoResponse = await fetch(`https://oauth2.googleapis.com/tokeninfo?access_token=${encodeURIComponent(accessToken)}`);
   if (!tokenInfoResponse.ok) throw new Error('Google token verification failed.');

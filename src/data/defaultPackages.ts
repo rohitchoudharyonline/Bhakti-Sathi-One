@@ -24,6 +24,100 @@ export const DEFAULT_AGENCY_SETTINGS: AgencySettings = {
     '4. AC operates in plain areas and will be switched off on hilly drives for vehicle safety.',
     '5. 24x7 guest support team and emergency assistance available throughout the trip.',
   ],
+  faqs: [
+    {
+      id: 'faq-1',
+      question: 'How does Bhakti Sathi assist in planning customizable spiritual Yatras?',
+      answer: 'Bhakti Sathi is a premier digital platform and travel facilitator. We coordinate customized travel itineraries, connecting you with verified local transport coordinators and accommodation providers. Our expert team assists you in selecting custom routes, durations, and comfort-aligned options suitable for families and senior citizens.'
+    },
+    {
+      id: 'faq-2',
+      question: 'How does Bhakti Sathi help ensure comfort for senior citizens on pilgrimages like Vaishno Devi or Char Dham?',
+      answer: 'Bhakti Sathi is dedicated to organizing stress-free, senior-friendly spiritual journeys. While hotels and helicopter services are managed by independent third-party operators, Bhakti Sathi coordinators handpick recommended hotels with elevators and close proximity to the shrines. We also assist in coordinating priority assist requests, planning gentle travel paces, and arranging dedicated, comfortable ground vehicles with experienced chauffeurs to support our elderly guests.'
+    },
+    {
+      id: 'faq-3',
+      question: 'What is Bhakti Sathi\'s role regarding meals and restaurant suggestions?',
+      answer: 'Bhakti Sathi does not operate restaurants, kitchens, or hotel dining services. However, we understand the importance of dietary preferences on a sacred journey. We provide curated recommendations for reputable local vegetarian restaurants and hotel kitchens along your yatra route that offer clean, high-quality vegetarian food.'
+    },
+    {
+      id: 'faq-4',
+      question: 'Can Bhakti Sathi customize a spiritual tour itinerary for my family?',
+      answer: 'Absolutely! Bhakti Sathi is famous for custom-made, private spiritual itineraries. Whether you are planning a family trip to Kashi Vishwanath, Ayodhya Ram Mandir, or Himachal Devi Darshans, our expert team can adjust the travel duration, suggest select category stays, and coordinate private transport matching your family\'s speed and requirements.'
+    },
+    {
+      id: 'faq-5',
+      question: 'What is Bhakti Sathi\'s payment schedule and booking policy?',
+      answer: 'To secure your preferred hotels and dedicated vehicle bookings, Bhakti Sathi requires a standard 30% advance deposit. The remaining 70% balance can be settled in easy installments up to 7 days before your departure. We accept UPI, bank transfer, Net Banking, and all major debit/credit cards with 100% transparent invoicing.'
+    },
+    {
+      id: 'faq-6',
+      question: 'What is the cancellation and rescheduling policy for a Bhakti Sathi coordinated yatra?',
+      answer: 'We offer flexible terms to ensure peace of mind. For cancellations done 30 days or more before departure, we provide a full refund of your deposit. Within 15-29 days, a 50% refund is applicable. If you need to postpone, Bhakti Sathi allows you to reschedule or transfer your booking to a family member within 6 months, subject to seasonal rate differences from hotels and transport partners.'
+    },
+    {
+      id: 'faq-7',
+      question: 'Are local tour guides and temple historians provided by Bhakti Sathi?',
+      answer: 'Yes, upon request, Bhakti Sathi can connect you with certified, knowledgeable local guides and religious experts at various historical temples. They help explain the historical significance, temple legends, and rich cultural heritage of the sacred shrines.'
+    },
+    {
+      id: 'faq-8',
+      question: 'Does Bhakti Sathi coordinate helicopter bookings for Yatras like Vaishno Devi or Kedarnath?',
+      answer: 'Bhakti Sathi assists travelers by providing guidance, booking schedule updates, and facilitation support for third-party helicopter tickets. Please note that helicopter tickets are subject to official government portal schedules, verification requirements, and availability.'
+    },
+    {
+      id: 'faq-9',
+      question: 'How does Bhakti Sathi handle travel logistics in hilly and mountainous regions?',
+      answer: 'We coordinate with licensed local drivers who are highly experienced with hilly terrains. For the safety of our guests, we strictly adhere to mountain safety guidelines, such as completing travel before dark, maintaining safe speed limits, and ensuring proper vehicle fitness.'
+    },
+    {
+      id: 'faq-10',
+      question: 'What sets Bhakti Sathi apart from conventional tour operators?',
+      answer: 'Bhakti Sathi is a specialized platform focusing exclusively on custom-made devotional, family, and senior-friendly yatras. We provide personalized 24/7 travel desk support during your trip, complete billing transparency, and reliable local partners to make your pilgrimage seamless and spiritually enriching.'
+    }
+  ],
+  footerMenus: [
+    {
+      id: 'fm-discover',
+      title: 'DISCOVER US',
+      items: [
+        { id: 'fmi-about', label: 'About us', url: 'about' },
+        { id: 'fmi-careers', label: 'Careers', url: 'careers' },
+        { id: 'fmi-contact', label: 'Contact us', url: 'locate_us' },
+        { id: 'fmi-faq', label: 'FAQ', url: 'faq' },
+        { id: 'fmi-guide', label: 'Guide', url: 'guide' }
+      ]
+    },
+    {
+      id: 'fm-yatras',
+      title: 'SACRED YATRAS',
+      items: [
+        { id: 'fmi-vd', label: 'Vaishno Devi Yatra', url: 'pilgrimage' },
+        { id: 'fmi-hd', label: 'Himachal Devi Darshan', url: 'pilgrimage' },
+        { id: 'fmi-fam', label: 'Family Devotional Tours', url: 'family' }
+      ]
+    },
+    {
+      id: 'fm-tours',
+      title: 'TOP TOURS',
+      items: [
+        { id: 'fmi-t-kashmir', label: 'Kashmir Paradise', url: 'kashmir' },
+        { id: 'fmi-t-himachal', label: 'Himachal Mountains', url: 'himachal' },
+        { id: 'fmi-t-vaishno', label: 'Mata Vaishno Devi', url: 'jammu' },
+        { id: 'fmi-t-hd', label: 'Himachal Devi Darshan', url: 'himachal_devi' }
+      ]
+    },
+    {
+      id: 'fm-security',
+      title: 'SECURITY & TRUST',
+      items: [
+        { id: 'fmi-terms', label: 'Terms & Conditions', url: 'terms' },
+        { id: 'fmi-cancel', label: 'Cancellation Policy', url: 'cancellation' },
+        { id: 'fmi-privacy', label: 'Privacy Policy', url: 'privacy' },
+        { id: 'fmi-sec', label: '100% Verified Stays', url: 'security' }
+      ]
+    }
+  ]
 };
 
 export const DEFAULT_PACKAGES: TourPackage[] = [

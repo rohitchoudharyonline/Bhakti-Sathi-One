@@ -592,6 +592,69 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (parsed.sacredMantra === 'ॐ ऐं ह्रीं श्रीं वैष्णव्यै नमः' || !parsed.sacredMantra) {
           parsed.sacredMantra = 'साम्ब सदाशिव';
         }
+        // Self-heal footerMenus if any standard columns/menus are missing from an older save
+        if (parsed.footerMenus && Array.isArray(parsed.footerMenus)) {
+          const defaultColumns = DEFAULT_AGENCY_SETTINGS.footerMenus || [];
+          const mergedMenus = [...parsed.footerMenus];
+          defaultColumns.forEach(defaultCol => {
+            const hasColumn = mergedMenus.some(col => col.id === defaultCol.id || col.title.toLowerCase() === defaultCol.title.toLowerCase());
+            if (!hasColumn) {
+              mergedMenus.push(defaultCol);
+            } else {
+              // Ensure individual items like "Guide" or "100% Verified Stays" are also merged if missing from existing columns
+              const colIndex = mergedMenus.findIndex(col => col.id === defaultCol.id || col.title.toLowerCase() === defaultCol.title.toLowerCase());
+              if (colIndex !== -1) {
+                const currentItems = mergedMenus[colIndex].items || [];
+                defaultCol.items.forEach(defaultItem => {
+                  const hasItem = currentItems.some(item => item.url === defaultItem.url || item.label.toLowerCase() === defaultItem.label.toLowerCase());
+                  if (!hasItem) {
+                    currentItems.push(defaultItem);
+                  }
+                });
+                mergedMenus[colIndex] = {
+                  ...mergedMenus[colIndex],
+                  items: currentItems
+                };
+              }
+            }
+          });
+          parsed.footerMenus = mergedMenus;
+        }
+
+        // Sanitize any existing FAQs that may contain the old/unwanted dietary purity answers
+        if (parsed.faqs && Array.isArray(parsed.faqs)) {
+          parsed.faqs = parsed.faqs.map((faq: any) => {
+            const hasUnwantedCopy = faq.answer && (
+              faq.answer.toLowerCase().includes('dietary purity') ||
+              faq.answer.toLowerCase().includes('onion or garlic') ||
+              (faq.answer.toLowerCase().includes('sattvik') && faq.answer.toLowerCase().includes('dietary'))
+            );
+            if (hasUnwantedCopy) {
+              return {
+                ...faq,
+                question: "What is Bhakti Sathi's role regarding meals and restaurant suggestions?",
+                answer: "Bhakti Sathi does not operate restaurants, kitchens, or hotel dining services. However, we understand the importance of dietary preferences on a sacred journey. We provide curated recommendations for reputable local vegetarian restaurants and hotel kitchens along your yatra route that offer clean, high-quality vegetarian food."
+              };
+            }
+            return faq;
+          });
+        }
+
+        // Ensure we have at least 10 high-quality FAQs (merge defaults if some are missing or shorter than 10)
+        if (!parsed.faqs || !Array.isArray(parsed.faqs) || parsed.faqs.length < 10) {
+          const currentFaqs = Array.isArray(parsed.faqs) ? parsed.faqs : [];
+          const defaultFaqs = DEFAULT_AGENCY_SETTINGS.faqs || [];
+          const mergedFaqs = [...currentFaqs];
+          defaultFaqs.forEach((defFaq) => {
+            const exists = mergedFaqs.some(
+              (f) => f.question.toLowerCase().trim() === defFaq.question.toLowerCase().trim() || f.id === defFaq.id
+            );
+            if (!exists) {
+              mergedFaqs.push(defFaq);
+            }
+          });
+          parsed.faqs = mergedFaqs;
+        }
         return { ...DEFAULT_AGENCY_SETTINGS, ...parsed };
       }
     } catch {}
