@@ -51,6 +51,7 @@ export const InquiriesManager: React.FC<{
 
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('All');
+  const [leadTypeFilter, setLeadTypeFilter] = useState<'all' | 'tours' | 'newsletter'>('all');
   const [selectedInquiryForQuote, setSelectedInquiryForQuote] = useState<BookingInquiry | null>(null);
   const [selectedInquiryForTimeline, setSelectedInquiryForTimeline] = useState<BookingInquiry | null>(null);
   const [editingInquiry, setEditingInquiry] = useState<BookingInquiry | null>(null);
@@ -95,6 +96,10 @@ export const InquiriesManager: React.FC<{
     currentStaffUser.role === 'super_admin' || currentStaffUser.permissions.canManageInquiries;
 
   const filteredInquiries = inquiries.filter((inq) => {
+    const isNewsletter = inq.packageId === 'newsletter-signup';
+    if (leadTypeFilter === 'tours' && isNewsletter) return false;
+    if (leadTypeFilter === 'newsletter' && !isNewsletter) return false;
+
     if (statusFilter !== 'All' && inq.status !== statusFilter) return false;
     if (searchTerm.trim()) {
       const q = searchTerm.toLowerCase();
@@ -248,6 +253,46 @@ export const InquiriesManager: React.FC<{
         </div>
       </div>
 
+      {/* Lead Type Classification Tabs */}
+      <div className="flex bg-stone-100 p-1 rounded-xl border border-stone-200 text-xs font-bold gap-1 max-w-lg">
+        <button
+          type="button"
+          onClick={() => setLeadTypeFilter('all')}
+          className={`flex-1 px-3 py-2 rounded-lg transition cursor-pointer flex items-center justify-center gap-1.5 ${
+            leadTypeFilter === 'all' ? 'bg-white text-stone-900 shadow-xs font-extrabold' : 'text-stone-600 hover:text-stone-900'
+          }`}
+        >
+          <span>📋 All Leads</span>
+          <span className="bg-stone-200/80 px-1.5 py-0.5 rounded-md text-[10px] font-mono">
+            {inquiries.length}
+          </span>
+        </button>
+        <button
+          type="button"
+          onClick={() => setLeadTypeFilter('tours')}
+          className={`flex-1 px-3 py-2 rounded-lg transition cursor-pointer flex items-center justify-center gap-1.5 ${
+            leadTypeFilter === 'tours' ? 'bg-white text-stone-900 shadow-xs font-extrabold' : 'text-stone-600 hover:text-stone-900'
+          }`}
+        >
+          <span>✈️ Yatra Bookings</span>
+          <span className="bg-stone-200/80 px-1.5 py-0.5 rounded-md text-[10px] font-mono">
+            {inquiries.filter(i => i.packageId !== 'newsletter-signup').length}
+          </span>
+        </button>
+        <button
+          type="button"
+          onClick={() => setLeadTypeFilter('newsletter')}
+          className={`flex-1 px-3 py-2 rounded-lg transition cursor-pointer flex items-center justify-center gap-1.5 ${
+            leadTypeFilter === 'newsletter' ? 'bg-white text-stone-900 shadow-xs font-extrabold' : 'text-stone-600 hover:text-stone-900'
+          }`}
+        >
+          <span>📬 Newsletter Signups</span>
+          <span className="bg-stone-200/80 px-1.5 py-0.5 rounded-md text-[10px] font-mono">
+            {inquiries.filter(i => i.packageId === 'newsletter-signup').length}
+          </span>
+        </button>
+      </div>
+
       {/* Filter and Search Bar */}
       <div className="bg-white dark:bg-stone-900 p-4 rounded-2xl border border-stone-200 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-3">
         <div className="relative flex-1 w-full">
@@ -294,6 +339,68 @@ export const InquiriesManager: React.FC<{
         {filteredInquiries.length > 0 ? (
           filteredInquiries.map((inq) => {
             const assignedStaff = staff.find((s) => s.id === inq.assignedStaffId);
+
+            const isNewsletter = inq.packageId === 'newsletter-signup';
+            if (isNewsletter) {
+              return (
+                <div
+                  key={inq.id}
+                  className="bg-stone-50/50 p-4 sm:p-5 rounded-2xl border border-stone-200 shadow-xs hover:shadow-md transition space-y-4"
+                  id={`newsletter-row-${inq.id}`}
+                >
+                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
+                    <div>
+                      <div className="flex flex-wrap items-center gap-2.5 mb-1.5">
+                        <span className="px-2.5 py-0.5 rounded-full bg-orange-100 text-[#FF4B00] border border-orange-200 text-[10px] font-black tracking-wider uppercase">
+                          📬 Subscriber
+                        </span>
+                        <h3 className="text-base sm:text-lg font-black text-stone-900 truncate">
+                          {inq.email}
+                        </h3>
+                      </div>
+                      <div className="text-xs text-stone-500 font-medium leading-relaxed">
+                        Reader ID: <span className="font-mono font-bold text-stone-700">{formatBookingNumber(inq.id)}</span>
+                        <span className="mx-2">•</span>
+                        Signed up: <span className="font-bold text-stone-700">{new Date(inq.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-1.5 self-start">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          navigator.clipboard.writeText(inq.email);
+                          alert("Email copied to clipboard!");
+                        }}
+                        className="p-1.5 text-stone-500 hover:text-[#FF4B00] hover:bg-orange-50 rounded-lg transition cursor-pointer"
+                        title="Copy Email"
+                      >
+                        <Copy className="w-4 h-4" />
+                      </button>
+                      {canManage && (
+                        <button
+                          onClick={() => {
+                            if (window.confirm(`Are you sure you want to remove subscriber ${inq.email}?`)) {
+                              deleteInquiry(inq.id);
+                            }
+                          }}
+                          className="p-1.5 text-stone-400 hover:text-red-600 hover:bg-rose-50 rounded-lg transition cursor-pointer"
+                          title="Remove Subscriber"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {inq.specialRequests && (
+                    <div className="text-xs text-stone-600 bg-stone-100/75 p-3 rounded-xl border border-stone-200">
+                      <strong>Source Context:</strong> <span className="italic">"{inq.specialRequests}"</span>
+                    </div>
+                  )}
+                </div>
+              );
+            }
 
             return (
               <div

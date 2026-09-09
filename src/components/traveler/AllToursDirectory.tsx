@@ -44,6 +44,7 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
     navigateToPackage,
     navigateToDestination,
     setSelectedPackageId,
+    customPages,
   } = useTours();
 
   const [selectedDestSlug, setSelectedDestSlug] = useState<string>(
@@ -93,14 +94,15 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
   useEffect(() => {
     const origin = typeof window !== 'undefined' ? window.location.origin : 'https://mybhaktisathi.com';
     const isDestSpecific = selectedDestSlug !== 'all' && currentDestMeta;
+    const toursPage = customPages?.find(p => p.slug === 'tours');
 
     const pageTitle = isDestSpecific
       ? `${currentDestMeta?.name} Tour Packages 2026 (Starting ₹${currentDestMeta?.startingPrice?.toLocaleString('en-IN')}) | Bhakti Sathi`
-      : 'Jammu Kashmir, Himachal Pradesh & Amritsar Tour Packages | Bhakti Sathi';
+      : toursPage?.seo?.metaTitle || 'Book Sacred Yatra & Spiritual Pilgrimage Packages | Bhakti Sathi';
 
     const pageDescription = isDestSpecific
       ? `Explore all verified ${currentDestMeta?.name} holiday packages. Dedicated private cabs, inspected 3-star/4-star hotels, and 24/7 mountain support.`
-      : 'Book premium Jammu Kashmir, Himachal Pradesh, and Amritsar tour packages. Unbeatable local prices, private cabs, premium stays, and 24/7 mountain assistance.';
+      : toursPage?.seo?.metaDescription || 'Book premium spiritual and devotional tour packages. Unbeatable local prices, private cabs, premium stays, and 24/7 mountain assistance.';
 
     const canonicalPath = isDestSpecific ? `/tours/${selectedDestSlug}` : '/tours';
 
@@ -123,7 +125,7 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
     });
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [selectedDestSlug, currentDestMeta]);
+  }, [selectedDestSlug, currentDestMeta, customPages]);
 
   // Filtering & Sorting
   const filteredPackages = packages.filter((pkg) => {

@@ -8,7 +8,7 @@ import { DESTINATIONS_REGISTRY, DestinationMeta } from '../../data/destinationsD
 import { motion } from 'motion/react';
 
 export const AllDestinationsExplorer: React.FC = () => {
-  const { destinations, navigateToHome, navigateToDestination, agencySettings } = useTours();
+  const { destinations, navigateToHome, navigateToDestination, agencySettings, customPages } = useTours();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFilter, setSelectedFilter] = useState<string>('all');
 
@@ -19,9 +19,10 @@ export const AllDestinationsExplorer: React.FC = () => {
 
   // SEO Update on mount
   useEffect(() => {
+    const destinationsPage = customPages?.find(p => p.slug === 'destinations');
     updatePageSeo({
-      title: "Jammu Kashmir, Himachal Pradesh & Amritsar Tour Packages | Bhakti Sathi",
-      description: "Book premium, custom-tailored Jammu Kashmir, Himachal Pradesh, and Amritsar tour packages. Unbeatable local prices, private chauffeur cabs, and 24/7 travel desk support.",
+      title: destinationsPage?.seo?.metaTitle || "Jammu Kashmir, Himachal Pradesh & Amritsar Tour Packages | Bhakti Sathi",
+      description: destinationsPage?.seo?.metaDescription || "Book premium, custom-tailored Jammu Kashmir, Himachal Pradesh, and Amritsar tour packages. Unbeatable local prices, private chauffeur cabs, and 24/7 travel desk support.",
       canonicalPath: "/holidays/destinations",
       schemaData: {
         "@context": "https://schema.org",
@@ -38,7 +39,7 @@ export const AllDestinationsExplorer: React.FC = () => {
       },
     });
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [destinationsList]);
+  }, [destinationsList, customPages]);
 
   const filteredDestinations = useMemo(() => {
     const q = searchQuery.toLowerCase().trim();

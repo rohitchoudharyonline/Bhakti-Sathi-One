@@ -537,7 +537,17 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const saved = localStorage.getItem(STORAGE_KEYS.CUSTOM_PAGES);
       if (saved !== null) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) return parsed;
+        if (Array.isArray(parsed)) {
+          // Self-heal and merge any missing default pages (e.g. system pages like 'home', 'tours', 'destinations', 'blog', 'faq')
+          const merged = [...parsed];
+          DEFAULT_CUSTOM_PAGES.forEach(defPage => {
+            const exists = merged.some(p => p.slug === defPage.slug || p.id === defPage.id);
+            if (!exists) {
+              merged.push(defPage);
+            }
+          });
+          return merged;
+        }
       }
     } catch {}
     return DEFAULT_CUSTOM_PAGES;
@@ -2005,6 +2015,11 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const deleteCustomPage = (id: string) => {
+    const page = customPages.find(p => p.id === id);
+    if (page && ['home', 'tours', 'destinations', 'blog', 'faq', 'about-us'].includes(page.slug)) {
+      alert("This is a system-required SEO page and cannot be deleted.");
+      return;
+    }
     setCustomPages((prev) => prev.filter((p) => p.id !== id));
   };
 

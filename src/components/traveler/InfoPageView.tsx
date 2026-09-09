@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTours } from '../../context/TourContext';
+import { updatePageSeo } from '../../utils/seo';
 import { Footer } from './Footer';
 import { Navbar } from '../common/Navbar';
 import { PILGRIMAGE_FAQS_REGISTRY } from '../../data/pilgrimageFaqsData';
@@ -37,7 +38,7 @@ interface InfoPageViewProps {
 }
 
 export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, onSelectDestination }) => {
-  const { agencySettings, packages, destinations, setSelectedPackageId, setSelectedDestinationSlug } = useTours();
+  const { agencySettings, packages, destinations, setSelectedPackageId, setSelectedDestinationSlug, customPages } = useTours();
   const [selectedState, setSelectedState] = useState<'jk' | 'hp'>('jk');
   const [activeFaqCity, setActiveFaqCity] = useState<string>('vaishnodevi');
   const [selectedRegion, setSelectedRegion] = useState<string>('All Regions');
@@ -72,6 +73,19 @@ export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, on
   };
 
   const pageTitle = titleMap[pageSlug] || pageSlug.replace(/_/g, ' ').toUpperCase();
+
+  useEffect(() => {
+    const customPageData = customPages?.find((p) => p.slug === pageSlug);
+    const metaTitle = customPageData?.seo?.metaTitle || `${pageTitle} | Bhakti Sathi`;
+    const metaDescription = customPageData?.seo?.metaDescription || `Read detailed information on ${pageTitle} with Bhakti Sathi. Verified guides, transparent quotes, and absolute safety guarantee.`;
+
+    updatePageSeo({
+      title: metaTitle,
+      description: metaDescription,
+      canonicalPath: `/info/${pageSlug}`,
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [pageSlug, pageTitle, customPages]);
 
   const officesList = [
     { city: 'New Delhi (HQ)', address: 'Connaught Place & Aerocity Hospitality Hub, New Delhi', phone: '+91 94199 15255' },
