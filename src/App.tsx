@@ -63,8 +63,6 @@ const MainAppContent: React.FC = () => {
 
   const cmsEntry = isCmsEntryPath(pathname);
 
-  // CMS has exactly one browser entry point. Any attempt to reach CMS through
-  // an old/alternate route is immediately returned to the traveler surface.
   useEffect(() => {
     if (cmsEntry) {
       if (activeView !== 'cms') setActiveView('cms');
@@ -76,11 +74,7 @@ const MainAppContent: React.FC = () => {
   const isPanchangOpen = pathname === '/panchang' || pathname === '/panchang/';
   const isHoroscopeOpen = pathname === '/rashifal' || pathname === '/rashifal/';
   const isSitemapOpen = pathname === '/sitemap' || pathname === '/sitemap/' || pathname === '/sitemap.html' || pathname === '/info/sitemap' || pathname === '/info/sitemap/' || activeInfoPage === 'sitemap';
-  const isHome = activeView === 'traveler' && !isSitemapOpen && !isPanchangOpen && !isHoroscopeOpen && !isJapCounterOpen && !isTravelerProfileOpen && !isGuidesHubOpen && !activeGuideSlug && !activeBlogSlug && !isBlogHubOpen && !isToursDirectoryOpen && !activeCustomPageSlug && !activeInfoPage && !selectedPackageId && !selectedDestinationSlug && !isDestinationsExplorerOpen;
   const showTravelerGoogleAuth = activeView === 'traveler' && isTravelerProfileOpen && !travelerUser;
-
-  // Only the exact private CMS path may render the CMS. This prevents any
-  // client-side state/navigation from exposing the CMS at another URL.
   const showCms = cmsEntry && activeView === 'cms';
 
   return (
@@ -93,7 +87,6 @@ const MainAppContent: React.FC = () => {
         {activeView === 'traveler' && !showTravelerGoogleAuth && !isSitemapOpen && !isPanchangOpen && !isHoroscopeOpen && <FloatingSupportWidget />}
         {!showTravelerGoogleAuth && <TravelerAuthModal />}
         <PWAInstallButton />
-        {isHome && <></>}
       </div>
     </>
   );
