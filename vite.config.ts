@@ -8,21 +8,17 @@ const stripPrivilegedClientConfig = () => ({
   name: 'vite-plugin-strip-privileged-client-config',
   enforce: 'pre' as const,
   transform(code: string, id: string) {
-    if (!id.replace(/\\/g, '/').endsWith('/src/context/TourContext.tsx')) return null;
+    const normalizedId = id.replace(/\\/g, '/');
+    if (normalizedId.includes('/node_modules/') || !/\.(tsx|ts|jsx|js)$/.test(normalizedId)) return null;
 
-    const replacements: Array<[string, string]> = [
-      ["r2AccountId: 'a9e18b43f76902cd98ef11'", "r2AccountId: ''"],
-      ["r2AccessKeyId: 'r2_prod_key_77a9'", "r2AccessKeyId: ''"],
-      ["r2SecretAccessKey: '********************************'", "r2SecretAccessKey: ''"],
-      ["d1DatabaseId: '165b7b99-72e3-443e-aee9-8bf0f8c6c26b'", "d1DatabaseId: ''"],
-      ["d1ApiToken: 'd1_token_bhaktisathi_prod_882'", "d1ApiToken: ''"],
-      ["d1DatabaseName: 'bhakti-sathi-db'", "d1DatabaseName: ''"],
-      ["r2BucketName: 'bhakti-sathi'", "r2BucketName: ''"],
-      ["d1BucketName: 'bhakti-sathi'", "d1BucketName: ''"],
+    const blockedValues = [
+      'a9e18b43f76902cd98ef11',
+      'r2_prod_key_77a9',
+      'd1_token_bhaktisathi_prod_882',
     ];
 
     let transformed = code;
-    for (const [from, to] of replacements) transformed = transformed.split(from).join(to);
+    for (const value of blockedValues) transformed = transformed.split(value).join('');
     return transformed === code ? null : { code: transformed, map: null };
   },
 });
