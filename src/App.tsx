@@ -29,6 +29,9 @@ import { PublicGuidesHub } from './components/traveler/PublicGuidesHub';
 import { GuideDetailView } from './components/traveler/GuideDetailView';
 import { SitemapPage } from './components/traveler/SitemapPage';
 
+const CMS_ENTRY_PATH = '/admin-rudra-0712';
+const isCmsEntryPath = (path: string) => path === CMS_ENTRY_PATH || path === `${CMS_ENTRY_PATH}/`;
+
 const MainAppContent: React.FC = () => {
   const {
     activeView,
@@ -47,6 +50,7 @@ const MainAppContent: React.FC = () => {
     isTravelerProfileOpen,
     isJapCounterOpen,
     travelerUser,
+    setActiveView,
   } = useTours();
   const [showSplash, setShowSplash] = useState(true);
   const [pathname, setPathname] = useState(() => typeof window !== 'undefined' ? window.location.pathname : '/');
@@ -57,18 +61,34 @@ const MainAppContent: React.FC = () => {
     return () => window.removeEventListener('popstate', syncPath);
   }, []);
 
+  const cmsEntry = isCmsEntryPath(pathname);
+
+  // CMS has exactly one browser entry point. Any attempt to reach CMS through
+  // an old/alternate route is immediately returned to the traveler surface.
+  useEffect(() => {
+    if (cmsEntry) {
+      if (activeView !== 'cms') setActiveView('cms');
+    } else if (activeView === 'cms') {
+      setActiveView('traveler');
+    }
+  }, [cmsEntry, activeView, setActiveView]);
+
   const isPanchangOpen = pathname === '/panchang' || pathname === '/panchang/';
   const isHoroscopeOpen = pathname === '/rashifal' || pathname === '/rashifal/';
   const isSitemapOpen = pathname === '/sitemap' || pathname === '/sitemap/' || pathname === '/sitemap.html' || pathname === '/info/sitemap' || pathname === '/info/sitemap/' || activeInfoPage === 'sitemap';
   const isHome = activeView === 'traveler' && !isSitemapOpen && !isPanchangOpen && !isHoroscopeOpen && !isJapCounterOpen && !isTravelerProfileOpen && !isGuidesHubOpen && !activeGuideSlug && !activeBlogSlug && !isBlogHubOpen && !isToursDirectoryOpen && !activeCustomPageSlug && !activeInfoPage && !selectedPackageId && !selectedDestinationSlug && !isDestinationsExplorerOpen;
   const showTravelerGoogleAuth = activeView === 'traveler' && isTravelerProfileOpen && !travelerUser;
 
+  // Only the exact private CMS path may render the CMS. This prevents any
+  // client-side state/navigation from exposing the CMS at another URL.
+  const showCms = cmsEntry && activeView === 'cms';
+
   return (
     <>
       <TravelerAuthSessionSync />
       {showSplash && <SplashScreen onFinish={() => setShowSplash(false)} />}
       <div className="w-full min-h-screen bg-stone-50 text-stone-900 flex flex-col selection:bg-stone-900 selection:text-white">
-        {activeView !== 'traveler' ? <EnhancedERP /> : showTravelerGoogleAuth ? <TravelerGoogleAuthPage /> : isSitemapOpen ? <SitemapPage /> : isPanchangOpen ? <PanchangCalendarPageV3 /> : isHoroscopeOpen ? <HoroscopePage /> : isJapCounterOpen ? <JapCounterPageV2 /> : isTravelerProfileOpen ? <TravelerProfilePage /> : activeGuideSlug ? <GuideDetailView slug={activeGuideSlug} /> : isGuidesHubOpen ? <PublicGuidesHub /> : activeBlogSlug ? <BlogPostDetailView slug={activeBlogSlug} /> : isBlogHubOpen ? <TravelBlogHub /> : isToursDirectoryOpen ? <AllToursDirectory initialDestinationSlug={selectedToursDestination || undefined} /> : activeCustomPageSlug ? <CustomPageDetailView slug={activeCustomPageSlug} /> : activeInfoPage ? <InfoPageView pageSlug={activeInfoPage} onBack={() => setActiveInfoPage(null)} /> : selectedPackageId ? <EnhancedTourExperience /> : selectedDestinationSlug ? <DestinationPage /> : isDestinationsExplorerOpen ? <AllDestinationsExplorer /> : <LuxuryHomepage />}
+        {showCms ? <EnhancedERP /> : showTravelerGoogleAuth ? <TravelerGoogleAuthPage /> : isSitemapOpen ? <SitemapPage /> : isPanchangOpen ? <PanchangCalendarPageV3 /> : isHoroscopeOpen ? <HoroscopePage /> : isJapCounterOpen ? <JapCounterPageV2 /> : isTravelerProfileOpen ? <TravelerProfilePage /> : activeGuideSlug ? <GuideDetailView slug={activeGuideSlug} /> : isGuidesHubOpen ? <PublicGuidesHub /> : activeBlogSlug ? <BlogPostDetailView slug={activeBlogSlug} /> : isBlogHubOpen ? <TravelBlogHub /> : isToursDirectoryOpen ? <AllToursDirectory initialDestinationSlug={selectedToursDestination || undefined} /> : activeCustomPageSlug ? <CustomPageDetailView slug={activeCustomPageSlug} /> : activeInfoPage ? <InfoPageView pageSlug={activeInfoPage} onBack={() => setActiveInfoPage(null)} /> : selectedPackageId ? <EnhancedTourExperience /> : selectedDestinationSlug ? <DestinationPage /> : isDestinationsExplorerOpen ? <AllDestinationsExplorer /> : <LuxuryHomepage />}
         {activeView === 'traveler' && !showTravelerGoogleAuth && !isSitemapOpen && !isPanchangOpen && !isHoroscopeOpen && <MobileBottomNav />}
         {activeView === 'traveler' && !showTravelerGoogleAuth && !isSitemapOpen && !isPanchangOpen && !isHoroscopeOpen && <FloatingSupportWidget />}
         {!showTravelerGoogleAuth && <TravelerAuthModal />}
