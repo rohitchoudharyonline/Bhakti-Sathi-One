@@ -8,7 +8,7 @@
     "build": "vite build",
     "start": "vite preview",
     "preview": "vite preview",
-    "deploy:cf": "bun run build && wrangler deploy",
+    "deploy:cf": "bun run build && bunx wrangler d1 migrations apply DB --remote && wrangler deploy",
     "clean": "rm -rf dist .wrangler",
     "lint": "tsc --noEmit"
   },
