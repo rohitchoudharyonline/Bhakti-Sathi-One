@@ -6,6 +6,7 @@ const json = (data: unknown, status = 200, headers: HeadersInit = {}) => new Res
 });
 const text = (v: unknown, max = 2000) => String(v ?? '').replace(/[\u0000-\u001F\u007F]/g, ' ').trim().slice(0, max);
 const b64 = (s: string) => btoa(unescape(encodeURIComponent(s))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
+const unb64 = (s: string) => decodeURIComponent(escape(atob(s.replace(/-/g, '+').replace(/_/g, '/') + '='.repeat((4 - s.length % 4) % 4))));
 
 async function hmac(value: string, secret: string) {
   const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
@@ -15,6 +16,22 @@ async function hmac(value: string, secret: string) {
 async function signedToken(subject: string, secret: string, ttlSeconds = 8 * 60 * 60) {
   const payload = `${subject}|${Date.now() + ttlSeconds * 1000}`;
   return `${b64(payload)}.${await hmac(payload, secret)}`;
+}
+
+async function verifyToken(token: string | undefined, secret: string): Promise<string | null> {
+  if (!token || !secret) return null;
+  const [encoded, signature] = token.split('.');
+  if (!encoded || !signature) return null;
+  try {
+    const payload = unb64(encoded);
+    const [subject, expiry] = payload.split('|');
+    if (!subject || !Number.isFinite(Number(expiry)) || Number(expiry) <= Date.now()) return null;
+    const expected = await hmac(payload, secret);
+    if (signature.length !== expected.length) return null;
+    let diff = 0;
+    for (let i = 0; i < signature.length; i++) diff |= signature.charCodeAt(i) ^ expected.charCodeAt(i);
+    return diff === 0 ? subject : null;
+  } catch { return null; }
 }
 
 function privateHeaders() {
@@ -64,6 +81,59 @@ async function clearCmsFailures(env: any, ip: string) {
   await env.DB.prepare('DELETE FROM ip_blocks WHERE ip=?').bind(ip).run();
 }
 
+async function requireCms(request: Request, env: any) {
+  const secret = String(env.CMS_SESSION_SECRET || '').trim();
+  const email = await verifyToken((request.headers.get('cookie') || '').split(';').map(x => x.trim()).find(x => x.startsWith('bs_cms_session='))?.slice('bs_cms_session='.length), secret);
+  const allowed = new Set(String(env.CMS_STAFF_EMAILS || '').split(',').map(x => text(x, 160).toLowerCase()).filter(Boolean));
+  return email && allowed.has(email.toLowerCase()) ? email.toLowerCase() : null;
+}
+
+function safeR2Key(value: unknown) {
+  const key = text(value, 500).replace(/^\/+/, '');
+  if (!key || key.includes('..') || key.startsWith('/') || key.includes('\\') || !/^[a-zA-Z0-9._\/-]+$/.test(key)) return null;
+  return key;
+}
+
+function decodeBase64Data(value: unknown) {
+  const raw = String(value || '').trim().replace(/^data:[^;]+;base64,/, '');
+  if (!raw || raw.length > 16 * 1024 * 1024 || !/^[A-Za-z0-9+/=_-]+$/.test(raw)) return null;
+  try {
+    const normalized = raw.replace(/-/g, '+').replace(/_/g, '/');
+    const binary = atob(normalized);
+    if (binary.length > 12 * 1024 * 1024) return null;
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+    return bytes;
+  } catch { return null; }
+}
+
+async function mediaUpload(request: Request, env: any) {
+  const email = await requireCms(request, env);
+  if (!email || !env.BUCKET) return json({ error: 'Unauthorized.' }, 401, privateHeaders());
+  const body: any = await request.json().catch(() => null);
+  const key = safeR2Key(body?.storagePath);
+  const bytes = decodeBase64Data(body?.fileBase64);
+  const contentType = text(body?.contentType, 100).toLowerCase();
+  const fileName = text(body?.fileName, 180);
+  const allowed = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml']);
+  if (!key || !bytes || !allowed.has(contentType)) return json({ error: 'Invalid media upload.' }, 400, privateHeaders());
+  if (bytes.byteLength > 12 * 1024 * 1024) return json({ error: 'File too large.' }, 413, privateHeaders());
+  const expectedExtension = contentType === 'image/jpeg' ? ['.jpg', '.jpeg'] : contentType === 'image/png' ? ['.png'] : contentType === 'image/webp' ? ['.webp'] : contentType === 'image/gif' ? ['.gif'] : ['.svg'];
+  if (fileName && !expectedExtension.some(ext => fileName.toLowerCase().endsWith(ext))) return json({ error: 'File type does not match content type.' }, 400, privateHeaders());
+  await env.BUCKET.put(key, bytes, { httpMetadata: { contentType, cacheControl: 'public, max-age=31536000, immutable' } });
+  return json({ success: true, url: `/api/files/${encodeURIComponent(key)}`, r2_key: key }, 201, privateHeaders());
+}
+
+async function mediaDelete(request: Request, env: any) {
+  const email = await requireCms(request, env);
+  if (!email || !env.BUCKET) return json({ error: 'Unauthorized.' }, 401, privateHeaders());
+  const body: any = await request.json().catch(() => null);
+  const key = safeR2Key(body?.storagePath);
+  if (!key) return json({ error: 'Invalid media path.' }, 400, privateHeaders());
+  await env.BUCKET.delete(key);
+  return json({ success: true }, 200, privateHeaders());
+}
+
 async function cmsLogin(request: Request, env: any) {
   const secret = String(env.CMS_SESSION_SECRET || '').trim();
   const pin = String(env.CMS_PIN || '');
@@ -81,12 +151,7 @@ async function cmsLogin(request: Request, env: any) {
   const origin = request.headers.get('Origin');
   if (origin) {
     const requestOrigin = new URL(request.url).origin;
-    const allowedOrigins = new Set([
-      requestOrigin,
-      'https://mybhaktisathi.com',
-      'https://www.mybhaktisathi.com',
-      'https://bhakti-sathi-one.mybhaktisathi.workers.dev',
-    ]);
+    const allowedOrigins = new Set([requestOrigin, 'https://mybhaktisathi.com', 'https://www.mybhaktisathi.com', 'https://bhakti-sathi-one.mybhaktisathi.workers.dev']);
     if (!allowedOrigins.has(origin)) return json({ error: 'Invalid authentication origin.' }, 403, privateHeaders());
   }
 
@@ -94,15 +159,8 @@ async function cmsLogin(request: Request, env: any) {
   const email = text(body.email, 160).toLowerCase();
   const suppliedPin = String(body.pin || '');
   const suppliedPassword = String(body.password || '');
-
-  if (suppliedPin !== pin) {
-    await recordCmsFailure(env, ip);
-    return json({ success: false, error: 'Invalid PIN.' }, 401, privateHeaders());
-  }
-  if (!allowedEmails.has(email) || suppliedPassword !== password) {
-    await recordCmsFailure(env, ip);
-    return json({ success: false, error: 'Invalid credentials.' }, 401, privateHeaders());
-  }
+  if (suppliedPin !== pin) { await recordCmsFailure(env, ip); return json({ success: false, error: 'Invalid PIN.' }, 401, privateHeaders()); }
+  if (!allowedEmails.has(email) || suppliedPassword !== password) { await recordCmsFailure(env, ip); return json({ success: false, error: 'Invalid credentials.' }, 401, privateHeaders()); }
 
   await clearCmsFailures(env, ip);
   const session = await signedToken(email, secret);
@@ -114,9 +172,9 @@ async function cmsLogin(request: Request, env: any) {
 export default {
   async fetch(request: Request, env: any, ctx: any): Promise<Response> {
     const url = new URL(request.url);
-    if (url.pathname === '/api/auth/cms/login' && request.method === 'POST') {
-      return addSecurityHeaders(await cmsLogin(request, env));
-    }
+    if (url.pathname === '/api/auth/cms/login' && request.method === 'POST') return addSecurityHeaders(await cmsLogin(request, env));
+    if (url.pathname === '/api/media/upload' && request.method === 'POST') return addSecurityHeaders(await mediaUpload(request, env));
+    if (url.pathname === '/api/media/delete' && request.method === 'POST') return addSecurityHeaders(await mediaDelete(request, env));
     return addSecurityHeaders(await app.fetch(request, env, ctx));
   },
 };
