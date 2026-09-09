@@ -1,10 +1,7 @@
 import { useEffect } from 'react';
 import { useTours } from '../../context/TourContext';
 
-/**
- * Rehydrates the UI from the server-side HttpOnly session cookie.
- * The browser must never treat localStorage as proof of authentication.
- */
+/** Rehydrates the UI from the server-side HttpOnly session cookie. */
 export function TravelerAuthSessionSync() {
   const { setTravelerUser } = useTours();
 
@@ -34,13 +31,11 @@ export function TravelerAuthSessionSync() {
         if (data?.authenticated && data.user) {
           setTravelerUser(data.user);
           try {
-            // Profile data is only a UI cache. The HttpOnly cookie remains the
-            // actual authentication credential.
             localStorage.removeItem('hh_google_oauth_token');
           } catch {}
         }
       } catch {
-        // Keep an existing UI state during transient offline/network failures.
+        // Keep the current UI state during a transient network failure.
       }
     };
 
@@ -48,7 +43,10 @@ export function TravelerAuthSessionSync() {
     return () => {
       cancelled = true;
     };
-  }, [setTravelerUser]);
+    // This is intentionally a one-time session bootstrap. setTravelerUser is
+    // a context function whose identity changes with provider renders.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return null;
 }
