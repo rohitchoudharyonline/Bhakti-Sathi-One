@@ -621,7 +621,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
           parsed.footerMenus = mergedMenus;
         }
 
-        // Sanitize any existing FAQs that may contain the old/unwanted dietary purity answers
+        // Sanitize any existing FAQs that may contain the old/unwanted dietary purity or incorrect cancellation claims
         if (parsed.faqs && Array.isArray(parsed.faqs)) {
           parsed.faqs = parsed.faqs.map((faq: any) => {
             const hasUnwantedCopy = faq.answer && (
@@ -636,6 +636,20 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 answer: "Bhakti Sathi does not operate restaurants, kitchens, or hotel dining services. However, we understand the importance of dietary preferences on a sacred journey. We provide curated recommendations for reputable local vegetarian restaurants and hotel kitchens along your yatra route that offer clean, high-quality vegetarian food."
               };
             }
+
+            const hasIncorrectCancellationCopy = faq.answer && (
+              faq.answer.toLowerCase().includes('flexible terms to ensure peace of mind') ||
+              faq.answer.toLowerCase().includes('full refund of your deposit') ||
+              (faq.answer.toLowerCase().includes('cancellation') && faq.answer.toLowerCase().includes('reschedule or transfer your booking to a family member'))
+            );
+            if (hasIncorrectCancellationCopy) {
+              return {
+                ...faq,
+                question: "What is the cancellation and refund policy for a Bhakti Sathi coordinated yatra?",
+                answer: "Cancellations attract charges based on the departure timeline. Prior to 46 days from departure, the 30% advance booking deposit (or ₹30,000, whichever is lower) is non-refundable. Cancellations made between 31 to 45 days attract a 70% charge, and cancellations within 30 days or less are 100% non-refundable. Eligible refunds are processed within 21 working days."
+              };
+            }
+
             return faq;
           });
         }

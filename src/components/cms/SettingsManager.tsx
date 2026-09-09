@@ -55,8 +55,8 @@ export const SettingsManager: React.FC = () => {
       },
       {
         id: 'faq-6',
-        question: 'What is the cancellation and rescheduling policy for a Bhakti Sathi coordinated yatra?',
-        answer: 'We offer flexible terms to ensure peace of mind. For cancellations done 30 days or more before departure, we provide a full refund of your deposit. Within 15-29 days, a 50% refund is applicable. If you need to postpone, Bhakti Sathi allows you to reschedule or transfer your booking to a family member within 6 months, subject to seasonal rate differences from hotels and transport partners.'
+        question: 'What is the cancellation and refund policy for a Bhakti Sathi coordinated yatra?',
+        answer: 'Cancellations attract charges based on the departure timeline. Prior to 46 days from departure, the 30% advance booking deposit (or ₹30,000, whichever is lower) is non-refundable. Cancellations made between 31 to 45 days attract a 70% charge, and cancellations within 30 days or less are 100% non-refundable. Eligible refunds are processed within 21 working days.'
       },
       {
         id: 'faq-7',
