@@ -2,35 +2,42 @@
  * @license
  * SPDX-License-Identifier: Apache-2.0
  */
-import React, { useEffect, useState } from 'react';
+import React, { lazy, Suspense, useEffect, useState } from 'react';
 import { TourProvider, useTours } from './context/TourContext';
 import { LuxuryHomepage } from './components/traveler/LuxuryHomepage';
-import { EnhancedTourExperience } from './components/traveler/EnhancedTourExperience';
-import { DestinationPage } from './components/traveler/DestinationPage';
-import { AllDestinationsExplorer } from './components/traveler/AllDestinationsExplorer';
-import { TravelBlogHub } from './components/traveler/TravelBlogHub';
-import { BlogPostDetailView } from './components/traveler/BlogPostDetailView';
-import { AllToursDirectory } from './components/traveler/AllToursDirectory';
-import { CustomPageDetailView } from './components/traveler/CustomPageDetailView';
-import { InfoPageView } from './components/traveler/InfoPageView';
-import { EnhancedERP } from './components/cms/EnhancedERP';
-import { SplashScreen } from './components/common/SplashScreen';
 import { MobileBottomNav } from './components/common/MobileBottomNav';
 import { FloatingSupportWidget } from './components/common/FloatingSupportWidget';
-import { TravelerProfilePage } from './components/traveler/TravelerProfilePage';
-import { TravelerAuthModal } from './components/traveler/TravelerAuthModal';
-import { TravelerGoogleAuthPage } from './components/traveler/TravelerGoogleAuthPage';
+import { SplashScreen } from './components/common/SplashScreen';
 import { TravelerAuthSessionSync } from './components/auth/TravelerAuthSessionSync';
 import { PWAInstallButton } from './components/common/PWAInstallButton';
-import { JapCounterPageV2 } from './components/traveler/JapCounterPageV2';
-import { PanchangCalendarPageV3 } from './components/traveler/PanchangCalendarPageV3';
-import { HoroscopePage } from './components/traveler/HoroscopePage';
-import { PublicGuidesHub } from './components/traveler/PublicGuidesHub';
-import { GuideDetailView } from './components/traveler/GuideDetailView';
-import { SitemapPage } from './components/traveler/SitemapPage';
+
+const EnhancedERP = lazy(() => import('./components/cms/EnhancedERP').then((m) => ({ default: m.EnhancedERP })));
+const EnhancedTourExperience = lazy(() => import('./components/traveler/EnhancedTourExperience').then((m) => ({ default: m.EnhancedTourExperience })));
+const DestinationPage = lazy(() => import('./components/traveler/DestinationPage').then((m) => ({ default: m.DestinationPage })));
+const AllDestinationsExplorer = lazy(() => import('./components/traveler/AllDestinationsExplorer').then((m) => ({ default: m.AllDestinationsExplorer })));
+const TravelBlogHub = lazy(() => import('./components/traveler/TravelBlogHub').then((m) => ({ default: m.TravelBlogHub })));
+const BlogPostDetailView = lazy(() => import('./components/traveler/BlogPostDetailView').then((m) => ({ default: m.BlogPostDetailView })));
+const AllToursDirectory = lazy(() => import('./components/traveler/AllToursDirectory').then((m) => ({ default: m.AllToursDirectory })));
+const CustomPageDetailView = lazy(() => import('./components/traveler/CustomPageDetailView').then((m) => ({ default: m.CustomPageDetailView })));
+const InfoPageView = lazy(() => import('./components/traveler/InfoPageView').then((m) => ({ default: m.InfoPageView })));
+const TravelerProfilePage = lazy(() => import('./components/traveler/TravelerProfilePage').then((m) => ({ default: m.TravelerProfilePage })));
+const TravelerAuthModal = lazy(() => import('./components/traveler/TravelerAuthModal').then((m) => ({ default: m.TravelerAuthModal })));
+const TravelerGoogleAuthPage = lazy(() => import('./components/traveler/TravelerGoogleAuthPage').then((m) => ({ default: m.TravelerGoogleAuthPage })));
+const JapCounterPageV2 = lazy(() => import('./components/traveler/JapCounterPageV2').then((m) => ({ default: m.JapCounterPageV2 })));
+const PanchangCalendarPageV3 = lazy(() => import('./components/traveler/PanchangCalendarPageV3').then((m) => ({ default: m.PanchangCalendarPageV3 })));
+const HoroscopePage = lazy(() => import('./components/traveler/HoroscopePage').then((m) => ({ default: m.HoroscopePage })));
+const PublicGuidesHub = lazy(() => import('./components/traveler/PublicGuidesHub').then((m) => ({ default: m.PublicGuidesHub })));
+const GuideDetailView = lazy(() => import('./components/traveler/GuideDetailView').then((m) => ({ default: m.GuideDetailView })));
+const SitemapPage = lazy(() => import('./components/traveler/SitemapPage').then((m) => ({ default: m.SitemapPage })));
 
 const CMS_ENTRY_PATH = '/admin-rudra-0712';
 const isCmsEntryPath = (path: string) => path === CMS_ENTRY_PATH || path === `${CMS_ENTRY_PATH}/`;
+
+const RouteFallback = () => (
+  <div className="min-h-[40vh] flex items-center justify-center" aria-label="Loading">
+    <div className="w-7 h-7 rounded-full border-2 border-stone-300 border-t-[#FF4B00] animate-spin" />
+  </div>
+);
 
 const MainAppContent: React.FC = () => {
   const {
@@ -82,10 +89,14 @@ const MainAppContent: React.FC = () => {
       <TravelerAuthSessionSync />
       {showSplash && <SplashScreen onFinish={() => setShowSplash(false)} />}
       <div className="w-full min-h-screen bg-stone-50 text-stone-900 flex flex-col selection:bg-stone-900 selection:text-white">
-        {showCms ? <EnhancedERP /> : showTravelerGoogleAuth ? <TravelerGoogleAuthPage /> : isSitemapOpen ? <SitemapPage /> : isPanchangOpen ? <PanchangCalendarPageV3 /> : isHoroscopeOpen ? <HoroscopePage /> : isJapCounterOpen ? <JapCounterPageV2 /> : isTravelerProfileOpen ? <TravelerProfilePage /> : activeGuideSlug ? <GuideDetailView slug={activeGuideSlug} /> : isGuidesHubOpen ? <PublicGuidesHub /> : activeBlogSlug ? <BlogPostDetailView slug={activeBlogSlug} /> : isBlogHubOpen ? <TravelBlogHub /> : isToursDirectoryOpen ? <AllToursDirectory initialDestinationSlug={selectedToursDestination || undefined} /> : activeCustomPageSlug ? <CustomPageDetailView slug={activeCustomPageSlug} /> : activeInfoPage ? <InfoPageView pageSlug={activeInfoPage} onBack={() => setActiveInfoPage(null)} /> : selectedPackageId ? <EnhancedTourExperience /> : selectedDestinationSlug ? <DestinationPage /> : isDestinationsExplorerOpen ? <AllDestinationsExplorer /> : <LuxuryHomepage />}
+        <Suspense fallback={<RouteFallback />}>
+          {showCms ? <EnhancedERP /> : showTravelerGoogleAuth ? <TravelerGoogleAuthPage /> : isSitemapOpen ? <SitemapPage /> : isPanchangOpen ? <PanchangCalendarPageV3 /> : isHoroscopeOpen ? <HoroscopePage /> : isJapCounterOpen ? <JapCounterPageV2 /> : isTravelerProfileOpen ? <TravelerProfilePage /> : activeGuideSlug ? <GuideDetailView slug={activeGuideSlug} /> : isGuidesHubOpen ? <PublicGuidesHub /> : activeBlogSlug ? <BlogPostDetailView slug={activeBlogSlug} /> : isBlogHubOpen ? <TravelBlogHub /> : isToursDirectoryOpen ? <AllToursDirectory initialDestinationSlug={selectedToursDestination || undefined} /> : activeCustomPageSlug ? <CustomPageDetailView slug={activeCustomPageSlug} /> : activeInfoPage ? <InfoPageView pageSlug={activeInfoPage} onBack={() => setActiveInfoPage(null)} /> : selectedPackageId ? <EnhancedTourExperience /> : selectedDestinationSlug ? <DestinationPage /> : isDestinationsExplorerOpen ? <AllDestinationsExplorer /> : <LuxuryHomepage />}
+        </Suspense>
         {activeView === 'traveler' && !showTravelerGoogleAuth && !isSitemapOpen && !isPanchangOpen && !isHoroscopeOpen && <MobileBottomNav />}
         {activeView === 'traveler' && !showTravelerGoogleAuth && !isSitemapOpen && !isPanchangOpen && !isHoroscopeOpen && <FloatingSupportWidget />}
-        {!showTravelerGoogleAuth && <TravelerAuthModal />}
+        <Suspense fallback={null}>
+          {!showTravelerGoogleAuth && <TravelerAuthModal />}
+        </Suspense>
         <PWAInstallButton />
       </div>
     </>
