@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useTours } from '../../context/TourContext';
-import { GoogleLogin } from '@react-oauth/google';
 import {
   User,
   Mail,
@@ -19,6 +18,7 @@ import {
   Plus,
   RefreshCw,
   Eye,
+  EyeOff,
   X,
   AlertCircle,
   Filter,
@@ -45,6 +45,8 @@ import {
   LogIn,
   Loader2,
   HelpCircle,
+  KeyRound,
+  RotateCcw,
 } from 'lucide-react';
 import { generatePaymentReceiptPdf } from '../../utils/paymentReceiptPdf';
 import { compressPaymentProof } from '../../utils/imageCompressor';
@@ -130,6 +132,7 @@ export const TravelerProfilePage: React.FC = () => {
     signupWithPassword,
     sendOtpCode,
     verifyOtpCode,
+    resetPasswordWithOtp,
     connectGoogleCalendar,
     googleToken,
     logoutTraveler,
@@ -277,13 +280,16 @@ export const TravelerProfilePage: React.FC = () => {
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   // Guest / Traveler Login States
-  const [guestAuthMode, setGuestAuthMode] = useState<'signin' | 'signup' | 'guest'>('signin');
+  const [guestAuthMode, setGuestAuthMode] = useState<'otp' | 'signin' | 'signup' | 'forgot'>('otp');
   const [guestAuthLoading, setGuestAuthLoading] = useState(false);
   const [guestAuthError, setGuestAuthError] = useState('');
+  const [guestAuthSuccess, setGuestAuthSuccess] = useState('');
+  const [showGuestPassword, setShowGuestPassword] = useState(false);
+  const [showGuestNewPassword, setShowGuestNewPassword] = useState(false);
 
   // Email OTP States
-  const [profileMagicEmail, setProfileMagicEmail] = useState('');
-  const [profileMagicSent, setProfileMagicSent] = useState(false);
+  const [profileOtpEmail, setProfileOtpEmail] = useState('');
+  const [profileOtpSent, setProfileOtpSent] = useState(false);
   const [profileOtpCode, setProfileOtpCode] = useState('');
 
   // Password & Profile States
@@ -291,6 +297,13 @@ export const TravelerProfilePage: React.FC = () => {
   const [profileGuestEmail, setProfileGuestEmail] = useState('');
   const [profileGuestPhone, setProfileGuestPhone] = useState('');
   const [profileGuestPassword, setProfileGuestPassword] = useState('');
+
+  // Forgot Password States
+  const [forgotEmail, setForgotEmail] = useState('');
+  const [forgotOtp, setForgotOtp] = useState('');
+  const [forgotNewPassword, setForgotNewPassword] = useState('');
+  const [forgotConfirmPassword, setForgotConfirmPassword] = useState('');
+  const [forgotStep, setForgotStep] = useState<'email' | 'otp_reset'>('email');
 
   // Filter inquiries relevant to current traveler user
   const userInquiries = useMemo(() => {
@@ -558,6 +571,7 @@ export const TravelerProfilePage: React.FC = () => {
       }
 
       setGuestAuthError('');
+      setGuestAuthSuccess('');
       setGuestAuthLoading(true);
 
       try {
@@ -581,6 +595,96 @@ export const TravelerProfilePage: React.FC = () => {
         }
       } catch (err: any) {
         setGuestAuthError(err?.message || 'Authentication failed. Please check your credentials.');
+      } finally {
+        setGuestAuthLoading(false);
+      }
+    };
+
+    const handleSendGuestOtp = async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!profileOtpEmail.trim() || !profileOtpEmail.includes('@')) {
+        setGuestAuthError('Please provide a valid email address.');
+        return;
+      }
+
+      setGuestAuthLoading(true);
+      setGuestAuthError('');
+      setGuestAuthSuccess('');
+      try {
+        const res = await sendOtpCode(profileOtpEmail.trim());
+        setProfileOtpSent(true);
+        setGuestAuthSuccess(res.message || `A 6-digit verification code was sent to ${profileOtpEmail.trim()}`);
+      } catch (err: any) {
+        setGuestAuthError(err?.message || 'Failed to send OTP. Please try again.');
+      } finally {
+        setGuestAuthLoading(false);
+      }
+    };
+
+    const handleVerifyGuestOtp = async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!profileOtpCode.trim() || profileOtpCode.trim().length < 4) {
+        setGuestAuthError('Please enter the 6-digit verification code.');
+        return;
+      }
+
+      setGuestAuthLoading(true);
+      setGuestAuthError('');
+      try {
+        await verifyOtpCode(profileOtpEmail.trim(), profileOtpCode.trim());
+      } catch (err: any) {
+        setGuestAuthError(err?.message || 'Invalid or expired OTP code.');
+      } finally {
+        setGuestAuthLoading(false);
+      }
+    };
+
+    const handleForgotSendOtp = async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!forgotEmail.trim() || !forgotEmail.includes('@')) {
+        setGuestAuthError('Please enter your registered email address.');
+        return;
+      }
+
+      setGuestAuthLoading(true);
+      setGuestAuthError('');
+      setGuestAuthSuccess('');
+      try {
+        const res = await sendOtpCode(forgotEmail.trim());
+        setForgotStep('otp_reset');
+        setGuestAuthSuccess(res.message || `Reset code sent to ${forgotEmail.trim()}`);
+      } catch (err: any) {
+        setGuestAuthError(err?.message || 'Failed to dispatch reset code.');
+      } finally {
+        setGuestAuthLoading(false);
+      }
+    };
+
+    const handleForgotReset = async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!forgotOtp.trim() || forgotOtp.trim().length < 4) {
+        setGuestAuthError('Please enter the 6-digit reset code.');
+        return;
+      }
+      if (!forgotNewPassword || forgotNewPassword.length < 6) {
+        setGuestAuthError('New password must be at least 6 characters.');
+        return;
+      }
+      if (forgotNewPassword !== forgotConfirmPassword) {
+        setGuestAuthError('Passwords do not match. Please re-enter.');
+        return;
+      }
+
+      setGuestAuthLoading(true);
+      setGuestAuthError('');
+      try {
+        await resetPasswordWithOtp({
+          email: forgotEmail.trim(),
+          otp: forgotOtp.trim(),
+          newPassword: forgotNewPassword,
+        });
+      } catch (err: any) {
+        setGuestAuthError(err?.message || 'Password reset failed. Invalid or expired OTP.');
       } finally {
         setGuestAuthLoading(false);
       }
@@ -613,24 +717,48 @@ export const TravelerProfilePage: React.FC = () => {
                 <Lock className="w-5 h-5 text-[#FF4B00]" />
               </div>
               <h1 className="text-xl sm:text-2xl font-black text-stone-900 tracking-tight">
-                Sign In to Bhakti Sathi
+                {guestAuthMode === 'signup'
+                  ? 'Create Traveler Account'
+                  : guestAuthMode === 'forgot'
+                  ? 'Reset Your Password'
+                  : guestAuthMode === 'otp'
+                  ? 'Sign In with Email OTP'
+                  : 'Sign In to Bhakti Sathi'}
               </h1>
               <p className="text-xs text-stone-500 max-w-xs mx-auto">
-                Access your personalized itineraries, booking inquiries, wishlists & daily Jap Sadhana practice.
+                Access your personalized itineraries, booking inquiries, wishlists &amp; daily Jap Sadhana practice.
               </p>
             </div>
 
-            {/* Auth Mode Tabs */}
+            {/* Auth Mode Tabs (OTP Code / Password / Register) */}
             <div className="flex items-center gap-1.5 bg-stone-100 p-1 rounded-2xl">
+              <button
+                type="button"
+                onClick={() => {
+                  setGuestAuthMode('otp');
+                  setGuestAuthError('');
+                  setGuestAuthSuccess('');
+                }}
+                className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
+                  guestAuthMode === 'otp'
+                    ? 'bg-[#FF4B00] text-white shadow-md'
+                    : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200/60'
+                }`}
+              >
+                <KeyRound className="w-3.5 h-3.5" />
+                <span>OTP Code</span>
+              </button>
+
               <button
                 type="button"
                 onClick={() => {
                   setGuestAuthMode('signin');
                   setGuestAuthError('');
+                  setGuestAuthSuccess('');
                 }}
                 className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
-                  guestAuthMode === 'signin'
-                    ? 'bg-[#FF4B00] text-white shadow-md'
+                  guestAuthMode === 'signin' || guestAuthMode === 'forgot'
+                    ? 'bg-stone-900 text-white shadow-md'
                     : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200/60'
                 }`}
               >
@@ -641,23 +769,9 @@ export const TravelerProfilePage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => {
-                  setGuestAuthMode('guest');
-                  setGuestAuthError('');
-                }}
-                className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
-                  guestAuthMode === 'guest'
-                    ? 'bg-white text-stone-900 shadow-md'
-                    : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200/60'
-                }`}
-              >
-                <span>Google</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => {
                   setGuestAuthMode('signup');
                   setGuestAuthError('');
+                  setGuestAuthSuccess('');
                 }}
                 className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
                   guestAuthMode === 'signup'
@@ -671,20 +785,27 @@ export const TravelerProfilePage: React.FC = () => {
             </div>
 
             {guestAuthError && (
-              <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs font-bold text-red-700 flex items-center gap-2">
+              <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs font-bold text-red-700 flex items-center gap-2 animate-in fade-in">
                 <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
                 <span>{guestAuthError}</span>
               </div>
             )}
 
-            {/* Password Sign In & Sign Up Form */}
+            {guestAuthSuccess && (
+              <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs font-bold text-emerald-800 flex items-center gap-2 animate-in fade-in">
+                <Check className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span>{guestAuthSuccess}</span>
+              </div>
+            )}
+
+            {/* TAB 1: PASSWORD SIGN IN & SIGN UP */}
             {(guestAuthMode === 'signin' || guestAuthMode === 'signup') && (
               <form onSubmit={handlePasswordSubmit} className="space-y-4">
                 <div className="space-y-3">
                   {guestAuthMode === 'signup' && (
                     <div>
-                      <label className="block text-xs font-bold text-stone-700 mb-1">
-                        Full Name
+                      <label className="block text-xs font-bold text-stone-700 mb-1 flex items-center gap-1.5">
+                        <User className="w-3.5 h-3.5 text-stone-400" /> Full Name
                       </label>
                       <input
                         type="text"
@@ -698,8 +819,8 @@ export const TravelerProfilePage: React.FC = () => {
                   )}
 
                   <div>
-                    <label className="block text-xs font-bold text-stone-700 mb-1">
-                      Email Address
+                    <label className="block text-xs font-bold text-stone-700 mb-1 flex items-center gap-1.5">
+                      <Mail className="w-3.5 h-3.5 text-stone-400" /> Email Address
                     </label>
                     <input
                       type="email"
@@ -713,8 +834,8 @@ export const TravelerProfilePage: React.FC = () => {
 
                   {guestAuthMode === 'signup' && (
                     <div>
-                      <label className="block text-xs font-bold text-stone-700 mb-1">
-                        Phone Number (Optional)
+                      <label className="block text-xs font-bold text-stone-700 mb-1 flex items-center gap-1.5">
+                        <Phone className="w-3.5 h-3.5 text-stone-400" /> Phone Number (Optional)
                       </label>
                       <input
                         type="tel"
@@ -727,17 +848,43 @@ export const TravelerProfilePage: React.FC = () => {
                   )}
 
                   <div>
-                    <label className="block text-xs font-bold text-stone-700 mb-1">
-                      Password
-                    </label>
-                    <input
-                      type="password"
-                      required
-                      placeholder="At least 6 characters"
-                      value={profileGuestPassword}
-                      onChange={(e) => setProfileGuestPassword(e.target.value)}
-                      className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-bold text-stone-800 focus:bg-white focus:border-[#FF4B00] focus:outline-hidden transition"
-                    />
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="block text-xs font-bold text-stone-700 flex items-center gap-1.5">
+                        <Lock className="w-3.5 h-3.5 text-stone-400" /> Password
+                      </label>
+                      {guestAuthMode === 'signin' && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setGuestAuthMode('forgot');
+                            setForgotEmail(profileGuestEmail || '');
+                            setForgotStep('email');
+                            setGuestAuthError('');
+                            setGuestAuthSuccess('');
+                          }}
+                          className="text-xs font-bold text-[#FF4B00] hover:underline cursor-pointer"
+                        >
+                          Forgot Password?
+                        </button>
+                      )}
+                    </div>
+                    <div className="relative">
+                      <input
+                        type={showGuestPassword ? 'text' : 'password'}
+                        required
+                        placeholder="At least 6 characters"
+                        value={profileGuestPassword}
+                        onChange={(e) => setProfileGuestPassword(e.target.value)}
+                        className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-bold text-stone-800 focus:bg-white focus:border-[#FF4B00] focus:outline-hidden transition pr-10"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowGuestPassword(!showGuestPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 p-1"
+                      >
+                        {showGuestPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
                   </div>
                 </div>
 
@@ -761,42 +908,259 @@ export const TravelerProfilePage: React.FC = () => {
               </form>
             )}
 
-            {/* Google OAuth Tab */}
-            {guestAuthMode === 'guest' && (
+            {/* TAB 2: FORGOT PASSWORD FLOW */}
+            {guestAuthMode === 'forgot' && (
               <div className="space-y-4">
-                {guestAuthLoading ? (
-                  <div className="flex flex-col items-center justify-center py-6 space-y-3">
-                    <Loader2 className="w-8 h-8 text-[#FF4B00] animate-spin" />
-                    <p className="text-xs font-bold text-stone-600">Verifying session with Google...</p>
-                  </div>
-                ) : (
-                  <div className="flex flex-col items-center justify-center py-2 space-y-3">
-                    <div className="w-full max-w-xs flex justify-center">
-                      <GoogleLogin
-                        onSuccess={async (credentialResponse) => {
-                          if (credentialResponse.credential) {
-                            setGuestAuthLoading(true);
-                            setGuestAuthError('');
-                            try {
-                              await loginWithGoogleIdToken(credentialResponse.credential);
-                            } catch (err: any) {
-                              setGuestAuthError(err?.message || 'Authentication with Google failed.');
-                            } finally {
-                              setGuestAuthLoading(false);
-                            }
-                          }
-                        }}
-                        onError={() => {
-                          setGuestAuthError('Google Sign-In returned an error. You can use the Password tab for direct access.');
-                        }}
-                        useOneTap
-                        theme="filled_blue"
-                        size="large"
-                        shape="pill"
-                        text="signin_with"
+                <div className="flex items-center justify-between pb-2 border-b border-stone-100">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setGuestAuthMode('signin');
+                      setGuestAuthError('');
+                      setGuestAuthSuccess('');
+                    }}
+                    className="inline-flex items-center gap-1.5 text-xs font-bold text-stone-600 hover:text-stone-900 cursor-pointer"
+                  >
+                    <ArrowLeft className="w-3.5 h-3.5" />
+                    <span>Back to Sign In</span>
+                  </button>
+                  <span className="text-[11px] font-bold text-stone-400">
+                    Step {forgotStep === 'email' ? '1 of 2' : '2 of 2'}
+                  </span>
+                </div>
+
+                {forgotStep === 'email' ? (
+                  <form onSubmit={handleForgotSendOtp} className="space-y-4">
+                    <div className="text-center space-y-1">
+                      <div className="w-10 h-10 rounded-full bg-amber-50 text-[#FF4B00] mx-auto flex items-center justify-center">
+                        <RotateCcw className="w-5 h-5" />
+                      </div>
+                      <h3 className="text-sm font-bold text-stone-800">Password Recovery</h3>
+                      <p className="text-xs text-stone-500">
+                        Enter your account email to receive a 6-digit password reset code.
+                      </p>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-stone-700 mb-1 flex items-center gap-1.5">
+                        <Mail className="w-3.5 h-3.5 text-stone-400" /> Account Email Address
+                      </label>
+                      <input
+                        type="email"
+                        required
+                        placeholder="e.g. rohit@gmail.com"
+                        value={forgotEmail}
+                        onChange={(e) => setForgotEmail(e.target.value)}
+                        className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-bold text-stone-800 focus:bg-white focus:border-[#FF4B00] focus:outline-hidden transition"
                       />
                     </div>
-                  </div>
+
+                    <button
+                      type="submit"
+                      disabled={guestAuthLoading}
+                      className="w-full py-3.5 px-4 rounded-xl bg-[#FF4B00] hover:bg-[#e04300] text-white text-xs font-black tracking-wide shadow-md flex items-center justify-center gap-2 transition cursor-pointer disabled:opacity-50"
+                    >
+                      {guestAuthLoading ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          <span>Sending Reset Code...</span>
+                        </>
+                      ) : (
+                        <>
+                          <KeyRound className="w-4 h-4" />
+                          <span>Send 6-Digit Reset Code</span>
+                        </>
+                      )}
+                    </button>
+                  </form>
+                ) : (
+                  <form onSubmit={handleForgotReset} className="space-y-4">
+                    <div className="p-3 bg-stone-50 border border-stone-200 rounded-xl text-xs text-stone-600 flex items-center justify-between">
+                      <span>Resetting: <strong>{forgotEmail}</strong></span>
+                      <button
+                        type="button"
+                        onClick={() => setForgotStep('email')}
+                        className="text-[#FF4B00] font-bold hover:underline"
+                      >
+                        Change
+                      </button>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-stone-700 mb-1 flex items-center gap-1.5">
+                        <KeyRound className="w-3.5 h-3.5 text-stone-400" /> 6-Digit Verification Code
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        maxLength={6}
+                        placeholder="Enter 6-digit code"
+                        value={forgotOtp}
+                        onChange={(e) => setForgotOtp(e.target.value.replace(/\D/g, ''))}
+                        className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-center text-lg font-mono font-bold tracking-widest text-stone-800 focus:bg-white focus:border-[#FF4B00] focus:outline-hidden transition"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-stone-700 mb-1 flex items-center gap-1.5">
+                        <Lock className="w-3.5 h-3.5 text-stone-400" /> New Password
+                      </label>
+                      <div className="relative">
+                        <input
+                          type={showGuestNewPassword ? 'text' : 'password'}
+                          required
+                          placeholder="At least 6 characters"
+                          value={forgotNewPassword}
+                          onChange={(e) => setForgotNewPassword(e.target.value)}
+                          className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-bold text-stone-800 focus:bg-white focus:border-[#FF4B00] focus:outline-hidden transition pr-10"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowGuestNewPassword(!showGuestNewPassword)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 p-1"
+                        >
+                          {showGuestNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-stone-700 mb-1 flex items-center gap-1.5">
+                        <Lock className="w-3.5 h-3.5 text-stone-400" /> Confirm New Password
+                      </label>
+                      <input
+                        type="password"
+                        required
+                        placeholder="Re-type new password"
+                        value={forgotConfirmPassword}
+                        onChange={(e) => setForgotConfirmPassword(e.target.value)}
+                        className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-bold text-stone-800 focus:bg-white focus:border-[#FF4B00] focus:outline-hidden transition"
+                      />
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={guestAuthLoading}
+                      className="w-full py-3.5 px-4 rounded-xl bg-[#FF4B00] hover:bg-[#e04300] text-white text-xs font-black tracking-wide shadow-lg shadow-[#FF4B00]/20 flex items-center justify-center gap-2 transition cursor-pointer disabled:opacity-50"
+                    >
+                      {guestAuthLoading ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          <span>Updating Password...</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>Set New Password &amp; Sign In</span>
+                          <ArrowRight className="w-4 h-4" />
+                        </>
+                      )}
+                    </button>
+                  </form>
+                )}
+              </div>
+            )}
+
+            {/* TAB 3: OTP EMAIL AUTH */}
+            {guestAuthMode === 'otp' && (
+              <div className="space-y-4">
+                <div className="text-center space-y-1.5">
+                  <p className="text-xs font-bold text-stone-700">Verified Email OTP Login</p>
+                  <p className="text-[11.5px] text-stone-500">
+                    Receive a secure 6-digit verification code directly to your email inbox.
+                  </p>
+                </div>
+
+                {!profileOtpSent ? (
+                  <form onSubmit={handleSendGuestOtp} className="space-y-4">
+                    <div>
+                      <label className="block text-xs font-bold text-stone-700 mb-1 flex items-center gap-1.5">
+                        <Mail className="w-3.5 h-3.5 text-stone-400" /> Email Address
+                      </label>
+                      <input
+                        type="email"
+                        required
+                        placeholder="e.g. rohit@gmail.com"
+                        value={profileOtpEmail}
+                        onChange={(e) => setProfileOtpEmail(e.target.value)}
+                        className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-bold text-stone-800 focus:bg-white focus:border-[#FF4B00] focus:outline-hidden transition"
+                      />
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={guestAuthLoading}
+                      className="w-full py-3.5 px-4 rounded-xl bg-stone-900 hover:bg-black text-white text-xs font-black tracking-wide shadow-md flex items-center justify-center gap-2 transition cursor-pointer disabled:opacity-50"
+                    >
+                      {guestAuthLoading ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          <span>Sending Code...</span>
+                        </>
+                      ) : (
+                        <>
+                          <KeyRound className="w-4 h-4" />
+                          <span>Send 6-Digit Code</span>
+                        </>
+                      )}
+                    </button>
+                  </form>
+                ) : (
+                  <form onSubmit={handleVerifyGuestOtp} className="space-y-4">
+                    <div className="p-3 bg-stone-50 border border-stone-200 rounded-xl text-xs text-stone-600 flex items-center justify-between">
+                      <span>Sent to: <strong>{profileOtpEmail}</strong></span>
+                      <button
+                        type="button"
+                        onClick={() => setProfileOtpSent(false)}
+                        className="text-[#FF4B00] font-bold hover:underline"
+                      >
+                        Change
+                      </button>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-stone-700 mb-1 flex items-center gap-1.5">
+                        <KeyRound className="w-3.5 h-3.5 text-stone-400" /> 6-Digit Verification Code
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        maxLength={6}
+                        placeholder="Enter 6 digits"
+                        value={profileOtpCode}
+                        onChange={(e) => setProfileOtpCode(e.target.value.replace(/\D/g, ''))}
+                        className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-center text-lg font-mono font-bold tracking-widest text-stone-800 focus:bg-white focus:border-[#FF4B00] focus:outline-hidden transition"
+                      />
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={guestAuthLoading}
+                      className="w-full py-3.5 px-4 rounded-xl bg-[#FF4B00] hover:bg-[#e04300] text-white text-xs font-black tracking-wide shadow-lg shadow-[#FF4B00]/20 flex items-center justify-center gap-2 transition cursor-pointer disabled:opacity-50"
+                    >
+                      {guestAuthLoading ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          <span>Verifying Code...</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>Confirm &amp; Sign In</span>
+                          <ArrowRight className="w-4 h-4" />
+                        </>
+                      )}
+                    </button>
+
+                    <div className="text-center pt-1">
+                      <button
+                        type="button"
+                        onClick={handleSendGuestOtp}
+                        disabled={guestAuthLoading}
+                        className="text-xs text-stone-500 hover:text-stone-800 underline font-medium"
+                      >
+                        Resend Verification Code
+                      </button>
+                    </div>
+                  </form>
                 )}
               </div>
             )}

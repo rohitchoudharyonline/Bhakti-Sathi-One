@@ -539,6 +539,64 @@ app.post('/api/auth/traveler/verify-otp', authRateLimit, async (req, res) => {
   return res.json({ success: true, user: safeUser });
 });
 
+// Traveler Reset Password via OTP
+app.post('/api/auth/traveler/reset-password', authRateLimit, async (req, res) => {
+  res.setHeader('Cache-Control', 'no-store');
+  const email = typeof req.body?.email === 'string' ? req.body.email.trim().toLowerCase() : '';
+  const otp = typeof req.body?.otp === 'string' ? req.body.otp.trim() : '';
+  const newPassword = typeof req.body?.newPassword === 'string' ? req.body.newPassword : '';
+
+  if (!email || !email.includes('@')) {
+    return res.status(400).json({ error: 'Please provide a valid email address.' });
+  }
+  if (!otp || otp.length < 4) {
+    return res.status(400).json({ error: 'Please provide the 6-digit verification code.' });
+  }
+  if (!newPassword || newPassword.length < 6) {
+    return res.status(400).json({ error: 'New password must be at least 6 characters long.' });
+  }
+
+  const stored = serverOtpStore.get(email);
+  if (!stored || stored.expiresAt < Date.now() || stored.code !== otp) {
+    return res.status(400).json({ error: 'Invalid or expired verification code. Please request a new code.' });
+  }
+
+  serverOtpStore.delete(email);
+
+  let user = serverUsers.get(email);
+  if (user) {
+    user.passwordHash = hashPassword(newPassword);
+    serverUsers.set(email, user);
+  } else {
+    user = {
+      id: `user-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+      email,
+      passwordHash: hashPassword(newPassword),
+      name: email.split('@')[0],
+      phone: '+91 98765 43210',
+      avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(email.split('@')[0])}&background=FF4B00&color=fff&bold=true`,
+      city: 'New Delhi',
+      state: 'Delhi',
+      country: 'India',
+      dietPreference: 'Vegetarian',
+      roomPreference: 'Standard',
+      authProvider: 'email',
+      memberTier: 'Member',
+      memberSince: new Date().toLocaleDateString('en-IN', { month: 'long', year: 'numeric' }),
+      rewardCoins: 500,
+      coTravelers: [],
+    };
+    serverUsers.set(email, user);
+  }
+
+  const { passwordHash: _, ...safeUser } = user;
+  return res.json({
+    success: true,
+    message: 'Your password has been successfully reset! You are now logged in.',
+    user: safeUser,
+  });
+});
+
 // Traveler Update Profile
 app.post('/api/auth/traveler/profile', async (req, res) => {
   res.setHeader('Cache-Control', 'no-store');

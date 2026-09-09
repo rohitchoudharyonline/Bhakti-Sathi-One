@@ -115,6 +115,7 @@ interface TourContextType {
   loginWithPassword: (params: { email: string; password: string }) => Promise<void>;
   sendOtpCode: (email: string) => Promise<{ success: boolean; message: string; devHint?: string }>;
   verifyOtpCode: (email: string, otp: string) => Promise<void>;
+  resetPasswordWithOtp: (params: { email: string; otp: string; newPassword: string }) => Promise<{ success: boolean; message: string }>;
   loginWithMagicLink: (email: string) => Promise<void>;
   connectGoogleCalendar: () => Promise<void>;
   logoutTraveler: () => void;
@@ -1061,6 +1062,34 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     } catch (err) {
       console.error('Verify OTP error:', err);
+      throw err;
+    }
+  };
+
+  // Reset Password with Verified OTP
+  const resetPasswordWithOtp = async (params: { email: string; otp: string; newPassword: string }) => {
+    try {
+      const res = await fetch('/api/auth/traveler/reset-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(params),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'Password reset failed.');
+      }
+
+      if (data.user) {
+        setTravelerUserRaw(data.user);
+        try {
+          localStorage.setItem('hh_direct_traveler_profile', JSON.stringify(data.user));
+        } catch {}
+      }
+
+      return data;
+    } catch (err) {
+      console.error('Reset password error:', err);
       throw err;
     }
   };
@@ -2740,6 +2769,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
         loginWithPassword,
         sendOtpCode,
         verifyOtpCode,
+        resetPasswordWithOtp,
         loginWithMagicLink,
         connectGoogleCalendar,
         logoutTraveler,
