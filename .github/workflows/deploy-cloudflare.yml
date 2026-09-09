@@ -21,6 +21,9 @@ jobs:
         with:
           bun-version: latest
 
+      - name: Refresh security-pinned lockfile in CI workspace
+        run: bun update qs@6.16.0 sharp@0.35.4 --lockfile-only
+
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
