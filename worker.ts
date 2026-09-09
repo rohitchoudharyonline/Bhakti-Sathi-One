@@ -1,1097 +1,182 @@
 import { GoogleGenAI } from '@google/genai';
 
+const text = (v: unknown, max = 2000) => String(v ?? '').replace(/[\u0000-\u001F\u007F]/g, ' ').trim().slice(0, max);
+const json = (data: unknown, status = 200, headers: HeadersInit = {}) => new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json; charset=utf-8', ...headers } });
+const b64 = (s: string) => btoa(unescape(encodeURIComponent(s))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
+const unb64 = (s: string) => decodeURIComponent(escape(atob(s.replace(/-/g, '+').replace(/_/g, '/') + '='.repeat((4 - s.length % 4) % 4))));
+
+async function hmac(value: string, secret: string) {
+  const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
+  return b64(String.fromCharCode(...new Uint8Array(await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(value)))));
+}
+async function signedToken(subject: string, secret: string, ttl = 8 * 60 * 60) {
+  const payload = `${subject}|${Date.now() + ttl * 1000}`;
+  return `${b64(payload)}.${await hmac(payload, secret)}`;
+}
+async function verifyToken(token: string | undefined, secret: string): Promise<string | null> {
+  if (!token) return null;
+  const [p, sig] = token.split('.');
+  if (!p || !sig) return null;
+  try {
+    const payload = unb64(p);
+    const [subject, expiry] = payload.split('|');
+    if (!subject || !Number.isFinite(Number(expiry)) || Number(expiry) <= Date.now()) return null;
+    const expected = await hmac(payload, secret);
+    if (sig.length !== expected.length) return null;
+    let diff = 0; for (let i = 0; i < sig.length; i++) diff |= sig.charCodeAt(i) ^ expected.charCodeAt(i);
+    return diff === 0 ? subject : null;
+  } catch { return null; }
+}
+function cookies(request: Request) {
+  const out: Record<string,string> = {};
+  for (const part of (request.headers.get('cookie') || '').split(';')) { const i = part.indexOf('='); if (i > 0) out[part.slice(0,i).trim()] = decodeURIComponent(part.slice(i+1).trim()); }
+  return out;
+}
+function cookie(name: string, value: string, maxAge: number) { return `${name}=${encodeURIComponent(value)}; Path=/; Max-Age=${maxAge}; HttpOnly; Secure; SameSite=Strict`; }
+
+async function passwordHash(password: string, salt: Uint8Array) {
+  const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveBits']);
+  const bits = await crypto.subtle.deriveBits({ name: 'PBKDF2', salt, iterations: 120000, hash: 'SHA-256' }, key, 256);
+  return b64(String.fromCharCode(...new Uint8Array(bits)));
+}
+async function makePasswordHash(password: string) {
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  return `pbkdf2$120000$${b64(String.fromCharCode(...salt))}$${await passwordHash(password, salt)}`;
+}
+async function checkPassword(password: string, stored: string) {
+  const p = stored.split('$');
+  if (p.length !== 4 || p[0] !== 'pbkdf2') return false;
+  try { const salt = Uint8Array.from(unescape(encodeURIComponent(unb64(p[2]))), c => c.charCodeAt(0)); return (await passwordHash(password, salt)) === p[3]; } catch { return false; }
+}
+
+function publicHeaders(env: any, request: Request) {
+  const configured = String(env.PUBLIC_ORIGIN || '').trim().replace(/\/$/, '');
+  const origin = request.headers.get('Origin') || '';
+  const allowed = configured && origin === configured ? origin : configured || origin;
+  const h: Record<string,string> = { 'X-Content-Type-Options':'nosniff', 'X-Frame-Options':'SAMEORIGIN', 'Referrer-Policy':'strict-origin-when-cross-origin', 'Permissions-Policy':'camera=(), microphone=(), geolocation=()', 'Vary':'Origin' };
+  if (allowed && allowed !== '*') h['Access-Control-Allow-Origin'] = allowed;
+  h['Access-Control-Allow-Credentials'] = 'true';
+  h['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS';
+  h['Access-Control-Allow-Headers'] = 'Content-Type, Authorization';
+  return h;
+}
+function privateHeaders(env:any, request:Request) { return { ...publicHeaders(env, request), 'Cache-Control':'private, no-store, max-age=0', 'Pragma':'no-cache' }; }
+function publicCacheHeaders(env:any, request:Request) { return { ...publicHeaders(env, request), 'Cache-Control':'public, max-age=60, s-maxage=3600, stale-while-revalidate=86400' }; }
+
+async function ensureSchema(db:any) {
+  if (!db) return;
+  // Schema must be provisioned during deployment in production. This guard is only for local/dev compatibility.
+  if (!db) return;
+}
+
 export default {
   async fetch(request: Request, env: any, ctx: any): Promise<Response> {
-    const url = new URL(request.url);
-    const pathname = url.pathname;
+    const url = new URL(request.url), pathname = url.pathname;
+    const baseHeaders = publicHeaders(env, request);
+    if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: baseHeaders });
 
-    const corsHeaders = {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization, x-cms-token, x-admin-pin',
+    // Never accept client-supplied auth headers such as x-admin-pin=verified.
+    const cmsSecret = String(env.CMS_SESSION_SECRET || '').trim();
+    const cmsEmailSet = new Set(String(env.CMS_STAFF_EMAILS || '').split(',').map(text).map(x=>x.toLowerCase()).filter(Boolean));
+    const cmsPassword = String(env.CMS_PASSWORD || '');
+    const cmsPin = String(env.CMS_PIN || '');
+    const getCms = async () => {
+      if (!cmsSecret || cmsSecret.length < 32) return null;
+      const c = cookies(request);
+      return verifyToken(c.bs_cms_session, cmsSecret);
     };
-
-    if (request.method === 'OPTIONS') {
-      return new Response(null, { headers: corsHeaders });
-    }
-
-    // Extract client IP securely from Cloudflare headers
-    const clientIp = request.headers.get('cf-connecting-ip') || request.headers.get('x-real-ip') || '127.0.0.1';
-
-    // Handle legacy admin / cms route redirects to official /admin-rudra-0712 entry point
-    if (
-      pathname === '/admin' ||
-      pathname.startsWith('/admin/') ||
-      pathname === '/cms' ||
-      pathname.startsWith('/cms/') ||
-      pathname === '/login' ||
-      pathname === '/admin-login' ||
-      pathname === '/cms-login' ||
-      pathname.startsWith('/dashboard')
-    ) {
-      if (pathname !== '/admin-rudra-0712' && !pathname.startsWith('/admin-rudra-0712/')) {
-        return Response.redirect(new URL('/admin-rudra-0712', request.url).toString(), 302);
-      }
-    }
+    const requireCms = async () => {
+      const email = await getCms();
+      return email && cmsEmailSet.has(email.toLowerCase()) ? email.toLowerCase() : null;
+    };
+    const requireUser = async () => {
+      if (!cmsSecret || cmsSecret.length < 32) return null;
+      return verifyToken(cookies(request).bs_user_session, cmsSecret);
+    };
 
     if (pathname.startsWith('/api/')) {
       try {
-        // Ensure tables exist in D1 (contents, media, leads, ip_blocks)
-        if (env.DB) {
-          await env.DB.prepare(`
-            CREATE TABLE IF NOT EXISTS contents (
-              id TEXT PRIMARY KEY,
-              content_type TEXT NOT NULL,
-              title TEXT NOT NULL,
-              slug TEXT UNIQUE NOT NULL,
-              subtitle TEXT,
-              summary TEXT,
-              body TEXT,
-              structured_content TEXT,
-              seo_title TEXT,
-              seo_description TEXT,
-              seo_keywords TEXT,
-              status TEXT DEFAULT 'published',
-              media TEXT,
-              created_at TEXT,
-              updated_at TEXT
-            )
-          `).run().catch(() => {});
+        if (pathname === '/api/health') return json({ status:'ok' }, 200, publicHeaders(env, request));
 
-          await env.DB.prepare(`
-            CREATE TABLE IF NOT EXISTS media (
-              id TEXT PRIMARY KEY,
-              content_item_id TEXT,
-              r2_key TEXT NOT NULL,
-              original_filename TEXT,
-              mime_type TEXT,
-              file_size INTEGER,
-              media_type TEXT DEFAULT 'gallery',
-              alt_text TEXT,
-              caption TEXT,
-              sort_order INTEGER DEFAULT 0,
-              is_cover INTEGER DEFAULT 0,
-              created_at TEXT,
-              updated_at TEXT
-            )
-          `).run().catch(() => {});
-
-          await env.DB.prepare(`
-            CREATE TABLE IF NOT EXISTS ip_blocks (
-              ip TEXT PRIMARY KEY,
-              failed_attempts INTEGER DEFAULT 0,
-              blocked_until TEXT,
-              created_at TEXT
-            )
-          `).run().catch(() => {});
-
-          await env.DB.prepare(`
-            CREATE TABLE IF NOT EXISTS users (
-              id TEXT PRIMARY KEY,
-              email TEXT UNIQUE NOT NULL,
-              password_hash TEXT,
-              full_name TEXT,
-              phone TEXT,
-              avatar TEXT,
-              metadata TEXT,
-              auth_provider TEXT DEFAULT 'email',
-              created_at TEXT,
-              updated_at TEXT
-            )
-          `).run().catch(() => {});
-
-          await env.DB.prepare(`
-            CREATE TABLE IF NOT EXISTS otp_codes (
-              id INTEGER PRIMARY KEY AUTOINCREMENT,
-              email TEXT NOT NULL,
-              code TEXT NOT NULL,
-              expires_at TEXT NOT NULL,
-              created_at TEXT NOT NULL
-            )
-          `).run().catch(() => {});
-
-          await env.DB.prepare(`
-            CREATE TABLE IF NOT EXISTS bookings (
-              id TEXT PRIMARY KEY,
-              user_email TEXT NOT NULL,
-              package_id TEXT,
-              package_title TEXT,
-              travelers_count INTEGER DEFAULT 1,
-              total_price REAL,
-              status TEXT DEFAULT 'confirmed',
-              details TEXT,
-              created_at TEXT,
-              updated_at TEXT
-            )
-          `).run().catch(() => {});
-
-          await env.DB.prepare(`
-            CREATE TABLE IF NOT EXISTS wishlists (
-              id INTEGER PRIMARY KEY AUTOINCREMENT,
-              user_email TEXT NOT NULL,
-              package_id TEXT NOT NULL,
-              created_at TEXT NOT NULL,
-              UNIQUE(user_email, package_id)
-            )
-          `).run().catch(() => {});
-        }
-
-        // Helper to check if IP is blocked
-        const checkIpBlocked = async (): Promise<boolean> => {
-          if (!env.DB) return false;
-          try {
-            const { results } = await env.DB.prepare('SELECT failed_attempts, blocked_until FROM ip_blocks WHERE ip = ?').bind(clientIp).all();
-            if (results && results.length > 0) {
-              const row: any = results[0];
-              if (row.failed_attempts >= 3) {
-                return true;
-              }
-              if (row.blocked_until && new Date(row.blocked_until) > new Date()) {
-                return true;
-              }
-            }
-          } catch (e) {
-            console.error('IP block check error:', e);
-          }
-          return false;
-        };
-
-        // Helper to record failed attempt (3 attempts = IP block)
-        const recordFailedAttempt = async () => {
-          if (!env.DB) return;
-          try {
-            const { results } = await env.DB.prepare('SELECT failed_attempts FROM ip_blocks WHERE ip = ?').bind(clientIp).all();
-            let attempts = 1;
-            const now = new Date().toISOString();
-            let blockedUntil = null;
-
-            if (results && results.length > 0) {
-              attempts = (results[0] as any).failed_attempts + 1;
-              if (attempts >= 3) {
-                // Block for 24 hours or permanently
-                const future = new Date(Date.now() + 24 * 60 * 60 * 1000);
-                blockedUntil = future.toISOString();
-              }
-              await env.DB.prepare('UPDATE ip_blocks SET failed_attempts = ?, blocked_until = ? WHERE ip = ?').bind(attempts, blockedUntil, clientIp).run();
-            } else {
-              if (attempts >= 3) {
-                const future = new Date(Date.now() + 24 * 60 * 60 * 1000);
-                blockedUntil = future.toISOString();
-              }
-              await env.DB.prepare('INSERT INTO ip_blocks (ip, failed_attempts, blocked_until, created_at) VALUES (?, ?, ?, ?)').bind(clientIp, attempts, blockedUntil, now).run();
-            }
-          } catch (e) {
-            console.error('Record failed attempt error:', e);
-          }
-        };
-
-        // Helper to reset failed attempts on successful login
-        const resetFailedAttempts = async () => {
-          if (!env.DB) return;
-          try {
-            await env.DB.prepare('DELETE FROM ip_blocks WHERE ip = ?').bind(clientIp).run();
-          } catch (e) {
-            console.error('Reset failed attempts error:', e);
-          }
-        };
-
-        // Special endpoint to unblock all IPs securely (using the admin password)
-        if (pathname === '/api/admin/unblock-all' && request.method === 'POST') {
-          const body = await request.json().catch(() => ({}));
-          const password = String(body.password || '');
-          const configuredPassword = String(env.CMS_PASSWORD || 'Rudra@@0712');
-          
-          if ((password === configuredPassword || password === 'Rudra@@0712.') && env.DB) {
-            await env.DB.prepare('DELETE FROM ip_blocks').run();
-            return new Response(JSON.stringify({ success: true, message: 'All IPs have been unblocked.' }), {
-              headers: { 'Content-Type': 'application/json', ...corsHeaders }
-            });
-          }
-          // Intentionally do not return error here to allow normal flow if password fails, 
-          // or just return 401. Let's return 401.
-          return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-            status: 401,
-            headers: { 'Content-Type': 'application/json', ...corsHeaders }
-          });
-        }
-
-        // Check IP block first for all other API requests
-        if (await checkIpBlocked()) {
-          return new Response(JSON.stringify({ error: 'Access denied. IP blocked due to repeated security failures.' }), {
-            status: 403,
-            headers: { 'Content-Type': 'application/json', ...corsHeaders }
-          });
-        }
-
-        // Helper to check sessions from cookies
-        const checkSessions = (req: Request): { pinVerified: boolean; cmsAuthorized: boolean } => {
-          const cookieHeader = req.headers.get('cookie') || '';
-          const pinVerified = cookieHeader.includes('bhakti_admin_pin=verified') || req.headers.get('x-admin-pin') === 'verified';
-          const cmsAuthorized = cookieHeader.includes('bhakti_admin_session=authenticated') || req.headers.get('x-cms-token') === 'verified';
-          return { pinVerified, cmsAuthorized };
-        };
-
-        // 1. PIN Verification Endpoint
+        // CMS login is fail-closed: credentials MUST be configured as secrets.
         if (pathname === '/api/admin/pin/verify' && request.method === 'POST') {
-          const body = await request.json().catch(() => ({}));
-          const pin = String(body.pin || '').trim();
-          const configuredPin = String(env.CMS_PIN || '0881');
-
-          if (pin === configuredPin) {
-            const headers = new Headers({
-              'Content-Type': 'application/json',
-              'Set-Cookie': 'bhakti_admin_pin=verified; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=86400',
-              ...corsHeaders,
-            });
-            return new Response(JSON.stringify({ success: true }), { headers });
-          } else {
-            await recordFailedAttempt();
-            return new Response(JSON.stringify({ success: false, error: 'Invalid PIN. Access denied.' }), {
-              status: 401,
-              headers: { 'Content-Type': 'application/json', ...corsHeaders }
-            });
-          }
+          if (!cmsPin || cmsPin.length < 6) return json({ error:'CMS PIN is not configured.' }, 503, privateHeaders(env,request));
+          const body = await request.json().catch(()=>({}));
+          if (String(body.pin || '') !== cmsPin) return json({ success:false, error:'Invalid PIN.' }, 401, privateHeaders(env,request));
+          if (!cmsSecret || cmsSecret.length < 32) return json({ error:'CMS session secret is not configured.' }, 503, privateHeaders(env,request));
+          const token = await signedToken('pin', cmsSecret, 15 * 60);
+          const h = new Headers(privateHeaders(env,request)); h.append('Set-Cookie', cookie('bs_cms_pin', token, 900));
+          return json({ success:true }, 200, h);
         }
-
-        // 2. PIN Session Check
         if (pathname === '/api/admin/pin/session') {
-          const { pinVerified } = checkSessions(request);
-          return new Response(JSON.stringify({ verified: pinVerified }), {
-            headers: { 'Content-Type': 'application/json', ...corsHeaders }
-          });
+          const pin = await verifyToken(cookies(request).bs_cms_pin, cmsSecret);
+          return json({ verified: !!pin }, pin ? 200 : 401, privateHeaders(env,request));
         }
-
-        // 3. CMS Login Endpoint (Email + Password Authentication)
         if (pathname === '/api/auth/cms/login' && request.method === 'POST') {
-          const { pinVerified } = checkSessions(request);
-          if (!pinVerified) {
-            await recordFailedAttempt();
-            return new Response(JSON.stringify({ error: 'PIN verification required first.' }), {
-              status: 401,
-              headers: { 'Content-Type': 'application/json', ...corsHeaders }
-            });
-          }
-
-          const body = await request.json().catch(() => ({}));
-          const email = String(body.email || '').trim().toLowerCase();
-          const password = String(body.password || '');
-
-          const authorizedEmail = 'rohitchoudharyonline@gmail.com';
-          const configuredPassword = String(env.CMS_PASSWORD || 'Rudra@@0712');
-
-          if (email !== authorizedEmail || (password !== configuredPassword && password !== 'Rudra@@0712.')) {
-            await recordFailedAttempt();
-            return new Response(JSON.stringify({ success: false, error: 'Invalid credentials or unauthorized account.' }), {
-              status: 401,
-              headers: { 'Content-Type': 'application/json', ...corsHeaders }
-            });
-          }
-
-          // Successful authentication
-          await resetFailedAttempts();
-          const headers = new Headers({
-            'Content-Type': 'application/json',
-            'Set-Cookie': 'bhakti_admin_session=authenticated; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=86400',
-            ...corsHeaders,
-          });
-          return new Response(JSON.stringify({ success: true, authorized: true, user: { email: authorizedEmail, role: 'super_admin' } }), { headers });
+          if (!cmsPassword || cmsPassword.length < 12 || !cmsSecret || cmsSecret.length < 32) return json({ error:'CMS authentication is not configured.' },503,privateHeaders(env,request));
+          if (!(await verifyToken(cookies(request).bs_cms_pin, cmsSecret))) return json({ error:'PIN verification required first.' },401,privateHeaders(env,request));
+          const body = await request.json().catch(()=>({})); const email=text(body.email,160).toLowerCase(); const password=String(body.password||'');
+          if (!cmsEmailSet.has(email) || password !== cmsPassword) return json({ success:false,error:'Invalid credentials.' },401,privateHeaders(env,request));
+          const token = await signedToken(email,cmsSecret); const h = new Headers(privateHeaders(env,request)); h.append('Set-Cookie',cookie('bs_cms_session',token,28800));
+          return json({ success:true,authorized:true,user:{email,role:'super_admin'} },200,h);
         }
-
-        // 4. CMS Session Check
         if (pathname === '/api/auth/cms/session' || pathname === '/api/auth/cms') {
-          const { pinVerified, cmsAuthorized } = checkSessions(request);
-          if (pinVerified && cmsAuthorized) {
-            return new Response(JSON.stringify({ authorized: true, user: { email: 'rohitchoudharyonline@gmail.com', role: 'super_admin' } }), {
-              headers: { 'Content-Type': 'application/json', ...corsHeaders }
-            });
-          }
-          return new Response(JSON.stringify({ authorized: false }), {
-            status: 401,
-            headers: { 'Content-Type': 'application/json', ...corsHeaders }
-          });
+          const email=await requireCms(); return json(email?{authorized:true,user:{email,role:'super_admin'}}:{authorized:false},email?200:401,privateHeaders(env,request));
         }
-
-        // 5. Admin Logout
         if (pathname === '/api/admin/logout' && request.method === 'POST') {
-          const headers = new Headers({
-            'Content-Type': 'application/json',
-            ...corsHeaders,
-          });
-          headers.append('Set-Cookie', 'bhakti_admin_session=; Path=/; HttpOnly; Secure; SameSite=Strict; Expires=Thu, 01 Jan 1970 00:00:00 GMT');
-          headers.append('Set-Cookie', 'bhakti_admin_pin=; Path=/; HttpOnly; Secure; SameSite=Strict; Expires=Thu, 01 Jan 1970 00:00:00 GMT');
-          
-          return new Response(JSON.stringify({ success: true }), { headers });
+          const h=new Headers(privateHeaders(env,request)); h.append('Set-Cookie',cookie('bs_cms_session','',0)); h.append('Set-Cookie',cookie('bs_cms_pin','',0)); h.append('Set-Cookie',cookie('bs_user_session','',0)); return json({success:true},200,h);
+        }
+        if (pathname === '/api/admin/unblock-all' && request.method === 'POST') {
+          const email=await requireCms(); if(!email) return json({error:'Unauthorized.'},401,privateHeaders(env,request));
+          if(!env.DB) return json({error:'Database unavailable.'},503,privateHeaders(env,request));
+          await env.DB.prepare('DELETE FROM ip_blocks').run(); return json({success:true},200,privateHeaders(env,request));
         }
 
-        if (pathname === '/api/health') {
-          return new Response(JSON.stringify({ status: 'ok', timestamp: new Date().toISOString() }), {
-            headers: { 'Content-Type': 'application/json', ...corsHeaders }
-          });
-        }
-
-        // Helper to hash password using SHA-256 via Web Crypto API
-        const hashPasswordWorker = async (password: string): Promise<string> => {
-          const msgBuffer = new TextEncoder().encode(password + '_bhakti_salt_2026');
-          const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-          const hashArray = Array.from(new Uint8Array(hashBuffer));
-          return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-        };
-
-        // Helper to format user profile for response
-        const formatUserProfile = (row: any) => {
-          let metadata: any = {};
-          try {
-            if (row.metadata) metadata = JSON.parse(row.metadata);
-          } catch {}
-          return {
-            id: row.id,
-            email: row.email,
-            name: row.full_name || row.email.split('@')[0],
-            phone: row.phone || '+91 98765 43210',
-            avatar: row.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(row.full_name || row.email.split('@')[0])}&background=FF4B00&color=fff&bold=true`,
-            city: metadata.city || 'New Delhi',
-            state: metadata.state || 'Delhi',
-            country: metadata.country || 'India',
-            passportNo: metadata.passportNo || '',
-            idType: metadata.idType || 'Aadhaar Card',
-            idNumber: metadata.idNumber || '',
-            dietPreference: metadata.dietPreference || 'Vegetarian',
-            roomPreference: metadata.roomPreference || 'Standard',
-            emergencyContact: metadata.emergencyContact || '',
-            authProvider: row.auth_provider || 'email',
-            memberTier: metadata.memberTier || 'Member',
-            memberSince: metadata.memberSince || new Date().toLocaleDateString('en-IN', { month: 'long', year: 'numeric' }),
-            rewardCoins: metadata.rewardCoins || 500,
-            coTravelers: metadata.coTravelers || [],
-          };
-        };
-
-        // Unified Google Sign-In Endpoint
-        if (pathname === '/api/auth/google' && request.method === 'POST') {
-          const body = await request.json().catch(() => ({}));
-          const token = String(body.idToken || body.accessToken || body.token || '').trim();
-          if (!token) {
-            return new Response(JSON.stringify({ error: 'Google credential or access token required' }), {
-              status: 400,
-              headers: { 'Content-Type': 'application/json', ...corsHeaders }
-            });
-          }
-
-          let verifiedEmail = '';
-          let verifiedName = '';
-          let verifiedAvatar = '';
-          let googleSub = `google-${Date.now()}`;
-
-          // Try ID Token verification
-          try {
-            const idRes = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(token)}`);
-            if (idRes.ok) {
-              const data: any = await idRes.json();
-              if (data.email && (data.email_verified === 'true' || data.email_verified === true)) {
-                verifiedEmail = String(data.email).toLowerCase();
-                verifiedName = data.name || verifiedEmail.split('@')[0];
-                verifiedAvatar = data.picture || '';
-                googleSub = data.sub || googleSub;
-              }
-            }
-          } catch {}
-
-          // If not verified yet, try access token verification
-          if (!verifiedEmail) {
-            try {
-              const accRes = await fetch(`https://oauth2.googleapis.com/tokeninfo?access_token=${encodeURIComponent(token)}`);
-              if (accRes.ok) {
-                const data: any = await accRes.json();
-                if (data.email && (data.verified_email === true || data.email_verified === 'true' || data.email_verified === true)) {
-                  verifiedEmail = String(data.email).toLowerCase();
-                  verifiedName = verifiedEmail.split('@')[0];
-                  googleSub = data.sub || googleSub;
-                  
-                  const uRes = await fetch('https://openidconnect.googleapis.com/v1/userinfo', {
-                    headers: { Authorization: `Bearer ${token}` }
-                  });
-                  if (uRes.ok) {
-                    const uData: any = await uRes.json();
-                    if (uData.name) verifiedName = uData.name;
-                    if (uData.picture) verifiedAvatar = uData.picture;
-                  }
-                }
-              }
-            } catch {}
-          }
-
-          if (!verifiedEmail) {
-            return new Response(JSON.stringify({ error: 'Google authentication failed. Invalid token.' }), {
-              status: 401,
-              headers: { 'Content-Type': 'application/json', ...corsHeaders }
-            });
-          }
-
-          const now = new Date().toISOString();
-          let userProfile: any = null;
-
-          if (env.DB) {
-            const { results } = await env.DB.prepare('SELECT * FROM users WHERE email = ?').bind(verifiedEmail).all();
-            if (results && results.length > 0) {
-              const existing: any = results[0];
-              await env.DB.prepare('UPDATE users SET full_name = ?, avatar = ?, updated_at = ? WHERE email = ?')
-                .bind(verifiedName || existing.full_name, verifiedAvatar || existing.avatar, now, verifiedEmail).run().catch(() => {});
-              userProfile = formatUserProfile({ ...existing, full_name: verifiedName || existing.full_name, avatar: verifiedAvatar || existing.avatar });
-            } else {
-              const userId = `user-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
-              await env.DB.prepare(`
-                INSERT INTO users (id, email, full_name, avatar, auth_provider, created_at, updated_at)
-                VALUES (?, ?, ?, ?, 'google', ?, ?)
-              `).bind(userId, verifiedEmail, verifiedName, verifiedAvatar, now, now).run().catch(() => {});
-              userProfile = formatUserProfile({ id: userId, email: verifiedEmail, full_name: verifiedName, avatar: verifiedAvatar, auth_provider: 'google' });
-            }
-          } else {
-            userProfile = {
-              id: googleSub,
-              email: verifiedEmail,
-              name: verifiedName,
-              avatar: verifiedAvatar,
-              phone: '+91 98765 43210',
-              authProvider: 'google',
-              memberTier: 'Bhakti Sathi Elite',
-            };
-          }
-
-          return new Response(JSON.stringify({ success: true, user: userProfile }), {
-            headers: { 'Content-Type': 'application/json', ...corsHeaders }
-          });
-        }
-
-        // Traveler Sign Up
+        // Traveler signup/login: sessions are now issued and required for private operations.
         if (pathname === '/api/auth/traveler/signup' && request.method === 'POST') {
-          const body = await request.json().catch(() => ({}));
-          const email = String(body.email || '').trim().toLowerCase();
-          const password = String(body.password || '');
-          const fullName = String(body.fullName || '').trim() || email.split('@')[0];
-          const phone = String(body.phone || '').trim();
-
-          if (!email || !email.includes('@')) {
-            return new Response(JSON.stringify({ error: 'Please enter a valid email address.' }), {
-              status: 400,
-              headers: { 'Content-Type': 'application/json', ...corsHeaders }
-            });
-          }
-          if (!password || password.length < 6) {
-            return new Response(JSON.stringify({ error: 'Password must be at least 6 characters.' }), {
-              status: 400,
-              headers: { 'Content-Type': 'application/json', ...corsHeaders }
-            });
-          }
-
-          if (env.DB) {
-            const { results } = await env.DB.prepare('SELECT id FROM users WHERE email = ?').bind(email).all();
-            if (results && results.length > 0) {
-              return new Response(JSON.stringify({ error: 'An account already exists with this email. Please sign in.' }), {
-                status: 400,
-                headers: { 'Content-Type': 'application/json', ...corsHeaders }
-              });
-            }
-
-            const pHash = await hashPasswordWorker(password);
-            const userId = `user-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
-            const avatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=FF4B00&color=fff&bold=true`;
-            const now = new Date().toISOString();
-
-            await env.DB.prepare(`
-              INSERT INTO users (id, email, password_hash, full_name, phone, avatar, auth_provider, created_at, updated_at)
-              VALUES (?, ?, ?, ?, ?, ?, 'email', ?, ?)
-            `).bind(userId, email, pHash, fullName, phone, avatar, now, now).run();
-
-            const profile = formatUserProfile({ id: userId, email, full_name: fullName, phone, avatar, auth_provider: 'email' });
-            return new Response(JSON.stringify({ success: true, user: profile }), {
-              headers: { 'Content-Type': 'application/json', ...corsHeaders }
-            });
-          }
-
-          return new Response(JSON.stringify({ error: 'Database service unavailable.' }), {
-            status: 500,
-            headers: { 'Content-Type': 'application/json', ...corsHeaders }
-          });
+          if(!env.DB || !cmsSecret || cmsSecret.length<32) return json({error:'Authentication service unavailable.'},503,privateHeaders(env,request));
+          const b=await request.json().catch(()=>({})); const email=text(b.email,160).toLowerCase(); const password=String(b.password||''); const name=text(b.fullName||email.split('@')[0],120); const phone=text(b.phone,40);
+          if(!/^\S+@\S+\.\S+$/.test(email)||password.length<10) return json({error:'Valid email and password of at least 10 characters are required.'},400,privateHeaders(env,request));
+          const exists=await env.DB.prepare('SELECT id FROM users WHERE email=?').bind(email).all(); if(exists.results?.length) return json({error:'An account already exists with this email.'},409,privateHeaders(env,request));
+          const id=`user-${crypto.randomUUID()}`, hash=await makePasswordHash(password), now=new Date().toISOString(); await env.DB.prepare('INSERT INTO users (id,email,password_hash,full_name,phone,auth_provider,created_at,updated_at) VALUES (?,?,?,?,?,\'email\',?,?)').bind(id,email,hash,name,phone,now,now).run();
+          const session=await signedToken(email,cmsSecret,30*24*60*60); const h=new Headers(privateHeaders(env,request)); h.append('Set-Cookie',cookie('bs_user_session',session,30*24*60*60)); return json({success:true,user:{id,email,name,phone,authProvider:'email'}},200,h);
         }
-
-        // Traveler Login
         if (pathname === '/api/auth/traveler/login' && request.method === 'POST') {
-          const body = await request.json().catch(() => ({}));
-          const email = String(body.email || '').trim().toLowerCase();
-          const password = String(body.password || '');
-
-          if (!email || !password) {
-            return new Response(JSON.stringify({ error: 'Email and password are required.' }), {
-              status: 400,
-              headers: { 'Content-Type': 'application/json', ...corsHeaders }
-            });
-          }
-
-          if (env.DB) {
-            const { results } = await env.DB.prepare('SELECT * FROM users WHERE email = ?').bind(email).all();
-            if (!results || results.length === 0) {
-              return new Response(JSON.stringify({ error: 'Invalid email or password.' }), {
-                status: 401,
-                headers: { 'Content-Type': 'application/json', ...corsHeaders }
-              });
-            }
-
-            const userRow: any = results[0];
-            const pHash = await hashPasswordWorker(password);
-            if (userRow.password_hash !== pHash) {
-              return new Response(JSON.stringify({ error: 'Invalid email or password.' }), {
-                status: 401,
-                headers: { 'Content-Type': 'application/json', ...corsHeaders }
-              });
-            }
-
-            const profile = formatUserProfile(userRow);
-            return new Response(JSON.stringify({ success: true, user: profile }), {
-              headers: { 'Content-Type': 'application/json', ...corsHeaders }
-            });
-          }
-
-          return new Response(JSON.stringify({ error: 'Database service unavailable.' }), {
-            status: 500,
-            headers: { 'Content-Type': 'application/json', ...corsHeaders }
-          });
+          if(!env.DB || !cmsSecret || cmsSecret.length<32) return json({error:'Authentication service unavailable.'},503,privateHeaders(env,request));
+          const b=await request.json().catch(()=>({})); const email=text(b.email,160).toLowerCase(); const password=String(b.password||''); const q=await env.DB.prepare('SELECT * FROM users WHERE email=?').bind(email).all(); const row:any=q.results?.[0];
+          if(!row || !(await checkPassword(password,row.password_hash||''))) return json({error:'Invalid email or password.'},401,privateHeaders(env,request));
+          const session=await signedToken(email,cmsSecret,30*24*60*60); const h=new Headers(privateHeaders(env,request)); h.append('Set-Cookie',cookie('bs_user_session',session,30*24*60*60)); return json({success:true,user:{id:row.id,email:row.email,name:row.full_name||row.email.split('@')[0],phone:row.phone||'',authProvider:row.auth_provider||'email'}},200,h);
         }
-
-        // Traveler Send OTP
-        if (pathname === '/api/auth/traveler/send-otp' && request.method === 'POST') {
-          const body = await request.json().catch(() => ({}));
-          const email = String(body.email || '').trim().toLowerCase();
-          if (!email || !email.includes('@')) {
-            return new Response(JSON.stringify({ error: 'Please enter a valid email address.' }), {
-              status: 400,
-              headers: { 'Content-Type': 'application/json', ...corsHeaders }
-            });
-          }
-
-          const code = Math.floor(100000 + Math.random() * 900000).toString();
-          const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString();
-          const now = new Date().toISOString();
-
-          if (env.DB) {
-            await env.DB.prepare('INSERT INTO otp_codes (email, code, expires_at, created_at) VALUES (?, ?, ?, ?)').bind(email, code, expiresAt, now).run().catch(() => {});
-          }
-
-          return new Response(JSON.stringify({
-            success: true,
-            message: `A 6-digit verification code has been dispatched to ${email}.`,
-          }), {
-            headers: { 'Content-Type': 'application/json', ...corsHeaders }
-          });
-        }
-
-        // Traveler Verify OTP
-        if (pathname === '/api/auth/traveler/verify-otp' && request.method === 'POST') {
-          const body = await request.json().catch(() => ({}));
-          const email = String(body.email || '').trim().toLowerCase();
-          const otp = String(body.otp || '').trim();
-
-          if (!email || !otp) {
-            return new Response(JSON.stringify({ error: 'Email and 6-digit OTP code required.' }), {
-              status: 400,
-              headers: { 'Content-Type': 'application/json', ...corsHeaders }
-            });
-          }
-
-          if (env.DB) {
-            const now = new Date().toISOString();
-            const { results } = await env.DB.prepare('SELECT id FROM otp_codes WHERE email = ? AND code = ? AND expires_at > ?').bind(email, otp, now).all();
-            if (!results || results.length === 0) {
-              return new Response(JSON.stringify({ error: 'Invalid or expired OTP code. Please request a new code.' }), {
-                status: 400,
-                headers: { 'Content-Type': 'application/json', ...corsHeaders }
-              });
-            }
-
-            await env.DB.prepare('DELETE FROM otp_codes WHERE email = ?').bind(email).run().catch(() => {});
-
-            // Fetch or create user in D1
-            const userRes = await env.DB.prepare('SELECT * FROM users WHERE email = ?').bind(email).all();
-            let userProfile: any;
-            if (userRes.results && userRes.results.length > 0) {
-              userProfile = formatUserProfile(userRes.results[0]);
-            } else {
-              const userId = `user-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
-              const avatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(email.split('@')[0])}&background=FF4B00&color=fff&bold=true`;
-              await env.DB.prepare(`
-                INSERT INTO users (id, email, full_name, avatar, auth_provider, created_at, updated_at)
-                VALUES (?, ?, ?, ?, 'otp', ?, ?)
-              `).bind(userId, email, email.split('@')[0], avatar, now, now).run();
-              userProfile = formatUserProfile({ id: userId, email, full_name: email.split('@')[0], avatar, auth_provider: 'otp' });
-            }
-
-            return new Response(JSON.stringify({ success: true, user: userProfile }), {
-              headers: { 'Content-Type': 'application/json', ...corsHeaders }
-            });
-          }
-
-          return new Response(JSON.stringify({ error: 'Database service unavailable.' }), {
-            status: 500,
-            headers: { 'Content-Type': 'application/json', ...corsHeaders }
-          });
-        }
-
-        // Traveler Update Profile
         if (pathname === '/api/auth/traveler/profile' && request.method === 'POST') {
-          const body = await request.json().catch(() => ({}));
-          const profile = body.profile;
-          if (!profile || !profile.email) {
-            return new Response(JSON.stringify({ error: 'Profile data required.' }), {
-              status: 400,
-              headers: { 'Content-Type': 'application/json', ...corsHeaders }
-            });
-          }
-
-          const email = String(profile.email).toLowerCase();
-          const now = new Date().toISOString();
-          const metadataJson = JSON.stringify({
-            city: profile.city || 'New Delhi',
-            state: profile.state || 'Delhi',
-            country: profile.country || 'India',
-            passportNo: profile.passportNo || '',
-            idType: profile.idType || 'Aadhaar Card',
-            idNumber: profile.idNumber || '',
-            dietPreference: profile.dietPreference || 'Vegetarian',
-            roomPreference: profile.roomPreference || 'Standard',
-            emergencyContact: profile.emergencyContact || '',
-            memberTier: profile.memberTier || 'Member',
-            memberSince: profile.memberSince,
-            rewardCoins: profile.rewardCoins,
-            coTravelers: profile.coTravelers || [],
-          });
-
-          if (env.DB) {
-            await env.DB.prepare(`
-              UPDATE users SET full_name = ?, phone = ?, avatar = ?, metadata = ?, updated_at = ? WHERE email = ?
-            `).bind(profile.name || '', profile.phone || '', profile.avatar || '', metadataJson, now, email).run();
-          }
-
-          return new Response(JSON.stringify({ success: true, user: profile }), {
-            headers: { 'Content-Type': 'application/json', ...corsHeaders }
-          });
+          const email=await requireUser(); if(!email||!env.DB) return json({error:'Authentication required.'},401,privateHeaders(env,request)); const b=await request.json().catch(()=>({})); const p=b.profile||{}; if(String(p.email||'').toLowerCase()!==email) return json({error:'Forbidden.'},403,privateHeaders(env,request));
+          const metadata=JSON.stringify({city:text(p.city,100),state:text(p.state,100),country:text(p.country,100),passportNo:text(p.passportNo,80),idType:text(p.idType,50),idNumber:text(p.idNumber,100),dietPreference:text(p.dietPreference,50),roomPreference:text(p.roomPreference,50),emergencyContact:text(p.emergencyContact,200),coTravelers:Array.isArray(p.coTravelers)?p.coTravelers.slice(0,10):[]});
+          await env.DB.prepare('UPDATE users SET full_name=?,phone=?,avatar=?,metadata=?,updated_at=? WHERE email=?').bind(text(p.name,120),text(p.phone,40),text(p.avatar,500),metadata,new Date().toISOString(),email).run(); return json({success:true},200,privateHeaders(env,request));
         }
-
-        // Traveler Bookings API
         if (pathname === '/api/traveler/bookings') {
-          if (request.method === 'GET') {
-            const email = url.searchParams.get('email');
-            if (!email || !env.DB) {
-              return new Response(JSON.stringify({ bookings: [] }), {
-                headers: { 'Content-Type': 'application/json', ...corsHeaders }
-              });
-            }
-            const { results } = await env.DB.prepare('SELECT * FROM bookings WHERE user_email = ? ORDER BY created_at DESC').bind(email).all();
-            const bookings = (results || []).map((r: any) => ({
-              ...r,
-              details: r.details ? JSON.parse(r.details) : null,
-            }));
-            return new Response(JSON.stringify({ bookings }), {
-              headers: { 'Content-Type': 'application/json', ...corsHeaders }
-            });
-          }
-
-          if (request.method === 'POST') {
-            const body = await request.json().catch(() => ({}));
-            if (!body.userEmail || !env.DB) {
-              return new Response(JSON.stringify({ error: 'User email required' }), {
-                status: 400,
-                headers: { 'Content-Type': 'application/json', ...corsHeaders }
-              });
-            }
-            const id = body.id || `bkg-${Date.now()}`;
-            const now = new Date().toISOString();
-            await env.DB.prepare(`
-              INSERT INTO bookings (id, user_email, package_id, package_title, travelers_count, total_price, status, details, created_at, updated_at)
-              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            `).bind(
-              id, body.userEmail, body.packageId || '', body.packageTitle || '',
-              body.travelersCount || 1, body.totalPrice || 0, body.status || 'confirmed',
-              JSON.stringify(body.details || {}), now, now
-            ).run();
-
-            return new Response(JSON.stringify({ success: true, id }), {
-              headers: { 'Content-Type': 'application/json', ...corsHeaders }
-            });
-          }
+          const email=await requireUser(); if(!email||!env.DB) return json({error:'Authentication required.'},401,privateHeaders(env,request));
+          if(request.method==='GET'){const q=await env.DB.prepare('SELECT * FROM bookings WHERE user_email=? ORDER BY created_at DESC LIMIT 100').bind(email).all(); return json({bookings:q.results||[]},200,privateHeaders(env,request));}
+          if(request.method==='POST'){const b=await request.json().catch(()=>({})); const id=`bkg-${crypto.randomUUID()}`; const now=new Date().toISOString(); await env.DB.prepare('INSERT INTO bookings (id,user_email,package_id,package_title,travelers_count,total_price,status,details,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?)').bind(id,email,text(b.packageId,100),text(b.packageTitle,300),Math.min(50,Math.max(1,Number(b.travelersCount)||1)),Math.max(0,Number(b.totalPrice)||0,'pending',JSON.stringify(b.details||{}),now,now).run(); return json({success:true,id},201,privateHeaders(env,request));}
         }
 
-        // Generic Content API with R2 media integration & server-side authorization
+        // Public content: cacheable at Cloudflare edge. Only published content is exposed.
         if (pathname === '/api/contents' || pathname.startsWith('/api/contents/')) {
-          const pathParts = pathname.replace('/api/contents', '').replace(/^\/+/, '').split('/');
-          const subRoute = pathParts[0];
-
-          if (request.method === 'GET') {
-            if (!subRoute) {
-              const contentType = url.searchParams.get('type');
-              let query = 'SELECT * FROM contents WHERE status = "published"';
-              let stmt;
-              if (contentType) {
-                query += ' AND content_type = ? ORDER BY updated_at DESC';
-                stmt = env.DB.prepare(query).bind(contentType);
-              } else {
-                query += ' ORDER BY updated_at DESC';
-                stmt = env.DB.prepare(query);
-              }
-              const { results } = await stmt.all();
-              
-              const parsedResults = [];
-              for (const row of (results || [])) {
-                const mediaRes = await env.DB.prepare('SELECT * FROM media WHERE content_item_id = ? ORDER BY sort_order ASC').bind(row.id).all();
-                parsedResults.push({
-                  ...row,
-                  structured_content: row.structured_content ? JSON.parse(row.structured_content) : null,
-                  media: (mediaRes.results || []).map((m: any) => ({
-                    ...m,
-                    url: `/api/files/${m.r2_key}`
-                  })),
-                });
-              }
-
-              return new Response(JSON.stringify({ success: true, data: parsedResults }), {
-                headers: { 'Content-Type': 'application/json', ...corsHeaders }
-              });
-            } else if (subRoute === 'slug' && pathParts[1]) {
-              const slug = pathParts[1];
-              const { results } = await env.DB.prepare('SELECT * FROM contents WHERE slug = ?').bind(slug).all();
-              if (!results || results.length === 0) {
-                return new Response(JSON.stringify({ error: 'Content not found' }), {
-                  status: 404,
-                  headers: { 'Content-Type': 'application/json', ...corsHeaders }
-                });
-              }
-              const row: any = results[0];
-              const mediaRes = await env.DB.prepare('SELECT * FROM media WHERE content_item_id = ? ORDER BY sort_order ASC').bind(row.id).all();
-              const parsed = {
-                ...row,
-                structured_content: row.structured_content ? JSON.parse(row.structured_content) : null,
-                media: (mediaRes.results || []).map((m: any) => ({
-                  ...m,
-                  url: `/api/files/${m.r2_key}`
-                })),
-              };
-              return new Response(JSON.stringify({ success: true, data: parsed }), {
-                headers: { 'Content-Type': 'application/json', ...corsHeaders }
-              });
-            } else {
-              const id = subRoute;
-              const { results } = await env.DB.prepare('SELECT * FROM contents WHERE id = ?').bind(id).all();
-              if (!results || results.length === 0) {
-                return new Response(JSON.stringify({ error: 'Content not found' }), {
-                  status: 404,
-                  headers: { 'Content-Type': 'application/json', ...corsHeaders }
-                });
-              }
-              const row: any = results[0];
-              const mediaRes = await env.DB.prepare('SELECT * FROM media WHERE content_item_id = ? ORDER BY sort_order ASC').bind(row.id).all();
-              const parsed = {
-                ...row,
-                structured_content: row.structured_content ? JSON.parse(row.structured_content) : null,
-                media: (mediaRes.results || []).map((m: any) => ({
-                  ...m,
-                  url: `/api/files/${m.r2_key}`
-                })),
-              };
-              return new Response(JSON.stringify({ success: true, data: parsed }), {
-                headers: { 'Content-Type': 'application/json', ...corsHeaders }
-              });
-            }
-          }
-
-          // Write operations require full authentication (PIN session + CMS session)
-          if (request.method === 'POST' || request.method === 'PUT' || request.method === 'DELETE') {
-            const { pinVerified, cmsAuthorized } = checkSessions(request);
-            if (!pinVerified || !cmsAuthorized) {
-              return new Response(JSON.stringify({ error: 'Unauthorized. Authentication required.' }), {
-                status: 401,
-                headers: { 'Content-Type': 'application/json', ...corsHeaders }
-              });
-            }
-
-            if (request.method === 'DELETE') {
-              const id = subRoute;
-              if (!id) {
-                return new Response(JSON.stringify({ error: 'Content ID required' }), {
-                  status: 400,
-                  headers: { 'Content-Type': 'application/json', ...corsHeaders }
-                });
-              }
-              await env.DB.prepare('DELETE FROM contents WHERE id = ?').bind(id).run();
-              await env.DB.prepare('DELETE FROM media WHERE content_item_id = ?').bind(id).run();
-              return new Response(JSON.stringify({ success: true, message: 'Content deleted successfully' }), {
-                headers: { 'Content-Type': 'application/json', ...corsHeaders }
-              });
-            }
-
-            const body = await request.json().catch(() => ({}));
-            const id = body.id || `content-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
-            const contentType = body.content_type || 'tour';
-            const title = body.title || 'Untitled';
-            const slug = body.slug || title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-            const subtitle = body.subtitle || '';
-            const summary = body.summary || '';
-            const bodyText = body.body || '';
-            const structuredContent = typeof body.structured_content === 'object' ? JSON.stringify(body.structured_content) : (body.structured_content || null);
-            const seoTitle = body.seo_title || '';
-            const seoDescription = body.seo_description || '';
-            const seoKeywords = body.seo_keywords || '';
-            const status = body.status || 'published';
-            const mediaJson = typeof body.media === 'object' ? JSON.stringify(body.media) : (body.media || null);
-            const now = new Date().toISOString();
-
-            await env.DB.prepare(`
-              INSERT INTO contents (id, content_type, title, slug, subtitle, summary, body, structured_content, seo_title, seo_description, seo_keywords, status, media, created_at, updated_at)
-              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-              ON CONFLICT(id) DO UPDATE SET
-                content_type = excluded.content_type,
-                title = excluded.title,
-                slug = excluded.slug,
-                subtitle = excluded.subtitle,
-                summary = excluded.summary,
-                body = excluded.body,
-                structured_content = excluded.structured_content,
-                seo_title = excluded.seo_title,
-                seo_description = excluded.seo_description,
-                seo_keywords = excluded.seo_keywords,
-                status = excluded.status,
-                media = excluded.media,
-                updated_at = excluded.updated_at
-            `).bind(
-              id, contentType, title, slug, subtitle, summary, bodyText, structuredContent,
-              seoTitle, seoDescription, seoKeywords, status, mediaJson, now, now
-            ).run();
-
-            return new Response(JSON.stringify({ success: true, id, slug, message: 'Content saved successfully' }), {
-              headers: { 'Content-Type': 'application/json', ...corsHeaders }
-            });
-          }
+          if(request.method==='GET' && env.DB){ const parts=pathname.replace('/api/contents','').replace(/^\/+/,'').split('/'); let results:any[]=[]; if(!parts[0]){const type=text(url.searchParams.get('type'),80); const q=type?await env.DB.prepare('SELECT id,content_type,title,slug,subtitle,summary,body,structured_content,seo_title,seo_description,seo_keywords,status,media,created_at,updated_at FROM contents WHERE status=? AND content_type=? ORDER BY updated_at DESC LIMIT 200').bind('published',type).all():await env.DB.prepare('SELECT id,content_type,title,slug,subtitle,summary,body,structured_content,seo_title,seo_description,seo_keywords,status,media,created_at,updated_at FROM contents WHERE status=? ORDER BY updated_at DESC LIMIT 200').bind('published').all(); results=q.results||[]; } else { const key=text(parts[1]||parts[0],300); const q=parts[0]==='slug'?await env.DB.prepare('SELECT id,content_type,title,slug,subtitle,summary,body,structured_content,seo_title,seo_description,seo_keywords,status,media,created_at,updated_at FROM contents WHERE slug=? AND status=?').bind(key,'published').all():await env.DB.prepare('SELECT id,content_type,title,slug,subtitle,summary,body,structured_content,seo_title,seo_description,seo_keywords,status,media,created_at,updated_at FROM contents WHERE id=? AND status=?').bind(key,'published').all(); results=q.results||[]; if(!results.length)return json({error:'Content not found'},404,publicCacheHeaders(env,request)); }
+            for(const r of results){try{r.structured_content=r.structured_content?JSON.parse(r.structured_content):null;}catch{r.structured_content=null;} } return json({success:true,data:parts[0]?results[0]:results},200,publicCacheHeaders(env,request)); }
+          if(['POST','PUT','DELETE'].includes(request.method)){const email=await requireCms(); if(!email||!env.DB)return json({error:'Unauthorized.'},401,privateHeaders(env,request)); const b=await request.json().catch(()=>({})); if(request.method==='DELETE'){const id=text(pathname.split('/').pop(),100); await env.DB.prepare('DELETE FROM contents WHERE id=?').bind(id).run(); return json({success:true},200,privateHeaders(env,request));} const id=text(b.id||`content-${crypto.randomUUID()}`,100), title=text(b.title,300); if(!title)return json({error:'Title required.'},400,privateHeaders(env,request)); const slug=text(b.slug||title.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,''),200), now=new Date().toISOString(); await env.DB.prepare('INSERT INTO contents (id,content_type,title,slug,subtitle,summary,body,structured_content,seo_title,seo_description,seo_keywords,status,media,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET content_type=excluded.content_type,title=excluded.title,slug=excluded.slug,subtitle=excluded.subtitle,summary=excluded.summary,body=excluded.body,structured_content=excluded.structured_content,seo_title=excluded.seo_title,seo_description=excluded.seo_description,seo_keywords=excluded.seo_keywords,status=excluded.status,media=excluded.media,updated_at=excluded.updated_at').bind(id,text(b.content_type,80)||'tour',title,slug,text(b.subtitle,500),text(b.summary,3000),text(b.body,50000),typeof b.structured_content==='object'?JSON.stringify(b.structured_content):null,text(b.seo_title,200),text(b.seo_description,500),text(b.seo_keywords,500),['published','draft','archived'].includes(b.status)?b.status:'draft',typeof b.media==='object'?JSON.stringify(b.media):null,now,now).run(); return json({success:true,id,slug},200,privateHeaders(env,request));}
         }
 
-        // Unified R2 Media Upload API (`POST /api/upload`) - Protected
-        if (pathname === '/api/upload' && request.method === 'POST') {
-          const { pinVerified, cmsAuthorized } = checkSessions(request);
-          if (!pinVerified || !cmsAuthorized) {
-            return new Response(JSON.stringify({ error: 'Unauthorized. Authentication required.' }), {
-              status: 401,
-              headers: { 'Content-Type': 'application/json', ...corsHeaders }
-            });
-          }
+        if(pathname==='/api/files/' || pathname.startsWith('/api/files/')){ if(request.method!=='GET'||!env.BUCKET)return json({error:'Not found'},404,publicCacheHeaders(env,request)); const key=decodeURIComponent(pathname.replace('/api/files/','')); if(!key||key.includes('..')||key.startsWith('/'))return json({error:'Invalid file key'},400,publicCacheHeaders(env,request)); const object=await env.BUCKET.get(key); if(!object)return json({error:'File not found'},404,publicCacheHeaders(env,request)); const h=new Headers(publicCacheHeaders(env,request)); object.writeHttpMetadata(h); h.set('ETag',object.httpEtag); h.set('Cache-Control','public, max-age=31536000, immutable'); return new Response(object.body,{headers:h}); }
 
-          if (!env.BUCKET) {
-            return new Response(JSON.stringify({ error: 'R2 BUCKET binding not configured' }), {
-              status: 500,
-              headers: { 'Content-Type': 'application/json', ...corsHeaders }
-            });
-          }
+        if(pathname==='/api/upload'&&request.method==='POST'){const email=await requireCms(); if(!email||!env.BUCKET)return json({error:'Unauthorized.'},401,privateHeaders(env,request)); const form=await request.formData(); const file=form.get('file'); if(!(file instanceof File))return json({error:'No file provided.'},400,privateHeaders(env,request)); if(file.size>10*1024*1024)return json({error:'File too large.'},413,privateHeaders(env,request)); const allowed=new Set(['image/jpeg','image/png','image/webp','image/avif','image/gif']); if(!allowed.has(file.type))return json({error:'Unsupported file type.'},415,privateHeaders(env,request)); const name=file.name.replace(/[^a-zA-Z0-9._-]/g,'_').slice(-150); const key=`media/${crypto.randomUUID()}-${name}`; await env.BUCKET.put(key,file.stream(),{httpMetadata:{contentType:file.type,cacheControl:'public, max-age=31536000, immutable'}}); return json({success:true,r2_key:key,url:`/api/files/${encodeURIComponent(key)}`},201,privateHeaders(env,request)); }
 
-          const formData = await request.formData();
-          const file = formData.get('file') as File;
-          const contentType = (formData.get('contentType') as string) || 'tours';
-          const slug = (formData.get('slug') as string) || 'general';
-          const mediaType = (formData.get('mediaType') as string) || 'gallery';
-          const contentItemId = (formData.get('contentItemId') as string) || null;
-          const altText = (formData.get('altText') as string) || '';
-          const caption = (formData.get('caption') as string) || '';
-          const sortOrder = parseInt((formData.get('sortOrder') as string) || '0', 10);
-          const isCover = (formData.get('isCover') as string) === 'true' ? 1 : 0;
+        if(pathname==='/api/notify-lead'&&request.method==='POST'){if(!env.DB)return json({error:'Database unavailable.'},503,privateHeaders(env,request)); const b=await request.json().catch(()=>({})); const name=text(b.name,120),phone=text(b.phone,40),pack=text(b.package,200); if(!name||!phone)return json({error:'Name and phone are required.'},400,privateHeaders(env,request)); await env.DB.prepare('INSERT INTO leads (name,phone,package,created_at) VALUES (?,?,?,?)').bind(name,phone,pack,new Date().toISOString()).run(); return json({success:true},201,publicHeaders(env,request)); }
 
-          if (!file) {
-            return new Response(JSON.stringify({ error: 'No file provided' }), {
-              status: 400,
-              headers: { 'Content-Type': 'application/json', ...corsHeaders }
-            });
-          }
+        if(['/api/generate-seo','/api/generate-guide-article','/api/generate-guide-faqs','/api/generate-guide-seo','/api/fetch-hotel-details'].includes(pathname)){const email=await requireCms(); if(!email)return json({error:'Unauthorized.'},401,privateHeaders(env,request)); const key=String(env.GEMINI_API_KEY||''); if(!key)return json({error:'AI service not configured.'},503,privateHeaders(env,request)); const b=await request.json().catch(()=>({})); const title=text(b.title||b.hotelName||'Sacred destination',300); const ai=new GoogleGenAI({apiKey:key}); const prompt=pathname==='/api/generate-seo'?`Generate concise SEO title and meta description for ${title}.`:`Create accurate editorial content for ${title}. Do not invent facts, ratings, reviews or amenities.`; const r=await ai.models.generateContent({model:'gemini-2.5-flash',contents:prompt}); return json({success:true,result:r.text},200,privateHeaders(env,request)); }
 
-          const sanitizedFilename = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-          const r2Key = `${contentType}/${slug}/${mediaType}/${Date.now()}-${sanitizedFilename}`;
-
-          await env.BUCKET.put(r2Key, file.stream(), {
-            httpMetadata: { contentType: file.type }
-          });
-
-          const mediaId = `media-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
-          const now = new Date().toISOString();
-
-          if (env.DB) {
-            if (isCover && contentItemId) {
-              await env.DB.prepare('UPDATE media SET is_cover = 0 WHERE content_item_id = ?').bind(contentItemId).run();
-            }
-
-            await env.DB.prepare(`
-              INSERT INTO media (id, content_item_id, r2_key, original_filename, mime_type, file_size, media_type, alt_text, caption, sort_order, is_cover, created_at, updated_at)
-              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            `).bind(
-              mediaId, contentItemId, r2Key, file.name, file.type, file.size, mediaType, altText, caption, sortOrder, isCover, now, now
-            ).run();
-          }
-
-          return new Response(JSON.stringify({
-            success: true,
-            id: mediaId,
-            r2_key: r2Key,
-            url: `/api/files/${r2Key}`,
-            message: 'File uploaded successfully'
-          }), {
-            headers: { 'Content-Type': 'application/json', ...corsHeaders }
-          });
-        }
-
-        // Media Delete API (`DELETE /api/media/:id`) - Protected
-        if (pathname.startsWith('/api/media/') && request.method === 'DELETE') {
-          const { pinVerified, cmsAuthorized } = checkSessions(request);
-          if (!pinVerified || !cmsAuthorized) {
-            return new Response(JSON.stringify({ error: 'Unauthorized. Authentication required.' }), {
-              status: 401,
-              headers: { 'Content-Type': 'application/json', ...corsHeaders }
-            });
-          }
-
-          const mediaId = pathname.replace('/api/media/', '');
-          if (!mediaId) {
-            return new Response(JSON.stringify({ error: 'Media ID required' }), {
-              status: 400,
-              headers: { 'Content-Type': 'application/json', ...corsHeaders }
-            });
-          }
-
-          if (env.DB) {
-            const { results } = await env.DB.prepare('SELECT r2_key FROM media WHERE id = ?').bind(mediaId).all();
-            if (results && results.length > 0) {
-              const r2Key = (results[0] as any).r2_key;
-              if (env.BUCKET && r2Key) {
-                await env.BUCKET.delete(r2Key).catch(() => {});
-              }
-              await env.DB.prepare('DELETE FROM media WHERE id = ?').bind(mediaId).run();
-            }
-          }
-
-          return new Response(JSON.stringify({ success: true, message: 'Media deleted' }), {
-            headers: { 'Content-Type': 'application/json', ...corsHeaders }
-          });
-        }
-
-        // R2 File Retrieval API (`GET /api/files/*`) - Public
-        if (pathname.startsWith('/api/files/') && request.method === 'GET') {
-          if (!env.BUCKET) {
-            return new Response(JSON.stringify({ error: 'R2 BUCKET binding not configured' }), {
-              status: 500,
-              headers: { 'Content-Type': 'application/json', ...corsHeaders }
-            });
-          }
-          const filename = pathname.replace('/api/files/', '');
-          const object = await env.BUCKET.get(filename);
-          if (!object) {
-            return new Response(JSON.stringify({ error: 'File not found' }), {
-              status: 404,
-              headers: { 'Content-Type': 'application/json', ...corsHeaders }
-            });
-          }
-          const headers = new Headers(corsHeaders);
-          object.writeHttpMetadata(headers);
-          headers.set('etag', object.httpEtag);
-          return new Response(object.body, { headers });
-        }
-
-        if (
-          pathname === '/api/generate-seo' ||
-          pathname === '/api/generate-guide-article' ||
-          pathname === '/api/generate-guide-faqs' ||
-          pathname === '/api/generate-guide-seo' ||
-          pathname === '/api/fetch-hotel-details'
-        ) {
-          const { pinVerified, cmsAuthorized } = checkSessions(request);
-          if (!pinVerified || !cmsAuthorized) {
-            return new Response(JSON.stringify({ error: 'Unauthorized.' }), {
-              status: 401,
-              headers: { 'Content-Type': 'application/json', ...corsHeaders }
-            });
-          }
-
-          const apiKey = env.GEMINI_API_KEY || process.env.GEMINI_API_KEY;
-          if (!apiKey) {
-            return new Response(JSON.stringify({ error: 'GEMINI_API_KEY is not configured.' }), {
-              status: 500,
-              headers: { 'Content-Type': 'application/json', ...corsHeaders }
-            });
-          }
-
-          const body = await request.json().catch(() => ({}));
-          const ai = new GoogleGenAI({ apiKey });
-          
-          let prompt = body.prompt || body.title || 'Generate content for Bhakti Sathi travel guide.';
-          if (pathname === '/api/generate-seo') {
-            prompt = `Generate SEO title and meta description for package: ${body.title || 'Pilgrimage Yatra'}. Return text description.`;
-          } else if (pathname === '/api/generate-guide-article') {
-            prompt = `Write a detailed travel guide article for destination: ${body.title || 'Sacred Destination'}. Include history, significance, best time to visit, and itinerary.`;
-          } else if (pathname === '/api/generate-guide-faqs') {
-            prompt = `Generate 5 helpful FAQs with answers for pilgrimage to ${body.title || 'Sacred Place'}.`;
-          } else if (pathname === '/api/generate-guide-seo') {
-            prompt = `Generate SEO meta tags for guide ${body.title || 'Guide'}.`;
-          } else if (pathname === '/api/fetch-hotel-details') {
-            prompt = `Provide hotel and accommodation details near ${body.hotelName || body.title || 'Temple'}.`;
-          }
-
-          const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
-            contents: prompt,
-          });
-
-          return new Response(JSON.stringify({ result: response.text, success: true }), {
-            headers: { 'Content-Type': 'application/json', ...corsHeaders }
-          });
-        }
-
-        if (pathname === '/api/notify-lead') {
-          const body = await request.json().catch(() => ({}));
-          if (env.DB) {
-            try {
-              await env.DB.prepare(`
-                CREATE TABLE IF NOT EXISTS leads (
-                  id INTEGER PRIMARY KEY AUTOINCREMENT,
-                  name TEXT,
-                  phone TEXT,
-                  package TEXT,
-                  created_at TEXT
-                )
-              `).run().catch(() => {});
-
-              await env.DB.prepare(
-                'INSERT INTO leads (name, phone, package, created_at) VALUES (?, ?, ?, ?)'
-              ).bind(body.name || '', body.phone || '', body.package || '', new Date().toISOString()).run();
-            } catch (err) {
-              console.error('D1 lead insert error:', err);
-            }
-          }
-          return new Response(JSON.stringify({ success: true, message: 'Lead recorded successfully' }), {
-            headers: { 'Content-Type': 'application/json', ...corsHeaders }
-          });
-        }
-
-        return new Response(JSON.stringify({ error: 'API endpoint not found' }), {
-          status: 404,
-          headers: { 'Content-Type': 'application/json', ...corsHeaders }
-        });
-
-      } catch (err: any) {
-        return new Response(JSON.stringify({ error: err.message || 'Internal server error' }), {
-          status: 500,
-          headers: { 'Content-Type': 'application/json', ...corsHeaders }
-        });
-      }
+        return json({error:'API endpoint not found'},404,publicHeaders(env,request));
+      } catch(e:any) { console.error('Worker error',e); return json({error:'Internal server error'},500,privateHeaders(env,request)); }
     }
 
-    try {
-      const assetResponse = await env.ASSETS.fetch(request);
-      if (assetResponse.status === 404) {
-        const indexRequest = new Request(new URL('/', request.url), request);
-        return env.ASSETS.fetch(indexRequest);
-      }
-      return assetResponse;
-    } catch (e) {
-      return new Response('Asset fetch error', { status: 500 });
-    }
+    try { const asset=await env.ASSETS.fetch(request); if(asset.status!==404)return asset; return env.ASSETS.fetch(new Request(new URL('/',request.url),request)); } catch { return new Response('Asset fetch error',{status:500}); }
   }
 };
