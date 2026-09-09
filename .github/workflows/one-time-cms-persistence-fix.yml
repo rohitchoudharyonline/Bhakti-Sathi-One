@@ -1,0 +1,57 @@
+name: One-time CMS persistence fix
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fix CMS empty-state persistence
+        shell: python
+        run: |
+          from pathlib import Path
+
+          path = Path('src/context/TourContext.tsx')
+          text = path.read_text(encoding='utf-8')
+
+          replacements = [
+              (
+                  "if (parsed && typeof parsed === 'object' && Object.keys(parsed).length > 0) {\n          return parsed;\n        }",
+                  "if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {\n          return parsed;\n        }",
+              ),
+              (
+                  "if (Array.isArray(parsed) && parsed.length > 0) return parsed;",
+                  "if (Array.isArray(parsed)) return parsed;",
+              ),
+          ]
+
+          original = text
+          for old, new in replacements:
+              text = text.replace(old, new)
+
+          if text == original:
+              raise SystemExit('No expected persistence patterns found; stopping without changes.')
+
+          path.write_text(text, encoding='utf-8')
+
+      - name: Remove one-time workflow
+        run: rm .github/workflows/one-time-cms-persistence-fix.yml
+
+      - name: Commit and push
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add src/context/TourContext.tsx .github/workflows/one-time-cms-persistence-fix.yml
+          git commit -m "fix: preserve deleted empty CMS collections"
+          git push
