@@ -36,3 +36,11 @@ jobs:
 
       - name: Production build
         run: bun run build
+
+      - name: Verify privileged configuration is absent from browser bundle
+        run: |
+          if grep -R -n -E 'r2_prod_key_77a9|d1_token_bhaktisathi_prod_882|a9e18b43f76902cd98ef11' dist --exclude='*.map'; then
+            echo 'ERROR: privileged infrastructure configuration leaked into dist.'
+            exit 1
+          fi
+          echo 'Browser bundle does not contain the blocked infrastructure values.'
