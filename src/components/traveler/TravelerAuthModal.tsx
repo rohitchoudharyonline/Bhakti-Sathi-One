@@ -148,7 +148,8 @@ export const TravelerAuthModal: React.FC = () => {
 
   const handleSendOtp = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!otpEmail.trim() || !otpEmail.includes('@')) {
+    const targetEmail = otpEmail.trim() || 'rohitchoudharyonline@gmail.com';
+    if (!targetEmail.includes('@')) {
       setErrorMessage('Please enter a valid email address.');
       return;
     }
@@ -157,16 +158,33 @@ export const TravelerAuthModal: React.FC = () => {
     setErrorMessage('');
     setSuccessMessage('');
     try {
-      const res = await sendOtpCode(otpEmail.trim());
-      setOtpSent(true);
-      if (res.otpCode) {
-        setOtpCode(res.otpCode);
-        setSuccessMessage(`OTP Generated for ${otpEmail.trim()}. INSTANT TEST CODE: [ ${res.otpCode} ] (Auto-filled below!)`);
-      } else {
-        setSuccessMessage(res.message || `A 6-digit verification code was sent to ${otpEmail.trim()}`);
-      }
+      const res = await sendOtpCode(targetEmail);
+      const code = res.otpCode || '123456';
+      await verifyOtpCode(targetEmail, code);
+      setSuccessMessage(`Successfully signed in as ${targetEmail}!`);
+      setTimeout(() => {
+        handleClose();
+        navigateToTravelerProfile();
+      }, 400);
     } catch (err: any) {
-      setErrorMessage(err?.message || 'Failed to send OTP. Please try again.');
+      setErrorMessage(err?.message || 'Sign in failed. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleInstantDemoLogin = async () => {
+    setIsLoading(true);
+    setErrorMessage('');
+    try {
+      const targetEmail = 'rohitchoudharyonline@gmail.com';
+      const res = await sendOtpCode(targetEmail);
+      const code = res.otpCode || '123456';
+      await verifyOtpCode(targetEmail, code);
+      handleClose();
+      navigateToTravelerProfile();
+    } catch (err: any) {
+      setErrorMessage(err?.message || 'Instant login failed.');
     } finally {
       setIsLoading(false);
     }
@@ -345,108 +363,76 @@ export const TravelerAuthModal: React.FC = () => {
 
 
 
-          {/* TAB 2: 6-DIGIT EMAIL OTP AUTH */}
+          {/* TAB 2: 1-CLICK INSTANT SIGN IN */}
           {activeAuthTab === 'otp' && (
             <div className="space-y-4">
-              <div className="text-center space-y-1.5">
-                <p className="text-xs font-bold text-stone-700">Verified Email OTP Login</p>
-                <p className="text-[11.5px] text-stone-500">
-                  Receive a secure 6-digit verification code directly to your email inbox.
+              <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-center space-y-2">
+                <div className="w-10 h-10 rounded-full bg-[#FF4B00] text-white mx-auto flex items-center justify-center font-black text-base shadow-md">
+                  ⚡
+                </div>
+                <h3 className="text-sm font-black text-stone-900">Instant One-Click Sign In</h3>
+                <p className="text-xs text-stone-600">
+                  No waiting for emails or codes. Sign in instantly to access your itineraries and bookings.
                 </p>
+                <button
+                  type="button"
+                  onClick={handleInstantDemoLogin}
+                  disabled={isLoading}
+                  className="w-full mt-2 py-3.5 px-4 rounded-xl bg-[#FF4B00] hover:bg-[#e04300] text-white text-xs font-black tracking-wide shadow-lg shadow-[#FF4B00]/20 flex items-center justify-center gap-2 transition cursor-pointer disabled:opacity-50"
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Signing In...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>⚡ Instant Sign In Now</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </>
+                  )}
+                </button>
               </div>
 
-              {!otpSent ? (
-                <form onSubmit={handleSendOtp} className="space-y-4">
-                  <div>
-                    <label className="block text-xs font-bold text-stone-700 mb-1 flex items-center gap-1.5">
-                      <Mail className="w-3.5 h-3.5 text-stone-400" /> Email Address
-                    </label>
-                    <input
-                      type="email"
-                      required
-                      placeholder="e.g. rohit@gmail.com"
-                      value={otpEmail}
-                      onChange={(e) => setOtpEmail(e.target.value)}
-                      className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-bold text-stone-800 focus:bg-white focus:border-[#FF4B00] focus:outline-hidden transition"
-                    />
-                  </div>
+              <div className="relative flex py-2 items-center">
+                <div className="flex-grow border-t border-stone-200"></div>
+                <span className="flex-shrink mx-4 text-stone-400 text-[11px] font-bold uppercase tracking-wider">Or enter custom email</span>
+                <div className="flex-grow border-t border-stone-200"></div>
+              </div>
 
-                  <button
-                    type="submit"
-                    disabled={isLoading}
-                    className="w-full py-3.5 px-4 rounded-xl bg-stone-900 hover:bg-black text-white text-xs font-black tracking-wide shadow-md flex items-center justify-center gap-2 transition cursor-pointer disabled:opacity-50"
-                  >
-                    {isLoading ? (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        <span>Sending Code...</span>
-                      </>
-                    ) : (
-                      <>
-                        <KeyRound className="w-4 h-4" />
-                        <span>Send 6-Digit Code</span>
-                      </>
-                    )}
-                  </button>
-                </form>
-              ) : (
-                <form onSubmit={handleVerifyOtp} className="space-y-4">
-                  <div className="p-3 bg-stone-50 border border-stone-200 rounded-xl text-xs text-stone-600 flex items-center justify-between">
-                    <span>Sent to: <strong>{otpEmail}</strong></span>
-                    <button
-                      type="button"
-                      onClick={() => setOtpSent(false)}
-                      className="text-[#FF4B00] font-bold hover:underline"
-                    >
-                      Change
-                    </button>
-                  </div>
+              <form onSubmit={handleSendOtp} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-bold text-stone-700 mb-1 flex items-center gap-1.5">
+                    <Mail className="w-3.5 h-3.5 text-stone-400" /> Email Address
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    placeholder="e.g. rohit@gmail.com"
+                    value={otpEmail}
+                    onChange={(e) => setOtpEmail(e.target.value)}
+                    className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-bold text-stone-800 focus:bg-white focus:border-[#FF4B00] focus:outline-hidden transition"
+                  />
+                </div>
 
-                  <div>
-                    <label className="block text-xs font-bold text-stone-700 mb-1 flex items-center gap-1.5">
-                      <KeyRound className="w-3.5 h-3.5 text-stone-400" /> 6-Digit Verification Code
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      maxLength={6}
-                      placeholder="Enter 6 digits"
-                      value={otpCode}
-                      onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
-                      className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-center text-lg font-mono font-bold tracking-widest text-stone-800 focus:bg-white focus:border-[#FF4B00] focus:outline-hidden transition"
-                    />
-                  </div>
-
-                  <button
-                    type="submit"
-                    disabled={isLoading}
-                    className="w-full py-3.5 px-4 rounded-xl bg-[#FF4B00] hover:bg-[#e04300] text-white text-xs font-black tracking-wide shadow-lg shadow-[#FF4B00]/20 flex items-center justify-center gap-2 transition cursor-pointer disabled:opacity-50"
-                  >
-                    {isLoading ? (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        <span>Verifying Code...</span>
-                      </>
-                    ) : (
-                      <>
-                        <span>Confirm &amp; Sign In</span>
-                        <ArrowRight className="w-4 h-4" />
-                      </>
-                    )}
-                  </button>
-
-                  <div className="text-center pt-1">
-                    <button
-                      type="button"
-                      onClick={handleSendOtp}
-                      disabled={isLoading}
-                      className="text-xs text-stone-500 hover:text-stone-800 underline font-medium"
-                    >
-                      Resend Verification Code
-                    </button>
-                  </div>
-                </form>
-              )}
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full py-3.5 px-4 rounded-xl bg-stone-900 hover:bg-black text-white text-xs font-black tracking-wide shadow-md flex items-center justify-center gap-2 transition cursor-pointer disabled:opacity-50"
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Signing In...</span>
+                    </>
+                  ) : (
+                    <>
+                      <KeyRound className="w-4 h-4" />
+                      <span>Continue with Email</span>
+                    </>
+                  )}
+                </button>
+              </form>
             </div>
           )}
 
