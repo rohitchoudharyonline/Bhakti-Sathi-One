@@ -125,17 +125,24 @@ export const UniversalImageUploader: React.FC<UniversalImageUploaderProps> = ({
         folder,
       });
 
-      // Upload directly to real Cloudflare R2 bucket via server-side proxy
-      await uploadToR2(
-        result.dataUrl,
-        result.asset.fileName,
-        result.blob.type,
-        result.asset.storagePath,
-        cloudStorageSettings
-      );
-
-      // Save to media assets in state/local storage
+      // Save to media assets in state/local storage immediately so image displays reliably
       addMediaAsset(result.asset);
+
+      // Upload directly to real Cloudflare R2 bucket via server-side proxy
+      try {
+        const r2Uploaded = await uploadToR2(
+          result.dataUrl,
+          result.asset.fileName,
+          result.blob.type,
+          result.asset.storagePath,
+          cloudStorageSettings
+        );
+        if (r2Uploaded) {
+          addMediaAsset({ ...result.asset, r2Synced: true });
+        }
+      } catch (r2Err) {
+        console.warn('R2 sync notice (image preserved in media catalog):', r2Err);
+      }
 
       const stats: CompressionStats = {
         originalKb: result.originalSizeKb,

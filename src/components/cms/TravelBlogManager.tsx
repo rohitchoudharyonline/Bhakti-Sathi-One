@@ -346,17 +346,24 @@ Bring thermal layers in winter, comfortable walking boots, and modest attire for
         folder: 'blog-covers',
       });
 
-      // Upload directly to real Cloudflare R2 bucket via server-side proxy
-      await uploadToR2(
-        result.dataUrl,
-        result.asset.fileName,
-        result.blob.type,
-        result.asset.storagePath,
-        cloudStorageSettings
-      );
-
-      // Save to cloud assets
+      // Save to cloud assets immediately
       addMediaAsset(result.asset);
+
+      // Upload directly to real Cloudflare R2 bucket via server-side proxy
+      try {
+        const r2Uploaded = await uploadToR2(
+          result.dataUrl,
+          result.asset.fileName,
+          result.blob.type,
+          result.asset.storagePath,
+          cloudStorageSettings
+        );
+        if (r2Uploaded) {
+          addMediaAsset({ ...result.asset, r2Synced: true });
+        }
+      } catch (r2Err) {
+        console.warn('R2 sync notice:', r2Err);
+      }
 
       // Update form state with compressed image URL
       setFormData((prev) => ({
@@ -393,16 +400,24 @@ Bring thermal layers in winter, comfortable walking boots, and modest attire for
         folder: 'blog-inline',
       });
 
-      // Upload directly to real Cloudflare R2 bucket via server-side proxy
-      await uploadToR2(
-        result.dataUrl,
-        result.asset.fileName,
-        result.blob.type,
-        result.asset.storagePath,
-        cloudStorageSettings
-      );
-
+      // Save to media assets immediately
       addMediaAsset(result.asset);
+
+      // Upload directly to real Cloudflare R2 bucket via server-side proxy
+      try {
+        const r2Uploaded = await uploadToR2(
+          result.dataUrl,
+          result.asset.fileName,
+          result.blob.type,
+          result.asset.storagePath,
+          cloudStorageSettings
+        );
+        if (r2Uploaded) {
+          addMediaAsset({ ...result.asset, r2Synced: true });
+        }
+      } catch (r2Err) {
+        console.warn('R2 sync notice:', r2Err);
+      }
 
       const altText = file.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ');
       const imageUrlToInsert = result.asset.url;

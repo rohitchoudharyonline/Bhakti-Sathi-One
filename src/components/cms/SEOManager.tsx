@@ -19,7 +19,9 @@ import {
   Shield,
   Eye,
   Check,
+  Image as ImageIcon,
 } from 'lucide-react';
+import { UniversalImageUploader } from './UniversalImageUploader';
 import { GuideArticle } from '../../types/guide';
 import { CustomPage, PageSeoConfig } from '../../types/cms';
 
@@ -187,27 +189,72 @@ export const SEOManager: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Main Form Fields */}
           <form onSubmit={handleSaveSitePageSeo} className="lg:col-span-2 bg-white rounded-2xl border border-stone-200 p-4 sm:p-6 space-y-6 shadow-2xs">
-            {/* Google Search Result Preview */}
-            <div>
-              <h3 className="text-xs sm:text-sm font-bold text-stone-900 mb-2 flex items-center gap-2">
-                <Globe className="w-4 h-4 text-emerald-600" />
-                Google Search Result Preview (Live Snippet)
-              </h3>
-              <div className="p-4 bg-stone-50 rounded-xl border border-stone-200 font-sans space-y-1">
-                <div className="text-[11px] text-stone-500 flex flex-wrap items-center gap-1 break-all">
-                  <span className="font-semibold text-stone-700">https://mybhaktisathi.com</span>
-                  {displaySlug && (
-                    <>
-                      <span>›</span>
-                      <span className="font-semibold text-stone-600">{displaySlug}</span>
-                    </>
-                  )}
+            {/* Previews: Google Search & Social Share */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Google Search Result Preview */}
+              <div>
+                <h3 className="text-xs sm:text-sm font-bold text-stone-900 mb-2 flex items-center gap-2">
+                  <Globe className="w-4 h-4 text-emerald-600" />
+                  Google Search Snippet Preview
+                </h3>
+                <div className="p-3.5 bg-stone-50 rounded-xl border border-stone-200 font-sans space-y-1 h-[140px] flex flex-col justify-center overflow-hidden">
+                  <div className="text-[11px] text-stone-500 flex flex-wrap items-center gap-1 break-all">
+                    <span className="font-semibold text-stone-700">https://mybhaktisathi.com</span>
+                    {displaySlug && (
+                      <>
+                        <span>›</span>
+                        <span className="font-semibold text-stone-600">{displaySlug}</span>
+                      </>
+                    )}
+                  </div>
+                  <div className="text-[#1a0dab] text-sm sm:text-base font-medium cursor-pointer hover:underline line-clamp-2 leading-tight">
+                    {editingSitePage.metaTitle || editingSitePage.pageName}
+                  </div>
+                  <div className="text-[#4d5156] text-xs line-clamp-2 leading-relaxed">
+                    {editingSitePage.metaDescription || 'No meta description set. Search engines will automatically extract a snippet from your page body.'}
+                  </div>
                 </div>
-                <div className="text-[#1a0dab] text-base sm:text-lg font-medium cursor-pointer hover:underline line-clamp-2">
-                  {editingSitePage.metaTitle || editingSitePage.pageName}
-                </div>
-                <div className="text-[#4d5156] text-xs line-clamp-2">
-                  {editingSitePage.metaDescription || 'No meta description set. Search engines will automatically extract a snippet from your page body.'}
+              </div>
+
+              {/* Social Share Card Preview (WhatsApp, Facebook, Twitter) */}
+              <div>
+                <h3 className="text-xs sm:text-sm font-bold text-stone-900 mb-2 flex items-center gap-2">
+                  <Share2 className="w-4 h-4 text-sky-600" />
+                  WhatsApp & Social Share Preview
+                </h3>
+                <div className="bg-stone-50 rounded-xl border border-stone-200 overflow-hidden font-sans flex h-[140px]">
+                  <div className="w-36 bg-stone-200 shrink-0 relative overflow-hidden flex items-center justify-center">
+                    {editingSitePage.ogImage ? (
+                      <img
+                        src={editingSitePage.ogImage}
+                        alt="OG Preview"
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1598091383021-15ddea10925d?auto=format&fit=crop&w=400&q=80';
+                        }}
+                      />
+                    ) : (
+                      <div className="p-2 text-center text-stone-400">
+                        <ImageIcon className="w-6 h-6 mx-auto mb-1 opacity-50" />
+                        <span className="text-[9px] block font-semibold leading-tight">No Pic Uploaded</span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="p-2.5 bg-white flex-1 flex flex-col justify-between overflow-hidden border-l border-stone-200">
+                    <div>
+                      <div className="text-[9px] font-bold uppercase tracking-wider text-stone-400">MYBHAKTISATHI.COM</div>
+                      <div className="text-xs font-bold text-stone-900 line-clamp-2 leading-tight mt-0.5">
+                        {editingSitePage.metaTitle || editingSitePage.pageName}
+                      </div>
+                      <div className="text-[10px] text-stone-500 line-clamp-2 leading-tight mt-1">
+                        {editingSitePage.metaDescription || 'Bhakti Sathi spiritual pilgrimage tours.'}
+                      </div>
+                    </div>
+                    <div className="text-[9px] text-emerald-600 font-medium flex items-center gap-1">
+                      <CheckCircle2 className="w-3 h-3" />
+                      <span>OG Metadata Active</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -309,21 +356,59 @@ export const SEOManager: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1">
-                  Social Sharing / Open Graph Image URL (og:image)
-                </label>
-                <input
-                  type="url"
-                  value={editingSitePage.ogImage || ''}
-                  onChange={(e) =>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-xs font-bold uppercase tracking-wider text-stone-700">
+                    Social Sharing / Open Graph Image (og:image)
+                  </label>
+                  <span className="text-[10px] text-stone-400 font-medium">
+                    1200 × 630px Recommended
+                  </span>
+                </div>
+
+                <UniversalImageUploader
+                  label="Upload Social Share Image (OG:IMAGE)"
+                  description="Auto-compress & upload directly to Cloudflare R2 bucket. Choose output dimension & format (WebP, PNG, JPG). Displayed when shared on WhatsApp, Facebook, X/Twitter, and LinkedIn."
+                  folder="seo-og"
+                  defaultWidth={1200}
+                  defaultFormat="webp"
+                  currentUrl={editingSitePage.ogImage || ''}
+                  onImageSelected={(url) =>
                     setEditingSitePage({
                       ...editingSitePage,
-                      ogImage: e.target.value,
+                      ogImage: url,
                     })
                   }
-                  className="w-full px-3.5 py-2.5 border border-stone-200 rounded-xl text-sm outline-none focus:border-[#FF4B00]"
-                  placeholder="https://images.unsplash.com/..."
+                  showR2LibraryPicker={true}
                 />
+
+                <div className="mt-2.5 flex items-center gap-2">
+                  <input
+                    type="url"
+                    value={editingSitePage.ogImage || ''}
+                    onChange={(e) =>
+                      setEditingSitePage({
+                        ...editingSitePage,
+                        ogImage: e.target.value,
+                      })
+                    }
+                    className="flex-1 px-3.5 py-2 border border-stone-200 rounded-xl text-xs font-mono outline-none focus:border-[#FF4B00] text-stone-700 bg-stone-50/70"
+                    placeholder="Or paste direct image URL (e.g. https://images.unsplash.com/...)"
+                  />
+                  {editingSitePage.ogImage && (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setEditingSitePage({
+                          ...editingSitePage,
+                          ogImage: '',
+                        })
+                      }
+                      className="px-3 py-2 text-xs text-rose-600 hover:bg-rose-50 rounded-xl border border-rose-200 font-semibold transition cursor-pointer shrink-0"
+                    >
+                      Remove
+                    </button>
+                  )}
+                </div>
                 <p className="text-[11px] text-stone-400 mt-1">
                   The image preview shown when this link is shared on WhatsApp, Facebook, or Twitter.
                 </p>
@@ -579,6 +664,62 @@ export const SEOManager: React.FC = () => {
                   placeholder="https://mybhaktisathi.com/guides/your-post-slug"
                 />
               </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-xs font-bold uppercase tracking-wider text-stone-700">
+                    Social Sharing / Open Graph Image (og:image)
+                  </label>
+                  <span className="text-[10px] text-stone-400 font-medium">
+                    1200 × 630px Recommended
+                  </span>
+                </div>
+
+                <UniversalImageUploader
+                  label="Upload Post Social Image (OG:IMAGE)"
+                  description="Auto-compress & upload directly to Cloudflare R2 bucket. If blank, the post's featured cover photo will be used."
+                  folder="seo-og"
+                  defaultWidth={1200}
+                  defaultFormat="webp"
+                  currentUrl={seoData.ogImage || editingGuide.featuredImage || ''}
+                  onImageSelected={(url) =>
+                    setEditingGuide({
+                      ...editingGuide,
+                      seo: { ...seoData, ogImage: url },
+                    })
+                  }
+                  showR2LibraryPicker={true}
+                />
+
+                <div className="mt-2.5 flex items-center gap-2">
+                  <input
+                    type="url"
+                    value={seoData.ogImage || ''}
+                    onChange={(e) =>
+                      setEditingGuide({
+                        ...editingGuide,
+                        seo: { ...seoData, ogImage: e.target.value },
+                      })
+                    }
+                    className="flex-1 px-3.5 py-2 border border-stone-200 rounded-xl text-xs font-mono outline-none focus:border-[#FF4B00] text-stone-700 bg-stone-50/70"
+                    placeholder="Or paste direct image URL (e.g. https://images.unsplash.com/...)"
+                  />
+                  {seoData.ogImage && (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setEditingGuide({
+                          ...editingGuide,
+                          seo: { ...seoData, ogImage: '' },
+                        })
+                      }
+                      className="px-3 py-2 text-xs text-rose-600 hover:bg-rose-50 rounded-xl border border-rose-200 font-semibold transition cursor-pointer shrink-0"
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
+              </div>
             </div>
 
             <div className="pt-4 border-t border-stone-100 flex flex-col sm:flex-row justify-end gap-2">
@@ -728,6 +869,62 @@ export const SEOManager: React.FC = () => {
               className="w-full px-3.5 py-2.5 border border-stone-200 rounded-xl text-sm outline-none focus:border-[#FF4B00] resize-none"
               placeholder="Meta Description..."
             />
+          </div>
+
+          <div>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="block text-xs font-bold uppercase tracking-wider text-stone-700">
+                Social Sharing / Open Graph Image (og:image)
+              </label>
+              <span className="text-[10px] text-stone-400 font-medium">
+                1200 × 630px Recommended
+              </span>
+            </div>
+
+            <UniversalImageUploader
+              label="Upload Custom Page Social Image (OG:IMAGE)"
+              description="Auto-compress & upload directly to Cloudflare R2 bucket. Displayed when this custom page is shared on WhatsApp, Facebook, or Twitter."
+              folder="seo-og"
+              defaultWidth={1200}
+              defaultFormat="webp"
+              currentUrl={pageSeo.ogImage || editingCustomPage.heroImage || ''}
+              onImageSelected={(url) =>
+                setEditingCustomPage({
+                  ...editingCustomPage,
+                  seo: { ...pageSeo, ogImage: url },
+                })
+              }
+              showR2LibraryPicker={true}
+            />
+
+            <div className="mt-2.5 flex items-center gap-2">
+              <input
+                type="url"
+                value={pageSeo.ogImage || ''}
+                onChange={(e) =>
+                  setEditingCustomPage({
+                    ...editingCustomPage,
+                    seo: { ...pageSeo, ogImage: e.target.value },
+                  })
+                }
+                className="flex-1 px-3.5 py-2 border border-stone-200 rounded-xl text-xs font-mono outline-none focus:border-[#FF4B00] text-stone-700 bg-stone-50/70"
+                placeholder="Or paste direct image URL (e.g. https://images.unsplash.com/...)"
+              />
+              {pageSeo.ogImage && (
+                <button
+                  type="button"
+                  onClick={() =>
+                    setEditingCustomPage({
+                      ...editingCustomPage,
+                      seo: { ...pageSeo, ogImage: '' },
+                    })
+                  }
+                  className="px-3 py-2 text-xs text-rose-600 hover:bg-rose-50 rounded-xl border border-rose-200 font-semibold transition cursor-pointer shrink-0"
+                >
+                  Clear
+                </button>
+              )}
+            </div>
           </div>
 
           <div className="pt-4 border-t border-stone-100 flex flex-col sm:flex-row justify-end gap-2">
@@ -1114,16 +1311,34 @@ export const SEOManager: React.FC = () => {
                         </span>
                       </td>
                       <td className="p-4 max-w-sm">
-                        <div className="font-bold text-stone-900 flex items-center gap-1.5">
-                          <span>{sitePage.pageName}</span>
-                          {sitePage.id === 'home' && (
-                            <span className="px-1.5 py-0.5 bg-amber-100 text-amber-800 text-[10px] font-bold rounded">
-                              Main Storefront
-                            </span>
+                        <div className="flex items-center gap-3">
+                          {sitePage.ogImage ? (
+                            <img
+                              src={sitePage.ogImage}
+                              alt="Social OG"
+                              className="w-11 h-8 rounded-lg object-cover border border-stone-200 shrink-0 shadow-2xs"
+                              onError={(e) => {
+                                (e.target as HTMLElement).style.display = 'none';
+                              }}
+                            />
+                          ) : (
+                            <div className="w-11 h-8 rounded-lg bg-stone-100 border border-stone-200 flex items-center justify-center text-stone-300 shrink-0" title="No social share image">
+                              <ImageIcon className="w-4 h-4" />
+                            </div>
                           )}
-                        </div>
-                        <div className="text-xs font-mono text-stone-400 mt-0.5 truncate">
-                          {sitePage.canonicalUrl}
+                          <div className="min-w-0">
+                            <div className="font-bold text-stone-900 flex items-center gap-1.5 truncate">
+                              <span>{sitePage.pageName}</span>
+                              {sitePage.id === 'home' && (
+                                <span className="px-1.5 py-0.5 bg-amber-100 text-amber-800 text-[10px] font-bold rounded shrink-0">
+                                  Main Storefront
+                                </span>
+                              )}
+                            </div>
+                            <div className="text-xs font-mono text-stone-400 mt-0.5 truncate">
+                              {sitePage.canonicalUrl}
+                            </div>
+                          </div>
                         </div>
                       </td>
                       <td className="p-4">
@@ -1188,8 +1403,26 @@ export const SEOManager: React.FC = () => {
                         </span>
                       </td>
                       <td className="p-4 max-w-sm">
-                        <div className="font-bold text-stone-900 line-clamp-1">{page.title}</div>
-                        <div className="text-xs font-mono text-stone-400 mt-0.5">/page/{page.slug}</div>
+                        <div className="flex items-center gap-3">
+                          {(page.seo?.ogImage || page.heroImage) ? (
+                            <img
+                              src={page.seo?.ogImage || page.heroImage}
+                              alt="Social OG"
+                              className="w-11 h-8 rounded-lg object-cover border border-stone-200 shrink-0 shadow-2xs"
+                              onError={(e) => {
+                                (e.target as HTMLElement).style.display = 'none';
+                              }}
+                            />
+                          ) : (
+                            <div className="w-11 h-8 rounded-lg bg-stone-100 border border-stone-200 flex items-center justify-center text-stone-300 shrink-0" title="No social share image">
+                              <ImageIcon className="w-4 h-4" />
+                            </div>
+                          )}
+                          <div className="min-w-0">
+                            <div className="font-bold text-stone-900 line-clamp-1">{page.title}</div>
+                            <div className="text-xs font-mono text-stone-400 mt-0.5 truncate">/page/{page.slug}</div>
+                          </div>
+                        </div>
                       </td>
                       <td className="p-4">
                         {pageKw ? (
@@ -1253,8 +1486,26 @@ export const SEOManager: React.FC = () => {
                         </span>
                       </td>
                       <td className="p-4 max-w-sm">
-                        <div className="font-bold text-stone-900 line-clamp-1">{guide.title}</div>
-                        <div className="text-xs font-mono text-stone-400 mt-0.5">/guides/{guide.slug}</div>
+                        <div className="flex items-center gap-3">
+                          {(guide.seo?.ogImage || guide.featuredImage) ? (
+                            <img
+                              src={guide.seo?.ogImage || guide.featuredImage}
+                              alt="Social OG"
+                              className="w-11 h-8 rounded-lg object-cover border border-stone-200 shrink-0 shadow-2xs"
+                              onError={(e) => {
+                                (e.target as HTMLElement).style.display = 'none';
+                              }}
+                            />
+                          ) : (
+                            <div className="w-11 h-8 rounded-lg bg-stone-100 border border-stone-200 flex items-center justify-center text-stone-300 shrink-0" title="No social share image">
+                              <ImageIcon className="w-4 h-4" />
+                            </div>
+                          )}
+                          <div className="min-w-0">
+                            <div className="font-bold text-stone-900 line-clamp-1">{guide.title}</div>
+                            <div className="text-xs font-mono text-stone-400 mt-0.5 truncate">/guides/{guide.slug}</div>
+                          </div>
+                        </div>
                       </td>
                       <td className="p-4">
                         {guide.seo?.primaryKeyword ? (

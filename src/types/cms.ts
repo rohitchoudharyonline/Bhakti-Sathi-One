@@ -65,6 +65,7 @@ export interface CustomPage {
     focusKeyword: string;
     metaTitle: string;
     metaDescription: string;
+    ogImage?: string;
   };
 }
 
@@ -85,6 +86,7 @@ export interface MediaAsset {
   caption?: string;
   uploadedAt: string;
   folder?: string;
+  r2Synced?: boolean;
 }
 
 export interface CloudStorageSettings {

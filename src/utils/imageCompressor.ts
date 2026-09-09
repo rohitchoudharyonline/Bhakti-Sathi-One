@@ -239,7 +239,13 @@ export async function uploadToR2(
   settings: CloudStorageSettings
 ): Promise<boolean> {
   if (!settings?.r2AccountId || !settings?.r2AccessKeyId || !settings?.r2SecretAccessKey || !settings?.r2BucketName) {
-    console.warn('Skipping physical upload: R2 storage credentials are not configured in settings.');
+    console.warn('Skipping physical upload: R2 storage credentials are not fully configured in settings.');
+    return false;
+  }
+
+  // If secret key is still masked with asterisks, it cannot authenticate with S3
+  if (settings.r2SecretAccessKey.includes('*')) {
+    console.warn('R2 Secret Access Key is masked with asterisks. Please provide the actual Cloudflare R2 Secret Access Key in storage settings to upload to the remote bucket.');
     return false;
   }
 
@@ -249,28 +255,30 @@ export async function uploadToR2(
       headers: {
         'Content-Type': 'application/json',
       },
+      credentials: 'include',
       body: JSON.stringify({
         fileBase64,
         fileName,
         contentType,
         storagePath,
-        r2AccountId: settings.r2AccountId,
-        r2AccessKeyId: settings.r2AccessKeyId,
-        r2SecretAccessKey: settings.r2SecretAccessKey,
-        r2BucketName: settings.r2BucketName,
+        r2AccountId: settings.r2AccountId.trim(),
+        r2AccessKeyId: settings.r2AccessKeyId.trim(),
+        r2SecretAccessKey: settings.r2SecretAccessKey.trim(),
+        r2BucketName: settings.r2BucketName.trim(),
       }),
     });
 
     if (!response.ok) {
       const errData = await response.json().catch(() => ({}));
-      throw new Error(errData.error || `HTTP ${response.status}`);
+      console.warn(`R2 upload responded with ${response.status}:`, errData.error || 'Upload error');
+      return false;
     }
 
     const data = await response.json();
     return data.success === true;
   } catch (error) {
-    console.error('Failed to upload image to Cloudflare R2:', error);
-    throw error;
+    console.warn('Notice: R2 remote upload could not complete, image preserved in local catalog:', error);
+    return false;
   }
 }
 
@@ -286,30 +294,36 @@ export async function deleteFromR2(
     return false;
   }
 
+  if (settings.r2SecretAccessKey.includes('*')) {
+    return false;
+  }
+
   try {
     const response = await fetch('/api/media/delete', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
+      credentials: 'include',
       body: JSON.stringify({
         storagePath,
-        r2AccountId: settings.r2AccountId,
-        r2AccessKeyId: settings.r2AccessKeyId,
-        r2SecretAccessKey: settings.r2SecretAccessKey,
-        r2BucketName: settings.r2BucketName,
+        r2AccountId: settings.r2AccountId.trim(),
+        r2AccessKeyId: settings.r2AccessKeyId.trim(),
+        r2SecretAccessKey: settings.r2SecretAccessKey.trim(),
+        r2BucketName: settings.r2BucketName.trim(),
       }),
     });
 
     if (!response.ok) {
       const errData = await response.json().catch(() => ({}));
-      throw new Error(errData.error || `HTTP ${response.status}`);
+      console.warn(`R2 deletion responded with ${response.status}:`, errData.error || 'Deletion error');
+      return false;
     }
 
     const data = await response.json();
     return data.success === true;
   } catch (error) {
-    console.error('Failed to delete image from Cloudflare R2:', error);
+    console.warn('Failed to delete image from Cloudflare R2:', error);
     return false;
   }
 }

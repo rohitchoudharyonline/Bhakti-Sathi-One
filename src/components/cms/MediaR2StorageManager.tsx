@@ -46,6 +46,7 @@ export const MediaR2StorageManager: React.FC<MediaR2StorageManagerProps> = ({
     mediaAssets,
     addMediaAsset,
     deleteMediaAsset,
+    restoreSampleMedia,
     cloudStorageSettings,
     updateCloudStorageSettings,
   } = useTours();
@@ -62,6 +63,28 @@ export const MediaR2StorageManager: React.FC<MediaR2StorageManagerProps> = ({
   const [compressionLogs, setCompressionLogs] = useState<
     Array<{ name: string; originalKb: number; compressedKb: number; percent: number }>
   >([]);
+  const [syncingAssetId, setSyncingAssetId] = useState<string | null>(null);
+
+  const handleSyncToR2 = async (asset: MediaAsset) => {
+    if (!asset.dataUrl) return;
+    setSyncingAssetId(asset.id);
+    try {
+      const success = await uploadToR2(
+        asset.dataUrl,
+        asset.fileName,
+        `image/${asset.fileType === 'jpg' ? 'jpeg' : asset.fileType}`,
+        asset.storagePath,
+        cloudStorageSettings
+      );
+      if (success) {
+        addMediaAsset({ ...asset, r2Synced: true });
+      }
+    } catch (err) {
+      console.error('Failed to sync to R2:', err);
+    } finally {
+      setSyncingAssetId(null);
+    }
+  };
 
   const [diagnosticReport, setDiagnosticReport] = useState<R2DiagnosticReport | null>(null);
   const [isDiagnosing, setIsDiagnosing] = useState(false);
@@ -91,7 +114,7 @@ export const MediaR2StorageManager: React.FC<MediaR2StorageManagerProps> = ({
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
-      setUploadProgress(`Compressing and uploading ${i + 1}/${files.length}: ${file.name}...`);
+      setUploadProgress(`Processing ${i + 1}/${files.length}: ${file.name}...`);
 
       try {
         const maxWidth = customWidth > 0 ? customWidth : (cloudStorageSettings.maxImageWidth || 1920);
@@ -103,16 +126,25 @@ export const MediaR2StorageManager: React.FC<MediaR2StorageManagerProps> = ({
           folder: selectedFolder === 'all' ? 'uploads' : selectedFolder,
         });
 
-        // Upload directly to real Cloudflare R2 bucket via server-side proxy
-        await uploadToR2(
-          result.dataUrl,
-          result.asset.fileName,
-          result.blob.type,
-          result.asset.storagePath,
-          cloudStorageSettings
-        );
-
+        // 1. Immediately register asset so picture shows in UI without delay
         addMediaAsset(result.asset);
+
+        // 2. Upload to Cloudflare R2 bucket via server-side proxy
+        try {
+          const r2Uploaded = await uploadToR2(
+            result.dataUrl,
+            result.asset.fileName,
+            result.blob.type,
+            result.asset.storagePath,
+            cloudStorageSettings
+          );
+          if (r2Uploaded) {
+            addMediaAsset({ ...result.asset, r2Synced: true });
+          }
+        } catch (r2Err) {
+          console.warn('R2 sync notice:', r2Err);
+        }
+
         logs.push({
           name: file.name,
           originalKb: result.originalSizeKb,
@@ -184,7 +216,7 @@ export const MediaR2StorageManager: React.FC<MediaR2StorageManagerProps> = ({
             Cloud Media & Auto-Compressor Studio
           </h2>
           <p className="text-stone-400 text-xs sm:text-sm mt-1">
-            Auto-compresses PNG, JPG, GIF & WebP before pushing to Cloudflare R2 bucket (<span className="text-amber-300 font-mono font-semibold">bhakti-sathi</span>). Saves bandwidth & boosts Google Core Web Vitals.
+            Auto-compresses PNG, JPG, GIF & WebP before pushing to Cloudflare R2 bucket (<span className="text-amber-300 font-mono font-semibold">{cloudStorageSettings.r2BucketName || 'bhakti-sathi'}</span>). Saves bandwidth & boosts Google Core Web Vitals.
           </p>
         </div>
 
@@ -404,8 +436,11 @@ export const MediaR2StorageManager: React.FC<MediaR2StorageManagerProps> = ({
                 alt={asset.altText}
                 className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
                 onError={(e) => {
-                  if (asset.dataUrl) {
-                    (e.target as HTMLImageElement).src = asset.dataUrl;
+                  const target = e.target as HTMLImageElement;
+                  if (asset.dataUrl && target.src !== asset.dataUrl) {
+                    target.src = asset.dataUrl;
+                  } else {
+                    target.src = 'https://images.unsplash.com/photo-1598091383021-15ddea10925d?auto=format&fit=crop&w=600&q=80';
                   }
                 }}
               />
@@ -420,13 +455,40 @@ export const MediaR2StorageManager: React.FC<MediaR2StorageManagerProps> = ({
             </div>
 
             {/* Meta Info */}
-            <div className="p-2.5 space-y-1">
+            <div className="p-2.5 space-y-1.5">
               <p className="text-[11px] font-bold text-black truncate" title={asset.name}>
                 {asset.name}
               </p>
               <div className="flex items-center justify-between text-[10px] text-stone-500">
                 <span>{asset.compressedSizeKb} KB</span>
                 <span className="capitalize">{asset.folder || 'general'}</span>
+              </div>
+              <div className="pt-0.5 flex items-center justify-between">
+                {asset.r2Synced ? (
+                  <span className="inline-flex items-center gap-1 text-[9px] font-semibold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200/60">
+                    <CheckCircle2 className="w-2.5 h-2.5 text-emerald-600" /> R2 Synced
+                  </span>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => handleSyncToR2(asset)}
+                    disabled={syncingAssetId === asset.id}
+                    className="inline-flex items-center gap-1 text-[9px] font-semibold text-amber-800 bg-amber-50 hover:bg-amber-100 px-1.5 py-0.5 rounded border border-amber-300/80 cursor-pointer transition"
+                    title="Click to sync directly to Cloudflare R2 bucket"
+                  >
+                    {syncingAssetId === asset.id ? (
+                      <>
+                        <RotateCw className="w-2.5 h-2.5 animate-spin text-amber-600" />
+                        <span>Syncing...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Cloud className="w-2.5 h-2.5 text-amber-600" />
+                        <span>Push to R2</span>
+                      </>
+                    )}
+                  </button>
+                )}
               </div>
             </div>
 
@@ -480,8 +542,34 @@ export const MediaR2StorageManager: React.FC<MediaR2StorageManagerProps> = ({
       </div>
 
       {filteredAssets.length === 0 && (
-        <div className="py-12 text-center text-stone-400 text-xs">
-          No media files found matching the search criteria.
+        <div className="py-12 text-center text-stone-500 text-xs bg-stone-50 rounded-2xl border border-dashed border-stone-300 p-8 space-y-3">
+          <div className="w-12 h-12 rounded-2xl bg-stone-200 text-stone-500 flex items-center justify-center mx-auto">
+            <ImageIcon className="w-6 h-6" />
+          </div>
+          <p className="font-semibold text-stone-800 text-sm">No media assets found</p>
+          <p className="text-stone-500 max-w-sm mx-auto">
+            {searchTerm || selectedFolder !== 'all'
+              ? 'Try changing your search term or folder filter.'
+              : 'Upload pictures using the button above or restore default sample pictures.'}
+          </p>
+          {mediaAssets.length === 0 && (
+            <div className="pt-2 flex items-center justify-center gap-2">
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="px-3.5 py-2 bg-black hover:bg-stone-800 text-white rounded-xl text-xs font-bold transition cursor-pointer"
+              >
+                Upload Pictures
+              </button>
+              <button
+                type="button"
+                onClick={() => restoreSampleMedia()}
+                className="px-3.5 py-2 bg-stone-200 hover:bg-stone-300 text-stone-800 rounded-xl text-xs font-bold transition cursor-pointer"
+              >
+                Restore Default Pictures
+              </button>
+            </div>
+          )}
         </div>
       )}
 
@@ -613,7 +701,7 @@ export const MediaR2StorageManager: React.FC<MediaR2StorageManagerProps> = ({
             </div>
 
             <p className="text-xs text-stone-600">
-              Configure your Cloudflare R2 Bucket (<strong className="text-black font-mono">bhakti-sathi</strong>) and Cloudflare D1 Database settings for persistent production hosting.
+              Configure your Cloudflare R2 Bucket (<strong className="text-black font-mono">{cloudStorageSettings.r2BucketName || 'bhakti-sathi'}</strong>) and Cloudflare D1 Database settings for persistent production hosting.
             </p>
 
             <div className="space-y-4 text-xs">
@@ -675,7 +763,7 @@ export const MediaR2StorageManager: React.FC<MediaR2StorageManagerProps> = ({
 
                   <p className="mt-2 text-[11px] text-stone-600 bg-amber-50/80 border border-amber-200/80 rounded-lg p-2.5 leading-normal">
                     <strong className="text-amber-900 block font-bold mb-0.5">💡 DNS_PROBE_FINISHED_NXDOMAIN Fix:</strong>
-                    If opening the URL in a browser tab gives a DNS error, your custom domain <code className="bg-amber-100 px-1 rounded font-mono text-[10px]">pub-r2.mybhaktisathi.com</code> is not mapped in Cloudflare DNS. In Cloudflare Dashboard, go to <strong>R2 &gt; bhakti-sathi &gt; Settings &gt; Custom Domains</strong> and add it, or use your <code className="bg-amber-100 px-1 rounded font-mono text-[10px]">*.r2.dev</code> public bucket URL above. All images in the app continue to load instantly via data backup.
+                    If opening the URL in a browser tab gives a DNS error, your custom domain <code className="bg-amber-100 px-1 rounded font-mono text-[10px]">pub-r2.mybhaktisathi.com</code> is not mapped in Cloudflare DNS. In Cloudflare Dashboard, go to <strong>R2 &gt; {cloudStorageSettings.r2BucketName || 'bhakti-sathi'} &gt; Settings &gt; Custom Domains</strong> and add it, or use your <code className="bg-amber-100 px-1 rounded font-mono text-[10px]">*.r2.dev</code> public bucket URL above. All images in the app continue to load instantly via data backup.
                   </p>
                 </div>
 
@@ -724,7 +812,7 @@ export const MediaR2StorageManager: React.FC<MediaR2StorageManagerProps> = ({
                     <label className="block text-stone-500 font-medium mb-1">D1 Database ID / Binding</label>
                     <input
                       type="text"
-                      value={cloudStorageSettings.d1DatabaseId || 'bhakti-sathi-db'}
+                      value={cloudStorageSettings.d1DatabaseId || '165b7b99-72e3-443e-aee9-8bf0f8c6c26b'}
                       onChange={(e) =>
                         updateCloudStorageSettings({
                           ...cloudStorageSettings,
@@ -732,7 +820,7 @@ export const MediaR2StorageManager: React.FC<MediaR2StorageManagerProps> = ({
                           supabaseUrl: e.target.value,
                         })
                       }
-                      placeholder="bhakti-sathi-db"
+                      placeholder="165b7b99-72e3-443e-aee9-8bf0f8c6c26b"
                       className="w-full p-2 bg-white border border-stone-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-black font-mono"
                     />
                   </div>
@@ -851,7 +939,7 @@ export const MediaR2StorageManager: React.FC<MediaR2StorageManagerProps> = ({
                     Cloudflare R2 Bucket Connection Diagnostic
                   </h3>
                   <p className="text-[11px] text-stone-400 font-mono">
-                    Target: <span className="text-amber-300 font-bold">bhakti-sathi</span> | D1: <span className="text-emerald-400 font-bold">{cloudStorageSettings.d1DatabaseId || 'bhakti-sathi-db'}</span>
+                    Target: <span className="text-amber-300 font-bold">{cloudStorageSettings.r2BucketName || 'bhakti-sathi'}</span> | D1: <span className="text-emerald-400 font-bold">{cloudStorageSettings.d1DatabaseId || '165b7b99-72e3-443e-aee9-8bf0f8c6c26b'}</span>
                   </p>
                 </div>
               </div>

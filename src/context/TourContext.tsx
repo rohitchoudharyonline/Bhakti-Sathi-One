@@ -183,6 +183,7 @@ interface TourContextType {
   addMediaAsset: (asset: MediaAsset) => void;
   deleteMediaAsset: (id: string) => void;
   updateMediaAsset: (asset: MediaAsset) => void;
+  restoreSampleMedia: () => void;
   updateCloudStorageSettings: (settings: CloudStorageSettings) => void;
 
   // Inquiries & Leads
@@ -295,7 +296,7 @@ const DEFAULT_CLOUD_SETTINGS: CloudStorageSettings = {
   r2AccessKeyId: 'r2_prod_key_77a9',
   r2SecretAccessKey: '********************************',
   r2PublicDomain: 'https://pub-r2.mybhaktisathi.com',
-  d1DatabaseId: 'bhakti-sathi-db',
+  d1DatabaseId: '165b7b99-72e3-443e-aee9-8bf0f8c6c26b',
   d1DatabaseName: 'bhakti-sathi-db',
   d1ApiToken: 'd1_token_bhaktisathi_prod_882',
   d1BucketName: 'bhakti-sathi',
@@ -618,7 +619,16 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const saved = localStorage.getItem(STORAGE_KEYS.CLOUD_STORAGE_CONFIG);
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (parsed && typeof parsed === 'object') return parsed;
+        if (parsed && typeof parsed === 'object') {
+          return {
+            ...DEFAULT_CLOUD_SETTINGS,
+            ...parsed,
+            r2BucketName: (!parsed.r2BucketName || parsed.r2BucketName === 'mybhaktisathi-media-r2') ? 'bhakti-sathi' : parsed.r2BucketName,
+            d1BucketName: (!parsed.d1BucketName || parsed.d1BucketName === 'mybhaktisathi-media-r2') ? 'bhakti-sathi' : parsed.d1BucketName,
+            d1DatabaseId: (!parsed.d1DatabaseId || parsed.d1DatabaseId === 'mybhaktisathi-d1-db' || parsed.d1DatabaseId === 'bhakti-sathi-db') ? '165b7b99-72e3-443e-aee9-8bf0f8c6c26b' : parsed.d1DatabaseId,
+            d1DatabaseName: (!parsed.d1DatabaseName || parsed.d1DatabaseName === 'mybhaktisathi-d1-db') ? 'bhakti-sathi-db' : parsed.d1DatabaseName,
+          };
+        }
       }
     } catch {}
     return DEFAULT_CLOUD_SETTINGS;
@@ -2079,7 +2089,21 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Media Library Operations
   const addMediaAsset = (asset: MediaAsset) => {
-    setMediaAssets((prev) => [asset, ...prev]);
+    setMediaAssets((prev) => {
+      const existingIdx = prev.findIndex(
+        (a) => a.id === asset.id || a.url === asset.url || a.storagePath === asset.storagePath
+      );
+      if (existingIdx >= 0) {
+        const next = [...prev];
+        next[existingIdx] = asset;
+        return next;
+      }
+      return [asset, ...prev];
+    });
+  };
+
+  const restoreSampleMedia = () => {
+    setMediaAssets(DEFAULT_SAMPLE_MEDIA);
   };
 
   const deleteMediaAsset = (id: string) => {
@@ -2605,6 +2629,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
         addMediaAsset,
         deleteMediaAsset,
         updateMediaAsset,
+        restoreSampleMedia,
         updateCloudStorageSettings,
         submitInquiry,
         updateInquiry,

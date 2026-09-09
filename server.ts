@@ -745,6 +745,10 @@ app.post('/api/media/upload', requireCmsSession, async (req, res) => {
     return res.status(400).json({ error: 'R2 storage credentials are not configured.' });
   }
 
+  if (typeof r2SecretAccessKey === 'string' && (r2SecretAccessKey.includes('*') || r2SecretAccessKey.trim() === '')) {
+    return res.status(400).json({ error: 'R2 secret access key is masked or empty. Please enter your real Cloudflare R2 Secret Access Key in storage settings.' });
+  }
+
   try {
     const s3 = new S3Client({
       region: 'auto',
@@ -789,6 +793,10 @@ app.post('/api/media/delete', requireCmsSession, async (req, res) => {
 
   if (!r2AccountId || !r2AccessKeyId || !r2SecretAccessKey || !r2BucketName) {
     return res.status(400).json({ error: 'R2 storage credentials are not configured.' });
+  }
+
+  if (typeof r2SecretAccessKey === 'string' && (r2SecretAccessKey.includes('*') || r2SecretAccessKey.trim() === '')) {
+    return res.status(400).json({ error: 'R2 secret access key is masked or empty. Please enter your real Cloudflare R2 Secret Access Key in storage settings.' });
   }
 
   try {

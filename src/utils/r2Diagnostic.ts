@@ -26,19 +26,20 @@ export interface R2DiagnosticReport {
 }
 
 /**
- * Diagnostic utility for Cloudflare R2 ('bhakti-sathi') & D1 ('bhakti-sathi-db')
+ * Diagnostic utility for Cloudflare R2 & D1 storage
  * Tests configuration, binary data integrity, headers, and endpoint accessibility.
  */
 export async function runR2Diagnostic(
   settings: CloudStorageSettings,
   onStepUpdate?: (step: R2DiagnosticStep) => void
 ): Promise<R2DiagnosticReport> {
+  const currentBucket = settings.r2BucketName || 'bhakti-sathi';
   const steps: R2DiagnosticStep[] = [
     {
       id: 'config_check',
       name: 'R2 & D1 Configuration Validation',
       status: 'pending',
-      message: 'Checking required settings for bhakti-sathi bucket...',
+      message: `Checking required settings for ${currentBucket} bucket...`,
     },
     {
       id: 'binary_integrity',
@@ -62,7 +63,7 @@ export async function runR2Diagnostic(
       id: 'simulated_write_read',
       name: 'Bucket Read/Write Simulation',
       status: 'pending',
-      message: 'Simulating payload push to bhakti-sathi bucket...',
+      message: `Simulating payload push to ${currentBucket} bucket...`,
     },
   ];
 
@@ -86,14 +87,14 @@ export async function runR2Diagnostic(
   const recommendations: string[] = [];
   const bucketName = settings.r2BucketName || 'bhakti-sathi';
   const publicDomain = settings.r2PublicDomain || 'https://pub-r2.mybhaktisathi.com';
-  const d1DatabaseId = settings.d1DatabaseId || 'bhakti-sathi-db';
+  const d1DatabaseId = settings.d1DatabaseId || '165b7b99-72e3-443e-aee9-8bf0f8c6c26b';
 
   // Step 1: Config Check
   const startConfig = performance.now();
   updateStep('config_check', 'running', 'Verifying bucket name and account parameters...');
   
-  if (bucketName !== 'bhakti-sathi') {
-    recommendations.push(`Bucket name is set to "${bucketName}". Expected target is "bhakti-sathi".`);
+  if (!bucketName || bucketName.trim().length < 3) {
+    recommendations.push('R2 Bucket name is missing. Please configure your bucket name (e.g. "bhakti-sathi").');
   }
 
   if (!settings.r2AccountId) {
@@ -102,6 +103,8 @@ export async function runR2Diagnostic(
 
   if (!settings.r2AccessKeyId || !settings.r2SecretAccessKey) {
     recommendations.push('R2 S3 API Access Key ID or Secret Access Key is missing.');
+  } else if (settings.r2SecretAccessKey.includes('*')) {
+    recommendations.push('R2 Secret Access Key is masked with asterisks. To enable physical R2 bucket uploads from this device, enter your actual Cloudflare R2 Secret Access Key in storage settings.');
   }
 
   const endConfig = Math.round(performance.now() - startConfig);
@@ -109,7 +112,7 @@ export async function runR2Diagnostic(
     'config_check',
     'success',
     `Bucket: ${bucketName} | D1: ${d1DatabaseId} | Domain: ${publicDomain}`,
-    `Account ID: ${settings.r2AccountId ? 'Configured (' + settings.r2AccountId.substring(0, 6) + '...)' : 'Not Set'}\nAccess Key: ${settings.r2AccessKeyId ? 'Configured' : 'Not Set'}`,
+    `Account ID: ${settings.r2AccountId ? 'Configured (' + settings.r2AccountId.substring(0, 6) + '...)' : 'Not Set'}\nAccess Key: ${settings.r2AccessKeyId ? 'Configured' : 'Not Set'}\nBucket Target: ${bucketName}`,
     endConfig
   );
 

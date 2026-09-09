@@ -69,16 +69,24 @@ export const WordPressInlineImageModal: React.FC<WordPressInlineImageModalProps>
         folder,
       });
 
-      // Upload directly to real Cloudflare R2 bucket via server-side proxy
-      await uploadToR2(
-        result.dataUrl,
-        result.asset.fileName,
-        result.blob.type,
-        result.asset.storagePath,
-        cloudStorageSettings
-      );
-
+      // Immediately register in media library so it is visible
       addMediaAsset(result.asset);
+
+      // Upload directly to real Cloudflare R2 bucket via server-side proxy
+      try {
+        const r2Uploaded = await uploadToR2(
+          result.dataUrl,
+          result.asset.fileName,
+          result.blob.type,
+          result.asset.storagePath,
+          cloudStorageSettings
+        );
+        if (r2Uploaded) {
+          addMediaAsset({ ...result.asset, r2Synced: true });
+        }
+      } catch (r2Err) {
+        console.warn('R2 upload sync notice:', r2Err);
+      }
 
       const cleanAlt = file.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ');
       setSelectedImageUrl(result.asset.url);

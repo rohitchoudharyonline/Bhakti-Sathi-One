@@ -21,6 +21,7 @@ export interface GuideSeo {
   secondaryKeywords: string[];
   canonicalUrl?: string;
   noIndex?: boolean;
+  ogImage?: string;
 }
 
 export interface GuideArticle {
