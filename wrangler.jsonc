@@ -1,6 +1,6 @@
 {
   "name": "bhakti-sathi-one",
-  "main": "worker-auth-wrapper.ts",
+  "main": "cms-auth-wrapper.ts",
   "compatibility_date": "2026-09-09",
   "compatibility_flags": [
     "nodejs_compat"
@@ -20,7 +20,7 @@
     {
       "binding": "DB",
       "database_name": "bhakti-sathi-db",
-      "database_id": "165b7b99-72e3-443e-aee9-8bf0f8c6c26b"
+      "database_id": "165b7b99-72e3-443e-aee9-8bf0f8c6c26b2"
     }
   ],
   "r2_buckets": [
