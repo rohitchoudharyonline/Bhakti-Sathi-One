@@ -1,6 +1,6 @@
 {
   "name": "bhakti-sathi-one",
-  "main": "cms-auth-wrapper.ts",
+  "main": "edge-cache-wrapper.ts",
   "compatibility_date": "2026-09-09",
   "compatibility_flags": [
     "nodejs_compat"
