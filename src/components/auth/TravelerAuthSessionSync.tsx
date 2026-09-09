@@ -3,7 +3,7 @@ import { useTours } from '../../context/TourContext';
 
 /** Rehydrates the UI from the server-side HttpOnly session cookie. */
 export function TravelerAuthSessionSync() {
-  const { travelerUser, setTravelerUser } = useTours();
+  const { travelerUser, setTravelerUser, setIsTravelerAuthModalOpen } = useTours();
   const bootstrapped = useRef(false);
   const previousUser = useRef(travelerUser);
 
@@ -26,6 +26,10 @@ export function TravelerAuthSessionSync() {
             localStorage.removeItem('hh_direct_traveler_profile');
             localStorage.removeItem('hh_google_oauth_token');
           } catch {}
+
+          // /profile is a protected route. Present the secure Google/Gmail
+          // sign-in/sign-up flow instead of trusting localStorage as auth.
+          if (window.location.pathname === '/profile') setIsTravelerAuthModalOpen(true);
         } else {
           const data = await response.json().catch(() => null);
           if (data?.authenticated && data.user) {
