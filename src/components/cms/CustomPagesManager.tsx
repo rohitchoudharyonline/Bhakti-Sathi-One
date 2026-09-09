@@ -3,6 +3,7 @@ import { useTours } from '../../context/TourContext';
 import { CustomPage } from '../../types/cms';
 import { analyzeOnPageSeo } from '../../utils/seoEngine';
 import { MediaR2StorageManager } from './MediaR2StorageManager';
+import { UniversalImageUploader } from './UniversalImageUploader';
 import {
   FileText,
   Plus,
@@ -241,15 +242,17 @@ export const CustomPagesManager: React.FC = () => {
                         >
                           <Edit className="w-4 h-4" />
                         </button>
-                        {!page.isSystemPage && page.slug !== 'about-us' && (
-                          <button
-                            onClick={() => deleteCustomPage(page.id)}
-                            className="p-1.5 hover:bg-rose-50 text-stone-400 hover:text-rose-600 rounded-md transition cursor-pointer"
-                            title="Delete"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        )}
+                        <button
+                          onClick={() => {
+                            if (window.confirm(`Are you sure you want to delete "${page.title}"?`)) {
+                              deleteCustomPage(page.id);
+                            }
+                          }}
+                          className="p-1.5 hover:bg-rose-50 text-stone-400 hover:text-rose-600 rounded-md transition cursor-pointer"
+                          title="Delete Page"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -346,33 +349,19 @@ export const CustomPagesManager: React.FC = () => {
             <div className="space-y-4">
               {/* Hero Image */}
               <div className="bg-white p-5 rounded-2xl border border-stone-200 space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-black uppercase tracking-wider">
-                    Hero Banner Photo
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => setShowMediaModal(true)}
-                    className="text-xs text-black font-bold hover:underline cursor-pointer"
-                  >
-                    Select R2 Image
-                  </button>
-                </div>
-
-                <div
-                  onClick={() => setShowMediaModal(true)}
-                  className="aspect-video bg-stone-100 rounded-xl overflow-hidden border border-stone-200 cursor-pointer group relative"
-                >
-                  <img
-                    src={formData.heroImage}
-                    alt={formData.title}
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-bold gap-1.5">
-                    <ImageIcon className="w-4 h-4" />
-                    <span>Change Image</span>
-                  </div>
-                </div>
+                <UniversalImageUploader
+                  label="Hero Banner Photo"
+                  description="Upload banner photo for this page. Auto-compressed & stored in R2 bucket."
+                  folder="pages"
+                  defaultWidth={1600}
+                  defaultFormat="webp"
+                  currentUrl={formData.heroImage}
+                  onImageSelected={(url, asset) => {
+                    const chosen = asset?.dataUrl || url;
+                    setFormData({ ...formData, heroImage: chosen });
+                  }}
+                  showR2LibraryPicker={true}
+                />
               </div>
 
               {/* Navigation Placements */}

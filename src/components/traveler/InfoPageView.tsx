@@ -6,6 +6,7 @@ import { Navbar } from '../common/Navbar';
 import { PILGRIMAGE_FAQS_REGISTRY } from '../../data/pilgrimageFaqsData';
 import { jkFaqsDestinations } from '../../data/jkFaqsData';
 import { himachalFaqsDestinations } from '../../data/himachalFaqsData';
+import { SitemapPage } from './SitemapPage';
 import {
   Building2,
   Phone,
@@ -100,6 +101,10 @@ export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, on
     { city: 'Chandigarh (Branch)', address: 'Sector 17-C, City Centre, Chandigarh', phone: '+91 94199 15255' },
     { city: 'Dharamshala (Branch)', address: 'Temple Road, McLeod Ganj, Dharamshala, Himachal Pradesh', phone: '+91 94199 15255' },
   ];
+
+  if (pageSlug === 'sitemap') {
+    return <SitemapPage />;
+  }
 
   return (
     <div className="min-h-screen bg-stone-50 font-sans text-stone-800 flex flex-col pb-20 lg:pb-0">

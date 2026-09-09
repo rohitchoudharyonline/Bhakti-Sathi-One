@@ -25,6 +25,7 @@ import { PanchangCalendarPageV3 } from './components/traveler/PanchangCalendarPa
 import { HoroscopePage } from './components/traveler/HoroscopePage';
 import { PublicGuidesHub } from './components/traveler/PublicGuidesHub';
 import { GuideDetailView } from './components/traveler/GuideDetailView';
+import { SitemapPage } from './components/traveler/SitemapPage';
 import { Settings } from 'lucide-react';
 
 const MainAppContent: React.FC = () => {
@@ -51,14 +52,15 @@ const MainAppContent: React.FC = () => {
   useEffect(() => { const syncPath = () => setPathname(window.location.pathname); window.addEventListener('popstate', syncPath); return () => window.removeEventListener('popstate', syncPath); }, []);
   const isPanchangOpen = pathname === '/panchang' || pathname === '/panchang/';
   const isHoroscopeOpen = pathname === '/rashifal' || pathname === '/rashifal/';
-  const isHome = activeView === 'traveler' && !isPanchangOpen && !isHoroscopeOpen && !isJapCounterOpen && !isTravelerProfileOpen && !isGuidesHubOpen && !activeGuideSlug && !activeBlogSlug && !isBlogHubOpen && !isToursDirectoryOpen && !activeCustomPageSlug && !activeInfoPage && !selectedPackageId && !selectedDestinationSlug && !isDestinationsExplorerOpen;
+  const isSitemapOpen = pathname === '/sitemap' || pathname === '/sitemap/' || pathname === '/sitemap.html';
+  const isHome = activeView === 'traveler' && !isSitemapOpen && !isPanchangOpen && !isHoroscopeOpen && !isJapCounterOpen && !isTravelerProfileOpen && !isGuidesHubOpen && !activeGuideSlug && !activeBlogSlug && !isBlogHubOpen && !isToursDirectoryOpen && !activeCustomPageSlug && !activeInfoPage && !selectedPackageId && !selectedDestinationSlug && !isDestinationsExplorerOpen;
   return (
     <>
       {showSplash && <SplashScreen onFinish={() => setShowSplash(false)} />}
       <div className="w-full min-h-screen bg-stone-50 text-stone-900 flex flex-col selection:bg-stone-900 selection:text-white">
-        {activeView !== 'traveler' ? <EnhancedERP /> : isPanchangOpen ? <PanchangCalendarPageV3 /> : isHoroscopeOpen ? <HoroscopePage /> : isJapCounterOpen ? <JapCounterPageV2 /> : isTravelerProfileOpen ? <TravelerProfilePage /> : activeGuideSlug ? <GuideDetailView slug={activeGuideSlug} /> : isGuidesHubOpen ? <PublicGuidesHub /> : activeBlogSlug ? <BlogPostDetailView slug={activeBlogSlug} /> : isBlogHubOpen ? <TravelBlogHub /> : isToursDirectoryOpen ? <AllToursDirectory initialDestinationSlug={selectedToursDestination || undefined} /> : activeCustomPageSlug ? <CustomPageDetailView slug={activeCustomPageSlug} /> : activeInfoPage ? <InfoPageView pageSlug={activeInfoPage} onBack={() => setActiveInfoPage(null)} /> : selectedPackageId ? <EnhancedTourExperience /> : selectedDestinationSlug ? <DestinationPage /> : isDestinationsExplorerOpen ? <AllDestinationsExplorer /> : <LuxuryHomepage />}
-        {activeView === 'traveler' && !isPanchangOpen && !isHoroscopeOpen && <MobileBottomNav />}
-        {activeView === 'traveler' && !isPanchangOpen && !isHoroscopeOpen && <FloatingSupportWidget />}
+        {activeView !== 'traveler' ? <EnhancedERP /> : isSitemapOpen ? <SitemapPage /> : isPanchangOpen ? <PanchangCalendarPageV3 /> : isHoroscopeOpen ? <HoroscopePage /> : isJapCounterOpen ? <JapCounterPageV2 /> : isTravelerProfileOpen ? <TravelerProfilePage /> : activeGuideSlug ? <GuideDetailView slug={activeGuideSlug} /> : isGuidesHubOpen ? <PublicGuidesHub /> : activeBlogSlug ? <BlogPostDetailView slug={activeBlogSlug} /> : isBlogHubOpen ? <TravelBlogHub /> : isToursDirectoryOpen ? <AllToursDirectory initialDestinationSlug={selectedToursDestination || undefined} /> : activeCustomPageSlug ? <CustomPageDetailView slug={activeCustomPageSlug} /> : activeInfoPage ? <InfoPageView pageSlug={activeInfoPage} onBack={() => setActiveInfoPage(null)} /> : selectedPackageId ? <EnhancedTourExperience /> : selectedDestinationSlug ? <DestinationPage /> : isDestinationsExplorerOpen ? <AllDestinationsExplorer /> : <LuxuryHomepage />}
+        {activeView === 'traveler' && !isSitemapOpen && !isPanchangOpen && !isHoroscopeOpen && <MobileBottomNav />}
+        {activeView === 'traveler' && !isSitemapOpen && !isPanchangOpen && !isHoroscopeOpen && <FloatingSupportWidget />}
         <TravelerAuthModal />
         <PWAInstallButton />
         {isHome && <></>}

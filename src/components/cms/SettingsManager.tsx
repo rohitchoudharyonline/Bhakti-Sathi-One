@@ -599,14 +599,39 @@ export const SettingsManager: React.FC = () => {
                   <div>
                     <input
                       type="text"
-                      placeholder="Link Target URL / Slug (e.g. about, terms, or https://google.com)"
+                      placeholder="Link Target URL / Slug (e.g. sitemap, about, terms, or https://...)"
                       value={newLinkUrl}
                       onChange={(e) => setNewLinkUrl(e.target.value)}
                       className="w-full text-xs bg-white border border-slate-200 rounded-xl px-3 py-2 focus:border-brand focus:outline-hidden"
                     />
-                    <p className="text-[9.5px] text-slate-500 mt-1 font-semibold pl-1">
-                      Use simple slugs (e.g. <span className="text-brand font-bold">about</span>, <span className="text-brand font-bold">careers</span>, <span className="text-brand font-bold">locate_us</span>, <span className="text-brand font-bold">terms</span>) or full URL paths.
-                    </p>
+                    <div className="flex flex-wrap gap-1 mt-1.5">
+                      <span className="text-[9.5px] font-bold text-slate-500 mr-1 self-center">Quick Presets:</span>
+                      {[
+                        { label: 'Sitemap', url: 'sitemap' },
+                        { label: 'About us', url: 'about' },
+                        { label: 'Contact us', url: 'locate_us' },
+                        { label: 'Guide Hub', url: 'guide' },
+                        { label: 'FAQ', url: 'faq' },
+                        { label: 'Careers', url: 'careers' },
+                        { label: 'Reviews', url: 'reviews' },
+                        { label: 'Terms', url: 'terms' },
+                        { label: 'Privacy', url: 'privacy' },
+                        { label: 'Panchang', url: '/panchang' },
+                        { label: 'Rashifal', url: '/rashifal' },
+                      ].map((preset) => (
+                        <button
+                          key={preset.url}
+                          type="button"
+                          onClick={() => {
+                            setNewLinkLabel(preset.label);
+                            setNewLinkUrl(preset.url);
+                          }}
+                          className="px-1.5 py-0.5 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-700 text-[9.5px] font-semibold text-slate-600 rounded border border-slate-200 transition cursor-pointer"
+                        >
+                          + {preset.label}
+                        </button>
+                      ))}
+                    </div>
                   </div>
 
                   <button

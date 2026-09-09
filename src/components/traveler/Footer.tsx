@@ -251,10 +251,10 @@ export const Footer: React.FC<FooterProps> = ({ onSelectDestination, onSelectDha
                         ) : (
                           <button
                             onClick={() => {
-                              const infoSlugs = ['about', 'careers', 'locate_us', 'faq', 'terms', 'cancellation', 'privacy', 'security', 'pilgrimage', 'family'];
+                              const infoSlugs = ['about', 'careers', 'locate_us', 'faq', 'terms', 'cancellation', 'privacy', 'security', 'pilgrimage', 'family', 'sitemap'];
                               if (item.url === 'guide') {
                                 navigateToGuideHub();
-                              } else if (infoSlugs.includes(item.url)) {
+                              } else if (item.url === 'sitemap' || infoSlugs.includes(item.url)) {
                                 openInfo(item.url);
                               } else {
                                 handleDestinationClick(item.url);
@@ -304,6 +304,11 @@ export const Footer: React.FC<FooterProps> = ({ onSelectDestination, onSelectDha
                     <li>
                       <button onClick={navigateToGuideHub} className="hover:text-white transition cursor-pointer text-left">
                         • Guide
+                      </button>
+                    </li>
+                    <li>
+                      <button onClick={() => openInfo('sitemap')} className="hover:text-white transition cursor-pointer text-left">
+                        • Sitemap
                       </button>
                     </li>
                   </ul>

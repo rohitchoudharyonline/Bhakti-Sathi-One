@@ -85,7 +85,8 @@ export const DEFAULT_AGENCY_SETTINGS: AgencySettings = {
         { id: 'fmi-careers', label: 'Careers', url: 'careers' },
         { id: 'fmi-contact', label: 'Contact us', url: 'locate_us' },
         { id: 'fmi-faq', label: 'FAQ', url: 'faq' },
-        { id: 'fmi-guide', label: 'Guide', url: 'guide' }
+        { id: 'fmi-guide', label: 'Guide', url: 'guide' },
+        { id: 'fmi-sitemap', label: 'Sitemap', url: 'sitemap' }
       ]
     },
     {

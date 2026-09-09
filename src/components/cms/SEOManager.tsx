@@ -229,9 +229,6 @@ export const SEOManager: React.FC = () => {
                         src={editingSitePage.ogImage}
                         alt="OG Preview"
                         className="w-full h-full object-cover"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1598091383021-15ddea10925d?auto=format&fit=crop&w=400&q=80';
-                        }}
                       />
                     ) : (
                       <div className="p-2 text-center text-stone-400">
@@ -372,12 +369,13 @@ export const SEOManager: React.FC = () => {
                   defaultWidth={1200}
                   defaultFormat="webp"
                   currentUrl={editingSitePage.ogImage || ''}
-                  onImageSelected={(url) =>
+                  onImageSelected={(url, asset) => {
+                    const finalImg = asset?.dataUrl || url;
                     setEditingSitePage({
                       ...editingSitePage,
-                      ogImage: url,
-                    })
-                  }
+                      ogImage: finalImg,
+                    });
+                  }}
                   showR2LibraryPicker={true}
                 />
 
@@ -888,12 +886,14 @@ export const SEOManager: React.FC = () => {
               defaultWidth={1200}
               defaultFormat="webp"
               currentUrl={pageSeo.ogImage || editingCustomPage.heroImage || ''}
-              onImageSelected={(url) =>
+              onImageSelected={(url, asset) => {
+                const finalImg = asset?.dataUrl || url;
                 setEditingCustomPage({
                   ...editingCustomPage,
-                  seo: { ...pageSeo, ogImage: url },
-                })
-              }
+                  heroImage: finalImg,
+                  seo: { ...pageSeo, ogImage: finalImg },
+                });
+              }}
               showR2LibraryPicker={true}
             />
 

@@ -546,17 +546,17 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (saved !== null) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed)) {
-          // Filter out unwanted dummy pages: 'home', 'tours', 'destinations', 'blog', 'faq'
+          // Remove unwanted uncreated sample pages
+          const unwantedIds = [
+            'page-home', 'page-tours', 'page-destinations', 'page-blog', 'page-faq', 
+            'home', 'tours', 'destinations', 'blog', 'faq',
+            'page-about-us', 'page-why-choose-us', 'page-honeymoon-perks',
+            'about-us', 'why-choose-us', 'honeymoon-special-inclusions'
+          ];
           const cleaned = parsed.filter(p => 
-            !['page-home', 'page-tours', 'page-destinations', 'page-blog', 'page-faq', 'home', 'tours', 'destinations', 'blog', 'faq'].includes(p.id) &&
-            !['home', 'tours', 'destinations', 'blog', 'faq'].includes(p.slug)
+            !unwantedIds.includes(p.id) &&
+            !unwantedIds.includes(p.slug)
           );
-          DEFAULT_CUSTOM_PAGES.forEach(defPage => {
-            const exists = cleaned.some(p => p.slug === defPage.slug || p.id === defPage.id);
-            if (!exists) {
-              cleaned.push(defPage);
-            }
-          });
           return cleaned;
         }
       }
