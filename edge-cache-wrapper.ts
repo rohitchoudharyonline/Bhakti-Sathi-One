@@ -2,6 +2,11 @@ import app from './cms-auth-wrapper';
 
 const PUBLIC_API_PREFIXES = ['/api/contents'];
 
+type EdgeCacheStorage = {
+  match(request: Request): Promise<Response | undefined>;
+  put(request: Request, response: Response): Promise<void>;
+};
+
 function isPublicCacheable(request: Request) {
   const url = new URL(request.url);
   if (request.method !== 'GET') return false;
@@ -30,7 +35,7 @@ export default {
     if (!isPublicCacheable(request)) return app.fetch(request, env, ctx);
 
     const key = cacheKey(request);
-    const cache = caches.default;
+    const cache = (caches as unknown as { default: EdgeCacheStorage }).default;
     const hit = await cache.match(key);
     if (hit) {
       const headers = new Headers(hit.headers);
