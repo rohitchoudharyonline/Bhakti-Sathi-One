@@ -93,19 +93,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish, duration =
                 </span>
               </motion.div>
 
-              {!reduceMotion && (
-                <motion.img
-                  src="/simple_temple_sketch.png"
-                  alt=""
-                  aria-hidden="true"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 0.18 }}
-                  transition={{ delay: 0.45, duration: 0.8 }}
-                  className="w-64 h-48 object-contain mix-blend-multiply mt-1 pointer-events-none"
-                />
-              )}
-
-              <span className="text-[9px] font-extrabold text-stone-400 uppercase tracking-[0.25em] mt-5">
+              <span className="text-[9px] font-extrabold text-stone-400 uppercase tracking-[0.25em] mt-6">
                 Tap to enter
               </span>
             </button>
