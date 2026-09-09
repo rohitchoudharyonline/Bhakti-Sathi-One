@@ -19,6 +19,7 @@ import { MobileBottomNav } from './components/common/MobileBottomNav';
 import { FloatingSupportWidget } from './components/common/FloatingSupportWidget';
 import { TravelerProfilePage } from './components/traveler/TravelerProfilePage';
 import { TravelerAuthModal } from './components/traveler/TravelerAuthModal';
+import { TravelerGoogleAuthPage } from './components/traveler/TravelerGoogleAuthPage';
 import { TravelerAuthSessionSync } from './components/auth/TravelerAuthSessionSync';
 import { PWAInstallButton } from './components/common/PWAInstallButton';
 import { JapCounterPageV2 } from './components/traveler/JapCounterPageV2';
@@ -45,6 +46,7 @@ const MainAppContent: React.FC = () => {
     setActiveInfoPage,
     isTravelerProfileOpen,
     isJapCounterOpen,
+    travelerUser,
   } = useTours();
   const [showSplash, setShowSplash] = useState(true);
   const [pathname, setPathname] = useState(() => typeof window !== 'undefined' ? window.location.pathname : '/');
@@ -59,16 +61,17 @@ const MainAppContent: React.FC = () => {
   const isHoroscopeOpen = pathname === '/rashifal' || pathname === '/rashifal/';
   const isSitemapOpen = pathname === '/sitemap' || pathname === '/sitemap/' || pathname === '/sitemap.html' || pathname === '/info/sitemap' || pathname === '/info/sitemap/' || activeInfoPage === 'sitemap';
   const isHome = activeView === 'traveler' && !isSitemapOpen && !isPanchangOpen && !isHoroscopeOpen && !isJapCounterOpen && !isTravelerProfileOpen && !isGuidesHubOpen && !activeGuideSlug && !activeBlogSlug && !isBlogHubOpen && !isToursDirectoryOpen && !activeCustomPageSlug && !activeInfoPage && !selectedPackageId && !selectedDestinationSlug && !isDestinationsExplorerOpen;
+  const showTravelerGoogleAuth = activeView === 'traveler' && isTravelerProfileOpen && !travelerUser;
 
   return (
     <>
       <TravelerAuthSessionSync />
       {showSplash && <SplashScreen onFinish={() => setShowSplash(false)} />}
       <div className="w-full min-h-screen bg-stone-50 text-stone-900 flex flex-col selection:bg-stone-900 selection:text-white">
-        {activeView !== 'traveler' ? <EnhancedERP /> : isSitemapOpen ? <SitemapPage /> : isPanchangOpen ? <PanchangCalendarPageV3 /> : isHoroscopeOpen ? <HoroscopePage /> : isJapCounterOpen ? <JapCounterPageV2 /> : isTravelerProfileOpen ? <TravelerProfilePage /> : activeGuideSlug ? <GuideDetailView slug={activeGuideSlug} /> : isGuidesHubOpen ? <PublicGuidesHub /> : activeBlogSlug ? <BlogPostDetailView slug={activeBlogSlug} /> : isBlogHubOpen ? <TravelBlogHub /> : isToursDirectoryOpen ? <AllToursDirectory initialDestinationSlug={selectedToursDestination || undefined} /> : activeCustomPageSlug ? <CustomPageDetailView slug={activeCustomPageSlug} /> : activeInfoPage ? <InfoPageView pageSlug={activeInfoPage} onBack={() => setActiveInfoPage(null)} /> : selectedPackageId ? <EnhancedTourExperience /> : selectedDestinationSlug ? <DestinationPage /> : isDestinationsExplorerOpen ? <AllDestinationsExplorer /> : <LuxuryHomepage />}
-        {activeView === 'traveler' && !isSitemapOpen && !isPanchangOpen && !isHoroscopeOpen && <MobileBottomNav />}
-        {activeView === 'traveler' && !isSitemapOpen && !isPanchangOpen && !isHoroscopeOpen && <FloatingSupportWidget />}
-        <TravelerAuthModal />
+        {activeView !== 'traveler' ? <EnhancedERP /> : showTravelerGoogleAuth ? <TravelerGoogleAuthPage /> : isSitemapOpen ? <SitemapPage /> : isPanchangOpen ? <PanchangCalendarPageV3 /> : isHoroscopeOpen ? <HoroscopePage /> : isJapCounterOpen ? <JapCounterPageV2 /> : isTravelerProfileOpen ? <TravelerProfilePage /> : activeGuideSlug ? <GuideDetailView slug={activeGuideSlug} /> : isGuidesHubOpen ? <PublicGuidesHub /> : activeBlogSlug ? <BlogPostDetailView slug={activeBlogSlug} /> : isBlogHubOpen ? <TravelBlogHub /> : isToursDirectoryOpen ? <AllToursDirectory initialDestinationSlug={selectedToursDestination || undefined} /> : activeCustomPageSlug ? <CustomPageDetailView slug={activeCustomPageSlug} /> : activeInfoPage ? <InfoPageView pageSlug={activeInfoPage} onBack={() => setActiveInfoPage(null)} /> : selectedPackageId ? <EnhancedTourExperience /> : selectedDestinationSlug ? <DestinationPage /> : isDestinationsExplorerOpen ? <AllDestinationsExplorer /> : <LuxuryHomepage />}
+        {activeView === 'traveler' && !showTravelerGoogleAuth && !isSitemapOpen && !isPanchangOpen && !isHoroscopeOpen && <MobileBottomNav />}
+        {activeView === 'traveler' && !showTravelerGoogleAuth && !isSitemapOpen && !isPanchangOpen && !isHoroscopeOpen && <FloatingSupportWidget />}
+        {!showTravelerGoogleAuth && <TravelerAuthModal />}
         <PWAInstallButton />
         {isHome && <></>}
       </div>
