@@ -114,22 +114,31 @@ export const TravelerAuthModal: React.FC = () => {
       setErrorMessage('Please enter a valid email address.');
       return;
     }
-    if (!password || password.length < 6) {
-      setErrorMessage('Password must be at least 6 characters.');
-      return;
-    }
 
     setIsLoading(true);
     setErrorMessage('');
     try {
-      await signupWithPassword({
-        email: email.trim(),
-        password,
-        fullName: fullName.trim(),
-        phone: phone.trim() || undefined,
+      const res = await fetch('/api/auth/traveler/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: email.trim(),
+          fullName: fullName.trim(),
+          phone: phone.trim() || undefined,
+        }),
       });
-      handleClose();
-      navigateToTravelerProfile();
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'Registration failed.');
+      }
+      if (data.user) {
+        // Also send initial welcome OTP or sign in directly
+        setSuccessMessage(`Account created successfully for ${email.trim()}! You are now signed in.`);
+        setTimeout(() => {
+          handleClose();
+          navigateToTravelerProfile();
+        }, 1000);
+      }
     } catch (err: any) {
       setErrorMessage(err?.message || 'Registration failed. Please try again.');
     } finally {
@@ -272,7 +281,7 @@ export const TravelerAuthModal: React.FC = () => {
             Access your sacred itineraries, booking inquiries, wishlists &amp; Jap Sadhana counter.
           </p>
 
-          {/* Navigation Tabs (OTP Code / Password / Register) */}
+          {/* Navigation Tabs (OTP Code / Register) */}
           <div className="flex items-center gap-1.5 mt-4 bg-white/10 p-1 rounded-2xl">
             <button
               type="button"
@@ -288,25 +297,7 @@ export const TravelerAuthModal: React.FC = () => {
               }`}
             >
               <KeyRound className="w-3.5 h-3.5 shrink-0" />
-              <span>OTP Code</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => {
-                setActiveAuthTab('password');
-                setPasswordSubView('login');
-                setErrorMessage('');
-                setSuccessMessage('');
-              }}
-              className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
-                activeAuthTab === 'password'
-                  ? 'bg-[#FF4B00] text-white shadow-md'
-                  : 'text-stone-300 hover:text-white hover:bg-white/5'
-              }`}
-            >
-              <Lock className="w-3.5 h-3.5 shrink-0" />
-              <span>Password</span>
+              <span>OTP Sign In</span>
             </button>
 
             <button
@@ -318,7 +309,7 @@ export const TravelerAuthModal: React.FC = () => {
               }}
               className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
                 activeAuthTab === 'register'
-                  ? 'bg-stone-700 text-white shadow-md'
+                  ? 'bg-[#FF4B00] text-white shadow-md'
                   : 'text-stone-300 hover:text-white hover:bg-white/5'
               }`}
             >
@@ -347,262 +338,7 @@ export const TravelerAuthModal: React.FC = () => {
             </div>
           )}
 
-          {/* TAB 1: PASSWORD AUTH (SIGN IN & FORGOT PASSWORD) */}
-          {activeAuthTab === 'password' && (
-            <div>
-              {passwordSubView === 'login' ? (
-                <form onSubmit={handlePasswordLogin} className="space-y-4">
-                  <div className="space-y-3">
-                    <div>
-                      <label className="block text-xs font-bold text-stone-700 mb-1 flex items-center gap-1.5">
-                        <Mail className="w-3.5 h-3.5 text-stone-400" /> Email Address
-                      </label>
-                      <input
-                        type="email"
-                        required
-                        placeholder="e.g. rohit@gmail.com"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-bold text-stone-800 focus:bg-white focus:border-[#FF4B00] focus:outline-hidden transition"
-                      />
-                    </div>
 
-                    <div>
-                      <div className="flex items-center justify-between mb-1">
-                        <label className="block text-xs font-bold text-stone-700 flex items-center gap-1.5">
-                          <Lock className="w-3.5 h-3.5 text-stone-400" /> Password
-                        </label>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setPasswordSubView('forgot');
-                            setForgotEmail(email || '');
-                            setForgotStep('email');
-                            setErrorMessage('');
-                            setSuccessMessage('');
-                          }}
-                          className="text-xs font-bold text-[#FF4B00] hover:text-[#d43e00] hover:underline cursor-pointer"
-                        >
-                          Forgot Password?
-                        </button>
-                      </div>
-
-                      <div className="relative">
-                        <input
-                          type={showPassword ? 'text' : 'password'}
-                          required
-                          placeholder="At least 6 characters"
-                          value={password}
-                          onChange={(e) => setPassword(e.target.value)}
-                          className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-bold text-stone-800 focus:bg-white focus:border-[#FF4B00] focus:outline-hidden transition pr-10"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 p-1"
-                        >
-                          {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-
-                  <button
-                    type="submit"
-                    disabled={isLoading}
-                    className="w-full py-3.5 px-4 rounded-xl bg-[#FF4B00] hover:bg-[#e04300] text-white text-xs font-black tracking-wide shadow-lg shadow-[#FF4B00]/20 flex items-center justify-center gap-2 transition cursor-pointer disabled:opacity-50"
-                  >
-                    {isLoading ? (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        <span>Signing In...</span>
-                      </>
-                    ) : (
-                      <>
-                        <span>Sign In Securely</span>
-                        <ArrowRight className="w-4 h-4" />
-                      </>
-                    )}
-                  </button>
-
-                  <div className="flex items-center justify-center gap-2 pt-2 text-xs text-stone-500">
-                    <span>Don't have an account?</span>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setActiveAuthTab('register');
-                        setErrorMessage('');
-                      }}
-                      className="font-bold text-[#FF4B00] hover:underline"
-                    >
-                      Register Now
-                    </button>
-                  </div>
-                </form>
-              ) : (
-                /* FORGOT PASSWORD WORKFLOW */
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between pb-2 border-b border-stone-100">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setPasswordSubView('login');
-                        setErrorMessage('');
-                        setSuccessMessage('');
-                      }}
-                      className="inline-flex items-center gap-1.5 text-xs font-bold text-stone-600 hover:text-stone-900 cursor-pointer"
-                    >
-                      <ArrowLeft className="w-3.5 h-3.5" />
-                      <span>Back to Sign In</span>
-                    </button>
-                    <span className="text-[11px] font-bold text-stone-400">
-                      Step {forgotStep === 'email' ? '1 of 2' : '2 of 2'}
-                    </span>
-                  </div>
-
-                  {forgotStep === 'email' ? (
-                    <form onSubmit={handleForgotSendOtp} className="space-y-4">
-                      <div className="text-center space-y-1">
-                        <div className="w-10 h-10 rounded-full bg-amber-50 text-[#FF4B00] mx-auto flex items-center justify-center">
-                          <RotateCcw className="w-5 h-5" />
-                        </div>
-                        <h3 className="text-sm font-bold text-stone-800">Password Recovery</h3>
-                        <p className="text-xs text-stone-500">
-                          Enter your account email to receive a 6-digit password reset code.
-                        </p>
-                      </div>
-
-                      <div>
-                        <label className="block text-xs font-bold text-stone-700 mb-1 flex items-center gap-1.5">
-                          <Mail className="w-3.5 h-3.5 text-stone-400" /> Account Email Address
-                        </label>
-                        <input
-                          type="email"
-                          required
-                          placeholder="e.g. rohit@gmail.com"
-                          value={forgotEmail}
-                          onChange={(e) => setForgotEmail(e.target.value)}
-                          className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-bold text-stone-800 focus:bg-white focus:border-[#FF4B00] focus:outline-hidden transition"
-                        />
-                      </div>
-
-                      <button
-                        type="submit"
-                        disabled={isLoading}
-                        className="w-full py-3.5 px-4 rounded-xl bg-[#FF4B00] hover:bg-[#e04300] text-white text-xs font-black tracking-wide shadow-md flex items-center justify-center gap-2 transition cursor-pointer disabled:opacity-50"
-                      >
-                        {isLoading ? (
-                          <>
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                            <span>Sending Reset Code...</span>
-                          </>
-                        ) : (
-                          <>
-                            <KeyRound className="w-4 h-4" />
-                            <span>Send 6-Digit Reset Code</span>
-                          </>
-                        )}
-                      </button>
-                    </form>
-                  ) : (
-                    <form onSubmit={handleForgotResetPassword} className="space-y-4">
-                      <div className="p-3 bg-stone-50 border border-stone-200 rounded-xl text-xs text-stone-600 flex items-center justify-between">
-                        <span>Resetting for: <strong>{forgotEmail}</strong></span>
-                        <button
-                          type="button"
-                          onClick={() => setForgotStep('email')}
-                          className="text-[#FF4B00] font-bold hover:underline"
-                        >
-                          Change
-                        </button>
-                      </div>
-
-                      <div>
-                        <label className="block text-xs font-bold text-stone-700 mb-1 flex items-center gap-1.5">
-                          <KeyRound className="w-3.5 h-3.5 text-stone-400" /> 6-Digit Verification Code
-                        </label>
-                        <input
-                          type="text"
-                          required
-                          maxLength={6}
-                          placeholder="Enter 6-digit code"
-                          value={forgotOtp}
-                          onChange={(e) => setForgotOtp(e.target.value.replace(/\D/g, ''))}
-                          className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-center text-lg font-mono font-bold tracking-widest text-stone-800 focus:bg-white focus:border-[#FF4B00] focus:outline-hidden transition"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-xs font-bold text-stone-700 mb-1 flex items-center gap-1.5">
-                          <Lock className="w-3.5 h-3.5 text-stone-400" /> New Password
-                        </label>
-                        <div className="relative">
-                          <input
-                            type={showNewPassword ? 'text' : 'password'}
-                            required
-                            placeholder="At least 6 characters"
-                            value={forgotNewPassword}
-                            onChange={(e) => setForgotNewPassword(e.target.value)}
-                            className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-bold text-stone-800 focus:bg-white focus:border-[#FF4B00] focus:outline-hidden transition pr-10"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => setShowNewPassword(!showNewPassword)}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 p-1"
-                          >
-                            {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                          </button>
-                        </div>
-                      </div>
-
-                      <div>
-                        <label className="block text-xs font-bold text-stone-700 mb-1 flex items-center gap-1.5">
-                          <Lock className="w-3.5 h-3.5 text-stone-400" /> Confirm New Password
-                        </label>
-                        <input
-                          type="password"
-                          required
-                          placeholder="Re-type new password"
-                          value={forgotConfirmPassword}
-                          onChange={(e) => setForgotConfirmPassword(e.target.value)}
-                          className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-bold text-stone-800 focus:bg-white focus:border-[#FF4B00] focus:outline-hidden transition"
-                        />
-                      </div>
-
-                      <button
-                        type="submit"
-                        disabled={isLoading}
-                        className="w-full py-3.5 px-4 rounded-xl bg-[#FF4B00] hover:bg-[#e04300] text-white text-xs font-black tracking-wide shadow-lg shadow-[#FF4B00]/20 flex items-center justify-center gap-2 transition cursor-pointer disabled:opacity-50"
-                      >
-                        {isLoading ? (
-                          <>
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                            <span>Updating Password...</span>
-                          </>
-                        ) : (
-                          <>
-                            <span>Set New Password &amp; Sign In</span>
-                            <ArrowRight className="w-4 h-4" />
-                          </>
-                        )}
-                      </button>
-
-                      <div className="text-center pt-1">
-                        <button
-                          type="button"
-                          onClick={handleForgotSendOtp}
-                          disabled={isLoading}
-                          className="text-xs text-stone-500 hover:text-stone-800 underline font-medium"
-                        >
-                          Resend Code to Email
-                        </button>
-                      </div>
-                    </form>
-                  )}
-                </div>
-              )}
-            </div>
-          )}
 
           {/* TAB 2: 6-DIGIT EMAIL OTP AUTH */}
           {activeAuthTab === 'otp' && (
@@ -752,30 +488,7 @@ export const TravelerAuthModal: React.FC = () => {
                     onChange={(e) => setPhone(e.target.value)}
                     className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-bold text-stone-800 focus:bg-white focus:border-[#FF4B00] focus:outline-hidden transition"
                   />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-stone-700 mb-1 flex items-center gap-1.5">
-                    <Lock className="w-3.5 h-3.5 text-stone-400" /> Password
-                  </label>
-                  <div className="relative">
-                    <input
-                      type={showPassword ? 'text' : 'password'}
-                      required
-                      placeholder="At least 6 characters"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-bold text-stone-800 focus:bg-white focus:border-[#FF4B00] focus:outline-hidden transition pr-10"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 p-1"
-                    >
-                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </button>
-                  </div>
-                </div>
+                 </div>
               </div>
 
               <button
@@ -790,7 +503,7 @@ export const TravelerAuthModal: React.FC = () => {
                   </>
                 ) : (
                   <>
-                    <span>Create &amp; Sign In</span>
+                    <span>Create Account &amp; Sign In</span>
                     <ArrowRight className="w-4 h-4" />
                   </>
                 )}
@@ -801,13 +514,12 @@ export const TravelerAuthModal: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => {
-                    setActiveAuthTab('password');
-                    setPasswordSubView('login');
+                    setActiveAuthTab('otp');
                     setErrorMessage('');
                   }}
                   className="font-bold text-[#FF4B00] hover:underline"
                 >
-                  Sign In with Password
+                  Sign In with OTP
                 </button>
               </div>
             </form>
