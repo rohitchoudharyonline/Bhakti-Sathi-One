@@ -453,31 +453,41 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // 1. Packages State
   const [packages, setPackages] = useState<TourPackage[]>(() => {
+    let deletedIds: string[] = [];
+    try {
+      const savedDeleted = localStorage.getItem('hh_deleted_package_ids');
+      if (savedDeleted) {
+        deletedIds = JSON.parse(savedDeleted);
+      }
+    } catch {}
+
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.PACKAGES);
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          // Normalize existing package categories and hydrate group tour defaults if present
           const defaultMap = new Map(DEFAULT_PACKAGES.map((d) => [d.id, d]));
-          return parsed.map((pkg) => {
-            const def = defaultMap.get(pkg.id);
-            return {
-              ...pkg,
-              category: normalizePackageCategory(pkg.category) as any,
-              isGroupTour: pkg.isGroupTour !== undefined ? pkg.isGroupTour : (def?.isGroupTour || false),
-              groupTourDetails: pkg.groupTourDetails || def?.groupTourDetails,
-            };
-          });
+          return parsed
+            .filter((pkg) => !deletedIds.includes(pkg.id))
+            .map((pkg) => {
+              const def = defaultMap.get(pkg.id);
+              return {
+                ...pkg,
+                category: normalizePackageCategory(pkg.category) as any,
+                isGroupTour: pkg.isGroupTour !== undefined ? pkg.isGroupTour : (def?.isGroupTour || false),
+                groupTourDetails: pkg.groupTourDetails || def?.groupTourDetails,
+              };
+            });
         }
       }
     } catch {}
     
-    // Also normalize default packages just in case
-    return DEFAULT_PACKAGES.map(pkg => ({
-      ...pkg,
-      category: normalizePackageCategory(pkg.category) as any
-    }));
+    return DEFAULT_PACKAGES
+      .filter((pkg) => !deletedIds.includes(pkg.id))
+      .map(pkg => ({
+        ...pkg,
+        category: normalizePackageCategory(pkg.category) as any
+      }));
   });
 
   // 2. Destinations Registry State
@@ -1875,6 +1885,14 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const deletePackage = (id: string) => {
     setPackages((prev) => prev.filter((pkg) => pkg.id !== id));
+    try {
+      const savedDeleted = localStorage.getItem('hh_deleted_package_ids');
+      const deletedIds: string[] = savedDeleted ? JSON.parse(savedDeleted) : [];
+      if (!deletedIds.includes(id)) {
+        deletedIds.push(id);
+        localStorage.setItem('hh_deleted_package_ids', JSON.stringify(deletedIds));
+      }
+    } catch {}
   };
 
   const duplicatePackage = (id: string) => {
