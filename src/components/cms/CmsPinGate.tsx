@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { ShieldCheck, Loader2, Lock, AlertCircle, ArrowRight } from 'lucide-react';
 
 interface CmsPinGateProps {
-  onPinVerified: () => void;
+  onPinVerified: (pin: string) => void;
 }
 
 const PIN_LENGTH = 6;
@@ -24,22 +24,16 @@ export const CmsPinGate: React.FC<CmsPinGateProps> = ({ onPinVerified }) => {
     setDigits(newDigits);
     setError('');
 
-    if (val && index < PIN_LENGTH - 1) {
-      inputRefs.current[index + 1]?.focus();
-    }
+    if (val && index < PIN_LENGTH - 1) inputRefs.current[index + 1]?.focus();
 
     if (index === PIN_LENGTH - 1 && val) {
       const fullPin = newDigits.join('');
-      if (fullPin.length === PIN_LENGTH) {
-        void verifyPin(fullPin);
-      }
+      if (fullPin.length === PIN_LENGTH) void verifyPin(fullPin);
     }
   };
 
   const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Backspace' && !digits[index] && index > 0) {
-      inputRefs.current[index - 1]?.focus();
-    }
+    if (e.key === 'Backspace' && !digits[index] && index > 0) inputRefs.current[index - 1]?.focus();
   };
 
   const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
@@ -60,15 +54,18 @@ export const CmsPinGate: React.FC<CmsPinGateProps> = ({ onPinVerified }) => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
+        cache: 'no-store',
         body: JSON.stringify({ pin: pinString }),
       });
 
       const data = await response.json().catch(() => ({}));
-      if (!response.ok || !data.success) {
-        throw new Error(data.error || 'Invalid PIN. Please try again.');
-      }
+      if (!response.ok || !data.success) throw new Error(data.error || 'Invalid PIN. Please try again.');
 
-      onPinVerified();
+      // Pass the verified PIN to the next step. The login screen will perform
+      // one immediate server verification before submitting credentials so a
+      // stale/missing browser cookie can never create a false "PIN verified"
+      // state.
+      onPinVerified(pinString);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Access denied. Incorrect PIN.');
       setDigits(Array(PIN_LENGTH).fill(''));
@@ -131,20 +128,14 @@ export const CmsPinGate: React.FC<CmsPinGateProps> = ({ onPinVerified }) => {
             }}
             className="w-full rounded-2xl bg-[#FF4B00] hover:bg-[#E04200] text-white py-4 px-4 font-black text-sm flex items-center justify-center gap-2 shadow-lg shadow-[#FF4B00]/25 transition-all cursor-pointer active:scale-98 disabled:opacity-40"
           >
-            {loading ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <ShieldCheck className="w-4 h-4" />
-            )}
+            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <ShieldCheck className="w-4 h-4" />}
             <span>{loading ? 'Verifying PIN…' : 'Continue to CMS Login'}</span>
             {!loading && <ArrowRight className="w-4 h-4" />}
           </button>
         </div>
 
         <div className="mt-8 pt-6 border-t border-stone-800/80 text-center">
-          <p className="text-[11px] text-stone-500 font-medium">
-            Authorized personnel only. All access attempts are securely audited.
-          </p>
+          <p className="text-[11px] text-stone-500 font-medium">Authorized personnel only. All access attempts are securely audited.</p>
         </div>
       </div>
     </div>
