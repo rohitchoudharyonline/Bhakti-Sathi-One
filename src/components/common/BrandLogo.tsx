@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 interface BrandLogoProps {
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
   className?: string;
+  imageClassName?: string;
   showTagline?: boolean;
   taglineText?: string;
   withIcon?: boolean;
@@ -11,12 +12,12 @@ interface BrandLogoProps {
 export const BrandLogo: React.FC<BrandLogoProps> = ({
   size = 'md',
   className = '',
+  imageClassName = '',
   showTagline = false,
   taglineText = 'SACRED PILGRIMAGE & YATRA',
 }) => {
   const [imgError, setImgError] = useState(false);
 
-  // Pixel heights based on size
   const heightMap = {
     xs: 'h-6',
     sm: 'h-8',
@@ -40,7 +41,7 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
           src="/logo-bhakti-sathi.png"
           alt="Bhakti Sathi"
           onError={() => setImgError(true)}
-          className={`${heightMap[size]} w-auto object-contain select-none`}
+          className={`${heightMap[size]} w-auto object-contain select-none ${imageClassName}`}
         />
       ) : (
         <div className="inline-flex items-baseline select-none tracking-[-0.03em] font-extrabold font-['Plus_Jakarta_Sans',sans-serif]">
