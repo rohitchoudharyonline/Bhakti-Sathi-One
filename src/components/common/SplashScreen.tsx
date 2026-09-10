@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { BrandLogo } from './BrandLogo';
 
 interface SplashScreenProps {
   onFinish?: () => void;
@@ -64,26 +63,15 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish, duration =
           role="status"
           aria-label="Loading Bhakti Sathi"
         >
-          <div className="relative flex h-full w-full max-w-md flex-col items-center justify-center px-6 pt-8">
-            <motion.div
-              initial={reduceMotion ? false : { scale: 0.9, opacity: 0, y: -16 }}
-              animate={reduceMotion ? undefined : { scale: 1, opacity: 1, y: 0 }}
-              transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1] }}
-              className="relative z-20"
-            >
-              <BrandLogo size="xl" imageClassName="mix-blend-multiply" />
-            </motion.div>
-
-            <motion.img
-              src="/temple-splash-final.svg"
-              alt=""
-              aria-hidden="true"
-              initial={reduceMotion ? false : { opacity: 0, y: 45, scale: 0.96 }}
-              animate={reduceMotion ? undefined : { opacity: 1, y: 0, scale: 1 }}
-              transition={{ delay: 0.3, duration: 1.15, ease: [0.16, 1, 0.3, 1] }}
-              className="pointer-events-none absolute bottom-0 left-1/2 z-10 w-[118%] max-w-none -translate-x-1/2"
-            />
-          </div>
+          <motion.img
+            src="/bhakti-sathi-splash.webp"
+            alt="Bhakti Sathi"
+            initial={reduceMotion ? false : { opacity: 0, scale: 0.985 }}
+            animate={reduceMotion ? undefined : { opacity: 1, scale: 1 }}
+            transition={{ duration: reduceMotion ? 0.15 : 1.1, ease: [0.16, 1, 0.3, 1] }}
+            className="h-full w-full object-contain"
+            draggable={false}
+          />
         </motion.div>
       )}
     </AnimatePresence>
