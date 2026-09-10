@@ -74,7 +74,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish, duration =
                 initial={reduceMotion ? false : { scale: 0.92, opacity: 0, y: -12 }}
                 animate={reduceMotion ? undefined : { scale: 1, opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                className="mix-blend-multiply"
+                className="[&_img]:mix-blend-multiply"
               >
                 <BrandLogo size="xl" />
               </motion.div>
