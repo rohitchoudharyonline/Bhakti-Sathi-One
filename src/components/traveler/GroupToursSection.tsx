@@ -105,7 +105,7 @@ export const GroupToursSection: React.FC = () => {
             </span>
 
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-stone-900 tracking-tight flex items-center gap-2">
-              <span>Sangha Pilgrimages & Group Yatras</span>
+              <span>Group Tours</span>
             </h2>
 
             <p className="text-xs sm:text-sm text-stone-600 font-medium mt-1.5 max-w-2xl leading-relaxed">
