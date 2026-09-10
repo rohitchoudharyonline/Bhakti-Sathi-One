@@ -60,28 +60,28 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish, duration =
           exit={reduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.985, filter: 'blur(8px)' }}
           transition={{ duration: reduceMotion ? 0.15 : 0.55 }}
           onClick={finish}
-          className="fixed inset-0 z-[9999] flex items-center justify-center overflow-hidden bg-[#FAF6EE] select-none cursor-pointer"
+          className="fixed inset-0 z-[9999] flex items-center justify-center overflow-hidden bg-[#FFFDF9] select-none cursor-pointer"
           role="status"
           aria-label="Loading Bhakti Sathi"
         >
-          <div className="relative flex h-full w-full max-w-md flex-col items-center justify-center px-6">
+          <div className="relative flex h-full w-full max-w-md flex-col items-center justify-center px-6 pt-8">
             <motion.div
-              initial={reduceMotion ? false : { scale: 0.88, opacity: 0, y: -24 }}
+              initial={reduceMotion ? false : { scale: 0.9, opacity: 0, y: -16 }}
               animate={reduceMotion ? undefined : { scale: 1, opacity: 1, y: 0 }}
-              transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
-              className="relative z-20 [&_img]:mix-blend-multiply"
+              transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1] }}
+              className="relative z-20"
             >
-              <BrandLogo size="xl" />
+              <BrandLogo size="xl" imageClassName="mix-blend-multiply" />
             </motion.div>
 
             <motion.img
               src="/temple-splash-final.svg"
               alt=""
               aria-hidden="true"
-              initial={reduceMotion ? false : { opacity: 0, y: 55, scale: 0.92 }}
-              animate={reduceMotion ? undefined : { opacity: 0.92, y: 0, scale: 1 }}
-              transition={{ delay: 0.3, duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-              className="pointer-events-none absolute bottom-[-8px] left-1/2 z-10 w-[120%] max-w-none -translate-x-1/2"
+              initial={reduceMotion ? false : { opacity: 0, y: 45, scale: 0.96 }}
+              animate={reduceMotion ? undefined : { opacity: 1, y: 0, scale: 1 }}
+              transition={{ delay: 0.3, duration: 1.15, ease: [0.16, 1, 0.3, 1] }}
+              className="pointer-events-none absolute bottom-0 left-1/2 z-10 w-[118%] max-w-none -translate-x-1/2"
             />
           </div>
         </motion.div>
