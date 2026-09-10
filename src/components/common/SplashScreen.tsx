@@ -75,21 +75,13 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish, duration =
             </motion.div>
 
             <motion.img
-              src="/temple-splash.svg"
+              src="/temple-splash-final.svg"
               alt=""
               aria-hidden="true"
-              initial={reduceMotion ? false : { opacity: 0, y: 45, scale: 0.94 }}
-              animate={reduceMotion ? undefined : { opacity: 0.95, y: 0, scale: 1 }}
-              transition={{ delay: 0.35, duration: 1.15, ease: [0.16, 1, 0.3, 1] }}
-              className="pointer-events-none absolute bottom-0 left-1/2 z-10 w-[118%] max-w-none -translate-x-1/2"
-            />
-
-            <motion.div
-              aria-hidden="true"
-              initial={reduceMotion ? false : { opacity: 0 }}
-              animate={reduceMotion ? undefined : { opacity: 1 }}
-              transition={{ delay: 0.75, duration: 1.2 }}
-              className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[#FAF6EE] via-[#FAF6EE]/40 to-transparent"
+              initial={reduceMotion ? false : { opacity: 0, y: 55, scale: 0.92 }}
+              animate={reduceMotion ? undefined : { opacity: 0.92, y: 0, scale: 1 }}
+              transition={{ delay: 0.3, duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+              className="pointer-events-none absolute bottom-[-8px] left-1/2 z-10 w-[120%] max-w-none -translate-x-1/2"
             />
           </div>
         </motion.div>
