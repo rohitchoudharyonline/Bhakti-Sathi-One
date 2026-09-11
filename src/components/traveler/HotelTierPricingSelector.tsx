@@ -1,19 +1,16 @@
 import React, { useState } from 'react';
 import { Hotel, MapPin, BedDouble, Utensils } from 'lucide-react';
-import { TourPackage } from '../../types/tour';
+import { TourPackage, HotelStarCategory } from '../../types/tour';
 import { formatPackagePrice } from '../../utils/priceHelper';
 
 interface HotelTierPricingSelectorProps {
   pkg: TourPackage;
-  selectedTier: string;
-  onSelectTier: (tier: string) => void;
+  selectedTier: HotelStarCategory;
+  onSelectTier: (tier: HotelStarCategory) => void;
   className?: string;
 }
 
-/**
- * Simple hotel selector.
- * Deliberately does not show star ratings or hotel-category labels.
- */
+/** Simple hotel selector without star/category labels. */
 export const HotelTierPricingSelector: React.FC<HotelTierPricingSelectorProps> = ({
   pkg,
   className = '',
