@@ -67,6 +67,9 @@ export const GroupToursManager: React.FC<GroupToursManagerProps> = ({
   const [convertSavings, setConvertSavings] = useState(3500);
   const [convertNextDate, setConvertNextDate] = useState('15 Oct 2025');
 
+  // Delete Group Tour Confirmation Modal
+  const [deleteModalPkg, setDeleteModalPkg] = useState<TourPackage | null>(null);
+
   // Filter all packages that are group tours
   const groupPackages = useMemo(() => {
     return packages.filter((pkg) => pkg.isGroupTour || pkg.tourType === 'Group Tour');
@@ -249,6 +252,23 @@ export const GroupToursManager: React.FC<GroupToursManagerProps> = ({
     updatePackage(updated);
     setShowConvertModal(false);
     setSelectedPkgToConvert('');
+  };
+
+  // Handle Delete Group Tour Permanently from CMS & App
+  const handleDeleteGroupTourPermanently = (pkgId: string) => {
+    deletePackage(pkgId);
+    setDeleteModalPkg(null);
+  };
+
+  // Handle Remove from Group Tours Only (revert to regular tour)
+  const handleRemoveGroupStatusOnly = (pkg: TourPackage) => {
+    const updated: TourPackage = {
+      ...pkg,
+      isGroupTour: false,
+      tourType: pkg.tourType === 'Group Tour' ? 'Custom Pilgrimage' : pkg.tourType,
+    };
+    updatePackage(updated);
+    setDeleteModalPkg(null);
   };
 
   return (
@@ -581,6 +601,15 @@ export const GroupToursManager: React.FC<GroupToursManagerProps> = ({
                     >
                       <Copy className="w-3.5 h-3.5 text-stone-600" />
                     </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setDeleteModalPkg(pkg)}
+                      className="py-1.5 px-2.5 bg-rose-50 hover:bg-rose-600 text-rose-600 hover:text-white border border-rose-200/80 rounded-lg text-xs font-bold transition flex items-center justify-center cursor-pointer"
+                      title="Delete / Remove Group Tour"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
                   </div>
                 </div>
               </div>
@@ -860,6 +889,84 @@ export const GroupToursManager: React.FC<GroupToursManagerProps> = ({
               >
                 <Check className="w-4 h-4" />
                 <span>Enable as Group Tour</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 6. Delete Group Tour Confirmation Modal */}
+      {deleteModalPkg && (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-2xs">
+          <div className="bg-white rounded-2xl max-w-md w-full p-5 sm:p-6 shadow-2xl border border-stone-200 space-y-4">
+            <div className="flex items-center justify-between border-b border-stone-100 pb-3">
+              <div className="flex items-center gap-2.5 text-rose-600">
+                <div className="w-9 h-9 rounded-xl bg-rose-50 grid place-items-center">
+                  <Trash2 className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-black text-stone-900">Delete Group Tour</h3>
+                  <p className="text-[11px] text-stone-500 font-medium">Choose how you want to remove this tour</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setDeleteModalPkg(null)}
+                className="w-8 h-8 rounded-full bg-stone-100 text-stone-600 hover:bg-stone-200 grid place-items-center cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="p-3 bg-stone-50 rounded-xl border border-stone-200 text-xs">
+              <p className="font-bold text-stone-900 line-clamp-2">{deleteModalPkg.title}</p>
+              <div className="text-stone-500 mt-1 flex items-center gap-1.5 text-[11px]">
+                <MapPin className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                <span>{deleteModalPkg.destination}</span>
+                <span>•</span>
+                <span>{deleteModalPkg.durationDays}D / {deleteModalPkg.durationNights}N</span>
+              </div>
+            </div>
+
+            <div className="space-y-2.5 pt-1">
+              <button
+                type="button"
+                onClick={() => handleDeleteGroupTourPermanently(deleteModalPkg.id)}
+                className="w-full p-3 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold transition flex items-center justify-between cursor-pointer shadow-xs"
+              >
+                <div className="flex items-center gap-2.5 text-left">
+                  <Trash2 className="w-4 h-4 shrink-0" />
+                  <div>
+                    <p className="font-black text-xs">Permanently Delete Package</p>
+                    <p className="text-[10.5px] text-rose-100 font-normal">Removes this tour completely from the website and CMS</p>
+                  </div>
+                </div>
+                <ChevronRight className="w-4 h-4 shrink-0" />
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleRemoveGroupStatusOnly(deleteModalPkg)}
+                className="w-full p-3 bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-950 rounded-xl text-xs font-bold transition flex items-center justify-between cursor-pointer"
+              >
+                <div className="flex items-center gap-2.5 text-left">
+                  <Layers className="w-4 h-4 text-amber-700 shrink-0" />
+                  <div>
+                    <p className="font-black text-xs text-amber-950">Remove from Group Tours Only</p>
+                    <p className="text-[10.5px] text-amber-700 font-normal">Converts back to a standard private pilgrimage in your catalog</p>
+                  </div>
+                </div>
+                <ChevronRight className="w-4 h-4 text-amber-700 shrink-0" />
+              </button>
+            </div>
+
+            <div className="pt-2 border-t border-stone-100 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setDeleteModalPkg(null)}
+                className="px-4 py-2 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-bold cursor-pointer"
+              >
+                Cancel
               </button>
             </div>
           </div>
