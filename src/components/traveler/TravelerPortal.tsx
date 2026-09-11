@@ -8,7 +8,6 @@ import { OTAValueGuarantees } from './OTAValueGuarantees';
 import { DestinationsGrid } from './DestinationsGrid';
 import { InteractiveTripPlanner } from './InteractiveTripPlanner';
 import { HotelsDirectory } from './HotelsDirectory';
-import { TravelerReviewsSection } from './TravelerReviewsSection';
 import { TravelGuideAndFAQs } from './TravelGuideAndFAQs';
 import { Footer } from './Footer';
 import { InfoPageView } from './InfoPageView';
@@ -279,9 +278,6 @@ export const TravelerPortal: React.FC = () => {
 
       {/* 5. Interactive Custom Yatra Planner Wizard */}
       <InteractiveTripPlanner />
-
-      {/* 5.5 Google Rating Badge Card */}
-      <TravelerReviewsSection />
 
       {/* 6. Travel Guide & FAQs Accordion */}
       <TravelGuideAndFAQs />

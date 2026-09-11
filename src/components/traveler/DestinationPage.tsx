@@ -64,9 +64,6 @@ export const DestinationPage: React.FC = () => {
   const [selectedDuration, setSelectedDuration] = useState<'all' | 'short' | 'medium' | 'long'>('all');
   const [sortBy, setSortBy] = useState<'recommended' | 'price_low' | 'price_high' | 'rating'>('recommended');
 
-  // Active pricing tier per package card: { [packageId]: 'star2' | 'star3' | 'star4' | 'star5' }
-  const [selectedTiers, setSelectedTiers] = useState<Record<string, string>>({});
-
   // Custom Lead Modal
   const [inquiryPackage, setInquiryPackage] = useState<TourPackage | null>(null);
   const [isCustomLeadOpen, setIsCustomLeadOpen] = useState(false);
@@ -74,8 +71,6 @@ export const DestinationPage: React.FC = () => {
   const [leadEmail, setLeadEmail] = useState('');
   const [leadPhone, setLeadPhone] = useState('');
   const [leadTravelDate, setLeadTravelDate] = useState('');
-  const [leadGuests, setLeadGuests] = useState('2 Adults');
-  const [leadHotelPref, setLeadHotelPref] = useState('3_star');
   const [leadSuccess, setLeadSuccess] = useState(false);
 
   // Filter packages specifically for this destination
@@ -121,11 +116,11 @@ export const DestinationPage: React.FC = () => {
       travelerName: leadName,
       phone: leadPhone,
       email: leadEmail.trim().toLowerCase(),
-      packageTitle: `Custom ${destinationMeta.name} Tour (${leadHotelPref.replace('_', ' ').toUpperCase()})`,
+      packageTitle: `Custom ${destinationMeta.name} Pilgrimage Inquiry`,
       travelDate: leadTravelDate || 'Flexible',
       adults: 2,
       children: 0,
-      specialRequests: `Custom inquiry for ${destinationMeta.name}. Guests: ${leadGuests}. Preferred Hotel: ${leadHotelPref}`,
+      specialRequests: `Pilgrimage inquiry for ${destinationMeta.name}. Tentative Travel Date: ${leadTravelDate || 'Flexible'}.`,
       estimatedTotal: destinationMeta.startingPrice * 2,
     });
 
@@ -343,28 +338,11 @@ export const DestinationPage: React.FC = () => {
             ) : (
               <div className="space-y-4">
                 {filteredPackages.map((pkg) => {
-                  const tiers = pkg.pricingTiers;
-                  const currentTierKey = selectedTiers[pkg.id] || 'star3';
-
-                  // Compute price based on chosen tier
-                  let rawPrice = pkg.price;
-                  let rawDiscounted = pkg.discountedPrice;
-                  let isTierOnRequest = pkg.priceOnRequest;
-
-                  if (tiers) {
-                    const activeTierObj = tiers[currentTierKey as keyof typeof tiers];
-                    if (activeTierObj) {
-                      rawPrice = activeTierObj.price;
-                      rawDiscounted = activeTierObj.discountedPrice;
-                      if (activeTierObj.priceOnRequest) isTierOnRequest = true;
-                    }
-                  }
-
                   const priceResult = formatPackagePrice(
-                    rawPrice,
-                    rawDiscounted,
+                    pkg.price,
+                    pkg.discountedPrice,
                     agencySettings.currencySymbol || '₹',
-                    isTierOnRequest
+                    pkg.priceOnRequest
                   );
 
                   const isHeliPackage = pkg.title.toLowerCase().includes('helicopter') || pkg.slug.includes('helicopter');
@@ -482,40 +460,6 @@ export const DestinationPage: React.FC = () => {
                             )}
                           </div>
                         </div>
-
-                        {/* Hotel Tier Pills (Compact) */}
-                        {tiers && (
-                          <div className="mt-3 pt-2.5 border-t border-stone-100 flex items-center gap-2 overflow-x-auto no-scrollbar">
-                            <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider shrink-0">
-                              Hotel Tier:
-                            </span>
-                            <div className="flex items-center gap-1 shrink-0">
-                              {[
-                                { key: 'star3', label: '3★ Deluxe' },
-                                { key: 'star4', label: '4★ Premium' },
-                                { key: 'star5', label: '5★ Luxury' },
-                              ]
-                                .filter((t) => !!(tiers as any)[t.key])
-                                .map((tier) => {
-                                  const isSelected = currentTierKey === tier.key;
-                                  return (
-                                    <button
-                                      key={tier.key}
-                                      type="button"
-                                      onClick={() => setSelectedTiers({ ...selectedTiers, [pkg.id]: tier.key })}
-                                      className={`px-2 py-0.5 rounded-md text-[11px] font-bold transition cursor-pointer ${
-                                        isSelected
-                                          ? 'bg-stone-900 text-white shadow-2xs'
-                                          : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
-                                      }`}
-                                    >
-                                      {tier.label}
-                                    </button>
-                                  );
-                                })}
-                            </div>
-                          </div>
-                        )}
                       </div>
 
                       {/* ================= 3. RIGHT: PRICING & CALL TO ACTIONS ================= */}
@@ -582,7 +526,7 @@ export const DestinationPage: React.FC = () => {
                             onClick={() =>
                               handleWhatsAppInquiry(
                                 pkg.title,
-                                currentTierKey.replace('star', '') + '★',
+                                pkg.category || 'Pilgrimage',
                                 priceResult.isPriceOnRequest ? undefined : priceResult.rawPrice
                               )
                             }
@@ -712,38 +656,38 @@ export const DestinationPage: React.FC = () => {
               </div>
             ) : (
               <div>
-                <span className="text-[10px] font-black uppercase text-stone-900 tracking-wider block mb-1">
-                  Tailored Travel
+                <span className="text-[10px] font-black uppercase text-[#FF4B00] bg-[#FFF0EB] px-2.5 py-1 rounded-full border border-[#FF4B00]/25 tracking-wider inline-block mb-1.5">
+                  Pilgrimage Consultation
                 </span>
                 <h3 className="text-lg font-black text-stone-900">
                   Custom {destinationMeta.name} Itinerary
                 </h3>
                 <p className="text-xs text-stone-500 mt-1">
-                  Share your requirements and we will send you a personalized quote with hotels & cabs.
+                  Share your requirements and our yatra specialist will send you a personalized plan.
                 </p>
 
                 <form onSubmit={handleCustomLeadSubmit} className="mt-4 space-y-3">
                   <div>
-                    <label className="text-[11px] font-bold text-stone-600 block mb-1">Your Full Name</label>
+                    <label className="text-[11px] font-bold text-stone-700 block mb-1">Your Full Name</label>
                     <input
                       type="text"
                       required
                       placeholder="e.g. Rahul Sharma"
                       value={leadName}
                       onChange={(e) => setLeadName(e.target.value)}
-                      className="w-full text-xs font-semibold px-3 py-2.5 rounded-xl border border-stone-200 outline-none focus:border-stone-900"
+                      className="w-full text-xs font-semibold px-3 py-2.5 rounded-xl border border-stone-200 outline-none focus:border-[#FF4B00] focus:ring-2 focus:ring-[#FF4B00]/20"
                     />
                   </div>
 
                   <div>
-                    <label className="text-[11px] font-bold text-stone-600 block mb-1">WhatsApp / Phone Number</label>
+                    <label className="text-[11px] font-bold text-stone-700 block mb-1">WhatsApp / Phone Number</label>
                     <input
                       type="tel"
                       required
                       placeholder="+91 98765 43210"
                       value={leadPhone}
                       onChange={(e) => setLeadPhone(e.target.value)}
-                      className="w-full text-xs font-semibold px-3 py-2.5 rounded-xl border border-stone-200 outline-none focus:border-stone-900"
+                      className="w-full text-xs font-semibold px-3 py-2.5 rounded-xl border border-stone-200 outline-none focus:border-[#FF4B00] focus:ring-2 focus:ring-[#FF4B00]/20"
                     />
                   </div>
 
@@ -758,35 +702,21 @@ export const DestinationPage: React.FC = () => {
                     inputClassName="px-3 py-2.5 rounded-xl border border-stone-200"
                   />
 
-                  <div className="grid grid-cols-2 gap-2">
-                    <div>
-                      <label className="text-[11px] font-bold text-stone-600 block mb-1">Tentative Date</label>
-                      <input
-                        type="date"
-                        value={leadTravelDate}
-                        onChange={(e) => setLeadTravelDate(e.target.value)}
-                        className="w-full text-xs font-semibold px-2.5 py-2 rounded-xl border border-stone-200 outline-none focus:border-stone-900"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-[11px] font-bold text-stone-600 block mb-1">Hotel Category</label>
-                      <select
-                        value={leadHotelPref}
-                        onChange={(e) => setLeadHotelPref(e.target.value)}
-                        className="w-full text-xs font-semibold px-2.5 py-2 rounded-xl border border-stone-200 outline-none focus:border-stone-900"
-                      >
-                        <option value="3_star">3★ Deluxe</option>
-                        <option value="4_star">4★ Super Dlx</option>
-                        <option value="5_star">5★ Luxury</option>
-                      </select>
-                    </div>
+                  <div>
+                    <label className="text-[11px] font-bold text-stone-700 block mb-1">Tentative Travel Date</label>
+                    <input
+                      type="date"
+                      value={leadTravelDate}
+                      onChange={(e) => setLeadTravelDate(e.target.value)}
+                      className="w-full text-xs font-semibold px-3 py-2.5 rounded-xl border border-stone-200 outline-none focus:border-[#FF4B00] focus:ring-2 focus:ring-[#FF4B00]/20"
+                    />
                   </div>
 
                   <div>
                     <button
                       type="submit"
                       disabled={!isLeadFormValid}
-                      className="w-full py-3 rounded-xl bg-stone-900 hover:bg-black disabled:bg-stone-300 disabled:cursor-not-allowed disabled:hover:bg-stone-300 text-white text-xs font-black transition shadow-2xs mt-2 cursor-pointer"
+                      className="w-full py-3 rounded-xl bg-[#FF4B00] hover:bg-[#E04200] disabled:bg-stone-300 disabled:cursor-not-allowed text-white text-xs font-black transition shadow-md shadow-[#FF4B00]/25 mt-2 cursor-pointer"
                     >
                       Request Free Custom Quote
                     </button>

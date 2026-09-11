@@ -211,7 +211,7 @@ export async function generateQuotationPDF(inq:BookingInquiry,pkg:TourPackage|un
   const snapshotItems = [
     ['DESTINATION', pkg?.destination || inq.packageTitle],
     ['DURATION', pkg ? `${pkg.durationDays} Days / ${pkg.durationNights} Nights` : 'As proposed'],
-    ['HOTELS', q.hotelTier || 'As selected'],
+    ['HOTELS', q.hotels || 'As selected'],
     ['TRANSPORT', q.cabType || 'As selected']
   ];
   snapshotItems.forEach((s, i) => {
@@ -1073,7 +1073,7 @@ async function loadBrandLogoData(): Promise<{ dataUrl: string; width: number; he
   return null;
 }
 
-export async function generateTourPDF(pkg:TourPackage,a:AgencySettings,onProgress?:(status:string)=>void,selectedTier:string='3_star'):Promise<void>{
+export async function generateTourPDF(pkg:TourPackage,a:AgencySettings,onProgress?:(status:string)=>void):Promise<void>{
   onProgress?.('Preparing official mobile tour brochure...');
   
   const w = 430;
@@ -1265,25 +1265,11 @@ export async function generateTourPDF(pkg:TourPackage,a:AgencySettings,onProgres
 
   let y = 110;
 
-  // Resolve Selected Hotel Tier details
-  const tierKey = selectedTier || '3_star';
-  const tierData = pkg.pricingTiers?.[tierKey as keyof PricingTiers] || (pkg.pricingTiers as any)?.[tierKey.replace('_', '')] || {
-    starRating: tierKey.includes('5') ? 5 : tierKey.includes('4') ? 4 : 3,
-    tierName: tierKey.includes('5') ? 'Luxury (5-Star)' : tierKey.includes('4') ? 'Premium (4-Star)' : 'Deluxe (3-Star)',
-    price: pkg.discountedPrice || pkg.price || 18500,
-    hotelNames: tierKey.includes('5') ? '5-Star Luxury Hotels & Resorts' : tierKey.includes('4') ? '4-Star Premium Hotels' : '3-Star Deluxe Hotels',
-    roomType: 'Deluxe Air-Conditioned Room',
-    mealPlan: 'MAP (Breakfast & Dinner Included)',
-    cabType: 'Private AC Chauffeur Vehicle',
-  };
-
-  const packagePrice = tierData.discountedPrice || tierData.price || pkg.discountedPrice || pkg.price || 18500;
-
   // Category & Duration Badge
   d.setFont('helvetica','bold');
   d.setFontSize(10);
   d.setTextColor(...GOLD);
-  d.text(`CATEGORY: ${clean(tierData.tierName).toUpperCase()}`, margin, y);
+  d.text(`TOUR PACKAGE: ${clean(pkg.category || 'Verified Tour').toUpperCase()}`, margin, y);
   d.setFont('helvetica','normal');
   d.setFontSize(10);
   d.setTextColor(...MUTED);
@@ -1352,13 +1338,16 @@ export async function generateTourPDF(pkg:TourPackage,a:AgencySettings,onProgres
   });
   y += specCardH + 24;
 
-  // Selected Category Pricing & Details Card
-  y = drawSecHeader(d, 'Selected Package Details', y);
+  // Package Pricing & Inclusions Card
+  y = drawSecHeader(d, 'Package Pricing & Inclusions', y);
   d.setFont('helvetica','normal');
   d.setFontSize(11);
-  const hLines = d.splitTextToSize(`Hotels: ${clean(tierData.hotelNames||'Verified Star Hotels')}`, contentWidth - 40);
-  const mLines = d.splitTextToSize(`Meals: ${clean(tierData.mealPlan||'MAP')}`, contentWidth - 40);
-  const cLines = d.splitTextToSize(`Cab: ${clean(tierData.cabType||'Private AC Vehicle')}`, contentWidth - 40);
+  const hotelSummaryNames = pkg.hotels && pkg.hotels.length > 0 
+    ? pkg.hotels.map(h => h.name).join(', ')
+    : 'Verified Accommodations & Stays';
+  const hLines = d.splitTextToSize(`Hotels: ${clean(hotelSummaryNames)}`, contentWidth - 40);
+  const mLines = d.splitTextToSize(`Meals: ${clean(pkg.hotels?.[0]?.mealPlan || 'Daily Breakfast & Dinner Included')}`, contentWidth - 40);
+  const cLines = d.splitTextToSize(`Cab: ${clean(pkg.transportation || 'Private AC Chauffeur Vehicle')}`, contentWidth - 40);
   
   // Calculate dynamic height for details card
   const detailsCardH = 40 + 20 + (hLines.length * 14) + (mLines.length * 14) + (cLines.length * 14) + 16;
@@ -1367,7 +1356,7 @@ export async function generateTourPDF(pkg:TourPackage,a:AgencySettings,onProgres
   d.setFont('helvetica','bold');
   d.setFontSize(20);
   d.setTextColor(...GOLD);
-  d.text(money(packagePrice), margin + 20, y + 34);
+  d.text(money(pkg.price), margin + 20, y + 34);
   d.setFont('helvetica','normal');
   d.setFontSize(11);
   d.setTextColor(...BODY);
@@ -1387,7 +1376,9 @@ export async function generateTourPDF(pkg:TourPackage,a:AgencySettings,onProgres
       const nameLines = d.splitTextToSize(clean(hotel.name), contentWidth - 32);
       d.setFont('helvetica','normal');
       d.setFontSize(10.5);
-      const infoLines = d.splitTextToSize(`${hotel.starRating}-Star | ${clean(hotel.location)} | ${clean(hotel.roomType)} (${hotel.nights}N)`, contentWidth - 32);
+      const starText = hotel.starRating ? `${hotel.starRating}-Star | ` : '';
+      const locText = clean(hotel.city || hotel.location || pkg.destination);
+      const infoLines = d.splitTextToSize(`${starText}${locText} | ${clean(hotel.roomType || 'Deluxe Room')} (${hotel.nights}N)`, contentWidth - 32);
       let amLines: string[] = [];
       if (hotel.amenities?.length) {
         d.setFont('helvetica','italic');
@@ -1559,7 +1550,7 @@ export async function generateTourPDF(pkg:TourPackage,a:AgencySettings,onProgres
   d.setTextColor(...MUTED);
   d.text(`Phone: ${clean(a.phone || '+91 94199 15255')}  |  Email: ${clean(a.email || 'care@mybhaktisathi.com')}`, w / 2, totalHeight - 26, { align: 'center' });
 
-  const safeFilename = `BhaktiSathi_MobileBrochure_${clean(pkg.title).replace(/[^a-zA-Z0-9_-]/g, '')}_${tierData.tierName.replace(/[^a-zA-Z0-9_-]/g, '')}.pdf`;
+  const safeFilename = `BhaktiSathi_MobileBrochure_${clean(pkg.title).replace(/[^a-zA-Z0-9_-]/g, '')}.pdf`;
   d.save(safeFilename);
 }
 

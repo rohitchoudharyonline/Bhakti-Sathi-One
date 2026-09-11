@@ -743,7 +743,7 @@ export const PackageDetailsView: React.FC<PackageDetailsViewProps> = ({ pkg, onB
                   <div className="mb-6">
                     <h3 className="text-lg font-black text-stone-900 flex items-center gap-2">
                       <Building className="w-5 h-5 text-stone-900" />
-                      <span>Verified Pilgrim Accommodations & Mountain Resorts</span>
+                      <span>Verified Hotels & Accommodations</span>
                     </h3>
                     <p className="text-xs text-stone-500 mt-1">
                       Handpicked premium hotels offering 24/7 hot water, hotel dining, room heating, and proximity to sacred shrines
@@ -751,59 +751,78 @@ export const PackageDetailsView: React.FC<PackageDetailsViewProps> = ({ pkg, onB
                   </div>
 
                   <div className="space-y-4">
-                    {pkg.hotels.map((hotel) => (
+                    {pkg.hotels.map((hotel, idx) => (
                       <div
-                        key={hotel.id}
+                        key={hotel.id || idx}
                         className="bg-white rounded-2xl border border-stone-200 overflow-hidden grid grid-cols-1 sm:grid-cols-12 gap-4 items-center p-3.5 sm:p-4 hover:border-stone-400 transition shadow-xs"
                       >
-                        <div className="sm:col-span-4 rounded-xl overflow-hidden aspect-[4/3] bg-stone-100">
-                          <img
-                            src={hotel.image}
-                            alt={hotel.name}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
+                        {hotel.image && (
+                          <div className="sm:col-span-4 rounded-xl overflow-hidden aspect-[4/3] bg-stone-100">
+                            <img
+                              src={hotel.image}
+                              alt={hotel.name}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                        )}
 
-                        <div className="sm:col-span-8 flex flex-col justify-between h-full py-1">
+                        <div className={`${hotel.image ? 'sm:col-span-8' : 'sm:col-span-12'} flex flex-col justify-between h-full py-1 space-y-2.5`}>
                           <div>
-                            <div className="flex items-center justify-between gap-2 mb-1">
-                              <div className="flex items-center gap-1 text-amber-500">
-                                {Array.from({ length: hotel.starRating }).map((_, idx) => (
-                                  <Star key={idx} className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
-                                ))}
-                                <span className="text-xs font-bold text-stone-800 ml-1">
-                                  {hotel.starRating}-Star Standard
+                            <div className="flex items-center justify-between gap-2 pb-2 border-b border-stone-100">
+                              <div className="flex items-center gap-1.5 min-w-0">
+                                <MapPin className="w-3.5 h-3.5 text-[#FF4B00] shrink-0" />
+                                <span className="font-extrabold text-stone-900 text-xs sm:text-sm tracking-tight truncate">
+                                  {hotel.city || hotel.location || pkg.destination}, {hotel.country || pkg.country || 'India'}
                                 </span>
                               </div>
-                              <span className="text-xs font-extrabold bg-stone-100 text-stone-800 px-2.5 py-0.5 rounded-full border border-stone-300">
-                                {hotel.nights} {hotel.nights > 1 ? 'Nights' : 'Night'} Stay
+                              <span className="shrink-0 bg-stone-100 text-stone-800 font-extrabold text-[11px] sm:text-xs px-2.5 py-0.5 rounded-full border border-stone-200 flex items-center gap-1">
+                                <Calendar className="w-3 h-3 text-[#FF4B00]" />
+                                <span>{hotel.nights} {hotel.nights > 1 ? 'Nights' : 'Night'} Stay</span>
                               </span>
                             </div>
 
-                            <h4 className="text-base font-bold text-stone-900 mb-1">
-                              {hotel.name}
-                            </h4>
-
-                            <div className="text-xs text-stone-500 flex items-center gap-1 mb-2">
-                              <MapPin className="w-3.5 h-3.5 text-stone-400" />
-                              <span>{hotel.location}</span>
+                            <div className="flex items-start gap-2 pt-2">
+                              <Building className="w-4 h-4 text-[#FF4B00] shrink-0 mt-0.5" />
+                              <div className="min-w-0 flex-1">
+                                <h4 className="text-sm sm:text-base font-extrabold text-stone-900 leading-snug">
+                                  {hotel.name} {hotel.name.toLowerCase().includes('or similar') ? '' : '/ or similar'}
+                                </h4>
+                                {hotel.alternativeHotel && (
+                                  <div className="text-[11px] text-stone-500 font-medium mt-0.5">
+                                    <span className="text-stone-400 font-semibold">Alternative:</span> {hotel.alternativeHotel}
+                                  </div>
+                                )}
+                              </div>
                             </div>
 
-                            <div className="text-xs text-stone-900 font-bold bg-stone-100 inline-block px-2.5 py-1 rounded-md border border-stone-300 mb-3">
-                              Room Type: {hotel.roomType}
+                            <div className="bg-stone-50/70 rounded-xl p-2.5 sm:p-3 border border-stone-200/70 divide-y divide-stone-200/60 text-xs mt-2.5">
+                              <div className="grid grid-cols-[82px_1fr] sm:grid-cols-[105px_1fr] gap-2 py-1 items-baseline">
+                                <span className="text-stone-500 font-bold text-[11px] sm:text-xs">Room Type</span>
+                                <span className="font-extrabold text-stone-900 text-[11px] sm:text-xs">
+                                  {hotel.roomType || 'Deluxe Room'}
+                                </span>
+                              </div>
+                              <div className="grid grid-cols-[82px_1fr] sm:grid-cols-[105px_1fr] gap-2 py-1 items-baseline">
+                                <span className="text-stone-500 font-bold text-[11px] sm:text-xs">Meal Plan</span>
+                                <span className="font-extrabold text-stone-900 text-[11px] sm:text-xs">
+                                  {hotel.mealPlan || 'As per package inclusion'}
+                                </span>
+                              </div>
                             </div>
                           </div>
 
-                          <div className="flex flex-wrap gap-1.5 pt-2 border-t border-stone-100">
-                            {hotel.amenities.map((am, i) => (
-                              <span
-                                key={i}
-                                className="text-[11px] bg-stone-50 text-stone-700 px-2 py-0.5 rounded-md border border-stone-200 font-medium"
-                              >
-                                ✓ {am}
-                              </span>
-                            ))}
-                          </div>
+                          {hotel.amenities && hotel.amenities.length > 0 && (
+                            <div className="flex flex-wrap gap-1.5 pt-2 border-t border-stone-100">
+                              {hotel.amenities.map((am, i) => (
+                                <span
+                                  key={i}
+                                  className="text-[11px] bg-stone-50 text-stone-700 px-2 py-0.5 rounded-md border border-stone-200 font-medium"
+                                >
+                                  ✓ {am}
+                                </span>
+                              ))}
+                            </div>
+                          )}
                         </div>
                       </div>
                     ))}

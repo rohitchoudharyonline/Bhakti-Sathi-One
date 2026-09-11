@@ -671,33 +671,13 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (parsed.sacredMantra === 'ॐ ऐं ह्रीं श्रीं वैष्णव्यै नमः' || !parsed.sacredMantra) {
           parsed.sacredMantra = 'साम्ब सदाशिव';
         }
-        // Self-heal footerMenus if any standard columns/menus are missing from an older save
-        if (parsed.footerMenus && Array.isArray(parsed.footerMenus)) {
-          const defaultColumns = DEFAULT_AGENCY_SETTINGS.footerMenus || [];
-          const mergedMenus = [...parsed.footerMenus];
-          defaultColumns.forEach(defaultCol => {
-            const hasColumn = mergedMenus.some(col => col.id === defaultCol.id || col.title.toLowerCase() === defaultCol.title.toLowerCase());
-            if (!hasColumn) {
-              mergedMenus.push(defaultCol);
-            } else {
-              // Ensure individual items like "Guide" or "100% Verified Stays" are also merged if missing from existing columns
-              const colIndex = mergedMenus.findIndex(col => col.id === defaultCol.id || col.title.toLowerCase() === defaultCol.title.toLowerCase());
-              if (colIndex !== -1) {
-                const currentItems = mergedMenus[colIndex].items || [];
-                defaultCol.items.forEach(defaultItem => {
-                  const hasItem = currentItems.some(item => item.url === defaultItem.url || item.label.toLowerCase() === defaultItem.label.toLowerCase());
-                  if (!hasItem) {
-                    currentItems.push(defaultItem);
-                  }
-                });
-                mergedMenus[colIndex] = {
-                  ...mergedMenus[colIndex],
-                  items: currentItems
-                };
-              }
-            }
-          });
-          parsed.footerMenus = mergedMenus;
+        // Ensure footerMenus is initialized from defaults if not set, without reverting user deletions
+        if (!parsed.footerMenus || !Array.isArray(parsed.footerMenus)) {
+          parsed.footerMenus = DEFAULT_AGENCY_SETTINGS.footerMenus || [];
+        }
+        // Ensure bottomNavItems is initialized from defaults if not set
+        if (!parsed.bottomNavItems || !Array.isArray(parsed.bottomNavItems)) {
+          parsed.bottomNavItems = DEFAULT_AGENCY_SETTINGS.bottomNavItems || [];
         }
 
         // Sanitize any existing FAQs that may contain the old/unwanted dietary purity or incorrect cancellation claims
@@ -1884,8 +1864,10 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const deletePackage = (id: string) => {
-    setPackages((prev) => prev.filter((pkg) => pkg.id !== id));
+    const updated = packages.filter((pkg) => pkg.id !== id);
+    setPackages(updated);
     try {
+      localStorage.setItem(STORAGE_KEYS.PACKAGES, JSON.stringify(updated));
       const savedDeleted = localStorage.getItem('hh_deleted_package_ids');
       const deletedIds: string[] = savedDeleted ? JSON.parse(savedDeleted) : [];
       if (!deletedIds.includes(id)) {

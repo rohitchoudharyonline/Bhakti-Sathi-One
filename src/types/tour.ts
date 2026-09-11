@@ -43,7 +43,6 @@ export interface TourReview {
 export interface HotelEntity {
   id: string;
   name: string;
-  starRating: number;
   location: string;
   description: string;
   amenities: string[];
@@ -71,12 +70,29 @@ export interface ItineraryDay {
 export interface HotelStay {
   id: string;
   name: string;
-  starRating: number;
-  location: string;
+  alternativeHotel?: string;
+  city?: string;
+  country?: string;
+  location?: string;
   roomType: string;
   nights: number;
-  image: string;
-  amenities: string[];
+  starRating?: number;
+  checkInDate?: string;
+  checkOutDate?: string;
+  mealPlan?: string;
+  amenities?: string[];
+  image?: string;
+  houseboatDetails?: string;
+  notes?: string;
+}
+
+export type HotelStarCategory = '3-star' | '4-star' | '5-star';
+
+export interface PricingTiers {
+  standard?: { price: number; hotels?: string[] };
+  deluxe?: { price: number; hotels?: string[] };
+  luxury?: { price: number; hotels?: string[] };
+  [key: string]: any;
 }
 
 export interface GalleryItem {
@@ -89,28 +105,6 @@ export interface PackagePolicies {
   cancellationPolicy: string[];
   termsAndConditions: string[];
   paymentPolicy: string[];
-}
-
-export type HotelStarCategory = '3_star' | '4_star' | '5_star';
-
-export interface HotelCategoryRate {
-  starRating: 2 | 3 | 4 | 5;
-  tierName: string;
-  price: number;
-  discountedPrice?: number;
-  priceOnRequest?: boolean;
-  hotelNames?: string;
-  roomType?: string;
-  mealPlan?: string;
-  cabType?: string;
-  keyHighlights?: string[];
-}
-
-export interface PricingTiers {
-  star2?: HotelCategoryRate;
-  star3?: HotelCategoryRate;
-  star4?: HotelCategoryRate;
-  star5?: HotelCategoryRate;
 }
 
 export type TourInclusionIconType =
@@ -176,7 +170,6 @@ export interface TourPackage {
   price: number;
   discountedPrice?: number;
   priceOnRequest?: boolean;
-  pricingTiers?: PricingTiers;
   currency: string;
   rating: number;
   reviewCount: number;
@@ -370,7 +363,7 @@ export interface InquiryQuotation {
   discount: number;
   finalPrice: number;
   validUntil: string;
-  hotelTier?: string;
+  hotels?: string;
   cabType?: string;
   inclusions?: string[];
   exclusions?: string[];
@@ -465,6 +458,16 @@ export interface FooterMenuSection {
   items: FooterMenuItem[];
 }
 
+export interface MobileBottomNavItem {
+  id: string;
+  label: string;
+  icon: 'home' | 'tours' | 'destinations' | 'chat' | 'phone' | 'compass' | 'star' | 'info' | 'custom';
+  actionType: 'home' | 'tours' | 'destinations' | 'whatsapp' | 'call' | 'custom';
+  url?: string;
+  badge?: string;
+  enabled: boolean;
+}
+
 export interface AgencySettings {
   agencyName: string;
   tagline: string;
@@ -486,4 +489,5 @@ export interface AgencySettings {
   invoiceTerms?: string[];
   faqs?: FAQItem[];
   footerMenus?: FooterMenuSection[];
+  bottomNavItems?: MobileBottomNavItem[];
 }

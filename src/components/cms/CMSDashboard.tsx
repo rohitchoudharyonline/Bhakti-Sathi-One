@@ -71,7 +71,8 @@ import {
   Bell,
   Bus,
   HelpCircle,
-  LogOut
+  LogOut,
+  Menu,
 } from 'lucide-react';
 
 export const CMSDashboard: React.FC = () => {
@@ -265,6 +266,7 @@ export const CMSDashboard: React.FC = () => {
     { id: 'payments', label: 'Vendor Payouts', icon: CreditCard, count: vendorPayments.length, show: canAccess('payments') },
     { id: 'vendors', label: 'Vendors & Fleets', icon: Car, count: vendors.length, show: canAccess('vendors') },
     { id: 'staff', label: 'Staff & RBAC', icon: Shield, count: staff.length, show: canAccess('staff') },
+    { id: 'bottom-menus', label: 'Bottom Menus & Footer', icon: Menu, count: agencySettings.footerMenus?.length || 4, show: canAccess('settings') },
     { id: 'faqs', label: 'FAQ Management', icon: HelpCircle, count: agencySettings.faqs?.length || 10, show: canAccess('faqs') },
     { id: 'settings', label: 'Agency Settings', icon: Settings, count: null, show: canAccess('settings') },
   ];
@@ -777,8 +779,9 @@ export const CMSDashboard: React.FC = () => {
         {/* TAB 7: STAFF & RBAC */}
         {activeCmsTab === 'staff' && canAccess('staff') && <StaffManager />}
 
-        {/* TAB 8: SETTINGS */}
+        {/* TAB 8: SETTINGS & BOTTOM MENUS */}
         {activeCmsTab === 'settings' && canAccess('settings') && <SettingsManager />}
+        {activeCmsTab === 'bottom-menus' && canAccess('settings') && <SettingsManager initialTab="footer" />}
 
         {/* TAB 8.5: FAQ MANAGEMENT */}
         {activeCmsTab === 'faqs' && canAccess('faqs') && <FaqsManager />}

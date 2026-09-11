@@ -172,7 +172,7 @@ export const InquiriesManager: React.FC<{
       discount: quoteDiscount,
       finalPrice: Math.max(0, quotePrice - quoteDiscount),
       validUntil: quoteValidity,
-      hotelTier: quoteHotels,
+      hotels: quoteHotels,
       cabType: quoteCab,
       inclusions: quoteInclusions.split(',').map((s) => s.trim()).filter(Boolean),
       exclusions: quoteExclusions.split(',').map((s) => s.trim()).filter(Boolean),

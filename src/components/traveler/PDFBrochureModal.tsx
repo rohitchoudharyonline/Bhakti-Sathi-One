@@ -37,7 +37,7 @@ export const PDFBrochureModal: React.FC<PDFBrochureModalProps> = ({
   const handleDownloadPDF = async () => {
     try {
       setIsGenerating(true);
-      await generateTourPDF(pkg, agencySettings, (msg) => setStatusMsg(msg), selectedTier);
+      await generateTourPDF(pkg, agencySettings, (msg) => setStatusMsg(msg));
       setTimeout(() => {
         setIsGenerating(false);
         setStatusMsg('');
@@ -111,33 +111,6 @@ export const PDFBrochureModal: React.FC<PDFBrochureModalProps> = ({
             >
               <X className="w-4 h-4" />
             </button>
-          </div>
-        </div>
-
-        {/* Hotel Category Selector Bar */}
-        <div className="bg-amber-50/60 border-b border-amber-100 px-4 py-2.5 flex flex-col sm:flex-row items-center justify-between text-xs gap-2">
-          <div className="flex items-center gap-2 font-bold text-slate-800">
-            <Building className="w-3.5 h-3.5 text-brand" />
-            <span>Select Hotel Category for PDF Brochure:</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            {[
-              { id: '3_star', label: '3★ Deluxe' },
-              { id: '4_star', label: '4★ Premium' },
-              { id: '5_star', label: '5★ Luxury' },
-            ].map((tier) => (
-              <button
-                key={tier.id}
-                onClick={() => setSelectedTier(tier.id)}
-                className={`px-3 py-1 rounded-lg font-bold text-xs transition cursor-pointer ${
-                  selectedTier === tier.id
-                    ? 'bg-brand text-white shadow-xs'
-                    : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-100'
-                }`}
-              >
-                {tier.label}
-              </button>
-            ))}
           </div>
         </div>
 

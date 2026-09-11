@@ -1,4 +1,11 @@
-import { TourPackage, AgencySettings } from '../types/tour';
+import { TourPackage, AgencySettings, MobileBottomNavItem } from '../types/tour';
+
+export const DEFAULT_BOTTOM_NAV_ITEMS: MobileBottomNavItem[] = [
+  { id: 'bnav-explore', label: 'Explore', icon: 'home', actionType: 'home', enabled: true },
+  { id: 'bnav-tours', label: 'Tours', icon: 'tours', actionType: 'tours', badge: 'count', enabled: true },
+  { id: 'bnav-destinations', label: 'Destinations', icon: 'destinations', actionType: 'destinations', enabled: true },
+  { id: 'bnav-chat', label: 'Chat', icon: 'chat', actionType: 'whatsapp', enabled: true },
+];
 
 export const DEFAULT_AGENCY_SETTINGS: AgencySettings = {
   agencyName: 'Bhakti Sathi',
@@ -118,7 +125,8 @@ export const DEFAULT_AGENCY_SETTINGS: AgencySettings = {
         { id: 'fmi-sec', label: '100% Verified Stays', url: 'security' }
       ]
     }
-  ]
+  ],
+  bottomNavItems: DEFAULT_BOTTOM_NAV_ITEMS
 };
 
 export const DEFAULT_PACKAGES: TourPackage[] = [
@@ -136,24 +144,8 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
     durationNights: 5,
     price: 24000,
     discountedPrice: 18500,
-    pricingTiers: {
-      star2: {
-        starRating: 2,
-        tierName: 'Standard (2-Star Budget)',
-        price: 18000,
-        discountedPrice: 13999,
-        hotelNames: 'Hotel Snow Palace Srinagar / River View Pahalgam',
-        roomType: 'Standard Room with Geyser & Mountain View',
-        mealPlan: 'CP Plan (Daily Breakfast)',
-        cabType: 'Dedicated AC Hatchback / Swift Dzire',
-        keyHighlights: [
-          'Budget friendly verified guesthouses & hotels',
-          'Shikara ride on Dal Lake (1 Hour complimentary)',
-          'Dedicated driver throughout journey',
-        ],
-      },
-      star3: {
-        starRating: 3,
+      pricingTiers: {
+        star3: {
         tierName: 'Deluxe (3-Star) • Most Popular',
         price: 24000,
         discountedPrice: 18500,
@@ -169,7 +161,6 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
         ],
       },
       star4: {
-        starRating: 4,
         tierName: 'Super Deluxe (4-Star Premium)',
         price: 34000,
         discountedPrice: 26999,
@@ -185,7 +176,6 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
         ],
       },
       star5: {
-        starRating: 5,
         tierName: 'Luxury (5-Star Palace / Resort)',
         price: 55000,
         discountedPrice: 44999,
@@ -321,7 +311,6 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
       {
         id: 'h-sri-1',
         name: 'Grand Kaiser / Radisson Srinagar',
-        starRating: 4,
         location: 'Boulevard / Rajbagh, Srinagar',
         roomType: 'Deluxe Valley View Room',
         nights: 2,
@@ -331,7 +320,6 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
       {
         id: 'h-pah-1',
         name: 'Pine Spring / The Chinar Resort',
-        starRating: 4,
         location: 'Lidder Riverfront, Pahalgam',
         roomType: 'Riverside Executive Room',
         nights: 2,
@@ -341,7 +329,6 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
       {
         id: 'h-hb-1',
         name: 'Royal Heritage Deluxe Houseboat',
-        starRating: 4,
         location: 'Dal Lake Gate No. 7, Srinagar',
         roomType: 'Handcrafted Cedar Wood Suite',
         nights: 1,
@@ -380,20 +367,8 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
     durationNights: 5,
     price: 21000,
     discountedPrice: 16500,
-    pricingTiers: {
-      star2: {
-        starRating: 2,
-        tierName: 'Standard (2-Star Budget)',
-        price: 15500,
-        discountedPrice: 11999,
-        hotelNames: 'Hotel Apple View Shimla / Hotel Snow Peak Manali',
-        roomType: 'Standard Room with Mountain View',
-        mealPlan: 'CP Plan (Daily Breakfast)',
-        cabType: 'Dedicated AC Hatchback / Swift Dzire',
-        keyHighlights: ['Budget verified hill stays', 'Private car for all sightseeing', '24/7 Hot water geyser'],
-      },
-      star3: {
-        starRating: 3,
+      pricingTiers: {
+        star3: {
         tierName: 'Deluxe (3-Star) • Most Popular',
         price: 21000,
         discountedPrice: 16500,
@@ -404,7 +379,6 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
         keyHighlights: ['Top rated 3-star resorts with valley views', 'Buffet Breakfast & Dinner included', 'Room heaters provided'],
       },
       star4: {
-        starRating: 4,
         tierName: 'Super Deluxe (4-Star Premium)',
         price: 31000,
         discountedPrice: 24500,
@@ -415,7 +389,6 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
         keyHighlights: ['Luxury 4-star mountain resorts', 'Toyota Innova Crysta private vehicle', 'Bonfire and live music evenings'],
       },
       star5: {
-        starRating: 5,
         tierName: 'Luxury (5-Star Heritage / Palace)',
         price: 48000,
         discountedPrice: 38999,
@@ -538,7 +511,6 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
       {
         id: 'h-shm-1',
         name: 'Hotel Willow Banks / Radisson Shimla',
-        starRating: 4,
         location: 'Mall Road, Shimla',
         roomType: 'Deluxe Valley View Room',
         nights: 2,
@@ -548,7 +520,6 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
       {
         id: 'h-mnl-1',
         name: 'Apple Country Resort / The Himalayan Manali',
-        starRating: 4,
         location: 'Log Huts Area, Manali',
         roomType: 'Super Deluxe Balcony Room',
         nights: 3,
@@ -576,20 +547,8 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
     durationNights: 4,
     price: 22500,
     discountedPrice: 17500,
-    pricingTiers: {
-      star2: {
-        starRating: 2,
-        tierName: 'Standard (2-Star Budget)',
-        price: 16500,
-        discountedPrice: 12999,
-        hotelNames: 'Green Valley Munnar / Deluxe Alleppey Houseboat',
-        roomType: 'Standard Garden View Room',
-        mealPlan: 'CP Plan (Daily Breakfast)',
-        cabType: 'Dedicated AC Hatchback / Sedan',
-        keyHighlights: ['Budget scenic plantation stays', 'Private AC Houseboat in Alleppey', 'Dedicated driver'],
-      },
-      star3: {
-        starRating: 3,
+      pricingTiers: {
+        star3: {
         tierName: 'Deluxe (3-Star) • Most Popular',
         price: 22500,
         discountedPrice: 17500,
@@ -600,7 +559,6 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
         keyHighlights: ['Top rated 3-star tea resort', 'All meals included on Houseboat cruise', 'Spice garden tour'],
       },
       star4: {
-        starRating: 4,
         tierName: 'Super Deluxe (4-Star Premium)',
         price: 32000,
         discountedPrice: 25500,
@@ -611,7 +569,6 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
         keyHighlights: ['Luxury 4-star forest & tea resorts', 'Private Innova Crysta throughout', 'Kathakali cultural show tickets'],
       },
       star5: {
-        starRating: 5,
         tierName: 'Luxury (5-Star Palace / Heritage)',
         price: 52000,
         discountedPrice: 42000,
@@ -719,7 +676,6 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
       {
         id: 'h-mnr-k',
         name: 'Munnar Tea Hills Resort / Blanket Hotel',
-        starRating: 4,
         location: 'Chithirapuram, Munnar',
         roomType: 'Tea Garden Suite',
         nights: 2,
@@ -784,20 +740,8 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
     durationNights: 5,
     price: 24500,
     discountedPrice: 18999,
-    pricingTiers: {
-      star2: {
-        starRating: 2,
-        tierName: 'Standard (2-Star Budget)',
-        price: 18000,
-        discountedPrice: 14500,
-        hotelNames: 'Clean Standard Hill Inns & Shivalik Guest Houses',
-        roomType: 'Standard Room with Geyser & Heated Blankets',
-        mealPlan: 'CP Plan (Daily Breakfast Included)',
-        cabType: 'Dedicated AC Hatchback / Sedan',
-        keyHighlights: ['Verified clean budget pilgrimage stays', '24/7 Hot water geyser', 'Experienced mountain driver'],
-      },
-      star3: {
-        starRating: 3,
+      pricingTiers: {
+        star3: {
         tierName: 'Deluxe (3-Star) • Most Popular',
         price: 24500,
         discountedPrice: 18999,
@@ -808,7 +752,6 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
         keyHighlights: ['Top rated 3-star mountain resorts', 'Daily Breakfast & Dinner included', 'VIP Darshan pass assistance'],
       },
       star4: {
-        starRating: 4,
         tierName: 'Super Deluxe (4-Star Premium)',
         price: 34000,
         discountedPrice: 26999,
@@ -819,7 +762,6 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
         keyHighlights: ['4-Star luxury mountain resorts', 'Private Innova Crysta with expert mountain pilot', 'VIP Sanctum Darshan coordination'],
       },
       star5: {
-        starRating: 5,
         tierName: 'Luxury (5-Star Heritage / VIP)',
         price: 49000,
         discountedPrice: 38999,
@@ -939,7 +881,6 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
       {
         id: 'h-kangra-hd',
         name: 'The Grand View Kangra Valley Resort',
-        starRating: 4,
         location: 'Kangra Valley, Himachal Pradesh',
         roomType: 'Deluxe Mountain View Room',
         nights: 2,
@@ -967,20 +908,8 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
     durationNights: 6,
     price: 28000,
     discountedPrice: 21999,
-    pricingTiers: {
-      star2: {
-        starRating: 2,
-        tierName: 'Standard (2-Star Budget)',
-        price: 21000,
-        discountedPrice: 15999,
-        hotelNames: 'Hotel Heritage Haveli Jaipur / Desert Moon Jaisalmer',
-        roomType: 'Traditional Haveli Standard Room',
-        mealPlan: 'CP Plan (Daily Breakfast)',
-        cabType: 'Dedicated AC Hatchback / Sedan',
-        keyHighlights: ['Authentic Rajasthani havelis', 'Camel safari at Sam sand dunes', 'Dedicated private driver'],
-      },
-      star3: {
-        starRating: 3,
+      pricingTiers: {
+        star3: {
         tierName: 'Deluxe (3-Star) • Most Popular',
         price: 28000,
         discountedPrice: 21999,
@@ -991,7 +920,6 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
         keyHighlights: ['Handpicked 3-star heritage havelis', '1 Night in Luxury Swiss Tent at Sam Sand Dunes with Folk Dance', 'All major fort entries'],
       },
       star4: {
-        starRating: 4,
         tierName: 'Super Deluxe (4-Star Premium)',
         price: 42000,
         discountedPrice: 32999,
@@ -1002,7 +930,6 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
         keyHighlights: ['Palatial 4-star heritage stays', 'Private Toyota Innova Crysta throughout', 'Private boat cruise on Lake Pichola'],
       },
       star5: {
-        starRating: 5,
         tierName: 'Luxury (5-Star Palace / Heritage)',
         price: 68000,
         discountedPrice: 54999,
@@ -1133,7 +1060,6 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
       {
         id: 'h-jpr-1',
         name: 'Alsisar Haveli / ITC Rajputana Jaipur',
-        starRating: 4,
         location: 'Sansar Chandra Road, Jaipur',
         roomType: 'Heritage Deluxe Room',
         nights: 2,
@@ -1161,20 +1087,8 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
     durationNights: 3,
     price: 14500,
     discountedPrice: 9999,
-    pricingTiers: {
-      star2: {
-        starRating: 2,
-        tierName: 'Standard (2-Star Budget)',
-        price: 11000,
-        discountedPrice: 7999,
-        hotelNames: 'Hotel Sea Breeze Calangute / Coastal Palms',
-        roomType: 'Standard AC Room near Beach',
-        mealPlan: 'CP Plan (Daily Breakfast)',
-        cabType: 'Dedicated AC Hatchback / Sedan',
-        keyHighlights: ['Clean hotel walking distance to beach', 'Sunset Mandovi Cruise ticket', 'Dedicated car'],
-      },
-      star3: {
-        starRating: 3,
+      pricingTiers: {
+        star3: {
         tierName: 'Deluxe (3-Star) • Most Popular',
         price: 14500,
         discountedPrice: 9999,
@@ -1185,7 +1099,6 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
         keyHighlights: ['3-Star resort with swimming pool', 'Sunset Mandovi River Cruise tickets included', 'North & South Goa private tours'],
       },
       star4: {
-        starRating: 4,
         tierName: 'Super Deluxe (4-Star Premium)',
         price: 22000,
         discountedPrice: 16999,
@@ -1196,7 +1109,6 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
         keyHighlights: ['Luxury 4-star beach resort', 'Private Toyota Innova Crysta vehicle', 'Complimentary cocktail voucher'],
       },
       star5: {
-        starRating: 5,
         tierName: 'Luxury (5-Star Beach Resort)',
         price: 38000,
         discountedPrice: 29999,
@@ -1291,7 +1203,6 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
       {
         id: 'h-goa-1',
         name: 'Lemon Tree Candolim / Novotel Goa',
-        starRating: 4,
         location: 'Candolim Beach Road, Goa',
         roomType: 'Deluxe Pool View Room',
         nights: 3,
@@ -1365,20 +1276,8 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
     durationNights: 3,
     price: 13500,
     discountedPrice: 8999,
-    pricingTiers: {
-      star2: {
-        starRating: 2,
-        tierName: 'Standard (2-Star Budget)',
-        price: 10500,
-        discountedPrice: 6499,
-        hotelNames: 'Hotel Maa Gayatri Katra / Hotel Pine View Patnitop',
-        roomType: 'Standard AC Room with Hot Water Geyser',
-        mealPlan: 'CP Plan (Daily Breakfast)',
-        cabType: 'Dedicated AC Hatchback / Sedan',
-        keyHighlights: ['Clean sanitized hotel near Katra Banganga', 'Helicopter/Battery car guidance', 'Dedicated AC Cab'],
-      },
-      star3: {
-        starRating: 3,
+      pricingTiers: {
+        star3: {
         tierName: 'Deluxe (3-Star) • Most Popular',
         price: 13500,
         discountedPrice: 8999,
@@ -1389,7 +1288,6 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
         keyHighlights: ['Multi-cuisine buffet dining', 'Complimentary Banganga/Helipad transfers', 'Skyview Patnitop Ropeway assistance'],
       },
       star4: {
-        starRating: 4,
         tierName: 'Super Deluxe (4-Star Premium)',
         price: 19500,
         discountedPrice: 13999,
@@ -1400,7 +1298,6 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
         keyHighlights: ['Luxury 4-star mountain view stay', 'VIP Darshan pass assistance', 'Private Toyota Innova Crysta throughout'],
       },
       star5: {
-        starRating: 5,
         tierName: 'Luxury (5-Star Resort / Helipad)',
         price: 32000,
         discountedPrice: 23999,
@@ -1500,7 +1397,6 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
       {
         id: 'h-ktr-1',
         name: 'The White Katra / Hotel Krishna',
-        starRating: 4,
         location: 'Railway Road, Katra',
         roomType: 'Super Deluxe Valley View Room',
         nights: 2,
@@ -1510,7 +1406,6 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
       {
         id: 'h-ptn-1',
         name: 'Skyview by Empyrean / Vardaan Resort Patnitop',
-        starRating: 4,
         location: 'Circular Road, Patnitop',
         roomType: 'Pine View Deluxe Suite',
         nights: 1,
@@ -1575,20 +1470,8 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
     durationNights: 2,
     price: 11000,
     discountedPrice: 7499,
-    pricingTiers: {
-      star2: {
-        starRating: 2,
-        tierName: 'Standard (2-Star Budget)',
-        price: 8500,
-        discountedPrice: 5499,
-        hotelNames: 'Hotel Maa Gayatri Katra',
-        roomType: 'Standard Room with Geyser',
-        mealPlan: 'CP Plan (Daily Breakfast)',
-        cabType: 'Dedicated AC Hatchback / Sedan',
-        keyHighlights: ['Budget friendly verified hotel', 'Banganga drop', 'Dedicated cab for Shivkhori excursion'],
-      },
-      star3: {
-        starRating: 3,
+      pricingTiers: {
+        star3: {
         tierName: 'Deluxe (3-Star) • Most Popular',
         price: 11000,
         discountedPrice: 7499,
@@ -1599,7 +1482,6 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
         keyHighlights: ['Hotel dining', 'Private sedan for Shivkhori round-trip', 'RFID registration help'],
       },
       star4: {
-        starRating: 4,
         tierName: 'Super Deluxe (4-Star Premium)',
         price: 16500,
         discountedPrice: 11999,
@@ -1610,7 +1492,6 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
         keyHighlights: ['Premium 4-star property', 'Private Innova Crysta for all drives', 'Complimentary Helipad transfers'],
       },
       star5: {
-        starRating: 5,
         tierName: 'Luxury (5-Star Helipad)',
         price: 26000,
         discountedPrice: 19999,
@@ -1692,7 +1573,6 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
       {
         id: 'h-ktr-sk',
         name: 'The White Katra / Hotel Krishna',
-        starRating: 4,
         location: 'Katra',
         roomType: 'Deluxe Room',
         nights: 2,
@@ -1758,20 +1638,8 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
     durationNights: 2,
     price: 10500,
     discountedPrice: 6999,
-    pricingTiers: {
-      star2: {
-        starRating: 2,
-        tierName: 'Standard (2-Star Budget)',
-        price: 8000,
-        discountedPrice: 4999,
-        hotelNames: 'Hotel Golden Heritage / City Heart Amritsar',
-        roomType: 'Standard AC Room near Golden Temple',
-        mealPlan: 'CP Plan (Daily Breakfast)',
-        cabType: 'Dedicated AC Hatchback / Sedan',
-        keyHighlights: ['Walking distance to Golden Temple', 'Wagah Border round-trip cab', 'Dedicated private driver'],
-      },
-      star3: {
-        starRating: 3,
+      pricingTiers: {
+        star3: {
         tierName: 'Deluxe (3-Star) • Most Popular',
         price: 10500,
         discountedPrice: 6999,
@@ -1782,7 +1650,6 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
         keyHighlights: ['Top rated 3/4-star property with pool', 'Palki Sahib ceremony guidance', 'Wagah Border reserved entry guidance'],
       },
       star4: {
-        starRating: 4,
         tierName: 'Super Deluxe (4-Star Premium)',
         price: 15500,
         discountedPrice: 10999,
@@ -1793,7 +1660,6 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
         keyHighlights: ['Luxury 4-star stay with spa', 'Private Toyota Innova Crysta throughout', 'Gobindgarh Fort Light & Sound VIP tickets'],
       },
       star5: {
-        starRating: 5,
         tierName: 'Luxury (5-Star Heritage / Palace)',
         price: 25000,
         discountedPrice: 18999,
@@ -1876,7 +1742,6 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
       {
         id: 'h-asr-1',
         name: 'Ramada Amritsar / Hyatt Regency',
-        starRating: 4,
         location: 'Hall Bazaar / Mall Road, Amritsar',
         roomType: 'Deluxe Heritage Room',
         nights: 2,
@@ -1904,20 +1769,8 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
     durationNights: 5,
     price: 23500,
     discountedPrice: 17999,
-    pricingTiers: {
-      star2: {
-        starRating: 2,
-        tierName: 'Standard (2-Star Budget)',
-        price: 16500,
-        discountedPrice: 12499,
-        hotelNames: 'Hotel City Heart Amritsar / Hotel Snow Crest Dharamshala / Hotel Mount View Dalhousie',
-        roomType: 'Standard Room with Mountain View',
-        mealPlan: 'CP Plan (Daily Breakfast)',
-        cabType: 'Dedicated AC Hatchback / Sedan',
-        keyHighlights: ['Budget scenic hill stays', 'Complete 6-day private cab', '24/7 Hot water geysers'],
-      },
-      star3: {
-        starRating: 3,
+      pricingTiers: {
+        star3: {
         tierName: 'Deluxe (3-Star) • Most Popular',
         price: 23500,
         discountedPrice: 17999,
@@ -1928,7 +1781,6 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
         keyHighlights: ['Top rated 3-star mountain view resorts', 'Buffet Breakfast & Dinner included', 'Wagah Border & Khajjiar tours'],
       },
       star4: {
-        starRating: 4,
         tierName: 'Super Deluxe (4-Star Premium)',
         price: 33000,
         discountedPrice: 26500,
@@ -1939,7 +1791,6 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
         keyHighlights: ['Luxury 4-star mountain resorts', 'Private Toyota Innova Crysta throughout', 'Bhagsunag & Dal Lake guided walks'],
       },
       star5: {
-        starRating: 5,
         tierName: 'Luxury (5-Star Palace / Resort)',
         price: 52000,
         discountedPrice: 42000,
@@ -2053,7 +1904,6 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
       {
         id: 'h-dhl-1',
         name: 'Fortune Park Moksha / Radisson Blu Dharamshala',
-        starRating: 4,
         location: 'Strawberry Hills, Dharamshala',
         roomType: 'Valley View Room',
         nights: 2,
@@ -2081,20 +1931,8 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
     durationNights: 5,
     price: 32000,
     discountedPrice: 24999,
-    pricingTiers: {
-      star2: {
-        starRating: 2,
-        tierName: 'Standard (2-Star Budget)',
-        price: 24000,
-        discountedPrice: 18999,
-        hotelNames: 'Hotel Snow Lion Leh / Deluxe Swiss Tents Nubra & Pangong',
-        roomType: 'Standard Room + Deluxe Tent with Attached Bath',
-        mealPlan: 'CP Plan (Daily Breakfast)',
-        cabType: 'Dedicated Non-AC Scorpio / Bolero / Xylo',
-        keyHighlights: ['Oxygen backup assistance', 'Inner line permits included', 'Comfortable Swiss camp stay'],
-      },
-      star3: {
-        starRating: 3,
+      pricingTiers: {
+        star3: {
         tierName: 'Deluxe (3-Star) • Most Popular',
         price: 32000,
         discountedPrice: 24999,
@@ -2105,7 +1943,6 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
         keyHighlights: ['Oxygen cylinder in vehicle', 'All Ladakh Inner Line Permits included', 'Stargazing beside Pangong Lake'],
       },
       star4: {
-        starRating: 4,
         tierName: 'Super Deluxe (4-Star Premium)',
         price: 45000,
         discountedPrice: 35999,
@@ -2116,7 +1953,6 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
         keyHighlights: ['Luxury 4-star heated hotel in Leh', 'Premium glamping tents with heating', 'Doctor on call and acclimatization kit'],
       },
       star5: {
-        starRating: 5,
         tierName: 'Luxury (5-Star Luxury Glamping)',
         price: 75000,
         discountedPrice: 59999,
@@ -2231,7 +2067,6 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
       {
         id: 'h-leh-1',
         name: 'The Grand Dragon / Singge Palace Leh',
-        starRating: 4,
         location: 'Old Road, Leh',
         roomType: 'Deluxe Heritage Room',
         nights: 3,
@@ -2259,20 +2094,8 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
     durationNights: 4,
     price: 32000,
     discountedPrice: 24999,
-    pricingTiers: {
-      star2: {
-        starRating: 2,
-        tierName: 'Standard (2-Star Budget)',
-        price: 24000,
-        discountedPrice: 18999,
-        hotelNames: 'Ibis Bangkok Riverside / Nova Gold Pattaya',
-        roomType: 'Standard Room with City View',
-        mealPlan: 'CP Plan (Daily Buffet Breakfast)',
-        cabType: 'Dedicated Private AC Sedan / Minivan',
-        keyHighlights: ['Clean modern international hotels', 'Speedboat Coral Island with lunch', 'Private chauffeur for all airport & intercity transfers'],
-      },
-      star3: {
-        starRating: 3,
+      pricingTiers: {
+        star3: {
         tierName: 'Deluxe (3-Star) • Most Popular',
         price: 32000,
         discountedPrice: 24999,
@@ -2288,7 +2111,6 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
         ],
       },
       star4: {
-        starRating: 4,
         tierName: 'Super Deluxe (4-Star Premium)',
         price: 45000,
         discountedPrice: 34999,
@@ -2304,7 +2126,6 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
         ],
       },
       star5: {
-        starRating: 5,
         tierName: 'Luxury (5-Star Elite)',
         price: 75000,
         discountedPrice: 58999,
@@ -2409,7 +2230,6 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
       {
         id: 'h-bkk-1',
         name: 'Holiday Inn Express Bangkok / Amari Watergate',
-        starRating: 4,
         location: 'Siam / Pratunam, Bangkok',
         roomType: 'Deluxe City View Room',
         nights: 2,
@@ -2419,7 +2239,6 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
       {
         id: 'h-pty-1',
         name: 'Centara Nova Hotel / Avani Pattaya Resort',
-        starRating: 4,
         location: 'Pattaya Beach Road',
         roomType: 'Deluxe Ocean View Room',
         nights: 2,
@@ -2451,20 +2270,8 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
     durationNights: 5,
     price: 38000,
     discountedPrice: 28999,
-    pricingTiers: {
-      star2: {
-        starRating: 2,
-        tierName: 'Standard (2-Star Budget)',
-        price: 28000,
-        discountedPrice: 21999,
-        hotelNames: 'Ibis Phuket Patong / ibis Styles Krabi Ao Nang',
-        roomType: 'Standard Room with Balcony',
-        mealPlan: 'CP Plan (Daily Buffet Breakfast)',
-        cabType: 'Dedicated Private AC Minivan',
-        keyHighlights: ['Clean beachfront vicinity hotels', 'Phi Phi speedboat day tour with lunch', 'Private airport & inter-city ferry transfers'],
-      },
-      star3: {
-        starRating: 3,
+      pricingTiers: {
+        star3: {
         tierName: 'Deluxe (3-Star) • Most Popular',
         price: 38000,
         discountedPrice: 28999,
@@ -2480,7 +2287,6 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
         ],
       },
       star4: {
-        starRating: 4,
         tierName: 'Super Deluxe (4-Star Premium)',
         price: 49000,
         discountedPrice: 38999,
@@ -2496,7 +2302,6 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
         ],
       },
       star5: {
-        starRating: 5,
         tierName: '5-Star Luxury Private Pool Villa',
         price: 72000,
         discountedPrice: 56999,
@@ -2610,7 +2415,6 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
       {
         id: 'h-pkt-1',
         name: 'Deevana Plaza Phuket / Diamond Cliff Resort',
-        starRating: 4,
         location: 'Patong Beach, Phuket',
         roomType: 'Deluxe Pool View Room',
         nights: 3,
@@ -2620,7 +2424,6 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
       {
         id: 'h-kb-1',
         name: 'Centara Life Maris Resort Krabi',
-        starRating: 4,
         location: 'Ao Nang Beach, Krabi',
         roomType: 'Deluxe Garden Terrace Room',
         nights: 2,
@@ -2652,20 +2455,8 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
     durationNights: 6,
     price: 46000,
     discountedPrice: 34999,
-    pricingTiers: {
-      star2: {
-        starRating: 2,
-        tierName: 'Standard (2-Star Budget)',
-        price: 34000,
-        discountedPrice: 26999,
-        hotelNames: 'Ibis Bangkok / Nova Gold Pattaya / Ibis Phuket',
-        roomType: 'Standard Room with City View',
-        mealPlan: 'CP Plan (Daily Buffet Breakfast)',
-        cabType: 'Dedicated Private AC Sedan / Minivan',
-        keyHighlights: ['Quality modern chain hotels', 'Speedboat Coral Island with lunch', 'Private airport & intercity transfers'],
-      },
-      star3: {
-        starRating: 3,
+      pricingTiers: {
+        star3: {
         tierName: 'Deluxe (3-Star) • Most Popular',
         price: 46000,
         discountedPrice: 34999,
@@ -2681,7 +2472,6 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
         ],
       },
       star4: {
-        starRating: 4,
         tierName: 'Super Deluxe (4-Star Premium)',
         price: 58000,
         discountedPrice: 44999,
@@ -2697,7 +2487,6 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
         ],
       },
       star5: {
-        starRating: 5,
         tierName: '5-Star Luxury Private Pool Villa & 5★ Hotels',
         price: 88000,
         discountedPrice: 69999,
@@ -2822,7 +2611,6 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
       {
         id: 'h-bkk-2',
         name: 'Holiday Inn Express / Amari Watergate Bangkok',
-        starRating: 4,
         location: 'Pratunam, Bangkok',
         roomType: 'Deluxe City View Room',
         nights: 2,
@@ -2832,7 +2620,6 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
       {
         id: 'h-pty-2',
         name: 'Centara Nova Hotel / Avani Pattaya',
-        starRating: 4,
         location: 'Pattaya Beach Road',
         roomType: 'Deluxe Ocean View Room',
         nights: 2,
@@ -2842,7 +2629,6 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
       {
         id: 'h-pkt-2',
         name: 'Deevana Plaza / Diamond Cliff Phuket',
-        starRating: 4,
         location: 'Patong Beach, Phuket',
         roomType: 'Deluxe Pool View Room',
         nights: 2,
@@ -2874,20 +2660,8 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
     durationNights: 5,
     price: 38000,
     discountedPrice: 28999,
-    pricingTiers: {
-      star2: {
-        starRating: 2,
-        tierName: 'Standard (2-Star Budget)',
-        price: 28000,
-        discountedPrice: 21999,
-        hotelNames: 'Hanoi Central Hotel / Da Nang Sea View Hotel',
-        roomType: 'Standard AC Room with City View',
-        mealPlan: 'CP Plan (Daily Breakfast)',
-        cabType: 'Dedicated AC Sedan / Minivan',
-        keyHighlights: ['Standard verified hotels + Day cruise on Ha Long Bay', 'Private car for all sightseeing', '24/7 support'],
-      },
-      star3: {
-        starRating: 3,
+      pricingTiers: {
+        star3: {
         tierName: 'Deluxe (3-Star) • Most Popular',
         price: 38000,
         discountedPrice: 28999,
@@ -2903,7 +2677,6 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
         ],
       },
       star4: {
-        starRating: 4,
         tierName: 'Super Deluxe (4-Star Premium)',
         price: 52000,
         discountedPrice: 39999,
@@ -2918,7 +2691,6 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
         ],
       },
       star5: {
-        starRating: 5,
         tierName: 'Luxury (5-Star Palace / Resort)',
         price: 85000,
         discountedPrice: 65999,
@@ -3030,7 +2802,6 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
       {
         id: 'h-han-1',
         name: 'The Light Hotel / Silk Path Grand Hanoi',
-        starRating: 4,
         location: 'Old Quarter, Hanoi',
         roomType: 'Deluxe City View Room',
         nights: 1,
@@ -3040,7 +2811,6 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
       {
         id: 'h-hlb-1',
         name: 'Syrena / Indochina 5-Star Luxury Cruise',
-        starRating: 5,
         location: 'Ha Long Bay Harbor',
         roomType: 'Executive Ocean Balcony Cabin',
         nights: 1,
@@ -3050,7 +2820,6 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
       {
         id: 'h-dan-1',
         name: 'Pavilion Hotel / TMS Hotel Da Nang Beach',
-        starRating: 4,
         location: 'My Khe Beachfront, Da Nang',
         roomType: 'Premier Ocean View Suite',
         nights: 3,
@@ -3082,20 +2851,8 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
     durationNights: 5,
     price: 42000,
     discountedPrice: 32999,
-    pricingTiers: {
-      star2: {
-        starRating: 2,
-        tierName: 'Standard (2-Star Budget)',
-        price: 32000,
-        discountedPrice: 24999,
-        hotelNames: 'Ibis Styles Bali Legian / Kuta Beach Heritage',
-        roomType: 'Standard Room with Garden View',
-        mealPlan: 'CP Plan (Daily Breakfast)',
-        cabType: 'Dedicated AC Toyota Avanza with Chauffeur',
-        keyHighlights: ['Standard verified resort stays', 'Nusa Penida day tour with speedboat', 'Dedicated private driver'],
-      },
-      star3: {
-        starRating: 3,
+      pricingTiers: {
+        star3: {
         tierName: 'Deluxe (3-Star) • Most Popular',
         price: 42000,
         discountedPrice: 32999,
@@ -3111,7 +2868,6 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
         ],
       },
       star4: {
-        starRating: 4,
         tierName: 'Super Deluxe (4-Star Premium)',
         price: 58000,
         discountedPrice: 44999,
@@ -3127,7 +2883,6 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
         ],
       },
       star5: {
-        starRating: 5,
         tierName: 'Luxury (5-Star Palace / Resort)',
         price: 95000,
         discountedPrice: 74999,
@@ -3240,7 +2995,6 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
       {
         id: 'h-bali-v1',
         name: 'Disini Luxury Spa Villas / The One Legian',
-        starRating: 4,
         location: 'Seminyak / Legian, Bali',
         roomType: '1-Bedroom Romantic Private Pool Villa',
         nights: 5,

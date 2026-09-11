@@ -1,19 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { TourPackage } from '../../types/tour';
 import {
   Hotel,
+  Building2,
   MapPin,
   Calendar,
   ShieldCheck,
   Car,
   Clock,
-  Star,
+  Check,
 } from 'lucide-react';
 
 interface TourDetailsSectionProps {
   pkg: TourPackage;
-  selectedTier?: 'star3' | 'star4' | 'star5';
-  onSelectTier?: (tier: 'star3' | 'star4' | 'star5') => void;
   className?: string;
 }
 
@@ -52,95 +51,100 @@ const extractCleanCity = (location: string, pkgDest: string): string => {
 
 export const TourDetailsSection: React.FC<TourDetailsSectionProps> = ({
   pkg,
-  selectedTier: controlledTier,
-  onSelectTier,
   className = '',
 }) => {
-  const [activeTab, setActiveTab] = useState<'accommodation' | 'reporting'>('accommodation');
-  const [internalTier, setInternalTier] = useState<'star3' | 'star4' | 'star5'>('star3');
+  const [activeTab, setActiveTab] = useState<'hotels' | 'reporting'>('hotels');
 
-  const currentTier = controlledTier || internalTier;
-  const handleTierChange = (tier: 'star3' | 'star4' | 'star5') => {
-    if (onSelectTier) {
-      onSelectTier(tier);
-    }
-    setInternalTier(tier);
-  };
-
-  // Build accommodation rows from pkg.hotels or itinerary
-  const accommodationList = React.useMemo(() => {
+  // Build clean accommodation list from pkg.hotels or itinerary fallback
+  const accommodationList = useMemo(() => {
     if (pkg.hotels && pkg.hotels.length > 0) {
       return pkg.hotels.map((h, idx) => {
-        const cityPart = extractCleanCity(h.location, pkg.destination);
+        const cityPart = h.city || extractCleanCity(h.location || '', pkg.destination);
+        const countryPart = h.country || pkg.country || 'India';
+        const hotelNameStr =
+          h.name.includes('/or similar') || h.name.includes('/ similar')
+            ? h.name
+            : `${h.name} /or similar`;
+
         return {
           id: h.id || `acc-${idx}`,
-          city: `${cityPart} - ${pkg.country || 'India'}`,
-          hotelName: h.name.includes('/or similar') || h.name.includes('/ similar') ? h.name : `${h.name} /or similar`,
-          starRating: h.starRating || 3,
+          city: cityPart,
+          country: countryPart,
+          hotelName: hotelNameStr,
+          alternativeHotel: h.alternativeHotel,
           nights: h.nights || 1,
           roomType: h.roomType || 'Deluxe Room',
+          mealPlan: h.mealPlan || 'As per package inclusion',
+          checkInDate: h.checkInDate,
+          checkOutDate: h.checkOutDate,
+          houseboatDetails: h.houseboatDetails,
           amenities: h.amenities || [],
-          locationDetail: h.location,
         };
       });
     }
 
-    // Fallback if hotels array is empty: extract unique stayHotels from itinerary
+    // Fallback if pkg.hotels is empty: Extract stays from itinerary
     const staysFromItinerary: Array<{
       id: string;
       city: string;
+      country: string;
       hotelName: string;
-      starRating: number;
+      alternativeHotel?: string;
       nights: number;
       roomType: string;
+      mealPlan: string;
+      checkInDate?: string;
+      checkOutDate?: string;
+      houseboatDetails?: string;
       amenities: string[];
-      locationDetail: string;
     }> = [];
 
     let currentStayName = '';
     let currentCount = 0;
     let currentLocation = '';
 
-    pkg.itinerary.forEach((day) => {
-      const stay = day.stayHotel || 'Selected Category Hotel';
-      if (stay.toLowerCase().includes('departure') || stay.toLowerCase().includes('no hotel')) {
-        return;
-      }
-
-      if (stay === currentStayName) {
-        currentCount++;
-      } else {
-        if (currentStayName) {
-          const cityClean = extractCleanCity(currentLocation, pkg.destination);
-          staysFromItinerary.push({
-            id: `itin-acc-${staysFromItinerary.length}`,
-            city: `${cityClean} - ${pkg.country || 'India'}`,
-            hotelName: `${currentStayName} /or similar`,
-            starRating: 3,
-            nights: currentCount,
-            roomType: 'Deluxe Category Stay',
-            amenities: ['Breakfast & Dinner', 'Free Wi-Fi', 'Hot Water'],
-            locationDetail: currentLocation,
-          });
+    if (pkg.itinerary && pkg.itinerary.length > 0) {
+      pkg.itinerary.forEach((day) => {
+        const stay = day.stayHotel || 'Selected Category Hotel';
+        if (stay.toLowerCase().includes('departure') || stay.toLowerCase().includes('no hotel')) {
+          return;
         }
-        currentStayName = stay;
-        currentLocation = day.location || pkg.destination;
-        currentCount = 1;
-      }
-    });
 
-    if (currentStayName) {
-      const cityClean = extractCleanCity(currentLocation, pkg.destination);
-      staysFromItinerary.push({
-        id: `itin-acc-${staysFromItinerary.length}`,
-        city: `${cityClean} - ${pkg.country || 'India'}`,
-        hotelName: `${currentStayName} /or similar`,
-        starRating: 3,
-        nights: currentCount,
-        roomType: 'Deluxe Category Stay',
-        amenities: ['Breakfast & Dinner', 'Free Wi-Fi', 'Hot Water'],
-        locationDetail: currentLocation,
+        if (stay === currentStayName) {
+          currentCount++;
+        } else {
+          if (currentStayName) {
+            const cityClean = extractCleanCity(currentLocation, pkg.destination);
+            staysFromItinerary.push({
+              id: `itin-acc-${staysFromItinerary.length}`,
+              city: cityClean,
+              country: pkg.country || 'India',
+              hotelName: `${currentStayName} /or similar`,
+              nights: currentCount,
+              roomType: 'Deluxe Room',
+              mealPlan: 'As per package inclusion',
+              amenities: ['Breakfast & Dinner', 'Free Wi-Fi', 'Hot Water', 'Clean Linen'],
+            });
+          }
+          currentStayName = stay;
+          currentLocation = day.location || pkg.destination;
+          currentCount = 1;
+        }
       });
+
+      if (currentStayName) {
+        const cityClean = extractCleanCity(currentLocation, pkg.destination);
+        staysFromItinerary.push({
+          id: `itin-acc-${staysFromItinerary.length}`,
+          city: cityClean,
+          country: pkg.country || 'India',
+          hotelName: `${currentStayName} /or similar`,
+          nights: currentCount,
+          roomType: 'Deluxe Room',
+          mealPlan: 'As per package inclusion',
+          amenities: ['Breakfast & Dinner', 'Free Wi-Fi', 'Hot Water', 'Clean Linen'],
+        });
+      }
     }
 
     if (staysFromItinerary.length > 0) {
@@ -150,19 +154,16 @@ export const TourDetailsSection: React.FC<TourDetailsSectionProps> = ({
     return [
       {
         id: 'def-1',
-        city: `${pkg.destination.split('(')[0].trim() || 'Destination'} - ${pkg.country || 'India'}`,
+        city: extractCleanCity('', pkg.destination),
+        country: pkg.country || 'India',
         hotelName: 'Selected Verified Hotel / Resort /or similar',
-        starRating: 3,
         nights: pkg.durationNights || 4,
-        roomType: 'Deluxe Room with Breakfast & Dinner',
-        amenities: ['Free Wi-Fi', 'Geyser / 24/7 Hot Water'],
-        locationDetail: pkg.destination,
+        roomType: 'Deluxe Room',
+        mealPlan: 'As per package inclusion',
+        amenities: ['24/7 Hot Water', 'Free Wi-Fi', 'Room Heating / Geyser', 'Breakfast & Dinner'],
       },
     ];
   }, [pkg]);
-
-  // Selected tier data if available
-  const tierInfo = pkg.pricingTiers ? pkg.pricingTiers[currentTier] : null;
 
   return (
     <div className={`bg-white rounded-2xl border border-stone-200 shadow-xs overflow-hidden w-full max-w-full min-w-0 ${className}`}>
@@ -176,19 +177,19 @@ export const TourDetailsSection: React.FC<TourDetailsSectionProps> = ({
         </p>
       </div>
 
-      {/* 2 Main Tabs: Accommodation Details | Reporting & Dropping (Using Brand Primary Color #FF4B00) */}
+      {/* 2 Main Tabs: Hotels | Reporting & Dropping */}
       <div className="grid grid-cols-2 border-b border-stone-200 bg-stone-50 p-1.5 sm:p-2 gap-1.5 sm:gap-2">
         <button
           type="button"
-          onClick={() => setActiveTab('accommodation')}
+          onClick={() => setActiveTab('hotels')}
           className={`py-2.5 px-2 sm:px-4 rounded-xl text-xs sm:text-sm font-black transition-all flex items-center justify-center gap-1.5 cursor-pointer text-center ${
-            activeTab === 'accommodation'
+            activeTab === 'hotels'
               ? 'bg-[#FF4B00] text-white shadow-xs'
               : 'bg-white text-stone-700 border border-stone-200 hover:bg-stone-100'
           }`}
         >
           <Hotel className="w-3.5 h-3.5 shrink-0 hidden xs:inline" />
-          <span className="truncate">Accommodation Details</span>
+          <span className="truncate">Hotels</span>
         </button>
 
         <button
@@ -208,110 +209,109 @@ export const TourDetailsSection: React.FC<TourDetailsSectionProps> = ({
       {/* Content Area */}
       <div className="p-4 sm:p-5">
         {/* ============================================================ */}
-        {/* TAB 1: ACCOMMODATION DETAILS */}
+        {/* TAB 1: HOTELS */}
         {/* ============================================================ */}
-        {activeTab === 'accommodation' && (
+        {activeTab === 'hotels' && (
           <div className="space-y-4">
-            {/* If pricing tiers exist, show category selector banner (3★ Deluxe, 4★ Super Deluxe, 5★ Luxury) */}
-            {pkg.pricingTiers && (
-              <div className="bg-stone-50 border border-stone-200 rounded-xl p-3 sm:p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div className="min-w-0">
-                  <span className="text-[10px] uppercase font-black text-stone-500 tracking-wider block">
-                    SELECT HOTEL CATEGORY TO PREVIEW STAYS
-                  </span>
-                  <p className="text-xs sm:text-sm text-stone-900 font-bold mt-0.5">
-                    {tierInfo?.tierName || `${currentTier === 'star3' ? '3-Star Deluxe' : currentTier === 'star4' ? '4-Star Super Deluxe' : '5-Star Luxury'}`}
-                  </p>
-                </div>
+            <div className="space-y-3">
+              {accommodationList.map((acc, idx) => (
+                <div
+                  key={acc.id || idx}
+                  className="bg-white border border-stone-200 rounded-2xl overflow-hidden shadow-2xs hover:border-stone-300 transition"
+                >
+                  {/* Header Bar: City & Country on Left, Stay Nights on Right (100% Inline on all screens) */}
+                  <div className="bg-stone-50/90 border-b border-stone-200/80 px-3.5 sm:px-4 py-2.5 flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <MapPin className="w-3.5 h-3.5 text-[#FF4B00] shrink-0" />
+                      <span className="font-extrabold text-stone-900 text-xs sm:text-sm tracking-tight truncate">
+                        {acc.city}, {acc.country}
+                      </span>
+                    </div>
+                    <div className="shrink-0 bg-white border border-stone-200 text-stone-800 font-extrabold text-[11px] sm:text-xs px-2.5 py-1 rounded-full shadow-2xs flex items-center gap-1.5">
+                      <Calendar className="w-3 h-3 text-[#FF4B00]" />
+                      <span>{acc.nights} {acc.nights === 1 ? 'Night' : 'Nights'} Stay</span>
+                    </div>
+                  </div>
 
-                <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-                  {(['star3', 'star4', 'star5'] as const).map((tierKey) => {
-                    const t = pkg.pricingTiers ? pkg.pricingTiers[tierKey] : null;
-                    const starNum = tierKey === 'star3' ? 3 : tierKey === 'star4' ? 4 : 5;
-                    const defaultName = starNum === 3 ? '3★ Deluxe' : starNum === 4 ? '4★ Super Deluxe' : '5★ Luxury';
-                    const displayName = t?.tierName ? `${t.starRating}★ ${t.tierName.replace(/^\d-Star\s*/i, '')}` : defaultName;
-                    const isSelected = currentTier === tierKey;
-
-                    return (
-                      <button
-                        key={tierKey}
-                        type="button"
-                        onClick={() => handleTierChange(tierKey)}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-black transition cursor-pointer flex items-center gap-1.5 ${
-                          isSelected
-                            ? 'bg-[#FF4B00] text-white shadow-xs'
-                            : 'bg-white text-stone-800 border border-stone-200 hover:bg-stone-100 hover:text-stone-900'
-                        }`}
-                      >
-                        <Star className={`w-3 h-3 ${isSelected ? 'fill-white text-white' : 'text-amber-500 fill-amber-500'}`} />
-                        <span>{displayName}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
-            {/* Main Table Layout with Proper 2-Column Inline Alignment matching Reference */}
-            <div className="border border-stone-200 rounded-xl overflow-hidden shadow-2xs">
-              {/* Table Header with explicit 2-column alignment on all screens */}
-              <div className="grid grid-cols-[1.1fr_1.9fr] sm:grid-cols-[1.2fr_2fr] bg-stone-100/90 border-b border-stone-200 text-[11px] sm:text-xs font-black text-stone-800 uppercase tracking-wider p-3 gap-2 sm:gap-4">
-                <div>City - Country</div>
-                <div>Hotel & Stay Details</div>
-              </div>
-
-              {/* Table Rows with side-by-side columns */}
-              <div className="divide-y divide-stone-200/80 bg-white">
-                {accommodationList.map((acc, index) => {
-                  const isEven = index % 2 === 0;
-                  let displayHotelName = acc.hotelName;
-                  if (tierInfo?.hotelNames) {
-                    const tierHotels = tierInfo.hotelNames.split('/');
-                    if (tierHotels[index]) {
-                      displayHotelName = `${tierHotels[index].trim()} /or similar`;
-                    }
-                  }
-
-                  return (
-                    <div
-                      key={acc.id}
-                      className={`grid grid-cols-[1.1fr_1.9fr] sm:grid-cols-[1.2fr_2fr] p-3 sm:p-4 gap-2 sm:gap-4 items-start ${
-                        isEven ? 'bg-white' : 'bg-stone-50/50'
-                      }`}
-                    >
-                      {/* Left Column: City - Country */}
-                      <div className="pr-1">
-                        <div className="flex items-start gap-1.5">
-                          <MapPin className="w-3.5 h-3.5 text-stone-800 shrink-0 mt-0.5" />
-                          <div className="min-w-0">
-                            <b className="text-xs sm:text-sm font-black text-stone-900 leading-snug block break-words">
-                              {acc.city}
-                            </b>
-                          </div>
-                        </div>
+                  {/* Body Content */}
+                  <div className="p-3.5 sm:p-4 space-y-3">
+                    {/* Hotel Name Section */}
+                    <div className="flex items-start gap-2.5">
+                      <div className="w-7 h-7 rounded-lg bg-orange-50 border border-orange-100 flex items-center justify-center shrink-0 mt-0.5">
+                        <Hotel className="w-4 h-4 text-[#FF4B00]" />
                       </div>
-
-                      {/* Right Column: Hotel Name, Stay Duration & Room Type */}
-                      <div className="space-y-1.5 min-w-0">
-                        <div className="text-xs sm:text-sm font-bold text-stone-900 leading-snug break-words">
-                          {displayHotelName}
-                        </div>
-
-                        <div className="flex flex-wrap items-center gap-1.5 text-[11px] text-stone-600 font-medium">
-                          <span className="inline-flex items-center gap-1 bg-stone-100 border border-stone-200 px-2 py-0.5 rounded-md text-stone-800 font-bold">
-                            <Calendar className="w-3 h-3 text-stone-800" />
-                            <span>{acc.nights} {acc.nights === 1 ? 'Night' : 'Nights'} Stay</span>
-                          </span>
-
-                          <span className="text-stone-500 font-medium">
-                            • {tierInfo?.roomType || acc.roomType}
-                          </span>
-                        </div>
+                      <div className="min-w-0 flex-1">
+                        <h4 className="font-extrabold text-stone-900 text-xs sm:text-sm leading-snug">
+                          {acc.hotelName}
+                        </h4>
+                        {acc.alternativeHotel && (
+                          <p className="text-[11px] text-stone-500 font-medium mt-0.5">
+                            <span className="text-stone-400 font-semibold">Alternative:</span>{' '}
+                            {acc.alternativeHotel}
+                          </p>
+                        )}
                       </div>
                     </div>
-                  );
-                })}
-              </div>
+
+                    {/* Aligned Key-Value Specs Table */}
+                    <div className="bg-stone-50/60 rounded-xl p-2.5 sm:p-3 border border-stone-200/70 divide-y divide-stone-200/60 text-xs">
+                      <div className="grid grid-cols-[82px_1fr] sm:grid-cols-[105px_1fr] gap-2 py-1.5 items-baseline">
+                        <span className="text-stone-500 font-bold text-[11px] sm:text-xs">Room Type</span>
+                        <span className="font-extrabold text-stone-900 text-[11px] sm:text-xs leading-tight">
+                          {acc.roomType}
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-[82px_1fr] sm:grid-cols-[105px_1fr] gap-2 py-1.5 items-baseline">
+                        <span className="text-stone-500 font-bold text-[11px] sm:text-xs">Meal Plan</span>
+                        <span className="font-extrabold text-stone-900 text-[11px] sm:text-xs leading-tight">
+                          {acc.mealPlan}
+                        </span>
+                      </div>
+
+                      {(acc.checkInDate || acc.checkOutDate) && (
+                        <div className="grid grid-cols-[82px_1fr] sm:grid-cols-[105px_1fr] gap-2 py-1.5 items-baseline">
+                          <span className="text-stone-500 font-bold text-[11px] sm:text-xs">Timings</span>
+                          <span className="text-stone-700 font-medium text-[11px] sm:text-xs">
+                            {acc.checkInDate ? `Check-in: ${acc.checkInDate}` : ''}
+                            {acc.checkInDate && acc.checkOutDate ? ' • ' : ''}
+                            {acc.checkOutDate ? `Check-out: ${acc.checkOutDate}` : ''}
+                          </span>
+                        </div>
+                      )}
+
+                      {acc.houseboatDetails && (
+                        <div className="grid grid-cols-[82px_1fr] sm:grid-cols-[105px_1fr] gap-2 py-1.5 items-baseline">
+                          <span className="text-stone-500 font-bold text-[11px] sm:text-xs">Houseboat</span>
+                          <span className="text-stone-700 font-medium text-[11px] sm:text-xs">
+                            {acc.houseboatDetails}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Amenities Inclusions */}
+                    {acc.amenities && acc.amenities.length > 0 && (
+                      <div className="space-y-1.5 pt-0.5">
+                        <div className="text-[10px] font-black text-stone-400 uppercase tracking-wider">
+                          Hotel Amenities & Inclusions
+                        </div>
+                        <div className="flex flex-wrap gap-1.5">
+                          {acc.amenities.map((am, i) => (
+                            <span
+                              key={i}
+                              className="inline-flex items-center gap-1 bg-white border border-stone-200 text-stone-800 px-2 py-0.5 rounded-md text-[11px] font-medium shadow-2xs"
+                            >
+                              <Check className="w-3 h-3 text-emerald-600 shrink-0" />
+                              <span>{am}</span>
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
             </div>
 
             {/* Note Section */}
@@ -324,7 +324,7 @@ export const TourDetailsSection: React.FC<TourDetailsSectionProps> = ({
                   These are the tentative accommodation details for guests booking this holiday package.
                 </li>
                 <li>
-                  Hotel details are tentative only. The hotel or place of accommodation may change to an equivalent or upgraded category based on season and room inventory.
+                  Hotel details are tentative only. The hotel or place of accommodation may change to an equivalent category based on season and room inventory.
                 </li>
                 <li>
                   Check-in time is generally <strong>12:00 PM / 2:00 PM</strong> and check-out time is <strong>10:00 AM / 11:00 AM</strong>. Early check-in or late check-out is subject to room availability at hotel discretion.

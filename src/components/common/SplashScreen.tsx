@@ -82,72 +82,67 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
               >
                 <svg
                   viewBox="0 0 400 300"
-                  className="w-full h-full drop-shadow-sm"
+                  className="w-full h-full"
                   fill="none"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 >
-                  {/* Stylized Lotus Pedestal */}
+                  {/* Subtle Radiating Halo / Divine Aura */}
+                  <circle cx="200" cy="130" r="95" stroke="#F4F4F5" strokeWidth="1" strokeDasharray="3 4" opacity="0.8" />
+                  <circle cx="200" cy="130" r="115" stroke="#FAFAFA" strokeWidth="1" opacity="0.6" />
+
+                  {/* Stylized Lotus Pedestal (Fine Line Art) */}
                   <motion.path
                     initial={{ pathLength: 0, opacity: 0 }}
                     animate={{ pathLength: 1, opacity: 1 }}
-                    transition={{ duration: 1.2, delay: 0.2 }}
-                    d="M120 250 C140 235 180 230 200 230 C220 230 260 235 280 250 C260 258 230 262 200 262 C170 262 140 258 120 250 Z"
-                    stroke="#D4D4D8"
-                    strokeWidth="1.5"
-                    fill="#FAFAFA"
+                    transition={{ duration: 1.2, delay: 0.1 }}
+                    d="M110 245 C135 232 170 228 200 228 C230 228 265 232 290 245 C270 254 235 258 200 258 C165 258 130 254 110 245 Z"
+                    stroke="#A1A1AA"
+                    strokeWidth="1.2"
+                    fill="#FFFFFF"
                   />
-                  <path d="M140 250 C155 242 175 238 200 238 C225 238 245 242 260 250" stroke="#E4E4E7" strokeWidth="1.2" />
+                  <path d="M130 245 C150 238 175 235 200 235 C225 235 250 238 270 245" stroke="#D4D4D8" strokeWidth="1" />
+                  <path d="M150 248 C165 244 182 242 200 242 C218 242 235 244 250 248" stroke="#E4E4E7" strokeWidth="0.8" />
 
-                  {/* Multi-Tiered Sacred Architecture (Pencil Sketch Linework) */}
-                  {/* Base Platform */}
-                  <rect x="130" y="210" width="140" height="30" rx="2" stroke="#71717A" strokeWidth="1.8" fill="#FFFFFF" />
-                  <line x1="135" y1="220" x2="265" y2="220" stroke="#A1A1AA" strokeWidth="1" strokeDasharray="4 2" />
-                  <line x1="140" y1="230" x2="260" y2="230" stroke="#A1A1AA" strokeWidth="1" strokeDasharray="4 2" />
+                  {/* Sacred Temple Base Platform */}
+                  <rect x="135" y="210" width="130" height="20" rx="1" stroke="#52525B" strokeWidth="1.2" fill="#FFFFFF" />
+                  <line x1="140" y1="216" x2="260" y2="216" stroke="#D4D4D8" strokeWidth="0.8" />
+                  <line x1="145" y1="222" x2="255" y2="222" stroke="#D4D4D8" strokeWidth="0.8" />
 
                   {/* Main Sanctum Garbhagriha */}
-                  <rect x="150" y="140" width="100" height="70" rx="3" stroke="#52525B" strokeWidth="1.8" fill="#FDFBF7" />
+                  <rect x="155" y="145" width="90" height="65" rx="1.5" stroke="#3F3F46" strokeWidth="1.2" fill="#FFFFFF" />
                   
-                  {/* Pencil Hatching Shading on Sanctum Sides */}
-                  <line x1="156" y1="150" x2="166" y2="150" stroke="#D4D4D8" strokeWidth="1" />
-                  <line x1="156" y1="160" x2="166" y2="160" stroke="#D4D4D8" strokeWidth="1" />
-                  <line x1="156" y1="170" x2="166" y2="170" stroke="#D4D4D8" strokeWidth="1" />
-                  <line x1="156" y1="180" x2="166" y2="180" stroke="#D4D4D8" strokeWidth="1" />
-                  <line x1="156" y1="190" x2="166" y2="190" stroke="#D4D4D8" strokeWidth="1" />
-
-                  <line x1="234" y1="150" x2="244" y2="150" stroke="#D4D4D8" strokeWidth="1" />
-                  <line x1="234" y1="160" x2="244" y2="160" stroke="#D4D4D8" strokeWidth="1" />
-                  <line x1="234" y1="170" x2="244" y2="170" stroke="#D4D4D8" strokeWidth="1" />
-                  <line x1="234" y1="180" x2="244" y2="180" stroke="#D4D4D8" strokeWidth="1" />
-                  <line x1="234" y1="190" x2="244" y2="190" stroke="#D4D4D8" strokeWidth="1" />
+                  {/* Fine Architectural Pillars & Panels */}
+                  <line x1="170" y1="145" x2="170" y2="210" stroke="#A1A1AA" strokeWidth="0.8" />
+                  <line x1="230" y1="145" x2="230" y2="210" stroke="#A1A1AA" strokeWidth="0.8" />
 
                   {/* Sacred Arch Entrance (Torana) */}
-                  <path d="M178 210 V165 C178 152 222 152 222 165 V210" stroke="#52525B" strokeWidth="1.6" fill="#F4F4F5" />
-                  <circle cx="200" cy="157" r="4" stroke="#FF4B00" strokeWidth="1.5" fill="#FFF7ED" />
+                  <path d="M182 210 V168 C182 156 218 156 218 168 V210" stroke="#3F3F46" strokeWidth="1.2" fill="#FAFAFA" />
+                  <circle cx="200" cy="160" r="3" stroke="#FF4B00" strokeWidth="1.2" fill="#FFF7ED" />
 
-                  {/* Shikhara Tower Tiers (Nagara Style Architectural Curves) */}
-                  <path d="M150 140 L200 65 L250 140 Z" stroke="#52525B" strokeWidth="1.8" fill="#FAFAFA" />
+                  {/* Shikhara Tower (Nagara Architectural Curved Spire) */}
+                  <path d="M155 145 Q200 85 200 55 Q200 85 245 145 Z" stroke="#3F3F46" strokeWidth="1.2" fill="#FFFFFF" />
 
-                  {/* Shikhara Horizontal Layering Lines with Pencil Sketch Style */}
-                  <path d="M158 128 H242 M164 116 H236 M170 104 H230 M177 92 H223 M184 80 H216 M191 69 H209" stroke="#A1A1AA" strokeWidth="1.2" />
-
-                  {/* Vertical Center Groove */}
-                  <line x1="200" y1="65" x2="200" y2="140" stroke="#D4D4D8" strokeWidth="1" strokeDasharray="2 2" />
+                  {/* Shikhara Horizontal Architectural Banding (Fine Pencil Lines) */}
+                  <path d="M161 135 H239 M166 125 H234 M172 115 H228 M178 105 H222 M184 95 H216 M190 85 H210 M195 75 H205" stroke="#A1A1AA" strokeWidth="0.8" />
+                  
+                  {/* Center Spire Vertical Axis */}
+                  <line x1="200" y1="55" x2="200" y2="145" stroke="#E4E4E7" strokeWidth="0.8" strokeDasharray="2 2" />
 
                   {/* Amalaka (Ribbed Crown Disk) */}
-                  <ellipse cx="200" cy="63" rx="16" ry="6" stroke="#52525B" strokeWidth="1.6" fill="#E4E4E7" />
+                  <ellipse cx="200" cy="53" rx="14" ry="4.5" stroke="#3F3F46" strokeWidth="1.2" fill="#F4F4F5" />
 
                   {/* Kalash (Sacred Pitcher Finial) */}
-                  <path d="M197 55 C197 48 203 48 203 55 C203 45 197 45 197 55 Z" stroke="#52525B" strokeWidth="1.4" fill="#D4D4D8" />
-                  <line x1="200" y1="45" x2="200" y2="30" stroke="#52525B" strokeWidth="1.8" />
+                  <path d="M198 47 C198 42 202 42 202 47 C202 39 198 39 198 47 Z" stroke="#3F3F46" strokeWidth="1.2" fill="#E4E4E7" />
+                  <line x1="200" y1="39" x2="200" y2="28" stroke="#3F3F46" strokeWidth="1.4" />
 
                   {/* Sacred Flag (Dhwaja) with Gentle Wave Motion */}
                   <motion.path
                     animate={{
                       d: [
-                        "M200 30 C218 24 225 34 200 38 Z",
-                        "M200 30 C222 26 228 36 200 38 Z",
-                        "M200 30 C218 24 225 34 200 38 Z"
+                        "M200 28 C216 22 222 32 200 36 Z",
+                        "M200 28 C220 24 226 34 200 36 Z",
+                        "M200 28 C216 22 222 32 200 36 Z"
                       ]
                     }}
                     transition={{
@@ -156,17 +151,10 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
                       ease: "easeInOut"
                     }}
                     fill="#FF4B00"
-                    fillOpacity="0.85"
+                    fillOpacity="0.8"
                     stroke="#C2410C"
-                    strokeWidth="1.2"
+                    strokeWidth="1"
                   />
-
-                  {/* Sun / Divine Rays Motif behind spire */}
-                  <g stroke="#E4E4E7" strokeWidth="1" opacity="0.6">
-                    <line x1="200" y1="35" x2="200" y2="15" strokeDasharray="3 3" />
-                    <line x1="215" y1="40" x2="228" y2="25" strokeDasharray="3 3" />
-                    <line x1="185" y1="40" x2="172" y2="25" strokeDasharray="3 3" />
-                  </g>
                 </svg>
               </motion.div>
             </motion.div>

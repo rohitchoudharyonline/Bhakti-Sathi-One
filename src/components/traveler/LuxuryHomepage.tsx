@@ -13,6 +13,7 @@ import {
   MapPin,
   MessageCircle,
   Phone,
+  PhoneCall,
   Search,
   Loader2,
   ShieldCheck,
@@ -48,14 +49,15 @@ import {
   Receipt,
   Sparkle as SparkleIcon,
   Settings,
+  User,
+  FileText,
 } from 'lucide-react';
 import { useTours } from '../../context/TourContext';
 import { Navbar } from '../common/Navbar';
 import { Footer } from './Footer';
-import { HotelStarCategory, TourPackage } from '../../types/tour';
+import { TourPackage } from '../../types/tour';
 import { updatePageSeo } from '../../utils/seo';
 import { generateAgencyReviewSchema } from '../../utils/seoEngine';
-import { TravelerReviewsSection } from './TravelerReviewsSection';
 import { isValidEmail } from '../../utils/validation';
 import { EmailVerificationInput } from '../common/EmailVerificationInput';
 import { JapCounterIcon } from './JapCounterIcon';
@@ -345,16 +347,12 @@ export const LuxuryHomepage: React.FC = () => {
     };
   }, []);
 
-  // Custom Lead Form State
+  // Call Back Request Form State
   const [leadName, setLeadName] = useState('');
   const [leadEmail, setLeadEmail] = useState('');
   const [leadPhone, setLeadPhone] = useState('');
-  const [leadDest, setLeadDest] = useState('Jammu & Kashmir');
-  const [leadTier, setLeadTier] = useState<HotelStarCategory>('3_star');
-  const [leadDate, setLeadDate] = useState('');
-  const [leadAdults, setLeadAdults] = useState(2);
-  const [leadChildren, setLeadChildren] = useState(0);
-  const [leadBudget, setLeadBudget] = useState(40000);
+  const [leadYatra, setLeadYatra] = useState('');
+  const [leadNotes, setLeadNotes] = useState('');
   const [leadSubmitted, setLeadSubmitted] = useState(false);
 
   const handleHeroSearch = (e: React.FormEvent) => {
@@ -398,26 +396,37 @@ export const LuxuryHomepage: React.FC = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  // Phone number must be mandatory and contain at least 10 digits
+  const isValidPhone = (phone: string) => {
+    const digits = phone.replace(/\D/g, '');
+    return digits.length >= 10;
+  };
+
   const isLeadFormValid = Boolean(
     leadName.trim() &&
-    leadPhone.trim() &&
-    isValidEmail(leadEmail)
+    isValidPhone(leadPhone) &&
+    (!leadEmail.trim() || isValidEmail(leadEmail))
   );
 
   const handleCustomLeadSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!leadName.trim() || !leadPhone.trim() || !isValidEmail(leadEmail)) return;
+    if (!leadName.trim() || !isValidPhone(leadPhone)) return;
+    if (leadEmail.trim() && !isValidEmail(leadEmail)) return;
+
+    const cleanEmail = leadEmail.trim()
+      ? leadEmail.trim().toLowerCase()
+      : `${leadPhone.replace(/\D/g, '')}@callback.bhaktisathi.com`;
 
     submitInquiry({
-      travelerName: leadName,
-      phone: leadPhone,
-      email: leadEmail.trim().toLowerCase(),
-      packageTitle: `Custom Holiday Request: ${leadDest} (${leadTier.replace('_', ' ').toUpperCase()})`,
-      travelDate: leadDate || 'Flexible',
-      adults: leadAdults,
-      children: leadChildren,
-      specialRequests: `Customer requested custom quote for: ${leadDest}. Preferred Hotel Category: ${leadTier}. Budget: ₹${leadBudget.toLocaleString('en-IN')}`,
-      estimatedTotal: leadBudget,
+      travelerName: leadName.trim(),
+      phone: leadPhone.trim(),
+      email: cleanEmail,
+      packageTitle: `Pilgrimage Callback Request${leadYatra.trim() ? `: ${leadYatra.trim()}` : ''}`,
+      travelDate: 'Flexible',
+      adults: 1,
+      children: 0,
+      specialRequests: `Devotee requested instant callback on WhatsApp / Phone: ${leadPhone.trim()}.${leadYatra.trim() ? ` Yatra / Darshan: ${leadYatra.trim()}.` : ''}${leadNotes.trim() ? ` Query / Details: ${leadNotes.trim()}.` : ''}`,
+      estimatedTotal: 0,
     });
     setLeadSubmitted(true);
   };
@@ -910,82 +919,193 @@ export const LuxuryHomepage: React.FC = () => {
             CUSTOM HOLIDAY PLANNER / INSTANT CALLBACK FORM
             ======================================================== */}
         <section className="py-8 md:py-10 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
-          <div className="bg-gradient-to-br from-stone-900 to-stone-800 rounded-3xl p-6 md:p-8 lg:p-10 text-white shadow-xl flex flex-col md:flex-row items-center justify-between gap-6 md:gap-8">
-            <div className="max-w-xl">
-              <span className="px-3 py-1 rounded-md bg-stone-100 text-stone-900 text-[10px] font-black uppercase tracking-wider mb-3 inline-block">
-                Free Itinerary Planning
+          <div className="relative overflow-hidden bg-gradient-to-br from-[#1c1917] via-[#261e1a] to-[#1a1512] rounded-3xl p-6 md:p-8 lg:p-10 text-white shadow-xl border border-[#FF4B00]/25 flex flex-col md:flex-row items-center justify-between gap-6 md:gap-8">
+            {/* Brand ambient glows */}
+            <div className="absolute -top-24 -right-24 w-80 h-80 bg-[#FF4B00]/15 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute -bottom-24 -left-24 w-80 h-80 bg-[#FF4B00]/10 rounded-full blur-3xl pointer-events-none" />
+
+            <div className="relative max-w-xl">
+              <span className="px-3.5 py-1.5 rounded-full bg-[#FFF0EB] text-[#FF4B00] border border-[#FF4B00]/30 text-[10.5px] font-black uppercase tracking-wider mb-3 inline-flex items-center gap-1.5 shadow-xs">
+                <Sparkles className="w-3.5 h-3.5 text-[#FF4B00]" />
+                <span>Instant Callback Assistance</span>
               </span>
               <h2 className="text-2xl sm:text-3xl font-black tracking-tight leading-tight">
-                Need a Custom Holiday Itinerary?
+                Request an Instant Call Back
               </h2>
               <p className="text-xs sm:text-sm text-stone-300 mt-2 leading-relaxed">
-                Tell us your travel dates and requirements. Our destination experts will craft a personalized day-by-day plan with transparent 3★ to 5★ hotel rates within 15 minutes.
+                Have questions or need a customized pilgrimage plan? Enter your WhatsApp or phone number. Our yatra specialist will call you back within 15 minutes with complete details.
               </p>
 
               <div className="mt-6 grid grid-cols-2 gap-3 sm:gap-4 text-xs font-bold text-stone-200">
                 <div className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-emerald-400 shrink-0" />
-                  <span>Free Cancellation Assistance</span>
+                  <div className="w-5 h-5 rounded-full bg-[#FFF0EB]/15 border border-[#FF4B00]/40 flex items-center justify-center shrink-0">
+                    <Check className="w-3 h-3 text-[#FF4B00]" />
+                  </div>
+                  <span>Callback Within 15 Minutes</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <div className="w-5 h-5 rounded-full bg-[#FFF0EB]/15 border border-[#FF4B00]/40 flex items-center justify-center shrink-0">
+                    <Check className="w-3 h-3 text-[#FF4B00]" />
+                  </div>
                   <span>Direct Local Chauffeurs</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <div className="w-5 h-5 rounded-full bg-[#FFF0EB]/15 border border-[#FF4B00]/40 flex items-center justify-center shrink-0">
+                    <Check className="w-3 h-3 text-[#FF4B00]" />
+                  </div>
                   <span>Zero Agent Commissions</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <div className="w-5 h-5 rounded-full bg-[#FFF0EB]/15 border border-[#FF4B00]/40 flex items-center justify-center shrink-0">
+                    <Check className="w-3 h-3 text-[#FF4B00]" />
+                  </div>
                   <span>Instant WhatsApp Itinerary</span>
                 </div>
               </div>
             </div>
 
-            {/* Quick Callback Box */}
-            <div className="w-full md:w-[380px] lg:w-[410px] bg-white rounded-2xl p-5 sm:p-6 text-stone-900 shadow-2xl shrink-0">
+            {/* Quick Callback Box with Brand Colors */}
+            <div className="relative w-full md:w-[380px] lg:w-[410px] bg-white rounded-2xl p-5 sm:p-6 text-stone-900 shadow-2xl shrink-0 border-2 border-[#FF4B00]/25 overflow-hidden">
+              {/* Top brand saffron banner stripe */}
+              <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#FF4B00] via-[#FF7A33] to-[#FF4B00]" />
+
               {leadSubmitted ? (
                 <div className="text-center py-6">
-                  <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 grid place-items-center mx-auto mb-3">
-                    <Check className="w-6 h-6" />
+                  <div className="w-14 h-14 rounded-full bg-[#FFF0EB] border border-[#FF4B00]/30 text-[#FF4B00] grid place-items-center mx-auto mb-3 shadow-xs">
+                    <Check className="w-7 h-7 text-[#FF4B00]" />
                   </div>
-                  <h3 className="text-base font-bold text-stone-900">Inquiry Received!</h3>
-                  <p className="text-xs text-stone-500 mt-1">
-                    Our Kashmir & Himachal holiday specialist will connect with you on WhatsApp / call shortly.
+                  <h3 className="text-base font-bold text-stone-900">Callback Request Received!</h3>
+                  <p className="text-xs text-stone-600 mt-1.5">
+                    Our pilgrimage specialist will call or WhatsApp you at <b className="text-[#FF4B00]">{leadPhone}</b> shortly.
                   </p>
                   <button
                     type="button"
-                    onClick={() => setLeadSubmitted(false)}
-                    className="mt-4 text-xs text-stone-900 font-bold underline cursor-pointer"
+                    onClick={() => {
+                      setLeadSubmitted(false);
+                      setLeadPhone('');
+                      setLeadYatra('');
+                      setLeadNotes('');
+                    }}
+                    className="mt-4 px-4 py-2 rounded-xl bg-[#FFF0EB] hover:bg-[#FFE4D6] text-[#FF4B00] border border-[#FF4B00]/30 text-xs font-bold transition-all cursor-pointer"
                   >
-                    Submit Another Request
+                    Request Another Callback
                   </button>
                 </div>
               ) : (
-                <form onSubmit={handleCustomLeadSubmit} className="space-y-2.5">
-                  <b className="text-xs sm:text-sm font-bold text-stone-900 block">Get Custom Quote in 15 Mins</b>
+                <form onSubmit={handleCustomLeadSubmit} className="space-y-3 pt-1">
+                  <div className="flex items-center justify-between pb-2.5 border-b border-stone-100">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-xl bg-[#FFF0EB] border border-[#FF4B00]/30 text-[#FF4B00] flex items-center justify-center shrink-0 shadow-xs">
+                        <PhoneCall className="w-4 h-4 text-[#FF4B00]" />
+                      </div>
+                      <div>
+                        <b className="text-xs sm:text-sm font-black text-stone-900 block leading-tight">
+                          Request a Call Back
+                        </b>
+                        <span className="text-[10px] text-stone-500 font-medium">Yatra expert connects in 15 mins</span>
+                      </div>
+                    </div>
+                    <span className="px-2 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-[10px] font-extrabold flex items-center gap-1 shrink-0">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                      Online
+                    </span>
+                  </div>
 
                   <div>
-                    <label className="block text-[10px] font-bold uppercase text-stone-400 mb-1">Your Full Name</label>
+                    <label className="block text-[10.5px] font-black uppercase tracking-wider text-stone-800 mb-1 flex items-center gap-1">
+                      <User className="w-3.5 h-3.5 text-[#FF4B00]" />
+                      <span>Your Full Name</span>
+                      <span className="text-[#FF4B00] font-bold">*</span>
+                    </label>
                     <input
                       type="text"
                       required
                       value={leadName}
                       onChange={(e) => setLeadName(e.target.value)}
                       placeholder="e.g. Rahul Sharma"
-                      className="w-full px-3 py-1.5 sm:py-2 rounded-xl bg-stone-50 border border-stone-200 text-xs font-semibold focus:outline-stone-900"
+                      className="w-full px-3 py-2 rounded-xl bg-stone-50/80 border border-stone-200 text-xs font-semibold focus:bg-white focus:outline-none focus:border-[#FF4B00] focus:ring-2 focus:ring-[#FF4B00]/20 transition"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-[10px] font-bold uppercase text-stone-400 mb-1">WhatsApp / Phone Number</label>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="text-[10.5px] font-black uppercase tracking-wider text-stone-800 flex items-center gap-1">
+                        <Phone className="w-3.5 h-3.5 text-[#FF4B00]" />
+                        <span>WhatsApp / Phone Number</span>
+                        <span className="text-[#FF4B00] font-bold">*</span>
+                      </label>
+                      <span
+                        className={`text-[9.5px] font-bold px-2 py-0.5 rounded-full border flex items-center gap-1 transition select-none ${
+                          isValidPhone(leadPhone)
+                            ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
+                            : leadPhone.trim().length > 0
+                            ? 'bg-amber-50 text-amber-700 border-amber-300'
+                            : 'bg-[#FFF0EB] text-[#FF4B00] border-[#FF4B00]/30'
+                        }`}
+                      >
+                        {isValidPhone(leadPhone) ? (
+                          <>
+                            <Check className="w-3 h-3 text-emerald-600" />
+                            <span>Verified</span>
+                          </>
+                        ) : leadPhone.trim().length > 0 ? (
+                          <span>Min 10 Digits</span>
+                        ) : (
+                          <span>* Mandatory</span>
+                        )}
+                      </span>
+                    </div>
+                    <div className="relative">
+                      <input
+                        type="tel"
+                        required
+                        value={leadPhone}
+                        onChange={(e) => setLeadPhone(e.target.value)}
+                        placeholder="e.g. +91 98765 43210 (Mandatory)"
+                        className={`w-full px-3 py-2 rounded-xl bg-stone-50/80 border text-xs font-semibold focus:bg-white focus:outline-none transition ${
+                          isValidPhone(leadPhone)
+                            ? 'border-emerald-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20'
+                            : leadPhone.trim().length > 0
+                            ? 'border-amber-300 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20'
+                            : 'border-stone-200 focus:border-[#FF4B00] focus:ring-2 focus:ring-[#FF4B00]/20'
+                        }`}
+                      />
+                    </div>
+                    <p className="text-[10px] text-stone-500 mt-1 flex items-center gap-1">
+                      <MessageCircle className="w-3 h-3 text-[#25D366] shrink-0" />
+                      <span>Mandatory for callback. We will call or WhatsApp on this number.</span>
+                    </p>
+                  </div>
+
+                  {/* Pilgrimage / Yatra of Interest (Open text input, no dropdown options) */}
+                  <div>
+                    <label className="block text-[10.5px] font-black uppercase tracking-wider text-stone-800 mb-1 flex items-center gap-1">
+                      <Compass className="w-3.5 h-3.5 text-[#FF4B00]" />
+                      <span>Pilgrimage / Yatra of Interest</span>
+                      <span className="text-stone-400 font-normal normal-case ml-1">(Optional)</span>
+                    </label>
                     <input
-                      type="tel"
-                      required
-                      value={leadPhone}
-                      onChange={(e) => setLeadPhone(e.target.value)}
-                      placeholder="e.g. +91 98765 43210"
-                      className="w-full px-3 py-1.5 sm:py-2 rounded-xl bg-stone-50 border border-stone-200 text-xs font-semibold focus:outline-stone-900"
+                      type="text"
+                      value={leadYatra}
+                      onChange={(e) => setLeadYatra(e.target.value)}
+                      placeholder="e.g. Mata Vaishno Devi, Amarnath, Kedarnath, Char Dham..."
+                      className="w-full px-3 py-2 rounded-xl bg-stone-50/80 border border-stone-200 text-xs font-semibold focus:bg-white focus:outline-none focus:border-[#FF4B00] focus:ring-2 focus:ring-[#FF4B00]/20 transition"
+                    />
+                  </div>
+
+                  {/* Requirements / Query (Open text area, no options) */}
+                  <div>
+                    <label className="block text-[10.5px] font-black uppercase tracking-wider text-stone-800 mb-1 flex items-center gap-1">
+                      <FileText className="w-3.5 h-3.5 text-[#FF4B00]" />
+                      <span>Your Query or Requirements</span>
+                      <span className="text-stone-400 font-normal normal-case ml-1">(Optional)</span>
+                    </label>
+                    <textarea
+                      rows={2}
+                      value={leadNotes}
+                      onChange={(e) => setLeadNotes(e.target.value)}
+                      placeholder="e.g. Need helicopter ticket guidance, senior citizen darshan, tentative dates..."
+                      className="w-full px-3 py-2 rounded-xl bg-stone-50/80 border border-stone-200 text-xs font-semibold focus:bg-white focus:outline-none focus:border-[#FF4B00] focus:ring-2 focus:ring-[#FF4B00]/20 transition resize-none"
                     />
                   </div>
 
@@ -993,104 +1113,29 @@ export const LuxuryHomepage: React.FC = () => {
                     id="homepage-lead-email"
                     value={leadEmail}
                     onChange={(val) => setLeadEmail(val)}
-                    label="Email Address (Verification Step)"
-                    placeholder="e.g. yourname@gmail.com"
-                    required
-                    helperText="Required to enable quote submission and sync quotes to your traveler profile."
-                    inputClassName="bg-stone-50 border-stone-200 py-2"
+                    label="Email Address"
+                    placeholder="e.g. yourname@gmail.com (Optional)"
+                    required={false}
+                    helperText="Optional: To receive yatra itinerary copy on email."
+                    inputClassName="bg-stone-50/80 border-stone-200 py-2 text-xs"
                   />
-
-                  <div className="grid grid-cols-2 gap-2">
-                    <div>
-                      <label className="block text-[10px] font-bold uppercase text-stone-400 mb-1">Destination</label>
-                      <select
-                        value={leadDest}
-                        onChange={(e) => setLeadDest(e.target.value)}
-                        className="w-full px-2.5 py-1.5 sm:py-2 rounded-xl bg-stone-50 border border-stone-200 text-xs font-semibold focus:outline-stone-900 cursor-pointer"
-                      >
-                        <option value="Jammu & Kashmir">Jammu & Kashmir</option>
-                        <option value="Himachal Pradesh">Himachal Pradesh</option>
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="block text-[10px] font-bold uppercase text-stone-400 mb-1">Hotel Category</label>
-                      <select
-                        value={leadTier}
-                        onChange={(e) => setLeadTier(e.target.value as any)}
-                        className="w-full px-2.5 py-1.5 sm:py-2 rounded-xl bg-stone-50 border border-stone-200 text-xs font-semibold focus:outline-stone-900 cursor-pointer"
-                      >
-                        <option value="3_star">3★ Deluxe</option>
-                        <option value="4_star">4★ Super Deluxe</option>
-                        <option value="5_star">5★ Luxury</option>
-                        <option value="2_star">2★ Standard</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  {/* Travelers Count Stepper */}
-                  <div className="grid grid-cols-2 gap-2 mt-2">
-                    <div>
-                      <label className="block text-[10px] font-bold uppercase text-stone-400 mb-1">Adults</label>
-                      <div className="flex items-center justify-between px-2 py-1.5 rounded-xl bg-stone-50 border border-stone-200">
-                        <button type="button" onClick={() => setLeadAdults(Math.max(1, leadAdults - 1))} className="w-7 h-7 rounded-lg bg-white border border-stone-200 text-stone-600 flex items-center justify-center hover:bg-stone-100 transition shadow-2xs cursor-pointer">
-                          -
-                        </button>
-                        <span className="text-xs font-black text-stone-900">{leadAdults}</span>
-                        <button type="button" onClick={() => setLeadAdults(leadAdults + 1)} className="w-7 h-7 rounded-lg bg-white border border-stone-200 text-stone-600 flex items-center justify-center hover:bg-stone-100 transition shadow-2xs cursor-pointer">
-                          +
-                        </button>
-                      </div>
-                    </div>
-                    <div>
-                      <label className="block text-[10px] font-bold uppercase text-stone-400 mb-1">Children</label>
-                      <div className="flex items-center justify-between px-2 py-1.5 rounded-xl bg-stone-50 border border-stone-200">
-                        <button type="button" onClick={() => setLeadChildren(Math.max(0, leadChildren - 1))} className="w-7 h-7 rounded-lg bg-white border border-stone-200 text-stone-600 flex items-center justify-center hover:bg-stone-100 transition shadow-2xs cursor-pointer">
-                          -
-                        </button>
-                        <span className="text-xs font-black text-stone-900">{leadChildren}</span>
-                        <button type="button" onClick={() => setLeadChildren(leadChildren + 1)} className="w-7 h-7 rounded-lg bg-white border border-stone-200 text-stone-600 flex items-center justify-center hover:bg-stone-100 transition shadow-2xs cursor-pointer">
-                          +
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Preferred Budget Slider */}
-                  <div className="mt-2 pt-1 pb-1">
-                    <div className="flex items-center justify-between mb-2">
-                      <label className="block text-[10px] font-bold uppercase text-stone-400">Preferred Budget</label>
-                      <span className="text-[11px] font-black text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-md border border-emerald-200 shadow-2xs">
-                        ₹ {leadBudget >= 200000 ? '2,00,000+' : leadBudget.toLocaleString('en-IN')}
-                      </span>
-                    </div>
-                    <input
-                      type="range"
-                      min="10000"
-                      max="200000"
-                      step="5000"
-                      value={leadBudget}
-                      onChange={(e) => setLeadBudget(Number(e.target.value))}
-                      className="w-full h-1.5 bg-stone-200 rounded-lg appearance-none cursor-pointer accent-emerald-600"
-                    />
-                    <div className="flex justify-between mt-1.5">
-                      <span className="text-[9px] font-bold text-stone-400">₹10K</span>
-                      <span className="text-[9px] font-bold text-stone-400">₹2L+</span>
-                    </div>
-                  </div>
 
                   <div>
                     <button
                       type="submit"
                       disabled={!isLeadFormValid}
-                      className="w-full py-3 rounded-xl bg-[#FF4B00] hover:bg-[#E04200] disabled:bg-stone-300 disabled:border-stone-300 disabled:cursor-not-allowed disabled:hover:bg-stone-300 text-white border border-[#FF4B00] text-xs font-black transition shadow-md cursor-pointer mt-3 flex items-center justify-center gap-2"
+                      className="w-full py-3 rounded-xl bg-[#FF4B00] hover:bg-[#E04200] active:scale-[0.99] disabled:bg-stone-200 disabled:border-stone-200 disabled:text-stone-400 disabled:cursor-not-allowed text-white border border-[#FF4B00] text-xs font-black transition-all shadow-md shadow-[#FF4B00]/25 hover:shadow-lg hover:shadow-[#FF4B00]/35 cursor-pointer mt-2 flex items-center justify-center gap-2"
                     >
-                      <Sparkles className="w-3.5 h-3.5 text-white" />
-                      <span>Request Free Custom Quote</span>
+                      <PhoneCall className="w-3.5 h-3.5 text-white" />
+                      <span>Request Instant Callback</span>
                     </button>
-                    {!isValidEmail(leadEmail) && (
+                    {!isValidPhone(leadPhone) ? (
+                      <p className="text-[10px] text-center text-[#FF4B00] mt-1.5 font-bold">
+                        * Enter a valid 10-digit WhatsApp or Phone number to enable callback.
+                      </p>
+                    ) : (
                       <p className="text-[10px] text-center text-stone-500 mt-1.5 font-medium">
-                        * Enter a correctly formatted email address above to enable the submission button.
+                        ✓ Free callback within 15 minutes • 100% privacy protected
                       </p>
                     )}
                   </div>
@@ -1102,9 +1147,6 @@ export const LuxuryHomepage: React.FC = () => {
 
         {/* Frequently Asked Questions (FAQ) Section */}
         <FaqSection />
-
-        {/* Compact Google Rating Card */}
-        <TravelerReviewsSection />
         </PullToRefresh>
       </main>
 

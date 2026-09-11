@@ -263,7 +263,7 @@ export const PremiumPackageDetail: React.FC<Props> = ({ pkg, onBack }) => {
   const handleDownloadPDF = async () => {
     try {
       setDownloadingPdf(true);
-      await generateTourPDF(pkg, agencySettings, undefined, selectedTier);
+      await generateTourPDF(pkg, agencySettings);
     } catch (err) {
       console.error(err);
     } finally {
@@ -640,23 +640,7 @@ export const PremiumPackageDetail: React.FC<Props> = ({ pkg, onBack }) => {
 
             {/* Tour details: Flight Details | Accommodation Details | Reporting & Dropping */}
             <div id="tour-details" className="w-full min-w-0 max-w-full">
-              <TourDetailsSection
-                pkg={pkg}
-                selectedTier={
-                  selectedTier === '3_star'
-                    ? 'star3'
-                    : selectedTier === '4_star'
-                    ? 'star4'
-                    : selectedTier === '5_star'
-                    ? 'star5'
-                    : 'star3'
-                }
-                onSelectTier={(t) => {
-                  if (t === 'star3') setSelectedTier('3_star');
-                  else if (t === 'star4') setSelectedTier('4_star');
-                  else if (t === 'star5') setSelectedTier('5_star');
-                }}
-              />
+              <TourDetailsSection pkg={pkg} />
             </div>
           </div>
 

@@ -47,7 +47,6 @@ export const InquiryModal: React.FC<InquiryModalProps> = ({
   const [adults, setAdults] = useState(initialAdults);
   const [children, setChildren] = useState(initialChildren);
   const [specialRequests, setSpecialRequests] = useState('');
-  const [hotelCategoryPref, setHotelCategoryPref] = useState('4-Star / 5-Star Luxury');
   const [submitted, setSubmitted] = useState(false);
   const [submittedInquiryId, setSubmittedInquiryId] = useState('');
 
@@ -72,7 +71,7 @@ export const InquiryModal: React.FC<InquiryModalProps> = ({
       travelDate,
       adults,
       children,
-      specialRequests: `[Hotel Pref: ${hotelCategoryPref}] ${specialRequests}`.trim(),
+      specialRequests: specialRequests.trim(),
       status: 'New' as const,
       estimatedTotal: 0,
     };
@@ -83,17 +82,16 @@ export const InquiryModal: React.FC<InquiryModalProps> = ({
   };
 
   const getWhatsAppMessage = () => {
-    const text = `Hi ${agencySettings.agencyName}! 👋
-I would like to request a custom price quote for:
+    const text = `Hi ${agencySettings.agencyName}! 🙏
+I would like to inquire about the pilgrimage package:
 📌 *${pkg.title}* (${pkg.durationDays}D / ${pkg.durationNights}N)
 📅 Travel Date: ${travelDate}
-👥 Travelers: ${adults} Adults, ${children} Children
-🏨 Hotel Preference: ${hotelCategoryPref}
+👥 Devotees/Travelers: ${adults} Adults, ${children} Children
 👤 Name: ${travelerName}
 📱 Phone: ${phone}
-${specialRequests ? `📝 Notes: ${specialRequests}` : ''}
+${specialRequests ? `📝 Special Requests: ${specialRequests}` : ''}
 
-Please share the custom itinerary quote and best available rates!`;
+Please share the complete pilgrimage itinerary, darshan assistance details, and package rates!`;
 
     const cleanNum = (agencySettings?.whatsapp || '').replace(/[^0-9]/g, '');
     return `https://wa.me/${cleanNum}?text=${encodeURIComponent(text)}`;
@@ -302,29 +300,13 @@ Please share the custom itinerary quote and best available rates!`;
 
               <div>
                 <label className="font-bold text-slate-700 block mb-1">
-                  Preferred Hotel Tier
-                </label>
-                <select
-                  value={hotelCategoryPref}
-                  onChange={(e) => setHotelCategoryPref(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 focus:bg-white focus:border-brand focus:outline-hidden font-medium"
-                >
-                  <option value="5-Star Ultra Luxury Resort">5-Star Ultra Luxury Resort</option>
-                  <option value="4-Star / 5-Star Luxury">4-Star / 5-Star Luxury</option>
-                  <option value="4-Star Premium">4-Star Premium</option>
-                  <option value="3-Star Standard / Boutique">3-Star Standard / Boutique</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="font-bold text-slate-700 block mb-1">
-                  Custom Requirements / Flight Requests (Optional)
+                  Custom Requirements / Special Requests (Optional)
                 </label>
                 <textarea
                   rows={2}
                   value={specialRequests}
                   onChange={(e) => setSpecialRequests(e.target.value)}
-                  placeholder="e.g. VIP darshan assistance, senior citizen support, meal preferences, airport pick up..."
+                  placeholder="e.g. VIP darshan assistance, senior citizen support, sattvic meal preferences, railway/airport pick up..."
                   className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 focus:bg-white focus:border-brand focus:outline-hidden"
                 />
               </div>

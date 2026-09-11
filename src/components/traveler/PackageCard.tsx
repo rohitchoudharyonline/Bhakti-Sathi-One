@@ -28,7 +28,6 @@ interface PackageCardProps {
 export const PackageCard: React.FC<PackageCardProps> = ({ pkg, onSelect, onQuickBook }) => {
   const { agencySettings, toggleWishlist, isWishlisted } = useTours();
   const [showPdfModal, setShowPdfModal] = useState(false);
-  const [selectedTier, setSelectedTier] = useState<string>('star3');
   const isSaved = isWishlisted(pkg.id);
 
   const getBadgeColor = (badge?: string) => {
@@ -46,15 +45,9 @@ export const PackageCard: React.FC<PackageCardProps> = ({ pkg, onSelect, onQuick
     }
   };
 
-  const tiers = pkg.pricingTiers;
-  let activeTierObj: any = null;
-  if (tiers) {
-    activeTierObj = (tiers as any)[selectedTier];
-  }
-
-  const rawBasePrice = activeTierObj ? activeTierObj.price : pkg.price;
-  const rawDiscountPrice = activeTierObj ? activeTierObj.discountedPrice : pkg.discountedPrice;
-  const isTierPriceOnRequest = activeTierObj?.priceOnRequest || pkg.priceOnRequest;
+  const rawBasePrice = pkg.price;
+  const rawDiscountPrice = pkg.discountedPrice;
+  const isTierPriceOnRequest = pkg.priceOnRequest;
 
   const priceResult = formatPackagePrice(
     rawBasePrice,
@@ -200,37 +193,6 @@ export const PackageCard: React.FC<PackageCardProps> = ({ pkg, onSelect, onQuick
                 </div>
               )}
             </div>
-
-            {/* Hotel Star Options Selector (If package has explicit tiers) */}
-            {tiers && (
-              <div className="mb-2.5 pt-2 border-t border-stone-100 flex items-center justify-between">
-                <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider">
-                  Hotel:
-                </span>
-                <div className="flex items-center gap-1">
-                  {[
-                    { key: 'star3', label: '3★' },
-                    { key: 'star4', label: '4★' },
-                    { key: 'star5', label: '5★' },
-                  ]
-                    .filter((t) => !!(tiers as any)[t.key])
-                    .map((tier) => (
-                      <button
-                        key={tier.key}
-                        type="button"
-                        onClick={() => setSelectedTier(tier.key)}
-                        className={`px-2 py-0.5 rounded text-[11px] font-black transition cursor-pointer text-center ${
-                          selectedTier === tier.key
-                            ? 'bg-stone-900 text-white shadow-2xs'
-                            : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
-                        }`}
-                      >
-                        {tier.label}
-                      </button>
-                    ))}
-                </div>
-              </div>
-            )}
           </div>
 
           {/* Pricing & CTA Buttons */}

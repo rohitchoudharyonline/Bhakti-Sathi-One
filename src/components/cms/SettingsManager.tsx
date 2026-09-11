@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTours } from '../../context/TourContext';
-import { AgencySettings, FAQItem, FooterMenuSection, FooterMenuItem } from '../../types/tour';
+import { AgencySettings, FAQItem, FooterMenuSection, FooterMenuItem, MobileBottomNavItem } from '../../types/tour';
+import { DEFAULT_BOTTOM_NAV_ITEMS } from '../../data/defaultPackages';
 import {
   Save,
   Building,
@@ -19,12 +20,31 @@ import {
   ArrowUp,
   ArrowDown,
   Link,
+  Smartphone,
+  Compass,
+  Luggage,
+  MessageCircle,
+  Star,
+  Info,
+  Globe,
+  Trash2,
+  Edit2,
+  ToggleLeft,
+  ToggleRight,
+  Sparkles,
+  Eye,
 } from 'lucide-react';
 
-export const SettingsManager: React.FC = () => {
+export const SettingsManager: React.FC<{ initialTab?: 'branding' | 'faqs' | 'footer' }> = ({ initialTab = 'branding' }) => {
   const { agencySettings, updateAgencySettings, packages, resetToDefaults } = useTours();
 
-  const [activeTab, setActiveTab] = useState<'branding' | 'faqs' | 'footer'>('branding');
+  const [activeTab, setActiveTab] = useState<'branding' | 'faqs' | 'footer'>(initialTab);
+
+  useEffect(() => {
+    if (initialTab) {
+      setActiveTab(initialTab);
+    }
+  }, [initialTab]);
   const [form, setForm] = useState<AgencySettings>({
     ...agencySettings,
     faqs: agencySettings.faqs || [
@@ -120,11 +140,15 @@ export const SettingsManager: React.FC = () => {
           { id: 'fmi-sec', label: '100% Verified Stays', url: 'security' }
         ]
       }
-    ]
+    ],
+    bottomNavItems: agencySettings.bottomNavItems || DEFAULT_BOTTOM_NAV_ITEMS
   });
 
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [importStatus, setImportStatus] = useState('');
+
+  // Subtab for Bottom Menus Manager
+  const [bottomMenuSubTab, setBottomMenuSubTab] = useState<'footer' | 'mobile-nav'>('footer');
 
   // FAQ addition temp state
   const [newFaqQuestion, setNewFaqQuestion] = useState('');
@@ -135,6 +159,17 @@ export const SettingsManager: React.FC = () => {
   const [newLinkLabel, setNewLinkLabel] = useState('');
   const [newLinkUrl, setNewLinkUrl] = useState('');
   const [selectedSectionId, setSelectedSectionId] = useState('');
+
+  // Inline quick add for a specific footer column
+  const [inlineAddSectionId, setInlineAddSectionId] = useState<string | null>(null);
+  const [inlineLinkLabel, setInlineLinkLabel] = useState('');
+  const [inlineLinkUrl, setInlineLinkUrl] = useState('');
+
+  // Mobile bottom nav addition temp state
+  const [newNavLabel, setNewNavLabel] = useState('');
+  const [newNavIcon, setNewNavIcon] = useState<'home' | 'tours' | 'destinations' | 'chat' | 'phone' | 'compass' | 'star' | 'info' | 'custom'>('home');
+  const [newNavAction, setNewNavAction] = useState<'home' | 'tours' | 'destinations' | 'whatsapp' | 'call' | 'custom'>('home');
+  const [newNavUrl, setNewNavUrl] = useState('');
 
   const handleSaveAll = () => {
     updateAgencySettings(form);
@@ -202,7 +237,7 @@ export const SettingsManager: React.FC = () => {
     setForm({ ...form, faqs: updated });
   };
 
-  // Footer Menu CRUD Helpers
+  // Footer Menu CRUD Helpers with immediate sync
   const addFooterSection = () => {
     if (!newSectionTitle.trim()) return;
     const newSection: FooterMenuSection = {
@@ -211,21 +246,32 @@ export const SettingsManager: React.FC = () => {
       items: []
     };
     const updated = [...(form.footerMenus || []), newSection];
-    setForm({ ...form, footerMenus: updated });
+    const updatedForm = { ...form, footerMenus: updated };
+    setForm(updatedForm);
+    updateAgencySettings(updatedForm);
     setNewSectionTitle('');
+    setSaveSuccess(true);
+    setTimeout(() => setSaveSuccess(false), 2500);
   };
 
   const deleteFooterSection = (sectionId: string) => {
     const updated = (form.footerMenus || []).filter(sec => sec.id !== sectionId);
-    setForm({ ...form, footerMenus: updated });
+    const updatedForm = { ...form, footerMenus: updated };
+    setForm(updatedForm);
+    updateAgencySettings(updatedForm);
+    setSaveSuccess(true);
+    setTimeout(() => setSaveSuccess(false), 2500);
   };
 
-  const addFooterLink = (sectionId: string) => {
-    if (!newLinkLabel.trim() || !newLinkUrl.trim()) return;
+  const addFooterLink = (sectionId: string, label?: string, url?: string) => {
+    const linkText = (label !== undefined ? label : newLinkLabel).trim();
+    const linkHref = (url !== undefined ? url : newLinkUrl).trim();
+    if (!linkText || !linkHref) return;
+
     const newLink: FooterMenuItem = {
       id: `fmi-${Date.now()}`,
-      label: newLinkLabel.trim(),
-      url: newLinkUrl.trim()
+      label: linkText,
+      url: linkHref
     };
     const updated = (form.footerMenus || []).map(sec => {
       if (sec.id === sectionId) {
@@ -233,10 +279,17 @@ export const SettingsManager: React.FC = () => {
       }
       return sec;
     });
-    setForm({ ...form, footerMenus: updated });
+    const updatedForm = { ...form, footerMenus: updated };
+    setForm(updatedForm);
+    updateAgencySettings(updatedForm);
     setNewLinkLabel('');
     setNewLinkUrl('');
     setSelectedSectionId('');
+    setInlineAddSectionId(null);
+    setInlineLinkLabel('');
+    setInlineLinkUrl('');
+    setSaveSuccess(true);
+    setTimeout(() => setSaveSuccess(false), 2500);
   };
 
   const deleteFooterLink = (sectionId: string, linkId: string) => {
@@ -246,7 +299,66 @@ export const SettingsManager: React.FC = () => {
       }
       return sec;
     });
-    setForm({ ...form, footerMenus: updated });
+    const updatedForm = { ...form, footerMenus: updated };
+    setForm(updatedForm);
+    updateAgencySettings(updatedForm);
+    setSaveSuccess(true);
+    setTimeout(() => setSaveSuccess(false), 2500);
+  };
+
+  // Mobile Bottom Navigation CRUD Helpers with immediate sync
+  const addBottomNavItem = () => {
+    if (!newNavLabel.trim()) return;
+    const current = form.bottomNavItems || DEFAULT_BOTTOM_NAV_ITEMS;
+    const newItem: MobileBottomNavItem = {
+      id: `nav-${Date.now()}`,
+      label: newNavLabel.trim(),
+      icon: newNavIcon,
+      actionType: newNavAction,
+      url: newNavUrl.trim() || undefined,
+      enabled: true
+    };
+    const updated = [...current, newItem];
+    const updatedForm = { ...form, bottomNavItems: updated };
+    setForm(updatedForm);
+    updateAgencySettings(updatedForm);
+    setNewNavLabel('');
+    setNewNavUrl('');
+    setSaveSuccess(true);
+    setTimeout(() => setSaveSuccess(false), 2500);
+  };
+
+  const deleteBottomNavItem = (id: string) => {
+    const current = form.bottomNavItems || DEFAULT_BOTTOM_NAV_ITEMS;
+    const updated = current.filter(item => item.id !== id);
+    const updatedForm = { ...form, bottomNavItems: updated };
+    setForm(updatedForm);
+    updateAgencySettings(updatedForm);
+    setSaveSuccess(true);
+    setTimeout(() => setSaveSuccess(false), 2500);
+  };
+
+  const toggleBottomNavItem = (id: string) => {
+    const current = form.bottomNavItems || DEFAULT_BOTTOM_NAV_ITEMS;
+    const updated = current.map(item => {
+      if (item.id === id) {
+        return { ...item, enabled: !item.enabled };
+      }
+      return item;
+    });
+    const updatedForm = { ...form, bottomNavItems: updated };
+    setForm(updatedForm);
+    updateAgencySettings(updatedForm);
+    setSaveSuccess(true);
+    setTimeout(() => setSaveSuccess(false), 2000);
+  };
+
+  const resetBottomNavToDefault = () => {
+    const updatedForm = { ...form, bottomNavItems: DEFAULT_BOTTOM_NAV_ITEMS };
+    setForm(updatedForm);
+    updateAgencySettings(updatedForm);
+    setSaveSuccess(true);
+    setTimeout(() => setSaveSuccess(false), 2500);
   };
 
   return (
@@ -284,7 +396,7 @@ export const SettingsManager: React.FC = () => {
           }`}
         >
           <Menu className="w-4 h-4" />
-          Footer Menus Manager
+          Bottom Menus & Footer Manager
         </button>
       </div>
 
@@ -521,182 +633,556 @@ export const SettingsManager: React.FC = () => {
         </div>
       )}
 
-      {/* Tab Content 3: Footer Menus */}
+      {/* Tab Content 3: Bottom Menus & Footer Manager */}
       {activeTab === 'footer' && (
         <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-2xs space-y-6">
-          <div className="pb-4 border-b border-slate-100 flex items-center justify-between">
+          {/* Header & Sub-Tabs */}
+          <div className="pb-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <h3 className="text-base font-black text-slate-900 flex items-center gap-2">
-                <Menu className="w-4 h-4 text-brand" />
-                Footer Column Menus Builder
+                <Menu className="w-5 h-5 text-brand" />
+                Bottom Menus & Footer Navigation Manager
               </h3>
               <p className="text-xs text-slate-500 mt-0.5">
-                Customize structural columns and link navigation items in the main footer. Supports target pages and absolute external URLs.
+                Add, edit, or delete options from your website footer columns and the mobile bottom navigation bar.
               </p>
             </div>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handleSaveAll}
+                className="px-4 py-2 bg-brand hover:bg-brand-dark text-white text-xs font-bold rounded-xl shadow-xs flex items-center gap-1.5 transition cursor-pointer"
+              >
+                <Save className="w-4 h-4" />
+                Save Bottom Menus
+              </button>
+            </div>
+          </div>
+
+          {/* Subtabs Selector */}
+          <div className="flex items-center gap-2 border-b border-slate-200 pb-2">
             <button
-              onClick={handleSaveAll}
-              className="px-4 py-2 bg-brand hover:bg-brand-dark text-white text-xs font-bold rounded-xl shadow-xs flex items-center gap-1.5 transition cursor-pointer"
+              type="button"
+              onClick={() => setBottomMenuSubTab('footer')}
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer ${
+                bottomMenuSubTab === 'footer'
+                  ? 'bg-slate-900 text-white shadow-xs'
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+              }`}
             >
-              <Save className="w-4 h-4" />
-              Save Footer
+              <Menu className="w-3.5 h-3.5" />
+              Footer Multi-Column Menus ({form.footerMenus?.length || 0})
+            </button>
+            <button
+              type="button"
+              onClick={() => setBottomMenuSubTab('mobile-nav')}
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer ${
+                bottomMenuSubTab === 'mobile-nav'
+                  ? 'bg-slate-900 text-white shadow-xs'
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+              }`}
+            >
+              <Smartphone className="w-3.5 h-3.5" />
+              Mobile Bottom Navigation Bar ({form.bottomNavItems?.length || 0})
             </button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            
-            {/* Left: Add Column Section & Add Link Controls */}
-            <div className="space-y-6">
+          {/* SUBTAB 1: FOOTER MULTI-COLUMN MENUS */}
+          {bottomMenuSubTab === 'footer' && (
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
               
-              {/* Add Column Section Card */}
-              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
-                <h4 className="text-xs font-black text-slate-800 flex items-center gap-1.5">
-                  <Plus className="w-4 h-4 text-emerald-600" /> Create New Column Column Section
-                </h4>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    placeholder="Column Title (e.g. QUICK LINKS)"
-                    value={newSectionTitle}
-                    onChange={(e) => setNewSectionTitle(e.target.value)}
-                    className="flex-1 text-xs font-extrabold bg-white border border-slate-200 rounded-xl px-3 py-2.5 focus:border-brand focus:outline-hidden"
-                  />
-                  <button
-                    type="button"
-                    onClick={addFooterSection}
-                    className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition cursor-pointer"
-                  >
-                    Create
-                  </button>
-                </div>
-              </div>
-
-              {/* Add Link Card */}
-              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
-                <h4 className="text-xs font-black text-slate-800 flex items-center gap-1.5">
-                  <Plus className="w-4 h-4 text-indigo-600" /> Add Link to Column Section
-                </h4>
-                <div className="space-y-2">
-                  <select
-                    value={selectedSectionId}
-                    onChange={(e) => setSelectedSectionId(e.target.value)}
-                    className="w-full text-xs font-bold bg-white border border-slate-200 rounded-xl px-3 py-2.5 focus:outline-hidden"
-                  >
-                    <option value="">-- Select Destination Column --</option>
-                    {(form.footerMenus || []).map(sec => (
-                      <option key={sec.id} value={sec.id}>{sec.title}</option>
-                    ))}
-                  </select>
-
-                  <input
-                    type="text"
-                    placeholder="Link Display Text (e.g. About Bhakti Sathi)"
-                    value={newLinkLabel}
-                    onChange={(e) => setNewLinkLabel(e.target.value)}
-                    className="w-full text-xs font-semibold bg-white border border-slate-200 rounded-xl px-3 py-2 focus:border-brand focus:outline-hidden"
-                  />
-
-                  <div>
+              {/* Left Column (5 Cols): Add Column & Add Link Controls */}
+              <div className="lg:col-span-5 space-y-6">
+                
+                {/* Add Column Section Card */}
+                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
+                  <h4 className="text-xs font-black text-slate-800 flex items-center gap-1.5">
+                    <Plus className="w-4 h-4 text-emerald-600" /> Create New Footer Column
+                  </h4>
+                  <p className="text-[11px] text-slate-500">
+                    Add a new vertical category list in the footer (e.g., SACRED YATRAS, QUICK LINKS, TEMPLE GUIDES).
+                  </p>
+                  <div className="flex gap-2">
                     <input
                       type="text"
-                      placeholder="Link Target URL / Slug (e.g. sitemap, about, terms, or https://...)"
-                      value={newLinkUrl}
-                      onChange={(e) => setNewLinkUrl(e.target.value)}
-                      className="w-full text-xs bg-white border border-slate-200 rounded-xl px-3 py-2 focus:border-brand focus:outline-hidden"
+                      placeholder="Column Title (e.g. SACRED YATRAS)"
+                      value={newSectionTitle}
+                      onChange={(e) => setNewSectionTitle(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          addFooterSection();
+                        }
+                      }}
+                      className="flex-1 text-xs font-extrabold bg-white border border-slate-200 rounded-xl px-3 py-2.5 focus:border-brand focus:outline-hidden"
                     />
-                    <div className="flex flex-wrap gap-1 mt-1.5">
-                      <span className="text-[9.5px] font-bold text-slate-500 mr-1 self-center">Quick Presets:</span>
-                      {[
-                        { label: 'Sitemap', url: 'sitemap' },
-                        { label: 'About us', url: 'about' },
-                        { label: 'Contact us', url: 'locate_us' },
-                        { label: 'Guide Hub', url: 'guide' },
-                        { label: 'FAQ', url: 'faq' },
-                        { label: 'Careers', url: 'careers' },
-                        { label: 'Reviews', url: 'reviews' },
-                        { label: 'Terms', url: 'terms' },
-                        { label: 'Privacy', url: 'privacy' },
-                        { label: 'Panchang', url: '/panchang' },
-                        { label: 'Rashifal', url: '/rashifal' },
-                      ].map((preset) => (
-                        <button
-                          key={preset.url}
-                          type="button"
-                          onClick={() => {
-                            setNewLinkLabel(preset.label);
-                            setNewLinkUrl(preset.url);
-                          }}
-                          className="px-1.5 py-0.5 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-700 text-[9.5px] font-semibold text-slate-600 rounded border border-slate-200 transition cursor-pointer"
-                        >
-                          + {preset.label}
-                        </button>
-                      ))}
-                    </div>
+                    <button
+                      type="button"
+                      onClick={addFooterSection}
+                      className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition cursor-pointer flex items-center gap-1"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      Add
+                    </button>
                   </div>
+                </div>
 
-                  <button
-                    type="button"
-                    disabled={!selectedSectionId}
-                    onClick={() => addFooterLink(selectedSectionId)}
-                    className={`w-full py-2 px-4 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
-                      selectedSectionId ? 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-xs' : 'bg-slate-200 text-slate-400 cursor-not-allowed'
-                    }`}
-                  >
-                    <Plus className="w-4 h-4" /> Add Link
-                  </button>
+                {/* Add Link Card */}
+                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
+                  <h4 className="text-xs font-black text-slate-800 flex items-center gap-1.5">
+                    <Plus className="w-4 h-4 text-brand" /> Add Menu Link Option
+                  </h4>
+                  <div className="space-y-2.5">
+                    <div>
+                      <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">Target Column</label>
+                      <select
+                        value={selectedSectionId}
+                        onChange={(e) => setSelectedSectionId(e.target.value)}
+                        className="w-full text-xs font-bold bg-white border border-slate-200 rounded-xl px-3 py-2.5 focus:outline-hidden"
+                      >
+                        <option value="">-- Choose Column to Add To --</option>
+                        {(form.footerMenus || []).map(sec => (
+                          <option key={sec.id} value={sec.id}>{sec.title} ({sec.items.length} links)</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">Option Display Name</label>
+                      <input
+                        type="text"
+                        placeholder="e.g. Vaishno Devi Yatra, About Us, Terms"
+                        value={newLinkLabel}
+                        onChange={(e) => setNewLinkLabel(e.target.value)}
+                        className="w-full text-xs font-semibold bg-white border border-slate-200 rounded-xl px-3 py-2 focus:border-brand focus:outline-hidden"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">Target URL or Page Slug</label>
+                      <input
+                        type="text"
+                        placeholder="e.g. pilgrimage, about, faq, or https://..."
+                        value={newLinkUrl}
+                        onChange={(e) => setNewLinkUrl(e.target.value)}
+                        className="w-full text-xs bg-white border border-slate-200 rounded-xl px-3 py-2 focus:border-brand focus:outline-hidden"
+                      />
+                      <div className="flex flex-wrap gap-1 mt-2">
+                        <span className="text-[9.5px] font-bold text-slate-500 mr-1 self-center">Quick Presets:</span>
+                        {[
+                          { label: 'All Packages', url: 'packages' },
+                          { label: 'Destinations', url: 'destinations' },
+                          { label: 'Sitemap', url: 'sitemap' },
+                          { label: 'About Us', url: 'about' },
+                          { label: 'Contact Us', url: 'locate_us' },
+                          { label: 'Guide Hub', url: 'guide' },
+                          { label: 'FAQ', url: 'faq' },
+                          { label: 'Careers', url: 'careers' },
+                          { label: 'Terms', url: 'terms' },
+                          { label: 'Privacy', url: 'privacy' },
+                          { label: 'Panchang', url: '/panchang' },
+                          { label: 'Rashifal', url: '/rashifal' },
+                        ].map((preset) => (
+                          <button
+                            key={preset.url}
+                            type="button"
+                            onClick={() => {
+                              setNewLinkLabel(preset.label);
+                              setNewLinkUrl(preset.url);
+                            }}
+                            className="px-2 py-0.5 bg-white hover:bg-brand/10 hover:text-brand text-[9.5px] font-semibold text-slate-600 rounded-md border border-slate-200 transition cursor-pointer"
+                          >
+                            + {preset.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      disabled={!selectedSectionId || !newLinkLabel.trim() || !newLinkUrl.trim()}
+                      onClick={() => addFooterLink(selectedSectionId)}
+                      className={`w-full py-2.5 px-4 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
+                        selectedSectionId && newLinkLabel.trim() && newLinkUrl.trim()
+                          ? 'bg-brand hover:bg-brand-dark text-white shadow-xs'
+                          : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                      }`}
+                    >
+                      <Plus className="w-4 h-4" /> Add Link Option
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Right: Live Preview Columns List with delete */}
-            <div className="space-y-4">
-              <h4 className="text-xs font-black text-slate-800 uppercase tracking-wider">Live Footer Columns Configuration</h4>
-              
-              {form.footerMenus && form.footerMenus.length > 0 ? (
-                <div className="space-y-4">
-                  {form.footerMenus.map(section => (
-                    <div key={section.id} className="border border-slate-200 rounded-2xl p-4 bg-slate-50/30">
-                      <div className="flex items-center justify-between pb-2 border-b border-slate-100 mb-3">
-                        <span className="text-xs font-extrabold text-slate-800 uppercase tracking-widest">{section.title}</span>
-                        <button
-                          type="button"
-                          onClick={() => deleteFooterSection(section.id)}
-                          className="text-[10px] font-bold text-rose-600 hover:text-rose-800 px-2 py-1 rounded bg-rose-50"
-                        >
-                          Remove Section
-                        </button>
-                      </div>
+              {/* Right Column (7 Cols): Live Footer Columns with Delete Controls */}
+              <div className="lg:col-span-7 space-y-4">
+                <div className="flex items-center justify-between pb-1">
+                  <h4 className="text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                    <Menu className="w-4 h-4 text-slate-500" />
+                    Active Footer Columns ({form.footerMenus?.length || 0})
+                  </h4>
+                  <span className="text-[11px] font-medium text-slate-500">
+                    Changes are saved automatically
+                  </span>
+                </div>
+                
+                {form.footerMenus && form.footerMenus.length > 0 ? (
+                  <div className="space-y-4">
+                    {form.footerMenus.map(section => (
+                      <div key={section.id} className="border border-slate-200 rounded-2xl p-4 bg-slate-50/50 hover:bg-white hover:border-slate-300 transition-all shadow-2xs">
+                        {/* Section Header */}
+                        <div className="flex items-center justify-between pb-2.5 border-b border-slate-200 mb-3">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-extrabold text-slate-900 uppercase tracking-wider">
+                              {section.title}
+                            </span>
+                            <span className="text-[10px] bg-slate-200 text-slate-700 font-bold px-1.5 py-0.5 rounded-full">
+                              {section.items.length} items
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setInlineAddSectionId(inlineAddSectionId === section.id ? null : section.id);
+                                setInlineLinkLabel('');
+                                setInlineLinkUrl('');
+                              }}
+                              className="text-[10.5px] font-bold text-brand hover:text-brand-dark px-2.5 py-1 rounded-lg bg-orange-50 hover:bg-orange-100 transition cursor-pointer flex items-center gap-1"
+                            >
+                              <Plus className="w-3 h-3" />
+                              Add Link
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (confirm(`Are you sure you want to delete the entire "${section.title}" footer column and all its ${section.items.length} links?`)) {
+                                  deleteFooterSection(section.id);
+                                }
+                              }}
+                              className="text-[10.5px] font-bold text-rose-600 hover:text-rose-800 px-2.5 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 transition cursor-pointer flex items-center gap-1"
+                              title="Delete this entire column"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                              Delete Column
+                            </button>
+                          </div>
+                        </div>
 
-                      {section.items && section.items.length > 0 ? (
-                        <ul className="space-y-2">
-                          {section.items.map(item => (
-                            <li key={item.id} className="flex items-center justify-between bg-white px-3 py-1.5 rounded-lg border border-slate-200 text-xs">
-                              <span className="font-semibold text-slate-700 flex items-center gap-1.5">
-                                <Link className="w-3 h-3 text-slate-400" />
-                                {item.label} <span className="text-[10px] text-slate-400 font-medium">({item.url})</span>
+                        {/* Inline Quick Add Form */}
+                        {inlineAddSectionId === section.id && (
+                          <div className="p-3 mb-3 bg-white border border-brand/30 rounded-xl space-y-2 shadow-2xs animate-in fade-in duration-150">
+                            <div className="flex items-center justify-between">
+                              <span className="text-[11px] font-bold text-slate-800 flex items-center gap-1">
+                                <Plus className="w-3 h-3 text-brand" /> Quick Add to "{section.title}"
                               </span>
                               <button
                                 type="button"
-                                onClick={() => deleteFooterLink(section.id, item.id)}
-                                className="text-slate-400 hover:text-rose-600 p-1"
+                                onClick={() => setInlineAddSectionId(null)}
+                                className="text-[10px] text-slate-400 hover:text-slate-600"
                               >
-                                <Trash className="w-3.5 h-3.5" />
+                                Cancel
                               </button>
-                            </li>
-                          ))}
-                        </ul>
-                      ) : (
-                        <p className="text-[11px] text-slate-400 italic">No links in this column yet.</p>
-                      )}
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                              <input
+                                type="text"
+                                placeholder="Link Label (e.g. Tour Guide)"
+                                value={inlineLinkLabel}
+                                onChange={(e) => setInlineLinkLabel(e.target.value)}
+                                className="text-xs bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 focus:border-brand focus:bg-white focus:outline-hidden"
+                              />
+                              <input
+                                type="text"
+                                placeholder="Target URL / Slug (e.g. guide)"
+                                value={inlineLinkUrl}
+                                onChange={(e) => setInlineLinkUrl(e.target.value)}
+                                className="text-xs bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 focus:border-brand focus:bg-white focus:outline-hidden"
+                              />
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => addFooterLink(section.id, inlineLinkLabel, inlineLinkUrl)}
+                              disabled={!inlineLinkLabel.trim() || !inlineLinkUrl.trim()}
+                              className="w-full py-1.5 px-3 bg-brand text-white text-xs font-bold rounded-lg hover:bg-brand-dark transition disabled:opacity-50 cursor-pointer"
+                            >
+                              Save Link to Column
+                            </button>
+                          </div>
+                        )}
+
+                        {/* Link Items List with explicit Delete buttons */}
+                        {section.items && section.items.length > 0 ? (
+                          <ul className="space-y-1.5">
+                            {section.items.map(item => (
+                              <li key={item.id} className="flex items-center justify-between bg-white hover:bg-slate-50 px-3 py-2 rounded-xl border border-slate-200 text-xs transition group">
+                                <div className="flex items-center gap-2 min-w-0 pr-2">
+                                  <Link className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                                  <span className="font-bold text-slate-800 truncate">{item.label}</span>
+                                  <span className="text-[10.5px] text-slate-400 truncate">({item.url})</span>
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => deleteFooterLink(section.id, item.id)}
+                                  className="text-slate-400 hover:text-rose-600 hover:bg-rose-50 p-1.5 rounded-lg transition cursor-pointer flex items-center gap-1 text-[11px] font-bold shrink-0"
+                                  title={`Delete ${item.label}`}
+                                >
+                                  <Trash2 className="w-3.5 h-3.5 text-rose-500" />
+                                  <span className="hidden group-hover:inline text-rose-600">Delete</span>
+                                </button>
+                              </li>
+                            ))}
+                          </ul>
+                        ) : (
+                          <p className="text-[11px] text-slate-400 italic py-2 text-center bg-white/50 rounded-xl border border-dashed border-slate-200">
+                            No menu links in this column yet. Click "+ Add Link" above.
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="p-8 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-300">
+                    <p className="text-xs text-slate-500 font-medium">No footer columns created yet. Use the form on the left to create your first column.</p>
+                  </div>
+                )}
+              </div>
+
+            </div>
+          )}
+
+          {/* SUBTAB 2: MOBILE BOTTOM NAVIGATION BAR */}
+          {bottomMenuSubTab === 'mobile-nav' && (
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+              
+              {/* Left Column (5 Cols): Add New Bottom Nav Item Form */}
+              <div className="lg:col-span-5 space-y-6">
+                <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-xs font-black text-slate-800 flex items-center gap-1.5">
+                      <Plus className="w-4 h-4 text-brand" /> Add Mobile Bottom Menu Option
+                    </h4>
+                    <button
+                      type="button"
+                      onClick={resetBottomNavToDefault}
+                      className="text-[10px] font-bold text-slate-500 hover:text-slate-800 flex items-center gap-1 px-2 py-1 rounded bg-white border border-slate-200"
+                      title="Reset back to default 4 items"
+                    >
+                      <RotateCcw className="w-3 h-3" />
+                      Reset to Defaults
+                    </button>
+                  </div>
+                  <p className="text-[11px] text-slate-500">
+                    Add buttons that appear on the sticky mobile bottom bar on smartphone and tablet screens.
+                  </p>
+
+                  <div className="space-y-3">
+                    <div>
+                      <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">Menu Label</label>
+                      <input
+                        type="text"
+                        placeholder="e.g. Explore, Tours, Contact, Deals"
+                        value={newNavLabel}
+                        onChange={(e) => setNewNavLabel(e.target.value)}
+                        className="w-full text-xs font-semibold bg-white border border-slate-200 rounded-xl px-3 py-2.5 focus:border-brand focus:outline-hidden"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">Icon</label>
+                      <div className="grid grid-cols-3 gap-2">
+                        {[
+                          { id: 'home', label: 'Home', icon: Building },
+                          { id: 'tours', label: 'Tours', icon: Luggage },
+                          { id: 'destinations', label: 'Locations', icon: MapPin },
+                          { id: 'chat', label: 'Chat', icon: MessageCircle },
+                          { id: 'phone', label: 'Phone', icon: Phone },
+                          { id: 'compass', label: 'Compass', icon: Compass },
+                          { id: 'star', label: 'Star', icon: Star },
+                          { id: 'info', label: 'Info', icon: Info },
+                          { id: 'custom', label: 'Custom', icon: Globe },
+                        ].map(ic => {
+                          const IconComp = ic.icon;
+                          return (
+                            <button
+                              key={ic.id}
+                              type="button"
+                              onClick={() => setNewNavIcon(ic.id as any)}
+                              className={`p-2 rounded-xl border text-xs flex flex-col items-center gap-1 font-bold transition cursor-pointer ${
+                                newNavIcon === ic.id
+                                  ? 'border-brand bg-orange-50 text-brand'
+                                  : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-100'
+                              }`}
+                            >
+                              <IconComp className="w-4 h-4" />
+                              <span className="text-[10px]">{ic.label}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">Click Action Type</label>
+                      <select
+                        value={newNavAction}
+                        onChange={(e) => setNewNavAction(e.target.value as any)}
+                        className="w-full text-xs font-bold bg-white border border-slate-200 rounded-xl px-3 py-2.5 focus:outline-hidden"
+                      >
+                        <option value="home">Navigate to Home / Explore</option>
+                        <option value="tours">Open All Tours Packages</option>
+                        <option value="destinations">Open Destinations Hub</option>
+                        <option value="whatsapp">Open WhatsApp Concierge Chat</option>
+                        <option value="call">Trigger Direct Phone Call</option>
+                        <option value="custom">Open Custom Web Link or Page</option>
+                      </select>
+                    </div>
+
+                    {newNavAction === 'custom' && (
+                      <div>
+                        <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">Custom Link Target / URL</label>
+                        <input
+                          type="text"
+                          placeholder="e.g. /about, /terms, or https://..."
+                          value={newNavUrl}
+                          onChange={(e) => setNewNavUrl(e.target.value)}
+                          className="w-full text-xs bg-white border border-slate-200 rounded-xl px-3 py-2 focus:border-brand focus:outline-hidden"
+                        />
+                      </div>
+                    )}
+
+                    <button
+                      type="button"
+                      disabled={!newNavLabel.trim()}
+                      onClick={addBottomNavItem}
+                      className={`w-full py-2.5 px-4 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
+                        newNavLabel.trim()
+                          ? 'bg-brand hover:bg-brand-dark text-white shadow-xs'
+                          : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                      }`}
+                    >
+                      <Plus className="w-4 h-4" /> Add to Bottom Navigation
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Column (7 Cols): Current Bottom Nav Items with Delete */}
+              <div className="lg:col-span-7 space-y-4">
+                <div className="flex items-center justify-between pb-1">
+                  <h4 className="text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                    <Smartphone className="w-4 h-4 text-brand" />
+                    Configured Mobile Bottom Menus ({form.bottomNavItems?.length || 0})
+                  </h4>
+                  <span className="text-[11px] font-medium text-slate-500">
+                    Visible on mobile & tablet
+                  </span>
+                </div>
+
+                {/* Visual Preview Box */}
+                <div className="bg-slate-900 rounded-2xl p-4 text-white space-y-2 shadow-sm">
+                  <div className="flex items-center justify-between text-[11px] text-slate-400 border-b border-slate-800 pb-2">
+                    <span className="font-semibold flex items-center gap-1.5">
+                      <Eye className="w-3.5 h-3.5 text-emerald-400" /> Live Mobile Bottom Bar Preview
+                    </span>
+                    <span className="text-[10px] text-slate-500">Fixed at bottom of screen</span>
+                  </div>
+                  <div className="flex items-center justify-around pt-1">
+                    {(form.bottomNavItems || DEFAULT_BOTTOM_NAV_ITEMS).filter(item => item.enabled !== false).map((item, idx) => (
+                      <div key={item.id} className="flex flex-col items-center gap-1 px-2 py-1 text-center">
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center ${idx === 0 ? 'bg-brand text-white' : 'bg-slate-800 text-slate-300'}`}>
+                          {item.icon === 'home' && <Building className="w-4 h-4" />}
+                          {item.icon === 'tours' && <Luggage className="w-4 h-4" />}
+                          {item.icon === 'destinations' && <MapPin className="w-4 h-4" />}
+                          {item.icon === 'chat' && <MessageCircle className="w-4 h-4" />}
+                          {item.icon === 'phone' && <Phone className="w-4 h-4" />}
+                          {item.icon === 'compass' && <Compass className="w-4 h-4" />}
+                          {item.icon === 'star' && <Star className="w-4 h-4" />}
+                          {item.icon === 'info' && <Info className="w-4 h-4" />}
+                          {item.icon === 'custom' && <Globe className="w-4 h-4" />}
+                        </div>
+                        <span className={`text-[10px] font-bold ${idx === 0 ? 'text-brand' : 'text-slate-400'}`}>
+                          {item.label}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Items List with Delete & Toggle controls */}
+                <div className="space-y-2">
+                  {(form.bottomNavItems || DEFAULT_BOTTOM_NAV_ITEMS).map((item) => (
+                    <div
+                      key={item.id}
+                      className={`flex items-center justify-between p-3.5 rounded-2xl border transition-all ${
+                        item.enabled !== false
+                          ? 'bg-white border-slate-200 shadow-2xs'
+                          : 'bg-slate-50 border-slate-200 opacity-60'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center text-slate-700">
+                          {item.icon === 'home' && <Building className="w-4 h-4" />}
+                          {item.icon === 'tours' && <Luggage className="w-4 h-4" />}
+                          {item.icon === 'destinations' && <MapPin className="w-4 h-4" />}
+                          {item.icon === 'chat' && <MessageCircle className="w-4 h-4" />}
+                          {item.icon === 'phone' && <Phone className="w-4 h-4" />}
+                          {item.icon === 'compass' && <Compass className="w-4 h-4" />}
+                          {item.icon === 'star' && <Star className="w-4 h-4" />}
+                          {item.icon === 'info' && <Info className="w-4 h-4" />}
+                          {item.icon === 'custom' && <Globe className="w-4 h-4" />}
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-black text-slate-900">{item.label}</span>
+                            <span className="text-[10px] bg-slate-100 text-slate-600 font-bold px-1.5 py-0.5 rounded capitalize">
+                              {item.actionType}
+                            </span>
+                          </div>
+                          <span className="text-[10px] text-slate-400">
+                            Icon: {item.icon} {item.url ? `• Target: ${item.url}` : ''}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        {/* Toggle Active Status */}
+                        <button
+                          type="button"
+                          onClick={() => toggleBottomNavItem(item.id)}
+                          className={`text-[11px] font-bold px-2.5 py-1 rounded-lg border transition cursor-pointer ${
+                            item.enabled !== false
+                              ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
+                              : 'bg-slate-200 text-slate-600 border-slate-300 hover:bg-slate-300'
+                          }`}
+                          title="Toggle visibility in mobile bottom bar"
+                        >
+                          {item.enabled !== false ? 'Active' : 'Disabled'}
+                        </button>
+
+                        {/* Explicit Delete Button */}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (confirm(`Are you sure you want to delete the "${item.label}" option from the mobile bottom menu?`)) {
+                              deleteBottomNavItem(item.id);
+                            }
+                          }}
+                          className="text-rose-600 hover:text-white hover:bg-rose-600 bg-rose-50 border border-rose-200 px-3 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1 cursor-pointer"
+                          title="Delete this option from bottom menu"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                          Delete Option
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>
-              ) : (
-                <p className="text-xs text-slate-400 italic">No columns created yet.</p>
-              )}
-            </div>
+              </div>
 
-          </div>
+            </div>
+          )}
+
         </div>
       )}
 

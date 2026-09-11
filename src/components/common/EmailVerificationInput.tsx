@@ -95,7 +95,7 @@ export const EmailVerificationInput: React.FC<EmailVerificationInputProps> = ({
               ? 'border-emerald-500 bg-emerald-50/20 text-stone-900 focus:border-emerald-600 focus:ring-1 focus:ring-emerald-500'
               : isInputInvalid
               ? 'border-rose-400 bg-rose-50/20 text-stone-900 focus:border-rose-500 focus:ring-1 focus:ring-rose-400'
-              : 'border-stone-300 bg-white text-stone-900 focus:border-stone-900 focus:ring-1 focus:ring-stone-900'
+              : 'border-stone-300 bg-white text-stone-900 focus:border-[#FF4B00] focus:ring-1 focus:ring-[#FF4B00]'
           } ${inputClassName}`}
         />
 

@@ -502,8 +502,8 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
   const handleAddHotel = () => {
     const newH: HotelStay = {
       id: `hotel-${Date.now().toString(36)}`,
-      name: 'New Luxury Hotel / Resort',
-      starRating: 5,
+      name: 'New Hotel / Resort',
+      city: destination || 'City Center',
       location: destination || 'City Center',
       roomType: 'Deluxe Room with Breakfast',
       nights: 2,
@@ -545,6 +545,7 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
         id: `hotel-${Date.now().toString(36)}`,
         name: data.name || 'New Luxury Hotel',
         starRating: data.starRating || 4,
+        city: data.city || data.location || destination || 'City Center',
         location: data.location || destination || 'City Center',
         roomType: 'Deluxe Room with View',
         nights: 2,
@@ -1858,9 +1859,6 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <span className="text-xs font-bold text-slate-900">{hotel.name}</span>
-                        <span className="text-xs text-brand font-bold">
-                          {'★'.repeat(hotel.starRating)}
-                        </span>
                       </div>
                       <button
                         type="button"
@@ -1872,7 +1870,7 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 text-xs">
-                      <div className="sm:col-span-6">
+                      <div className="sm:col-span-9">
                         <label className="font-bold text-slate-700 block mb-1">Hotel Name *</label>
                         <input
                           type="text"
@@ -1881,21 +1879,6 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
                           placeholder="e.g. Radisson Blu Resort & Spa"
                           className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 focus:border-brand focus:outline-hidden font-semibold"
                         />
-                      </div>
-
-                      <div className="sm:col-span-3">
-                        <label className="font-bold text-slate-700 block mb-1">Star Rating</label>
-                        <select
-                          value={hotel.starRating}
-                          onChange={(e) =>
-                            handleUpdateHotel(hotel.id, { starRating: Number(e.target.value) })
-                          }
-                          className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 focus:border-brand focus:outline-hidden font-semibold"
-                        >
-                          <option value={5}>5-Star Luxury</option>
-                          <option value={4}>4-Star Premium</option>
-                          <option value={3}>3-Star Deluxe</option>
-                        </select>
                       </div>
 
                       <div className="sm:col-span-3">
