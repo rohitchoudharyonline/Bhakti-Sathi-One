@@ -199,7 +199,7 @@ export const DestinationsManager: React.FC = () => {
             Destination Hub & Travel Guides Manager
           </h2>
           <p className="text-xs text-stone-500 mt-0.5">
-            Create and edit destination portals, sightseeing guides, FAQs, starting prices, and Google Schema.
+            Create and edit destination portals, sightseeing guides, FAQs, and Google Schema.
           </p>
         </div>
 
@@ -252,9 +252,6 @@ export const DestinationsManager: React.FC = () => {
                     />
                     <span className="absolute top-2 left-2 px-2.5 py-1 bg-black/75 text-white text-[10px] font-bold rounded-lg uppercase tracking-wider backdrop-blur-xs">
                       {dest.state}
-                    </span>
-                    <span className="absolute bottom-2 right-2 px-2.5 py-1 bg-white/90 text-black text-xs font-black rounded-lg shadow-sm">
-                      From {agencySettings.currencySymbol}{dest.startingPrice?.toLocaleString('en-IN')}
                     </span>
                   </div>
 
@@ -409,23 +406,13 @@ export const DestinationsManager: React.FC = () => {
                   />
                 </div>
 
-                <div>
+                <div className="md:col-span-2">
                   <label className="block font-bold text-stone-700 mb-1">State / Union Territory</label>
                   <input
                     type="text"
                     placeholder="Jammu & Kashmir / Himachal Pradesh"
                     value={formData.state}
                     onChange={(e) => setFormData({ ...formData, state: e.target.value })}
-                    className="w-full p-2.5 bg-stone-50 border border-stone-200 rounded-xl focus:bg-white focus:outline-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="block font-bold text-stone-700 mb-1">Starting Package Price (₹)</label>
-                  <input
-                    type="number"
-                    value={formData.startingPrice}
-                    onChange={(e) => setFormData({ ...formData, startingPrice: Number(e.target.value) })}
                     className="w-full p-2.5 bg-stone-50 border border-stone-200 rounded-xl focus:bg-white focus:outline-none"
                   />
                 </div>

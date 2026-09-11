@@ -796,11 +796,8 @@ export const LuxuryHomepage: React.FC = () => {
                       <p className="text-xs text-stone-200 font-medium drop-shadow-sm line-clamp-1">
                         {displaySubtitle}
                       </p>
-                      <div className="flex items-center justify-between pt-1">
-                        <span className="text-[11px] font-bold text-[#FF4B00]">
-                          Starting ₹{loc.startingPrice.toLocaleString('en-IN')}
-                        </span>
-                        <div className="flex items-center gap-1 text-xs font-bold text-white group-hover:translate-x-1 transition-transform shrink-0">
+                      <div className="flex items-center justify-end pt-1">
+                        <div className="flex items-center gap-1 text-xs font-bold text-amber-300 group-hover:translate-x-1 transition-transform shrink-0">
                           <span>View Yatra Packages</span>
                           <ArrowRight className="w-3.5 h-3.5" />
                         </div>

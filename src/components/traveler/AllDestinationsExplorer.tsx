@@ -216,12 +216,9 @@ export const AllDestinationsExplorer: React.FC = () => {
                     <p className="text-[11px] text-stone-200 font-medium drop-shadow-sm line-clamp-1">
                       {dest.tagline}
                     </p>
-                    <div className="flex items-center justify-between pt-1">
-                      <span className="text-[11px] font-bold text-amber-300">
-                        Starting ₹{dest.startingPrice.toLocaleString('en-IN')}
-                      </span>
-                      <div className="flex items-center gap-1 text-[11px] font-bold text-white group-hover:translate-x-1 transition-transform shrink-0">
-                        <span>Explore</span>
+                    <div className="flex items-center justify-end pt-1">
+                      <div className="flex items-center gap-1 text-[11px] font-bold text-amber-300 group-hover:translate-x-1 transition-transform shrink-0">
+                        <span>Explore Destination</span>
                         <ArrowRight className="w-3 h-3" />
                       </div>
                     </div>

@@ -97,7 +97,7 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
     const toursSeo = pageSeoConfigs?.['tours'];
 
     const pageTitle = isDestSpecific
-      ? `${currentDestMeta?.name} Tour Packages 2026 (Starting ₹${currentDestMeta?.startingPrice?.toLocaleString('en-IN')}) | Bhakti Sathi`
+      ? `${currentDestMeta?.name} Tour Packages 2026 | Bhakti Sathi`
       : toursSeo?.metaTitle || 'Book Sacred Yatra & Spiritual Pilgrimage Packages | Bhakti Sathi';
 
     const pageDescription = isDestSpecific
