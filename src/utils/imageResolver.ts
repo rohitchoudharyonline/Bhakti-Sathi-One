@@ -18,6 +18,23 @@ export function resolveDisplayImage(
     return cleanUrl;
   }
 
+  // If mediaAssets is available, check if we have a matching asset with inline dataUrl
+  if (mediaAssets && mediaAssets.length > 0) {
+    const match = mediaAssets.find(
+      (a) =>
+        a &&
+        (a.url === cleanUrl ||
+          a.dataUrl === cleanUrl ||
+          a.storagePath === cleanUrl ||
+          (a.storagePath && cleanUrl.includes(a.storagePath)) ||
+          (a.fileName && cleanUrl.includes(a.fileName)) ||
+          (a.name && cleanUrl.toLowerCase().includes(a.name.toLowerCase().replace(/\.[^/.]+$/, ''))))
+    );
+    if (match?.dataUrl) {
+      return match.dataUrl;
+    }
+  }
+
   return cleanUrl;
 }
 

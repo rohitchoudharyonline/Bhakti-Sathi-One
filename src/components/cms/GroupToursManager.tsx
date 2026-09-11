@@ -265,7 +265,7 @@ export const GroupToursManager: React.FC<GroupToursManagerProps> = ({
     const updated: TourPackage = {
       ...pkg,
       isGroupTour: false,
-      tourType: pkg.tourType === 'Group Tour' ? 'Custom Pilgrimage' : pkg.tourType,
+      tourType: pkg.tourType === 'Group Tour' ? 'Customizable Tour' : pkg.tourType,
     };
     updatePackage(updated);
     setDeleteModalPkg(null);

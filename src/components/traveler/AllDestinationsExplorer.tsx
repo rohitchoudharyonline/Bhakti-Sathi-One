@@ -5,10 +5,11 @@ import { updatePageSeo } from '../../utils/seo';
 import { Navbar } from '../common/Navbar';
 import { GlobalFooter } from './GlobalFooter';
 import { DESTINATIONS_REGISTRY, DestinationMeta } from '../../data/destinationsData';
+import { resolveDisplayImage, handleImageError } from '../../utils/imageResolver';
 import { motion } from 'motion/react';
 
 export const AllDestinationsExplorer: React.FC = () => {
-  const { destinations, navigateToHome, navigateToDestination, agencySettings, pageSeoConfigs } = useTours();
+  const { destinations, mediaAssets, navigateToHome, navigateToDestination, agencySettings, pageSeoConfigs } = useTours();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFilter, setSelectedFilter] = useState<string>('all');
 
@@ -189,8 +190,9 @@ export const AllDestinationsExplorer: React.FC = () => {
                 >
                   {/* Background Image */}
                   <img
-                    src={dest.heroImage}
+                    src={resolveDisplayImage(dest.heroImage, mediaAssets)}
                     alt={dest.displayName || dest.name}
+                    onError={(e) => handleImageError(e, dest.heroImage, mediaAssets)}
                     className="absolute inset-0 w-full h-full object-cover group-hover:scale-108 transition-transform duration-700 ease-out"
                     loading="lazy"
                   />

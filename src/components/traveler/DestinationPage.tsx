@@ -31,6 +31,7 @@ import {
 } from 'lucide-react';
 import { useTours } from '../../context/TourContext';
 import { DESTINATIONS_REGISTRY, matchPackageToDestination } from '../../data/destinationsData';
+import { resolveDisplayImage, handleImageError } from '../../utils/imageResolver';
 import { TourPackage } from '../../types/tour';
 import { InquiryModal } from './InquiryModal';
 import { formatPackagePrice } from '../../utils/priceHelper';
@@ -45,6 +46,8 @@ export const DestinationPage: React.FC = () => {
     navigateToHome,
     navigateToPackage,
     packages,
+    destinations,
+    mediaAssets,
     agencySettings,
     toggleWishlist,
     isWishlisted,
@@ -52,10 +55,12 @@ export const DestinationPage: React.FC = () => {
   } = useTours();
 
   const currentSlug = selectedDestinationSlug || 'kashmir';
-  const destinationMeta =
+  const destinationMeta: any =
+    destinations?.[currentSlug] ||
+    (Object.values(destinations || {}) as DestinationMeta[]).find(d => d.slug === currentSlug || d.id === currentSlug) ||
     DESTINATIONS_REGISTRY[currentSlug] ||
-    DESTINATIONS_REGISTRY['kashmir'] ||
-    DESTINATIONS_REGISTRY['jammu'];
+    (Object.values(destinations || {}) as DestinationMeta[])[0] ||
+    DESTINATIONS_REGISTRY['kashmir'];
 
   // Active view: Packages or Destination Guide
   const [activeTab, setActiveTab] = useState<'packages' | 'guide'>('packages');
@@ -597,11 +602,12 @@ export const DestinationPage: React.FC = () => {
                 Top Attractions in {destinationMeta.name}
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                {destinationMeta.guide.topAttractions.map((attraction, idx) => (
+                {destinationMeta.guide?.topAttractions?.map((attraction, idx) => (
                   <div key={idx} className="rounded-xl border border-stone-200 overflow-hidden bg-stone-50">
                     <img
-                      src={attraction.image}
+                      src={resolveDisplayImage(attraction.image, mediaAssets)}
                       alt={attraction.name}
+                      onError={(e) => handleImageError(e, attraction.image, mediaAssets)}
                       className="w-full h-32 object-cover"
                       loading="lazy"
                     />

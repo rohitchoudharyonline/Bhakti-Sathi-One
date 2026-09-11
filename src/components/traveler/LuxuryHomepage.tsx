@@ -56,8 +56,10 @@ import { useTours } from '../../context/TourContext';
 import { Navbar } from '../common/Navbar';
 import { Footer } from './Footer';
 import { TourPackage } from '../../types/tour';
+import { DestinationMeta } from '../../data/destinationsData';
 import { updatePageSeo } from '../../utils/seo';
 import { generateAgencyReviewSchema } from '../../utils/seoEngine';
+import { resolveDisplayImage, handleImageError } from '../../utils/imageResolver';
 import { isValidEmail } from '../../utils/validation';
 import { EmailVerificationInput } from '../common/EmailVerificationInput';
 import { JapCounterIcon } from './JapCounterIcon';
@@ -70,12 +72,6 @@ import { FaqSection } from './FaqSection';
 // ==========================================
 // SEARCH WIDGET OPTION DATA (NO EMOJIS, CLEAN LUXURY)
 // ==========================================
-
-const DESTINATION_SEARCH_OPTIONS = [
-  { id: 'kashmir', name: 'Jammu, Kashmir & Vaishno Devi', region: 'Sacred Yatra', desc: 'Mata Vaishno Devi Katra, Amarnath & Srinagar' },
-  { id: 'himachal', name: 'Himachal Devi Darshan', region: 'Sacred Yatra', desc: 'Jwalamukhi, Chamunda Devi, Kangra & Chintpurni' },
-  { id: 'all', name: 'All Sacred Yatras', region: 'Explore', desc: 'Browse all spiritual yatra & temple packages' },
-];
 
 const TRAVEL_MONTH_OPTIONS = [
   { id: 'any', label: 'Any Month (Flexible)', sub: 'Travel whenever you are ready' },
@@ -107,78 +103,6 @@ interface LocationShowcase {
   filterKey: string;
   toursCount?: string;
 }
-
-// Destination Dropdown Options (Core Destinations Only)
-interface DestinationOptionItem {
-  id: string;
-  name: string;
-  scope: 'domestic';
-  filterKey: string;
-}
-
-const DESTINATION_DROPDOWN_OPTIONS: DestinationOptionItem[] = [
-  { id: 'kashmir', name: 'Jammu & Kashmir', scope: 'domestic', filterKey: 'kashmir' },
-  { id: 'himachal', name: 'Himachal Pradesh', scope: 'domestic', filterKey: 'himachal' },
-];
-
-const DESTINATION_LOCATIONS: LocationShowcase[] = [
-  // 1. Mata Vaishno Devi & Kashmir Yatra
-  {
-    id: 'loc-kashmir',
-    type: 'domestic',
-    name: 'Mata Vaishno Devi & Kashmir Yatra',
-    subtitle: 'Katra Holy Shrine, Shiv Khori & Dal Lake',
-    badge: '12+ YATRA PACKAGES',
-    toursCount: '12+ YATRA PACKAGES',
-    country: 'India',
-    tagline: 'Mata Vaishno Devi Katra Bhawan • Battery Car / Helicopter • Shiv Khori • Srinagar',
-    highlights: [
-      'Mata Vaishno Devi Katra VIP darshan & helicopter/battery car assistance',
-      'Holy Shiv Khori cave shrine excursion with dedicated private cab',
-      'Scenic Srinagar, Pahalgam & Dal Lake comfortable stay arrangements',
-      'Dedicated mountain vehicle with professional devotional chauffeur',
-    ],
-    keyPills: [
-      'Mata Vaishno Devi Darshan',
-      'Helicopter & Battery Car',
-      'Verified Hotel Stays',
-    ],
-    featureTag: 'Holy Shrine & Kashmir Valley',
-    featureDetail: 'Katra Stays • Priority Darshan Support',
-    startingPrice: 10999,
-    duration: '4 - 8 Days',
-    coverImage: 'https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?auto=format&fit=crop&w=1200&q=85',
-    filterKey: 'kashmir',
-  },
-  // 2. Himachal Devi Darshan Circuit
-  {
-    id: 'loc-himachal',
-    type: 'domestic',
-    name: 'Himachal Devi Darshan Yatra',
-    subtitle: 'Jwalamukhi, Chamunda Devi, Kangra & Chintpurni',
-    badge: '8+ DEVI DARSHANS',
-    toursCount: '8+ DEVI DARSHANS',
-    country: 'India',
-    tagline: 'Jwalamukhi Flame Temple • Chamunda Devi • Brajeshwari Kangra • Chintpurni',
-    highlights: [
-      'Complete sacred Shaktipeeth temple circuit with priority Aarti timings',
-      'Experienced devotional driver for relaxed family & senior citizen pacing',
-      'Comfortable meal arrangements at verified clean hotels',
-      'Comfortable private Sedan / Innova cab with 24/7 on-ground support',
-    ],
-    keyPills: [
-      'Jwalamukhi & Chamunda Devi',
-      'Chintpurni & Kangra Temple',
-      'Senior Citizen Friendly',
-    ],
-    featureTag: 'Sacred Shaktipeeth Circuit',
-    featureDetail: 'Verified Stays • Private Devotional Cab',
-    startingPrice: 8999,
-    duration: '4 - 7 Days',
-    coverImage: 'https://images.unsplash.com/photo-1605649487212-47bdab064df7?auto=format&fit=crop&w=1200&q=85',
-    filterKey: 'himachal',
-  },
-];
 
 const REVIEWS = [
   {
@@ -279,6 +203,8 @@ const WHY_HOLIDAYS_HUNT = [
 export const LuxuryHomepage: React.FC = () => {
   const {
     packages,
+    destinations,
+    mediaAssets,
     agencySettings,
     setActiveView,
     setSelectedPackageId,
@@ -317,9 +243,44 @@ export const LuxuryHomepage: React.FC = () => {
   const [isSearching, setIsSearching] = useState(false);
   const [loadedImages, setLoadedImages] = useState<Record<string, boolean>>({});
 
+  const destinationSearchOptions = useMemo(() => {
+    const list = Object.values(destinations || {}) as DestinationMeta[];
+    const dynamicOptions = list.map((d) => ({
+      id: d.slug || d.id,
+      name: d.displayName || d.name,
+      region: d.state || 'Sacred Yatra',
+      desc: d.tagline || (d.popularCities && d.popularCities.length > 0 ? d.popularCities.join(', ') : `${d.name} Pilgrimage`),
+    }));
+    return [
+      ...dynamicOptions,
+      { id: 'all', name: 'All Sacred Yatras', region: 'Explore', desc: 'Browse all spiritual yatra & temple packages' },
+    ];
+  }, [destinations]);
+
   const filteredDestinations = useMemo(() => {
-    return DESTINATION_LOCATIONS;
-  }, []);
+    const list = Object.values(destinations || {}) as DestinationMeta[];
+    return list.map((d) => ({
+      id: d.id || d.slug,
+      type: 'domestic' as const,
+      name: d.displayName || d.name,
+      subtitle: d.tagline || (d.popularCities && d.popularCities.length > 0 ? d.popularCities.join(', ') : `${d.name} Sacred Circuit`),
+      badge: d.badge || `${d.packagesCount || 6}+ YATRA PACKAGES`,
+      toursCount: d.badge || `${d.packagesCount || 6}+ YATRA PACKAGES`,
+      country: d.state || 'India',
+      tagline: d.tagline || '',
+      highlights: d.guide?.thingsToDo || [
+        'Verified comfortable hotel stays and priority darshan',
+        'Dedicated sanitized vehicle with experienced devotional chauffeur',
+      ],
+      keyPills: d.popularCities?.slice(0, 3) || ['Verified Stays', 'Priority Darshan', 'Devotional Cab'],
+      featureTag: d.state || 'Sacred Pilgrimage',
+      featureDetail: 'Verified Stays • Priority Darshan Support',
+      startingPrice: 0,
+      duration: d.guide?.idealDuration || '4 - 8 Days',
+      coverImage: d.heroImage || 'https://images.unsplash.com/photo-1598091383021-15ddea10925d?auto=format&fit=crop&w=1200&q=80',
+      filterKey: d.slug || d.id,
+    }));
+  }, [destinations]);
 
   const handleRefresh = async () => {
     // Simulate real-time server check/refresh for latest yatra packages and agency settings
@@ -487,7 +448,7 @@ export const LuxuryHomepage: React.FC = () => {
                       <div className="flex items-center gap-2 min-w-0">
                         <MapPin className="w-4 h-4 text-[#FF4B00] shrink-0" />
                         <span className="text-xs sm:text-sm font-bold text-stone-900 truncate">
-                          {DESTINATION_SEARCH_OPTIONS.find((d) => d.id === activeSpecificDest)?.name || 'All Sacred Destinations'}
+                          {destinationSearchOptions.find((d) => d.id === activeSpecificDest)?.name || 'All Sacred Destinations'}
                         </span>
                       </div>
                       <ChevronDown
@@ -504,7 +465,7 @@ export const LuxuryHomepage: React.FC = () => {
                       <div className="px-2 py-1 text-[10px] font-extrabold uppercase tracking-wider text-stone-400">
                         Select Sacred Shrine
                       </div>
-                      {DESTINATION_SEARCH_OPTIONS.map((dest) => {
+                      {destinationSearchOptions.map((dest) => {
                         const isSelected = activeSpecificDest === dest.id;
                         return (
                           <button
@@ -703,28 +664,28 @@ export const LuxuryHomepage: React.FC = () => {
               </div>
             </div>
 
-            {/* 2-Card Grid */}
+            {/* Dynamic Card Grid */}
             <style dangerouslySetInnerHTML={{ __html: `
-              #dest-card-kashmir, #dest-card-himachal {
+              .dest-card-container {
                 transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.5s ease-out, box-shadow 0.5s cubic-bezier(0.16, 1, 0.3, 1) !important;
               }
-              #dest-card-kashmir:hover, #dest-card-himachal:hover {
+              .dest-card-container:hover {
                 box-shadow: 0 20px 25px -5px rgba(255, 75, 0, 0.2) !important;
               }
-              #dest-card-kashmir:hover .card-badge-badge, #dest-card-himachal:hover .card-badge-badge {
+              .dest-card-container:hover .card-badge-badge {
                 transform: rotate(-5deg) !important;
               }
               .card-badge-badge {
                 transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
                 display: inline-block !important;
               }
-              #dest-card-kashmir .dest-card-img, #dest-card-himachal .dest-card-img {
+              .dest-card-container .dest-card-img {
                 transition: transform 0.8s ease-in-out, opacity 0.8s ease-out, scale 0.8s ease-out !important;
               }
-              #dest-card-kashmir:hover .dest-card-img, #dest-card-himachal:hover .dest-card-img {
+              .dest-card-container:hover .dest-card-img {
                 transform: scale(1.15) !important;
               }
-              #dest-card-kashmir:active, #dest-card-himachal:active {
+              .dest-card-container:active {
                 transform: scale(0.98) !important;
                 box-shadow: inset 0 0 0 3px #FF4B00, 0 8px 16px -4px rgba(255, 75, 0, 0.3) !important;
                 transition: transform 0.1s ease-out, box-shadow 0.1s ease-out !important;
@@ -739,74 +700,86 @@ export const LuxuryHomepage: React.FC = () => {
                 animation: skeleton-shimmer-anim 1.5s infinite linear !important;
               }
             ` }} />
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-              {filteredDestinations.map((loc, index) => {
-                const isSelected = activeSpecificDest === loc.filterKey;
-                const isImgLoaded = loadedImages[loc.id];
+            {filteredDestinations.length === 0 ? (
+              <div className="bg-white rounded-2xl border border-dashed border-stone-300 p-8 text-center max-w-md mx-auto">
+                <MapPin className="w-8 h-8 text-stone-300 mx-auto mb-2" />
+                <p className="text-sm font-bold text-stone-700">No destinations available</p>
+                <p className="text-xs text-stone-500 mt-1">Create destinations in the CMS to showcase them here.</p>
+              </div>
+            ) : (
+              <div className={`grid grid-cols-1 ${filteredDestinations.length === 1 ? 'sm:grid-cols-1 max-w-xl mx-auto' : filteredDestinations.length >= 3 ? 'sm:grid-cols-2 lg:grid-cols-3' : 'sm:grid-cols-2'} gap-4 sm:gap-6`}>
+                {filteredDestinations.map((loc, index) => {
+                  const isSelected = activeSpecificDest === loc.filterKey;
+                  const isImgLoaded = loadedImages[loc.id];
 
-                const displayBadge = loc.toursCount || loc.badge;
-                const displaySubtitle = loc.subtitle;
+                  const displayBadge = loc.toursCount || loc.badge;
+                  const displaySubtitle = loc.subtitle;
 
-                return (
-                  <motion.div
-                    key={loc.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: "-50px" }}
-                    transition={{ duration: 0.5, delay: index * 0.1 }}
-                    id={`dest-card-${loc.filterKey}`}
-                    onClick={() => handleSelectLocationCard(loc)}
-                    className={`group relative aspect-[4/3] sm:aspect-[16/10] rounded-2xl sm:rounded-3xl overflow-hidden cursor-pointer border transition-all duration-500 ease-out shadow-sm hover:shadow-xl hover:-translate-y-1 hover:scale-[1.02] flex flex-col justify-between p-4 sm:p-6 ${
-                      isSelected
-                        ? 'border-stone-900 ring-2 ring-stone-900/40'
-                        : 'border-stone-200/90 hover:border-stone-400'
-                    }`}
-                  >
-                    {/* Shimmer Placeholder Overlay */}
-                    {!isImgLoaded && (
-                      <div className="absolute inset-0 skeleton-shimmer-bg transition-opacity duration-500 pointer-events-none z-10" />
-                    )}
-
-                    {/* Background Cover Image */}
-                    <img
-                      src={loc.coverImage}
-                      alt={loc.name}
-                      onLoad={() => setLoadedImages(prev => ({ ...prev, [loc.id]: true }))}
-                      className={`dest-card-img absolute inset-0 w-full h-full object-cover transition-all ease-out ${
-                        isImgLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
+                  return (
+                    <motion.div
+                      key={loc.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true, margin: "-50px" }}
+                      transition={{ duration: 0.5, delay: index * 0.1 }}
+                      id={`dest-card-${loc.filterKey}`}
+                      onClick={() => handleSelectLocationCard(loc)}
+                      className={`dest-card-container group relative aspect-[4/3] sm:aspect-[16/10] rounded-2xl sm:rounded-3xl overflow-hidden cursor-pointer border transition-all duration-500 ease-out shadow-sm hover:shadow-xl hover:-translate-y-1 hover:scale-[1.02] flex flex-col justify-between p-4 sm:p-6 ${
+                        isSelected
+                          ? 'border-stone-900 ring-2 ring-stone-900/40'
+                          : 'border-stone-200/90 hover:border-stone-400'
                       }`}
-                      loading="lazy"
-                    />
+                    >
+                      {/* Shimmer Placeholder Overlay */}
+                      {!isImgLoaded && (
+                        <div className="absolute inset-0 skeleton-shimmer-bg transition-opacity duration-500 pointer-events-none z-10" />
+                      )}
 
-                    {/* Multi-step Gradient Scrim */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/30 to-black/10 pointer-events-none" />
+                      {/* Background Cover Image */}
+                      <img
+                        src={resolveDisplayImage(loc.coverImage, mediaAssets)}
+                        alt={loc.name}
+                        onError={(e) => {
+                          handleImageError(e, loc.coverImage, mediaAssets);
+                          setLoadedImages((prev) => ({ ...prev, [loc.id]: true }));
+                        }}
+                        onLoad={() => setLoadedImages((prev) => ({ ...prev, [loc.id]: true }))}
+                        className={`dest-card-img absolute inset-0 w-full h-full object-cover transition-all ease-out ${
+                          isImgLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
+                        }`}
+                        loading="lazy"
+                      />
 
-                    {/* Top Badge (Brand Colors) */}
-                    <div className="relative z-10 flex items-center justify-between pointer-events-none">
-                      <span className="card-badge-badge text-[10px] sm:text-xs font-black tracking-wider text-white bg-stone-900/90 backdrop-blur-md px-3 py-1 rounded-full uppercase border border-white/20 shadow-xs">
-                        {displayBadge}
-                      </span>
-                    </div>
+                      {/* Multi-step Gradient Scrim */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/30 to-black/10 pointer-events-none" />
 
-                    {/* Bottom Content Area */}
-                    <div className="relative z-10 text-white pointer-events-none flex flex-col gap-1">
-                      <h3 className="text-lg sm:text-2xl font-black text-white group-hover:text-stone-100 transition-colors drop-shadow-md leading-tight">
-                        {loc.name}
-                      </h3>
-                      <p className="text-xs text-stone-200 font-medium drop-shadow-sm line-clamp-1">
-                        {displaySubtitle}
-                      </p>
-                      <div className="flex items-center justify-end pt-1">
-                        <div className="flex items-center gap-1 text-xs font-bold text-amber-300 group-hover:translate-x-1 transition-transform shrink-0">
-                          <span>View Yatra Packages</span>
-                          <ArrowRight className="w-3.5 h-3.5" />
+                      {/* Top Badge (Brand Colors) */}
+                      <div className="relative z-10 flex items-center justify-between pointer-events-none">
+                        <span className="card-badge-badge text-[10px] sm:text-xs font-black tracking-wider text-white bg-stone-900/90 backdrop-blur-md px-3 py-1 rounded-full uppercase border border-white/20 shadow-xs">
+                          {displayBadge}
+                        </span>
+                      </div>
+
+                      {/* Bottom Content Area */}
+                      <div className="relative z-10 text-white pointer-events-none flex flex-col gap-1">
+                        <h3 className="text-lg sm:text-2xl font-black text-white group-hover:text-stone-100 transition-colors drop-shadow-md leading-tight">
+                          {loc.name}
+                        </h3>
+                        <p className="text-xs text-stone-200 font-medium drop-shadow-sm line-clamp-1">
+                          {displaySubtitle}
+                        </p>
+                        <div className="flex items-center justify-end pt-1">
+                          <div className="flex items-center gap-1 text-xs font-bold text-amber-300 group-hover:translate-x-1 transition-transform shrink-0">
+                            <span>View Yatra Packages</span>
+                            <ArrowRight className="w-3.5 h-3.5" />
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </motion.div>
-                );
-              })}
-            </div>
+                    </motion.div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </section>
 

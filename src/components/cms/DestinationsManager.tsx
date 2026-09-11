@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useTours } from '../../context/TourContext';
 import { DestinationMeta, DestinationGuide } from '../../data/destinationsData';
 import { generateTouristDestinationSchema } from '../../utils/seoEngine';
+import { resolveDisplayImage, handleImageError } from '../../utils/imageResolver';
 import { MediaR2StorageManager } from './MediaR2StorageManager';
 import { UniversalImageUploader } from './UniversalImageUploader';
 import {
@@ -26,6 +27,7 @@ import {
 export const DestinationsManager: React.FC = () => {
   const {
     destinations,
+    mediaAssets,
     addDestination,
     updateDestination,
     deleteDestination,
@@ -246,8 +248,9 @@ export const DestinationsManager: React.FC = () => {
                 <div>
                   <div className="aspect-16/9 relative overflow-hidden bg-stone-100">
                     <img
-                      src={dest.heroImage}
+                      src={resolveDisplayImage(dest.heroImage, mediaAssets)}
                       alt={dest.name}
+                      onError={(e) => handleImageError(e, dest.heroImage, mediaAssets)}
                       className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
                     />
                     <span className="absolute top-2 left-2 px-2.5 py-1 bg-black/75 text-white text-[10px] font-bold rounded-lg uppercase tracking-wider backdrop-blur-xs">
