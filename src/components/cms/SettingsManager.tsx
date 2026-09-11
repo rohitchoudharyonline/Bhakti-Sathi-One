@@ -35,7 +35,7 @@ import {
   Eye,
 } from 'lucide-react';
 
-export const SettingsManager: React.FC<{ initialTab?: 'branding' | 'faqs' | 'footer' }> = ({ initialTab = 'branding' }) => {
+export const SettingsManager: React.FC<{ initialTab?: 'branding' | 'faqs' | 'footer'; initialSubTab?: 'footer' | 'mobile-nav' }> = ({ initialTab = 'branding', initialSubTab = 'footer' }) => {
   const { agencySettings, updateAgencySettings, packages, resetToDefaults } = useTours();
 
   const [activeTab, setActiveTab] = useState<'branding' | 'faqs' | 'footer'>(initialTab);
@@ -144,11 +144,29 @@ export const SettingsManager: React.FC<{ initialTab?: 'branding' | 'faqs' | 'foo
     bottomNavItems: agencySettings.bottomNavItems || DEFAULT_BOTTOM_NAV_ITEMS
   });
 
+  // Sync form state whenever agencySettings updates in context
+  useEffect(() => {
+    if (agencySettings) {
+      setForm(prev => ({
+        ...prev,
+        ...agencySettings,
+        footerMenus: agencySettings.footerMenus || prev.footerMenus,
+        bottomNavItems: agencySettings.bottomNavItems || prev.bottomNavItems,
+      }));
+    }
+  }, [agencySettings]);
+
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [importStatus, setImportStatus] = useState('');
 
   // Subtab for Bottom Menus Manager
-  const [bottomMenuSubTab, setBottomMenuSubTab] = useState<'footer' | 'mobile-nav'>('footer');
+  const [bottomMenuSubTab, setBottomMenuSubTab] = useState<'footer' | 'mobile-nav'>(initialSubTab);
+
+  useEffect(() => {
+    if (initialSubTab) {
+      setBottomMenuSubTab(initialSubTab);
+    }
+  }, [initialSubTab]);
 
   // FAQ addition temp state
   const [newFaqQuestion, setNewFaqQuestion] = useState('');
@@ -856,9 +874,7 @@ export const SettingsManager: React.FC<{ initialTab?: 'branding' | 'faqs' | 'foo
                             <button
                               type="button"
                               onClick={() => {
-                                if (confirm(`Are you sure you want to delete the entire "${section.title}" footer column and all its ${section.items.length} links?`)) {
-                                  deleteFooterSection(section.id);
-                                }
+                                deleteFooterSection(section.id);
                               }}
                               className="text-[10.5px] font-bold text-rose-600 hover:text-rose-800 px-2.5 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 transition cursor-pointer flex items-center gap-1"
                               title="Delete this entire column"
@@ -984,6 +1000,12 @@ export const SettingsManager: React.FC<{ initialTab?: 'branding' | 'faqs' | 'foo
                         placeholder="e.g. Explore, Tours, Contact, Deals"
                         value={newNavLabel}
                         onChange={(e) => setNewNavLabel(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            addBottomNavItem();
+                          }
+                        }}
                         className="w-full text-xs font-semibold bg-white border border-slate-200 rounded-xl px-3 py-2.5 focus:border-brand focus:outline-hidden"
                       />
                     </div>
@@ -1164,9 +1186,7 @@ export const SettingsManager: React.FC<{ initialTab?: 'branding' | 'faqs' | 'foo
                         <button
                           type="button"
                           onClick={() => {
-                            if (confirm(`Are you sure you want to delete the "${item.label}" option from the mobile bottom menu?`)) {
-                              deleteBottomNavItem(item.id);
-                            }
+                            deleteBottomNavItem(item.id);
                           }}
                           className="text-rose-600 hover:text-white hover:bg-rose-600 bg-rose-50 border border-rose-200 px-3 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1 cursor-pointer"
                           title="Delete this option from bottom menu"

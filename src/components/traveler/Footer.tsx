@@ -54,24 +54,36 @@ interface FooterProps {
 }
 
 export const Footer: React.FC<FooterProps> = ({ onSelectDestination, onSelectDham, onSelectInfoPage }) => {
-  const { agencySettings, navigateToHome, openDestinationsExplorer, navigateToDestination, setActiveInfoPage, setActiveView, navigateToGuideHub } = useTours();
+  const {
+    agencySettings,
+    navigateToHome,
+    openDestinationsExplorer,
+    navigateToDestination,
+    setActiveInfoPage,
+    setActiveView,
+    navigateToGuideHub,
+    navigateToAllTours,
+    navigateToCustomPage,
+    navigateToBlogHub,
+    navigateToJapCounter,
+  } = useTours();
 
-      const handleShare = async () => {
-        if (navigator.share) {
-          try {
-            await navigator.share({
-              title: 'Bhakti Sathi — All India Sacred Pilgrimage & Yatra Tours',
-              text: 'Book customized pilgrimage packages for Mata Vaishno Devi, Himachal Devi Darshan, Kashi Vishwanath Varanasi, Ayodhya Ram Mandir, Char Dham, Mathura Vrindavan, Dwarka Somnath, Kali Mata Kolkata, Amritsar & Tirupati Balaji with Bhakti Sathi.',
-              url: window.location.href,
-            });
-          } catch {
-            // Ignored if cancelled
-          }
-        } else {
-          navigator.clipboard.writeText(window.location.href);
-          alert('Link copied to clipboard!');
-        }
-      };
+  const handleShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'Bhakti Sathi — All India Sacred Pilgrimage & Yatra Tours',
+          text: 'Book customized pilgrimage packages for Mata Vaishno Devi, Himachal Devi Darshan, Kashi Vishwanath Varanasi, Ayodhya Ram Mandir, Char Dham, Mathura Vrindavan, Dwarka Somnath, Kali Mata Kolkata, Amritsar & Tirupati Balaji with Bhakti Sathi.',
+          url: window.location.href,
+        });
+      } catch {
+        // Ignored if cancelled
+      }
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      alert('Link copied to clipboard!');
+    }
+  };
 
   const handleNavCategory = (type: 'explore' | 'india' | 'international') => {
     if (type === 'explore') {
@@ -100,6 +112,91 @@ export const Footer: React.FC<FooterProps> = ({ onSelectDestination, onSelectDha
     } else if (onSelectInfoPage) {
       onSelectInfoPage(slug);
     }
+  };
+
+  const handleFooterLinkClick = (url: string) => {
+    const rawUrl = (url || '').trim();
+    const normalized = rawUrl.replace(/^\/+/, '').toLowerCase();
+
+    if (rawUrl.startsWith('http://') || rawUrl.startsWith('https://')) {
+      window.open(rawUrl, '_blank', 'noopener,noreferrer');
+      return;
+    }
+
+    if (rawUrl.startsWith('tel:') || rawUrl.startsWith('mailto:')) {
+      window.location.href = rawUrl;
+      return;
+    }
+
+    if (normalized === '' || normalized === 'home') {
+      navigateToHome();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    if (normalized === 'tours' || normalized === 'packages' || normalized === 'all-tours') {
+      navigateToAllTours();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    if (normalized === 'destinations' || normalized === 'explore') {
+      openDestinationsExplorer();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    if (normalized === 'guide' || normalized === 'guides') {
+      navigateToGuideHub();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    if (normalized === 'blog' || normalized === 'blogs') {
+      navigateToBlogHub();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    if (normalized === 'jap-counter' || normalized === 'mala' || normalized === 'jaap') {
+      navigateToJapCounter();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    if (normalized === 'panchang') {
+      window.location.href = '/panchang';
+      return;
+    }
+
+    if (normalized === 'rashifal' || normalized === 'horoscope') {
+      window.location.href = '/rashifal';
+      return;
+    }
+
+    const infoPages = ['about', 'careers', 'locate_us', 'contact', 'faq', 'terms', 'cancellation', 'privacy', 'security', 'pilgrimage', 'family', 'sitemap'];
+    if (infoPages.includes(normalized)) {
+      openInfo(normalized);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    // Try destination or custom page
+    const commonDestinations = ['vaishno-devi', 'himachal-devi', 'varanasi-kashi', 'ayodhya-ram-mandir', 'char-dham', 'mathura-vrindavan', 'dwarka-somnath', 'amritsar-golden-temple', 'tirupati-balaji', 'shirdi-sai-baba', 'jagannath-puri', 'kamakhya-devi', 'kedarnath', 'badrinath', 'rishikesh-haridwar'];
+    if (commonDestinations.includes(normalized)) {
+      handleDestinationClick(normalized);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    if (navigateToCustomPage) {
+      navigateToCustomPage(rawUrl);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    handleDestinationClick(rawUrl);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
@@ -239,27 +336,19 @@ export const Footer: React.FC<FooterProps> = ({ onSelectDestination, onSelectDha
                   <ul className="space-y-2 font-medium text-slate-300">
                     {section.items.map((item) => (
                       <li key={item.id}>
-                        {item.url.startsWith('http') ? (
+                        {item.url.startsWith('http://') || item.url.startsWith('https://') ? (
                           <a
                             href={item.url}
                             target="_blank"
-                            rel="noreferrer"
+                            rel="noopener noreferrer"
                             className="hover:text-white transition cursor-pointer text-left block"
                           >
                             • {item.label}
                           </a>
                         ) : (
                           <button
-                            onClick={() => {
-                              const infoSlugs = ['about', 'careers', 'locate_us', 'faq', 'terms', 'cancellation', 'privacy', 'security', 'pilgrimage', 'family', 'sitemap'];
-                              if (item.url === 'guide') {
-                                navigateToGuideHub();
-                              } else if (item.url === 'sitemap' || infoSlugs.includes(item.url)) {
-                                openInfo(item.url);
-                              } else {
-                                handleDestinationClick(item.url);
-                              }
-                            }}
+                            type="button"
+                            onClick={() => handleFooterLinkClick(item.url)}
                             className="hover:text-white transition cursor-pointer text-left block"
                           >
                             • {item.label}

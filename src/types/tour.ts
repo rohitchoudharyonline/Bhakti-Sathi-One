@@ -188,6 +188,8 @@ export interface TourPackage {
   exclusions: string[];
   includedIcons?: TourInclusionItem[];
   hotels: HotelStay[];
+  pricingTiers?: PricingTiers;
+  transportation?: any;
   policies: PackagePolicies;
   importantNotes?: string[];
   reviews?: TourReview[];

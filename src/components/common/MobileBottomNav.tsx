@@ -57,16 +57,17 @@ export const MobileBottomNav: React.FC = () => {
     const message = encodeURIComponent(
       'Hi Bhakti Sathi! I would like to inquire about holiday packages and custom itineraries.'
     );
-    window.open(`https://wa.me/${cleanPhone}?text=${message}`, '_blank');
+    const waUrl = `https://wa.me/${cleanPhone}?text=${message}`;
+    window.open(waUrl, '_blank');
   };
 
   const handleCall = () => {
     const phone = agencySettings.primaryPhone || agencySettings.phone || '+919419915255';
-    window.open(`tel:${phone.replace(/\s+/g, '')}`, '_self');
+    window.location.href = `tel:${phone.replace(/\s+/g, '')}`;
   };
 
-  // Only show in traveler view
-  if (activeView !== 'traveler') return null;
+  // Only show in traveler view and not when inside package detail (which has its own booking bar)
+  if (activeView !== 'traveler' || selectedPackageId) return null;
 
   const navItems: MobileBottomNavItem[] = (agencySettings.bottomNavItems && agencySettings.bottomNavItems.length > 0)
     ? agencySettings.bottomNavItems.filter((i) => i.enabled !== false)
@@ -106,44 +107,88 @@ export const MobileBottomNav: React.FC = () => {
   };
 
   const handleItemClick = (item: MobileBottomNavItem) => {
-    switch (item.actionType) {
-      case 'home':
-        navigateToHome();
-        break;
-      case 'tours':
-        navigateToAllTours();
-        break;
-      case 'destinations':
-        navigateToDestinationsExplorer();
-        break;
-      case 'whatsapp':
-        handleWhatsApp();
-        break;
-      case 'call':
-        handleCall();
-        break;
-      case 'custom':
-        if (item.url) {
-          if (item.url.startsWith('http')) {
-            window.open(item.url, '_blank');
-          } else if (item.url === 'about' || item.url === 'faq' || item.url === 'terms') {
-            openInfo(item.url);
-          } else {
-            openCustomPage(item.url);
-          }
-        }
-        break;
-      default:
-        navigateToHome();
+    const act = item.actionType || (item as any).action || 'home';
+    const cleanUrl = (item.url || '').trim();
+    const normalizedSlug = cleanUrl.replace(/^\/+/, '').toLowerCase();
+
+    if (act === 'home') {
+      navigateToHome();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
     }
+
+    if (act === 'tours' || normalizedSlug === 'tours' || normalizedSlug === 'packages') {
+      navigateToAllTours();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    if (act === 'destinations' || normalizedSlug === 'destinations') {
+      navigateToDestinationsExplorer();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    if (act === 'whatsapp' || normalizedSlug === 'whatsapp' || normalizedSlug === 'chat') {
+      handleWhatsApp();
+      return;
+    }
+
+    if (act === 'call' || normalizedSlug === 'call' || cleanUrl.startsWith('tel:')) {
+      handleCall();
+      return;
+    }
+
+    if (cleanUrl.startsWith('http://') || cleanUrl.startsWith('https://')) {
+      window.open(cleanUrl, '_blank', 'noopener,noreferrer');
+      return;
+    }
+
+    if (cleanUrl.startsWith('tel:') || cleanUrl.startsWith('mailto:')) {
+      window.location.href = cleanUrl;
+      return;
+    }
+
+    const infoPages = ['about', 'faq', 'terms', 'cancellation', 'privacy', 'security', 'careers', 'contact', 'locate_us'];
+    if (infoPages.includes(normalizedSlug)) {
+      openInfo(normalizedSlug);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    if (normalizedSlug === 'panchang') {
+      window.location.href = '/panchang';
+      return;
+    }
+
+    if (normalizedSlug === 'rashifal' || normalizedSlug === 'horoscope') {
+      window.location.href = '/rashifal';
+      return;
+    }
+
+    if (normalizedSlug === 'sitemap') {
+      window.location.href = '/sitemap';
+      return;
+    }
+
+    if (cleanUrl) {
+      openCustomPage(cleanUrl);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    navigateToHome();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const getItemActive = (item: MobileBottomNavItem) => {
-    if (item.actionType === 'home') return isHomeActive;
-    if (item.actionType === 'tours') return isToursActive;
-    if (item.actionType === 'destinations') return isDestinationsActive;
-    if (item.actionType === 'custom' && item.url) {
-      return activeCustomPageSlug === item.url || activeInfoPage === item.url;
+    const act = item.actionType || (item as any).action;
+    if (act === 'home') return isHomeActive;
+    if (act === 'tours') return isToursActive;
+    if (act === 'destinations') return isDestinationsActive;
+    if (act === 'custom' && item.url) {
+      const normalizedSlug = item.url.replace(/^\/+/, '').toLowerCase();
+      return activeCustomPageSlug === item.url || activeInfoPage === item.url || activeInfoPage === normalizedSlug;
     }
     return false;
   };
@@ -151,13 +196,13 @@ export const MobileBottomNav: React.FC = () => {
   return (
     <nav
       id="mobile-bottom-app-nav"
-      aria-label="Mobile Bottom App Navigation"
-      className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-lg border-t border-stone-200/90 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] pb-[env(safe-area-inset-bottom,8px)] transition-all duration-300"
+      aria-label="Bottom App Navigation"
+      className="fixed bottom-0 left-0 right-0 md:bottom-5 md:left-1/2 md:-translate-x-1/2 md:w-auto md:max-w-xl md:rounded-2xl md:border md:border-stone-200/90 md:shadow-2xl z-40 bg-white/95 backdrop-blur-lg border-t border-stone-200/90 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] pb-[env(safe-area-inset-bottom,8px)] md:pb-0 transition-all duration-300"
     >
-      <div className="max-w-md mx-auto px-2 py-1.5 flex items-center justify-around">
+      <div className="max-w-md md:max-w-none md:min-w-[420px] mx-auto px-2 md:px-4 py-1.5 flex items-center justify-around gap-1 md:gap-3">
         {navItems.map((item) => {
           const isActive = getItemActive(item);
-          const isChat = item.actionType === 'whatsapp' || item.icon === 'chat';
+          const isChat = (item.actionType || (item as any).action) === 'whatsapp' || item.icon === 'chat';
 
           return (
             <button
@@ -165,7 +210,7 @@ export const MobileBottomNav: React.FC = () => {
               type="button"
               id={`mobile-nav-${item.id}`}
               onClick={() => handleItemClick(item)}
-              className={`flex flex-col items-center justify-center flex-1 py-1 px-1 rounded-xl transition-all duration-200 cursor-pointer min-h-[44px] ${
+              className={`flex flex-col items-center justify-center flex-1 py-1 px-1.5 rounded-xl transition-all duration-200 cursor-pointer min-h-[44px] ${
                 isChat
                   ? 'text-emerald-600 hover:text-emerald-700 font-bold'
                   : isActive
@@ -185,7 +230,7 @@ export const MobileBottomNav: React.FC = () => {
                 )}
               </div>
               <span
-                className={`text-[10px] mt-1 tracking-tight leading-none ${
+                className={`text-[10px] mt-1 tracking-tight leading-none whitespace-nowrap ${
                   isChat
                     ? 'font-black text-emerald-700'
                     : isActive

@@ -123,6 +123,7 @@ export const CMSDashboard: React.FC = () => {
     | 'staff'
     | 'settings'
     | 'faqs'
+    | 'bottom-menus'
   >('dashboard');
 
   const [editingPackage, setEditingPackage] = useState<TourPackage | null>(null);
@@ -172,6 +173,7 @@ export const CMSDashboard: React.FC = () => {
       case 'staff':
         return perms.canManageStaff;
       case 'settings':
+      case 'bottom-menus':
         return perms.canManageSettings;
       default:
         return false;
@@ -781,7 +783,7 @@ export const CMSDashboard: React.FC = () => {
 
         {/* TAB 8: SETTINGS & BOTTOM MENUS */}
         {activeCmsTab === 'settings' && canAccess('settings') && <SettingsManager />}
-        {activeCmsTab === 'bottom-menus' && canAccess('settings') && <SettingsManager initialTab="footer" />}
+        {activeCmsTab === 'bottom-menus' && canAccess('bottom-menus') && <SettingsManager initialTab="footer" initialSubTab="mobile-nav" />}
 
         {/* TAB 8.5: FAQ MANAGEMENT */}
         {activeCmsTab === 'faqs' && canAccess('faqs') && <FaqsManager />}
