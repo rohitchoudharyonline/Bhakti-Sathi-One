@@ -637,10 +637,12 @@ export const TemplesManager: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
                 <div className="md:col-span-2 space-y-2">
                   <UniversalImageUploader
-                    initialImageUrl={formData.image}
+                    currentUrl={formData.image}
                     folder="destinations"
-                    onUploadSuccess={(url) => setFormData({ ...formData, image: url })}
+                    onImageSelected={(url) => setFormData({ ...formData, image: url })}
                     label="Upload High-Res Temple Photo"
+                    defaultWidth={1200}
+                    defaultFormat="webp"
                   />
                   <input
                     type="text"

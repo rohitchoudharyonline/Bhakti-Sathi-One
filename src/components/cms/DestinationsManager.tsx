@@ -591,62 +591,111 @@ export const DestinationsManager: React.FC = () => {
                 </button>
               </div>
 
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {formData.guide?.topAttractions?.map((att, idx) => (
-                  <div key={idx} className="p-4 bg-stone-50 rounded-xl border border-stone-200 space-y-2 text-xs">
-                    <div className="flex items-center justify-between">
-                      <span className="font-bold text-black">Attraction #{idx + 1}</span>
+                  <div key={idx} className="p-4 sm:p-5 bg-stone-50 rounded-2xl border border-stone-200 space-y-3.5 text-xs">
+                    <div className="flex items-center justify-between pb-2 border-b border-stone-200">
+                      <div className="flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-[#FF4B00]" />
+                        <span className="font-black text-stone-900 text-xs">Attraction #{idx + 1}</span>
+                        {att.badge && (
+                          <span className="px-2 py-0.5 bg-amber-100 text-amber-800 rounded-md font-bold text-[10px]">
+                            {att.badge}
+                          </span>
+                        )}
+                      </div>
                       <button
                         type="button"
                         onClick={() => {
-                          const updated = formData.guide.topAttractions.filter((_, i) => i !== idx);
+                          const updated = (formData.guide?.topAttractions || []).filter((_, i) => i !== idx);
                           setFormData({
                             ...formData,
                             guide: { ...formData.guide, topAttractions: updated },
                           });
                         }}
-                        className="text-stone-400 hover:text-rose-600 font-bold"
+                        className="text-stone-400 hover:text-rose-600 font-bold transition flex items-center gap-1 cursor-pointer"
                       >
-                        ✕ Remove
+                        <Trash2 className="w-3.5 h-3.5" />
+                        <span>Remove</span>
                       </button>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                      <input
-                        type="text"
-                        placeholder="Attraction Name (e.g. Gulmarg Gondola)"
-                        value={att.name}
-                        onChange={(e) => {
-                          const updated = [...formData.guide.topAttractions];
-                          updated[idx].name = e.target.value;
-                          setFormData({ ...formData, guide: { ...formData.guide, topAttractions: updated } });
-                        }}
-                        className="p-2 bg-white border border-stone-200 rounded-lg"
-                      />
-                      <input
-                        type="text"
-                        placeholder="Image URL"
-                        value={att.image}
-                        onChange={(e) => {
-                          const updated = [...formData.guide.topAttractions];
-                          updated[idx].image = e.target.value;
-                          setFormData({ ...formData, guide: { ...formData.guide, topAttractions: updated } });
-                        }}
-                        className="p-2 bg-white border border-stone-200 rounded-lg"
-                      />
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5">
+                      <div className="md:col-span-2 space-y-1">
+                        <label className="text-[11px] font-bold text-stone-700 block">Attraction / Spot Name</label>
+                        <input
+                          type="text"
+                          placeholder="e.g. Gulmarg Gondola, Vaishno Devi Bhawan, Patnitop"
+                          value={att.name}
+                          onChange={(e) => {
+                            const updated = [...(formData.guide?.topAttractions || [])];
+                            updated[idx].name = e.target.value;
+                            setFormData({ ...formData, guide: { ...formData.guide, topAttractions: updated } });
+                          }}
+                          className="w-full p-2.5 bg-white border border-stone-200 rounded-xl text-xs font-medium focus:outline-none focus:border-[#FF4B00]"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[11px] font-bold text-stone-700 block">Badge / Tag (Optional)</label>
+                        <input
+                          type="text"
+                          placeholder="e.g. Must Visit, Top Scenic, Sacred"
+                          value={att.badge || ''}
+                          onChange={(e) => {
+                            const updated = [...(formData.guide?.topAttractions || [])];
+                            updated[idx].badge = e.target.value;
+                            setFormData({ ...formData, guide: { ...formData.guide, topAttractions: updated } });
+                          }}
+                          className="w-full p-2.5 bg-white border border-stone-200 rounded-xl text-xs font-medium focus:outline-none focus:border-[#FF4B00]"
+                        />
+                      </div>
                     </div>
 
-                    <textarea
-                      rows={2}
-                      placeholder="Attraction highlights description..."
-                      value={att.description}
-                      onChange={(e) => {
-                        const updated = [...formData.guide.topAttractions];
-                        updated[idx].description = e.target.value;
-                        setFormData({ ...formData, guide: { ...formData.guide, topAttractions: updated } });
-                      }}
-                      className="w-full p-2 bg-white border border-stone-200 rounded-lg"
-                    />
+                    {/* Image Upload & Management with UniversalImageUploader */}
+                    <div className="p-3 bg-white rounded-xl border border-stone-200 space-y-2">
+                      <UniversalImageUploader
+                        variant="compact"
+                        label="Attraction Photo (Auto-Compressed to Cloudflare R2)"
+                        folder="destinations/attractions"
+                        defaultWidth={800}
+                        defaultFormat="webp"
+                        currentUrl={att.image}
+                        onImageSelected={(url) => {
+                          const updated = [...(formData.guide?.topAttractions || [])];
+                          updated[idx].image = url;
+                          setFormData({ ...formData, guide: { ...formData.guide, topAttractions: updated } });
+                        }}
+                      />
+
+                      <div className="pt-1">
+                        <input
+                          type="text"
+                          placeholder="Or paste direct image URL (https://...)"
+                          value={att.image}
+                          onChange={(e) => {
+                            const updated = [...(formData.guide?.topAttractions || [])];
+                            updated[idx].image = e.target.value;
+                            setFormData({ ...formData, guide: { ...formData.guide, topAttractions: updated } });
+                          }}
+                          className="w-full p-2 bg-stone-50 border border-stone-200 rounded-lg text-xs font-mono text-stone-700 focus:bg-white focus:outline-none focus:border-[#FF4B00]"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-bold text-stone-700 block">Highlights & Key Details</label>
+                      <textarea
+                        rows={2}
+                        placeholder="Attraction highlights, timings, spiritual or scenic significance..."
+                        value={att.description}
+                        onChange={(e) => {
+                          const updated = [...(formData.guide?.topAttractions || [])];
+                          updated[idx].description = e.target.value;
+                          setFormData({ ...formData, guide: { ...formData.guide, topAttractions: updated } });
+                        }}
+                        className="w-full p-2.5 bg-white border border-stone-200 rounded-xl text-xs focus:outline-none focus:border-[#FF4B00]"
+                      />
+                    </div>
                   </div>
                 ))}
               </div>
