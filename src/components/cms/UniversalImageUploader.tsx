@@ -17,6 +17,7 @@ import {
 import { useTours } from '../../context/TourContext';
 import { MediaAsset } from '../../types/cms';
 import { compressAndProcessImage, uploadToR2 } from '../../utils/imageCompressor';
+import { resolveDisplayImage, handleImageError } from '../../utils/imageResolver';
 import { MediaR2StorageManager } from './MediaR2StorageManager';
 
 export interface CompressionStats {
@@ -83,16 +84,8 @@ export const UniversalImageUploader: React.FC<UniversalImageUploaderProps> = ({
 
   const resolveDisplayUrl = (url?: string) => {
     if (!url) return '';
-    if (url.startsWith('data:')) return url;
-    const match = mediaAssets?.find(
-      (a) =>
-        a &&
-        (a.url === url ||
-          a.dataUrl === url ||
-          (a.storagePath && url.includes(a.storagePath)) ||
-          (a.name && url.toLowerCase().includes(a.name.toLowerCase().replace(/\.[^/.]+$/, ''))))
-    );
-    return match?.dataUrl || url;
+    if (url.startsWith('data:') || url.startsWith('blob:')) return url;
+    return resolveDisplayImage(url, mediaAssets);
   };
 
   const [targetWidth, setTargetWidth] = useState<number>(defaultWidth);
@@ -126,7 +119,10 @@ export const UniversalImageUploader: React.FC<UniversalImageUploaderProps> = ({
       });
 
       // Save to media assets in state/local storage immediately so image displays reliably
-      addMediaAsset(result.asset);
+      addMediaAsset({
+        ...result.asset,
+        dataUrl: result.dataUrl,
+      });
 
       // Upload directly to real Cloudflare R2 bucket via server-side proxy
       try {
@@ -138,7 +134,7 @@ export const UniversalImageUploader: React.FC<UniversalImageUploaderProps> = ({
           cloudStorageSettings
         );
         if (r2Uploaded) {
-          addMediaAsset({ ...result.asset, r2Synced: true });
+          addMediaAsset({ ...result.asset, dataUrl: result.dataUrl, r2Synced: true });
         }
       } catch (r2Err) {
         console.warn('R2 sync notice (image preserved in media catalog):', r2Err);
@@ -213,7 +209,12 @@ export const UniversalImageUploader: React.FC<UniversalImageUploaderProps> = ({
           {/* Thumbnail preview if URL exists */}
           {currentUrl ? (
             <div className="relative w-12 h-12 rounded-xl overflow-hidden border border-stone-200 shrink-0 bg-stone-100">
-              <img src={resolveDisplayUrl(currentUrl)} alt="" className="w-full h-full object-cover" />
+              <img
+                src={resolveDisplayUrl(currentUrl)}
+                alt=""
+                className="w-full h-full object-cover"
+                onError={(e) => handleImageError(e, currentUrl, mediaAssets)}
+              />
             </div>
           ) : (
             <div className="w-12 h-12 rounded-xl border border-dashed border-stone-300 bg-stone-50 flex items-center justify-center shrink-0 text-stone-400">
@@ -624,12 +625,7 @@ export const UniversalImageUploader: React.FC<UniversalImageUploaderProps> = ({
               src={resolveDisplayUrl(currentUrl)}
               alt="Preview"
               className="w-full h-full object-cover"
-              onError={(e) => {
-                const resolved = resolveDisplayUrl(currentUrl);
-                if (resolved && e.currentTarget.src !== resolved) {
-                  e.currentTarget.src = resolved;
-                }
-              }}
+              onError={(e) => handleImageError(e, currentUrl, mediaAssets)}
             />
             <div className="absolute bottom-2 left-2 bg-black/70 backdrop-blur-xs text-white text-[10px] font-black px-2.5 py-1 rounded-lg flex items-center gap-1.5">
               <ShieldCheck className="w-3 h-3 text-amber-400" />

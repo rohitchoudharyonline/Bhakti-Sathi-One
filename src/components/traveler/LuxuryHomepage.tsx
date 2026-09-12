@@ -264,8 +264,8 @@ export const LuxuryHomepage: React.FC = () => {
       type: 'domestic' as const,
       name: d.displayName || d.name,
       subtitle: d.tagline || (d.popularCities && d.popularCities.length > 0 ? d.popularCities.join(', ') : `${d.name} Sacred Circuit`),
-      badge: d.badge || `${d.packagesCount || 6}+ YATRA PACKAGES`,
-      toursCount: d.badge || `${d.packagesCount || 6}+ YATRA PACKAGES`,
+      badge: (d as any).badge || `${(d as any).packagesCount || 6}+ YATRA PACKAGES`,
+      toursCount: (d as any).badge || `${(d as any).packagesCount || 6}+ YATRA PACKAGES`,
       country: d.state || 'India',
       tagline: d.tagline || '',
       highlights: d.guide?.thingsToDo || [

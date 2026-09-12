@@ -1078,31 +1078,34 @@ app.post('/api/media/upload', requireCmsSession, async (req, res) => {
     fileName,
     contentType,
     storagePath,
-    r2AccountId,
-    r2AccessKeyId,
-    r2SecretAccessKey,
-    r2BucketName,
   } = req.body;
 
+  const rawAccountId = req.body.r2AccountId || process.env.R2_ACCOUNT_ID || 'a9e18b43f76902cd98ef11';
+  const rawAccessKeyId = req.body.r2AccessKeyId || process.env.R2_ACCESS_KEY_ID || 'r2_prod_key_77a9';
+  const rawSecretAccessKey = req.body.r2SecretAccessKey || process.env.R2_SECRET_ACCESS_KEY;
+  const rawBucketName = req.body.r2BucketName || process.env.R2_BUCKET_NAME || 'bhakti-sathi';
+
   if (!fileBase64 || !fileName || !storagePath) {
-    return res.status(400).json({ error: 'Missing required parameters.' });
+    return res.status(400).json({ error: 'Missing required parameters (fileBase64, fileName, storagePath).' });
   }
 
-  if (!r2AccountId || !r2AccessKeyId || !r2SecretAccessKey || !r2BucketName) {
-    return res.status(400).json({ error: 'R2 storage credentials are not configured.' });
+  const cleanAccountId = String(rawAccountId).replace(/^https?:\/\//i, '').replace(/\.r2\.cloudflarestorage\.com.*$/i, '').trim();
+
+  if (!cleanAccountId || !rawAccessKeyId || !rawSecretAccessKey || !rawBucketName) {
+    return res.status(400).json({ error: 'R2 storage credentials are not configured in settings or server environment.' });
   }
 
-  if (typeof r2SecretAccessKey === 'string' && (r2SecretAccessKey.includes('*') || r2SecretAccessKey.trim() === '')) {
+  if (typeof rawSecretAccessKey === 'string' && (rawSecretAccessKey.includes('*') || rawSecretAccessKey.trim() === '')) {
     return res.status(400).json({ error: 'R2 secret access key is masked or empty. Please enter your real Cloudflare R2 Secret Access Key in storage settings.' });
   }
 
   try {
     const s3 = new S3Client({
       region: 'auto',
-      endpoint: `https://${r2AccountId}.r2.cloudflarestorage.com`,
+      endpoint: `https://${cleanAccountId}.r2.cloudflarestorage.com`,
       credentials: {
-        accessKeyId: r2AccessKeyId,
-        secretAccessKey: r2SecretAccessKey,
+        accessKeyId: rawAccessKeyId.trim(),
+        secretAccessKey: rawSecretAccessKey.trim(),
       },
     });
 
@@ -1111,8 +1114,8 @@ app.post('/api/media/upload', requireCmsSession, async (req, res) => {
 
     await s3.send(
       new PutObjectCommand({
-        Bucket: r2BucketName,
-        Key: storagePath,
+        Bucket: rawBucketName.trim(),
+        Key: storagePath.replace(/^\//, ''),
         Body: buffer,
         ContentType: contentType || 'image/webp',
       })
@@ -1126,40 +1129,41 @@ app.post('/api/media/upload', requireCmsSession, async (req, res) => {
 });
 
 app.post('/api/media/delete', requireCmsSession, async (req, res) => {
-  const {
-    storagePath,
-    r2AccountId,
-    r2AccessKeyId,
-    r2SecretAccessKey,
-    r2BucketName,
-  } = req.body;
+  const { storagePath } = req.body;
+
+  const rawAccountId = req.body.r2AccountId || process.env.R2_ACCOUNT_ID || 'a9e18b43f76902cd98ef11';
+  const rawAccessKeyId = req.body.r2AccessKeyId || process.env.R2_ACCESS_KEY_ID || 'r2_prod_key_77a9';
+  const rawSecretAccessKey = req.body.r2SecretAccessKey || process.env.R2_SECRET_ACCESS_KEY;
+  const rawBucketName = req.body.r2BucketName || process.env.R2_BUCKET_NAME || 'bhakti-sathi';
 
   if (!storagePath) {
     return res.status(400).json({ error: 'storagePath (Key) is required.' });
   }
 
-  if (!r2AccountId || !r2AccessKeyId || !r2SecretAccessKey || !r2BucketName) {
+  const cleanAccountId = String(rawAccountId).replace(/^https?:\/\//i, '').replace(/\.r2\.cloudflarestorage\.com.*$/i, '').trim();
+
+  if (!cleanAccountId || !rawAccessKeyId || !rawSecretAccessKey || !rawBucketName) {
     return res.status(400).json({ error: 'R2 storage credentials are not configured.' });
   }
 
-  if (typeof r2SecretAccessKey === 'string' && (r2SecretAccessKey.includes('*') || r2SecretAccessKey.trim() === '')) {
+  if (typeof rawSecretAccessKey === 'string' && (rawSecretAccessKey.includes('*') || rawSecretAccessKey.trim() === '')) {
     return res.status(400).json({ error: 'R2 secret access key is masked or empty. Please enter your real Cloudflare R2 Secret Access Key in storage settings.' });
   }
 
   try {
     const s3 = new S3Client({
       region: 'auto',
-      endpoint: `https://${r2AccountId}.r2.cloudflarestorage.com`,
+      endpoint: `https://${cleanAccountId}.r2.cloudflarestorage.com`,
       credentials: {
-        accessKeyId: r2AccessKeyId,
-        secretAccessKey: r2SecretAccessKey,
+        accessKeyId: rawAccessKeyId.trim(),
+        secretAccessKey: rawSecretAccessKey.trim(),
       },
     });
 
     await s3.send(
       new DeleteObjectCommand({
-        Bucket: r2BucketName,
-        Key: storagePath,
+        Bucket: rawBucketName.trim(),
+        Key: storagePath.replace(/^\//, ''),
       })
     );
 

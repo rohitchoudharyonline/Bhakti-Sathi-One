@@ -30,7 +30,7 @@ import {
   Ticket,
 } from 'lucide-react';
 import { useTours } from '../../context/TourContext';
-import { DESTINATIONS_REGISTRY, matchPackageToDestination } from '../../data/destinationsData';
+import { DESTINATIONS_REGISTRY, matchPackageToDestination, DestinationMeta } from '../../data/destinationsData';
 import { resolveDisplayImage, handleImageError } from '../../utils/imageResolver';
 import { TourPackage } from '../../types/tour';
 import { InquiryModal } from './InquiryModal';

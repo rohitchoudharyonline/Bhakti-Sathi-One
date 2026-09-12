@@ -48,6 +48,7 @@ export async function compressAndProcessImage(
       fileName: cleanName,
       fileType: fileExt as any,
       url,
+      dataUrl,
       storagePath,
       storageProvider: 'cloudflare_r2',
       originalSizeKb,
@@ -115,6 +116,7 @@ export async function compressAndProcessImage(
             fileName: finalFileName,
             fileType: targetExt as any,
             url: `${r2PublicDomain.replace(/\/$/, '')}/${storagePath}`,
+            dataUrl: compressedDataUrl,
             storagePath,
             storageProvider: 'cloudflare_r2',
             originalSizeKb,
@@ -166,16 +168,29 @@ export async function uploadToR2(
   fileName: string,
   contentType: string,
   storagePath: string,
-  _settings?: CloudStorageSettings
+  settings?: CloudStorageSettings
 ): Promise<boolean> {
   try {
     const response = await fetch('/api/media/upload', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
-      body: JSON.stringify({ fileBase64, fileName, contentType, storagePath }),
+      body: JSON.stringify({
+        fileBase64,
+        fileName,
+        contentType,
+        storagePath,
+        r2AccountId: settings?.r2AccountId,
+        r2AccessKeyId: settings?.r2AccessKeyId,
+        r2SecretAccessKey: settings?.r2SecretAccessKey,
+        r2BucketName: settings?.r2BucketName || 'bhakti-sathi',
+      }),
     });
-    if (!response.ok) return false;
+    if (!response.ok) {
+      const err = await response.json().catch(() => null);
+      console.warn('R2 upload response not ok:', err);
+      return false;
+    }
     const data = await response.json();
     return data.success === true;
   } catch (error) {
@@ -186,14 +201,20 @@ export async function uploadToR2(
 
 export async function deleteFromR2(
   storagePath: string,
-  _settings?: CloudStorageSettings
+  settings?: CloudStorageSettings
 ): Promise<boolean> {
   try {
     const response = await fetch('/api/media/delete', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
-      body: JSON.stringify({ storagePath }),
+      body: JSON.stringify({
+        storagePath,
+        r2AccountId: settings?.r2AccountId,
+        r2AccessKeyId: settings?.r2AccessKeyId,
+        r2SecretAccessKey: settings?.r2SecretAccessKey,
+        r2BucketName: settings?.r2BucketName || 'bhakti-sathi',
+      }),
     });
     if (!response.ok) return false;
     const data = await response.json();
