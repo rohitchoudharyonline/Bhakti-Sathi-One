@@ -198,6 +198,39 @@ export interface TourPackage {
   createdAt?: string;
   seoTitle?: string;
   metaDescription?: string;
+  templeIds?: string[];
+  temples?: string[];
+  places?: string[];
+}
+
+export type TempleCategory =
+  | 'Shaktipeeth'
+  | 'Jyotirlinga'
+  | 'Char Dham'
+  | 'Cave Shrine'
+  | 'Panch Kedar'
+  | 'Divya Desam'
+  | 'Ancient Dham'
+  | 'Holy River Ghat';
+
+export interface TemplePlace {
+  id: string;
+  slug: string;
+  name: string;
+  hindiName?: string;
+  deity?: string;
+  category: TempleCategory;
+  city: string;
+  state: string;
+  image: string;
+  tagline?: string;
+  description?: string;
+  darshanTimings?: string;
+  dressCode?: string;
+  bestTimeToVisit?: string;
+  featured?: boolean;
+  order?: number;
+  destinationSlug?: string;
 }
 
 export type StaffRole =

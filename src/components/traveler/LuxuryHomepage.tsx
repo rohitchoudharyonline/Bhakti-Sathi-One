@@ -51,6 +51,7 @@ import {
   Settings,
   User,
   FileText,
+  Landmark,
 } from 'lucide-react';
 import { useTours } from '../../context/TourContext';
 import { Navbar } from '../common/Navbar';
@@ -204,6 +205,7 @@ export const LuxuryHomepage: React.FC = () => {
   const {
     packages,
     destinations,
+    temples,
     mediaAssets,
     agencySettings,
     setActiveView,
@@ -212,6 +214,7 @@ export const LuxuryHomepage: React.FC = () => {
     isWishlisted,
     submitInquiry,
     navigateToDestination,
+    navigateToTemple,
     navigateToSearch,
     pageSeoConfigs,
   } = useTours();
@@ -234,6 +237,7 @@ export const LuxuryHomepage: React.FC = () => {
   // Filter States
   const [destinationScope, setDestinationScope] = useState<'all' | 'domestic' | 'international'>('domestic');
   const [activeSpecificDest, setActiveSpecificDest] = useState<string>('all');
+  const [activeTempleCategory, setActiveTempleCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedMonth, setSelectedMonth] = useState('any');
   const [durationFilter, setDurationFilter] = useState('all');
@@ -244,18 +248,30 @@ export const LuxuryHomepage: React.FC = () => {
   const [loadedImages, setLoadedImages] = useState<Record<string, boolean>>({});
 
   const destinationSearchOptions = useMemo(() => {
-    const list = Object.values(destinations || {}) as DestinationMeta[];
-    const dynamicOptions = list.map((d) => ({
+    const destList = Object.values(destinations || {}) as DestinationMeta[];
+    const dynamicDestOptions = destList.map((d) => ({
       id: d.slug || d.id,
       name: d.displayName || d.name,
-      region: d.state || 'Sacred Yatra',
+      region: d.state || 'Circuit',
       desc: d.tagline || (d.popularCities && d.popularCities.length > 0 ? d.popularCities.join(', ') : `${d.name} Pilgrimage`),
+      type: 'dest' as const,
     }));
+
+    const templeOptions = temples.map((t) => ({
+      id: `temple:${t.id}`,
+      templeId: t.id,
+      name: `🛕 ${t.name}`,
+      region: t.category,
+      desc: `${t.city}${t.state ? `, ${t.state}` : ''} • ${t.deity || 'Holy Shrine'}`,
+      type: 'temple' as const,
+    }));
+
     return [
-      ...dynamicOptions,
-      { id: 'all', name: 'All Sacred Yatras', region: 'Explore', desc: 'Browse all spiritual yatra & temple packages' },
+      ...dynamicDestOptions,
+      ...templeOptions,
+      { id: 'all', name: 'All Sacred Yatras & Temples', region: 'Explore', desc: 'Browse all spiritual yatra & temple packages', type: 'dest' as const },
     ];
-  }, [destinations]);
+  }, [destinations, temples]);
 
   const filteredDestinations = useMemo(() => {
     const list = Object.values(destinations || {}) as DestinationMeta[];
@@ -323,12 +339,24 @@ export const LuxuryHomepage: React.FC = () => {
     setOpenDropdown(null);
 
     setTimeout(() => {
-      navigateToSearch({
-        destinationSlug: activeSpecificDest,
-        searchQuery: searchQuery,
-        category: 'pilgrimage',
-        month: selectedMonth !== 'any' ? selectedMonth : undefined,
-      });
+      if (activeSpecificDest.startsWith('temple:')) {
+        const rawTempleId = activeSpecificDest.replace('temple:', '');
+        const targetTemple = temples.find((t) => t.id === rawTempleId);
+        navigateToSearch({
+          templeId: rawTempleId,
+          templeName: targetTemple ? targetTemple.name : undefined,
+          searchQuery: searchQuery,
+          category: 'pilgrimage',
+          month: selectedMonth !== 'any' ? selectedMonth : undefined,
+        });
+      } else {
+        navigateToSearch({
+          destinationSlug: activeSpecificDest,
+          searchQuery: searchQuery,
+          category: 'pilgrimage',
+          month: selectedMonth !== 'any' ? selectedMonth : undefined,
+        });
+      }
       setIsSearching(false);
     }, 350);
   };
@@ -778,6 +806,197 @@ export const LuxuryHomepage: React.FC = () => {
                     </motion.div>
                   );
                 })}
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* ========================================================
+            FILTER BY SACRED TEMPLES & HOLY PLACES (PAVITRA MANDIR & DHAM)
+            ======================================================== */}
+        <section className="py-8 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto space-y-6">
+          <div>
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-5 gap-3">
+              <div>
+                <div className="flex items-center gap-2 mb-1.5">
+                  <span className="text-[10px] sm:text-xs font-extrabold uppercase tracking-widest text-[#FF4B00] bg-[#FF4B00]/10 px-2.5 py-0.5 rounded-full border border-[#FF4B00]/20 inline-flex items-center gap-1">
+                    <Landmark className="w-3 h-3" />
+                    <span>Filter by Holy Shrine & Temple</span>
+                  </span>
+                  <span className="text-[11px] font-medium text-stone-400">धाम एवं मंदिर दर्शन</span>
+                </div>
+                <h2 className="text-2xl sm:text-3xl font-black text-stone-900 tracking-tight flex items-center gap-2">
+                  <span>Pavitra Mandir & Dham</span>
+                  <span className="w-8 h-1 bg-[#FF4B00] rounded-full inline-block" />
+                </h2>
+                <p className="text-xs sm:text-sm text-stone-600 font-medium mt-1 leading-relaxed max-w-2xl">
+                  Select your revered temple or holy shrine to view all tailored pilgrimage itineraries, VIP darshan packages, and private transfers.
+                </p>
+              </div>
+
+              {/* View All Temples link */}
+              <button
+                type="button"
+                onClick={() => {
+                  navigateToSearch({ category: 'pilgrimage' });
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                className="inline-flex items-center gap-1.5 text-xs font-black text-[#FF4B00] hover:text-[#E04200] transition cursor-pointer self-start sm:self-end"
+              >
+                <span>Browse All Shrines</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+
+            {/* Category Filter Chips */}
+            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-2 mb-5">
+              {[
+                { id: 'all', label: 'All Holy Shrines' },
+                { id: 'Shaktipeeth', label: 'Shaktipeeths' },
+                { id: 'Jyotirlinga', label: 'Jyotirlingas' },
+                { id: 'Char Dham', label: 'Char Dham' },
+                { id: 'Cave Shrine', label: 'Cave Shrines' },
+                { id: 'Ancient Dham', label: 'Ancient Dhams' },
+              ].map((cat) => {
+                const isSelected = activeTempleCategory === cat.id;
+                const count =
+                  cat.id === 'all'
+                    ? temples.length
+                    : temples.filter((t) => t.category === cat.id).length;
+
+                if (count === 0 && cat.id !== 'all') return null;
+
+                return (
+                  <button
+                    key={cat.id}
+                    type="button"
+                    onClick={() => setActiveTempleCategory(cat.id)}
+                    className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all shrink-0 cursor-pointer flex items-center gap-1.5 ${
+                      isSelected
+                        ? 'bg-[#FF4B00] text-white shadow-xs'
+                        : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
+                    }`}
+                  >
+                    <span>{cat.label}</span>
+                    <span
+                      className={`text-[10px] px-1.5 py-0.2 rounded-full ${
+                        isSelected ? 'bg-white/20 text-white' : 'bg-stone-200/80 text-stone-600'
+                      }`}
+                    >
+                      {count}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Temples Grid */}
+            {temples.filter(
+              (t) => activeTempleCategory === 'all' || t.category === activeTempleCategory
+            ).length === 0 ? (
+              <div className="bg-white rounded-2xl border border-dashed border-stone-300 p-8 text-center max-w-md mx-auto">
+                <Landmark className="w-8 h-8 text-stone-300 mx-auto mb-2" />
+                <p className="text-sm font-bold text-stone-700">No temples found in this category</p>
+                <p className="text-xs text-stone-500 mt-1">
+                  Add more sacred shrines from the CMS Temples tab.
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                {temples
+                  .filter(
+                    (t) => activeTempleCategory === 'all' || t.category === activeTempleCategory
+                  )
+                  .map((temple, idx) => {
+                    const targetId = temple.id.toLowerCase();
+                    const targetSlug = temple.slug.toLowerCase();
+                    const targetName = temple.name.toLowerCase();
+
+                    const matchingPkgs = packages.filter(
+                      (pkg) =>
+                        pkg.templeIds?.some(
+                          (id) =>
+                            id.toLowerCase() === targetId || id.toLowerCase() === targetSlug
+                        ) ||
+                        pkg.temples?.some(
+                          (n) =>
+                            n.toLowerCase() === targetName ||
+                            n.toLowerCase().includes(targetName) ||
+                            targetName.includes(n.toLowerCase())
+                        ) ||
+                        pkg.title.toLowerCase().includes(targetName) ||
+                        pkg.destination?.toLowerCase().includes(targetName)
+                    );
+
+                    const pkgCount = matchingPkgs.length;
+
+                    return (
+                      <motion.div
+                        key={temple.id}
+                        initial={{ opacity: 0, y: 15 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true, margin: '-40px' }}
+                        transition={{ duration: 0.4, delay: idx * 0.05 }}
+                        onClick={() => navigateToTemple(temple)}
+                        className="group relative aspect-[4/3] rounded-2xl sm:rounded-3xl overflow-hidden cursor-pointer border border-stone-200/90 hover:border-[#FF4B00]/40 transition-all duration-300 shadow-xs hover:shadow-xl hover:-translate-y-1 flex flex-col justify-between p-4 sm:p-5"
+                      >
+                        {/* Temple Image */}
+                        <img
+                          src={resolveDisplayImage(temple.image, mediaAssets)}
+                          alt={temple.name}
+                          onError={(e) => handleImageError(e, temple.image, mediaAssets)}
+                          className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
+                          loading="lazy"
+                        />
+
+                        {/* Gradient Scrim */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/40 to-black/20 pointer-events-none" />
+
+                        {/* Top Badges */}
+                        <div className="relative z-10 flex items-center justify-between gap-2 pointer-events-none">
+                          <span className="text-[10px] sm:text-xs font-black tracking-wider text-white bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full uppercase border border-white/20">
+                            {temple.category}
+                          </span>
+                          {temple.deity && (
+                            <span className="text-[10px] font-bold text-amber-300 bg-amber-950/80 backdrop-blur-md px-2.5 py-0.5 rounded-full border border-amber-400/30">
+                              {temple.deity}
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Bottom Info */}
+                        <div className="relative z-10 text-white pointer-events-none flex flex-col gap-1">
+                          <div className="flex items-center gap-1.5 text-[11px] text-amber-300 font-semibold drop-shadow-xs">
+                            <MapPin className="w-3.5 h-3.5 text-[#FF4B00]" />
+                            <span>
+                              {temple.city}
+                              {temple.state ? `, ${temple.state}` : ''}
+                            </span>
+                          </div>
+
+                          <h3 className="text-base sm:text-lg font-black text-white group-hover:text-amber-200 transition-colors drop-shadow-md leading-snug">
+                            {temple.name}
+                          </h3>
+
+                          {temple.hindiName && (
+                            <p className="text-[11px] text-stone-300 font-medium drop-shadow-xs">
+                              {temple.hindiName}
+                            </p>
+                          )}
+
+                          <div className="flex items-center justify-between pt-2 border-t border-white/15 mt-1">
+                            <span className="text-[10px] font-bold text-stone-300">
+                              {pkgCount > 0 ? `${pkgCount} Yatra Packages` : 'Custom Itinerary'}
+                            </span>
+                            <div className="flex items-center gap-1 text-xs font-bold text-[#FF9E79] group-hover:text-white group-hover:translate-x-1 transition-all">
+                              <span>Filter Packages</span>
+                              <ArrowRight className="w-3 h-3" />
+                            </div>
+                          </div>
+                        </div>
+                      </motion.div>
+                    );
+                  })}
               </div>
             )}
           </div>

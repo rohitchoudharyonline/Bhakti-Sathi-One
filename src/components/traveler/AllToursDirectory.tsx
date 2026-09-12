@@ -26,6 +26,7 @@ import {
   RotateCcw,
   Tag,
   Calendar,
+  Landmark,
 } from 'lucide-react';
 
 interface AllToursDirectoryProps {
@@ -38,6 +39,7 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
   const {
     packages,
     destinations,
+    temples,
     agencySettings,
     systemSearchParams,
     navigateToHome,
@@ -49,6 +51,9 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
 
   const [selectedDestSlug, setSelectedDestSlug] = useState<string>(
     systemSearchParams?.destinationSlug || initialDestinationSlug || 'all'
+  );
+  const [selectedTempleId, setSelectedTempleId] = useState<string>(
+    systemSearchParams?.templeId || 'all'
   );
   const [selectedCategory, setSelectedCategory] = useState<string>(
     systemSearchParams?.category || 'all'
@@ -70,6 +75,16 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
       if (systemSearchParams.destinationSlug !== undefined) {
         setSelectedDestSlug(systemSearchParams.destinationSlug || 'all');
       }
+      if (systemSearchParams.templeId !== undefined) {
+        setSelectedTempleId(systemSearchParams.templeId || 'all');
+      } else if (systemSearchParams.templeName !== undefined) {
+        const found = temples.find(
+          (t) =>
+            t.name.toLowerCase() === systemSearchParams.templeName?.toLowerCase() ||
+            t.slug.toLowerCase() === systemSearchParams.templeName?.toLowerCase()
+        );
+        setSelectedTempleId(found ? found.id : 'all');
+      }
       if (systemSearchParams.category !== undefined) {
         setSelectedCategory(systemSearchParams.category || 'all');
       }
@@ -83,7 +98,7 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
         setSelectedDuration(systemSearchParams.duration || 'all');
       }
     }
-  }, [systemSearchParams]);
+  }, [systemSearchParams, temples]);
 
   const destinationList: DestinationMeta[] = Object.values(destinations) as DestinationMeta[];
   const currentDestMeta = destinationList.find(
@@ -138,6 +153,31 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
         pkg.destination?.toLowerCase() === selectedDestSlug.toLowerCase() ||
         pkg.category?.toLowerCase().includes(selectedDestSlug.toLowerCase()) ||
         pkg.title.toLowerCase().includes(selectedDestSlug.toLowerCase());
+      if (!match) return false;
+    }
+
+    // Sacred Temple / Place filter
+    if (selectedTempleId !== 'all') {
+      const targetTemple = temples.find(
+        (t) => t.id === selectedTempleId || t.slug === selectedTempleId
+      );
+      const targetName = (targetTemple ? targetTemple.name : selectedTempleId).toLowerCase();
+      const targetSlug = (targetTemple ? targetTemple.slug : selectedTempleId).toLowerCase();
+      const targetId = (targetTemple ? targetTemple.id : selectedTempleId).toLowerCase();
+
+      const match =
+        pkg.templeIds?.some((id) => id.toLowerCase() === targetId || id.toLowerCase() === targetSlug) ||
+        pkg.temples?.some(
+          (name) =>
+            name.toLowerCase() === targetName ||
+            name.toLowerCase().includes(targetName) ||
+            targetName.includes(name.toLowerCase())
+        ) ||
+        pkg.title.toLowerCase().includes(targetName) ||
+        pkg.tagline?.toLowerCase().includes(targetName) ||
+        pkg.destination?.toLowerCase().includes(targetName) ||
+        pkg.overview?.toLowerCase().includes(targetName);
+
       if (!match) return false;
     }
 
@@ -227,8 +267,13 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
     }
   };
 
+  const selectedTempleMeta = temples.find(
+    (t) => t.id === selectedTempleId || t.slug === selectedTempleId
+  );
+
   const hasActiveFilters =
     selectedDestSlug !== 'all' ||
+    selectedTempleId !== 'all' ||
     selectedCategory !== 'all' ||
     selectedDuration !== 'all' ||
     (selectedMonth && selectedMonth !== 'any') ||
@@ -236,6 +281,7 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
 
   const handleResetFilters = () => {
     setSelectedDestSlug('all');
+    setSelectedTempleId('all');
     setSelectedCategory('all');
     setSelectedDuration('all');
     setSelectedMonth('any');
@@ -339,8 +385,26 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
               ))}
             </div>
 
-            {/* Sub-Filters: Category, Duration & Sort */}
+            {/* Sub-Filters: Category, Temple, Duration & Sort */}
             <div className="flex flex-wrap items-center gap-2">
+              {/* Temple / Shrine Filter Dropdown */}
+              <select
+                value={selectedTempleId}
+                onChange={(e) => setSelectedTempleId(e.target.value)}
+                className={`p-2 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-[#FF4B00]/20 border ${
+                  selectedTempleId !== 'all'
+                    ? 'bg-orange-50 border-[#FF4B00] text-[#FF4B00]'
+                    : 'bg-stone-100 border-stone-200 text-stone-800'
+                }`}
+              >
+                <option value="all">All Temples & Shrines ({temples.length})</option>
+                {temples.map((temple) => (
+                  <option key={temple.id} value={temple.id}>
+                    🛕 {temple.name} ({temple.category})
+                  </option>
+                ))}
+              </select>
+
               <select
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
@@ -390,6 +454,15 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
                     <MapPin className="w-3 h-3 text-[#FF4B00]" />
                     {currentDestMeta?.name || selectedDestSlug}
                     <button onClick={() => setSelectedDestSlug('all')} className="hover:text-[#FF4B00] ml-1 cursor-pointer">
+                      <X className="w-3 h-3" />
+                    </button>
+                  </span>
+                )}
+                {selectedTempleId !== 'all' && (
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-white border border-stone-200 rounded-lg font-bold text-stone-900 shadow-2xs">
+                    <Landmark className="w-3 h-3 text-[#FF4B00]" />
+                    {selectedTempleMeta?.name || selectedTempleId}
+                    <button onClick={() => setSelectedTempleId('all')} className="hover:text-[#FF4B00] ml-1 cursor-pointer">
                       <X className="w-3 h-3" />
                     </button>
                   </span>

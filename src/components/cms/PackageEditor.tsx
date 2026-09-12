@@ -116,7 +116,7 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
   onSaveComplete,
   onCancel,
 }) => {
-  const { addPackage, updatePackage, agencySettings } = useTours();
+  const { addPackage, updatePackage, agencySettings, temples } = useTours();
 
   const [activeTab, setActiveTab] = useState<'basic' | 'pricing' | 'itinerary' | 'inclusions' | 'hotels' | 'policies' | 'seo' | 'group'>('basic');
 
@@ -125,6 +125,20 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
   const [tagline, setTagline] = useState(initialPackage?.tagline || '');
   const [destination, setDestination] = useState(initialPackage?.destination || '');
   const [destinationTag, setDestinationTag] = useState<string>(initialPackage?.destinationTag || 'jammu');
+  const [selectedTempleIds, setSelectedTempleIds] = useState<string[]>(() => {
+    if (initialPackage?.templeIds && initialPackage.templeIds.length > 0) {
+      return initialPackage.templeIds;
+    }
+    if (initialPackage?.temples && initialPackage.temples.length > 0) {
+      return initialPackage.temples.map((tName) => {
+        const match = temples.find((t) => t.name.toLowerCase() === tName.toLowerCase() || t.slug.toLowerCase() === tName.toLowerCase());
+        return match ? match.id : tName;
+      });
+    }
+    return [];
+  });
+  const [templeSearchQuery, setTempleSearchQuery] = useState('');
+  const [templeCategoryFilter, setTempleCategoryFilter] = useState<string>('all');
   const [country, setCountry] = useState(initialPackage?.country || '');
   const [category, setCategory] = useState<PackageCategory>(initialPackage?.category || 'Honeymoon');
   const [badge, setBadge] = useState<PackageBadge | ''>(initialPackage?.badge || 'Best Seller');
@@ -399,6 +413,11 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
       bestTimeToVisit: bestTimeToVisit.trim(),
       tourType: isGroupTour ? 'Group Tour' : tourType,
       isGroupTour,
+      templeIds: selectedTempleIds,
+      temples: selectedTempleIds.map((id) => {
+        const match = temples.find((t) => t.id === id || t.slug === id);
+        return match ? match.name : id;
+      }),
       groupTourDetails: isGroupTour
         ? {
             isGroupTour: true,
@@ -899,6 +918,132 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
                     placeholder="Detailed narrative describing the magical experience, landscapes, transport and stay highlights..."
                     className="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 focus:bg-white focus:border-brand focus:outline-hidden transition"
                   />
+                </div>
+
+                {/* SACRED TEMPLES & HOLY PLACES SELECTION */}
+                <div className="md:col-span-2 pt-4 border-t border-slate-100 space-y-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div>
+                      <label className="text-xs font-black text-slate-900 flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-[#FF4B00]" />
+                        <span>Sacred Temples & Holy Places Visited on this Tour</span>
+                        <span className="px-2 py-0.5 rounded-full bg-orange-100 text-[#FF4B00] text-[10px] font-black">
+                          {selectedTempleIds.length} Selected
+                        </span>
+                      </label>
+                      <p className="text-[11px] text-slate-500">
+                        Tag temples and holy places to enable travelers to filter and discover this package by shrine name on the homepage and directory.
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      {selectedTempleIds.length > 0 && (
+                        <button
+                          type="button"
+                          onClick={() => setSelectedTempleIds([])}
+                          className="text-[11px] font-bold text-rose-600 hover:underline cursor-pointer"
+                        >
+                          Clear All
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Search and Category Filter for Temples */}
+                  <div className="flex flex-col sm:flex-row items-center gap-2">
+                    <input
+                      type="text"
+                      value={templeSearchQuery}
+                      onChange={(e) => setTempleSearchQuery(e.target.value)}
+                      placeholder="Search temples by name, deity, or city..."
+                      className="w-full sm:w-64 text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 focus:bg-white focus:border-[#FF4B00] focus:outline-hidden"
+                    />
+
+                    <div className="flex items-center gap-1 overflow-x-auto w-full pb-1 scrollbar-none">
+                      {['all', 'Shaktipeeth', 'Jyotirlinga', 'Char Dham', 'Cave Shrine', 'Ancient Dham'].map((cat) => (
+                        <button
+                          key={cat}
+                          type="button"
+                          onClick={() => setTempleCategoryFilter(cat)}
+                          className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all shrink-0 cursor-pointer ${
+                            templeCategoryFilter === cat
+                              ? 'bg-[#FF4B00] text-white'
+                              : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                          }`}
+                        >
+                          {cat === 'all' ? 'All Shrines' : cat}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Shrines Grid */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 max-h-72 overflow-y-auto p-1 border border-slate-200 rounded-2xl bg-slate-50/50">
+                    {temples
+                      .filter((t) => {
+                        const matchesQuery =
+                          t.name.toLowerCase().includes(templeSearchQuery.toLowerCase()) ||
+                          (t.hindiName && t.hindiName.toLowerCase().includes(templeSearchQuery.toLowerCase())) ||
+                          t.city.toLowerCase().includes(templeSearchQuery.toLowerCase()) ||
+                          (t.deity && t.deity.toLowerCase().includes(templeSearchQuery.toLowerCase()));
+                        const matchesCat =
+                          templeCategoryFilter === 'all' || t.category === templeCategoryFilter;
+                        return matchesQuery && matchesCat;
+                      })
+                      .map((temple) => {
+                        const isSelected =
+                          selectedTempleIds.includes(temple.id) ||
+                          selectedTempleIds.includes(temple.slug) ||
+                          selectedTempleIds.includes(temple.name);
+
+                        return (
+                          <div
+                            key={temple.id}
+                            onClick={() => {
+                              if (isSelected) {
+                                setSelectedTempleIds((prev) =>
+                                  prev.filter(
+                                    (id) =>
+                                      id !== temple.id &&
+                                      id !== temple.slug &&
+                                      id !== temple.name
+                                  )
+                                );
+                              } else {
+                                setSelectedTempleIds((prev) => [...prev, temple.id]);
+                              }
+                            }}
+                            className={`p-2 rounded-xl border flex items-center gap-2.5 transition-all cursor-pointer select-none ${
+                              isSelected
+                                ? 'bg-orange-50 border-[#FF4B00] shadow-xs'
+                                : 'bg-white border-slate-200 hover:border-slate-300'
+                            }`}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={isSelected}
+                              onChange={() => {}}
+                              className="w-4 h-4 rounded text-[#FF4B00] focus:ring-[#FF4B00] cursor-pointer shrink-0"
+                            />
+                            <div className="w-9 h-9 rounded-lg overflow-hidden bg-slate-200 shrink-0">
+                              <img
+                                src={temple.image}
+                                alt={temple.name}
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <p className="text-xs font-bold text-slate-900 truncate">
+                                {temple.name}
+                              </p>
+                              <p className="text-[10px] text-slate-500 truncate">
+                                {temple.city} • <span className="font-semibold text-orange-600">{temple.category}</span>
+                              </p>
+                            </div>
+                          </div>
+                        );
+                      })}
+                  </div>
                 </div>
               </div>
             </div>

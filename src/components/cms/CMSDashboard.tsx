@@ -12,6 +12,7 @@ import { VendorPaymentsManager } from './VendorPaymentsManager';
 import { InvoicesManager } from './InvoicesManager';
 import { StaffRoleSwitcher } from './StaffRoleSwitcher';
 import { DestinationsManager } from './DestinationsManager';
+import { TemplesManager } from './TemplesManager';
 import { CustomPagesManager } from './CustomPagesManager';
 import { MediaR2StorageManager } from './MediaR2StorageManager';
 import { PushNotificationsManager } from './PushNotificationsManager';
@@ -50,6 +51,7 @@ import {
   Star,
   MapPin,
   Building,
+  Landmark,
   Layers,
   Filter,
   FileText,
@@ -92,6 +94,7 @@ export const CMSDashboard: React.FC = () => {
     guideCategories,
     customPages,
     mediaAssets,
+    temples,
     addGuide,
     updateGuide,
     deletePackage,
@@ -112,6 +115,7 @@ export const CMSDashboard: React.FC = () => {
     | 'seo'
     | 'editor'
     | 'destinations'
+    | 'temples'
     | 'pages'
     | 'media'
     | 'push-notifications'
@@ -151,6 +155,7 @@ export const CMSDashboard: React.FC = () => {
       case 'tags':
       case 'seo':
       case 'destinations':
+      case 'temples':
       case 'pages':
       case 'media':
       case 'users':
@@ -261,6 +266,7 @@ export const CMSDashboard: React.FC = () => {
       show: canAccess('group-tours'),
     },
     { id: 'destinations', label: 'Destinations Hub', icon: MapPin, count: null, show: canAccess('destinations') },
+    { id: 'temples', label: 'Temples & Shrines', icon: Landmark, count: temples.length, show: canAccess('temples') },
     { id: 'push-notifications', label: 'Push Broadcasts', icon: Bell, count: pushNotifications.length, show: true },
     { id: 'inquiries', label: 'Inquiries & Leads', icon: MessageSquare, count: inquiries.length, badgeNew: newInquiriesCount > 0, show: canAccess('inquiries') },
     { id: 'users', label: 'Travelers & Signups', icon: Users, count: registeredUsers?.length || 0, show: true },
@@ -743,6 +749,9 @@ export const CMSDashboard: React.FC = () => {
 
         {/* TAB 3: DESTINATIONS & TRAVEL GUIDES CMS */}
         {activeCmsTab === 'destinations' && canAccess('destinations') && <DestinationsManager />}
+
+        {/* TAB 3.5: SACRED TEMPLES & SHRINES CMS */}
+        {activeCmsTab === 'temples' && canAccess('temples') && <TemplesManager />}
 
         {/* TAB 4: CUSTOM PAGES CMS */}
         {activeCmsTab === 'pages' && canAccess('pages') && <CustomPagesManager />}

@@ -30,6 +30,7 @@ import { DEFAULT_GUIDES, DEFAULT_GUIDE_CATEGORIES } from '../data/defaultGuidesD
 import { DEFAULT_CUSTOM_PAGES } from '../data/defaultPagesData';
 import { DEFAULT_PAGE_SEO_CONFIGS } from '../data/defaultPageSeoData';
 import { DEFAULT_PUSH_NOTIFICATIONS, DEFAULT_PUSH_SUBSCRIBERS, DEFAULT_PUSH_SETTINGS } from '../data/defaultPushData';
+import { DEFAULT_TEMPLES_DATA, TemplePlace } from '../data/templesData';
 
 export interface SystemSearchParams {
   destinationSlug?: string;
@@ -37,6 +38,8 @@ export interface SystemSearchParams {
   category?: string;
   month?: string;
   duration?: string;
+  templeId?: string;
+  templeName?: string;
 }
 
 interface TourContextType {
@@ -52,6 +55,15 @@ interface TourContextType {
   invoices: Invoice[];
   activeView: 'traveler' | 'cms';
   setActiveView: (view: 'traveler' | 'cms') => void;
+  
+  // Sacred Temples & Shrines
+  temples: TemplePlace[];
+  addTemple: (temple: Omit<TemplePlace, 'id' | 'slug'> & { id?: string; slug?: string }) => string;
+  updateTemple: (temple: TemplePlace) => void;
+  deleteTemple: (id: string) => void;
+  selectedTempleId: string | null;
+  setSelectedTempleId: (id: string | null) => void;
+  navigateToTemple: (templeId: string) => void;
   
   // Navigation & URL Routing States
   selectedPackageId: string | null;
@@ -270,6 +282,7 @@ interface TourContextType {
 const STORAGE_KEYS = {
   PACKAGES: 'hh_tour_packages_v2',
   DESTINATIONS: 'hh_destinations_registry_v2',
+  TEMPLES_PLACES: 'hh_temples_places_v1',
   BLOG_POSTS: 'hh_blog_posts_v2',
   BLOG_CATEGORIES: 'hh_blog_categories_v2',
   GUIDES: 'hh_guide_articles_v1',
@@ -503,6 +516,22 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch {}
     return DESTINATIONS_REGISTRY;
   });
+
+  // 2.1 Sacred Temples & Holy Places State
+  const [temples, setTemples] = useState<TemplePlace[]>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.TEMPLES_PLACES);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed;
+        }
+      }
+    } catch {}
+    return DEFAULT_TEMPLES_DATA;
+  });
+
+  const [selectedTempleId, setSelectedTempleId] = useState<string | null>(null);
 
   // 3. Blog Posts & Categories State
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>(() => {
@@ -1507,6 +1536,12 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     try {
+      localStorage.setItem(STORAGE_KEYS.TEMPLES_PLACES, JSON.stringify(temples));
+    } catch {}
+  }, [temples]);
+
+  useEffect(() => {
+    try {
       localStorage.setItem(STORAGE_KEYS.BLOG_POSTS, JSON.stringify(blogPosts));
     } catch {}
   }, [blogPosts]);
@@ -1952,6 +1987,36 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
       ...prev,
       [newSlug]: copy,
     }));
+  };
+
+  // Temples & Sacred Shrines Operations
+  const addTemple = (templeData: Omit<TemplePlace, 'id' | 'slug'> & { id?: string; slug?: string }): string => {
+    const slug = templeData.slug || templeData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    const newTemple: TemplePlace = {
+      ...templeData,
+      id: templeData.id || `temple-${Date.now()}`,
+      slug,
+      order: templeData.order ?? (temples.length + 1),
+    };
+    setTemples((prev) => [...prev, newTemple]);
+    return newTemple.id;
+  };
+
+  const updateTemple = (updatedTemple: TemplePlace) => {
+    setTemples((prev) => prev.map((t) => (t.id === updatedTemple.id ? updatedTemple : t)));
+  };
+
+  const deleteTemple = (id: string) => {
+    setTemples((prev) => prev.filter((t) => t.id !== id && t.slug !== id));
+  };
+
+  const navigateToTemple = (templeId: string) => {
+    const temple = temples.find((t) => t.id === templeId || t.slug === templeId);
+    setSelectedTempleId(temple ? temple.id : templeId);
+    navigateToSearch({
+      templeId: temple ? temple.id : templeId,
+      templeName: temple ? temple.name : undefined,
+    });
   };
 
   // Blog Posts Operations
@@ -2656,6 +2721,13 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
         updateDestination,
         deleteDestination,
         duplicateDestination,
+        temples,
+        addTemple,
+        updateTemple,
+        deleteTemple,
+        selectedTempleId,
+        setSelectedTempleId,
+        navigateToTemple,
         blogPosts,
         blogCategories,
         addBlogPost,
