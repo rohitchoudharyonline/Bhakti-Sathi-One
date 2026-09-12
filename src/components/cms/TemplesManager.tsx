@@ -154,28 +154,34 @@ export const TemplesManager: React.FC = () => {
 
   // Helper: Count linked packages
   const getLinkedPackagesCount = (t: TemplePlace): number => {
-    const tId = t.id.toLowerCase();
-    const tSlug = t.slug.toLowerCase();
-    const tName = t.name.toLowerCase();
+    if (!t) return 0;
+    const tId = (t.id || '').toLowerCase();
+    const tSlug = (t.slug || '').toLowerCase();
+    const tName = (t.name || '').toLowerCase();
 
-    return packages.filter((pkg) => {
-      if (pkg.templeIds?.includes(t.id) || pkg.templeIds?.includes(t.slug)) return true;
-      if (pkg.temples?.some((name) => name.toLowerCase() === tName || name.toLowerCase().includes(tSlug))) return true;
-      if (pkg.title.toLowerCase().includes(tName) || pkg.tagline?.toLowerCase().includes(tName)) return true;
-      if (pkg.destination?.toLowerCase().includes(tName) || pkg.overview?.toLowerCase().includes(tName)) return true;
+    return (packages || []).filter((pkg) => {
+      if (!pkg) return false;
+      if (pkg.templeIds?.some((id) => id && (id.toLowerCase() === tId || id.toLowerCase() === tSlug))) return true;
+      if (pkg.temples?.some((name) => name && (name.toLowerCase() === tName || name.toLowerCase().includes(tSlug)))) return true;
+      if (pkg.title && pkg.title.toLowerCase().includes(tName)) return true;
+      if (pkg.tagline && pkg.tagline.toLowerCase().includes(tName)) return true;
+      if (pkg.destination && pkg.destination.toLowerCase().includes(tName)) return true;
+      if (pkg.overview && pkg.overview.toLowerCase().includes(tName)) return true;
       return false;
     }).length;
   };
 
   // Filtered List
-  const filteredTemples = temples.filter((t) => {
+  const filteredTemples = (temples || []).filter((t) => {
+    if (!t) return false;
+    const search = (searchTerm || '').toLowerCase();
     const matchesSearch =
-      t.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (t.hindiName && t.hindiName.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (t.deity && t.deity.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      t.city.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      t.state.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      t.category.toLowerCase().includes(searchTerm.toLowerCase());
+      (t.name || '').toLowerCase().includes(search) ||
+      (t.hindiName && t.hindiName.toLowerCase().includes(search)) ||
+      (t.deity && t.deity.toLowerCase().includes(search)) ||
+      (t.city || '').toLowerCase().includes(search) ||
+      (t.state || '').toLowerCase().includes(search) ||
+      (t.category || '').toLowerCase().includes(search);
 
     const matchesCategory =
       selectedCategoryFilter === 'all' || t.category === selectedCategoryFilter;
