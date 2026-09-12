@@ -58,10 +58,8 @@ export const AllDestinationsExplorer: React.FC = () => {
 
       const matchesFilter =
         selectedFilter === 'all' ||
-        (selectedFilter === 'kashmir' && (dest.slug === 'kashmir' || dest.id === 'kashmir')) ||
-        (selectedFilter === 'jammu' && (dest.slug === 'jammu' || dest.id === 'jammu')) ||
-        (selectedFilter === 'himachal' && (dest.slug === 'himachal' || dest.id === 'himachal')) ||
-        (selectedFilter === 'ladakh' && (dest.slug === 'ladakh' || dest.id === 'ladakh'));
+        selectedFilter === dest.slug ||
+        selectedFilter === dest.id;
 
       return matchesSearch && matchesFilter;
     });
@@ -210,18 +208,19 @@ export const AllDestinationsExplorer: React.FC = () => {
                     </span>
                   </div>
 
-                  {/* Bottom Info */}
-                  <div className="relative z-10 text-white pointer-events-none flex flex-col gap-0.5">
-                    <h3 className="text-base sm:text-lg font-black text-white group-hover:text-stone-100 transition-colors drop-shadow-md leading-tight">
+                  {/* Bottom Info - Clean, Uncluttered, No Subtitle */}
+                  <div className="relative z-10 text-white pointer-events-none flex flex-col gap-1.5">
+                    <h3 className="text-base sm:text-lg font-black text-white group-hover:text-amber-200 transition-colors drop-shadow-md leading-tight">
                       {dest.displayName || dest.name}
                     </h3>
-                    <p className="text-[11px] text-stone-200 font-medium drop-shadow-sm line-clamp-1">
-                      {dest.tagline}
-                    </p>
-                    <div className="flex items-center justify-end pt-1">
-                      <div className="flex items-center gap-1 text-[11px] font-bold text-amber-300 group-hover:translate-x-1 transition-transform shrink-0">
-                        <span>Explore Destination</span>
-                        <ArrowRight className="w-3 h-3" />
+
+                    <div className="flex items-center justify-between pt-2 border-t border-white/20 mt-1">
+                      <span className="text-[11px] font-bold text-stone-200">
+                        From <strong className="text-white font-black">₹{(dest.startingPrice || 6499).toLocaleString('en-IN')}</strong>
+                      </span>
+                      <div className="flex items-center gap-1 text-xs font-black text-amber-300 group-hover:text-amber-200 group-hover:translate-x-1 transition-transform shrink-0">
+                        <span>Explore</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
                       </div>
                     </div>
                   </div>

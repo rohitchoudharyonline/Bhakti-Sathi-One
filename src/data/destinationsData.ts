@@ -7,7 +7,7 @@ export interface DestinationGuide {
   topAttractions: {
     name: string;
     description: string;
-    image: string;
+    image?: string;
     badge?: string;
   }[];
   thingsToDo: string[];
@@ -35,949 +35,688 @@ export interface DestinationMeta {
   bestSeason: string;
   startingPrice: number;
   popularCities: string[];
+  keyHighlights?: string[];
   categoryFilters: { id: string; label: string; iconName: string }[];
   guide: DestinationGuide;
 }
 
 export const DESTINATIONS_REGISTRY: Record<string, DestinationMeta> = {
-  jammu: {
-    id: 'jammu',
-    slug: 'jammu',
-    name: 'Jammu',
-    displayName: 'JAMMU & KATRA',
+  'jammu-kashmir': {
+    id: 'jammu-kashmir',
+    slug: 'jammu-kashmir',
+    name: 'Jammu & Kashmir',
+    displayName: 'JAMMU & KASHMIR',
     state: 'Jammu & Kashmir',
-    tagline: 'Holy shrine of Mata Vaishno Devi, misty pine meadows of Patnitop & ancient temple heritage',
+    tagline: 'Vaishno Devi Cave Yatra, Dal Lake Shikara & Gulmarg Alpine Snow',
     heroImage: 'https://images.unsplash.com/photo-1598091383021-15ddea10925d?auto=format&fit=crop&w=1600&q=85',
-    guideTitle: 'Jammu & Katra guide',
-    weatherInfo: '18°C - 29°C (Pleasant in hills)',
-    bestSeason: 'Year-Round (Navratri & Winters peak)',
+    guideTitle: 'Jammu & Kashmir Sacred Yatra & Valley Guide',
+    weatherInfo: '8°C - 24°C (Alpine & Hill Climate)',
+    bestSeason: 'Year-Round (Navratri & Winter Snow Peak)',
     startingPrice: 6499,
-    popularCities: ['Katra', 'Vaishno Devi Bhawan', 'Patnitop', 'Shivkhori', 'Jammu City', 'Sanasar', 'Bahu Fort'],
+    keyHighlights: [
+      'Vaishno Devi Bhawan',
+      'Dal Lake Shikara',
+      'Gulmarg Gondola',
+      'Shiv Khori Cave',
+    ],
+    popularCities: [
+      'Vaishno Devi (Katra)',
+      'Shankaracharya Temple (Srinagar)',
+      'Shiv Khori Cave',
+      'Srinagar (Dal Lake)',
+      'Gulmarg Gondola',
+      'Pahalgam (Betaab Valley)',
+      'Patnitop & Sanasar',
+      'Sonmarg Glacier',
+      'Raghunath Temple (Jammu)',
+    ],
     categoryFilters: [
       { id: 'all', label: 'All Packages', iconName: 'Compass' },
-      { id: 'pilgrimage', label: 'Pilgrimage & Yatra', iconName: 'Sparkles' },
+      { id: 'pilgrimage', label: 'Sacred Yatra', iconName: 'Sparkles' },
       { id: 'helicopter', label: 'Helicopter Yatra', iconName: 'Plane' },
       { id: 'senior', label: 'Senior Friendly', iconName: 'Users' },
       { id: 'family', label: 'Family & Hills', iconName: 'Hotel' },
-      { id: 'weekend', label: 'Short Break (2-3D)', iconName: 'Clock' },
+      { id: 'honeymoon', label: 'Valley Special', iconName: 'Heart' },
     ],
     guide: {
       overview:
-        'Known as the "City of Temples", Jammu is the spiritual gateway to the Himalayas. From the revered Mata Vaishno Devi cave shrine in the Trikuta hills of Katra to the emerald pine meadows of Patnitop, the mysterious limestone stalagmite Shivling of Shivkhori, and the historic Raghunath & Bahu Temples, Jammu offers a sublime mix of spirituality, mountain serenity, and Dogra culture.',
+        'From the world-revered cave sanctum of Shri Mata Vaishno Devi in the Trikuta Hills and the mystical stalagmite cave of Shiv Khori, to the historic Shankaracharya Hill Temple and the tranquil jewel of Dal Lake in Srinagar, Jammu & Kashmir is a celestial union of divine spirituality and breathless Himalayan grandeur. Experience scenic shikaras, snow-clad Apharwat peaks in Gulmarg, verdant Lidder pine valleys in Pahalgam, and serene mountain getaways in Patnitop with trusted accommodations and sanitized private chauffeur transfers.',
       bestTimeToVisit:
-        'Mata Vaishno Devi Yatra is open 365 days a year. September to March offers cool and pleasant weather. Navratri (March-April and October) witnesses grand celestial aartis, while Patnitop enjoys snow in December–February.',
-      idealDuration: '3 to 5 Days (Including Katra Yatra and Patnitop / Shivkhori)',
-      nearestAirport: 'Jammu Airport (IXJ) - 48 KM from Katra (1.2 Hours via dedicated expressway)',
-      nearestRailway: 'Shri Mata Vaishno Devi Katra Railway Station (SVDK) & Jammu Tawi (JAT)',
+        'Mata Vaishno Devi Yatra is open 365 days a year with grand Navratri celebrations in March-April and October. For Kashmir Valley, April to October offers blooming valleys, lush gardens, and pleasant weather, while December to February transforms Gulmarg and Sonmarg into a world-class winter snow wonderland.',
+      idealDuration: '4 to 8 Days (3-4 Days for Katra & Shiv Khori; 6-8 Days for Grand J&K Circuit)',
+      nearestAirport: 'Srinagar International Airport (SXR) & Jammu Domestic Airport (IXJ)',
+      nearestRailway: 'Shri Mata Vaishno Devi Katra (SVDK) & Jammu Tawi (JAT) with direct Vande Bharat Express connectivity',
       topAttractions: [
         {
-          name: 'Shri Mata Vaishno Devi Bhawan',
+          name: 'Shri Mata Vaishno Devi',
           description:
-            'Holistic cave sanctum nestled at 5,200 ft in Trikuta Hills. Reachable by 12 KM trek, electric battery cars, ponies, or 8-minute helicopter from Katra to Sanjichhat.',
-          image: 'https://images.unsplash.com/photo-1598091383021-15ddea10925d?auto=format&fit=crop&w=800&q=80',
-          badge: 'Most Sacred',
+            'Holistic cave sanctum nestled at 5,200 ft in Trikuta Hills where Maha Kali, Maha Lakshmi, and Maha Saraswati reside as self-manifested Pindies. Reachable by a paved 12 KM trek, electric eco-battery cars, ponies, palkis, or helicopter to Sanjichhat.',
         },
         {
-          name: 'Bhairon Ghati & Ropeway',
+          name: 'Shankaracharya Temple',
           description:
-            'Panoramic aerial passenger cable car linking Vaishno Devi Bhawan to Bhairon Temple at 6,600 ft with breathless views of the Himalayan valleys.',
-          image: 'https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?auto=format&fit=crop&w=800&q=80',
-          badge: 'Aerial Views',
+            'Historic Shiva temple situated atop Gopadari Hill at 1,100 ft above Srinagar city level, blessed by Adi Shankaracharya in the 9th century and offering breathtaking 360-degree panoramas of Dal Lake and the Zabarwan mountain range.',
         },
         {
-          name: 'Patnitop & Sanasar Meadows',
+          name: 'Shiv Khori',
           description:
-            'Mesmerizing hill station surrounded by dense deodar and pine forests, offering paragliding, nature trails, and snow activities in winter.',
-          image: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80',
-          badge: 'Pine Meadows',
+            'A 200-meter-long natural limestone cave housing a 4-foot self-formed (Svayambhu) Shivling with continuous natural mineral water dripping from the ceiling. A sanctified pilgrimage just 75 km from Katra.',
         },
         {
-          name: 'Shivkhori Holy Cave',
+          name: 'Bhairon Ghati',
           description:
-            'A 200-meter-long natural limestone cave shrine with a 4-foot self-formed Svayambhu Shivling and continuous natural water dripping.',
-          image: 'https://images.unsplash.com/photo-1600100397608-f010f443b740?auto=format&fit=crop&w=800&q=80',
-          badge: 'Ancient Cave',
+            'Perched at 6,600 ft above Bhawan, the completion of Mata Vaishno Devi darshan requires paying homage to Baba Bhaironath. Accessible within 3 minutes via the modern high-capacity aerial passenger ropeway.',
+        },
+        {
+          name: 'Dal Lake',
+          description:
+            'The crown jewel of Srinagar featuring heritage hand-carved cedar wood houseboats, colorful flower Shikara rides, floating vegetable markets, and the historic four chinar island overlooking the Mughal gardens.',
+        },
+        {
+          name: 'Gulmarg Gondola',
+          description:
+            'One of the worlds highest operating passenger cable cars, carrying travelers across dense pine forests to Phase 1 (Kongdoori) and Phase 2 (Apharwat Peak) for skiing, snowmobile adventures, and sweeping views of Nanga Parbat.',
+        },
+        {
+          name: 'Pahalgam & Betaab Valley',
+          description:
+            'A pristine mountain paradise on the banks of the rushing Lidder River, surrounded by cedar forests. It serves as the traditional starting base for the annual Amarnath Yatra and gateway to scenic Betaab and Aru valleys.',
+        },
+        {
+          name: 'Patnitop',
+          description:
+            'A tranquil hill resort perched at 6,640 ft enveloped by dense deodars, featuring the Skyview aerial ropeway from Sanget, ancient Nag Temple, and the high-altitude pine meadow and lake of Sanasar.',
+        },
+        {
+          name: 'Sonmarg',
+          description:
+            'Set against towering snow peaks on the Sindh River, Sonmarg is famous for pony treks to the eternal snowfields of Thajiwas Glacier, scenic alpine river walks, and acting as the fast-track gateway to Baltal for Amarnath Yatra.',
+        },
+        {
+          name: 'Raghunath Temple',
+          description:
+            'One of Northern Indias largest historic temple complexes built by Maharaja Gulab Singh, housing seven inner shrines whose sanctum walls are adorned with gold sheets and rare Sanskrit manuscripts.',
+        },
+        {
+          name: 'Maa Kheer Bhawani',
+          description:
+            'Revered Kashmiri Hindu temple dedicated to Goddess Ragnya Devi, built over a sacred natural spring whose waters are believed to change hues with regional spiritual portents.',
+        },
+        {
+          name: 'Ardhkuwari Cave',
+          description:
+            'Sacred cave sanctuary located exactly midway on the Vaishno Devi trek at 4,800 ft where Goddess meditated for nine months in the Garbhjoon cave before reaching her permanent abode at Bhawan.',
+        },
+        {
+          name: 'Baba Dhansar',
+          description:
+            'A deeply tranquil holy natural spring and cave sanctuary located just 17 km from Katra. Cool mineral streams flow continuously over an ancient natural Shivling nestled in lush forest groves.',
+        },
+        {
+          name: 'Ranbireshwar Temple',
+          description:
+            'Northern Indias largest Shiva temple, built in 1883 by Maharaja Ranbir Singh. Houses a central 7.5-foot black stone Shivling, twelve crystal (sphatik) Jyotirlingas, and 1.25 lakh sacred Bana Lingas brought from Narmada.',
+        },
+        {
+          name: 'Bawe Wali Mata',
+          description:
+            'Overlooking the Tawi River from inside the historic 3,000-year-old Bahu Fort, this sanctified Mahakali shrine is the supreme spiritual guardian of Jammu, drawing millions during festive Navratris.',
+        },
+        {
+          name: 'Peer Kho Cave Temple',
+          description:
+            'Historic underground limestone cave on the banks of River Tawi where Sage Jamvant (the legendary bear king of Ramayana) meditated on Lord Shiva. Houses an ancient Svayambhu Shivling.',
+        },
+        {
+          name: 'Sharika Devi Temple',
+          description:
+            'Perched on the western slopes of Hari Parbat in Srinagar, this sacred shrine is dedicated to the 18-armed Goddess Sharika Bhagwati (an incarnation of Durga), the revered presiding deity of Kashmiri Pandits.',
+        },
+        {
+          name: 'Sudh Mahadev',
+          description:
+            'Ancient pilgrimage site preserving the sacred iron trident (Trishul) of Lord Shiva, paired with nearby Mantalai where Lord Shiva and Goddess Parvati were married according to Puranic lore.',
+        },
+        {
+          name: 'Amarnath Cave',
+          description:
+            'Located at 12,756 ft in the Lidder Valley, the world-famous cave where Lord Shiva narrated the Amar Katha (secret of immortality) to Maa Parvati. Visited annually during Shravan via the Pahalgam or Baltal helicopter routes.',
         },
       ],
       thingsToDo: [
-        'Helicopter Darshan from Katra to Sanjichhat with priority VIP gate entry',
-        'Experience the Divine Atka Aarti at Vaishno Devi Bhawan',
-        'Skyview Ropeway ride from Sanget to Patnitop (one of Asia’s longest ropeways)',
-        'Savor traditional Dogra street food like Kaladi Kulcha and Rajma Chawal at Katra',
-        'Explore the underground aquarium and heritage gardens at Bahu Fort, Jammu',
+        'Perform morning or evening Darshan at Mata Vaishno Devi Bhawan with RFID fast-track access',
+        'Climb the peaceful stone stairs to Shankaracharya Hill Temple for panoramic sunset views over Srinagar',
+        'Take an early morning Shikara ride on Dal Lake through floating markets and lotus fields',
+        'Ride the two-phase Gulmarg Gondola up to 13,780 ft on Apharwat mountain peak',
+        'Explore the mystical limestone stalagmite formations inside Shiv Khori cave with local guided assistance',
+        'Experience a luxury heritage cedar houseboat stay with hot traditional Kashmiri Kahwa on Dal Lake or Nigeen Lake',
+        'Visit the scenic filming spots of Betaab Valley and river rafting points in Pahalgam',
       ],
       localCuisine: [
-        { dish: 'Jammu Rajma Chawal', description: 'Red kidney beans cooked in aromatic spices served with desi ghee and anardana chutney.' },
-        { dish: 'Kaladi Kulcha', description: 'Indigenous aged ripened Himalayan cheese shallow-fried and served piping hot inside toasted buns.' },
-        { dish: 'Ambal & Dogra Dham', description: 'Traditional sweet-and-sour pumpkin preparation served during Dogra celebrations.' },
-        { dish: 'Chocolate Barfi & Sund', description: 'Fudge-like walnut sweet of Jammu and Katra dry-fruit panjeeri.' },
+        { dish: 'Jammu Rajma Chawal & Anardana Chutney', description: 'Tender red hill kidney beans slow-cooked in aromatic spices and desi ghee, served with steamed rice and tangy wild pomegranate chutney.' },
+        { dish: 'Kashmiri Kahwa', description: 'Traditional aromatic green tea infused with whole saffron strands, crushed green cardamom, cinnamon, and slivered almonds.' },
+        { dish: 'Kaladi Kulcha', description: 'Indigenous aged Himalayan ripened mozzarella cheese shallow-fried to golden perfection and stuffed inside toasted local kulcha bread.' },
+        { dish: 'Kashmiri Dum Aloo & Nadru Yakhni', description: 'Baby potatoes simmered in spicy yogurt gravy and lotus stem cooked in mild aromatic yogurt and saffron broth.' },
       ],
       travelTips: [
-        'Mandatory RFID Yatra Access Cards must be issued at Katra railway station or bus stand before starting the trek.',
-        'Helicopter tickets can sell out weeks in advance — Bhakti Sathi arranges confirmed bookings in advance.',
-        'Senior citizens can utilize the 24/7 battery car service between Himkoti and Bhawan.',
-        'Carry light woolens in summer and heavy thermal jackets during winter months (Nov - Feb).',
+        'Mandatory RFID Yatra Access Cards must be collected at Katra railway station, bus stand, or counter before beginning the Vaishno Devi trek.',
+        'Postpaid SIM cards (Jio, Airtel, BSNL) are required in Jammu & Kashmir. Standard prepaid SIM cards from other Indian states will not have active network due to regional telecom regulations.',
+        'Helicopter tickets for Katra and Gulmarg Gondola tickets are in high demand and should be booked well in advance through verified official portals.',
+        'Carry warm thermal inners and windproof jackets even in summer for high altitudes like Gulmarg Phase 2, Sonmarg, and overnight stays in Pahalgam.',
       ],
       faqs: [
         {
-          question: 'How long does the Mata Vaishno Devi trek take from Katra?',
+          question: '1. How do I get the mandatory RFID Yatra Card for Mata Vaishno Devi?',
           answer:
-            'The trek is approximately 12–13 KM. On foot it takes 4–6 hours; on pony 3 hours; via battery car 30 minutes from Ardhkuwari; and via helicopter just 8 minutes from Katra to Sanjichhat.',
+            'The RFID Yatra Access Card is mandatory and free of charge for every pilgrim. It can be obtained 24/7 at Katra Railway Station, Katra Bus Stand, or registered online via the official Shri Mata Vaishno Devi Shrine Board (SMVDSB) website. The card must be carried throughout the yatra and tapped at entry/exit checkpoints.',
         },
         {
-          question: 'Does Bhakti Sathi sell or provide Katra helicopter tickets?',
+          question: '2. What are the best travel options for senior citizens and kids to Vaishno Devi?',
           answer:
-            'NO. In strict compliance with Shri Mata Vaishno Devi Shrine Board (SMVDSB) guidelines, Bhakti Sathi DOES NOT sell or promise helicopter tickets. Helicopter tickets can ONLY be booked directly by pilgrims on the official SMVDSB website (maavaishnodeviboard.org). We assist with hotel stays, private cab transfers, and RFID Yatra card registration.',
+            'Senior citizens and families have multiple comfortable options: (1) 8-minute helicopter from Katra to Sanjichhat; (2) 24/7 eco-friendly battery cars operating between Himkoti and Bhawan; (3) Traditional Palkis (sedan chairs) and Ponies with Shrine Board-authorized rates and ID-verified operators.',
         },
         {
-          question: 'Can we combine Katra with Patnitop or Srinagar?',
+          question: '3. How can we visit Shankaracharya Temple in Srinagar?',
           answer:
-            'Absolutely! We offer combined tour packages such as Katra + Patnitop (4D/3N) and Grand Jammu + Kashmir (Katra–Patnitop–Srinagar–Gulmarg–Pahalgam, 8D/7N).',
+            'Shankaracharya Temple is located atop Gopadari Hill in Srinagar. Vehicles can drive up to the dedicated hill parking lot, after which there are approximately 240 well-maintained stone steps equipped with railings and rest platforms leading to the inner sanctum. Cameras and mobile phones are securely deposited at the police checkpoint at the base of the stairs.',
+        },
+        {
+          question: '4. How far is Shiv Khori from Katra and how to plan the trip?',
+          answer:
+            'Shiv Khori is located in Ransoo village, approximately 75 KM (~2.5 hours by private cab) from Katra. From the Ransoo base point, a scenic 3.5 KM paved trek (or pony ride) leads to the holy limestone cave. It is ideally completed as a full-day excursion from Katra.',
+        },
+        {
+          question: '5. Can we combine Vaishno Devi (Katra) and Kashmir Valley in one single tour?',
+          answer:
+            'Yes, absolutely! Our 7 to 9-day combined yatra and valley packages are among our most requested itineraries. The route comfortably travels from Jammu/Katra via Patnitop through the Banihal Qazigund tunnel to Srinagar, Gulmarg, and Pahalgam in private AC sanitized vehicles.',
+        },
+        {
+          question: '6. What type of clothing and woolens should we pack for Jammu & Kashmir?',
+          answer:
+            'For summers (April-August): Light cotton clothes with light woolens/windcheaters for evenings in Srinagar, Pahalgam, and Katra. For Gulmarg Phase 2 and Sonmarg, a warm jacket is recommended. For winters (November-March): Heavy thermal inners, down feather jackets, woolen caps, gloves, and snow boots.',
+        },
+        {
+          question: '7. Will our mobile phone SIM cards work in Jammu and Kashmir?',
+          answer:
+            'Only POSTPAID mobile SIM connections (Jio, Airtel, BSNL, Vodafone-Idea) work in Jammu & Kashmir due to national telecom regulations. Prepaid SIM cards issued outside of J&K will stop working once you enter the state. You can easily purchase a local prepaid tourist SIM upon arrival in Jammu or Srinagar by presenting your Aadhaar card.',
+        },
+        {
+          question: '8. Is pure vegetarian and Jain food available during the trip?',
+          answer:
+            'Yes, Katra is a 100% sacred vegetarian pilgrimage town with complete sanctity. In Srinagar, Pahalgam, Gulmarg, and along the national highway, numerous verified 100% pure vegetarian and dedicated satvik Jain restaurants (without onion/garlic) operate year-round, serving delicious satvik meals to yatris.',
+        },
+        {
+          question: '9. How do we book Gulmarg Gondola and Shikara rides?',
+          answer:
+            'Shikara rides on Dal Lake can be enjoyed spontaneously at any of the heritage ghats (Boulevard Road). For Gulmarg Gondola Phase 1 (Kongdoori) and Phase 2 (Apharwat), tickets must be reserved online through the J&K Cable Car Corporation portal in advance due to strict daily visitor caps.',
+        },
+        {
+          question: '10. What government IDs are required during travel in Jammu & Kashmir?',
+          answer:
+            'Every traveler (including children) must carry an original government-issued photo ID (Aadhaar Card, Voter ID, Passport, or Driving License). These are required for airport boarding, hotel check-ins, police verification checkpoints, and Vaishno Devi RFID yatra generation.',
         },
       ],
     },
   },
-  kashmir: {
-    id: 'kashmir',
-    slug: 'kashmir',
-    name: 'Kashmir',
-    displayName: 'KASHMIR',
-    state: 'Jammu & Kashmir',
-    tagline: 'Paradise on Earth: Dal Lake Shikara, snow wonderland Gulmarg & Lidder valleys of Pahalgam',
-    heroImage: 'https://images.unsplash.com/photo-1595815771614-ade9d652a65d?auto=format&fit=crop&w=1600&q=85',
-    guideTitle: 'Kashmir guide',
-    weatherInfo: '10°C - 24°C (Cool & Alpine)',
-    bestSeason: 'Year-Round (April-Oct for Greenery, Dec-Feb for Snow)',
-    startingPrice: 13999,
-    popularCities: ['Srinagar', 'Gulmarg', 'Pahalgam', 'Sonmarg', 'Doodhpathri', 'Dal Lake'],
-    categoryFilters: [
-      { id: 'all', label: 'All Packages', iconName: 'Compass' },
-      { id: 'honeymoon', label: 'Honeymoon Special', iconName: 'Heart' },
-      { id: 'family', label: 'Family Vacation', iconName: 'Users' },
-      { id: 'adventure', label: 'Snow & Skiing', iconName: 'Sparkles' },
-      { id: 'luxury', label: '5-Star Luxury', iconName: 'Hotel' },
-    ],
-    guide: {
-      overview:
-        'Described by Mughal Emperor Jahangir as paradise on earth, Kashmir enchants with its iconic Dal Lake houseboats, Mughal gardens, alpine gondola cable car in Gulmarg, roaring Lidder river in Pahalgam, and golden glaciers of Sonmarg.',
-      bestTimeToVisit:
-        'Spring & Summer (April to September) for lush tulip gardens and pleasant valleys; Autumn (October to November) for golden Chinar leaves; and Winter (December to February) for deep powder snow and skiing.',
-      idealDuration: '5 to 7 Days',
-      nearestAirport: 'Sheikh ul-Alam International Airport Srinagar (SXR)',
-      nearestRailway: 'Jammu Tawi (JAT) / Udhampur / Katra',
-      topAttractions: [
-        {
-          name: 'Gulmarg Gondola & Apharwat Peak',
-          description: 'Asia’s highest operational cable car taking you to 13,780 ft above sea level with 360-degree snow views.',
-          image: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80',
-          badge: 'World Famous',
-        },
-        {
-          name: 'Dal Lake & Houseboat Stay',
-          description: 'Sunset shikara rides, floating vegetable markets, and overnight stays in carved cedarwood houseboats.',
-          image: 'https://images.unsplash.com/photo-1595815771614-ade9d652a65d?auto=format&fit=crop&w=800&q=80',
-          badge: 'Iconic',
-        },
-        {
-          name: 'Betaab & Aru Valleys, Pahalgam',
-          description: 'Pristine pine forests, alpine rivers, and trout streams where Bollywood blockbusters are filmed.',
-          image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80',
-          badge: 'Scenic Valleys',
-        },
-      ],
-      thingsToDo: [
-        'Ride the Gondola Phase 1 & 2 at Gulmarg',
-        'Float in a Shikara during golden hour on Dal Lake',
-        'Taste authentic 7-course Kashmiri Wazwan feast',
-        'Shop for authentic Pashmina shawls, saffron, and walnut carvings at Lal Chowk',
-      ],
-      localCuisine: [
-        { dish: 'Kashmiri Kahwa', description: 'Aromatic green tea brewed with saffron strands, cardamom, cinnamon, and slivered almonds.' },
-        { dish: 'Rogan Josh & Gushtaba', description: 'Slow-cooked tender lamb in rich Kashmiri red chilli and yogurt gravy.' },
-        { dish: 'Dum Aloo & Nadru Yakhni', description: 'Crispy baby potatoes in spicy gravy and lotus stem cooked in yogurt sauce.' },
-      ],
-      travelTips: [
-        'Book Gulmarg Gondola tickets in advance through Bhakti Sathi to avoid last-minute slot shortages.',
-        'Postpaid mobile SIM cards (Jio / Airtel / BSNL) work in Kashmir; prepaid SIM cards from other states do not work due to telecom regulations.',
-      ],
-      faqs: [
-        {
-          question: 'Is Kashmir safe for families and solo female travelers?',
-          answer:
-            'Yes, Kashmir is one of India’s most hospitable destinations with millions of happy tourists visiting annually. Bhakti Sathi provides verified chauffeur-driven private vehicles and 24x7 trip support.',
-        },
-      ],
-    },
-  },
-  himachal: {
+
+  'himachal': {
     id: 'himachal',
     slug: 'himachal',
-    name: 'Himachal',
-    displayName: 'HIMACHAL',
+    name: 'Himachal Pradesh',
+    displayName: 'HIMACHAL PRADESH',
     state: 'Himachal Pradesh',
-    tagline: 'Colonial heritage of Shimla Ridge, snow adventure at Solang & Atal Tunnel, and Tibetan cafes of Dharamshala',
+    tagline: 'Sacred 5 Devi Darshan Shaktipeeth Circuit & Himalayan Hills',
     heroImage: 'https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?auto=format&fit=crop&w=1600&q=85',
-    guideTitle: 'Himachal guide',
-    weatherInfo: '12°C - 25°C (Chilly in nights)',
-    bestSeason: 'March to June (Summer) & Dec to Feb (Snow)',
-    startingPrice: 11999,
-    popularCities: ['Shimla', 'Manali', 'Solang Valley', 'Kullu', 'Dharamshala', 'Dalhousie', 'Kasol', 'Spiti'],
+    guideTitle: 'Himachal Pradesh Sacred Devi Darshan & Hills Guide',
+    weatherInfo: '12°C - 26°C (Pleasant Mountain Breezes)',
+    bestSeason: 'Year-Round (Navratri Festivals & Summer Peaks)',
+    startingPrice: 7499,
+    keyHighlights: [
+      '5 Devi Shaktipeeths',
+      'Maa Jwala Ji Flames',
+      'Manali & Solang',
+      'Shimla Ridge',
+    ],
+    popularCities: [
+      'Maa Jwala Ji',
+      'Maa Chintpurni Devi',
+      'Maa Chamunda Devi',
+      'Maa Brajeshwari Kangra',
+      'Maa Naina Devi',
+      'Maa Baglamukhi',
+      'Manali (Solang Valley)',
+      'Dharamshala (McLeodganj)',
+      'Shimla (Mall Road)',
+    ],
     categoryFilters: [
       { id: 'all', label: 'All Packages', iconName: 'Compass' },
-      { id: 'adventure', label: 'Adventure & Snow', iconName: 'Sparkles' },
-      { id: 'relaxation', label: 'Relaxation & Nature', iconName: 'Heart' },
-      { id: 'honeymoon', label: 'Honeymoon', iconName: 'Hotel' },
-      { id: 'family', label: 'Family Volvo / SUV', iconName: 'Users' },
-      { id: 'senior', label: 'Senior Friendly', iconName: 'Clock' },
+      { id: 'pilgrimage', label: 'Devi Darshan Circuit', iconName: 'Sparkles' },
+      { id: 'family', label: 'Family & Hills', iconName: 'Users' },
+      { id: 'honeymoon', label: 'Manali & Shimla', iconName: 'Heart' },
+      { id: 'senior', label: 'Senior Friendly', iconName: 'Hotel' },
+      { id: 'weekend', label: 'Short Break (3-4D)', iconName: 'Clock' },
     ],
     guide: {
       overview:
-        'From the colonial Ridge of Shimla and deodar forests of Hadimba Temple in Manali to paragliding in Bir Billing and the high-altitude desert of Spiti, Himachal Pradesh is India’s ultimate Himalayan playground.',
+        'Revered as "Devbhoomi" (Land of the Gods), Himachal Pradesh is home to the most powerful and auspicious Shaktipeeth shrines in Sanatan tradition. Embark on the sacred 5 Devi Darshan circuit—Maa Jwala Ji (Eternal Flame), Maa Chintpurni (Chhinnamastika Dham), Maa Chamunda Devi, Maa Brajeshwari Kangra, and Maa Naina Devi—while soaking in the serene pines of Dharamshala, colonial majesty of Shimla, and alpine snowscapes of Manali.',
       bestTimeToVisit:
-        'March to June for pleasant summer escapes; September to November for clear mountain views; and December to February for fresh snowfall at Solang, Kufri, and Atal Tunnel.',
-      idealDuration: '5 to 8 Days',
-      nearestAirport: 'Chandigarh (IXC), Kullu Bhuntar (KUU), Kangra Gaggal (DHM)',
-      nearestRailway: 'Chandigarh Junction (CDG) & Kalka Toy Train',
+        'Devi Darshan shrines are open 365 days a year. Chaitra Navratri (March-April) and Ashwin/Sharad Navratri (September-October) are especially auspicious with 24-hour special aartis. For hill stations, March to June offers pleasant cool weather, while December to February brings magical snowfall to Manali, Shimla, and Solang Valley.',
+      idealDuration: '3 to 5 Days for Sacred Devi Circuit; 6 to 9 Days for Complete Himachal & Devi Yatra',
+      nearestAirport: 'Kangra Gaggal Airport (DHM), Kullu-Manali Airport (KUU), and Chandigarh International Airport (IXJ/IXC)',
+      nearestRailway: 'Una Himachal (UHL), Pathankot Cantt (PTKC), and Chandigarh Junction (CDG) with direct Vande Bharat & Shatabdi trains',
       topAttractions: [
         {
+          name: 'Maa Jwala Ji Temple',
+          description:
+            'World-renowned Shaktipeeth where the divine tongue of Sati fell. Worship centers on 9 natural eternal flames burning continuously out of rocky fissures without any fuel, oil, or carbon residue since prehistoric antiquity.',
+        },
+        {
+          name: 'Maa Chintpurni Devi',
+          description:
+            'Sacred Shaktipeeth nestled in the Sivalik range where Goddess Sati feet fell. Disciples pray here for "Chinta Haran" (freedom from all worldly anxieties and worries) and receive blessed coconut prasad.',
+        },
+        {
+          name: 'Maa Chamunda Devi',
+          description:
+            'Revered 16th-century temple on the banks of Baner River against the majestic snow peaks of Dhauladhar, dedicated to Goddess Kali after she vanquished the demon kings Chanda and Munda.',
+        },
+        {
+          name: 'Maa Brajeshwari Devi',
+          description:
+            'Historic golden-domed Shaktipeeth in Kangra town where Sati left breast fell. Famous for its grand Makar Sankranti butter festival and deep spiritual resonance.',
+        },
+        {
+          name: 'Maa Naina Devi',
+          description:
+            'Perched atop a triangular hill overlooking Gobind Sagar Lake where Sati eyes fell. Accessible comfortably via an aerial passenger ropeway from the parking base or by paved pilgrim steps.',
+        },
+        {
+          name: 'Maa Baglamukhi Temple',
+          description:
+            'Ancient yellow-themed sanctuary dedicated to Maa Baglamukhi (the eighth Mahavidya), visited by devotees from across the world for victory over insurmountable life obstacles and legal hurdles.',
+        },
+        {
+          name: 'Hadimba Devi Temple',
+          description:
+            'Unique 1553 AD four-tiered pagoda wooden temple surrounded by giant deodar trees in Old Manali, paired with the natural sulfur healing hot water springs in Vashisht village.',
+        },
+        {
           name: 'Solang Valley & Atal Tunnel',
-          description: 'Adrenaline capital for skiing, paragliding, zorbing, and drive into Lahaul valley via the 9 km long tunnel.',
-          image: 'https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?auto=format&fit=crop&w=800&q=80',
-          badge: 'Top Adventure',
+          description:
+            'Celebrated adventure haven for paragliding, snow quad biking, and zorbing, leading to the world-record 9.02 KM engineering marvel Atal Tunnel linking Kullu Valley to Lahaul.',
         },
         {
-          name: 'Shimla Mall Road & The Ridge',
-          description: 'Pedestrian promenade featuring Christ Church, Scandal Point, and colonial Gaiety Theatre.',
-          image: 'https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=800&q=80',
-          badge: 'Heritage',
+          name: 'Dalai Lama Temple',
+          description:
+            'Spiritual seat of His Holiness the Dalai Lama featuring the Tsuglagkhang monastery complex, prayer wheels, Tibetan handicraft markets, and the refreshing Bhagsu Nag waterfall and Shiva shrine.',
         },
         {
-          name: 'Hadimba Temple & Old Manali',
-          description: '16th-century wooden temple amidst giant cedar pines and bohemian riverside cafes.',
-          image: 'https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=800&q=80',
-          badge: 'Ancient Pine Woods',
+          name: 'Baijnath Temple',
+          description:
+            'Exquisite 13th-century Nagara stone architectural marvel on the Binwa River where Ravana worshipped Lord Shiva as Vaidyanath (Lord of Physicians) to attain invincibility.',
+        },
+        {
+          name: 'Jakhoo Temple',
+          description:
+            'Historic hilltop shrine at 8,000 ft where Lord Hanuman rested while searching for Sanjeevani herb, topped with a towering 108-foot vermillion statue and sweeping vistas of the Himalayas.',
+        },
+        {
+          name: 'Manikaran Sahib',
+          description:
+            'Holy Sikh and Hindu pilgrimage destination on the rushing Parvati River, famous for its natural boiling sulfur hot springs where community langar is cooked in geothermal waters.',
+        },
+        {
+          name: 'Bijli Mahadev Temple',
+          description:
+            'Perched at 8,000 ft atop the Mathan plateau, this legendary Shiva temple features a 60-foot wooden staff that attracts cosmic lightning during storms, which shatters the Shivling before priests restore it using unsalted butter and sattu.',
+        },
+        {
+          name: 'Tara Devi Temple',
+          description:
+            'Sacred hilltop temple nestled amid dense oak and rhododendron forests atop Tara Parvat in Shimla, featuring an Ashtadhatu idol of Goddess Tara Devi brought by the Sen kings of Bengal.',
+        },
+        {
+          name: 'Maa Hatkoti Durga Temple',
+          description:
+            'Magnificent ancient riverside shrine on the Pabbar River housing a colossal solid bronze idol of eight-armed Mahishasuramardini, built by Adi Shankaracharya in the 8th century.',
+        },
+        {
+          name: 'Bhootnath Temple',
+          description:
+            'Dating back to 1527 AD on the banks of River Beas, Mandi boasts over 81 historic stone Shiva temples, earning it the revered title of Chhoti Kashi of the Himalayas.',
+        },
+        {
+          name: 'Gurudwara Paonta Sahib',
+          description:
+            'Sanctified historical Sikh pilgrimage site on the serene banks of the Yamuna River where tenth Sikh Guru Sri Guru Gobind Singh Ji stayed for over four years and composed the holy Dasam Granth.',
+        },
+        {
+          name: 'Rewalsar Holy Lake',
+          description:
+            'A sacred natural mountain lake revered by Hindus (associated with Rishi Lomas), Sikhs (honoring Guru Gobind Singh Jis visit), and Tibetan Buddhists (birthplace of Guru Padmasambhava).',
+        },
+        {
+          name: 'Masroor Rock-Cut Temples',
+          description:
+            'Remarkable 8th-century complex of 15 monolithic rock-cut shrines carved out of a single sandstone ridge with a sacred water pool, dedicated to Lord Shiva, Ram, Sita, and Lakshman.',
         },
       ],
       thingsToDo: [
-        'Ride the historic UNESCO Kalka-Shimla Toy Train',
-        'Cross the Atal Tunnel to view the frozen waterfalls of Sissu in Lahaul',
-        'River rafting and paragliding in Kullu-Manali Beas valley',
-        'Shop for authentic handmade Kullu shawls and Himachal apple jams',
+        'Complete the blessed 5 Devi Shaktipeeth Darshan circuit with priority assistance and verified stays',
+        'Witness the celestial 9 eternal holy flames burning continuously at Maa Jwala Ji without any fuel',
+        'Take the scenic aerial passenger ropeway up to Maa Naina Devi overlooking Gobind Sagar Lake',
+        'Perform special havan and yellow-flower puja at Maa Baglamukhi Temple in Bankhandi',
+        'Drive through the monumental Atal Tunnel to witness the high-altitude snowfields of Sissu, Lahaul',
+        'Taste authentic traditional Himachali Dham served on fresh leaves in Kangra and Kullu',
+        'Stroll along the historic colonial British Mall Road and Lakkar Bazaar in Shimla',
       ],
       localCuisine: [
-        { dish: 'Himachali Dham', description: 'Traditional festive meal served on leaf plates with Madra, Chha Gosht, and sweet rice.' },
-        { dish: 'Siddu with Ghee', description: 'Steamed wheat flour bun stuffed with spiced poppy seeds or walnuts and bathed in desi ghee.' },
-        { dish: 'Kullu Trout Fish', description: 'Fresh pan-fried river trout marinated with mountain herbs and lemon.' },
+        { dish: 'Himachali Kangri Dham', description: 'Traditional celebratory satvik feast consisting of Madra (chickpeas in curd gravy), Mahni, Chana Dal, Khatta, and sweet Meethe Chawal.' },
+        { dish: 'Siddu with Desi Ghee', description: 'Indigenous steamed wheat bread stuffed with seasoned walnuts, poppy seeds, and herbs, served piping hot with pure mountain cow ghee.' },
+        { dish: 'Babru & Kadi', description: 'Himachali stuffed kachori-style puffed bread filled with black gram paste served with tangy spiced buttermilk curry.' },
+        { dish: 'Kullu Sepu Vadi & Apple Halwa', description: 'Traditional Himachali urad dal dumplings simmered in a fragrant spinach and curd gravy, served alongside sweet mountain apple halwa cooked in pure desi ghee.' },
       ],
       travelTips: [
-        'AC vehicles operate on plains and are switched off on mountain climbs for engine safety.',
-        'Keep motion sickness tablets handy if prone to winding hill roads.',
+        'Plan the 5 Devi circuit in geographical order: Naina Devi (Bilaspur) → Chintpurni (Una) → Jwala Ji (Kangra) → Brajeshwari (Kangra) → Chamunda Devi (Dharamshala) for minimal travel time.',
+        'During Navratri festivals, queues can be long. Bhakti Sathi provides senior-friendly facilitation and verified nearby accommodations to ensure relaxed darshans.',
+        'Carry a light jacket or shawl even during summer months for hill stations like Dharamshala, McLeodganj, Shimla, and Manali.',
+        'Private sanitized SUVs (Innova, Crysta, Ertiga) with certified hill drivers are strongly recommended for seamless ghat travel.',
       ],
       faqs: [
         {
-          question: 'Can we visit Rohtang Pass or Atal Tunnel all year?',
+          question: '1. What is the traditional auspicious sequence to visit the Himachal 5 Devi Temples?',
           answer:
-            'Atal Tunnel remains open throughout the year. Rohtang Pass is open from May to November depending on weather conditions and NGT permit quotas.',
+            'The most seamless and time-efficient route starts from Chandigarh/Una: (1) Maa Naina Devi (Bilaspur) → (2) Maa Chintpurni (Una) → (3) Maa Jwala Ji (Kangra) → (4) Maa Brajeshwari Devi (Kangra) → (5) Maa Chamunda Devi (Dharamshala). This circuit can be comfortably completed in 3 to 4 days.',
+        },
+        {
+          question: '2. Which is the nearest railway station and airport for Himachal Devi Darshan?',
+          answer:
+            'For Devi Darshan, Una Himachal Railway Station (UHL) is the closest railhead connected by direct Vande Bharat Express from New Delhi. Pathankot Cantt (PTKC) and Chandigarh (CDG) are also convenient. Kangra Gaggal Airport (DHM) is just 20 km from Chamunda Devi and Kangra shrines.',
+        },
+        {
+          question: '3. Are there ropeways or easy access options for senior citizens at the temples?',
+          answer:
+            'Yes, Maa Naina Devi features an aerial passenger cable car (ropeway) that lifts pilgrims directly from the base parking to the temple gates. Jwala Ji and Chintpurni have paved, gentle ramps and battery carts/wheelchair assistance for elderly devotees.',
+        },
+        {
+          question: '4. What special ceremonies take place during Chaitra and Ashwin Navratris?',
+          answer:
+            'During Navratris, all Devi temples remain open 24 hours. They feature continuous Akhand Kirtan, grand floral shringar of the sanctums, morning and evening Mangala aartis, special Havan Yajnas, and continuous free community Langars serving satvik meals.',
+        },
+        {
+          question: '5. Can we combine Himachal Devi Darshan with Manali, Shimla, or Dharamshala?',
+          answer:
+            'Yes! We offer highly popular 6-Day, 7-Day, and 9-Day customized itineraries that blend the sacred 5 Devi Darshan with refreshing leisure stays in Dharamshala (McLeodganj), Manali (Solang/Atal Tunnel), and Shimla.',
+        },
+        {
+          question: '6. What kind of vehicles and roads are used for the Himachal Yatra?',
+          answer:
+            'The roads connecting all five Devi temples and major hill stations are well-maintained, wide National and State Highways. We provide sanitized, private AC vehicles (Innova Crysta, Ertiga, Dzire, or Tempo Traveller) driven by experienced, hill-certified chauffeurs.',
+        },
+        {
+          question: '7. What is the significance of the 9 eternal flames at Maa Jwala Ji Temple?',
+          answer:
+            'Maa Jwala Ji is an extraordinary Shaktipeeth where no idol is worshipped. Instead, nine eternal flames burn naturally out of rock clefts, representing Goddess Mahakali, Annapurna, Chandi, Hinglaj, Vindhyavasini, Mahalakshmi, Saraswati, Ambika, and Anjana.',
+        },
+        {
+          question: '8. Is pure vegetarian and satvik food available across Himachal Pradesh?',
+          answer:
+            'Yes, all towns along the Devi circuit are devotional hubs offering 100% pure vegetarian cuisine, traditional Himachali satvik Dham, and 24-hour free community langars operated by temple trusts.',
+        },
+        {
+          question: '9. What clothing should we pack for Himachal Pradesh across different seasons?',
+          answer:
+            'For summer visits (April-June): Comfortable cotton clothes with light woolens or windproof jackets for cool evenings in Manali and Shimla. For winter visits (October-March): Thermal inners, heavy woolen jackets, gloves, woolen caps, and warm walking shoes.',
+        },
+        {
+          question: '10. What are the photography and mobile phone rules inside the shrines?',
+          answer:
+            'Photography and videography are strictly prohibited inside the inner sanctums (Garbhagriha) of all Devi temples to preserve temple sanctity. Safe cloakrooms and lockers are available at the temple entrances for mobiles and cameras.',
         },
       ],
     },
   },
-  amritsar: {
+
+  'amritsar': {
     id: 'amritsar',
     slug: 'amritsar',
     name: 'Amritsar',
     displayName: 'AMRITSAR',
     state: 'Punjab',
-    tagline: 'Spiritual tranquility of the Golden Temple, patriotic fervor at Wagah Border & legendary Punjabi gastronomy',
-    heroImage: 'https://images.unsplash.com/photo-1588096344356-9b57fc6a18d1?auto=format&fit=crop&w=1600&q=85',
-    guideTitle: 'Amritsar guide',
-    weatherInfo: '15°C - 30°C (Sunny & Warm)',
-    bestSeason: 'October to March (Pleasant Winters)',
-    startingPrice: 5999,
-    popularCities: ['Amritsar City', 'Attari-Wagah Border', 'Jallianwala Bagh', 'Gobindgarh Fort'],
+    tagline: 'Sri Harmandir Sahib, Wagah Border Parade & Durgiana Tirath',
+    heroImage: 'https://images.unsplash.com/photo-1595815771614-ade9d652a65d?auto=format&fit=crop&w=1600&q=85',
+    guideTitle: 'Amritsar Sacred Heritage & Border Yatra Guide',
+    weatherInfo: '14°C - 32°C (Warm Plains & Breezy Evenings)',
+    bestSeason: 'October to March (Pleasant Weather & Festive Gurpurab Celebrations)',
+    startingPrice: 4999,
+    keyHighlights: [
+      'The Golden Temple',
+      'Wagah Border Ceremony',
+      'Guru Ka Langar',
+      'Durgiana Tirath',
+    ],
+    popularCities: [
+      'Golden Temple (Harmandir Sahib)',
+      'Attari-Wagah Border',
+      'Durgiana Tirath',
+      'Jallianwala Bagh',
+      'Sri Ram Tirath Ashram',
+      'Gobindgarh Fort',
+      'Akal Takht Sahib',
+      'Heritage Street',
+    ],
     categoryFilters: [
       { id: 'all', label: 'All Packages', iconName: 'Compass' },
-      { id: 'pilgrimage', label: 'Golden Temple & Heritage', iconName: 'Sparkles' },
+      { id: 'pilgrimage', label: 'Spiritual Yatra', iconName: 'Sparkles' },
+      { id: 'heritage', label: 'Heritage & Border', iconName: 'Compass' },
+      { id: 'family', label: 'Family Vacation', iconName: 'Users' },
       { id: 'weekend', label: 'Short Break (2-3D)', iconName: 'Clock' },
-      { id: 'combined', label: 'Amritsar + Himachal (5-6D)', iconName: 'Hotel' },
-      { id: 'foodie', label: 'Gastronomy & Culture', iconName: 'Heart' },
+      { id: 'senior', label: 'Senior Friendly', iconName: 'Hotel' },
     ],
     guide: {
       overview:
-        'The spiritual and cultural capital of Punjab, Amritsar is crowned by the gleaming Sri Harmandir Sahib (Golden Temple). Experience the emotional evening retreat ceremony at Wagah Border, pay homage at Jallianwala Bagh, and relish the world’s most celebrated street food culture.',
+        'Home to the glorious Sri Harmandir Sahib (The Golden Temple), Amritsar is the sacred spiritual and cultural heart of Punjab. Experience 24-hour soul-elevating Gurbani kirtan, the worlds largest free community kitchen (Guru Ka Langar), the historic Durgiana Silver Temple, the birthplace of Luv & Kush at Sri Ram Tirath, the solemn national memorial of Jallianwala Bagh, and the high-voltage patriotic retreat ceremony at the Attari-Wagah Border.',
       bestTimeToVisit:
-        'October to March brings pleasant sunny days and crisp evenings, ideal for temple parikrama and Wagah Border excursions.',
-      idealDuration: '2 to 3 Days (or 5-6 Days when combined with Dharamshala / Dalhousie)',
-      nearestAirport: 'Sri Guru Ram Dass Jee International Airport (ATQ) - 11 KM',
-      nearestRailway: 'Amritsar Junction (ASR)',
+        'October to March is the ideal season with crisp, pleasant weather perfect for exploring Heritage Street, Wagah Border, and the Golden Temple complex. Celebrations like Prakash Purab, Baisakhi (April), and Diwali witness breathtaking illumination and fireworks across the Amrit Sarovar.',
+      idealDuration: '2 to 3 Days for Amritsar City & Border; 4 to 6 Days when combined with Katra or Himachal',
+      nearestAirport: 'Sri Guru Ram Dass Jee International Airport (ATQ) - 11 KM from Golden Temple',
+      nearestRailway: 'Amritsar Junction Railway Station (ASR) with Vande Bharat, Shatabdi, and Superfast express trains',
       topAttractions: [
         {
-          name: 'Sri Harmandir Sahib (Golden Temple)',
+          name: 'Golden Temple',
           description:
-            'The holiest Gurdwara of Sikhism covered in 500+ kg of 24k gold leaf, surrounded by the sacred Amrit Sarovar. Serves 100,000+ free langar meals daily.',
-          image: 'https://images.unsplash.com/photo-1588096344356-9b57fc6a18d1?auto=format&fit=crop&w=800&q=80',
-          badge: 'Spiritual Center',
+            'The holiest shrine of Sikhism adorned in pure 24-karat gold foil, standing serenely in the center of the holy Amrit Sarovar with continuous divine Gurbani kirtan broadcast live 24 hours a day.',
         },
         {
-          name: 'Attari-Wagah Border Beating Retreat',
+          name: 'Guru Ka Langar',
           description:
-            'Electrifying daily military parade with coordinated high-kicks, rapid marches, and lowering of national flags by BSF and Pakistan Rangers.',
-          image: 'https://images.unsplash.com/photo-1561361513-2d000a50f0dc?auto=format&fit=crop&w=800&q=80',
-          badge: 'Patriotic Spectacle',
+            'A legendary, humbling community dining hall that serves over 100,000 wholesome, free vegetarian meals daily to all visitors without any distinction of religion, caste, nationality, or social status.',
         },
         {
-          name: 'Jallianwala Bagh & Partition Museum',
+          name: 'Attari-Wagah Border',
           description:
-            'Historic memorial site preserving the martyr’s well and bullet marks from 1919, alongside India’s premier Partition Museum at Town Hall.',
-          image: 'https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=800&q=80',
-          badge: 'Historic Memorial',
+            'The world-famous daily military parade ceremony at the Indo-Pak international border, showcasing synchronized high-kicks, ceremonial drills, roaring patriotic chants, and lowering of the national flags at sunset.',
+        },
+        {
+          name: 'Durgiana Mandir',
+          description:
+            'An ancient architectural marvel situated in the middle of a sacred lake, featuring intricately carved embossed silver doors and dedicated to Goddess Durga, Lord Krishna, and Lord Vishnu.',
+        },
+        {
+          name: 'Jallianwala Bagh',
+          description:
+            'A sacred national historic garden honoring the innocent martyrs of the 1919 massacre, preserving the historic Martyr Well, bullet-pocked brick walls, and an Eternal Flame of remembrance.',
+        },
+        {
+          name: 'Sri Ram Tirath',
+          description:
+            'Ancient sanctified ashram believed to be Maharishi Valmikis hermitage where Mata Sita took refuge and gave birth to Luv and Kush. Features the ancient sacred Baoli tank and Valmiki temple.',
+        },
+        {
+          name: 'Sri Akal Takht Sahib',
+          description:
+            'The supreme seat of earthly authority for the Sikh community established by Guru Hargobind Ji in 1606, housing historical weapons, sacred relics, and an extensive gallery of Sikh heritage art.',
+        },
+        {
+          name: 'Gobindgarh Fort',
+          description:
+            'Historic military fortress built by Maharaja Ranjit Singh featuring artillery museums, live Punjabi folk bhangra performances, and the immersive Whispering Walls sound and laser show.',
+        },
+        {
+          name: 'Partition Museum',
+          description:
+            'An emotional, comprehensive museum preserving genuine audio-visual oral histories, personal refugee artifacts, photographs, and letters documenting the momentous 1947 partition of the subcontinent.',
+        },
+        {
+          name: 'Gurudwara Shaheedan Sahib',
+          description:
+            'Revered holy shrine commemorating the unparalleled bravery and supreme sacrifice of Baba Deep Singh Ji, where hundreds of thousands of devotees congregate for prayer and ardas.',
+        },
+        {
+          name: 'Mata Lal Devi Mandir',
+          description:
+            'A vibrant multi-tiered sacred shrine in Rani Ka Bagh dedicated to female saint Lal Devi. Devotees traverse water channels and walk through a replicated Vaishno Devi cave and glittering mirror mosaics.',
+        },
+        {
+          name: 'Gurudwara Chheharta Sahib',
+          description:
+            'Located in Amritsar, built on the site where Guru Arjan Dev Ji dug a large well with six Persian water-lifting wheels (Chheharta) after the birth of his son Guru Hargobind Ji.',
+        },
+        {
+          name: 'Gurudwara Guru Ka Mahal',
+          description:
+            'Historic sanctified shrine in the heart of Old Amritsar founded by Guru Ram Das Ji as his residence. It is the sacred birthplace of Ninth Sikh Guru Sri Guru Tegh Bahadur Ji.',
+        },
+        {
+          name: 'Bada Hanuman Mandir',
+          description:
+            'Ancient temple adjoining Durgiana Sarovar where according to belief Luv and Kush tied Lord Rams Ashwamedha sacrificial horse and seated Lord Hanuman in devotion.',
+        },
+        {
+          name: 'Shivala Bhaagtanwala',
+          description:
+            'Historic Shiva temple known for its ancient lingam, elaborate stone architecture, and sacred temple courtyard in Amritsar.',
+        },
+        {
+          name: 'Heritage Street',
+          description:
+            'Magnificent pedestrian promenade lined with Rajput and Mughal-inspired pink stone facades leading to the Golden Temple, world-famous for authentic crispy Amritsari Kulcha, creamy lassi, and Phulkari juttis.',
         },
       ],
       thingsToDo: [
-        'Partake in the sacred Palki Sahib night procession and Amrit Vela early morning prayers at the Golden Temple',
-        'Witness the grand Beating Retreat at Wagah Border (VIP enclosure seating guidance)',
-        'Taste world-famous Amritsari Kulcha with Chana & sweet lassi at Lawrence Road',
-        'Watch the multimedia light & sound show at historic Gobindgarh Fort',
+        'Take part in the deeply moving Palki Sahib night or early morning procession at Golden Temple',
+        'Experience selfless volunteering (Seva) at Guru Ka Langar or washing utensils for fellow pilgrims',
+        'Witness the heart-pumping patriotic energy of the Attari-Wagah Border Beating Retreat ceremony',
+        'Explore the sacred silver sanctum and lake parikrama of Durgiana Tirath',
+        'Pay homage at Jallianwala Bagh and explore the thought-provoking Partition Museum',
+        'Savor world-famous authentic Amritsari Kulcha with Chole and a tall glass of malai lassi at heritage dhabas',
+        'Shop for authentic Amritsari Papad, Wariyan, pure desi ghee Pinni, and hand-embroidered Phulkari suits',
       ],
       localCuisine: [
-        { dish: 'Amritsari Chur-Chur Kulcha', description: 'Crispy layered flatbread stuffed with spiced potatoes and onions, served with tangy chole and imli pyaz chutney.' },
-        { dish: 'Guru Ka Langar & Karah Prasad', description: 'Divine whole-wheat flour halwa cooked in pure desi ghee and wholesome dal-roti langar.' },
-        { dish: 'Amritsari Machhi (Fish)', description: 'Crisp carom-seed spiced batter fried river fish.' },
-        { dish: 'Gian Di Lassi & Jalebi', description: 'Thick creamy malai lassi and hot saffron jalebis fried in pure ghee.' },
+        { dish: 'Amritsari Chur-Chur Kulcha with Chole', description: 'Crispy, multi-layered tandoori flatbread stuffed with spiced potatoes and paneer, crushed with pure desi ghee and served with tangy chickpeas and pickled onions.' },
+        { dish: 'Guru Ka Langar Mah Di Dal & Kheer', description: 'World-renowned black gram lentils simmered overnight in copper cauldrons, served with hot rotis, kheer, and fresh salad.' },
+        { dish: 'Amritsari Malai Lassi & Peda Lassi', description: 'Thick, creamy churned sweet yogurt topped with a dollop of fresh clotted cream (malai) and saffron.' },
+        { dish: 'Kesar Da Dhaba Dal Makhani & Phirni', description: 'Legendary slow-cooked creamy black lentils infused with desi ghee, served in earthen clay pots with chilled saffron phirni.' },
       ],
       travelTips: [
-        'Head covering (scarf/rumal) is mandatory inside the Golden Temple complex. Shoes must be deposited at the free token counters.',
-        'Wagah Border gates open around 3:30 PM; reach by 3:00 PM for premium stadium seats.',
+        'Heads must be covered at all times inside the Golden Temple complex. Headscarves (rumals) are freely available at the entrance, or you can carry your own clean scarf.',
+        'Shoes, socks, tobacco, and cigarettes must be deposited at the free 24/7 footwear counters before entering through the holy foot-washing pool.',
+        'Reach the Attari-Wagah Border by 3:00 PM (winter) or 4:00 PM (summer) for comfortable grandstand seating as entry is on a first-come, first-served basis.',
+        'Photography of the sanctum exterior and Sarovar is permitted, but photography of the sanctum interior is strictly forbidden to preserve devotion.',
       ],
       faqs: [
         {
-          question: 'Can we combine Amritsar with Himachal or Kashmir?',
+          question: '1. What are the opening hours and dress code for Sri Harmandir Sahib (Golden Temple)?',
           answer:
-            'Yes! Amritsar is the most popular launching pad for Dharamshala (4.5 hrs drive), Dalhousie (4.5 hrs), and Katra/Jammu (4.5 hrs). We offer seamless combined packages.',
-        },
-      ],
-    },
-  },
-  ladakh: {
-    id: 'ladakh',
-    slug: 'ladakh',
-    name: 'Ladakh',
-    displayName: 'LADAKH & LEH',
-    state: 'Ladakh (UT)',
-    tagline: 'Land of High Passes: Color-changing Pangong Lake, double-humped camels of Nubra & Khardung La',
-    heroImage: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1600&q=85',
-    guideTitle: 'Ladakh guide',
-    weatherInfo: '5°C - 20°C (Dry & High Altitude)',
-    bestSeason: 'May to September (Roads open & pleasant)',
-    startingPrice: 22999,
-    popularCities: ['Leh', 'Nubra Valley', 'Pangong Tso', 'Khardung La', 'Tso Moriri', 'Diskit'],
-    categoryFilters: [
-      { id: 'all', label: 'All Packages', iconName: 'Compass' },
-      { id: 'adventure', label: 'Adventure & Biking', iconName: 'Sparkles' },
-      { id: 'family', label: 'Family & Camps', iconName: 'Hotel' },
-      { id: 'monastery', label: 'Monasteries & Culture', iconName: 'Heart' },
-    ],
-    guide: {
-      overview:
-        'A magical high-altitude desert framed by barren moonscapes, ancient Tibetan gompas, turquoise glacial lakes, and the world’s highest motorable passes.',
-      bestTimeToVisit: 'May to September when all mountain passes are clear and temperatures are comfortable.',
-      idealDuration: '6 to 8 Days',
-      nearestAirport: 'Kushok Bakula Rimpochee Airport Leh (IXL)',
-      nearestRailway: 'Jammu Tawi (JAT) / Chandigarh',
-      topAttractions: [
-        {
-          name: 'Pangong Tso Glacial Lake',
-          description: 'A 134-KM lake situated at 14,270 ft that changes shades from azure to turquoise under the clear Himalayan sky.',
-          image: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80',
-          badge: 'High Altitude',
+            'The Golden Temple is open 24 hours a day, 365 days a year to all human beings without exception. Visitors must dress modestly (shoulders and knees covered), remove all footwear at the free counters, wash feet in the shallow channel at the entrance, and keep their head covered with a scarf or rumal inside the entire complex.',
         },
         {
-          name: 'Nubra Valley & Hunder Sand Dunes',
-          description: 'Desert valley known for double-humped Bactrian camel safaris and the 106-foot Maitreya Buddha at Diskit.',
-          image: 'https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?auto=format&fit=crop&w=800&q=80',
-          badge: 'Camel Safari',
-        },
-      ],
-      thingsToDo: [
-        'Drive through Khardung La Pass (17,582 ft)',
-        'Camp in luxury Swiss tents beside Pangong Lake',
-        'Experience optical illusion at Magnetic Hill',
-        'Stargaze under pollution-free cosmic skies',
-      ],
-      localCuisine: [
-        { dish: 'Ladakhi Thukpa & Momos', description: 'Hearty steaming noodle soup and freshly steamed vegetable/meat dumplings.' },
-        { dish: 'Butter Tea (Gur Gur)', description: 'Traditional salty tea churned with yak butter.' },
-      ],
-      travelTips: [
-        'First 24 hours of arrival in Leh must be dedicated to complete rest for high altitude acclimatization.',
-        'Bhakti Sathi provides onboard portable oxygen cylinders in all our Ladakh vehicles.',
-      ],
-      faqs: [
-        {
-          question: 'Do we need Inner Line Permits for Pangong & Nubra?',
-          answer: 'Yes, Bhakti Sathi manages all Ladakh Inner Line Permits and environmental green fees seamlessly.',
-        },
-      ],
-    },
-  },
-  himachal_devi: {
-    id: 'himachal_devi',
-    slug: 'himachal_devi',
-    name: 'Himachal Devi Darshan',
-    displayName: 'HIMACHAL 5 DEVI DARSHAN',
-    state: 'Himachal Pradesh',
-    tagline: 'Auspicious Shaktipeeth tour: Mata Mansa Devi, Mata Naina Devi, Mata Chintpurni, Mata Jwala Ji & Mata Chamunda Devi',
-    heroImage: 'https://images.unsplash.com/photo-1598091383021-15ddea10925d?auto=format&fit=crop&w=1600&q=85',
-    guideTitle: 'Himachal Devi Darshan Guide',
-    weatherInfo: '10°C - 28°C (Pleasant Hill Weather)',
-    bestSeason: 'Year-Round (Navratri Special Festivals in March-April & October)',
-    startingPrice: 12999,
-    popularCities: ['Kangra', 'Jwala Mukhi', 'Chintpurni', 'Chamunda', 'Dharamshala', 'Bilaspur'],
-    categoryFilters: [
-      { id: 'all', label: 'All Packages', iconName: 'Compass' },
-      { id: 'pilgrimage', label: '5 Devi Darshan', iconName: 'Sparkles' },
-      { id: 'family', label: 'Family Stays', iconName: 'Users' },
-      { id: 'senior', label: 'Senior Friendly', iconName: 'HeartHandshake' },
-    ],
-    guide: {
-      overview:
-        'The auspicious Shaktipeeth yatra covering the sacred abodes in the foothills of Himachal Pradesh, featuring the self-manifested eternal flame of Jwala Ji and revered Shakti shrines.',
-      bestTimeToVisit: 'Year-round, with peak festive enthusiasm during Chaitra and Sharad Navratri festivals.',
-      idealDuration: '5 to 7 Days',
-      nearestAirport: 'Kangra Gaggal Airport (DHM) / Chandigarh (IXC)',
-      nearestRailway: 'Pathankot Junction (PTK) / Chandigarh (CDG)',
-      topAttractions: [
-        {
-          name: 'Mata Jwala Ji Temple',
-          description: 'Sacred Shaktipeeth where natural blue eternal flames burn without any known fuel source.',
-          image: 'https://images.unsplash.com/photo-1598091383021-15ddea10925d?auto=format&fit=crop&w=800&q=80',
-          badge: 'Akhand Jyoti',
+          question: '2. What is the Palki Sahib Ceremony at the Golden Temple and when can we attend?',
+          answer:
+            'The Palki Sahib ceremony is one of the most sublime spiritual rituals. Around 9:30 PM (Sukhasan in winter) / 10:00 PM (summer), the holy Guru Granth Sahib is carried in a golden palanquin from the sanctum to the Akal Takht for the night. In the morning around 4:30 AM (Prakash), it is ceremoniously carried back to Harmandir Sahib amid chanting and rose petals.',
         },
         {
-          name: 'Mata Kangra Brajeshwari Devi',
-          description: 'Ancient 1000-year-old temple sanctum located in the historic town of Kangra.',
-          image: 'https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?auto=format&fit=crop&w=800&q=80',
-          badge: 'Shaktipeeth',
-        },
-      ],
-      thingsToDo: [
-        'Seek blessings of the natural eternal flames at Mata Jwala Ji',
-        'Ropeway ride to Mata Naina Devi overlooking Govind Sagar Lake',
-        'Experience peaceful riverside meditation at Mata Chamunda Devi on Baner River',
-      ],
-      localCuisine: [
-        { dish: 'Himachali Dham & Traditional Local Cuisine', description: 'Traditional Kangri Madra, Sepu Badi, and mountain dishes cooked with fresh local spices.' },
-      ],
-      travelTips: [
-        'Bhakti Sathi provides dedicated private vehicle transfers and priority temple entry coordination for families and senior citizens.',
-      ],
-      faqs: [
-        {
-          question: 'Can this tour be completed comfortably by elderly family members?',
-          answer: 'Yes, all 5 temples have gentle access paths, battery carts/ropeway facilities where needed, and our private drivers ensure flexible pacing.',
-        },
-      ],
-    },
-  },
-  rajasthan: {
-    id: 'rajasthan',
-    slug: 'rajasthan',
-    name: 'Rajasthan',
-    displayName: 'ROYAL RAJASTHAN',
-    state: 'Rajasthan',
-    tagline: 'Land of Kings: Amber Fort of Jaipur, Blue City of Jodhpur, desert dunes of Jaisalmer & Lake Pichola Udaipur',
-    heroImage: 'https://images.unsplash.com/photo-1477587458883-47145ed94245?auto=format&fit=crop&w=1600&q=85',
-    guideTitle: 'Rajasthan guide',
-    weatherInfo: '20°C - 32°C (Pleasant Winters)',
-    bestSeason: 'October to March (Royal Festive Season)',
-    startingPrice: 15999,
-    popularCities: ['Jaipur', 'Udaipur', 'Jodhpur', 'Jaisalmer', 'Pushkar', 'Mount Abu'],
-    categoryFilters: [
-      { id: 'all', label: 'All Packages', iconName: 'Compass' },
-      { id: 'heritage', label: 'Heritage & Palaces', iconName: 'Hotel' },
-      { id: 'desert', label: 'Desert & Camels', iconName: 'Sparkles' },
-      { id: 'honeymoon', label: 'Romantic Udaipur', iconName: 'Heart' },
-      { id: 'family', label: 'Family Vacation', iconName: 'Users' },
-    ],
-    guide: {
-      overview:
-        'Step into the era of royalty with majestic hill forts, mirror-work palaces, vibrant cultural folk music, and romantic boat rides on shimmering lakes.',
-      bestTimeToVisit: 'October to March for comfortable palace tours and desert safaris.',
-      idealDuration: '5 to 8 Days',
-      nearestAirport: 'Jaipur (JAI), Udaipur (UDR), Jodhpur (JDH)',
-      nearestRailway: 'Jaipur Junction & Jodhpur Junction',
-      topAttractions: [
-        {
-          name: 'Amber Palace & Hawa Mahal, Jaipur',
-          description: 'Intricate marble courtyards, Sheesh Mahal mirror palace, and iconic 953-window facade.',
-          image: 'https://images.unsplash.com/photo-1477587458883-47145ed94245?auto=format&fit=crop&w=800&q=80',
-          badge: 'Iconic Palace',
+          question: '3. Are tickets required for the Attari-Wagah Border Beating Retreat Ceremony?',
+          answer:
+            'No, entry to the Wagah Border parade is completely free of charge. There are no tickets. Seating is on a first-come, first-served basis. We provide private AC round-trip hotel cab transfers and ensure you reach early (around 3:00 PM) for prime stadium seats.',
         },
         {
-          name: 'Sam Sand Dunes, Jaisalmer',
-          description: 'Sunset camel safaris, quad biking, and Rajasthani folk dances around desert bonfires.',
-          image: 'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=800&q=80',
-          badge: 'Desert Camping',
+          question: '4. How far is the Wagah Border from Amritsar city center?',
+          answer:
+            'The Attari-Wagah Border is located 32 KM (~45 to 50 minutes drive) from the Golden Temple and city center. Private cab transfers take you directly to the border parking plaza.',
         },
-      ],
-      thingsToDo: [
-        'Boat cruise on Lake Pichola with views of Taj Lake Palace',
-        'Zipline (Flying Fox) across Mehrangarh Fort battlements in Jodhpur',
-        'Relish authentic Dal Baati Churma and Ker Sangri at Chokhi Dhani',
-      ],
-      localCuisine: [
-        { dish: 'Dal Baati Churma', description: 'Hard wheat rolls baked over cow dung/ghee, crushed in sweet churma and served with spicy lentil curry.' },
-        { dish: 'Laal Maas', description: 'Fiery royal mutton curry cooked with Mathania red chillies.' },
-      ],
-      travelTips: ['Book heritage stays early during winter months (Nov - Feb).'],
-      faqs: [{ question: 'Can we customize Jaipur with Udaipur and Jaisalmer?', answer: 'Yes, we provide flexible private chauffeur itineraries across all royal routes.' }],
-    },
-  },
-  kerala: {
-    id: 'kerala',
-    slug: 'kerala',
-    name: 'Kerala',
-    displayName: 'KERALA',
-    state: 'Kerala',
-    tagline: 'God’s Own Country: Rolling tea valleys of Munnar, Periyar wildlife & private backwater houseboats',
-    heroImage: 'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=1600&q=85',
-    guideTitle: 'Kerala guide',
-    weatherInfo: '22°C - 30°C (Tropical & Refreshing)',
-    bestSeason: 'September to March (Pleasant) & June-Aug (Monsoon Ayurveda)',
-    startingPrice: 12999,
-    popularCities: ['Munnar', 'Thekkady', 'Alleppey', 'Kochi', 'Kovalam', 'Wayanad'],
-    categoryFilters: [
-      { id: 'all', label: 'All Packages', iconName: 'Compass' },
-      { id: 'honeymoon', label: 'Honeymoon Special', iconName: 'Heart' },
-      { id: 'houseboat', label: 'Private Houseboat', iconName: 'Hotel' },
-      { id: 'nature', label: 'Tea & Waterfalls', iconName: 'Sparkles' },
-      { id: 'family', label: 'Family Holiday', iconName: 'Users' },
-    ],
-    guide: {
-      overview:
-        'A tropical paradise of emerald tea plantations in Munnar, aromatic spice hills of Thekkady, and languid palm-fringed backwaters of Alleppey.',
-      bestTimeToVisit: 'September to March for sightseeing and houseboat cruising; June to August for world-famous Ayurvedic monsoon treatments.',
-      idealDuration: '4 to 7 Days',
-      nearestAirport: 'Cochin International Airport (COK) / Trivandrum (TRV)',
-      nearestRailway: 'Ernakulam Junction (ERS) & Aluva',
-      topAttractions: [
         {
-          name: 'Alleppey Private Houseboat Cruise',
-          description: 'Traditional thatched roof Kettuvallam cruising through Vembanad Lake canals with personal chef.',
-          image: 'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=800&q=80',
-          badge: 'World Famous',
+          question: '5. Are wheelchair and elderly assistance facilities available at Golden Temple?',
+          answer:
+            'Yes, complimentary wheelchairs and dedicated smooth ramp pathways are available at all four entrance plazas of the Golden Temple. Volunteer sewadars and golf carts are also available around the Heritage Street area to assist senior citizens.',
         },
-      ],
-      thingsToDo: [
-        'Watch wild elephants during Periyar Lake boat safari',
-        'Savor fresh Karimeen fish fried on banana leaf inside your houseboat',
-        'Witness Kalaripayattu martial arts and Kathakali cultural shows',
-      ],
-      localCuisine: [
-        { dish: 'Appam with Stew', description: 'Lacy fermented rice pancakes served with creamy coconut milk vegetable or chicken stew.' },
-        { dish: 'Kerala Sadhya', description: 'Grand 24-dish vegetarian feast served on fresh banana leaf.' },
-      ],
-      travelTips: ['Houseboat AC operates 9:00 PM to 6:00 AM in Deluxe category and 24/7 in Luxury glasshouseboats.'],
-      faqs: [{ question: 'Are all meals included on the houseboat?', answer: 'Yes! Houseboat stays include freshly cooked lunch, hi-tea, dinner, and breakfast.' }],
-    },
-  },
-  goa: {
-    id: 'goa',
-    slug: 'goa',
-    name: 'Goa',
-    displayName: 'GOA',
-    state: 'Goa',
-    tagline: 'Sun, sand & spice: Golden beaches, Portuguese heritage churches, water sports & river cruises',
-    heroImage: 'https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?auto=format&fit=crop&w=1600&q=85',
-    guideTitle: 'Goa guide',
-    weatherInfo: '24°C - 32°C (Coastal Breeze)',
-    bestSeason: 'October to April (Beach & Party Season)',
-    startingPrice: 8999,
-    popularCities: ['Calangute', 'Baga', 'Candolim', 'Panaji', 'Old Goa', 'Dudhsagar Waterfalls', 'Palolem'],
-    categoryFilters: [
-      { id: 'all', label: 'All Packages', iconName: 'Compass' },
-      { id: 'beach', label: 'Beaches & Shacks', iconName: 'Sparkles' },
-      { id: 'honeymoon', label: 'Honeymoon & Luxury', iconName: 'Heart' },
-      { id: 'family', label: 'Family & Heritage', iconName: 'Users' },
-      { id: 'adventure', label: 'Water Sports & Cruises', iconName: 'Hotel' },
-    ],
-    guide: {
-      overview:
-        'India’s sunshine state blending Portuguese architectural charm, tranquil South Goa beaches, energetic North Goa beach clubs, and serene spice plantations.',
-      bestTimeToVisit: 'October to April for pleasant beach weather and water sports.',
-      idealDuration: '3 to 5 Days',
-      nearestAirport: 'Goa International Airport Dabolim (GOI) / Manohar International Airport Mopa (GOX)',
-      nearestRailway: 'Madgaon (MAO) & Thivim (THVM)',
-      topAttractions: [
         {
-          name: 'Dudhsagar Waterfalls & Spice Plantation',
-          description: 'Four-tiered sea of milk waterfall deep inside the Western Ghats reachable by 4x4 open jungle jeep safari.',
-          image: 'https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?auto=format&fit=crop&w=800&q=80',
-          badge: 'Jungle Safari',
+          question: '6. Can we eat at Guru Ka Langar and what are the timings?',
+          answer:
+            'Guru Ka Langar is open 24 hours a day and serves anyone who sits in the pangat (lines on the floor) with open arms. The meal is 100% vegetarian, wholesome, and prepared with immense love and hygiene. You can also volunteer (seva) by rolling chapatis or serving water.',
+        },
+        {
+          question: '7. How far is Durgiana Temple and Jallianwala Bagh from Golden Temple?',
+          answer:
+            'Jallianwala Bagh is located directly opposite the Golden Temple entrance plaza (2 minutes walk along Heritage Street). Durgiana Temple (Silver Temple) is only 2.5 KM (10 minutes by auto or cab) away, making it easy to cover in a half-day tour.',
+        },
+        {
+          question: '8. What are the best places in Amritsar to eat authentic Amritsari Kulcha?',
+          answer:
+            'Renowned authentic eateries include Bhai Kulwant Singh Kulchian Wale, Kesar Da Dhaba, Kulcha Land, Pehalwan Kulcha, and Kanha Sweets. All are located in and around the Heritage Street and Hall Bazaar areas.',
+        },
+        {
+          question: '9. Can we combine Amritsar with Katra (Vaishno Devi) in one trip?',
+          answer:
+            'Yes! Amritsar to Katra is only 260 KM (~4.5 to 5 hours via the new expressway), or a quick ride on the direct Vande Bharat Express. A 4 to 5-day combined Amritsar + Vaishno Devi Katra tour is one of North Indias most popular spiritual circuits.',
+        },
+        {
+          question: '10. Which railway station and airport connect Amritsar?',
+          answer:
+            'Sri Guru Ram Dass Jee International Airport (ATQ) is located 11 KM from the city with daily direct flights from Delhi, Mumbai, Bengaluru, Dubai, London, and Singapore. Amritsar Junction Railway Station (ASR) is just 2.5 KM from the Golden Temple.',
         },
       ],
-      thingsToDo: [
-        'Water sports at Calangute/Baga (parasailing, jet-ski, banana ride)',
-        'Mandovi river sunset cruise with Goan folk performances',
-        'Explore UNESCO heritage Basilica of Bom Jesus in Old Goa',
-      ],
-      localCuisine: [
-        { dish: 'Goan Fish Curry Rice', description: 'Kingfish cooked in aromatic coconut, kokum, and Kashmiri red chillies.' },
-        { dish: 'Bebinca', description: 'Traditional multi-layered Goan coconut milk pudding.' },
-      ],
-      travelTips: ['Rent sanitized private self-drive or chauffeur cars through Bhakti Sathi for effortless sightseeing.'],
-      faqs: [{ question: 'Which is better: North Goa or South Goa?', answer: 'North Goa is famous for vibrant markets, water sports, and beach shacks. South Goa is known for serene luxury resorts and uncrowded white sand beaches.' }],
-    },
-  },
-  thailand: {
-    id: 'thailand',
-    slug: 'thailand',
-    name: 'Thailand',
-    displayName: 'THAILAND',
-    state: 'International',
-    tagline: 'Tropical paradise: Bangkok temples, vibrant Pattaya coral islands & Phuket luxury beach villas',
-    heroImage: 'https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?auto=format&fit=crop&w=1600&q=85',
-    guideTitle: 'Thailand Holiday Guide',
-    weatherInfo: '26°C - 32°C (Warm & Tropical)',
-    bestSeason: 'November to April (Pleasant & Dry)',
-    startingPrice: 24999,
-    popularCities: ['Bangkok', 'Phuket', 'Pattaya', 'Krabi', 'Phi Phi Islands', 'Chiang Mai'],
-    categoryFilters: [
-      { id: 'all', label: 'All Packages', iconName: 'Compass' },
-      { id: 'family', label: 'Family Holiday', iconName: 'Users' },
-      { id: 'honeymoon', label: 'Honeymoon Romantic', iconName: 'Heart' },
-      { id: 'pilgrimage', label: 'Temples & Culture', iconName: 'Sparkles' },
-    ],
-    guide: {
-      overview: 'Experience the Land of Smiles with glittering Buddhist golden temples, pristine Andaman coral islands, world-class nightlife, and indulgent Thai massages with private speedboat and chauffeur transfers.',
-      bestTimeToVisit: 'November to April is prime tourist season with sunny skies and calm seas.',
-      idealDuration: '5 to 8 Days',
-      nearestAirport: 'Suvarnabhumi Airport Bangkok (BKK) / Phuket Airport (HKT)',
-      nearestRailway: 'Bangkok Grand Central',
-      topAttractions: [
-        { name: 'Phi Phi Islands & Maya Bay', description: 'Emerald turquoise lagoons surrounded by towering limestone cliffs, featured in Hollywood movies.', image: 'https://images.unsplash.com/photo-1537956965359-7573183d1f57?auto=format&fit=crop&w=800&q=80', badge: 'World Famous' },
-        { name: 'Wat Arun & Grand Palace', description: 'Opulent royal complex and riverside temple of dawn shimmering with porcelain mosaics.', image: 'https://images.unsplash.com/photo-1528181304800-259b08848526?auto=format&fit=crop&w=800&q=80', badge: 'Cultural Icon' },
-        { name: 'Coral Island Pattaya', description: 'Parasailing, underwater sea walking, and snorkeling in pristine crystal waters.', image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80', badge: 'Water Sports' },
-      ],
-      thingsToDo: ['Chao Phraya Luxury Princess Dinner Cruise', 'Speedboat Island Hopping', 'Elephant Sanctuary Visit', 'Safari World & Marine Park'],
-      localCuisine: [
-        { dish: 'Pad Thai', description: 'Stir-fried rice noodles with tamarind, crushed peanuts, bean sprouts, and lime.' },
-        { dish: 'Tom Yum Goong', description: 'Aromatic spicy and sour lemongrass shrimp soup.' },
-        { dish: 'Mango Sticky Rice', description: 'Sweet sticky rice soaked in coconut milk served with ripe Thai honey mangoes.' },
-      ],
-      travelTips: ['Visa on Arrival is free for Indian passport holders.', 'Dress respectfully with covered shoulders and knees when visiting royal temples.'],
-      faqs: [{ question: 'Do Indian passport holders need a visa for Thailand?', answer: 'Thailand offers visa exemption / free visa-on-arrival for Indian tourists for up to 30 days.' }],
-    },
-  },
-  vietnam: {
-    id: 'vietnam',
-    slug: 'vietnam',
-    name: 'Vietnam',
-    displayName: 'VIETNAM',
-    state: 'International',
-    tagline: 'Emerald waters of Ha Long Bay, lantern-lit streets of Hoi An & Golden Bridge in Ba Na Hills',
-    heroImage: 'https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&w=1600&q=85',
-    guideTitle: 'Vietnam Explorer Guide',
-    weatherInfo: '20°C - 30°C (Pleasant)',
-    bestSeason: 'October to April',
-    startingPrice: 28999,
-    popularCities: ['Hanoi', 'Da Nang', 'Ha Long Bay', 'Hoi An', 'Ho Chi Minh City'],
-    categoryFilters: [
-      { id: 'all', label: 'All Packages', iconName: 'Compass' },
-      { id: 'family', label: 'Family Vacation', iconName: 'Users' },
-      { id: 'honeymoon', label: 'Honeymoon Special', iconName: 'Heart' },
-      { id: 'pilgrimage', label: 'Heritage & Pagodas', iconName: 'Sparkles' },
-    ],
-    guide: {
-      overview: 'Discover the breathtaking emerald karst pillars of Ha Long Bay, giant stone hands holding the Golden Bridge in Da Nang, and the ancient French colonial quarters of Hanoi with luxury 5-star cruises and chauffeur service.',
-      bestTimeToVisit: 'Spring (March to April) and Autumn (September to November) offer idyllic weather across north and south.',
-      idealDuration: '6 to 9 Days',
-      nearestAirport: 'Noi Bai International Airport Hanoi (HAN) / Da Nang Airport (DAD)',
-      nearestRailway: 'Hanoi Train Station',
-      topAttractions: [
-        { name: 'Ha Long Bay Luxury Cruise', description: 'UNESCO World Heritage bay filled with thousands of limestone karst islets and mystical caves.', image: 'https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&w=800&q=80', badge: 'UNESCO Wonder' },
-        { name: 'Golden Hand Bridge (Ba Na Hills)', description: 'Spectacular footbridge held aloft by two massive stone hands in the mountain clouds.', image: 'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?auto=format&fit=crop&w=800&q=80', badge: 'Viral Icon' },
-        { name: 'Hoi An Ancient Lantern Town', description: 'Enchanting riverside town lit by thousands of colorful handcrafted silk lanterns.', image: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=800&q=80', badge: 'Heritage Gem' },
-      ],
-      thingsToDo: ['Ha Long Bay Overnight 5-Star Cruise', 'Ba Na Hills Sun World Cable Car', 'Hoi An Basket Boat Coconut Forest Ride', 'Hanoi Street Food & Egg Coffee Tour'],
-      localCuisine: [
-        { dish: 'Pho Bo', description: 'Fragrant Vietnamese beef noodle broth with fresh mint, basil, and chili.' },
-        { dish: 'Banh Mi', description: 'Crisp French-style baguette filled with savory meats, paté, pickled daikon, and cilantro.' },
-        { dish: 'Egg Coffee (Ca Phe Trung)', description: 'Rich Vietnamese robusta coffee topped with creamy whisked egg yolk foam.' },
-      ],
-      travelTips: ['Easy eVisa online processing takes only 3 business days.', 'Use Grab app for seamless and transparent city taxi rides.'],
-      faqs: [{ question: 'How is the visa process for Vietnam?', answer: 'Vietnam provides online e-Visa for 30/90 days for travelers with quick approval within 3 working days.' }],
-    },
-  },
-  indonesia: {
-    id: 'indonesia',
-    slug: 'indonesia',
-    name: 'Indonesia',
-    displayName: 'INDONESIA (BALI)',
-    state: 'International',
-    tagline: 'Island of the Gods: Ubud jungle swings, clifftop Uluwatu sunsets & Nusa Penida crystal lagoons',
-    heroImage: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=1600&q=85',
-    guideTitle: 'Bali Indonesia Vacation Guide',
-    weatherInfo: '27°C - 31°C (Tropical Island)',
-    bestSeason: 'April to October (Dry & Breezy)',
-    startingPrice: 32999,
-    popularCities: ['Bali', 'Ubud', 'Kuta', 'Seminyak', 'Nusa Dua', 'Nusa Penida', 'Gili Islands'],
-    categoryFilters: [
-      { id: 'all', label: 'All Packages', iconName: 'Compass' },
-      { id: 'honeymoon', label: 'Honeymoon Private Pool Villa', iconName: 'Heart' },
-      { id: 'family', label: 'Family Island Explorer', iconName: 'Users' },
-      { id: 'pilgrimage', label: 'Sacred Temples & Water Blessings', iconName: 'Sparkles' },
-    ],
-    guide: {
-      overview: 'Immerse in tropical bliss in Bali, Indonesia. From iconic private pool villas in Seminyak, emerald Tegalalang rice terraces, sacred Tirta Empul water purification, to dramatic clifftop Kecak fire dance at Uluwatu Temple overlooking the Indian Ocean.',
-      bestTimeToVisit: 'April through October provides crisp sunny days and gentle sea breezes.',
-      idealDuration: '6 to 8 Days',
-      nearestAirport: 'Ngurah Rai International Airport Denpasar Bali (DPS)',
-      nearestRailway: 'N/A (Private Chauffeur Tour)',
-      topAttractions: [
-        { name: 'Uluwatu Sunset Temple & Kecak Dance', description: 'Ancient sea temple perched atop a 70m cliff with hypnotic fire dance performance.', image: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=800&q=80', badge: 'Must Experience' },
-        { name: 'Nusa Penida (Kelingking Beach)', description: 'T-Rex shaped limestone cliff plunging into radiant turquoise waters.', image: 'https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?auto=format&fit=crop&w=800&q=80', badge: 'World Wonder' },
-        { name: 'Tegalalang Rice Terraces & Jungle Swing', description: 'Dramatic emerald green tiered paddies with high-flying jungle swings.', image: 'https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=800&q=80', badge: 'Iconic Bali' },
-      ],
-      thingsToDo: ['Private Pool Villa Floating Breakfast', 'Nusa Penida Speedboat Day Tour', 'Tirta Empul Holy Spring Cleansing', 'Ayung River White Water Rafting'],
-      localCuisine: [
-        { dish: 'Nasi Goreng', description: 'Fragrant Indonesian fried rice with sweet soy, satay skewers, and crispy fried shallots.' },
-        { dish: 'Ayam Betutu', description: 'Slow-cooked Balinese chicken infused with rich 16-spice paste and banana leaf wrap.' },
-        { dish: 'Babi Guling / Balinese Satay', description: 'Crispy roast suckling pork and minced coconut chicken satay.' },
-      ],
-      travelTips: ['Visa on Arrival (VoA) is granted instantly at Bali Airport for 500,000 IDR (approx ₹2,700).', 'Dress in a traditional sarong and sash when entering sacred Hindu temples.'],
-      faqs: [{ question: 'Is Bali suitable for vegetarians and Indian food?', answer: 'Yes! Bali has hundreds of excellent Indian restaurants (both North and South Indian dining options) across Kuta, Seminyak, Ubud, and Nusa Dua.' }],
-    },
-  },
-  andaman: {
-    id: 'andaman',
-    slug: 'andaman',
-    name: 'Andaman',
-    displayName: 'ANDAMAN',
-    state: 'Union Territory',
-    tagline: 'Crystal turquoise waters of Havelock, Radhanagar beach & historic Cellular Jail',
-    heroImage: 'https://images.unsplash.com/photo-1589308078059-be1415eab4c3?auto=format&fit=crop&w=1600&q=85',
-    guideTitle: 'Andaman Islands Holiday Guide',
-    weatherInfo: '24°C - 30°C (Tropical Breezy)',
-    bestSeason: 'October to May (Best for Scuba & Water Sports)',
-    startingPrice: 19999,
-    popularCities: ['Port Blair', 'Havelock Island (Swaraj Dweep)', 'Neil Island (Shaheed Dweep)', 'Baratang Island'],
-    categoryFilters: [
-      { id: 'all', label: 'All Packages', iconName: 'Compass' },
-      { id: 'beach', label: 'Beaches & Coral', iconName: 'Sparkles' },
-      { id: 'honeymoon', label: 'Honeymoon Special', iconName: 'Heart' },
-      { id: 'family', label: 'Family Vacation', iconName: 'Users' },
-    ],
-    guide: {
-      overview: 'White powdery sand beaches, Asia’s finest Radhanagar Beach, vibrant underwater coral reefs, scuba diving, and Cellular Jail Light & Sound show.',
-      bestTimeToVisit: 'October to May with calm turquoise waters.',
-      idealDuration: '5 to 7 Days',
-      nearestAirport: 'Veer Savarkar International Airport Port Blair (IXZ)',
-      nearestRailway: 'N/A (Flight to Port Blair)',
-      topAttractions: [
-        { name: 'Radhanagar Beach (Havelock)', description: 'Ranked among Asia’s best beaches with crystal clear blue water and powdery white sand.', image: 'https://images.unsplash.com/photo-1589308078059-be1415eab4c3?auto=format&fit=crop&w=800&q=80', badge: 'Asia’s Best Beach' },
-        { name: 'Cellular Jail & Light Show', description: 'Historic national memorial showcasing India’s freedom struggle.', image: 'https://images.unsplash.com/photo-1609137144813-7d9921338f24?auto=format&fit=crop&w=800&q=80', badge: 'Historic Gem' },
-      ],
-      thingsToDo: ['Scuba Diving & Sea Walk at Elephant Beach', 'Private Catamaran Cruise to Havelock & Neil', 'Baratang Island Mangrove Boat Ride & Limestone Caves'],
-      localCuisine: [{ dish: 'Fresh Andaman Seafood', description: 'Grilled red snapper and butter garlic prawns.' }],
-      travelTips: ['Book private luxury ferries (Makruzz / Nautika) in advance.'],
-      faqs: [{ question: 'Do Indians need a passport for Andaman?', answer: 'No passport or visa is required for Indian citizens visiting Andaman & Nicobar Islands. Valid photo ID (Aadhaar / Voter ID / Driving License) is sufficient.' }],
-    },
-  },
-  singapore: {
-    id: 'singapore',
-    slug: 'singapore',
-    name: 'Singapore',
-    displayName: 'SINGAPORE',
-    state: 'International',
-    tagline: 'Futuristic Gardens by the Bay, Marina Bay Sands SkyPark & Sentosa Island thrill',
-    heroImage: 'https://images.unsplash.com/photo-1525625293386-3f8f99389edd?auto=format&fit=crop&w=1600&q=85',
-    guideTitle: 'Singapore City Guide',
-    weatherInfo: '26°C - 32°C (Tropical)',
-    bestSeason: 'Year-Round (Best Nov to June)',
-    startingPrice: 38999,
-    popularCities: ['Marina Bay', 'Sentosa Island', 'Orchard Road', 'Chinatown', 'Little India'],
-    categoryFilters: [
-      { id: 'all', label: 'All Packages', iconName: 'Compass' },
-      { id: 'family', label: 'Family Fun & Universal', iconName: 'Users' },
-      { id: 'luxury', label: 'Luxury & SkyPark', iconName: 'Heart' },
-    ],
-    guide: {
-      overview: 'The Lion City blends futuristic skylines, Supertree Grove light shows, Universal Studios thrill rides, and Michelin-starred dining.',
-      bestTimeToVisit: 'Year-round destination with pleasant tropical vibes.',
-      idealDuration: '4 to 6 Days',
-      nearestAirport: 'Changi Airport Singapore (SIN)',
-      nearestRailway: 'Singapore MRT',
-      topAttractions: [
-        { name: 'Gardens by the Bay & Supertrees', description: 'Futuristic botanical wonderland with giant biodomes and evening light & sound spectacle.', image: 'https://images.unsplash.com/photo-1525625293386-3f8f99389edd?auto=format&fit=crop&w=800&q=80', badge: 'Futuristic Marvel' },
-        { name: 'Universal Studios Sentosa', description: 'World-class theme park with blockbuster rollercoasters and family attractions.', image: 'https://images.unsplash.com/photo-1565967511849-76a60a516170?auto=format&fit=crop&w=800&q=80', badge: 'Top Family Spot' },
-      ],
-      thingsToDo: ['Marina Bay Sands Infinity Observation Deck', 'Singapore Night Safari Tram', 'Cable Car Ride to Sentosa Island'],
-      localCuisine: [{ dish: 'Hainanese Chicken Rice & Chili Crab', description: 'National delicacies with savory chili sauces.' }],
-      travelTips: ['Indian tourists can obtain Singapore tourist visa within 3-4 working days.'],
-      faqs: [{ question: 'Is Singapore kid-friendly?', answer: 'Yes, Singapore is rated among the world’s best family destinations with Universal Studios, Night Safari, and interactive science centers.' }],
-    },
-  },
-  dubai: {
-    id: 'dubai',
-    slug: 'dubai',
-    name: 'Dubai',
-    displayName: 'DUBAI',
-    state: 'International',
-    tagline: 'Burj Khalifa 124th Floor, golden desert dune bashing & luxury Marina yacht cruises',
-    heroImage: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=1600&q=85',
-    guideTitle: 'Dubai Luxury Holiday Guide',
-    weatherInfo: '22°C - 33°C (Sunny & Pleasant in Winter)',
-    bestSeason: 'October to April (Peak Dubai Season)',
-    startingPrice: 34999,
-    popularCities: ['Downtown Dubai', 'Dubai Marina', 'Palm Jumeirah', 'Old Deira Gold Souk'],
-    categoryFilters: [
-      { id: 'all', label: 'All Packages', iconName: 'Compass' },
-      { id: 'luxury', label: 'Luxury & Sky', iconName: 'Heart' },
-      { id: 'family', label: 'Family & Theme Parks', iconName: 'Users' },
-    ],
-    guide: {
-      overview: 'City of Gold and superlatives: Stand on the world’s tallest tower, cruise on a luxury yacht along Dubai Marina, and enjoy 4x4 desert safaris with BBQ dinner and belly dance.',
-      bestTimeToVisit: 'November to March for sublime outdoor weather and Dubai Shopping Festival.',
-      idealDuration: '5 to 7 Days',
-      nearestAirport: 'Dubai International Airport (DXB)',
-      nearestRailway: 'Dubai Metro',
-      topAttractions: [
-        { name: 'Burj Khalifa & Dubai Mall Fountain', description: 'Ascend to the 124th/125th floor observation deck overlooking the illuminated city skyline.', image: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=800&q=80', badge: 'World’s Tallest' },
-        { name: 'Red Dune Desert Safari & Camp', description: 'Thrilling 4x4 dune bashing, sandboarding, camel rides, and Tanoura dance show.', image: 'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=800&q=80', badge: 'Must Do' },
-      ],
-      thingsToDo: ['Dubai Marina Luxury Dhow Dinner Cruise', 'Museum of the Future Interactive Tour', 'Atlantis Aquaventure Waterpark on Palm Jumeirah'],
-      localCuisine: [{ dish: 'Shawarma & Arabic Mezze Platter', description: 'Freshly grilled meats with hummus, falafel, and tabbouleh.' }],
-      travelTips: ['Bhakti Sathi processes 30-day Dubai tourist eVisa within 48-72 hours.'],
-      faqs: [{ question: 'How long does Dubai visa take for Indians?', answer: 'Normal Dubai e-Visa is issued in 2-3 working days with only passport copy and photo.' }],
-    },
-  },
-  malaysia: {
-    id: 'malaysia',
-    slug: 'malaysia',
-    name: 'Malaysia',
-    displayName: 'MALAYSIA',
-    state: 'International',
-    tagline: 'Petronas Twin Towers, colorful Batu Caves & Genting Highlands cable car',
-    heroImage: 'https://images.unsplash.com/photo-1596422846543-75c6fc197f07?auto=format&fit=crop&w=1600&q=85',
-    guideTitle: 'Malaysia Explorer Guide',
-    weatherInfo: '25°C - 32°C (Warm & Tropical)',
-    bestSeason: 'Year-Round (Best Nov to May)',
-    startingPrice: 26999,
-    popularCities: ['Kuala Lumpur', 'Genting Highlands', 'Batu Caves', 'Langkawi', 'Penang'],
-    categoryFilters: [
-      { id: 'all', label: 'All Packages', iconName: 'Compass' },
-      { id: 'family', label: 'Family Vacation', iconName: 'Users' },
-      { id: 'honeymoon', label: 'Langkawi Honeymoon', iconName: 'Heart' },
-    ],
-    guide: {
-      overview: 'Truly Asia experience: Iconic Petronas Twin Towers, the rainbow 272 steps of Batu Caves, mountain breeze of Genting Highlands, and duty-free island beaches of Langkawi.',
-      bestTimeToVisit: 'Year-round with great tropical weather.',
-      idealDuration: '4 to 6 Days',
-      nearestAirport: 'Kuala Lumpur International Airport (KUL)',
-      nearestRailway: 'KL Sentral',
-      topAttractions: [
-        { name: 'Batu Caves & Lord Murugan Statue', description: 'Monumental golden deity and limestone cave temple with vibrant rainbow steps.', image: 'https://images.unsplash.com/photo-1596422846543-75c6fc197f07?auto=format&fit=crop&w=800&q=80', badge: 'Cultural Wonder' },
-      ],
-      thingsToDo: ['Petronas Skybridge View', 'Genting SkyWorlds Theme Park & Cable Car', 'Langkawi Island Hopping & Eagle Square'],
-      localCuisine: [{ dish: 'Nasi Lemak & Roti Canai', description: 'Coconut rice with sambal and crispy flaky flatbreads.' }],
-      travelTips: ['Visa-free entry for Indian passport holders.'],
-      faqs: [{ question: 'Is Malaysia visa free for Indians?', answer: 'Yes! Indian passport holders enjoy 30-day visa exemption for Malaysia.' }],
-    },
-  },
-  northeast: {
-    id: 'northeast',
-    slug: 'northeast',
-    name: 'Northeast & Meghalaya',
-    displayName: 'NORTHEAST',
-    state: 'Meghalaya & Assam',
-    tagline: 'Crystal waters of Dawki, living root bridges of Cherrapunji & Kaziranga rhinos',
-    heroImage: 'https://images.unsplash.com/photo-1609137144813-7d9921338f24?auto=format&fit=crop&w=1600&q=85',
-    guideTitle: 'Northeast India Adventure Guide',
-    weatherInfo: '15°C - 24°C (Misty Hills)',
-    bestSeason: 'October to May',
-    startingPrice: 18999,
-    popularCities: ['Shillong', 'Cherrapunji', 'Dawki', 'Mawlynnong', 'Kaziranga', 'Guwahati'],
-    categoryFilters: [
-      { id: 'all', label: 'All Packages', iconName: 'Compass' },
-      { id: 'nature', label: 'Waterfalls & Caves', iconName: 'Sparkles' },
-      { id: 'family', label: 'Family Explorer', iconName: 'Users' },
-    ],
-    guide: {
-      overview: 'Explore the Scotland of the East: Transparent Umngot river in Dawki, double-decker living root bridges, majestic Nohkalikai Falls, and one-horned rhino safari in Kaziranga.',
-      bestTimeToVisit: 'October to May for clear skies and crystal river boating.',
-      idealDuration: '5 to 7 Days',
-      nearestAirport: 'Guwahati Airport (GAU) / Shillong Airport (SHL)',
-      nearestRailway: 'Guwahati Railway Station (GHY)',
-      topAttractions: [
-        { name: 'Dawki Crystal River Boating', description: 'Boats appear to float on air over glass-like turquoise waters on the Indo-Bangla border.', image: 'https://images.unsplash.com/photo-1609137144813-7d9921338f24?auto=format&fit=crop&w=800&q=80', badge: 'Glass Water' },
-      ],
-      thingsToDo: ['Cherrapunji Waterfalls Tour', 'Mawlynnong Cleanest Village Walk', 'Kaziranga Elephant Jeep Safari'],
-      localCuisine: [{ dish: 'Assamese Thali & Kholasapori Pitha', description: 'Steamed rice, bamboo shoot curry, and fresh herbs.' }],
-      travelTips: ['Carry light jackets even in summer months in Shillong.'],
-      faqs: [{ question: 'Best time for Dawki boat ride?', answer: 'November to April when the river is glass clear and transparent.' }],
-    },
-  },
-  srilanka: {
-    id: 'srilanka',
-    slug: 'srilanka',
-    name: 'Sri Lanka',
-    displayName: 'SRI LANKA',
-    state: 'International',
-    tagline: 'Scenic Ella mountain train, Sigiriya rock fortress, Bentota beach & tea estates',
-    heroImage: 'https://images.unsplash.com/photo-1588258524675-c619196b010c?auto=format&fit=crop&w=1600&q=85',
-    guideTitle: 'Sri Lanka Island Holiday Guide',
-    weatherInfo: '24°C - 30°C (Tropical)',
-    bestSeason: 'November to April',
-    startingPrice: 23999,
-    popularCities: ['Colombo', 'Kandy', 'Bentota', 'Nuwara Eliya', 'Ella', 'Sigiriya'],
-    categoryFilters: [
-      { id: 'all', label: 'All Packages', iconName: 'Compass' },
-      { id: 'family', label: 'Family Island Tour', iconName: 'Users' },
-      { id: 'honeymoon', label: 'Honeymoon Hills', iconName: 'Heart' },
-    ],
-    guide: {
-      overview: 'Pearl of the Indian Ocean: World-famous scenic blue train ride through Ella tea plantations, ancient Sigiriya Rock, Temple of the Sacred Tooth Relic, and golden beach resorts.',
-      bestTimeToVisit: 'December to April for sunny beach weather.',
-      idealDuration: '5 to 7 Days',
-      nearestAirport: 'Bandaranaike International Airport Colombo (CMB)',
-      nearestRailway: 'Colombo Fort Station',
-      topAttractions: [
-        { name: 'Sigiriya Lion Rock Fortress', description: 'Ancient 5th-century palace fortress towering 200m above the jungle canopy.', image: 'https://images.unsplash.com/photo-1588258524675-c619196b010c?auto=format&fit=crop&w=800&q=80', badge: 'UNESCO Heritage' },
-      ],
-      thingsToDo: ['Kandy to Ella Blue Scenic Train', 'Madu River Boat Safari with Fish Spa', 'Pinnawala Elephant Orphanage Visit'],
-      localCuisine: [{ dish: 'Sri Lankan Kottu Roti & Hoppers', description: 'Chopped flatbread stir-fry and bowl-shaped crispy rice flour pancakes.' }],
-      travelTips: ['Indian tourists receive free tourist visa / ETA.'],
-      faqs: [{ question: 'Is Sri Lanka visa free for Indians?', answer: 'Yes, Sri Lanka offers free ETA tourist visas for Indian travelers.' }],
     },
   },
 };
 
 export const POPULAR_DESTINATION_SLUGS = [
-  'thailand',
-  'kerala',
-  'andaman',
-  'indonesia',
-  'singapore',
-  'dubai',
-  'vietnam',
-  'malaysia',
+  'jammu-kashmir',
   'himachal',
-  'northeast',
-  'kashmir',
-  'jammu',
   'amritsar',
-  'ladakh',
-  'rajasthan',
-  'goa',
-  'himachal_devi',
-  'srilanka',
 ];
 
 export function getDestinationBySlug(slug?: string | null): DestinationMeta | undefined {
   if (!slug) return undefined;
   const clean = slug.toLowerCase().trim();
+  
+  // Direct key lookup
   if (DESTINATIONS_REGISTRY[clean]) return DESTINATIONS_REGISTRY[clean];
+
+  // Map common aliases
+  if (
+    clean === 'jammu' ||
+    clean === 'kashmir' ||
+    clean === 'jammu-and-kashmir' ||
+    clean === 'jammu_kashmir' ||
+    clean === 'katra' ||
+    clean === 'vaishno-devi'
+  ) {
+    return DESTINATIONS_REGISTRY['jammu-kashmir'];
+  }
+  if (
+    clean === 'himachal-pradesh' ||
+    clean === 'himachal_pradesh' ||
+    clean === 'himachal_devi' ||
+    clean === 'himachal-devi' ||
+    clean === 'devi-darshan' ||
+    clean === 'kangra'
+  ) {
+    return DESTINATIONS_REGISTRY['himachal'];
+  }
+  if (clean === 'golden-temple' || clean === 'punjab') {
+    return DESTINATIONS_REGISTRY['amritsar'];
+  }
 
   // Fuzzy match
   const foundKey = Object.keys(DESTINATIONS_REGISTRY).find(
@@ -989,205 +728,108 @@ export function getDestinationBySlug(slug?: string | null): DestinationMeta | un
 export function matchPackageToDestination(pkg: any, destSlug: string): boolean {
   if (!pkg || !destSlug) return false;
   const target = destSlug.toLowerCase().trim();
-  
-  if (pkg.destinationTag && pkg.destinationTag.toLowerCase().includes(target)) return true;
-  if (pkg.country && pkg.country.toLowerCase().includes(target)) return true;
 
   const destStr = (pkg.destination || '').toLowerCase();
   const titleStr = (pkg.title || '').toLowerCase();
   const slugStr = (pkg.slug || '').toLowerCase();
   const locStr = (pkg.location || '').toLowerCase();
+  const tagStr = (pkg.destinationTag || '').toLowerCase();
 
-  switch (target) {
-    case 'jammu':
-      return (
-        destStr.includes('jammu') ||
-        destStr.includes('katra') ||
-        destStr.includes('vaishno') ||
-        destStr.includes('patnitop') ||
-        destStr.includes('shivkhori') ||
-        titleStr.includes('jammu') ||
-        titleStr.includes('katra') ||
-        titleStr.includes('vaishno') ||
-        slugStr.includes('jammu') ||
-        slugStr.includes('katra')
-      );
-    case 'kashmir':
-      return (
-        destStr.includes('kashmir') ||
-        destStr.includes('srinagar') ||
-        destStr.includes('gulmarg') ||
-        destStr.includes('pahalgam') ||
-        destStr.includes('sonmarg') ||
-        destStr.includes('jammu') ||
-        destStr.includes('katra') ||
-        destStr.includes('vaishno') ||
-        destStr.includes('patnitop') ||
-        titleStr.includes('kashmir') ||
-        titleStr.includes('srinagar') ||
-        titleStr.includes('gulmarg') ||
-        titleStr.includes('jammu') ||
-        titleStr.includes('katra') ||
-        titleStr.includes('vaishno')
-      );
-    case 'himachal':
-      return (
-        destStr.includes('himachal') ||
-        destStr.includes('shimla') ||
-        destStr.includes('manali') ||
-        destStr.includes('dharamshala') ||
-        destStr.includes('dalhousie') ||
-        destStr.includes('spiti') ||
-        destStr.includes('kullu') ||
-        destStr.includes('solang') ||
-        titleStr.includes('himachal') ||
-        titleStr.includes('shimla') ||
-        titleStr.includes('manali')
-      );
-    case 'amritsar':
-      return (
-        destStr.includes('amritsar') ||
-        destStr.includes('punjab') ||
-        destStr.includes('wagah') ||
-        destStr.includes('golden temple') ||
-        titleStr.includes('amritsar') ||
-        titleStr.includes('golden temple')
-      );
-    case 'ladakh':
-      return (
-        destStr.includes('ladakh') ||
-        destStr.includes('leh') ||
-        destStr.includes('pangong') ||
-        destStr.includes('nubra') ||
-        titleStr.includes('ladakh') ||
-        titleStr.includes('leh')
-      );
-    case 'himachal_devi':
-      return (
-        destStr.includes('devi darshan') ||
-        destStr.includes('jwala') ||
-        destStr.includes('kangra') ||
-        destStr.includes('chintpurni') ||
-        destStr.includes('chamunda') ||
-        destStr.includes('naina devi') ||
-        titleStr.includes('devi darshan') ||
-        titleStr.includes('shaktipeeth')
-      );
-    case 'rajasthan':
-      return (
-        destStr.includes('rajasthan') ||
-        destStr.includes('jaipur') ||
-        destStr.includes('jodhpur') ||
-        destStr.includes('udaipur') ||
-        destStr.includes('jaisalmer') ||
-        titleStr.includes('rajasthan') ||
-        titleStr.includes('jaipur')
-      );
-    case 'kerala':
-      return (
-        destStr.includes('kerala') ||
-        destStr.includes('munnar') ||
-        destStr.includes('alleppey') ||
-        destStr.includes('thekkady') ||
-        destStr.includes('cochin') ||
-        titleStr.includes('kerala') ||
-        titleStr.includes('munnar')
-      );
-    case 'goa':
-      return (
-        destStr.includes('goa') ||
-        titleStr.includes('goa') ||
-        slugStr.includes('goa')
-      );
-    case 'thailand':
-      return (
-        destStr.includes('thailand') ||
-        destStr.includes('bangkok') ||
-        destStr.includes('phuket') ||
-        destStr.includes('pattaya') ||
-        destStr.includes('krabi') ||
-        titleStr.includes('thailand') ||
-        titleStr.includes('phuket') ||
-        titleStr.includes('bangkok')
-      );
-    case 'vietnam':
-      return (
-        destStr.includes('vietnam') ||
-        destStr.includes('hanoi') ||
-        destStr.includes('da nang') ||
-        destStr.includes('ha long') ||
-        destStr.includes('hoi an') ||
-        titleStr.includes('vietnam') ||
-        titleStr.includes('ha long')
-      );
-    case 'indonesia':
-    case 'bali':
-      return (
-        destStr.includes('indonesia') ||
-        destStr.includes('bali') ||
-        destStr.includes('ubud') ||
-        destStr.includes('seminyak') ||
-        destStr.includes('nusa penida') ||
-        titleStr.includes('bali') ||
-        titleStr.includes('indonesia')
-      );
-    case 'andaman':
-      return (
-        destStr.includes('andaman') ||
-        destStr.includes('havelock') ||
-        destStr.includes('port blair') ||
-        destStr.includes('neil island') ||
-        titleStr.includes('andaman') ||
-        titleStr.includes('havelock')
-      );
-    case 'singapore':
-      return (
-        destStr.includes('singapore') ||
-        destStr.includes('sentosa') ||
-        destStr.includes('marina bay') ||
-        titleStr.includes('singapore') ||
-        titleStr.includes('sentosa')
-      );
-    case 'dubai':
-      return (
-        destStr.includes('dubai') ||
-        destStr.includes('uae') ||
-        destStr.includes('burj khalifa') ||
-        titleStr.includes('dubai') ||
-        titleStr.includes('abu dhabi')
-      );
-    case 'malaysia':
-      return (
-        destStr.includes('malaysia') ||
-        destStr.includes('kuala lumpur') ||
-        destStr.includes('genting') ||
-        destStr.includes('langkawi') ||
-        titleStr.includes('malaysia') ||
-        titleStr.includes('kuala lumpur')
-      );
-    case 'northeast':
-      return (
-        destStr.includes('northeast') ||
-        destStr.includes('meghalaya') ||
-        destStr.includes('shillong') ||
-        destStr.includes('cherrapunji') ||
-        destStr.includes('dawki') ||
-        destStr.includes('kaziranga') ||
-        destStr.includes('assam') ||
-        titleStr.includes('meghalaya') ||
-        titleStr.includes('northeast')
-      );
-    case 'srilanka':
-      return (
-        destStr.includes('sri lanka') ||
-        destStr.includes('srilanka') ||
-        destStr.includes('colombo') ||
-        destStr.includes('kandy') ||
-        destStr.includes('bentota') ||
-        titleStr.includes('sri lanka') ||
-        titleStr.includes('srilanka')
-      );
-    default:
-      return destStr.includes(target) || titleStr.includes(target) || slugStr.includes(target);
+  // Combined Jammu & Kashmir
+  if (
+    target === 'jammu-kashmir' ||
+    target === 'jammu' ||
+    target === 'kashmir' ||
+    target === 'jammu-and-kashmir' ||
+    target === 'jammu_kashmir'
+  ) {
+    return (
+      destStr.includes('jammu') ||
+      destStr.includes('katra') ||
+      destStr.includes('vaishno') ||
+      destStr.includes('kashmir') ||
+      destStr.includes('srinagar') ||
+      destStr.includes('gulmarg') ||
+      destStr.includes('pahalgam') ||
+      destStr.includes('patnitop') ||
+      destStr.includes('shivkhori') ||
+      destStr.includes('sonmarg') ||
+      titleStr.includes('jammu') ||
+      titleStr.includes('katra') ||
+      titleStr.includes('vaishno') ||
+      titleStr.includes('kashmir') ||
+      titleStr.includes('srinagar') ||
+      titleStr.includes('gulmarg') ||
+      titleStr.includes('pahalgam') ||
+      slugStr.includes('jammu') ||
+      slugStr.includes('katra') ||
+      slugStr.includes('kashmir') ||
+      locStr.includes('jammu') ||
+      locStr.includes('kashmir') ||
+      locStr.includes('katra') ||
+      locStr.includes('srinagar') ||
+      tagStr.includes('jammu') ||
+      tagStr.includes('kashmir')
+    );
   }
+
+  // Himachal Pradesh (Devi Darshan & Hills)
+  if (
+    target === 'himachal' ||
+    target === 'himachal-pradesh' ||
+    target === 'himachal_pradesh' ||
+    target === 'himachal_devi' ||
+    target === 'himachal-devi'
+  ) {
+    return (
+      destStr.includes('himachal') ||
+      destStr.includes('shimla') ||
+      destStr.includes('manali') ||
+      destStr.includes('dharamshala') ||
+      destStr.includes('kangra') ||
+      destStr.includes('jwala') ||
+      destStr.includes('chintpurni') ||
+      destStr.includes('chamunda') ||
+      destStr.includes('naina devi') ||
+      destStr.includes('devi darshan') ||
+      destStr.includes('dalhousie') ||
+      destStr.includes('kullu') ||
+      destStr.includes('solang') ||
+      titleStr.includes('himachal') ||
+      titleStr.includes('devi darshan') ||
+      titleStr.includes('manali') ||
+      titleStr.includes('shimla') ||
+      titleStr.includes('kangra') ||
+      slugStr.includes('himachal') ||
+      locStr.includes('himachal') ||
+      locStr.includes('manali') ||
+      locStr.includes('shimla') ||
+      locStr.includes('kangra') ||
+      tagStr.includes('himachal')
+    );
+  }
+
+  // Amritsar (Golden Temple & Heritage)
+  if (target === 'amritsar' || target === 'punjab') {
+    return (
+      destStr.includes('amritsar') ||
+      destStr.includes('punjab') ||
+      destStr.includes('wagah') ||
+      destStr.includes('golden temple') ||
+      titleStr.includes('amritsar') ||
+      titleStr.includes('golden temple') ||
+      titleStr.includes('wagah') ||
+      slugStr.includes('amritsar') ||
+      locStr.includes('amritsar') ||
+      tagStr.includes('amritsar')
+    );
+  }
+
+  return (
+    destStr.includes(target) ||
+    titleStr.includes(target) ||
+    slugStr.includes(target) ||
+    locStr.includes(target) ||
+    tagStr.includes(target)
+  );
 }

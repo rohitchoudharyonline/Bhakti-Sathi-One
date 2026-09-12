@@ -3,14 +3,14 @@ import { useTours } from '../../context/TourContext';
 import { TourPackage } from '../../types/tour';
 import { DestinationMeta } from '../../data/destinationsData';
 import { updatePageSeo } from '../../utils/seo';
-import { generateTouristTripSchema, generateBreadcrumbSchema } from '../../utils/seoEngine';
+import { generateBreadcrumbSchema } from '../../utils/seoEngine';
+import { resolveDisplayImage, handleImageError } from '../../utils/imageResolver';
 import { Navbar } from '../common/Navbar';
 import { GlobalFooter } from './GlobalFooter';
 import { FreeTravelInsuranceCard } from './FreeTravelInsuranceCard';
 import {
   Compass,
   Search,
-  Filter,
   Star,
   MapPin,
   Clock,
@@ -27,6 +27,9 @@ import {
   Tag,
   Calendar,
   Landmark,
+  MessageCircle,
+  Shirt,
+  CalendarDays,
 } from 'lucide-react';
 
 interface AllToursDirectoryProps {
@@ -40,6 +43,7 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
     packages,
     destinations,
     temples,
+    mediaAssets,
     agencySettings,
     systemSearchParams,
     navigateToHome,
@@ -78,10 +82,13 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
       if (systemSearchParams.templeId !== undefined) {
         setSelectedTempleId(systemSearchParams.templeId || 'all');
       } else if (systemSearchParams.templeName !== undefined) {
+        const queryName = (systemSearchParams.templeName || '').toLowerCase().trim();
         const found = temples.find(
           (t) =>
-            t.name.toLowerCase() === systemSearchParams.templeName?.toLowerCase() ||
-            t.slug.toLowerCase() === systemSearchParams.templeName?.toLowerCase()
+            t &&
+            (((t.name || '').toLowerCase() === queryName) ||
+              ((t.slug || '').toLowerCase() === queryName) ||
+              (queryName && (t.name || '').toLowerCase().includes(queryName)))
         );
         setSelectedTempleId(found ? found.id : 'all');
       }
@@ -100,28 +107,47 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
     }
   }, [systemSearchParams, temples]);
 
-  const destinationList: DestinationMeta[] = Object.values(destinations) as DestinationMeta[];
+  const destinationList: DestinationMeta[] = Object.values(destinations || {}) as DestinationMeta[];
   const currentDestMeta = destinationList.find(
-    (d) => d.slug === selectedDestSlug || d.id === selectedDestSlug
+    (d) => d && (d.slug === selectedDestSlug || d.id === selectedDestSlug)
+  );
+
+  const selectedTempleMeta = temples.find(
+    (t) => t && (t.id === selectedTempleId || t.slug === selectedTempleId)
   );
 
   // SEO & Dynamic Title / Schema Configuration
   useEffect(() => {
     const origin = typeof window !== 'undefined' ? window.location.origin : 'https://mybhaktisathi.com';
+    const isTempleSpecific = selectedTempleId !== 'all' && selectedTempleMeta;
     const isDestSpecific = selectedDestSlug !== 'all' && currentDestMeta;
     const toursSeo = pageSeoConfigs?.['tours'];
 
-    const pageTitle = isDestSpecific
+    const pageTitle = isTempleSpecific
+      ? `${selectedTempleMeta?.name} Pilgrimage & Darshan Tour Packages 2026 | Bhakti Sathi`
+      : isDestSpecific
       ? `${currentDestMeta?.name} Tour Packages 2026 | Bhakti Sathi`
       : toursSeo?.metaTitle || 'Book Sacred Yatra & Spiritual Pilgrimage Packages | Bhakti Sathi';
 
-    const pageDescription = isDestSpecific
+    const pageDescription = isTempleSpecific
+      ? `Book customized pilgrimage itineraries and VIP darshan tour packages for ${selectedTempleMeta?.name}. Verified stays, private transfers, and experienced yatra guides.`
+      : isDestSpecific
       ? `Explore all verified ${currentDestMeta?.name} holiday packages. Dedicated private cabs, inspected 3-star/4-star hotels, and 24/7 mountain support.`
       : toursSeo?.metaDescription || 'Book premium spiritual and devotional tour packages. Unbeatable local prices, private cabs, premium stays, and 24/7 mountain assistance.';
 
-    const canonicalPath = isDestSpecific ? `/tours/${selectedDestSlug}` : '/tours';
+    const canonicalPath = isTempleSpecific
+      ? `/tours?temple=${selectedTempleMeta?.slug || selectedTempleMeta?.id}`
+      : isDestSpecific
+      ? `/tours/${selectedDestSlug}`
+      : '/tours';
 
-    const breadcrumbs = isDestSpecific
+    const breadcrumbs = isTempleSpecific
+      ? generateBreadcrumbSchema([
+          { name: 'Home', url: origin },
+          { name: 'All Tours', url: `${origin}/tours` },
+          { name: `${selectedTempleMeta?.name} Darshan`, url: `${origin}/tours?temple=${selectedTempleMeta?.slug || selectedTempleMeta?.id}` },
+        ])
+      : isDestSpecific
       ? generateBreadcrumbSchema([
           { name: 'Home', url: origin },
           { name: 'All Tours', url: `${origin}/tours` },
@@ -135,7 +161,7 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
     updatePageSeo({
       title: pageTitle,
       description: pageDescription,
-      canonicalUrl: !isDestSpecific && toursSeo?.canonicalUrl ? toursSeo.canonicalUrl : undefined,
+      canonicalUrl: !isDestSpecific && !isTempleSpecific && toursSeo?.canonicalUrl ? toursSeo.canonicalUrl : undefined,
       canonicalPath,
       schemaData: breadcrumbs,
       noIndex: toursSeo?.noIndex,
@@ -143,50 +169,81 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
     });
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [selectedDestSlug, currentDestMeta, pageSeoConfigs]);
+  }, [selectedDestSlug, currentDestMeta, selectedTempleId, selectedTempleMeta, pageSeoConfigs]);
 
   // Filtering & Sorting
-  const filteredPackages = packages.filter((pkg) => {
-    // Destination filter
+  const filteredPackages = (packages || []).filter((pkg) => {
+    if (!pkg) return false;
+
+    // Destination
     if (selectedDestSlug !== 'all') {
+      const slug = selectedDestSlug.toLowerCase();
       const match =
-        pkg.destination?.toLowerCase() === selectedDestSlug.toLowerCase() ||
-        pkg.category?.toLowerCase().includes(selectedDestSlug.toLowerCase()) ||
-        pkg.title.toLowerCase().includes(selectedDestSlug.toLowerCase());
+        (pkg.destination || '').toLowerCase().includes(slug) ||
+        (pkg.destinationTag || '').toLowerCase() === slug ||
+        (pkg.category || '').toLowerCase().includes(slug) ||
+        (pkg.title || '').toLowerCase().includes(slug);
       if (!match) return false;
     }
 
-    // Sacred Temple / Place filter
+    // Sacred Temple / Place
     if (selectedTempleId !== 'all') {
       const targetTemple = temples.find(
-        (t) => t.id === selectedTempleId || t.slug === selectedTempleId
+        (t) => t && (t.id === selectedTempleId || t.slug === selectedTempleId)
       );
-      const targetName = (targetTemple ? targetTemple.name : selectedTempleId).toLowerCase();
-      const targetSlug = (targetTemple ? targetTemple.slug : selectedTempleId).toLowerCase();
-      const targetId = (targetTemple ? targetTemple.id : selectedTempleId).toLowerCase();
+      const targetName = (targetTemple?.name || selectedTempleId || '').toLowerCase();
+      const targetSlug = (targetTemple?.slug || selectedTempleId || '').toLowerCase();
+      const targetId = (targetTemple?.id || selectedTempleId || '').toLowerCase();
+      const targetCity = (targetTemple?.city || '').toLowerCase();
+
+      // Extract core search keywords (e.g., "Vaishno Devi", "Shiv Khori", "Amarnath", "Golden Temple")
+      const keywords = targetName
+        .replace(/temple|shrine|mandir|bhawan|cave|sahib|darshan|ji/gi, '')
+        .trim()
+        .split(/\s+/)
+        .filter((w) => w.length > 2);
+
+      const titleLower = (pkg.title || '').toLowerCase();
+      const taglineLower = (pkg.tagline || '').toLowerCase();
+      const destLower = (pkg.destination || '').toLowerCase();
+      const overviewLower = (pkg.overview || '').toLowerCase();
+      const itineraryText = (pkg.itinerary || [])
+        .map((d) => `${d?.title || ''} ${d?.description || ''}`)
+        .join(' ')
+        .toLowerCase();
 
       const match =
-        pkg.templeIds?.some((id) => id.toLowerCase() === targetId || id.toLowerCase() === targetSlug) ||
+        pkg.templeIds?.some((id) => id && (id.toLowerCase() === targetId || id.toLowerCase() === targetSlug)) ||
         pkg.temples?.some(
           (name) =>
-            name.toLowerCase() === targetName ||
-            name.toLowerCase().includes(targetName) ||
-            targetName.includes(name.toLowerCase())
+            name &&
+            (name.toLowerCase() === targetName ||
+              name.toLowerCase().includes(targetName) ||
+              (targetName && targetName.includes(name.toLowerCase())))
         ) ||
-        pkg.title.toLowerCase().includes(targetName) ||
-        pkg.tagline?.toLowerCase().includes(targetName) ||
-        pkg.destination?.toLowerCase().includes(targetName) ||
-        pkg.overview?.toLowerCase().includes(targetName);
+        (targetName && titleLower.includes(targetName)) ||
+        (targetName && taglineLower.includes(targetName)) ||
+        (targetName && destLower.includes(targetName)) ||
+        (targetName && overviewLower.includes(targetName)) ||
+        (targetCity && (destLower.includes(targetCity) || titleLower.includes(targetCity))) ||
+        (keywords.length > 0 &&
+          keywords.some(
+            (kw) =>
+              titleLower.includes(kw) ||
+              taglineLower.includes(kw) ||
+              destLower.includes(kw) ||
+              itineraryText.includes(kw)
+          ));
 
       if (!match) return false;
     }
 
-    // Category / Travel Style filter
+    // Category / Travel Style
     if (selectedCategory !== 'all') {
       const cat = selectedCategory.toLowerCase();
       const pkgCat = (pkg.category || '').toLowerCase();
-      const pkgTitle = pkg.title.toLowerCase();
-      const pkgDesc = (pkg.description || '').toLowerCase();
+      const pkgTitle = (pkg.title || '').toLowerCase();
+      const pkgDesc = ((pkg as any).description || pkg.tagline || pkg.overview || '').toLowerCase();
 
       if (cat === 'family') {
         const isFamily =
@@ -194,7 +251,7 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
           pkgTitle.includes('family') ||
           pkgTitle.includes('vacation') ||
           pkgDesc.includes('family') ||
-          pkg.tags?.includes('family');
+          (pkg as any).tags?.includes('family');
         if (!isFamily) return false;
       } else if (cat === 'pilgrimage') {
         const isPilgrimage =
@@ -203,29 +260,29 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
           pkgTitle.includes('yatra') ||
           pkgTitle.includes('vaishno') ||
           pkgTitle.includes('amritsar') ||
-          pkg.destination?.toLowerCase() === 'jammu';
+          (pkg.destination || '').toLowerCase() === 'jammu';
         if (!isPilgrimage) return false;
       } else if (cat === 'luxury') {
         const isLuxury =
           pkgCat.includes('luxury') ||
           pkgTitle.includes('luxury') ||
           pkgTitle.includes('premium') ||
-          pkg.price >= 25000;
+          (pkg.price || 0) >= 25000;
         if (!isLuxury) return false;
       } else if (cat === 'adventure') {
         const isAdventure =
           pkgCat.includes('adventure') ||
           pkgTitle.includes('trek') ||
           pkgTitle.includes('adventure') ||
-          pkg.destination?.toLowerCase() === 'ladakh' ||
-          pkg.destination?.toLowerCase() === 'spiti';
+          (pkg.destination || '').toLowerCase() === 'ladakh' ||
+          (pkg.destination || '').toLowerCase() === 'spiti';
         if (!isAdventure) return false;
       }
     }
 
-    // Duration filter
+    // Duration
     if (selectedDuration !== 'all') {
-      const days = parseInt(pkg.duration) || 0;
+      const days = pkg.durationDays || parseInt((pkg as any).duration) || 0;
       if (selectedDuration === 'short' && days > 4) return false;
       if (selectedDuration === 'medium' && (days < 5 || days > 7)) return false;
       if (selectedDuration === 'long' && days < 8) return false;
@@ -233,13 +290,13 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
 
     // Search query
     if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
-      const titleMatch = pkg.title.toLowerCase().includes(q);
-      const descMatch = pkg.description.toLowerCase().includes(q);
-      const destMatch = pkg.destination.toLowerCase().includes(q);
-      const cityMatch = pkg.cities?.some((c) => c.toLowerCase().includes(q));
-      const catMatch = pkg.category?.toLowerCase().includes(q);
-      const inclMatch = pkg.inclusions?.some((inc) => inc.toLowerCase().includes(q));
+      const q = searchQuery.toLowerCase().trim();
+      const titleMatch = (pkg.title || '').toLowerCase().includes(q);
+      const descMatch = ((pkg as any).description || pkg.tagline || pkg.overview || '').toLowerCase().includes(q);
+      const destMatch = (pkg.destination || '').toLowerCase().includes(q);
+      const cityMatch = (pkg as any).cities?.some((c: string) => c && c.toLowerCase().includes(q));
+      const catMatch = (pkg.category || '').toLowerCase().includes(q);
+      const inclMatch = pkg.inclusions?.some((inc) => inc && inc.toLowerCase().includes(q));
 
       if (!titleMatch && !descMatch && !destMatch && !cityMatch && !catMatch && !inclMatch) {
         return false;
@@ -250,10 +307,12 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
   });
 
   const sortedPackages = [...filteredPackages].sort((a, b) => {
-    if (sortBy === 'price-low') return a.price - b.price;
-    if (sortBy === 'price-high') return b.price - a.price;
+    if (sortBy === 'price-low') return (a.price || 0) - (b.price || 0);
+    if (sortBy === 'price-high') return (b.price || 0) - (a.price || 0);
     if (sortBy === 'duration') {
-      return (parseInt(b.duration) || 0) - (parseInt(a.duration) || 0);
+      const aDays = a.durationDays || parseInt((a as any).duration) || 0;
+      const bDays = b.durationDays || parseInt((b as any).duration) || 0;
+      return bDays - aDays;
     }
     return 0; // featured default
   });
@@ -267,11 +326,7 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
     }
   };
 
-  const selectedTempleMeta = temples.find(
-    (t) => t.id === selectedTempleId || t.slug === selectedTempleId
-  );
-
-  const hasActiveFilters =
+  const hasActivePreferences =
     selectedDestSlug !== 'all' ||
     selectedTempleId !== 'all' ||
     selectedCategory !== 'all' ||
@@ -279,7 +334,7 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
     (selectedMonth && selectedMonth !== 'any') ||
     searchQuery.trim().length > 0;
 
-  const handleResetFilters = () => {
+  const handleResetPreferences = () => {
     setSelectedDestSlug('all');
     setSelectedTempleId('all');
     setSelectedCategory('all');
@@ -288,6 +343,8 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
     setSearchQuery('');
     window.history.pushState({}, '', '/tours');
   };
+
+  const whatsappNumber = (agencySettings?.whatsapp || '919419915255').replace(/[^0-9]/g, '');
 
   return (
     <div className="min-h-screen bg-stone-50 text-stone-900 flex flex-col justify-between font-sans selection:bg-stone-900 selection:text-white pb-20 lg:pb-0">
@@ -308,11 +365,17 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
             <button
               onClick={() => handleDestinationChange('all')}
               className={`hover:text-black font-medium transition cursor-pointer ${
-                selectedDestSlug === 'all' ? 'text-black font-bold' : ''
+                selectedDestSlug === 'all' && selectedTempleId === 'all' ? 'text-black font-bold' : ''
               }`}
             >
               All Tours Directory
             </button>
+            {selectedTempleMeta && selectedTempleId !== 'all' && (
+              <>
+                <ChevronRight className="w-3.5 h-3.5 text-stone-400" />
+                <span className="text-black font-bold">{selectedTempleMeta.name} Darshan</span>
+              </>
+            )}
             {currentDestMeta && selectedDestSlug !== 'all' && (
               <>
                 <ChevronRight className="w-3.5 h-3.5 text-stone-400" />
@@ -322,40 +385,120 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
           </div>
         </div>
 
-        {/* Light Minimalist Header Section with Integrated Search */}
-        <div id="search-widget-container" className="bg-white border-b border-stone-100 py-8 sm:py-10 px-4 sm:px-8">
-          <div className="max-w-7xl mx-auto flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-            <div className="space-y-3.5 max-w-2xl">
-              <p className="text-stone-600 text-xs sm:text-sm font-medium leading-relaxed">
-                {currentDestMeta && selectedDestSlug !== 'all' ? (
-                  <>
-                    Explore premium, fully customizable {currentDestMeta.name} Tour Packages. Plan your dream vacation with direct-operator pricing including luxury and standard hand-picked hotel stays, a dedicated private chauffeur vehicle, customized daily sightseeing itineraries, and 24/7 travel desk support. {currentDestMeta.tagline}
-                  </>
-                ) : (
-                  <>
-                    Book custom-tailored Jammu Kashmir, Himachal Pradesh & Amritsar Tour Packages directly from the local operator at guaranteed best rates. Our meticulously planned itineraries cover top domestic destinations including the scenic valleys of Kashmir (Srinagar, Gulmarg Gondola, Pahalgam, Sonamarg), spiritual temple yatras to Jammu Katra & Vaishno Devi, picturesque mountain escapes across Himachal Pradesh (Manali, Shimla, Dharamshala, Dalhousie), and sacred heritage tours to Amritsar (Golden Temple, Wagah Border flag ceremony). Each premium package is fully flexible and features pre-inspected hotel accommodations, personal dedicated chauffeur cabs (sedans, SUVs, and luxury tempo travellers), flexible meal plans, shikara rides, and round-the-clock ground assistance.
-                  </>
-                )}
-              </p>
-            </div>
+        {/* Dedicated Temple Banner when a Temple is Selected */}
+        {selectedTempleMeta && selectedTempleId !== 'all' && (
+          <div className="bg-gradient-to-r from-stone-900 via-stone-850 to-stone-900 text-white border-b border-stone-800 py-6 sm:py-8 px-4 sm:px-8">
+            <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-6">
+              <div className="flex items-start gap-4 sm:gap-5">
+                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden border border-white/20 shrink-0 bg-stone-800 shadow-md">
+                  <img
+                    src={resolveDisplayImage(selectedTempleMeta.image, mediaAssets)}
+                    alt={selectedTempleMeta.name}
+                    onError={(e) => handleImageError(e, selectedTempleMeta.image, mediaAssets)}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] uppercase font-black tracking-wider px-2 py-0.5 rounded-full bg-[#FF4B00] text-white">
+                      {selectedTempleMeta.category || 'Holy Shrine'}
+                    </span>
+                    {selectedTempleMeta.city && (
+                      <span className="text-xs text-stone-300 font-medium flex items-center gap-1">
+                        <MapPin className="w-3.5 h-3.5 text-[#FF4B00]" />
+                        {selectedTempleMeta.city}, {selectedTempleMeta.state}
+                      </span>
+                    )}
+                  </div>
+                  <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+                    {selectedTempleMeta.name}
+                  </h1>
+                  {selectedTempleMeta.hindiName && (
+                    <p className="text-xs text-amber-300 font-medium">
+                      {selectedTempleMeta.hindiName}
+                    </p>
+                  )}
+                  <div className="flex flex-wrap items-center gap-3 text-[11px] text-stone-300 pt-1">
+                    {selectedTempleMeta.deity && (
+                      <span>
+                        <strong className="text-white">Deity:</strong> {selectedTempleMeta.deity}
+                      </span>
+                    )}
+                    {selectedTempleMeta.darshanTimings && (
+                      <span>
+                        <strong className="text-white">Darshan:</strong> {selectedTempleMeta.darshanTimings}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
 
-            {/* Search Bar */}
-            <div className="w-full lg:max-w-md shrink-0">
-              <div className="relative">
-                <Search className="w-4 h-4 text-stone-400 absolute left-4 top-1/2 -translate-y-1/2" />
-                <input
-                  type="text"
-                  placeholder="Search packages (e.g. Srinagar, Manali, 5 Days)..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-11 pr-4 py-3 bg-stone-50 border border-stone-200 rounded-xl text-xs sm:text-sm text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-4 focus:ring-[#FF4B00]/10 focus:border-[#FF4B00] transition shadow-2xs"
-                />
+              <div className="flex items-center gap-2.5 shrink-0 self-start md:self-center">
+                <a
+                  href={`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
+                    `Namaste Bhakti Sathi, I want to book a customized VIP pilgrimage & darshan package for ${selectedTempleMeta.name}.`
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-4 py-2.5 bg-[#FF4B00] hover:bg-[#E04200] text-white text-xs font-bold rounded-xl transition shadow-sm inline-flex items-center gap-1.5"
+                >
+                  <MessageCircle className="w-3.5 h-3.5" />
+                  <span>Custom Yatra Inquiry</span>
+                </a>
+                <button
+                  type="button"
+                  onClick={() => setSelectedTempleId('all')}
+                  className="px-3.5 py-2.5 bg-white/10 hover:bg-white/20 text-white text-xs font-bold rounded-xl transition cursor-pointer inline-flex items-center gap-1"
+                >
+                  <X className="w-3.5 h-3.5" />
+                  <span>View All Shrines</span>
+                </button>
               </div>
             </div>
           </div>
-        </div>
+        )}
 
-        {/* Filter Navigation Bar */}
+        {/* Minimalist Header Section with Integrated Search */}
+        {(!selectedTempleMeta || selectedTempleId === 'all') && (
+          <div id="search-widget-container" className="bg-white border-b border-stone-100 py-8 sm:py-10 px-4 sm:px-8">
+            <div className="max-w-7xl mx-auto flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+              <div className="space-y-3 max-w-2xl">
+                <h1 className="text-2xl sm:text-3xl font-black text-stone-900 tracking-tight">
+                  {currentDestMeta && selectedDestSlug !== 'all'
+                    ? `${currentDestMeta.name} Tour Packages`
+                    : 'Sacred Pilgrimage & Mountain Holiday Packages'}
+                </h1>
+                <p className="text-stone-600 text-xs sm:text-sm font-medium leading-relaxed">
+                  {currentDestMeta && selectedDestSlug !== 'all' ? (
+                    <>
+                      Explore premium, fully customizable {currentDestMeta.name} Tour Packages with direct-operator pricing, handpicked stays, private chauffeur transfers, and 24/7 travel desk support.
+                    </>
+                  ) : (
+                    <>
+                      Book custom-tailored sacred yatras and holiday packages across Jammu Katra, Kashmir, Himachal Pradesh, Amritsar, and sacred Himalayan shrines.
+                    </>
+                  )}
+                </p>
+              </div>
+
+              {/* Search Bar */}
+              <div className="w-full lg:max-w-md shrink-0">
+                <div className="relative">
+                  <Search className="w-4 h-4 text-stone-400 absolute left-4 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    placeholder="Search packages (e.g. Vaishno Devi, Manali, 5 Days)..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full pl-11 pr-4 py-3 bg-stone-50 border border-stone-200 rounded-xl text-xs sm:text-sm text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-4 focus:ring-[#FF4B00]/10 focus:border-[#FF4B00] transition shadow-2xs"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Navigation Bar */}
         <div className="bg-white border-b border-stone-200 sticky top-0 z-20 shadow-xs">
           <div className="max-w-7xl mx-auto px-4 sm:px-8 py-3 flex flex-col md:flex-row md:items-center justify-between gap-4">
             {/* Destination tabs */}
@@ -385,9 +528,9 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
               ))}
             </div>
 
-            {/* Sub-Filters: Category, Temple, Duration & Sort */}
+            {/* Criteria Controls: Temple, Category, Duration & Sort */}
             <div className="flex flex-wrap items-center gap-2">
-              {/* Temple / Shrine Filter Dropdown */}
+              {/* Temple / Shrine Selection Dropdown */}
               <select
                 value={selectedTempleId}
                 onChange={(e) => setSelectedTempleId(e.target.value)}
@@ -400,7 +543,7 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
                 <option value="all">All Temples & Shrines ({temples.length})</option>
                 {temples.map((temple) => (
                   <option key={temple.id} value={temple.id}>
-                    🛕 {temple.name} ({temple.category})
+                    {temple.name} ({temple.category})
                   </option>
                 ))}
               </select>
@@ -441,13 +584,13 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
           </div>
         </div>
 
-        {/* Active Filters Tag Bar */}
-        {hasActiveFilters && (
+        {/* Selected Criteria Tags Bar */}
+        {hasActivePreferences && (
           <div className="bg-stone-100/90 border-b border-stone-200/80 py-2.5 px-4 sm:px-8">
             <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3 text-xs">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="font-black uppercase text-[10px] tracking-wider text-stone-500 flex items-center gap-1">
-                  <Filter className="w-3 h-3 text-[#FF4B00]" /> Active Filters:
+                  Selected Criteria:
                 </span>
                 {selectedDestSlug !== 'all' && (
                   <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-white border border-stone-200 rounded-lg font-bold text-stone-900 shadow-2xs">
@@ -496,11 +639,11 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
                 )}
               </div>
               <button
-                onClick={handleResetFilters}
+                onClick={handleResetPreferences}
                 className="inline-flex items-center gap-1 text-xs font-bold text-[#FF4B00] hover:underline cursor-pointer"
               >
                 <RotateCcw className="w-3 h-3" />
-                Clear All Filters
+                Clear All
               </button>
             </div>
           </div>
@@ -517,7 +660,7 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {sortedPackages.map((pkg) => {
-              const tripSchema = generateTouristTripSchema(pkg, agencySettings);
+              const coverImg = resolveDisplayImage(pkg.coverImage || (pkg as any).image, mediaAssets);
 
               return (
                 <div
@@ -528,15 +671,17 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
                     {/* Image with badges */}
                     <div className="aspect-16/10 relative overflow-hidden bg-stone-100">
                       <img
-                        src={pkg.image}
+                        src={coverImg}
                         alt={pkg.title}
+                        onError={(e) => handleImageError(e, pkg.coverImage || (pkg as any).image, mediaAssets)}
                         className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+                        loading="lazy"
                       />
                       <span className="absolute top-3 left-3 px-3 py-1 bg-black/80 text-white font-bold text-xs rounded-lg uppercase tracking-wider backdrop-blur-xs">
                         {pkg.destination || 'Himalayas'}
                       </span>
                       <span className="absolute bottom-3 left-3 px-2.5 py-1 bg-white/90 text-black font-black text-xs rounded-lg shadow-sm">
-                        {pkg.duration}
+                        {pkg.durationDays ? `${pkg.durationDays}D / ${pkg.durationNights}N` : (pkg as any).duration || '3D / 2N'}
                       </span>
                       {pkg.rating && (
                         <span className="absolute top-3 right-3 px-2 py-1 bg-amber-400 text-black font-bold text-xs rounded-lg flex items-center gap-1 shadow-sm">
@@ -551,12 +696,12 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
                       <div className="space-y-1.5">
                         <h3
                           onClick={() => navigateToPackage(pkg.id)}
-                          className="text-base sm:text-lg font-bold text-black leading-snug cursor-pointer group-hover:text-stone-700 transition line-clamp-2"
+                          className="text-base sm:text-lg font-bold text-black leading-snug cursor-pointer group-hover:text-[#FF4B00] transition line-clamp-2"
                         >
                           {pkg.title}
                         </h3>
                         <p className="text-xs text-stone-500 line-clamp-2 leading-relaxed">
-                          {pkg.description}
+                          {pkg.tagline || pkg.overview || (pkg as any).description || ''}
                         </p>
                       </div>
 
@@ -582,7 +727,7 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
                         <div className="flex items-baseline gap-1">
                           <span className="text-lg font-black text-black">
                             {agencySettings.currencySymbol}
-                            {pkg.price?.toLocaleString('en-IN')}
+                            {(pkg.price || 0).toLocaleString('en-IN')}
                           </span>
                           <span className="text-[10px] text-stone-400">/ person</span>
                         </div>
@@ -613,22 +758,35 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
           </div>
 
           {sortedPackages.length === 0 && (
-            <div className="py-16 text-center bg-white rounded-3xl border border-stone-200 p-8 space-y-3">
-              <Compass className="w-10 h-10 text-stone-400 mx-auto" />
-              <h4 className="text-base font-bold text-black">No packages match your filters</h4>
-              <p className="text-xs text-stone-500 max-w-sm mx-auto">
-                Try selecting "All Destinations" or clearing your search term.
+            <div className="py-14 text-center bg-white rounded-3xl border border-stone-200 p-8 space-y-4 max-w-xl mx-auto">
+              <Landmark className="w-12 h-12 text-[#FF4B00] mx-auto" />
+              <h4 className="text-lg font-bold text-black">
+                {selectedTempleMeta ? `Custom Yatra to ${selectedTempleMeta.name}` : 'No packages match your criteria'}
+              </h4>
+              <p className="text-xs text-stone-600 max-w-md mx-auto leading-relaxed">
+                {selectedTempleMeta
+                  ? `We offer bespoke VIP darshan itineraries, certified hotel stays, helicopter arrangements, and private chauffeur transfers to ${selectedTempleMeta.name}. Connect with our sacred pilgrimage desk to craft your custom yatra.`
+                  : 'Try selecting "All Destinations" or clearing your search term to browse all available packages.'}
               </p>
-              <button
-                onClick={() => {
-                  setSelectedDestSlug('all');
-                  setSelectedDuration('all');
-                  setSearchQuery('');
-                }}
-                className="px-4 py-2 bg-black text-white text-xs font-bold rounded-xl cursor-pointer"
-              >
-                Reset All Filters
-              </button>
+              <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+                <a
+                  href={`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
+                    `Namaste Bhakti Sathi, I would like to arrange a customized pilgrimage tour package for ${selectedTempleMeta?.name || 'this sacred shrine'}.`
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-5 py-2.5 bg-[#FF4B00] hover:bg-[#E04200] text-white text-xs font-bold rounded-xl transition shadow-sm inline-flex items-center gap-1.5"
+                >
+                  <MessageCircle className="w-3.5 h-3.5" />
+                  <span>Inquire on WhatsApp</span>
+                </a>
+                <button
+                  onClick={handleResetPreferences}
+                  className="px-4 py-2.5 bg-stone-100 hover:bg-stone-200 text-stone-800 text-xs font-bold rounded-xl transition cursor-pointer"
+                >
+                  View All Packages
+                </button>
+              </div>
             </div>
           )}
         </main>
@@ -638,3 +796,4 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
     </div>
   );
 };
+

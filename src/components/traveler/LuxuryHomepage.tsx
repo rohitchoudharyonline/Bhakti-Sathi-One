@@ -237,7 +237,6 @@ export const LuxuryHomepage: React.FC = () => {
   // Filter States
   const [destinationScope, setDestinationScope] = useState<'all' | 'domestic' | 'international'>('domestic');
   const [activeSpecificDest, setActiveSpecificDest] = useState<string>('all');
-  const [activeTempleCategory, setActiveTempleCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedMonth, setSelectedMonth] = useState('any');
   const [durationFilter, setDurationFilter] = useState('all');
@@ -246,6 +245,15 @@ export const LuxuryHomepage: React.FC = () => {
   const [openDropdown, setOpenDropdown] = useState<'dest' | 'month' | null>(null);
   const [isSearching, setIsSearching] = useState(false);
   const [loadedImages, setLoadedImages] = useState<Record<string, boolean>>({});
+  const [pulsingTempleId, setPulsingTempleId] = useState<string | null>(null);
+
+  const handleTempleClick = (temple: (typeof temples)[number]) => {
+    setPulsingTempleId(temple.id);
+    setTimeout(() => {
+      navigateToTemple(temple.id);
+      setPulsingTempleId(null);
+    }, 240);
+  };
 
   const destinationSearchOptions = useMemo(() => {
     const destList = Object.values(destinations || {}) as DestinationMeta[];
@@ -279,20 +287,17 @@ export const LuxuryHomepage: React.FC = () => {
       id: d.id || d.slug,
       type: 'domestic' as const,
       name: d.displayName || d.name,
-      subtitle: d.tagline || (d.popularCities && d.popularCities.length > 0 ? d.popularCities.join(', ') : `${d.name} Sacred Circuit`),
+      subtitle: d.tagline || `${d.name} Sacred Circuit`,
       badge: (d as any).badge || `${(d as any).packagesCount || 6}+ YATRA PACKAGES`,
       toursCount: (d as any).badge || `${(d as any).packagesCount || 6}+ YATRA PACKAGES`,
       country: d.state || 'India',
       tagline: d.tagline || '',
-      highlights: d.guide?.thingsToDo || [
-        'Verified comfortable hotel stays and priority darshan',
-        'Dedicated sanitized vehicle with experienced devotional chauffeur',
-      ],
-      keyPills: d.popularCities?.slice(0, 3) || ['Verified Stays', 'Priority Darshan', 'Devotional Cab'],
+      highlights: d.keyHighlights || (d.popularCities && d.popularCities.length > 0 ? d.popularCities.slice(0, 3) : ['Priority Darshan', 'Verified Stays', 'Private Chauffeur']),
+      keyPills: d.keyHighlights || (d.popularCities && d.popularCities.length > 0 ? d.popularCities.slice(0, 3) : ['Priority Darshan', 'Verified Stays', 'Private Chauffeur']),
       featureTag: d.state || 'Sacred Pilgrimage',
       featureDetail: 'Verified Stays • Priority Darshan Support',
-      startingPrice: 0,
-      duration: d.guide?.idealDuration || '4 - 8 Days',
+      startingPrice: d.startingPrice || 6499,
+      duration: d.guide?.idealDuration?.split('(')[0]?.trim() || '4 - 8 Days',
       coverImage: d.heroImage || 'https://images.unsplash.com/photo-1598091383021-15ddea10925d?auto=format&fit=crop&w=1200&q=80',
       filterKey: d.slug || d.id,
     }));
@@ -741,7 +746,6 @@ export const LuxuryHomepage: React.FC = () => {
                   const isImgLoaded = loadedImages[loc.id];
 
                   const displayBadge = loc.toursCount || loc.badge;
-                  const displaySubtitle = loc.subtitle;
 
                   return (
                     <motion.div
@@ -786,20 +790,31 @@ export const LuxuryHomepage: React.FC = () => {
                         <span className="card-badge-badge text-[10px] sm:text-xs font-black tracking-wider text-white bg-stone-900/90 backdrop-blur-md px-3 py-1 rounded-full uppercase border border-white/20 shadow-xs">
                           {displayBadge}
                         </span>
+                        <span className="text-[10px] sm:text-xs font-bold text-amber-300 bg-stone-950/75 backdrop-blur-md px-2.5 py-0.5 rounded-full border border-white/15 flex items-center gap-1 shadow-xs">
+                          <Star className="w-3 h-3 fill-amber-300 text-amber-300" />
+                          <span>4.98</span>
+                          <span className="text-stone-300 font-normal text-[10px]">• {loc.duration || '4 - 8 Days'}</span>
+                        </span>
                       </div>
 
-                      {/* Bottom Content Area */}
-                      <div className="relative z-10 text-white pointer-events-none flex flex-col gap-1">
-                        <h3 className="text-lg sm:text-2xl font-black text-white group-hover:text-stone-100 transition-colors drop-shadow-md leading-tight">
+                      {/* Bottom Content Area - Clean, Uncluttered, No Subtitle */}
+                      <div className="relative z-10 text-white pointer-events-none flex flex-col gap-1.5">
+                        <h3 className="text-xl sm:text-2xl lg:text-3xl font-black text-white group-hover:text-amber-200 transition-colors drop-shadow-md leading-tight tracking-tight">
                           {loc.name}
                         </h3>
-                        <p className="text-xs text-stone-200 font-medium drop-shadow-sm line-clamp-1">
-                          {displaySubtitle}
-                        </p>
-                        <div className="flex items-center justify-end pt-1">
-                          <div className="flex items-center gap-1 text-xs font-bold text-amber-300 group-hover:translate-x-1 transition-transform shrink-0">
+
+                        {/* Bottom Meta Row: Starting Price + Action Link */}
+                        <div className="flex items-center justify-between pt-2 border-t border-white/20 mt-1">
+                          <div className="flex items-baseline gap-1 text-stone-300">
+                            <span className="text-[10px] uppercase font-bold text-stone-300">From</span>
+                            <span className="text-sm sm:text-base font-black text-white">
+                              ₹{(loc.startingPrice || 6499).toLocaleString('en-IN')}
+                            </span>
+                            <span className="text-[10px] text-stone-300">/ person</span>
+                          </div>
+                          <div className="inline-flex items-center gap-1.5 text-xs font-black text-amber-300 group-hover:text-amber-200 group-hover:translate-x-1 transition-all shrink-0">
                             <span>View Yatra Packages</span>
-                            <ArrowRight className="w-3.5 h-3.5" />
+                            <ArrowRight className="w-4 h-4" />
                           </div>
                         </div>
                       </div>
@@ -812,16 +827,16 @@ export const LuxuryHomepage: React.FC = () => {
         </section>
 
         {/* ========================================================
-            FILTER BY SACRED TEMPLES & HOLY PLACES (PAVITRA MANDIR & DHAM)
+            SACRED TEMPLES & HOLY PLACES (PAVITRA MANDIR & DHAM)
             ======================================================== */}
-        <section className="py-8 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto space-y-6">
+        <section className="py-8 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto space-y-5">
           <div>
-            <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-5 gap-3">
+            <div className="flex items-center justify-between mb-4 gap-3">
               <div>
-                <div className="flex items-center gap-2 mb-1.5">
+                <div className="flex items-center gap-2 mb-1">
                   <span className="text-[10px] sm:text-xs font-extrabold uppercase tracking-widest text-[#FF4B00] bg-[#FF4B00]/10 px-2.5 py-0.5 rounded-full border border-[#FF4B00]/20 inline-flex items-center gap-1">
                     <Landmark className="w-3 h-3" />
-                    <span>Filter by Holy Shrine & Temple</span>
+                    <span>Holy Shrine & Temple</span>
                   </span>
                   <span className="text-[11px] font-medium text-stone-400">धाम एवं मंदिर दर्शन</span>
                 </div>
@@ -829,176 +844,82 @@ export const LuxuryHomepage: React.FC = () => {
                   <span>Pavitra Mandir & Dham</span>
                   <span className="w-8 h-1 bg-[#FF4B00] rounded-full inline-block" />
                 </h2>
-                <p className="text-xs sm:text-sm text-stone-600 font-medium mt-1 leading-relaxed max-w-2xl">
-                  Select your revered temple or holy shrine to view all tailored pilgrimage itineraries, VIP darshan packages, and private transfers.
-                </p>
               </div>
 
-              {/* View All Temples link */}
-              <button
-                type="button"
-                onClick={() => {
-                  navigateToSearch({ category: 'pilgrimage' });
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                }}
-                className="inline-flex items-center gap-1.5 text-xs font-black text-[#FF4B00] hover:text-[#E04200] transition cursor-pointer self-start sm:self-end"
-              >
-                <span>Browse All Shrines</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </button>
+              {/* Carousel Navigation Buttons */}
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const el = document.getElementById('temples-carousel');
+                    if (el) el.scrollBy({ left: -300, behavior: 'smooth' });
+                  }}
+                  className="w-9 h-9 rounded-full bg-white border border-stone-200 text-stone-800 hover:bg-[#FF4B00] hover:text-white hover:border-[#FF4B00] grid place-items-center transition-all cursor-pointer shadow-2xs active:scale-95"
+                  aria-label="Previous holy shrine"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const el = document.getElementById('temples-carousel');
+                    if (el) el.scrollBy({ left: 300, behavior: 'smooth' });
+                  }}
+                  className="w-9 h-9 rounded-full bg-[#FF4B00] border border-[#FF4B00] text-white hover:bg-[#E04200] grid place-items-center transition-all cursor-pointer shadow-2xs active:scale-95"
+                  aria-label="Next holy shrine"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
             </div>
 
-            {/* Category Filter Chips */}
-            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-2 mb-5">
-              {[
-                { id: 'all', label: 'All Holy Shrines' },
-                { id: 'Shaktipeeth', label: 'Shaktipeeths' },
-                { id: 'Jyotirlinga', label: 'Jyotirlingas' },
-                { id: 'Char Dham', label: 'Char Dham' },
-                { id: 'Cave Shrine', label: 'Cave Shrines' },
-                { id: 'Ancient Dham', label: 'Ancient Dhams' },
-              ].map((cat) => {
-                const isSelected = activeTempleCategory === cat.id;
-                const count =
-                  cat.id === 'all'
-                    ? temples.length
-                    : temples.filter((t) => t.category === cat.id).length;
+            {/* Temples Carousel */}
+            <div
+              id="temples-carousel"
+              className="flex gap-4 sm:gap-5 overflow-x-auto snap-x snap-mandatory pb-4 pt-1 scroll-smooth -mx-4 px-4 sm:mx-0 sm:px-0 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+            >
+              {temples.map((temple, idx) => (
+                <motion.div
+                  key={temple.id}
+                  initial={{ opacity: 0, y: 15 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: '-20px' }}
+                  animate={
+                    pulsingTempleId === temple.id
+                      ? { scale: [1, 0.92, 1.04, 1] }
+                      : { scale: 1 }
+                  }
+                  transition={
+                    pulsingTempleId === temple.id
+                      ? { duration: 0.24, times: [0, 0.35, 0.75, 1], ease: 'easeInOut' }
+                      : { duration: 0.35, delay: Math.min(idx * 0.03, 0.3) }
+                  }
+                  whileHover={pulsingTempleId ? undefined : { y: -4 }}
+                  whileTap={{ scale: 0.93 }}
+                  onClick={() => handleTempleClick(temple)}
+                  className="group relative shrink-0 w-[210px] sm:w-[240px] md:w-[260px] aspect-[3/4] rounded-2xl sm:rounded-3xl overflow-hidden cursor-pointer border border-stone-200/90 hover:border-[#FF4B00] shadow-2xs hover:shadow-xl flex flex-col justify-end p-4 sm:p-5 snap-start select-none transition-[border-color,box-shadow] duration-300"
+                >
+                  {/* Temple Image */}
+                  <img
+                    src={resolveDisplayImage(temple.image, mediaAssets)}
+                    alt={temple.name}
+                    onError={(e) => handleImageError(e, temple.image, mediaAssets)}
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
+                    loading="lazy"
+                  />
 
-                if (count === 0 && cat.id !== 'all') return null;
+                  {/* Gradient Scrim */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/35 to-transparent pointer-events-none" />
 
-                return (
-                  <button
-                    key={cat.id}
-                    type="button"
-                    onClick={() => setActiveTempleCategory(cat.id)}
-                    className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all shrink-0 cursor-pointer flex items-center gap-1.5 ${
-                      isSelected
-                        ? 'bg-[#FF4B00] text-white shadow-xs'
-                        : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
-                    }`}
-                  >
-                    <span>{cat.label}</span>
-                    <span
-                      className={`text-[10px] px-1.5 py-0.2 rounded-full ${
-                        isSelected ? 'bg-white/20 text-white' : 'bg-stone-200/80 text-stone-600'
-                      }`}
-                    >
-                      {count}
-                    </span>
-                  </button>
-                );
-              })}
+                  {/* Temple Name Over Card */}
+                  <div className="relative z-10 text-white pointer-events-none">
+                    <h3 className="text-base sm:text-lg font-black text-white group-hover:text-amber-200 transition-colors drop-shadow-md leading-snug">
+                      {temple.name}
+                    </h3>
+                  </div>
+                </motion.div>
+              ))}
             </div>
-
-            {/* Temples Grid */}
-            {temples.filter(
-              (t) => activeTempleCategory === 'all' || t.category === activeTempleCategory
-            ).length === 0 ? (
-              <div className="bg-white rounded-2xl border border-dashed border-stone-300 p-8 text-center max-w-md mx-auto">
-                <Landmark className="w-8 h-8 text-stone-300 mx-auto mb-2" />
-                <p className="text-sm font-bold text-stone-700">No temples found in this category</p>
-                <p className="text-xs text-stone-500 mt-1">
-                  Add more sacred shrines from the CMS Temples tab.
-                </p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                {temples
-                  .filter(
-                    (t) => activeTempleCategory === 'all' || t.category === activeTempleCategory
-                  )
-                  .map((temple, idx) => {
-                    const targetId = temple.id.toLowerCase();
-                    const targetSlug = temple.slug.toLowerCase();
-                    const targetName = temple.name.toLowerCase();
-
-                    const matchingPkgs = packages.filter(
-                      (pkg) =>
-                        pkg.templeIds?.some(
-                          (id) =>
-                            id.toLowerCase() === targetId || id.toLowerCase() === targetSlug
-                        ) ||
-                        pkg.temples?.some(
-                          (n) =>
-                            n.toLowerCase() === targetName ||
-                            n.toLowerCase().includes(targetName) ||
-                            targetName.includes(n.toLowerCase())
-                        ) ||
-                        pkg.title.toLowerCase().includes(targetName) ||
-                        pkg.destination?.toLowerCase().includes(targetName)
-                    );
-
-                    const pkgCount = matchingPkgs.length;
-
-                    return (
-                      <motion.div
-                        key={temple.id}
-                        initial={{ opacity: 0, y: 15 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true, margin: '-40px' }}
-                        transition={{ duration: 0.4, delay: idx * 0.05 }}
-                        onClick={() => navigateToTemple(temple)}
-                        className="group relative aspect-[4/3] rounded-2xl sm:rounded-3xl overflow-hidden cursor-pointer border border-stone-200/90 hover:border-[#FF4B00]/40 transition-all duration-300 shadow-xs hover:shadow-xl hover:-translate-y-1 flex flex-col justify-between p-4 sm:p-5"
-                      >
-                        {/* Temple Image */}
-                        <img
-                          src={resolveDisplayImage(temple.image, mediaAssets)}
-                          alt={temple.name}
-                          onError={(e) => handleImageError(e, temple.image, mediaAssets)}
-                          className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
-                          loading="lazy"
-                        />
-
-                        {/* Gradient Scrim */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/40 to-black/20 pointer-events-none" />
-
-                        {/* Top Badges */}
-                        <div className="relative z-10 flex items-center justify-between gap-2 pointer-events-none">
-                          <span className="text-[10px] sm:text-xs font-black tracking-wider text-white bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full uppercase border border-white/20">
-                            {temple.category}
-                          </span>
-                          {temple.deity && (
-                            <span className="text-[10px] font-bold text-amber-300 bg-amber-950/80 backdrop-blur-md px-2.5 py-0.5 rounded-full border border-amber-400/30">
-                              {temple.deity}
-                            </span>
-                          )}
-                        </div>
-
-                        {/* Bottom Info */}
-                        <div className="relative z-10 text-white pointer-events-none flex flex-col gap-1">
-                          <div className="flex items-center gap-1.5 text-[11px] text-amber-300 font-semibold drop-shadow-xs">
-                            <MapPin className="w-3.5 h-3.5 text-[#FF4B00]" />
-                            <span>
-                              {temple.city}
-                              {temple.state ? `, ${temple.state}` : ''}
-                            </span>
-                          </div>
-
-                          <h3 className="text-base sm:text-lg font-black text-white group-hover:text-amber-200 transition-colors drop-shadow-md leading-snug">
-                            {temple.name}
-                          </h3>
-
-                          {temple.hindiName && (
-                            <p className="text-[11px] text-stone-300 font-medium drop-shadow-xs">
-                              {temple.hindiName}
-                            </p>
-                          )}
-
-                          <div className="flex items-center justify-between pt-2 border-t border-white/15 mt-1">
-                            <span className="text-[10px] font-bold text-stone-300">
-                              {pkgCount > 0 ? `${pkgCount} Yatra Packages` : 'Custom Itinerary'}
-                            </span>
-                            <div className="flex items-center gap-1 text-xs font-bold text-[#FF9E79] group-hover:text-white group-hover:translate-x-1 transition-all">
-                              <span>Filter Packages</span>
-                              <ArrowRight className="w-3 h-3" />
-                            </div>
-                          </div>
-                        </div>
-                      </motion.div>
-                    );
-                  })}
-              </div>
-            )}
           </div>
         </section>
 

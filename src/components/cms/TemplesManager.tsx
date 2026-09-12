@@ -42,6 +42,7 @@ export const TemplesManager: React.FC = () => {
     temples,
     packages,
     destinations,
+    mediaAssets,
     addTemple,
     updateTemple,
     deleteTemple,
@@ -295,9 +296,9 @@ export const TemplesManager: React.FC = () => {
                   {/* Image Card Header */}
                   <div className="relative h-44 w-full bg-stone-900 overflow-hidden">
                     <img
-                      src={resolveDisplayImage(temple.image, temple.name)}
+                      src={resolveDisplayImage(temple.image, mediaAssets)}
                       alt={temple.name}
-                      onError={(e) => handleImageError(e, temple.name)}
+                      onError={(e) => handleImageError(e, temple.image, mediaAssets)}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       loading="lazy"
                     />
@@ -655,9 +656,9 @@ export const TemplesManager: React.FC = () => {
 
                 <div className="rounded-xl overflow-hidden border border-stone-200 bg-stone-100 relative h-32">
                   <img
-                    src={resolveDisplayImage(formData.image, formData.name)}
+                    src={resolveDisplayImage(formData.image, mediaAssets)}
                     alt="Preview"
-                    onError={(e) => handleImageError(e, formData.name)}
+                    onError={(e) => handleImageError(e, formData.image, mediaAssets)}
                     className="w-full h-full object-cover"
                   />
                   <span className="absolute bottom-1.5 left-1.5 bg-black/70 text-white text-[10px] font-bold px-2 py-0.5 rounded">

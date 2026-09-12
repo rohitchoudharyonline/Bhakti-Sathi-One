@@ -22,16 +22,16 @@ interface DestinationCardData {
 
 const PILGRIMAGE_DESTINATIONS: DestinationCardData[] = [
   {
-    id: 'kashmir',
+    id: 'jammu-kashmir',
     name: 'Jammu & Kashmir',
     region: 'Jammu & Kashmir',
     packagesCount: 12,
     rating: 4.99,
     bestTime: 'Year Round',
-    tagline: 'Srinagar, Gulmarg Gondola, Pahalgam & Houseboats',
-    image: 'https://images.unsplash.com/photo-1595815771614-ade9d652a65d?auto=format&fit=crop&w=800&q=80',
-    badge: '12+ Packages',
-    popularHighlight: 'Guaranteed Gondola & Houseboat Stays',
+    tagline: 'Vaishno Devi, Shankaracharya Temple, Shiv Khori, Srinagar & Gulmarg',
+    image: 'https://images.unsplash.com/photo-1598091383021-15ddea10925d?auto=format&fit=crop&w=800&q=80',
+    badge: 'Vaishno Devi & Kashmir',
+    popularHighlight: 'Helicopter Yatra, Cave Darshan & Dal Lake Shikara',
   },
   {
     id: 'himachal',
@@ -40,22 +40,22 @@ const PILGRIMAGE_DESTINATIONS: DestinationCardData[] = [
     packagesCount: 8,
     rating: 4.98,
     bestTime: 'Year Round',
-    tagline: 'Manali, Solang Valley, Atal Tunnel & Shimla',
-    image: 'https://images.unsplash.com/photo-1605649487212-47bdab064df7?auto=format&fit=crop&w=800&q=80',
-    badge: '8+ Packages',
-    popularHighlight: 'Solang Adventures & Private Cabs',
+    tagline: 'Sacred 5 Devi Darshan (Jwala Ji, Chintpurni, Chamunda, Kangra, Naina Devi)',
+    image: 'https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?auto=format&fit=crop&w=800&q=80',
+    badge: 'Devi Darshan Circuit',
+    popularHighlight: '9 Holy Flames, Ropeway & Dhauladhar Hills',
   },
   {
-    id: 'jammu',
-    name: 'Jammu & Katra',
-    region: 'Jammu & Kashmir',
+    id: 'amritsar',
+    name: 'Amritsar',
+    region: 'Punjab',
     packagesCount: 6,
-    rating: 4.97,
-    bestTime: 'Year Round',
-    tagline: 'Mata Vaishno Devi Holy Yatra & Patnitop Pine Meadows',
-    image: 'https://images.unsplash.com/photo-1598091383021-15ddea10925d?auto=format&fit=crop&w=800&q=80',
-    badge: '6+ Packages',
-    popularHighlight: 'VIP Helicopter & Sacred Bhawan Stays',
+    rating: 4.99,
+    bestTime: 'Oct - Mar',
+    tagline: 'Golden Temple (Sri Harmandir Sahib), Wagah Border & Durgiana Tirath',
+    image: 'https://images.unsplash.com/photo-1595815771614-ade9d652a65d?auto=format&fit=crop&w=800&q=80',
+    badge: 'Golden Temple & Border',
+    popularHighlight: '24-Hour Gurbani Kirtan & Guru Ka Langar',
   },
 ];
 
@@ -123,19 +123,17 @@ export const DestinationsGrid: React.FC<DestinationsGridProps> = ({
                   </span>
                 </div>
 
-                {/* Bottom Content */}
-                <div className="relative z-10 text-white pointer-events-none flex flex-col gap-1">
-                  <h3 className="text-lg sm:text-xl font-black text-white group-hover:text-stone-100 transition-colors drop-shadow-md leading-tight">
+                {/* Bottom Content - Clean, Uncluttered, No Subtitle */}
+                <div className="relative z-10 text-white pointer-events-none flex flex-col gap-1.5">
+                  <h3 className="text-xl sm:text-2xl font-black text-white group-hover:text-amber-200 transition-colors drop-shadow-md leading-tight tracking-tight">
                     {dest.name}
                   </h3>
-                  <p className="text-xs text-stone-200 font-medium drop-shadow-sm line-clamp-1">
-                    {dest.tagline}
-                  </p>
-                  <div className="flex items-center justify-between pt-1">
-                    <span className="text-[11px] font-semibold text-stone-300">
-                      {dest.popularHighlight}
+
+                  <div className="flex items-center justify-between pt-2 border-t border-white/20 mt-1">
+                    <span className="text-xs font-bold text-stone-200">
+                      {dest.packagesCount} Verified Packages
                     </span>
-                    <div className="flex items-center gap-1 text-xs font-bold text-white group-hover:translate-x-1 transition-transform shrink-0">
+                    <div className="flex items-center gap-1.5 text-xs font-black text-amber-300 group-hover:text-amber-200 group-hover:translate-x-1 transition-all shrink-0">
                       <span>View Packages</span>
                       <ArrowRight className="w-3.5 h-3.5" />
                     </div>

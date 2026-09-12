@@ -651,36 +651,7 @@ export const DestinationsManager: React.FC = () => {
                       </div>
                     </div>
 
-                    {/* Image Upload & Management with UniversalImageUploader */}
-                    <div className="p-3 bg-white rounded-xl border border-stone-200 space-y-2">
-                      <UniversalImageUploader
-                        variant="compact"
-                        label="Attraction Photo (Auto-Compressed to Cloudflare R2)"
-                        folder="destinations/attractions"
-                        defaultWidth={800}
-                        defaultFormat="webp"
-                        currentUrl={att.image}
-                        onImageSelected={(url) => {
-                          const updated = [...(formData.guide?.topAttractions || [])];
-                          updated[idx].image = url;
-                          setFormData({ ...formData, guide: { ...formData.guide, topAttractions: updated } });
-                        }}
-                      />
-
-                      <div className="pt-1">
-                        <input
-                          type="text"
-                          placeholder="Or paste direct image URL (https://...)"
-                          value={att.image}
-                          onChange={(e) => {
-                            const updated = [...(formData.guide?.topAttractions || [])];
-                            updated[idx].image = e.target.value;
-                            setFormData({ ...formData, guide: { ...formData.guide, topAttractions: updated } });
-                          }}
-                          className="w-full p-2 bg-stone-50 border border-stone-200 rounded-lg text-xs font-mono text-stone-700 focus:bg-white focus:outline-none focus:border-[#FF4B00]"
-                        />
-                      </div>
-                    </div>
+                    {/* Attraction Highlights */}
 
                     <div className="space-y-1">
                       <label className="text-[11px] font-bold text-stone-700 block">Highlights & Key Details</label>

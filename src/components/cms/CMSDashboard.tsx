@@ -26,6 +26,7 @@ import { GuideEditor } from './GuideEditor';
 import { GuideArticle } from '../../types/guide';
 import { PDFBrochureModal } from '../traveler/PDFBrochureModal';
 import { TourContentStudio } from './TourContentStudio';
+import { ErrorBoundary } from '../common/ErrorBoundary';
 import {
   LayoutDashboard,
   BookOpen,
@@ -751,7 +752,11 @@ export const CMSDashboard: React.FC = () => {
         {activeCmsTab === 'destinations' && canAccess('destinations') && <DestinationsManager />}
 
         {/* TAB 3.5: SACRED TEMPLES & SHRINES CMS */}
-        {activeCmsTab === 'temples' && canAccess('temples') && <TemplesManager />}
+        {activeCmsTab === 'temples' && canAccess('temples') && (
+          <ErrorBoundary fallbackTitle="Temples & Shrines Manager" fallbackMessage="There was an issue rendering the Temples Manager. Please reload to refresh the database.">
+            <TemplesManager />
+          </ErrorBoundary>
+        )}
 
         {/* TAB 4: CUSTOM PAGES CMS */}
         {activeCmsTab === 'pages' && canAccess('pages') && <CustomPagesManager />}

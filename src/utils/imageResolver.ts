@@ -7,10 +7,10 @@ import { MediaAsset } from '../types/cms';
  */
 export function resolveDisplayImage(
   url?: string | null,
-  mediaAssets?: MediaAsset[],
+  mediaAssets?: MediaAsset[] | unknown,
   fallbackUrl: string = 'https://images.unsplash.com/photo-1598091383021-15ddea10925d?auto=format&fit=crop&w=1200&q=80'
 ): string {
-  if (!url || !url.trim()) return fallbackUrl;
+  if (!url || typeof url !== 'string' || !url.trim()) return fallbackUrl;
   const cleanUrl = url.trim();
 
   // If already a valid data URL or blob, return directly
@@ -18,8 +18,8 @@ export function resolveDisplayImage(
     return cleanUrl;
   }
 
-  // If mediaAssets is available, check if we have a matching asset with inline dataUrl
-  if (mediaAssets && mediaAssets.length > 0) {
+  // If mediaAssets is available as an array, check if we have a matching asset with inline dataUrl
+  if (Array.isArray(mediaAssets) && mediaAssets.length > 0) {
     const match = mediaAssets.find(
       (a) =>
         a &&
@@ -45,20 +45,21 @@ export function resolveDisplayImage(
 export function handleImageError(
   e: React.SyntheticEvent<HTMLImageElement, Event>,
   originalUrl?: string,
-  mediaAssets?: MediaAsset[],
+  mediaAssets?: MediaAsset[] | unknown,
   fallbackUrl: string = 'https://images.unsplash.com/photo-1598091383021-15ddea10925d?auto=format&fit=crop&w=1200&q=80'
 ) {
   const target = e.currentTarget;
 
   // Step 1: Check if there is an asset with dataUrl backup in mediaAssets
-  if (!target.dataset.triedDataUrl && originalUrl && mediaAssets && mediaAssets.length > 0) {
-    const cleanOrig = originalUrl.trim();
+  if (!target.dataset.triedDataUrl && originalUrl && Array.isArray(mediaAssets) && mediaAssets.length > 0) {
+    const cleanOrig = typeof originalUrl === 'string' ? originalUrl.trim() : '';
     const match = mediaAssets.find(
       (a) =>
-        a.url === cleanOrig ||
-        a.storagePath === cleanOrig ||
-        cleanOrig.endsWith(a.storagePath) ||
-        (a.fileName && cleanOrig.includes(a.fileName))
+        a &&
+        (a.url === cleanOrig ||
+          a.storagePath === cleanOrig ||
+          (a.storagePath && cleanOrig.endsWith(a.storagePath)) ||
+          (a.fileName && cleanOrig.includes(a.fileName)))
     );
 
     if (match?.dataUrl && target.src !== match.dataUrl) {

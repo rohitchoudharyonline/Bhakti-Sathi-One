@@ -418,7 +418,7 @@ const DEFAULT_SEED_INQUIRIES: BookingInquiry[] = [
     travelDate: '2026-09-28',
     adults: 2,
     children: 0,
-    specialRequests: 'Traditional Wazwan dinner inclusion and Shikara sunset photo shoot.',
+    specialRequests: 'Traditional satvik pure vegetarian dinner inclusion and Shikara sunset photo shoot.',
     estimatedTotal: 42000,
     status: 'Confirmed',
     createdAt: '2026-09-01T09:00:00Z',
@@ -503,14 +503,40 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }));
   });
 
-  // 2. Destinations Registry State
+  // 2. Destinations Registry State (Strictly Jammu & Kashmir, Himachal Pradesh, Amritsar)
   const [destinations, setDestinations] = useState<Record<string, DestinationMeta>>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.DESTINATIONS);
       if (saved) {
         const parsed = JSON.parse(saved);
         if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
-          return parsed;
+          // Keep only the 3 active destinations
+          const validSlugs = ['jammu-kashmir', 'himachal', 'amritsar'];
+          const merged: Record<string, DestinationMeta> = { ...DESTINATIONS_REGISTRY };
+          validSlugs.forEach((slug) => {
+            if (parsed[slug]) {
+              const defaultDest = DESTINATIONS_REGISTRY[slug];
+              const isOldLongTagline = parsed[slug].tagline && (
+                parsed[slug].tagline.includes('Colonial heritage') ||
+                parsed[slug].tagline.includes('Shankaracharya Temple, Shiv Khori') ||
+                parsed[slug].tagline.includes('Sacred 5 Devi Darshan (Jwala Ji')
+              );
+              merged[slug] = {
+                ...defaultDest,
+                ...parsed[slug],
+                guide: {
+                  ...defaultDest.guide,
+                  ...(parsed[slug].guide || {}),
+                  topAttractions: defaultDest.guide?.topAttractions || [],
+                  faqs: defaultDest.guide?.faqs || [],
+                },
+                tagline: (!parsed[slug].tagline || isOldLongTagline) ? defaultDest.tagline : parsed[slug].tagline,
+                keyHighlights: defaultDest.keyHighlights,
+                startingPrice: parsed[slug].startingPrice || defaultDest.startingPrice,
+              };
+            }
+          });
+          return merged;
         }
       }
     } catch {}
@@ -1442,13 +1468,40 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       } else if (path.startsWith('/destinations')) {
         setActiveView('traveler');
-        setIsDestinationsExplorerOpen(true);
         setIsToursDirectoryOpen(false);
         setIsBlogHubOpen(false);
         setActiveBlogSlug(null);
         setActiveCustomPageSlug(null);
         setSelectedPackageId(null);
-        setSelectedDestinationSlug(null);
+        setIsGuidesHubOpen(false);
+        setActiveGuideSlug(null);
+        setIsJapCounterOpen(false);
+        const subSlug = path.replace('/destinations', '').replace(/^\/+/, '').split('/')[0];
+        if (subSlug && subSlug.length > 0) {
+          setIsDestinationsExplorerOpen(false);
+          setSelectedDestinationSlug(subSlug);
+        } else {
+          setIsDestinationsExplorerOpen(true);
+          setSelectedDestinationSlug(null);
+        }
+      } else if (path.startsWith('/holidays/')) {
+        setActiveView('traveler');
+        setIsToursDirectoryOpen(false);
+        setIsBlogHubOpen(false);
+        setActiveBlogSlug(null);
+        setActiveCustomPageSlug(null);
+        setSelectedPackageId(null);
+        setIsGuidesHubOpen(false);
+        setActiveGuideSlug(null);
+        setIsJapCounterOpen(false);
+        const subSlug = path.replace('/holidays/', '').split('/')[0];
+        if (subSlug && subSlug.length > 0) {
+          setIsDestinationsExplorerOpen(false);
+          setSelectedDestinationSlug(subSlug);
+        } else {
+          setIsDestinationsExplorerOpen(true);
+          setSelectedDestinationSlug(null);
+        }
       } else if (path === '/sitemap' || path === '/sitemap/' || path === '/sitemap.html' || path === '/info/sitemap' || path === '/info/sitemap/') {
         setActiveView('traveler');
         setActiveInfoPage('sitemap');
@@ -1684,7 +1737,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsJapCounterOpen(false);
     setIsTravelerProfileOpen(false);
     if (typeof window !== 'undefined' && window.history.pushState) {
-      window.history.pushState({}, '', `/holidays/${slug}`);
+      window.history.pushState({}, '', `/destinations/${slug}`);
     }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
