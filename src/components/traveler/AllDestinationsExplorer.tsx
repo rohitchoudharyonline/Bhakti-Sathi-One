@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { ArrowLeft, ArrowRight, Search, X, MapPin, Sparkles, ChevronRight, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Search, X, MapPin, Sparkles, ChevronRight, ShieldCheck, Compass } from 'lucide-react';
 import { useTours } from '../../context/TourContext';
 import { updatePageSeo } from '../../utils/seo';
 import { Navbar } from '../common/Navbar';
@@ -184,7 +184,7 @@ export const AllDestinationsExplorer: React.FC = () => {
                   viewport={{ once: true }}
                   transition={{ duration: 0.4, delay: index * 0.05 }}
                   onClick={() => handleSelect(dest.slug || dest.id)}
-                  className="group relative aspect-[4/3] rounded-2xl overflow-hidden cursor-pointer border border-stone-200 hover:border-stone-400 transition-all duration-300 shadow-sm hover:shadow-xl hover:-translate-y-1 flex flex-col justify-between p-4"
+                  className="group relative aspect-[4/3] rounded-2xl overflow-hidden cursor-pointer border border-stone-200 hover:border-[#FF4B00] transition-all duration-300 shadow-sm hover:shadow-[0_20px_25px_-5px_rgba(255,75,0,0.2)] hover:-translate-y-1 flex flex-col justify-between p-4"
                 >
                   {/* Background Image */}
                   <img
@@ -196,32 +196,22 @@ export const AllDestinationsExplorer: React.FC = () => {
                   />
 
                   {/* Scrim Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/30 to-black/10 pointer-events-none" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/20 to-transparent pointer-events-none" />
 
-                  {/* Top Badge */}
-                  <div className="relative z-10 flex items-center justify-between pointer-events-none">
-                    <span className="text-[10px] font-black tracking-wider text-white bg-stone-900/90 backdrop-blur-md px-2.5 py-1 rounded-full uppercase border border-white/20 shadow-xs">
-                      {dest.badge || `${dest.packagesCount || 6}+ TOURS`}
-                    </span>
-                    <span className="text-[10px] font-bold text-amber-300 bg-black/60 px-2 py-0.5 rounded-md backdrop-blur-xs">
-                      ★ {dest.rating || 4.98}
-                    </span>
+                  {/* Top Right High-CTR Interactive Icon */}
+                  <div className="relative z-10 flex justify-end pointer-events-none">
+                    <div className="w-9 h-9 rounded-full bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white group-hover:bg-[#FF4B00] group-hover:scale-110 transition-all duration-300 shadow-md">
+                      <Compass className="w-4 h-4 group-hover:rotate-45 transition-transform duration-500" />
+                    </div>
                   </div>
 
-                  {/* Bottom Info - Clean, Uncluttered, No Subtitle */}
-                  <div className="relative z-10 text-white pointer-events-none flex flex-col gap-1.5">
-                    <h3 className="text-base sm:text-lg font-black text-white group-hover:text-amber-200 transition-colors drop-shadow-md leading-tight">
+                  {/* Bottom Destination Name & Action Button */}
+                  <div className="relative z-10 text-white pointer-events-none flex items-end justify-between gap-3">
+                    <h3 className="text-xl sm:text-2xl font-black text-white group-hover:text-amber-200 transition-colors drop-shadow-md leading-tight">
                       {dest.displayName || dest.name}
                     </h3>
-
-                    <div className="flex items-center justify-between pt-2 border-t border-white/20 mt-1">
-                      <span className="text-[11px] font-bold text-stone-200">
-                        From <strong className="text-white font-black">₹{(dest.startingPrice || 6499).toLocaleString('en-IN')}</strong>
-                      </span>
-                      <div className="flex items-center gap-1 text-xs font-black text-amber-300 group-hover:text-amber-200 group-hover:translate-x-1 transition-transform shrink-0">
-                        <span>Explore</span>
-                        <ArrowRight className="w-3.5 h-3.5" />
-                      </div>
+                    <div className="w-8 h-8 rounded-full bg-stone-900/80 backdrop-blur-md border border-white/20 flex items-center justify-center text-amber-300 group-hover:translate-x-1 transition-transform shrink-0 shadow-lg">
+                      <ArrowRight className="w-3.5 h-3.5" />
                     </div>
                   </div>
                 </motion.div>

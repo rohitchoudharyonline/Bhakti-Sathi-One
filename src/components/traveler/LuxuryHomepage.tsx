@@ -746,10 +746,10 @@ export const LuxuryHomepage: React.FC = () => {
                       transition={{ duration: 0.5, delay: index * 0.1 }}
                       id={`dest-card-${loc.filterKey}`}
                       onClick={() => handleSelectLocationCard(loc)}
-                      className={`dest-card-container group relative aspect-[4/3] sm:aspect-[16/10] rounded-2xl sm:rounded-3xl overflow-hidden cursor-pointer border transition-all duration-500 ease-out shadow-sm hover:shadow-xl hover:-translate-y-1 hover:scale-[1.02] flex flex-col justify-between p-4 sm:p-6 ${
+                      className={`dest-card-container group relative aspect-[4/3] sm:aspect-[16/10] rounded-2xl sm:rounded-3xl overflow-hidden cursor-pointer border transition-all duration-500 ease-out shadow-sm hover:shadow-[0_20px_25px_-5px_rgba(255,75,0,0.2)] hover:-translate-y-1 hover:scale-[1.02] flex flex-col justify-between p-4 sm:p-6 ${
                         isSelected
-                          ? 'border-stone-900 ring-2 ring-stone-900/40'
-                          : 'border-stone-200/90 hover:border-stone-400'
+                          ? 'border-[#FF4B00] ring-2 ring-[#FF4B00]/40'
+                          : 'border-stone-200/90 hover:border-[#FF4B00]/70'
                       }`}
                     >
                       {/* Shimmer Placeholder Overlay */}
@@ -773,39 +773,22 @@ export const LuxuryHomepage: React.FC = () => {
                       />
 
                       {/* Multi-step Gradient Scrim */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/30 to-black/10 pointer-events-none" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/20 to-transparent pointer-events-none" />
 
-                      {/* Top Badge (Brand Colors) */}
-                      <div className="relative z-10 flex items-center justify-between pointer-events-none">
-                        <span className="card-badge-badge text-[10px] sm:text-xs font-black tracking-wider text-white bg-stone-900/90 backdrop-blur-md px-3 py-1 rounded-full uppercase border border-white/20 shadow-xs">
-                          {displayBadge}
-                        </span>
-                        <span className="text-[10px] sm:text-xs font-bold text-amber-300 bg-stone-950/75 backdrop-blur-md px-2.5 py-0.5 rounded-full border border-white/15 flex items-center gap-1 shadow-xs">
-                          <Star className="w-3 h-3 fill-amber-300 text-amber-300" />
-                          <span>4.98</span>
-                          <span className="text-stone-300 font-normal text-[10px]">• {loc.duration || '4 - 8 Days'}</span>
-                        </span>
+                      {/* Top Right High-CTR Interactive Icon */}
+                      <div className="relative z-10 flex justify-end pointer-events-none">
+                        <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white group-hover:bg-[#FF4B00] group-hover:scale-110 transition-all duration-300 shadow-md">
+                          <Compass className="w-5 h-5 group-hover:rotate-45 transition-transform duration-500" />
+                        </div>
                       </div>
 
-                      {/* Bottom Content Area - Clean, Uncluttered, No Subtitle */}
-                      <div className="relative z-10 text-white pointer-events-none flex flex-col gap-1.5">
-                        <h3 className="text-xl sm:text-2xl lg:text-3xl font-black text-white group-hover:text-amber-200 transition-colors drop-shadow-md leading-tight tracking-tight">
+                      {/* Bottom Destination Name & Action Button */}
+                      <div className="relative z-10 text-white pointer-events-none flex items-end justify-between gap-3">
+                        <h3 className="text-2xl sm:text-3xl font-black text-white group-hover:text-amber-200 transition-colors drop-shadow-md leading-tight tracking-tight">
                           {loc.name}
                         </h3>
-
-                        {/* Bottom Meta Row: Starting Price + Action Link */}
-                        <div className="flex items-center justify-between pt-2 border-t border-white/20 mt-1">
-                          <div className="flex items-baseline gap-1 text-stone-300">
-                            <span className="text-[10px] uppercase font-bold text-stone-300">From</span>
-                            <span className="text-sm sm:text-base font-black text-white">
-                              ₹{(loc.startingPrice || 6499).toLocaleString('en-IN')}
-                            </span>
-                            <span className="text-[10px] text-stone-300">/ person</span>
-                          </div>
-                          <div className="inline-flex items-center gap-1.5 text-xs font-black text-amber-300 group-hover:text-amber-200 group-hover:translate-x-1 transition-all shrink-0">
-                            <span>View Yatra Packages</span>
-                            <ArrowRight className="w-4 h-4" />
-                          </div>
+                        <div className="w-9 h-9 rounded-full bg-stone-900/80 backdrop-blur-md border border-white/20 flex items-center justify-center text-amber-300 group-hover:translate-x-1 transition-transform shrink-0 shadow-lg">
+                          <ArrowRight className="w-4 h-4" />
                         </div>
                       </div>
                     </motion.div>

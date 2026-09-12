@@ -524,16 +524,17 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
               merged[slug] = {
                 ...defaultDest,
                 ...parsed[slug],
-                name: defaultDest.name,
-                displayName: defaultDest.displayName,
-                tagline: defaultDest.tagline,
+                name: parsed[slug].name || defaultDest.name,
+                displayName: parsed[slug].displayName || defaultDest.displayName,
+                tagline: parsed[slug].tagline || defaultDest.tagline,
+                heroImage: parsed[slug].heroImage || defaultDest.heroImage,
                 guide: {
                   ...defaultDest.guide,
                   ...(parsed[slug].guide || {}),
-                  topAttractions: defaultDest.guide?.topAttractions || [],
-                  faqs: defaultDest.guide?.faqs || [],
+                  topAttractions: parsed[slug].guide?.topAttractions || defaultDest.guide?.topAttractions || [],
+                  faqs: parsed[slug].guide?.faqs || defaultDest.guide?.faqs || [],
                 },
-                keyHighlights: defaultDest.keyHighlights,
+                keyHighlights: parsed[slug].keyHighlights || defaultDest.keyHighlights,
                 startingPrice: parsed[slug].startingPrice || defaultDest.startingPrice,
               };
             }
