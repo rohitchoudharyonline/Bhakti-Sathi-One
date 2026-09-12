@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTours } from '../../context/TourContext';
 import { TourPackage, BookingInquiry } from '../../types/tour';
 import { BlogPost } from '../../types/cms';
@@ -141,6 +141,15 @@ export const CMSDashboard: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<string>('All');
   const [categoryFilter, setCategoryFilter] = useState<string>('All');
   const [viewMode, setViewMode] = useState<'table' | 'cards'>('cards');
+  const [isTabLoading, setIsTabLoading] = useState(false);
+
+  useEffect(() => {
+    setIsTabLoading(true);
+    const timer = setTimeout(() => {
+      setIsTabLoading(false);
+    }, 200);
+    return () => clearTimeout(timer);
+  }, [activeCmsTab]);
 
   // RBAC Permission Checks
   const isSuperAdmin = currentStaffUser.role === 'super_admin';
@@ -441,8 +450,26 @@ export const CMSDashboard: React.FC = () => {
           </div>
         )}
 
+        {/* LOADING SKELETON / SUBTLE SPINNER STATE DURING TRANSITIONS */}
+        {isTabLoading && canAccess(activeCmsTab) && (
+          <div className="bg-white rounded-3xl border border-stone-200/80 p-12 text-center space-y-6 my-6 shadow-xs animate-pulse">
+            <div className="w-12 h-12 rounded-2xl bg-[#FF4B00]/10 text-[#FF4B00] flex items-center justify-center mx-auto animate-spin">
+              <Sparkles className="w-6 h-6" />
+            </div>
+            <div className="space-y-2 max-w-sm mx-auto">
+              <div className="h-4 bg-stone-200 rounded-lg w-3/4 mx-auto"></div>
+              <div className="h-3 bg-stone-100 rounded-lg w-1/2 mx-auto"></div>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 max-w-3xl mx-auto">
+              <div className="h-32 bg-stone-100 rounded-2xl"></div>
+              <div className="h-32 bg-stone-100 rounded-2xl"></div>
+              <div className="h-32 bg-stone-100 rounded-2xl"></div>
+            </div>
+          </div>
+        )}
+
         {/* TAB 1: OPERATIONS HUB (DASHBOARD) */}
-        {activeCmsTab === 'dashboard' && canAccess('dashboard') && (
+        {activeCmsTab === 'dashboard' && canAccess('dashboard') && !isTabLoading && (
           <div className="space-y-4 sm:space-y-6" id="cms-dashboard-tab">
             {/* Financial Overview & KPIs: Refined Bento Design */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
@@ -707,16 +734,16 @@ export const CMSDashboard: React.FC = () => {
         )}
 
                 {/* WORDPRESS STYLE: RANK MATH SEO */}
-        {activeCmsTab === 'seo' && canAccess('seo') && <SEOManager />}
+        {activeCmsTab === 'seo' && canAccess('seo') && !isTabLoading && <SEOManager />}
 
         {/* WORDPRESS STYLE: CATEGORIES */}
-        {activeCmsTab === 'categories' && canAccess('guides') && <CategoriesManager />}
+        {activeCmsTab === 'categories' && canAccess('guides') && !isTabLoading && <CategoriesManager />}
 
         {/* WORDPRESS STYLE: TAGS */}
-        {activeCmsTab === 'tags' && canAccess('tags') && <TagsManager />}
+        {activeCmsTab === 'tags' && canAccess('tags') && !isTabLoading && <TagsManager />}
 
         {/* TAB 2.5: PILGRIMAGE & TRAVEL GUIDES CMS (WITH AI SEO GENERATOR) */}
-        {activeCmsTab === 'guides' && canAccess('guides') && (
+        {activeCmsTab === 'guides' && canAccess('guides') && !isTabLoading && (
           guidesSubView === 'editor' ? (
             <GuideEditor
               initialGuide={editingGuide}
@@ -749,40 +776,40 @@ export const CMSDashboard: React.FC = () => {
         )}
 
         {/* TAB 3: DESTINATIONS & TRAVEL GUIDES CMS */}
-        {activeCmsTab === 'destinations' && canAccess('destinations') && <DestinationsManager />}
+        {activeCmsTab === 'destinations' && canAccess('destinations') && !isTabLoading && <DestinationsManager />}
 
         {/* TAB 3.5: SACRED TEMPLES & SHRINES CMS */}
-        {activeCmsTab === 'temples' && canAccess('temples') && (
+        {activeCmsTab === 'temples' && canAccess('temples') && !isTabLoading && (
           <ErrorBoundary fallbackTitle="Temples & Shrines Manager" fallbackMessage="There was an issue rendering the Temples Manager. Please reload to refresh the database.">
             <TemplesManager />
           </ErrorBoundary>
         )}
 
         {/* TAB 4: CUSTOM PAGES CMS */}
-        {activeCmsTab === 'pages' && canAccess('pages') && <CustomPagesManager />}
+        {activeCmsTab === 'pages' && canAccess('pages') && !isTabLoading && <CustomPagesManager />}
 
         {/* TAB 5: CLOUDFLARE R2 & D1 MEDIA STUDIO */}
-        {activeCmsTab === 'media' && canAccess('media') && <MediaR2StorageManager />}
+        {activeCmsTab === 'media' && canAccess('media') && !isTabLoading && <MediaR2StorageManager />}
 
         {/* TAB 5.5: PUSH NOTIFICATIONS BROADCAST CENTER */}
-        {activeCmsTab === 'push-notifications' && <PushNotificationsManager />}
+        {activeCmsTab === 'push-notifications' && !isTabLoading && <PushNotificationsManager />}
 
         {/* TAB 6: INQUIRIES & LEADS */}
-        {activeCmsTab === 'inquiries' && canAccess('inquiries') && (
+        {activeCmsTab === 'inquiries' && canAccess('inquiries') && !isTabLoading && (
           <InquiriesManager onConvertToInvoice={handleConvertInquiryToInvoice} />
         )}
 
         {/* TAB 6.5: REGISTERED TRAVELERS & SIGNUPS DIRECTORY */}
-        {activeCmsTab === 'users' && <UsersManager />}
+        {activeCmsTab === 'users' && !isTabLoading && <UsersManager />}
 
         {/* TAB 3: CLIENT INVOICES */}
-        {activeCmsTab === 'invoices' && canAccess('invoices') && <InvoicesManager />}
+        {activeCmsTab === 'invoices' && canAccess('invoices') && !isTabLoading && <InvoicesManager />}
 
         {/* TAB 4: VENDOR PAYOUTS & VOUCHERS */}
-        {activeCmsTab === 'payments' && canAccess('payments') && <VendorPaymentsManager />}
+        {activeCmsTab === 'payments' && canAccess('payments') && !isTabLoading && <VendorPaymentsManager />}
 
         {/* TAB 5: VENDORS DIRECTORY */}
-        {activeCmsTab === 'vendors' && canAccess('vendors') && (
+        {activeCmsTab === 'vendors' && canAccess('vendors') && !isTabLoading && (
           <VendorsManager
             onOpenVendorPayment={(vId) => {
               setActiveCmsTab('payments');
@@ -793,17 +820,17 @@ export const CMSDashboard: React.FC = () => {
         {/* TAB 6: HOTELS */}
 
         {/* TAB 7: STAFF & RBAC */}
-        {activeCmsTab === 'staff' && canAccess('staff') && <StaffManager />}
+        {activeCmsTab === 'staff' && canAccess('staff') && !isTabLoading && <StaffManager />}
 
         {/* TAB 8: SETTINGS & BOTTOM MENUS */}
-        {activeCmsTab === 'settings' && canAccess('settings') && <SettingsManager />}
-        {activeCmsTab === 'bottom-menus' && canAccess('bottom-menus') && <SettingsManager initialTab="footer" initialSubTab="mobile-nav" />}
+        {activeCmsTab === 'settings' && canAccess('settings') && !isTabLoading && <SettingsManager />}
+        {activeCmsTab === 'bottom-menus' && canAccess('bottom-menus') && !isTabLoading && <SettingsManager initialTab="footer" initialSubTab="mobile-nav" />}
 
         {/* TAB 8.5: FAQ MANAGEMENT */}
-        {activeCmsTab === 'faqs' && canAccess('faqs') && <FaqsManager />}
+        {activeCmsTab === 'faqs' && canAccess('faqs') && !isTabLoading && <FaqsManager />}
 
         {/* TAB: GROUP TOURS & FIXED DEPARTURES ERP */}
-        {activeCmsTab === 'group-tours' && canAccess('group-tours') && (
+        {activeCmsTab === 'group-tours' && canAccess('group-tours') && !isTabLoading && (
           <GroupToursManager
             onEditPackage={handleStartEdit}
             onCreateGroupTour={() => {
@@ -900,7 +927,7 @@ export const CMSDashboard: React.FC = () => {
         )}
 
         {/* TAB 9: PACKAGES CATALOG */}
-        {activeCmsTab === 'packages' && canAccess('packages') && (
+        {activeCmsTab === 'packages' && canAccess('packages') && !isTabLoading && (
           <div className="space-y-6">
             {/* Packages Management Action Bar */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-stone-200 shadow-2xs">

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTours } from '../../context/TourContext';
 import { TemplePlace, TempleCategory } from '../../data/templesData';
 import { DestinationMeta } from '../../data/destinationsData';
@@ -53,6 +53,15 @@ export const TemplesManager: React.FC = () => {
   const [editingTemple, setEditingTemple] = useState<TemplePlace | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<string>('all');
+  const [isTemplesLoading, setIsTemplesLoading] = useState(false);
+
+  useEffect(() => {
+    setIsTemplesLoading(true);
+    const timer = setTimeout(() => {
+      setIsTemplesLoading(false);
+    }, 180);
+    return () => clearTimeout(timer);
+  }, [selectedCategoryFilter, searchTerm, activeTab]);
   const [showMediaModal, setShowMediaModal] = useState(false);
   const [feedbackMsg, setFeedbackMsg] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
 
@@ -288,8 +297,21 @@ export const TemplesManager: React.FC = () => {
           </div>
 
           {/* Temples Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {filteredTemples.map((temple) => {
+          {isTemplesLoading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 animate-pulse">
+              {[1, 2, 3, 4, 5, 6].map((n) => (
+                <div key={n} className="bg-white rounded-2xl border border-stone-200 p-5 space-y-4 shadow-xs">
+                  <div className="h-44 bg-stone-100 rounded-xl"></div>
+                  <div className="space-y-2">
+                    <div className="h-4 bg-stone-200 rounded-md w-3/4"></div>
+                    <div className="h-3 bg-stone-100 rounded-md w-1/2"></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              {filteredTemples.map((temple) => {
               const catConfig =
                 TEMPLE_CATEGORIES.find((c) => c.id === temple.category) || TEMPLE_CATEGORIES[0];
               const linkedCount = getLinkedPackagesCount(temple);
@@ -425,6 +447,7 @@ export const TemplesManager: React.FC = () => {
               </div>
             )}
           </div>
+          )}
         </div>
       ) : (
         /* ========================================================

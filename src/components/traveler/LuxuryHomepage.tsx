@@ -265,21 +265,11 @@ export const LuxuryHomepage: React.FC = () => {
       type: 'dest' as const,
     }));
 
-    const templeOptions = temples.map((t) => ({
-      id: `temple:${t.id}`,
-      templeId: t.id,
-      name: `🛕 ${t.name}`,
-      region: t.category,
-      desc: `${t.city}${t.state ? `, ${t.state}` : ''} • ${t.deity || 'Holy Shrine'}`,
-      type: 'temple' as const,
-    }));
-
     return [
       ...dynamicDestOptions,
-      ...templeOptions,
       { id: 'all', name: 'All Sacred Yatras & Temples', region: 'Explore', desc: 'Browse all spiritual yatra & temple packages', type: 'dest' as const },
     ];
-  }, [destinations, temples]);
+  }, [destinations]);
 
   const filteredDestinations = useMemo(() => {
     const list = Object.values(destinations || {}) as DestinationMeta[];
@@ -496,7 +486,7 @@ export const LuxuryHomepage: React.FC = () => {
                   {openDropdown === 'dest' && (
                     <div className="absolute top-full left-0 right-0 sm:min-w-[320px] mt-2 bg-white rounded-2xl border border-stone-200 shadow-2xl z-50 p-2 space-y-1 max-h-[320px] overflow-y-auto">
                       <div className="px-2 py-1 text-[10px] font-extrabold uppercase tracking-wider text-stone-400">
-                        Select Sacred Shrine
+                        Select Sacred Destination
                       </div>
                       {destinationSearchOptions.map((dest) => {
                         const isSelected = activeSpecificDest === dest.id;
