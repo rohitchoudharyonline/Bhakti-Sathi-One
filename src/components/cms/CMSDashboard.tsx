@@ -349,6 +349,8 @@ export const CMSDashboard: React.FC = () => {
                 type="button"
                 onClick={async () => {
                   try {
+                    localStorage.removeItem('bs_cms_session_token');
+                    localStorage.removeItem('bs_cms_pin_token');
                     await fetch('/api/admin/logout', { method: 'POST', credentials: 'include' });
                     window.location.href = '/admin-rudra-0712';
                   } catch (e) {

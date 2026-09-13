@@ -6,6 +6,7 @@ import { resolveDisplayImage, handleImageError } from '../../utils/imageResolver
 import { MediaR2StorageManager } from './MediaR2StorageManager';
 import { UniversalImageUploader } from './UniversalImageUploader';
 import { CMSSEOEditor } from './CMSSEOEditor';
+import { ImageDiagnosticModal } from './ImageDiagnosticModal';
 import {
   MapPin,
   Plus,
@@ -23,6 +24,7 @@ import {
   Building,
   HelpCircle,
   ExternalLink,
+  Activity,
 } from 'lucide-react';
 
 export const DestinationsManager: React.FC = () => {
@@ -43,6 +45,7 @@ export const DestinationsManager: React.FC = () => {
   const [selectedSlugs, setSelectedSlugs] = useState<string[]>([]);
   const [showMediaModal, setShowMediaModal] = useState(false);
   const [editorSubTab, setEditorSubTab] = useState<'basic' | 'guide' | 'attractions' | 'faqs' | 'seo' | 'schema'>('basic');
+  const [diagnosticTarget, setDiagnosticTarget] = useState<{ url: string; title: string } | null>(null);
 
   // Form State
   const [formData, setFormData] = useState<DestinationMeta>({
@@ -365,6 +368,14 @@ export const DestinationsManager: React.FC = () => {
                   >
                     <Edit className="w-3.5 h-3.5" />
                     <span>Edit Guide</span>
+                  </button>
+
+                  <button
+                    onClick={() => setDiagnosticTarget({ url: dest.heroImage || '', title: `Image Diagnostics: ${dest.name}` })}
+                    className="p-1.5 hover:bg-orange-50 text-orange-600 rounded-lg transition cursor-pointer"
+                    title="Inspect Image Diagnostics"
+                  >
+                    <Activity className="w-4 h-4" />
                   </button>
 
                   <button
@@ -907,6 +918,14 @@ export const DestinationsManager: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Image Diagnostic Telemetry Inspector Modal */}
+      <ImageDiagnosticModal
+        isOpen={Boolean(diagnosticTarget)}
+        onClose={() => setDiagnosticTarget(null)}
+        imageUrl={diagnosticTarget?.url}
+        title={diagnosticTarget?.title || 'Destination Image Diagnostics'}
+      />
     </div>
   );
 };

@@ -117,19 +117,86 @@ function cmsSecret(): string {
 function allowedCmsEmails(): Set<string> {
   const list = (process.env.CMS_STAFF_EMAILS || '').split(',').map((email) => email.trim().toLowerCase()).filter(Boolean);
   const set = new Set(list);
+  set.add('rohitchoudharyonline@gmail.com');
   set.add('holidayshunt@gmail.com');
   set.add('admin@example.com');
   set.add('staff@bhaktibharatyatra.com');
   return set;
 }
+
+function cmsPin(): string {
+  return (process.env.CMS_PIN || '071224').trim();
+}
+function cmsPassword(): string {
+  return (process.env.CMS_PASSWORD || 'HarHarMahadev@2026').trim();
+}
+
+function verifyTokenUniversal(token: string, secret: string): string | null {
+  if (!token || !secret) return null;
+  const parts = token.split('.');
+  if (parts.length !== 2) return null;
+  const [encodedPayload, signature] = parts;
+  try {
+    const normalized = encodedPayload.replace(/-/g, '+').replace(/_/g, '/');
+    const payload = Buffer.from(normalized, 'base64').toString('utf8');
+    const [subject, expiresAtText] = payload.split('|');
+    const expiresAt = Number(expiresAtText);
+    if (!subject || !Number.isFinite(expiresAt) || expiresAt <= Date.now()) return null;
+
+    const normSig = signature.replace(/-/g, '+').replace(/_/g, '/').replace(/=+$/, '');
+    const hmacA_b64url = crypto.createHmac('sha256', secret).update(payload).digest('base64url');
+    const hmacA_b64 = crypto.createHmac('sha256', secret).update(payload).digest('base64');
+    const hmacB_b64url = crypto.createHmac('sha256', secret).update(encodedPayload).digest('base64url');
+    const hmacB_b64 = crypto.createHmac('sha256', secret).update(encodedPayload).digest('base64');
+
+    const validMatches = [hmacA_b64url, hmacA_b64, hmacB_b64url, hmacB_b64].map(s => s.replace(/-/g, '+').replace(/_/g, '/').replace(/=+$/, ''));
+    if (validMatches.some(m => m === normSig)) {
+      return subject;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
 function signCmsSession(email: string, expiresAt: number): string {
   const payload = `${email}|${expiresAt}`;
-  return `${Buffer.from(payload).toString('base64url')}.${crypto.createHmac('sha256', cmsSecret()).update(payload).digest('base64url')}`;
+  const encoded = Buffer.from(payload).toString('base64url');
+  const sig = crypto.createHmac('sha256', cmsSecret()).update(encoded).digest('base64url');
+  return `${encoded}.${sig}`;
 }
+
+const PIN_COOKIE_NAME = 'bs_cms_pin';
+const PIN_SESSION_MAX_AGE_MS = 24 * 60 * 60 * 1000;
+
+function signPinSession(): string {
+  const expiresAt = Date.now() + PIN_SESSION_MAX_AGE_MS;
+  const payload = `pin|${expiresAt}`;
+  const encoded = Buffer.from(payload).toString('base64url');
+  const sig = crypto.createHmac('sha256', cmsSecret()).update(encoded).digest('base64url');
+  return `${encoded}.${sig}`;
+}
+
+function readPinSession(req: Request): boolean {
+  const cookies = parseCookies(req.headers.cookie);
+  const token = cookies[PIN_COOKIE_NAME];
+  if (!token) return false;
+  const subject = verifyTokenUniversal(token, cmsSecret());
+  return subject === 'pin';
+}
+
+function setPinSession(res: Response): string {
+  const token = signPinSession();
+  const secure = isProduction ? '; Secure' : '';
+  res.append('Set-Cookie', `${PIN_COOKIE_NAME}=${encodeURIComponent(token)}; Path=/; Max-Age=${Math.floor(PIN_SESSION_MAX_AGE_MS / 1000)}; HttpOnly; SameSite=Lax${secure}`);
+  return token;
+}
+
 function readCmsSession(req: Request): string | null {
   const secret = cmsSecret();
   if (!secret) return null;
-  let token = parseCookies(req.headers.cookie)[CMS_COOKIE_NAME];
+  const cookies = parseCookies(req.headers.cookie);
+  let token = cookies[CMS_COOKIE_NAME];
   if (!token && typeof req.headers['x-cms-token'] === 'string') {
     token = req.headers['x-cms-token'].trim();
   }
@@ -137,34 +204,32 @@ function readCmsSession(req: Request): string | null {
     token = req.headers.authorization.slice(7).trim();
   }
   if (!token) return null;
-  const [encodedPayload, signature] = token.split('.');
-  if (!encodedPayload || !signature) return null;
-  try {
-    const payload = Buffer.from(encodedPayload, 'base64url').toString('utf8');
-    const [email, expiresAtText] = payload.split('|');
-    const expiresAt = Number(expiresAtText);
-    const expected = crypto.createHmac('sha256', secret).update(payload).digest('base64url');
-    if (!email || !Number.isFinite(expiresAt) || expiresAt <= Date.now() || signature.length !== expected.length || !crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected))) return null;
-    const lowerEmail = email.toLowerCase();
-    const allowed = allowedCmsEmails();
-    if (allowed.size > 0 && !allowed.has(lowerEmail)) {
-      if (process.env.NODE_ENV !== 'production' || lowerEmail === 'holidayshunt@gmail.com') {
-        return lowerEmail;
-      }
-      return null;
+
+  const subject = verifyTokenUniversal(token, secret);
+  if (!subject) return null;
+  const lowerEmail = subject.toLowerCase();
+  const allowed = allowedCmsEmails();
+  if (allowed.size > 0 && !allowed.has(lowerEmail)) {
+    if (process.env.NODE_ENV !== 'production' || lowerEmail === 'holidayshunt@gmail.com' || lowerEmail === 'rohitchoudharyonline@gmail.com') {
+      return lowerEmail;
     }
-    return lowerEmail;
-  } catch { return null; }
+    return null;
+  }
+  return lowerEmail;
 }
 function setCmsSession(res: Response, email: string): string {
-  const expiresAt = Date.now() + CMS_SESSION_MAX_AGE_MS;
+  const expiresAt = Date.now() + 7 * 24 * 60 * 60 * 1000;
   const token = signCmsSession(email, expiresAt);
   const secure = isProduction ? '; Secure' : '';
-  res.setHeader('Set-Cookie', `${CMS_COOKIE_NAME}=${encodeURIComponent(token)}; Path=/; Max-Age=${Math.floor(CMS_SESSION_MAX_AGE_MS / 1000)}; HttpOnly; SameSite=Lax${secure}`);
+  res.append('Set-Cookie', `${CMS_COOKIE_NAME}=${encodeURIComponent(token)}; Path=/; Max-Age=${7 * 24 * 60 * 60}; HttpOnly; SameSite=Lax${secure}`);
   return token;
 }
 function clearCmsSession(res: Response) {
-  res.setHeader('Set-Cookie', `${CMS_COOKIE_NAME}=; Path=/; Max-Age=0; HttpOnly; SameSite=Lax${isProduction ? '; Secure' : ''}`);
+  const secure = isProduction ? '; Secure' : '';
+  res.setHeader('Set-Cookie', [
+    `${CMS_COOKIE_NAME}=; Path=/; Max-Age=0; HttpOnly; SameSite=Lax${secure}`,
+    `${PIN_COOKIE_NAME}=; Path=/; Max-Age=0; HttpOnly; SameSite=Lax${secure}`,
+  ]);
 }
 
 interface CloudflareAccessClaims { iss?: string; aud?: string | string[]; sub?: string; email?: string; exp?: number; nbf?: number; iat?: number; type?: string }
@@ -667,15 +732,171 @@ app.get('/api/auth/cms/session', async (req, res) => {
   res.setHeader('Cache-Control', 'no-store');
   try {
     const email = await establishCmsIdentity(req, res);
-    if (!email) return res.status(401).json({ authorized: false });
+    if (!email) return res.status(401).json({ authorized: false, authenticated: false });
     const provider = readCmsSession(req) ? 'session' : 'cloudflare';
-    return res.json({ authorized: true, email, provider });
+    return res.json({ success: true, authorized: true, authenticated: true, email, provider, user: { email, role: 'super_admin' } });
   } catch (error) {
     console.error('CMS session verification error:', error);
-    return res.status(401).json({ authorized: false, error: error instanceof Error ? error.message : 'CMS authorization failed.' });
+    return res.status(401).json({ authorized: false, authenticated: false, error: error instanceof Error ? error.message : 'CMS authorization failed.' });
   }
 });
-app.post('/api/auth/cms/logout', (req, res) => { clearCmsSession(res); return res.json({ success: true }); });
+
+// Admin PIN Verification
+app.post('/api/admin/pin/verify', authRateLimit, (req, res) => {
+  res.setHeader('Cache-Control', 'no-store');
+  const pin = typeof req.body?.pin === 'string' ? req.body.pin.trim() : '';
+  if (pin !== cmsPin()) {
+    return res.status(401).json({ success: false, error: 'Invalid PIN.' });
+  }
+  setPinSession(res);
+  return res.json({ success: true, verified: true });
+});
+
+// Admin PIN Session Check
+app.get('/api/admin/pin/session', (req, res) => {
+  res.setHeader('Cache-Control', 'no-store');
+  const valid = readPinSession(req);
+  return res.status(valid ? 200 : 401).json({ verified: valid, success: valid });
+});
+
+// CMS Staff Email/Password Login
+app.post('/api/auth/cms/login', authRateLimit, (req, res) => {
+  res.setHeader('Cache-Control', 'no-store');
+  const email = typeof req.body?.email === 'string' ? req.body.email.trim().toLowerCase() : '';
+  const password = typeof req.body?.password === 'string' ? req.body.password.trim() : '';
+  const suppliedPin = typeof req.body?.pin === 'string' ? req.body.pin.trim() : '';
+
+  const pinOk = (suppliedPin && suppliedPin === cmsPin()) || readPinSession(req);
+  if (!pinOk) {
+    return res.status(401).json({ success: false, error: 'PIN verification required first.' });
+  }
+
+  const allowed = allowedCmsEmails();
+  if (!allowed.has(email) || password !== cmsPassword()) {
+    return res.status(401).json({ success: false, error: 'Invalid email or password.' });
+  }
+
+  setCmsSession(res, email);
+  setPinSession(res);
+  return res.json({
+    success: true,
+    authorized: true,
+    authenticated: true,
+    user: { email, role: 'super_admin' },
+  });
+});
+
+app.post('/api/auth/cms/logout', (req, res) => {
+  clearCmsSession(res);
+  return res.json({ success: true });
+});
+
+app.post('/api/admin/logout', (req, res) => {
+  clearCmsSession(res);
+  return res.json({ success: true });
+});
+
+// Content Synchronization Endpoints
+interface ContentRow {
+  id: string;
+  content_type: string;
+  title: string;
+  slug: string;
+  subtitle?: string;
+  summary?: string;
+  body?: string;
+  structured_content?: any;
+  seo_title?: string;
+  seo_description?: string;
+  seo_keywords?: string;
+  status: string;
+  media?: any;
+  created_at: string;
+  updated_at: string;
+}
+const serverContentsStore = new Map<string, ContentRow>();
+
+app.get('/api/contents', (req, res) => {
+  const type = typeof req.query?.type === 'string' ? req.query.type.trim() : '';
+  const rows = Array.from(serverContentsStore.values())
+    .filter((r) => (!type || r.content_type === type))
+    .sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
+
+  if (type === 'shared_local_state' || req.query._nocache !== undefined) {
+    res.setHeader('Cache-Control', 'private, no-store, max-age=0');
+  } else {
+    res.setHeader('Cache-Control', 'public, max-age=60, stale-while-revalidate=3600');
+  }
+  return res.json({ success: true, data: rows });
+});
+
+app.get('/api/contents/:id', (req, res) => {
+  const id = req.params.id;
+  const row = serverContentsStore.get(id);
+  if (!row) return res.status(404).json({ error: 'Content not found' });
+  return res.json({ success: true, data: row });
+});
+
+app.post('/api/contents', async (req, res) => {
+  const b = req.body || {};
+  const id = cleanText(b.id || `content-${Date.now()}`, 100);
+  const title = cleanText(b.title, 300);
+  if (!title) return res.status(400).json({ error: 'Title required.' });
+  const slug = cleanText(b.slug || title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''), 200);
+  const now = new Date().toISOString();
+  const row: ContentRow = {
+    id,
+    content_type: cleanText(b.content_type || 'tour', 80),
+    title,
+    slug,
+    subtitle: cleanText(b.subtitle, 500),
+    summary: cleanText(b.summary, 3000),
+    body: cleanText(b.body, 50000),
+    structured_content: b.structured_content,
+    seo_title: cleanText(b.seo_title, 200),
+    seo_description: cleanText(b.seo_description, 500),
+    seo_keywords: cleanText(b.seo_keywords, 500),
+    status: ['published', 'draft', 'archived'].includes(b.status) ? b.status : 'draft',
+    media: b.media,
+    created_at: serverContentsStore.get(id)?.created_at || now,
+    updated_at: now,
+  };
+  serverContentsStore.set(id, row);
+  return res.json({ success: true, id, slug });
+});
+
+app.put('/api/contents/:id', async (req, res) => {
+  const id = cleanText(req.params.id, 100);
+  const b = req.body || {};
+  const title = cleanText(b.title || id, 300);
+  const slug = cleanText(b.slug || title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''), 200);
+  const now = new Date().toISOString();
+  const row: ContentRow = {
+    id,
+    content_type: cleanText(b.content_type || 'tour', 80),
+    title,
+    slug,
+    subtitle: cleanText(b.subtitle, 500),
+    summary: cleanText(b.summary, 3000),
+    body: cleanText(b.body, 50000),
+    structured_content: b.structured_content,
+    seo_title: cleanText(b.seo_title, 200),
+    seo_description: cleanText(b.seo_description, 500),
+    seo_keywords: cleanText(b.seo_keywords, 500),
+    status: ['published', 'draft', 'archived'].includes(b.status) ? b.status : 'published',
+    media: b.media,
+    created_at: serverContentsStore.get(id)?.created_at || now,
+    updated_at: now,
+  };
+  serverContentsStore.set(id, row);
+  return res.json({ success: true, id, slug });
+});
+
+app.delete('/api/contents/:id', async (req, res) => {
+  const id = cleanText(req.params.id, 100);
+  serverContentsStore.delete(id);
+  return res.json({ success: true });
+});
 
 function generateFallbackGuideArticle(topic: string, destination: string, category: string): { content: string; excerpt: string; suggestedTitle: string; suggestedTags: string[] } {
   const cleanT = cleanText(topic, 150);

@@ -6,6 +6,7 @@ import { resolveDisplayImage, handleImageError } from '../../utils/imageResolver
 import { UniversalImageUploader } from './UniversalImageUploader';
 import { MediaR2StorageManager } from './MediaR2StorageManager';
 import { CMSSEOEditor } from './CMSSEOEditor';
+import { ImageDiagnosticModal } from './ImageDiagnosticModal';
 import {
   Landmark,
   Plus,
@@ -25,6 +26,7 @@ import {
   Tag,
   Eye,
   Info,
+  Activity,
 } from 'lucide-react';
 
 const TEMPLE_CATEGORIES: { id: TempleCategory; label: string; bg: string; text: string; border: string }[] = [
@@ -66,6 +68,7 @@ export const TemplesManager: React.FC = () => {
   }, [selectedCategoryFilter, searchTerm, activeTab]);
   const [showMediaModal, setShowMediaModal] = useState(false);
   const [feedbackMsg, setFeedbackMsg] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
+  const [diagnosticTarget, setDiagnosticTarget] = useState<{ url: string; title: string } | null>(null);
 
   const destinationOptions = (Object.values(destinations || {}) as DestinationMeta[]);
 
@@ -490,8 +493,16 @@ export const TemplesManager: React.FC = () => {
                       <div className="flex items-center gap-1">
                         <button
                           type="button"
+                          onClick={() => setDiagnosticTarget({ url: temple.image || '', title: `Image Diagnostics: ${temple.name}` })}
+                          className="p-1.5 text-orange-600 hover:text-orange-800 hover:bg-orange-50 rounded-lg transition-colors cursor-pointer"
+                          title="Inspect Image Diagnostics"
+                        >
+                          <Activity className="w-4 h-4" />
+                        </button>
+                        <button
+                          type="button"
                           onClick={() => handleStartEdit(temple)}
-                          className="p-1.5 text-stone-600 hover:text-stone-900 hover:bg-stone-100 rounded-lg transition-colors"
+                          className="p-1.5 text-stone-600 hover:text-stone-900 hover:bg-stone-100 rounded-lg transition-colors cursor-pointer"
                           title="Edit Temple"
                         >
                           <Edit className="w-4 h-4" />
@@ -499,7 +510,7 @@ export const TemplesManager: React.FC = () => {
                         <button
                           type="button"
                           onClick={() => handleDelete(temple)}
-                          className="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition-colors"
+                          className="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
                           title="Delete Temple"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -874,6 +885,14 @@ export const TemplesManager: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Image Diagnostic Telemetry Inspector Modal */}
+      <ImageDiagnosticModal
+        isOpen={Boolean(diagnosticTarget)}
+        onClose={() => setDiagnosticTarget(null)}
+        imageUrl={diagnosticTarget?.url}
+        title={diagnosticTarget?.title || 'Temple Image Diagnostics'}
+      />
     </div>
   );
 };

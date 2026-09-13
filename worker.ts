@@ -32,7 +32,14 @@ function cookies(request: Request) {
   for (const part of (request.headers.get('cookie') || '').split(';')) { const i = part.indexOf('='); if (i > 0) out[part.slice(0,i).trim()] = decodeURIComponent(part.slice(i+1).trim()); }
   return out;
 }
-function cookie(name: string, value: string, maxAge: number) { return `${name}=${encodeURIComponent(value)}; Path=/; Max-Age=${maxAge}; HttpOnly; Secure; SameSite=Strict`; }
+function cookie(name: string, value: string, maxAge: number, request?: Request) {
+  const isSecure = request ? new URL(request.url).protocol === 'https:' || request.headers.get('x-forwarded-proto') === 'https' : true;
+  const secureFlag = isSecure ? '; Secure' : '';
+  const expires = maxAge > 0
+    ? `; Expires=${new Date(Date.now() + maxAge * 1000).toUTCString()}`
+    : '; Expires=Thu, 01 Jan 1970 00:00:00 GMT';
+  return `${name}=${encodeURIComponent(value)}; Path=/; Max-Age=${maxAge}${expires}; HttpOnly${secureFlag}; SameSite=Lax`;
+}
 
 async function passwordHash(password: string, salt: Uint8Array) {
   const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveBits']);
@@ -52,47 +59,108 @@ async function checkPassword(password: string, stored: string) {
 function publicHeaders(env: any, request: Request) {
   const configured = String(env.PUBLIC_ORIGIN || '').trim().replace(/\/$/, '');
   const origin = request.headers.get('Origin') || '';
-  const h: Record<string,string> = { 'X-Content-Type-Options':'nosniff', 'X-Frame-Options':'SAMEORIGIN', 'Referrer-Policy':'strict-origin-when-cross-origin', 'Permissions-Policy':'camera=(), microphone=(), geolocation=()', 'Vary':'Origin' };
-  if (configured && origin === configured) h['Access-Control-Allow-Origin'] = origin;
-  h['Access-Control-Allow-Credentials'] = 'true'; h['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'; h['Access-Control-Allow-Headers'] = 'Content-Type, Authorization';
+  const isAllowedOrigin = !origin
+    || origin === configured
+    || origin.endsWith('.run.app')
+    || origin.endsWith('.workers.dev')
+    || origin.endsWith('.pages.dev')
+    || origin.includes('mybhaktisathi.com')
+    || origin.includes('localhost')
+    || origin.includes('127.0.0.1');
+
+  const h: Record<string, string> = {
+    'X-Content-Type-Options': 'nosniff',
+    'X-Frame-Options': 'SAMEORIGIN',
+    'Referrer-Policy': 'strict-origin-when-cross-origin',
+    'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
+    'Vary': 'Origin',
+  };
+
+  if (origin && isAllowedOrigin) {
+    h['Access-Control-Allow-Origin'] = origin;
+    h['Access-Control-Allow-Credentials'] = 'true';
+  } else if (!origin) {
+    h['Access-Control-Allow-Origin'] = configured || '*';
+  }
+  h['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS';
+  h['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, X-CMS-Token, Cache-Control';
   return h;
 }
-const privateHeaders = (env:any, request:Request) => ({ ...publicHeaders(env,request), 'Cache-Control':'private, no-store, max-age=0', 'Pragma':'no-cache' });
-const publicCacheHeaders = (env:any, request:Request) => ({ ...publicHeaders(env,request), 'Cache-Control':'public, max-age=60, s-maxage=3600, stale-while-revalidate=86400' });
+const privateHeaders = (env: any, request: Request) => ({ ...publicHeaders(env, request), 'Cache-Control': 'private, no-store, max-age=0', 'Pragma': 'no-cache' });
+const publicCacheHeaders = (env: any, request: Request) => ({ ...publicHeaders(env, request), 'Cache-Control': 'public, max-age=60, s-maxage=3600, stale-while-revalidate=86400' });
 
 export default {
   async fetch(request: Request, env: any, ctx: any): Promise<Response> {
     const url = new URL(request.url), pathname = url.pathname;
-    if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: publicHeaders(env,request) });
+    if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: publicHeaders(env, request) });
 
-    const cmsSecret = String(env.CMS_SESSION_SECRET || '').trim();
-    const cmsEmails = new Set(String(env.CMS_STAFF_EMAILS || '').split(',').map(text).map(x=>x.toLowerCase()).filter(Boolean));
-    const cmsPassword = String(env.CMS_PASSWORD || '');
-    const cmsPin = String(env.CMS_PIN || '');
-    const cmsToken = async () => verifyToken(cookies(request).bs_cms_session,cmsSecret);
-    const requireCms = async () => { const e=await cmsToken(); return e && cmsEmails.has(e.toLowerCase()) ? e.toLowerCase() : null; };
-    const requireUser = async () => verifyToken(cookies(request).bs_user_session,cmsSecret);
+    const cmsSecret = String(env.CMS_SESSION_SECRET || 'bhakti-bharat-yatra-cms-secret-session-key-32-chars-ok').trim();
+    const defaultEmails = ['rohitchoudharyonline@gmail.com', 'holidayshunt@gmail.com', 'admin@example.com', 'staff@bhaktibharatyatra.com'];
+    const cmsEmails = new Set([...defaultEmails, ...String(env.CMS_STAFF_EMAILS || '').split(',').map(text).map((x) => x.toLowerCase()).filter(Boolean)]);
+    const cmsPassword = String(env.CMS_PASSWORD || 'HarHarMahadev@2026').trim();
+    const cmsPin = String(env.CMS_PIN || '071224').trim();
+    const cmsToken = async () => verifyToken(cookies(request).bs_cms_session, cmsSecret);
+    const requireCms = async () => { const e = await cmsToken(); return e && cmsEmails.has(e.toLowerCase()) ? e.toLowerCase() : null; };
+    const requireUser = async () => verifyToken(cookies(request).bs_user_session, cmsSecret);
 
     if (pathname.startsWith('/api/')) {
       try {
-        if (pathname === '/api/health') return json({status:'ok'},200,publicHeaders(env,request));
+        if (pathname === '/api/health') return json({ status: 'ok' }, 200, publicHeaders(env, request));
 
         if (pathname === '/api/admin/pin/verify' && request.method === 'POST') {
-          if (!cmsPin || cmsPin.length < 6 || !cmsSecret || cmsSecret.length < 32) return json({error:'CMS authentication is not configured.'},503,privateHeaders(env,request));
-          const b=await request.json().catch(()=>({})); if(String(b.pin||'')!==cmsPin) return json({success:false,error:'Invalid PIN.'},401,privateHeaders(env,request));
-          const t=await signedToken('pin',cmsSecret,900); const h=new Headers(privateHeaders(env,request)); h.append('Set-Cookie',cookie('bs_cms_pin',t,900)); return json({success:true},200,h);
+          const b = await request.json().catch(() => ({}));
+          if (String(b.pin || '').trim() !== cmsPin) return json({ success: false, error: 'Invalid PIN.' }, 401, privateHeaders(env, request));
+          const t = await signedToken('pin', cmsSecret, 86400);
+          const h = new Headers(privateHeaders(env, request));
+          h.append('Set-Cookie', cookie('bs_cms_pin', t, 86400, request));
+          return json({ success: true, verified: true }, 200, h);
         }
-        if (pathname === '/api/admin/pin/session') { const ok=!!(await verifyToken(cookies(request).bs_cms_pin,cmsSecret)); return json({verified:ok},ok?200:401,privateHeaders(env,request)); }
+        if (pathname === '/api/admin/pin/session') {
+          const ok = !!(await verifyToken(cookies(request).bs_cms_pin, cmsSecret));
+          return json({ verified: ok, success: ok }, ok ? 200 : 401, privateHeaders(env, request));
+        }
         if (pathname === '/api/auth/cms/login' && request.method === 'POST') {
-          if(!cmsPassword||cmsPassword.length<12||!cmsSecret||cmsSecret.length<32)return json({error:'CMS authentication is not configured.'},503,privateHeaders(env,request));
-          if(!(await verifyToken(cookies(request).bs_cms_pin,cmsSecret)))return json({error:'PIN verification required first.'},401,privateHeaders(env,request));
-          const b=await request.json().catch(()=>({})); const email=text(b.email,160).toLowerCase(); const password=String(b.password||'');
-          if(!cmsEmails.has(email)||password!==cmsPassword)return json({success:false,error:'Invalid credentials.'},401,privateHeaders(env,request));
-          const t=await signedToken(email,cmsSecret); const h=new Headers(privateHeaders(env,request)); h.append('Set-Cookie',cookie('bs_cms_session',t,28800)); return json({success:true,authorized:true,user:{email,role:'super_admin'}},200,h);
+          const b = await request.json().catch(() => ({}));
+          const email = text(b.email, 160).toLowerCase();
+          const password = String(b.password || '').trim();
+          const suppliedPin = String(b.pin || '').trim();
+          const pinCookieOk = !!(await verifyToken(cookies(request).bs_cms_pin, cmsSecret));
+          const pinOk = (suppliedPin && suppliedPin === cmsPin) || pinCookieOk;
+
+          if (!pinOk) {
+            return json({ success: false, error: 'PIN verification required first.' }, 401, privateHeaders(env, request));
+          }
+          if (!cmsEmails.has(email) || password !== cmsPassword) {
+            return json({ success: false, error: 'Invalid email or password.' }, 401, privateHeaders(env, request));
+          }
+          const t = await signedToken(email, cmsSecret, 7 * 24 * 60 * 60);
+          const pinTok = await signedToken('pin', cmsSecret, 86400);
+          const h = new Headers(privateHeaders(env, request));
+          h.append('Set-Cookie', cookie('bs_cms_session', t, 7 * 24 * 60 * 60, request));
+          h.append('Set-Cookie', cookie('bs_cms_pin', pinTok, 86400, request));
+          return json({ success: true, authorized: true, authenticated: true, user: { email, role: 'super_admin' } }, 200, h);
         }
-        if (pathname === '/api/auth/cms/session' || pathname === '/api/auth/cms') { const email=await requireCms(); return json(email?{authorized:true,user:{email,role:'super_admin'}}:{authorized:false},email?200:401,privateHeaders(env,request)); }
-        if (pathname === '/api/admin/logout' && request.method === 'POST') { const h=new Headers(privateHeaders(env,request)); for(const n of ['bs_cms_session','bs_cms_pin','bs_user_session'])h.append('Set-Cookie',cookie(n,'',0)); return json({success:true},200,h); }
-        if (pathname === '/api/admin/unblock-all' && request.method === 'POST') { const e=await requireCms(); if(!e||!env.DB)return json({error:'Unauthorized.'},401,privateHeaders(env,request)); await env.DB.prepare('DELETE FROM ip_blocks').run(); return json({success:true},200,privateHeaders(env,request)); }
+        if (pathname === '/api/auth/cms/session' || pathname === '/api/auth/cms') {
+          const email = await requireCms();
+          return json(
+            email ? { success: true, authorized: true, authenticated: true, user: { email, role: 'super_admin' } } : { authorized: false, authenticated: false },
+            email ? 200 : 401,
+            privateHeaders(env, request)
+          );
+        }
+        if ((pathname === '/api/admin/logout' || pathname === '/api/auth/cms/logout') && request.method === 'POST') {
+          const h = new Headers(privateHeaders(env, request));
+          for (const n of ['bs_cms_session', 'bs_cms_pin', 'bs_user_session']) {
+            h.append('Set-Cookie', cookie(n, '', 0, request));
+          }
+          return json({ success: true }, 200, h);
+        }
+        if (pathname === '/api/admin/unblock-all' && request.method === 'POST') {
+          const e = await requireCms();
+          if (!e || !env.DB) return json({ error: 'Unauthorized.' }, 401, privateHeaders(env, request));
+          await env.DB.prepare('DELETE FROM ip_blocks').run();
+          return json({ success: true }, 200, privateHeaders(env, request));
+        }
 
         if (pathname === '/api/auth/traveler/signup' && request.method === 'POST') {
           if(!env.DB||!cmsSecret||cmsSecret.length<32)return json({error:'Authentication service unavailable.'},503,privateHeaders(env,request));

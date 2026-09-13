@@ -1,9 +1,11 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Loader2, ShieldCheck, LogIn, AlertCircle } from 'lucide-react';
+import { Loader2, ShieldCheck, LogIn, AlertCircle, RefreshCw } from 'lucide-react';
 import { useTours } from '../../context/TourContext';
 import { CmsPinGate } from './CmsPinGate';
 
-const isAuthorizedSession = (data: any) => Boolean(
+export type CmsAuthState = 'checking' | 'unauthenticated' | 'pin_verified' | 'authenticated';
+
+const isAuthorizedSession = (data: any): boolean => Boolean(
   data?.authorized === true
   || data?.authenticated === true
   || data?.loggedIn === true
@@ -14,71 +16,117 @@ const isAuthorizedSession = (data: any) => Boolean(
 
 export const CmsAccessGate: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { setActiveView } = useTours();
-  const [checking, setChecking] = useState(true);
-  const [pinVerified, setPinVerified] = useState(false);
+  const [authState, setAuthState] = useState<CmsAuthState>('checking');
   const [verifiedPin, setVerifiedPin] = useState('');
-  const [authorized, setAuthorized] = useState(false);
   const [password, setPassword] = useState('');
   const [email, setEmail] = useState('rohitchoudharyonline@gmail.com');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [isTransientError, setIsTransientError] = useState(false);
 
   const checkSession = useCallback(async () => {
-    setChecking(true);
+    setAuthState('checking');
+    setIsTransientError(false);
+    setError('');
+
+    // Step 1: Check if a durable CMS session is active
     try {
-      const cms = await fetch('/api/auth/cms/session', {
-        credentials: 'include',
-        cache: 'no-store',
-        headers: { Accept: 'application/json' },
-      });
-      const cmsData = await cms.json().catch(() => ({}));
-      if (cms.ok && isAuthorizedSession(cmsData)) {
-        setAuthorized(true);
-        setPinVerified(true);
-        return;
+      const cmsHeaders: Record<string, string> = { Accept: 'application/json' };
+      const savedToken = localStorage.getItem('bs_cms_session_token');
+      if (savedToken) {
+        cmsHeaders['Authorization'] = `Bearer ${savedToken}`;
+        cmsHeaders['X-CMS-Token'] = savedToken;
       }
 
-      const pin = await fetch('/api/admin/pin/session', {
+      const cmsRes = await fetch('/api/auth/cms/session', {
         credentials: 'include',
         cache: 'no-store',
-        headers: { Accept: 'application/json' },
+        headers: cmsHeaders,
       });
-      const pinData = await pin.json().catch(() => ({}));
-      setPinVerified(pin.ok && (pinData.verified === true || pinData.authorized === true));
-      setAuthorized(false);
-    } catch {
-      setAuthorized(false);
-      setPinVerified(false);
-    } finally {
-      setChecking(false);
+
+      if (cmsRes.ok) {
+        const cmsData = await cmsRes.json().catch(() => null);
+        if (cmsData && isAuthorizedSession(cmsData)) {
+          if (cmsData.token) {
+            localStorage.setItem('bs_cms_session_token', cmsData.token);
+          }
+          setAuthState('authenticated');
+          return;
+        }
+      } else if (cmsRes.status >= 500) {
+        // Transient server error (e.g. 502, 503)
+        setIsTransientError(true);
+        setError('Server is temporarily unreachable. Please retry.');
+        setAuthState('unauthenticated');
+        return;
+      }
+    } catch (err) {
+      console.warn('[CmsAccessGate] CMS session check network failure:', err);
+      setIsTransientError(true);
+      setError('Network connection error. Please check your connection and retry.');
+      setAuthState('unauthenticated');
+      return;
     }
+
+    // Step 2: If durable CMS session is unauthenticated, check if a PIN session exists
+    try {
+      const pinHeaders: Record<string, string> = { Accept: 'application/json' };
+      const savedPinToken = localStorage.getItem('bs_cms_pin_token');
+      if (savedPinToken) {
+        pinHeaders['X-PIN-Token'] = savedPinToken;
+      }
+
+      const pinRes = await fetch('/api/admin/pin/session', {
+        credentials: 'include',
+        cache: 'no-store',
+        headers: pinHeaders,
+      });
+
+      if (pinRes.ok) {
+        const pinData = await pinRes.json().catch(() => null);
+        if (pinData && (pinData.verified === true || pinData.authorized === true || pinData.success === true)) {
+          setAuthState('pin_verified');
+          return;
+        }
+      }
+    } catch (err) {
+      console.warn('[CmsAccessGate] PIN session check error:', err);
+    }
+
+    // Neither session is active; prompt for PIN first
+    setAuthState('unauthenticated');
   }, []);
 
-  useEffect(() => { void checkSession(); }, [checkSession]);
+  useEffect(() => {
+    void checkSession();
+  }, [checkSession]);
 
   const handleLogin = async (event: React.FormEvent) => {
     event.preventDefault();
     setLoading(true);
     setError('');
-    try {
-      if (verifiedPin.length !== 6) throw new Error('PIN verification required first.');
-      const pinResponse = await fetch('/api/admin/pin/verify', {
-        method: 'POST', credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pin: verifiedPin }),
-      });
-      const pinData = await pinResponse.json().catch(() => ({}));
-      if (!pinResponse.ok || !pinData.success) throw new Error(pinData.error || 'PIN verification failed.');
+    setIsTransientError(false);
 
+    try {
       const response = await fetch('/api/auth/cms/login', {
-        method: 'POST', credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
+        method: 'POST',
+        credentials: 'include',
+        cache: 'no-store',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         body: JSON.stringify({ email, password, pin: verifiedPin }),
       });
-      const data = await response.json().catch(() => ({}));
-      if (!response.ok || !data.success) throw new Error(data.error || 'Authentication failed.');
-      setAuthorized(true);
-      setPinVerified(true);
+
+      const data = await response.json().catch(() => null);
+
+      if (!response.ok || !data?.success) {
+        throw new Error(data?.error || 'Authentication failed. Please verify credentials.');
+      }
+
+      if (data.token) {
+        localStorage.setItem('bs_cms_session_token', data.token);
+      }
+
+      setAuthState('authenticated');
       setPassword('');
       setVerifiedPin('');
       setActiveView('cms');
@@ -89,17 +137,118 @@ export const CmsAccessGate: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   };
 
-  if (checking) return <div className="min-h-screen flex items-center justify-center bg-stone-950 text-white"><Loader2 className="w-6 h-6 animate-spin" /></div>;
-  if (authorized) return <>{children}</>;
-  if (!pinVerified) return <CmsPinGate onPinVerified={(pin) => { setVerifiedPin(pin); setPinVerified(true); }} />;
+  // 1. Checking state: Show neutral high-contrast loader
+  if (authState === 'checking') {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-stone-950 text-white gap-3">
+        <Loader2 className="w-8 h-8 animate-spin text-orange-500" />
+        <span className="text-xs text-stone-400 font-medium tracking-wide">Verifying Administrator Session…</span>
+      </div>
+    );
+  }
 
-  return <div className="min-h-screen flex items-center justify-center bg-stone-950 p-4 text-white">
-    <form onSubmit={handleLogin} className="w-full max-w-md rounded-3xl border border-stone-800 bg-stone-900 p-6 space-y-4">
-      <div className="flex items-center gap-3"><ShieldCheck className="text-orange-500" /><h1 className="text-xl font-bold">Secure CMS Login</h1></div>
-      {error && <div className="rounded-xl bg-red-500/10 border border-red-500/30 p-3 text-sm flex gap-2"><AlertCircle className="shrink-0" />{error}</div>}
-      <input type="email" value={email} onChange={(event) => setEmail(event.target.value)} className="w-full rounded-xl bg-stone-800 border border-stone-700 px-4 py-3" placeholder="Administrator email" required />
-      <input type="password" value={password} onChange={(event) => setPassword(event.target.value)} className="w-full rounded-xl bg-stone-800 border border-stone-700 px-4 py-3" placeholder="Administrator password" required />
-      <button type="submit" disabled={loading} className="w-full rounded-xl bg-orange-600 py-3 font-bold flex items-center justify-center gap-2">{loading ? <Loader2 className="animate-spin" /> : <LogIn />}{loading ? 'Authenticating…' : 'Access CMS Dashboard'}</button>
-    </form>
-  </div>;
+  // 2. Authenticated: Render dashboard directly
+  if (authState === 'authenticated') {
+    return <>{children}</>;
+  }
+
+  // 3. Unauthenticated: If transient error, show retry button before forcing PIN
+  if (authState === 'unauthenticated' && isTransientError) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-stone-950 p-4 text-white">
+        <div className="w-full max-w-md rounded-3xl border border-stone-800 bg-stone-900 p-8 text-center space-y-4 shadow-2xl">
+          <AlertCircle className="w-10 h-10 text-amber-500 mx-auto" />
+          <h2 className="text-lg font-bold text-white">Connection Interrupted</h2>
+          <p className="text-xs text-stone-400">{error}</p>
+          <button
+            type="button"
+            onClick={() => void checkSession()}
+            className="w-full rounded-xl bg-stone-800 hover:bg-stone-700 py-3 font-semibold text-sm transition flex items-center justify-center gap-2"
+          >
+            <RefreshCw className="w-4 h-4" /> Retry Connection
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // 4. Unauthenticated: Prompt for PIN
+  if (authState === 'unauthenticated') {
+    return (
+      <CmsPinGate
+        onPinVerified={(pin) => {
+          setVerifiedPin(pin);
+          setAuthState('pin_verified');
+        }}
+      />
+    );
+  }
+
+  // 5. PIN verified: Prompt for Password to finalize durable CMS session
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-stone-950 p-4 text-white">
+      <form onSubmit={handleLogin} className="w-full max-w-md rounded-3xl border border-stone-800 bg-stone-900 p-6 sm:p-8 space-y-4 shadow-2xl">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center text-orange-500">
+            <ShieldCheck className="w-5 h-5" />
+          </div>
+          <div>
+            <h1 className="text-lg font-bold text-white">CMS Staff Login</h1>
+            <p className="text-xs text-stone-400">Enter your credentials to access the console</p>
+          </div>
+        </div>
+
+        {error && (
+          <div className="rounded-xl bg-red-500/10 border border-red-500/30 p-3 text-xs text-red-300 flex gap-2 items-start">
+            <AlertCircle className="w-4 h-4 shrink-0 text-red-400 mt-0.5" />
+            <span>{error}</span>
+          </div>
+        )}
+
+        <div>
+          <label className="block text-xs font-semibold text-stone-400 mb-1">Staff Email</label>
+          <input
+            type="email"
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+            className="w-full rounded-xl bg-stone-800 border border-stone-700 px-4 py-3 text-sm text-white focus:outline-hidden focus:border-orange-500 transition"
+            placeholder="admin@bhaktibharatyatra.com"
+            required
+          />
+        </div>
+
+        <div>
+          <label className="block text-xs font-semibold text-stone-400 mb-1">Password</label>
+          <input
+            type="password"
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+            className="w-full rounded-xl bg-stone-800 border border-stone-700 px-4 py-3 text-sm text-white focus:outline-hidden focus:border-orange-500 transition"
+            placeholder="••••••••••••"
+            required
+          />
+        </div>
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full rounded-xl bg-orange-600 hover:bg-orange-500 transition py-3 text-sm font-bold flex items-center justify-center gap-2 shadow-lg disabled:opacity-50 cursor-pointer"
+        >
+          {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <LogIn className="w-4 h-4" />}
+          <span>{loading ? 'Authenticating…' : 'Access CMS Dashboard'}</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            setAuthState('unauthenticated');
+            setVerifiedPin('');
+          }}
+          className="w-full text-center text-xs text-stone-500 hover:text-stone-400 py-1 transition"
+        >
+          Back to PIN Gate
+        </button>
+      </form>
+    </div>
+  );
 };

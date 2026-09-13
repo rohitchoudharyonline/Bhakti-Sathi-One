@@ -31,6 +31,7 @@ import { DEFAULT_CUSTOM_PAGES } from '../data/defaultPagesData';
 import { DEFAULT_PAGE_SEO_CONFIGS } from '../data/defaultPageSeoData';
 import { DEFAULT_PUSH_NOTIFICATIONS, DEFAULT_PUSH_SUBSCRIBERS, DEFAULT_PUSH_SETTINGS } from '../data/defaultPushData';
 import { DEFAULT_TEMPLES_DATA, TemplePlace } from '../data/templesData';
+import { initMediaStorage, saveMediaAssetToDb, saveAllMediaAssetsToDb, deleteMediaAssetFromDb } from '../utils/mediaStorage';
 
 export interface SystemSearchParams {
   destinationSlug?: string;
@@ -1633,9 +1634,30 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch {}
   }, [pageSeoConfigs]);
 
+  // Hydrate Media Assets from IndexedDB on mount
+  useEffect(() => {
+    void initMediaStorage().then((dbAssets) => {
+      if (Array.isArray(dbAssets) && dbAssets.length > 0) {
+        setMediaAssets((prev) => {
+          const map = new Map<string, MediaAsset>();
+          for (const a of prev) map.set(a.id, a);
+          for (const a of dbAssets) map.set(a.id, a);
+          return Array.from(map.values());
+        });
+      }
+    });
+  }, []);
+
   useEffect(() => {
     try {
-      localStorage.setItem(STORAGE_KEYS.MEDIA_ASSETS, JSON.stringify(mediaAssets));
+      void saveAllMediaAssetsToDb(mediaAssets);
+      try {
+        localStorage.setItem(STORAGE_KEYS.MEDIA_ASSETS, JSON.stringify(mediaAssets));
+      } catch (quotaError) {
+        console.warn('[TourContext] LocalStorage quota reached for mediaAssets, saving stripped metadata:', quotaError);
+        const pruned = mediaAssets.map(({ dataUrl, ...rest }) => rest);
+        localStorage.setItem(STORAGE_KEYS.MEDIA_ASSETS, JSON.stringify(pruned));
+      }
     } catch {}
   }, [mediaAssets]);
 
@@ -1656,6 +1678,9 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
         } else if (e.key === STORAGE_KEYS.BLOG_POSTS && e.newValue) {
           const parsed = JSON.parse(e.newValue);
           if (Array.isArray(parsed)) setBlogPosts(parsed);
+        } else if (e.key === STORAGE_KEYS.MEDIA_ASSETS && e.newValue) {
+          const parsed = JSON.parse(e.newValue);
+          if (Array.isArray(parsed)) setMediaAssets(parsed);
         } else if (e.key === STORAGE_KEYS.CUSTOM_PAGES && e.newValue) {
           const parsed = JSON.parse(e.newValue);
           if (Array.isArray(parsed)) setCustomPages(parsed);
@@ -1668,8 +1693,50 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     };
 
+    // When D1 server sync hydrates data into localStorage, update in-memory state
+    const handleContentSynced = () => {
+      try {
+        const d = localStorage.getItem(STORAGE_KEYS.DESTINATIONS);
+        if (d) {
+          const parsed = JSON.parse(d);
+          if (parsed && typeof parsed === 'object') setDestinations(parsed);
+        }
+        const t = localStorage.getItem(STORAGE_KEYS.TEMPLES_PLACES);
+        if (t) {
+          const parsed = JSON.parse(t);
+          if (Array.isArray(parsed)) setTemples(parsed);
+        }
+        const p = localStorage.getItem(STORAGE_KEYS.PACKAGES);
+        if (p) {
+          const parsed = JSON.parse(p);
+          if (Array.isArray(parsed)) setPackages(parsed);
+        }
+        const b = localStorage.getItem(STORAGE_KEYS.BLOG_POSTS);
+        if (b) {
+          const parsed = JSON.parse(b);
+          if (Array.isArray(parsed)) setBlogPosts(parsed);
+        }
+        const m = localStorage.getItem(STORAGE_KEYS.MEDIA_ASSETS);
+        if (m) {
+          const parsed = JSON.parse(m);
+          if (Array.isArray(parsed)) setMediaAssets(parsed);
+        }
+        const s = localStorage.getItem(STORAGE_KEYS.PAGE_SEO_CONFIGS);
+        if (s) {
+          const parsed = JSON.parse(s);
+          if (parsed && typeof parsed === 'object') setPageSeoConfigs(parsed);
+        }
+      } catch (err) {
+        console.warn('Error applying synced content to state:', err);
+      }
+    };
+
     window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
+    window.addEventListener('bhakti_content_synced', handleContentSynced);
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('bhakti_content_synced', handleContentSynced);
+    };
   }, []);
 
   useEffect(() => {
@@ -2306,6 +2373,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Media Library Operations
   const addMediaAsset = (asset: MediaAsset) => {
+    void saveMediaAssetToDb(asset);
     setMediaAssets((prev) => {
       const existingIdx = prev.findIndex(
         (a) => a.id === asset.id || a.url === asset.url || a.storagePath === asset.storagePath
@@ -2324,10 +2392,12 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const deleteMediaAsset = (id: string) => {
+    void deleteMediaAssetFromDb(id);
     setMediaAssets((prev) => prev.filter((a) => a.id !== id));
   };
 
   const updateMediaAsset = (asset: MediaAsset) => {
+    void saveMediaAssetToDb(asset);
     setMediaAssets((prev) => prev.map((a) => (a.id === asset.id ? asset : a)));
   };
 
