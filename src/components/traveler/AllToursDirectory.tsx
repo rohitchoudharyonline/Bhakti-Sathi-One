@@ -401,7 +401,7 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
                 <div className="space-y-1.5">
                   <div className="flex items-center gap-2">
                     <span className="text-[10px] uppercase font-black tracking-wider px-2 py-0.5 rounded-full bg-[#FF4B00] text-white">
-                      {selectedTempleMeta.category || 'Holy Shrine'}
+                      Holy Shrine
                     </span>
                     {selectedTempleMeta.city && (
                       <span className="text-xs text-stone-300 font-medium flex items-center gap-1">
@@ -543,7 +543,7 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
                 <option value="all">All Temples & Shrines ({temples.length})</option>
                 {temples.map((temple) => (
                   <option key={temple.id} value={temple.id}>
-                    {temple.name} ({temple.category})
+                    {temple.name}
                   </option>
                 ))}
               </select>

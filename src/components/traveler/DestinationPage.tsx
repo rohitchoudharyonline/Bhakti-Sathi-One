@@ -9,6 +9,7 @@ import {
   Heart,
   Hotel,
   Info,
+  Landmark,
   MapPin,
   MessageCircle,
   Phone,
@@ -47,6 +48,7 @@ export const DestinationPage: React.FC = () => {
     navigateToPackage,
     packages,
     destinations,
+    temples,
     mediaAssets,
     agencySettings,
     toggleWishlist,
@@ -62,8 +64,18 @@ export const DestinationPage: React.FC = () => {
     (Object.values(destinations || {}) as DestinationMeta[])[0] ||
     DESTINATIONS_REGISTRY['kashmir'];
 
+  const destinationTemples = useMemo(() => {
+    return (temples || []).filter(t => {
+      if (!t.destinationSlug) return false;
+      const tSlug = t.destinationSlug.toLowerCase();
+      const dSlug = currentSlug.toLowerCase();
+      const metaId = (destinationMeta?.id || '').toLowerCase();
+      return tSlug === dSlug || tSlug === metaId || dSlug.includes(tSlug) || metaId.includes(tSlug);
+    });
+  }, [temples, currentSlug, destinationMeta]);
+
   // Active view: Packages or Destination Guide
-  const [activeTab, setActiveTab] = useState<'packages' | 'guide'>('packages');
+  const [activeTab, setActiveTab] = useState<'packages' | 'guide' | 'temples'>('packages');
 
   // Filters
   const [selectedDuration, setSelectedDuration] = useState<'all' | 'short' | 'medium' | 'long'>('all');
@@ -266,13 +278,25 @@ export const DestinationPage: React.FC = () => {
             <button
               type="button"
               onClick={() => setActiveTab('guide')}
-              className={`pb-2.5 text-xs sm:text-sm font-black transition relative cursor-pointer ${
+              className={`pb-2.5 text-xs sm:text-sm font-black transition relative cursor-pointer whitespace-nowrap ${
                 activeTab === 'guide' ? 'text-[#FF4B00]' : 'text-stone-500 hover:text-stone-800'
               }`}
             >
               Travel Guide & FAQs
               {activeTab === 'guide' && <span className="absolute bottom-0 inset-x-0 h-0.5 bg-[#FF4B00]" />}
             </button>
+            {destinationTemples.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setActiveTab('temples')}
+                className={`pb-2.5 text-xs sm:text-sm font-black transition relative cursor-pointer whitespace-nowrap ${
+                  activeTab === 'temples' ? 'text-[#FF4B00]' : 'text-stone-500 hover:text-stone-800'
+                }`}
+              >
+                Sacred Temples ({destinationTemples.length})
+                {activeTab === 'temples' && <span className="absolute bottom-0 inset-x-0 h-0.5 bg-[#FF4B00]" />}
+              </button>
+            )}
           </div>
         </div>
       </section>
@@ -548,7 +572,7 @@ export const DestinationPage: React.FC = () => {
               </div>
             )}
           </div>
-        ) : (
+        ) : activeTab === 'guide' ? (
           /* 4. CLEAN DESTINATION GUIDE & FAQS */
           <div className="space-y-4">
             {/* Overview Card */}
@@ -728,7 +752,37 @@ export const DestinationPage: React.FC = () => {
               </div>
             </div>
           </div>
-        )}
+        ) : activeTab === 'temples' ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {destinationTemples.map((temple) => (
+              <div key={temple.id} className="bg-white rounded-2xl border border-stone-200 overflow-hidden shadow-2xs group flex flex-col h-full cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                <div className="aspect-[4/3] relative overflow-hidden bg-stone-100">
+                  <img
+                    src={resolveDisplayImage(temple.image, mediaAssets)}
+                    alt={temple.name}
+                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                    loading="lazy"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/20 to-transparent pointer-events-none opacity-80" />
+                  <div className="absolute top-3 left-3 bg-white/90 backdrop-blur text-stone-900 text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full flex items-center gap-1.5 shadow-sm">
+                    <MapPin className="w-3 h-3 text-[#FF4B00]" />
+                    {temple.city}
+                  </div>
+                  <div className="absolute bottom-4 left-4 right-4">
+                    <h3 className="text-white text-lg font-black leading-tight group-hover:text-amber-200 transition-colors drop-shadow-md">
+                      {temple.name}
+                    </h3>
+                    {temple.tagline && (
+                      <p className="text-stone-200 text-xs font-medium mt-1 line-clamp-1 drop-shadow">
+                        {temple.tagline}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : null}
       </main>
 
       {/* 5. CUSTOM TRIP INQUIRY MODAL */}

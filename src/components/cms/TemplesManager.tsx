@@ -538,23 +538,7 @@ export const TemplesManager: React.FC = () => {
                 />
               </div>
 
-              {/* Category */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-stone-700">
-                  Sacred Category
-                </label>
-                <select
-                  value={formData.category}
-                  onChange={(e) => setFormData({ ...formData, category: e.target.value as TempleCategory })}
-                  className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-bold text-stone-900 focus:bg-white focus:outline-none focus:border-[#FF4B00]"
-                >
-                  {TEMPLE_CATEGORIES.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              {/* Removed Sacred Category field */}
 
               {/* City */}
               <div className="space-y-1.5">

@@ -219,7 +219,7 @@ export interface TemplePlace {
   name: string;
   hindiName?: string;
   deity?: string;
-  category: TempleCategory;
+  category?: TempleCategory;
   city: string;
   state: string;
   image: string;
