@@ -84,8 +84,8 @@ export const DestinationPage: React.FC = () => {
         const metaId = (destinationMeta?.id || '').toLowerCase();
         if (tSlug === dSlug || tSlug === metaId || dSlug.includes(tSlug) || metaId.includes(tSlug)) return true;
       }
-      const stateMatch = t.state && destinationMeta?.state && t.state.toLowerCase() === destinationMeta.state.toLowerCase();
-      const cityMatch = destinationMeta?.name && (t.city.toLowerCase().includes(destinationMeta.name.toLowerCase()) || destinationMeta.name.toLowerCase().includes(t.city.toLowerCase()));
+      const stateMatch = typeof t.state === 'string' && destinationMeta?.state && t.state.toLowerCase() === destinationMeta.state.toLowerCase();
+      const cityMatch = typeof t.city === 'string' && t.city.trim() !== '' && destinationMeta?.name && (t.city.toLowerCase().includes(destinationMeta.name.toLowerCase()) || destinationMeta.name.toLowerCase().includes(t.city.toLowerCase()));
       return stateMatch || cityMatch;
     });
   }, [temples, currentSlug, destinationMeta]);
@@ -239,8 +239,8 @@ export const DestinationPage: React.FC = () => {
           </div>
 
           {/* Title & Stats */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
-            <div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+            <div className="md:col-span-2">
               <div className="flex items-center gap-2 mb-0.5">
                 <h1 className="text-xl sm:text-2xl font-black text-stone-900 tracking-tight">
                   {destinationMeta.name} Tour Packages
@@ -255,28 +255,44 @@ export const DestinationPage: React.FC = () => {
                   {destinationMeta.state === 'International' ? 'International' : 'Domestic'}
                 </span>
               </div>
-              <p className="text-xs text-stone-600 font-medium">
+              <p className="text-xs text-stone-600 font-medium mb-4">
                 {destinationPackages.length} curated itineraries with verified hotels, private cabs & 24/7 support.
               </p>
+
+              {/* Custom Quote Button */}
+              <div className="flex items-center gap-2.5">
+                <button
+                  type="button"
+                  onClick={() => setIsCustomLeadOpen(true)}
+                  className="px-3.5 py-1.5 rounded-xl bg-stone-950 hover:bg-stone-800 text-white text-xs font-bold transition shadow-2xs cursor-pointer"
+                >
+                  Custom Plan
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleWhatsAppInquiry()}
+                  className="px-3.5 py-1.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-900 text-xs font-bold transition shadow-2xs cursor-pointer border border-stone-200"
+                >
+                  Get Best Deal
+                </button>
+              </div>
             </div>
 
-            {/* Custom Quote Button */}
-            <div className="flex items-center gap-2.5 shrink-0">
-              <button
-                type="button"
-                onClick={() => setIsCustomLeadOpen(true)}
-                className="px-3.5 py-1.5 rounded-xl bg-stone-900 hover:bg-stone-800 text-white text-xs font-bold transition shadow-2xs cursor-pointer"
-              >
-                Custom Plan
-              </button>
-              <button
-                type="button"
-                onClick={() => handleWhatsAppInquiry()}
-                className="px-3.5 py-1.5 rounded-xl bg-stone-900 hover:bg-black text-white text-xs font-bold transition shadow-2xs cursor-pointer"
-              >
-                Get Best Deal
-              </button>
-            </div>
+            {/* Destination Picture */}
+            {destinationMeta.heroImage && (
+              <div className="h-32 sm:h-36 rounded-2xl overflow-hidden border border-stone-200 bg-stone-100 relative group shadow-2xs">
+                <img
+                  src={resolveDisplayImage(destinationMeta.heroImage, mediaAssets)}
+                  alt={destinationMeta.name}
+                  onError={(e) => handleImageError(e, destinationMeta.heroImage, mediaAssets)}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
+                <span className="absolute bottom-2.5 left-3 text-[10px] font-black text-white uppercase tracking-wider">
+                  {destinationMeta.name} Region
+                </span>
+              </div>
+            )}
           </div>
 
           {/* Tab Switcher: Packages vs Travel Guide */}
@@ -392,8 +408,9 @@ export const DestinationPage: React.FC = () => {
                         onClick={() => navigateToPackage(pkg.id)}
                       >
                         <img
-                          src={pkg.coverImage}
+                          src={resolveDisplayImage(pkg.coverImage || (pkg as any).image, mediaAssets)}
                           alt={pkg.title}
+                          onError={(e) => handleImageError(e, pkg.coverImage || (pkg as any).image, mediaAssets)}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                           loading="lazy"
                         />
@@ -651,38 +668,26 @@ export const DestinationPage: React.FC = () => {
                     >
                       <div>
                         {temple.image && (
-                          <div className="aspect-[16/9] relative bg-stone-100 overflow-hidden">
+                          <div className="aspect-[16/9] relative bg-stone-100 overflow-hidden border-b border-stone-100">
                             <img
                               src={resolveDisplayImage(temple.image, mediaAssets)}
                               alt={temple.name}
+                              onError={(e) => handleImageError(e, temple.image, mediaAssets)}
                               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                               loading="lazy"
                             />
-                            <div className="absolute inset-0 bg-gradient-to-t from-stone-950/80 via-transparent to-transparent" />
-                            <div className="absolute bottom-2.5 left-3 right-3 flex items-end justify-between">
-                              <div>
-                                <span className="text-[10px] font-bold text-amber-300 uppercase tracking-wider block">
-                                  {temple.city}, {temple.state}
-                                </span>
-                                <h4 className="text-sm font-black text-white leading-tight drop-shadow-sm">
-                                  {temple.name}
-                                </h4>
-                              </div>
-                            </div>
                           </div>
                         )}
 
                         <div className="p-3.5 space-y-2">
-                          {!temple.image && (
-                            <div>
-                              <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block">
-                                {temple.city}, {temple.state}
-                              </span>
-                              <h4 className="text-sm font-black text-stone-900 group-hover:text-[#FF4B00] transition">
-                                {temple.name}
-                              </h4>
-                            </div>
-                          )}
+                          <div>
+                            <span className="text-[10px] font-bold text-stone-500 uppercase tracking-wider block">
+                              {temple.city}, {temple.state}
+                            </span>
+                            <h4 className="text-sm font-black text-stone-900 group-hover:text-[#FF4B00] transition line-clamp-1">
+                              {temple.name}
+                            </h4>
+                          </div>
 
                           {temple.deity && (
                             <div className="inline-flex items-center gap-1.5 text-[11px] font-bold text-stone-700 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200/80">
@@ -736,28 +741,47 @@ export const DestinationPage: React.FC = () => {
                 {destinationMeta.guide?.topAttractions?.map((attraction, idx) => (
                   <div
                     key={idx}
-                    className="group rounded-2xl border border-stone-200/90 hover:border-orange-300 p-4 bg-stone-50/60 hover:bg-white transition-all shadow-2xs hover:shadow-xs flex flex-col justify-between"
+                    className="group rounded-2xl border border-stone-200/90 hover:border-orange-300 bg-stone-50/60 hover:bg-white overflow-hidden transition-all shadow-2xs hover:shadow-md flex flex-col justify-between"
                   >
                     <div>
-                      <div className="flex items-start justify-between gap-2 mb-2">
+                      {attraction.image && (
+                        <div className="aspect-[16/10] relative bg-stone-100 overflow-hidden">
+                          <img
+                            src={resolveDisplayImage(attraction.image, mediaAssets)}
+                            alt={attraction.name}
+                            onError={(e) => handleImageError(e, attraction.image, mediaAssets)}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                            loading="lazy"
+                          />
+                          {attraction.badge && (
+                            <span className="absolute top-2.5 left-3 px-2 py-0.5 bg-black/75 text-white rounded-md text-[9px] font-black uppercase tracking-wider">
+                              {attraction.badge}
+                            </span>
+                          )}
+                        </div>
+                      )}
+                      
+                      <div className="p-4 space-y-2">
                         <div className="flex items-center gap-2">
-                          <span className="w-6 h-6 rounded-lg bg-orange-100 text-[#FF4B00] font-black text-[11px] flex items-center justify-center shrink-0 border border-orange-200">
+                          <span className="w-5 h-5 rounded-lg bg-orange-100 text-[#FF4B00] font-black text-[10px] flex items-center justify-center shrink-0 border border-orange-200">
                             {String(idx + 1).padStart(2, '0')}
                           </span>
                           <h4 className="text-xs sm:text-sm font-black text-stone-900 group-hover:text-[#FF4B00] transition">
                             {attraction.name}
                           </h4>
                         </div>
+                        
+                        <p className="text-xs text-stone-600 font-medium leading-relaxed">
+                          {attraction.description}
+                        </p>
                       </div>
-
-                      <p className="text-xs text-stone-600 font-medium leading-relaxed">
-                        {attraction.description}
-                      </p>
                     </div>
-
-                    <div className="mt-3 pt-2.5 border-t border-stone-200/60 flex items-center gap-1.5 text-[10px] text-stone-600 font-bold">
-                      <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
-                      <span>Included in customized tour plans</span>
+                    
+                    <div className="px-4 pb-4">
+                      <div className="pt-2.5 border-t border-stone-200/60 flex items-center gap-1.5 text-[10px] text-stone-600 font-bold">
+                        <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
+                        <span>Included in customized tour plans</span>
+                      </div>
                     </div>
                   </div>
                 ))}

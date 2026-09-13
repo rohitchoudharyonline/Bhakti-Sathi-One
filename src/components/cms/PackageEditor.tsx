@@ -50,6 +50,7 @@ import {
 } from 'lucide-react';
 import { UniversalImageUploader } from './UniversalImageUploader';
 import { CMSSEOEditor } from './CMSSEOEditor';
+import { resolveDisplayImage, handleImageError } from '../../utils/imageResolver';
 
 interface PackageEditorProps {
   initialPackage?: TourPackage | null;
@@ -117,7 +118,7 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
   onSaveComplete,
   onCancel,
 }) => {
-  const { addPackage, updatePackage, agencySettings, temples } = useTours();
+  const { addPackage, updatePackage, agencySettings, temples, mediaAssets } = useTours();
 
   const [activeTab, setActiveTab] = useState<'basic' | 'pricing' | 'itinerary' | 'inclusions' | 'hotels' | 'policies' | 'seo' | 'group'>('basic');
 
@@ -1032,8 +1033,9 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
                             />
                             <div className="w-9 h-9 rounded-lg overflow-hidden bg-slate-200 shrink-0">
                               <img
-                                src={temple.image}
+                                src={resolveDisplayImage(temple.image, mediaAssets)}
                                 alt={temple.name}
+                                onError={(e) => handleImageError(e, temple.image, mediaAssets)}
                                 className="w-full h-full object-cover"
                               />
                             </div>
