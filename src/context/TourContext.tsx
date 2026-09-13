@@ -510,32 +510,26 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (saved) {
         const parsed = JSON.parse(saved);
         if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
-          // Keep only the 3 active destinations
-          const validSlugs = ['jammu-kashmir', 'himachal', 'amritsar'];
           const merged: Record<string, DestinationMeta> = { ...DESTINATIONS_REGISTRY };
-          validSlugs.forEach((slug) => {
+          Object.keys(parsed).forEach((slug) => {
             if (parsed[slug]) {
-              const defaultDest = DESTINATIONS_REGISTRY[slug];
-              const isOldLongTagline = parsed[slug].tagline && (
-                parsed[slug].tagline.includes('Colonial heritage') ||
-                parsed[slug].tagline.includes('Shankaracharya Temple, Shiv Khori') ||
-                parsed[slug].tagline.includes('Sacred 5 Devi Darshan (Jwala Ji')
-              );
+              const defaultDest = DESTINATIONS_REGISTRY[slug] || {};
               merged[slug] = {
                 ...defaultDest,
                 ...parsed[slug],
                 name: parsed[slug].name || defaultDest.name,
-                displayName: parsed[slug].displayName || defaultDest.displayName,
+                displayName: parsed[slug].displayName || defaultDest.displayName || parsed[slug].name,
                 tagline: parsed[slug].tagline || defaultDest.tagline,
                 heroImage: parsed[slug].heroImage || defaultDest.heroImage,
+                destinationType: parsed[slug].destinationType || defaultDest.destinationType || 'regular',
                 guide: {
-                  ...defaultDest.guide,
+                  ...(defaultDest.guide || {}),
                   ...(parsed[slug].guide || {}),
                   topAttractions: parsed[slug].guide?.topAttractions || defaultDest.guide?.topAttractions || [],
                   faqs: parsed[slug].guide?.faqs || defaultDest.guide?.faqs || [],
                 },
-                keyHighlights: parsed[slug].keyHighlights || defaultDest.keyHighlights,
-                startingPrice: parsed[slug].startingPrice || defaultDest.startingPrice,
+                keyHighlights: parsed[slug].keyHighlights || defaultDest.keyHighlights || [],
+                startingPrice: parsed[slug].startingPrice || defaultDest.startingPrice || 6499,
               };
             }
           });

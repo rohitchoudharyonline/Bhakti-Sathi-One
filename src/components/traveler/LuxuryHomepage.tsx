@@ -276,6 +276,7 @@ export const LuxuryHomepage: React.FC = () => {
     return list.map((d) => ({
       id: d.id || d.slug,
       type: 'domestic' as const,
+      destinationType: d.destinationType || 'regular',
       name: d.displayName || d.name,
       subtitle: d.tagline || `${d.name} Sacred Circuit`,
       badge: (d as any).badge || `${(d as any).packagesCount || 6}+ YATRA PACKAGES`,
@@ -773,10 +774,21 @@ export const LuxuryHomepage: React.FC = () => {
                       />
 
                       {/* Multi-step Gradient Scrim */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/20 to-transparent pointer-events-none" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/20 to-transparent pointer-events-none z-10" />
+                      
+                      {/* Brand Color Hover Overlay */}
+                      <div className="absolute inset-0 bg-[#FF4B00]/0 group-hover:bg-[#FF4B00]/10 transition-colors duration-500 pointer-events-none z-10 mix-blend-overlay" />
 
-                      {/* Top Right High-CTR Interactive Icon */}
-                      <div className="relative z-10 flex justify-end pointer-events-none">
+                      {/* Top Right High-CTR Interactive Icon & Optional Badge */}
+                      <div className="relative z-10 flex justify-between items-start pointer-events-none">
+                        <div>
+                          {loc.destinationType === 'temple' && (
+                            <span className="inline-flex items-center gap-1.5 bg-[#FF4B00]/90 backdrop-blur-md text-white px-3 py-1 rounded-full text-xs font-bold tracking-wide shadow-md border border-white/20">
+                              <Landmark className="w-3.5 h-3.5" />
+                              Temple Destination
+                            </span>
+                          )}
+                        </div>
                         <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white group-hover:bg-[#FF4B00] group-hover:scale-110 transition-all duration-300 shadow-md">
                           <Compass className="w-5 h-5 group-hover:rotate-45 transition-transform duration-500" />
                         </div>

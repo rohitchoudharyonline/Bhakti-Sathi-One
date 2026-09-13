@@ -104,6 +104,7 @@ export const DestinationsManager: React.FC = () => {
       name: '',
       displayName: '',
       state: 'India',
+      destinationType: 'regular',
       tagline: '',
       heroImage: 'https://images.unsplash.com/photo-1598091383021-15ddea10925d?auto=format&fit=crop&w=1600&q=85',
       guideTitle: '',
@@ -409,7 +410,7 @@ export const DestinationsManager: React.FC = () => {
                   />
                 </div>
 
-                <div className="md:col-span-2">
+                <div className="md:col-span-1">
                   <label className="block font-bold text-stone-700 mb-1">State / Union Territory</label>
                   <input
                     type="text"
@@ -418,6 +419,18 @@ export const DestinationsManager: React.FC = () => {
                     onChange={(e) => setFormData({ ...formData, state: e.target.value })}
                     className="w-full p-2.5 bg-stone-50 border border-stone-200 rounded-xl focus:bg-white focus:outline-none"
                   />
+                </div>
+
+                <div className="md:col-span-1">
+                  <label className="block font-bold text-stone-700 mb-1">Destination Type</label>
+                  <select
+                    value={formData.destinationType || 'regular'}
+                    onChange={(e) => setFormData({ ...formData, destinationType: e.target.value as 'regular' | 'temple' })}
+                    className="w-full p-2.5 bg-stone-50 border border-stone-200 rounded-xl focus:bg-white focus:outline-none"
+                  >
+                    <option value="regular">Regular Destination</option>
+                    <option value="temple">Temple Destination</option>
+                  </select>
                 </div>
               </div>
 

@@ -196,10 +196,21 @@ export const AllDestinationsExplorer: React.FC = () => {
                   />
 
                   {/* Scrim Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/20 to-transparent pointer-events-none" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/20 to-transparent pointer-events-none z-10" />
 
-                  {/* Top Right High-CTR Interactive Icon */}
-                  <div className="relative z-10 flex justify-end pointer-events-none">
+                  {/* Brand Color Hover Overlay */}
+                  <div className="absolute inset-0 bg-[#FF4B00]/0 group-hover:bg-[#FF4B00]/10 transition-colors duration-500 pointer-events-none z-10 mix-blend-overlay" />
+
+                  {/* Top Right High-CTR Interactive Icon & Optional Badge */}
+                  <div className="relative z-10 flex justify-between items-start pointer-events-none">
+                    <div>
+                      {dest.destinationType === 'temple' && (
+                        <span className="inline-flex items-center gap-1 bg-[#FF4B00]/90 backdrop-blur-md text-white px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wide shadow-md border border-white/20">
+                          <Landmark className="w-3 h-3" />
+                          Temple Destination
+                        </span>
+                      )}
+                    </div>
                     <div className="w-9 h-9 rounded-full bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white group-hover:bg-[#FF4B00] group-hover:scale-110 transition-all duration-300 shadow-md">
                       <Compass className="w-4 h-4 group-hover:rotate-45 transition-transform duration-500" />
                     </div>

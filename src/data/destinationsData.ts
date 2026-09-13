@@ -38,6 +38,7 @@ export interface DestinationMeta {
   keyHighlights?: string[];
   categoryFilters: { id: string; label: string; iconName: string }[];
   guide: DestinationGuide;
+  destinationType?: 'regular' | 'temple';
 }
 
 export const DESTINATIONS_REGISTRY: Record<string, DestinationMeta> = {
@@ -47,6 +48,7 @@ export const DESTINATIONS_REGISTRY: Record<string, DestinationMeta> = {
     name: 'Jammu & Kashmir',
     displayName: 'JAMMU & KASHMIR',
     state: 'Jammu & Kashmir',
+    destinationType: 'regular',
     tagline: 'Vaishno Devi Cave Yatra, Dal Lake Shikara & Gulmarg Alpine Snow',
     heroImage: 'https://images.unsplash.com/photo-1598091383021-15ddea10925d?auto=format&fit=crop&w=1600&q=85',
     guideTitle: 'Jammu & Kashmir Sacred Yatra & Valley Guide',
@@ -265,6 +267,7 @@ export const DESTINATIONS_REGISTRY: Record<string, DestinationMeta> = {
     name: 'Himachal Pradesh',
     displayName: 'HIMACHAL PRADESH',
     state: 'Himachal Pradesh',
+    destinationType: 'regular',
     tagline: 'Sacred 5 Devi Darshan Shaktipeeth Circuit & Himalayan Hills',
     heroImage: 'https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?auto=format&fit=crop&w=1600&q=85',
     guideTitle: 'Himachal Pradesh Sacred Devi Darshan & Hills Guide',
@@ -483,6 +486,7 @@ export const DESTINATIONS_REGISTRY: Record<string, DestinationMeta> = {
     name: 'Amritsar',
     displayName: 'AMRITSAR',
     state: 'Punjab',
+    destinationType: 'regular',
     tagline: 'Sri Harmandir Sahib, Wagah Border Parade & Durgiana Tirath',
     heroImage: 'https://images.unsplash.com/photo-1595815771614-ade9d652a65d?auto=format&fit=crop&w=1600&q=85',
     guideTitle: 'Amritsar Sacred Heritage & Border Yatra Guide',
@@ -678,12 +682,106 @@ export const DESTINATIONS_REGISTRY: Record<string, DestinationMeta> = {
       ],
     },
   },
+  'ayodhya': {
+    id: 'ayodhya',
+    slug: 'ayodhya',
+    name: 'Ayodhya',
+    displayName: 'AYODHYA',
+    state: 'Uttar Pradesh',
+    destinationType: 'temple',
+    tagline: 'Birthplace of Lord Ram & Shri Ram Janmabhoomi Teerth Kshetra',
+    heroImage: 'https://images.unsplash.com/photo-1707011986518-e3952f417f7c?auto=format&fit=crop&w=1600&q=85',
+    guideTitle: 'Ayodhya Ram Mandir Sacred Pilgrimage Guide',
+    weatherInfo: '15°C - 35°C (Tropical climate)',
+    bestSeason: 'October to March (Diwali & Ram Navami)',
+    startingPrice: 3499,
+    popularCities: ['Ayodhya', 'Naimisharanya', 'Lucknow'],
+    keyHighlights: ['Ram Janmabhoomi', 'Hanuman Garhi', 'Saryu Aarti'],
+    categoryFilters: [
+      { id: 'temples', label: 'Sacred Temples', iconName: 'Landmark' },
+      { id: 'ghats', label: 'Saryu Ghats', iconName: 'Waves' },
+    ],
+    guide: {
+      idealDuration: '2 - 3 Days',
+      bestTimeToVisit: 'October - March',
+      topAttractions: [
+        {
+          name: 'Shri Ram Janmabhoomi Mandir',
+          description: 'The magnificent new temple at the sacred birthplace of Lord Ram.',
+          image: 'https://images.unsplash.com/photo-1707011986518-e3952f417f7c?auto=format&fit=crop&w=800&q=80',
+        },
+        {
+          name: 'Hanuman Garhi',
+          description: 'A 10th-century temple dedicated to Lord Hanuman, approached by 76 steps.',
+          image: 'https://images.unsplash.com/photo-1596707328109-17210e7dc27e?auto=format&fit=crop&w=800&q=80',
+        },
+        {
+          name: 'Saryu River Aarti',
+          description: 'Evening grand Aarti at Ram ki Paidi on the banks of river Saryu.',
+          image: 'https://images.unsplash.com/photo-1627896431945-8120ec0cf60b?auto=format&fit=crop&w=800&q=80',
+        }
+      ],
+      travelTips: [
+        'Deposit mobile phones and leather items at locker facilities before entering Ram Mandir.',
+        'Early morning darshan helps avoid massive crowds.',
+        'Attend the Saryu Aarti at sunset for a divine experience.',
+      ],
+      faqs: [
+        {
+          question: 'What are the darshan timings at Ram Mandir?',
+          answer: 'General darshan is available from morning to evening, typically closing for a few hours in the afternoon. Check official trust portal for exact seasonal Aarti timings.',
+        }
+      ]
+    }
+  },
+  'varanasi': {
+    id: 'varanasi',
+    slug: 'varanasi',
+    name: 'Varanasi',
+    displayName: 'VARANASI (KASHI)',
+    state: 'Uttar Pradesh',
+    destinationType: 'temple',
+    tagline: 'Kashi Vishwanath Corridor & Ganga Aarti',
+    heroImage: 'https://images.unsplash.com/photo-1561359313-0639aad684e2?auto=format&fit=crop&w=1600&q=85',
+    guideTitle: 'Varanasi Sacred City Guide',
+    weatherInfo: '15°C - 35°C',
+    bestSeason: 'October to March',
+    startingPrice: 4499,
+    popularCities: ['Varanasi', 'Sarnath', 'Prayagraj'],
+    keyHighlights: ['Kashi Vishwanath', 'Dashashwamedh Ghat', 'Ganga Aarti'],
+    categoryFilters: [
+      { id: 'temples', label: 'Sacred Temples', iconName: 'Landmark' },
+      { id: 'ghats', label: 'Ghats', iconName: 'Waves' },
+    ],
+    guide: {
+      idealDuration: '3 - 4 Days',
+      bestTimeToVisit: 'October - March',
+      topAttractions: [
+        {
+          name: 'Kashi Vishwanath Temple',
+          description: 'One of the twelve Jyotirlingas, the holiest of Shiva temples.',
+          image: 'https://images.unsplash.com/photo-1582972236019-ea4af5eeccb6?auto=format&fit=crop&w=800&q=80',
+        }
+      ],
+      travelTips: [
+        'Take a morning boat ride on the Ganges.',
+      ],
+      faqs: [
+        {
+          question: 'Can we book special darshan?',
+          answer: 'Yes, Sugam Darshan tickets can be booked via the official temple trust website.',
+        }
+      ]
+    }
+  }
 };
 
 export const POPULAR_DESTINATION_SLUGS = [
   'jammu-kashmir',
   'himachal',
   'amritsar',
+  'ayodhya',
+  'varanasi'
 ];
 
 export function getDestinationBySlug(slug?: string | null): DestinationMeta | undefined {
