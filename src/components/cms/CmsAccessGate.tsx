@@ -3,6 +3,15 @@ import { Loader2, ShieldCheck, LogIn, AlertCircle } from 'lucide-react';
 import { useTours } from '../../context/TourContext';
 import { CmsPinGate } from './CmsPinGate';
 
+const isAuthorizedSession = (data: any) => Boolean(
+  data?.authorized === true
+  || data?.authenticated === true
+  || data?.loggedIn === true
+  || data?.success === true
+  || data?.user
+  || data?.session,
+);
+
 export const CmsAccessGate: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { setActiveView } = useTours();
   const [checking, setChecking] = useState(true);
@@ -17,19 +26,25 @@ export const CmsAccessGate: React.FC<{ children: React.ReactNode }> = ({ childre
   const checkSession = useCallback(async () => {
     setChecking(true);
     try {
-      // The CMS session is the durable login. Check it first, so a normal
-      // browser refresh does not force the user through the short PIN gate.
-      const cms = await fetch('/api/auth/cms/session', { credentials: 'include', cache: 'no-store' });
+      const cms = await fetch('/api/auth/cms/session', {
+        credentials: 'include',
+        cache: 'no-store',
+        headers: { Accept: 'application/json' },
+      });
       const cmsData = await cms.json().catch(() => ({}));
-      if (cms.ok && cmsData.authorized === true) {
+      if (cms.ok && isAuthorizedSession(cmsData)) {
         setAuthorized(true);
         setPinVerified(true);
         return;
       }
 
-      const pin = await fetch('/api/admin/pin/session', { credentials: 'include', cache: 'no-store' });
+      const pin = await fetch('/api/admin/pin/session', {
+        credentials: 'include',
+        cache: 'no-store',
+        headers: { Accept: 'application/json' },
+      });
       const pinData = await pin.json().catch(() => ({}));
-      setPinVerified(pin.ok && pinData.verified === true);
+      setPinVerified(pin.ok && (pinData.verified === true || pinData.authorized === true));
       setAuthorized(false);
     } catch {
       setAuthorized(false);
