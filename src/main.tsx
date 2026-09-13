@@ -5,9 +5,9 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 import App from './App.tsx';
 import './index.css';
 
-// Keep CMS-managed content shared across browsers. The legacy context still
-// uses localStorage, so mirror the relevant keys to the shared D1 contents API
-// and hydrate the local cache before the application starts.
+// The legacy CMS state is kept in localStorage. Mirror the three public
+// content registries to D1 and hydrate them before React mounts so a fresh
+// browser receives the same temples, destinations and tour packages.
 const SHARED_KEYS = new Set([
   'hh_tour_packages_v2',
   'hh_destinations_registry_v2',
@@ -15,15 +15,16 @@ const SHARED_KEYS = new Set([
 ]);
 const API_PATH = '/api/contents';
 
-const installSharedContentBridge = () => {
+type SharedWindow = Window & { __bhaktiSharedBridge?: boolean };
+
+const installSharedContentBridge = async (): Promise<void> => {
   if (typeof window === 'undefined' || !window.localStorage) return;
   const storage = window.localStorage;
   const originalSetItem = storage.setItem.bind(storage);
+  const sharedWindow = window as SharedWindow;
+  if (sharedWindow.__bhaktiSharedBridge) return;
+  sharedWindow.__bhaktiSharedBridge = true;
   let hydrating = false;
-  let installed = false;
-
-  if ((window as Window & { __bhaktiSharedBridge?: boolean }).__bhaktiSharedBridge) return;
-  (window as Window & { __bhaktiSharedBridge?: boolean }).__bhaktiSharedBridge = true;
 
   storage.setItem = ((key: string, value: string) => {
     originalSetItem(key, value);
@@ -43,36 +44,43 @@ const installSharedContentBridge = () => {
     }).catch(() => undefined);
   }) as typeof storage.setItem;
 
-  if (installed) return;
-  installed = true;
-  void fetch(`${API_PATH}?type=shared_local_state`, { credentials: 'include' })
-    .then((response) => response.ok ? response.json() : null)
-    .then((payload: { data?: Array<{ structured_content?: { storageKey?: string; value?: string } }> } | null) => {
-      for (const row of payload?.data || []) {
-        const key = row.structured_content?.storageKey;
-        const value = row.structured_content?.value;
-        if (key && SHARED_KEYS.has(key) && typeof value === 'string') {
-          hydrating = true;
-          try { originalSetItem(key, value); } finally { hydrating = false; }
-        }
+  try {
+    const response = await fetch(`${API_PATH}?type=shared_local_state`, {
+      credentials: 'include',
+      cache: 'no-store',
+    });
+    if (!response.ok) return;
+    const payload = await response.json() as {
+      data?: Array<{ structured_content?: { storageKey?: string; value?: string } }>;
+    };
+    for (const row of payload.data || []) {
+      const key = row.structured_content?.storageKey;
+      const value = row.structured_content?.value;
+      if (key && SHARED_KEYS.has(key) && typeof value === 'string') {
+        hydrating = true;
+        try { originalSetItem(key, value); } finally { hydrating = false; }
       }
-    })
-    .catch(() => undefined);
+    }
+  } catch {
+    // Offline or older deployments continue using the existing local cache.
+  }
 };
 
-installSharedContentBridge();
+const mountApp = () => {
+  // OAuth client IDs are public identifiers, but keeping the production value
+  // in the build environment avoids coupling the frontend to an obsolete client.
+  const clientId = (import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined)?.trim()
+    || '969580668423-u2tnqu48ng8qjgjm4dhb45aaaj5b7mtu.apps.googleusercontent.com';
 
-// OAuth client IDs are public identifiers, but keeping the production value in
-// the build environment avoids coupling the frontend to an obsolete client.
-const clientId = (import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined)?.trim()
-  || '969580668423-u2tnqu48ng8qjgjm4dhb45aaaj5b7mtu.apps.googleusercontent.com';
+  createRoot(document.getElementById('root')!).render(
+    <StrictMode>
+      <HelmetProvider>
+        <GoogleOAuthProvider clientId={clientId}>
+          <App />
+        </GoogleOAuthProvider>
+      </HelmetProvider>
+    </StrictMode>,
+  );
+};
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <HelmetProvider>
-      <GoogleOAuthProvider clientId={clientId}>
-        <App />
-      </GoogleOAuthProvider>
-    </HelmetProvider>
-  </StrictMode>,
-);
+void installSharedContentBridge().finally(mountApp);
