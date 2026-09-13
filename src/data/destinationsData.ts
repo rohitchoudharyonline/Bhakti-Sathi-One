@@ -1,22 +1,22 @@
 export interface DestinationGuide {
-  overview: string;
-  bestTimeToVisit: string;
-  idealDuration: string;
-  nearestAirport: string;
-  nearestRailway: string;
-  topAttractions: {
+  overview?: string;
+  bestTimeToVisit?: string;
+  idealDuration?: string;
+  nearestAirport?: string;
+  nearestRailway?: string;
+  topAttractions?: {
     name: string;
     description: string;
     image?: string;
     badge?: string;
   }[];
-  thingsToDo: string[];
-  localCuisine: {
+  thingsToDo?: string[];
+  localCuisine?: {
     dish: string;
     description: string;
   }[];
-  travelTips: string[];
-  faqs: {
+  travelTips?: string[];
+  faqs?: {
     question: string;
     answer: string;
   }[];
@@ -39,6 +39,9 @@ export interface DestinationMeta {
   categoryFilters: { id: string; label: string; iconName: string }[];
   guide: DestinationGuide;
   destinationType?: 'regular' | 'temple';
+  seoMetaTitle?: string;
+  seoMetaDescription?: string;
+  seoKeywords?: string;
 }
 
 export const DESTINATIONS_REGISTRY: Record<string, DestinationMeta> = {

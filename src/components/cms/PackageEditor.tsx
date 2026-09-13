@@ -49,6 +49,7 @@ import {
   Clock,
 } from 'lucide-react';
 import { UniversalImageUploader } from './UniversalImageUploader';
+import { CMSSEOEditor } from './CMSSEOEditor';
 
 interface PackageEditorProps {
   initialPackage?: TourPackage | null;
@@ -199,8 +200,9 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
   const [newBatchStatusInput, setNewBatchStatusInput] = useState<GroupTourBatch['status']>('Guaranteed Departure');
   
   // SEO states
-  const [seoTitle, setSeoTitle] = useState(initialPackage?.seoTitle || '');
-  const [metaDescription, setMetaDescription] = useState(initialPackage?.metaDescription || '');
+  const [seoTitle, setSeoTitle] = useState(initialPackage?.seoTitle || initialPackage?.seoMetaTitle || '');
+  const [metaDescription, setMetaDescription] = useState(initialPackage?.metaDescription || initialPackage?.seoMetaDescription || '');
+  const [seoKeywords, setSeoKeywords] = useState(initialPackage?.seoKeywords || '');
   const [isGeneratingSeo, setIsGeneratingSeo] = useState(false);
 
   // Gallery
@@ -455,7 +457,10 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
       status,
       featured,
       seoTitle: seoTitle.trim(),
+      seoMetaTitle: seoTitle.trim(),
       metaDescription: metaDescription.trim(),
+      seoMetaDescription: metaDescription.trim(),
+      seoKeywords: seoKeywords.trim(),
     };
 
     if (initialPackage?.id) {
@@ -2201,68 +2206,27 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
 
         {/* TAB 7: SEO & AI */}
         {activeTab === 'seo' && (
-          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-2xs space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100 mb-6">
-              <div>
-                <h3 className="text-base font-black text-slate-900 flex items-center gap-2">
-                  <Search className="w-4 h-4 text-brand" />
-                  SEO & Meta Configuration
-                </h3>
-                <p className="text-xs text-slate-500">
-                  Optimize your package for search engines. Use AI to auto-generate based on your basic details.
-                </p>
-              </div>
-
-              <button
-                type="button"
-                onClick={handleGenerateSeo}
-                disabled={isGeneratingSeo}
-                className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition flex items-center gap-1.5 shadow-xs cursor-pointer disabled:opacity-50"
-              >
-                {isGeneratingSeo ? (
-                  <span className="flex items-center gap-1.5">
-                    <span className="animate-spin rounded-full h-3.5 w-3.5 border-b-2 border-white"></span>
-                    Generating...
-                  </span>
-                ) : (
-                  <span className="flex items-center gap-1.5">
-                    <Bot className="w-4 h-4 text-brand-light" />
-                    Auto-Generate with AI
-                  </span>
-                )}
-              </button>
-            </div>
-
-            <div className="space-y-4">
-              <div>
-                <label className="text-xs font-bold text-slate-700 block mb-1">
-                  SEO Title
-                </label>
-                <input
-                  type="text"
-                  value={seoTitle}
-                  onChange={(e) => setSeoTitle(e.target.value)}
-                  placeholder="e.g. Best Kashmir Tour Package | Choudhary Vacations"
-                  className="w-full text-sm font-semibold bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 focus:bg-white focus:border-brand focus:outline-hidden transition"
-                />
-                <p className="text-[10px] text-slate-500 mt-1">Recommended length: 50-60 characters</p>
-              </div>
-
-              <div>
-                <label className="text-xs font-bold text-slate-700 block mb-1">
-                  Meta Description
-                </label>
-                <textarea
-                  rows={4}
-                  value={metaDescription}
-                  onChange={(e) => setMetaDescription(e.target.value)}
-                  placeholder="e.g. Book the ultimate 5-day Kashmir tour package with houseboat stay..."
-                  className="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 focus:bg-white focus:border-brand focus:outline-hidden transition"
-                />
-                <p className="text-[10px] text-slate-500 mt-1">Recommended length: 150-160 characters</p>
-              </div>
-            </div>
-          </div>
+          <CMSSEOEditor
+            type="package"
+            itemName={title}
+            extraData={{
+              city: location,
+              price: price,
+            }}
+            seoMetaTitle={seoTitle}
+            seoMetaDescription={metaDescription}
+            seoKeywords={seoKeywords}
+            onChange={(field, val) => {
+              if (field === 'seoMetaTitle') setSeoTitle(val);
+              if (field === 'seoMetaDescription') setMetaDescription(val);
+              if (field === 'seoKeywords') setSeoKeywords(val);
+            }}
+            onApplyAll={(data) => {
+              setSeoTitle(data.seoMetaTitle);
+              setMetaDescription(data.seoMetaDescription);
+              setSeoKeywords(data.seoKeywords);
+            }}
+          />
         )}
 
         {/* TAB 8: GROUP TOUR & FIXED DEPARTURE BATCHES */}

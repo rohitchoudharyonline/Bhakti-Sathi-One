@@ -26,6 +26,9 @@ export interface TemplePlace {
   featured?: boolean;
   order?: number;
   destinationSlug?: string;
+  seoMetaTitle?: string;
+  seoMetaDescription?: string;
+  seoKeywords?: string;
 }
 
 export const DEFAULT_TEMPLES_DATA: TemplePlace[] = [
@@ -46,7 +49,54 @@ export const DEFAULT_TEMPLES_DATA: TemplePlace[] = [
     bestTimeToVisit: 'March to November & Navratri Festivals',
     featured: true,
     order: 1,
-    destinationSlug: 'jammu',
+    destinationSlug: 'jammu-kashmir',
+    seoMetaTitle: 'Mata Vaishno Devi Katra Yatra Guide | Bhakti Sathi',
+    seoMetaDescription: 'Complete travel guide for Mata Vaishno Devi Yatra in Katra. Darshan timings, helicopter booking info & tour packages with Bhakti Sathi.',
+    seoKeywords: 'Vaishno Devi yatra, Katra packages, Vaishno Devi helicopter, Bhakti Sathi',
+  },
+  {
+    id: 'shankaracharya-srinagar',
+    slug: 'shankaracharya-srinagar',
+    name: 'Shankaracharya Temple Srinagar',
+    hindiName: 'श्री शंकराचार्य मन्दिर श्रीनगर',
+    deity: 'Lord Shiva (Jyesthesvara)',
+    category: 'Ancient Dham',
+    city: 'Srinagar',
+    state: 'Jammu & Kashmir',
+    image: 'https://images.unsplash.com/photo-1598091383021-15ddea10925d?auto=format&fit=crop&w=1000&q=80',
+    tagline: 'Ancient Hilltop Shiva Sanctum Overlooking Dal Lake',
+    description: 'Perched on top of Shankaracharya Hill at 1,100 feet above Srinagar, visited by Adi Shankaracharya in the 9th century and dedicated to Lord Shiva.',
+    darshanTimings: '8:00 AM - 8:00 PM (Car access till stairs up to 5:00 PM)',
+    dressCode: 'Modest Clothing (Security check active at base)',
+    bestTimeToVisit: 'May to October & Maha Shivratri',
+    featured: true,
+    order: 2,
+    destinationSlug: 'jammu-kashmir',
+    seoMetaTitle: 'Shankaracharya Temple Srinagar Guide | Bhakti Sathi',
+    seoMetaDescription: 'Visit Shankaracharya Temple overlooking Dal Lake in Srinagar. Check darshan timings, history, & Kashmir tour packages with Bhakti Sathi.',
+    seoKeywords: 'Shankaracharya Temple, Srinagar temples, Kashmir tour packages, Bhakti Sathi',
+  },
+  {
+    id: 'kheer-bhawani',
+    slug: 'kheer-bhawani',
+    name: 'Maa Kheer Bhawani Temple (Tulmula)',
+    hindiName: 'माँ खीर भवानी मन्दिर तुलमुला',
+    deity: 'Maa Ragnya Devi (Maharagni Bhagavati)',
+    category: 'Shaktipeeth',
+    city: 'Tulmula (Ganderbal)',
+    state: 'Jammu & Kashmir',
+    image: 'https://images.unsplash.com/photo-1621252179027-94459d278660?auto=format&fit=crop&w=1000&q=80',
+    tagline: 'Miraculous Spring Shrine of Goddess Maharagni Bhagavati',
+    description: 'Revered spring shrine where the color of the holy water turns dynamically, predicting future events for the valley. Devotees offer rice pudding (kheer) to the Mother.',
+    darshanTimings: '6:00 AM - 7:00 PM',
+    dressCode: 'Traditional Indian Devotional Attire',
+    bestTimeToVisit: 'May to October (Annual Jyestha Ashtami Mela)',
+    featured: true,
+    order: 3,
+    destinationSlug: 'jammu-kashmir',
+    seoMetaTitle: 'Kheer Bhawani Temple Tulmula Yatra | Bhakti Sathi',
+    seoMetaDescription: 'Sacred Maharagni Devi Kheer Bhawani spring shrine in Ganderbal, Kashmir. Complete yatra guide & tour packages with Bhakti Sathi.',
+    seoKeywords: 'Kheer Bhawani, Maharagni Devi, Kashmir temples, Bhakti Sathi',
   },
   {
     id: 'shiv-khori',
@@ -64,8 +114,11 @@ export const DEFAULT_TEMPLES_DATA: TemplePlace[] = [
     dressCode: 'Comfortable Devotional Clothes suitable for cave walking',
     bestTimeToVisit: 'Year Round (Special during Maha Shivratri)',
     featured: true,
-    order: 2,
-    destinationSlug: 'jammu',
+    order: 4,
+    destinationSlug: 'jammu-kashmir',
+    seoMetaTitle: 'Shiv Khori Holy Cave Yatra Guide | Bhakti Sathi',
+    seoMetaDescription: 'Explore Shiv Khori limestone cave near Katra. Check trek details, darshan timings & tour packages with Bhakti Sathi.',
+    seoKeywords: 'Shiv Khori, Ransoo cave, Shiv Khori Katra, Bhakti Sathi',
   },
   {
     id: 'amarnath-cave',
@@ -83,8 +136,11 @@ export const DEFAULT_TEMPLES_DATA: TemplePlace[] = [
     dressCode: 'Heavy Woollen Clothes, Trekking Boots, Raincoat',
     bestTimeToVisit: 'July to August (Shravan Yatra Season)',
     featured: true,
-    order: 3,
-    destinationSlug: 'kashmir',
+    order: 5,
+    destinationSlug: 'jammu-kashmir',
+    seoMetaTitle: 'Amarnath Yatra 2026 Registration & Packages | Bhakti Sathi',
+    seoMetaDescription: 'Book official Amarnath Yatra packages via Pahalgam & Baltal. Helicopter booking & medical guide with Bhakti Sathi.',
+    seoKeywords: 'Amarnath Yatra, Baba Barfani, Amarnath helicopter, Bhakti Sathi',
   },
   {
     id: 'kedarnath',

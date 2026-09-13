@@ -197,6 +197,9 @@ export interface TourPackage {
   featured: boolean;
   createdAt?: string;
   seoTitle?: string;
+  seoMetaTitle?: string;
+  seoMetaDescription?: string;
+  seoKeywords?: string;
   metaDescription?: string;
   templeIds?: string[];
   temples?: string[];
@@ -231,6 +234,9 @@ export interface TemplePlace {
   featured?: boolean;
   order?: number;
   destinationSlug?: string;
+  seoMetaTitle?: string;
+  seoMetaDescription?: string;
+  seoKeywords?: string;
 }
 
 export type StaffRole =

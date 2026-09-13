@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { updateDocumentSEO } from '../../utils/seoHelper';
 import { TourPackage, MealType } from '../../types/tour';
 import { useTours } from '../../context/TourContext';
 import { PDFBrochureModal } from './PDFBrochureModal';
@@ -60,6 +61,15 @@ export const PackageDetailsView: React.FC<PackageDetailsViewProps> = ({ pkg, onB
   );
   const [hotelPref, setHotelPref] = useState('4-Star Luxury & VIP Bhawan Stays');
   const [copiedLink, setCopiedLink] = useState(false);
+
+  useEffect(() => {
+    if (pkg) {
+      const title = pkg.seoMetaTitle || pkg.seoTitle || `${pkg.title} | Bhakti Sathi`;
+      const description = pkg.seoMetaDescription || pkg.metaDescription || `Book ${pkg.title} (${pkg.durationDays}D/${pkg.durationNights}N). Includes hotels, transfers & guide with Bhakti Sathi.`;
+      const keywords = pkg.seoKeywords || `${pkg.title}, tour package, yatra, Bhakti Sathi`;
+      updateDocumentSEO(title, description, keywords);
+    }
+  }, [pkg]);
 
   // 4-Pic Interactive Gallery (1 Main + 3 Thumbnails below)
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);

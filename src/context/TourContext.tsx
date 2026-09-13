@@ -513,23 +513,24 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
           const merged: Record<string, DestinationMeta> = { ...DESTINATIONS_REGISTRY };
           Object.keys(parsed).forEach((slug) => {
             if (parsed[slug]) {
-              const defaultDest = DESTINATIONS_REGISTRY[slug] || {};
+              const defaultDest: any = DESTINATIONS_REGISTRY[slug] || {};
+              const item: any = parsed[slug];
               merged[slug] = {
                 ...defaultDest,
-                ...parsed[slug],
-                name: parsed[slug].name || defaultDest.name,
-                displayName: parsed[slug].displayName || defaultDest.displayName || parsed[slug].name,
-                tagline: parsed[slug].tagline || defaultDest.tagline,
-                heroImage: parsed[slug].heroImage || defaultDest.heroImage,
-                destinationType: parsed[slug].destinationType || defaultDest.destinationType || 'regular',
+                ...item,
+                name: item.name || defaultDest.name,
+                displayName: item.displayName || defaultDest.displayName || item.name,
+                tagline: item.tagline || defaultDest.tagline,
+                heroImage: item.heroImage || defaultDest.heroImage,
+                destinationType: item.destinationType || defaultDest.destinationType || 'regular',
                 guide: {
                   ...(defaultDest.guide || {}),
-                  ...(parsed[slug].guide || {}),
-                  topAttractions: parsed[slug].guide?.topAttractions || defaultDest.guide?.topAttractions || [],
-                  faqs: parsed[slug].guide?.faqs || defaultDest.guide?.faqs || [],
+                  ...(item.guide || {}),
+                  topAttractions: item.guide?.topAttractions || defaultDest.guide?.topAttractions || [],
+                  faqs: item.guide?.faqs || defaultDest.guide?.faqs || [],
                 },
-                keyHighlights: parsed[slug].keyHighlights || defaultDest.keyHighlights || [],
-                startingPrice: parsed[slug].startingPrice || defaultDest.startingPrice || 6499,
+                keyHighlights: item.keyHighlights || defaultDest.keyHighlights || [],
+                startingPrice: item.startingPrice || defaultDest.startingPrice || 6499,
               };
             }
           });
@@ -547,6 +548,12 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (saved !== null) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed)) {
+          // Merge missing defaults so new default shrines from code are never lost
+          const existingIds = new Set(parsed.map((t: TemplePlace) => t.id || t.slug));
+          const missingDefaults = DEFAULT_TEMPLES_DATA.filter((dt) => !existingIds.has(dt.id) && !existingIds.has(dt.slug));
+          if (missingDefaults.length > 0) {
+            return [...parsed, ...missingDefaults];
+          }
           return parsed;
         }
       }

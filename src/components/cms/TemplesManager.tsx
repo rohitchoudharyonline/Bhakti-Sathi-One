@@ -5,6 +5,7 @@ import { DestinationMeta } from '../../data/destinationsData';
 import { resolveDisplayImage, handleImageError } from '../../utils/imageResolver';
 import { UniversalImageUploader } from './UniversalImageUploader';
 import { MediaR2StorageManager } from './MediaR2StorageManager';
+import { CMSSEOEditor } from './CMSSEOEditor';
 import {
   Landmark,
   Plus,
@@ -737,6 +738,27 @@ export const TemplesManager: React.FC = () => {
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 placeholder="Describe the holy shrine, mythology, sacred vibrations, and pilgrimage rituals..."
                 className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-medium text-stone-900 focus:bg-white focus:outline-none focus:border-[#FF4B00]"
+              />
+            </div>
+
+            {/* SEO Settings & Auto SEO Generator */}
+            <div className="pt-2 border-t border-stone-100">
+              <h4 className="text-xs font-extrabold uppercase text-stone-400 tracking-wider mb-3">
+                SEO & Search Engine Optimization
+              </h4>
+              <CMSSEOEditor
+                type="temple"
+                itemName={formData.name}
+                extraData={{
+                  city: formData.city,
+                  state: formData.state,
+                  tagline: formData.tagline,
+                }}
+                seoMetaTitle={formData.seoMetaTitle}
+                seoMetaDescription={formData.seoMetaDescription}
+                seoKeywords={formData.seoKeywords}
+                onChange={(field, val) => setFormData({ ...formData, [field]: val })}
+                onApplyAll={(data) => setFormData({ ...formData, ...data })}
               />
             </div>
           </div>

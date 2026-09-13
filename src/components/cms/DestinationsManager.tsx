@@ -5,6 +5,7 @@ import { generateTouristDestinationSchema } from '../../utils/seoEngine';
 import { resolveDisplayImage, handleImageError } from '../../utils/imageResolver';
 import { MediaR2StorageManager } from './MediaR2StorageManager';
 import { UniversalImageUploader } from './UniversalImageUploader';
+import { CMSSEOEditor } from './CMSSEOEditor';
 import {
   MapPin,
   Plus,
@@ -40,7 +41,7 @@ export const DestinationsManager: React.FC = () => {
   const [editingDest, setEditingDest] = useState<DestinationMeta | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [showMediaModal, setShowMediaModal] = useState(false);
-  const [editorSubTab, setEditorSubTab] = useState<'basic' | 'guide' | 'attractions' | 'faqs' | 'schema'>('basic');
+  const [editorSubTab, setEditorSubTab] = useState<'basic' | 'guide' | 'attractions' | 'faqs' | 'seo' | 'schema'>('basic');
 
   // Form State
   const [formData, setFormData] = useState<DestinationMeta>({
@@ -365,6 +366,14 @@ export const DestinationsManager: React.FC = () => {
               }`}
             >
               Destination FAQs ({formData.guide?.faqs?.length || 0})
+            </button>
+            <button
+              onClick={() => setEditorSubTab('seo')}
+              className={`px-4 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
+                editorSubTab === 'seo' ? 'bg-black text-white' : 'bg-stone-100 text-stone-700'
+              }`}
+            >
+              SEO Meta Tags
             </button>
             <button
               onClick={() => setEditorSubTab('schema')}
@@ -762,6 +771,23 @@ export const DestinationsManager: React.FC = () => {
                 ))}
               </div>
             </div>
+          )}
+
+          {/* SUB-TAB: SEO META TAGS */}
+          {editorSubTab === 'seo' && (
+            <CMSSEOEditor
+              type="destination"
+              itemName={formData.name}
+              extraData={{
+                state: formData.state,
+                tagline: formData.tagline,
+              }}
+              seoMetaTitle={formData.seoMetaTitle}
+              seoMetaDescription={formData.seoMetaDescription}
+              seoKeywords={formData.seoKeywords}
+              onChange={(field, val) => setFormData({ ...formData, [field]: val })}
+              onApplyAll={(data) => setFormData({ ...formData, ...data })}
+            />
           )}
 
           {/* SUB-TAB 5: SCHEMA */}

@@ -1,4 +1,5 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { updateDocumentSEO } from '../../utils/seoHelper';
 import {
   ArrowLeft,
   Calendar,
@@ -46,6 +47,7 @@ export const DestinationPage: React.FC = () => {
     selectedDestinationSlug,
     navigateToHome,
     navigateToPackage,
+    navigateToTemple,
     packages,
     destinations,
     temples,
@@ -64,18 +66,32 @@ export const DestinationPage: React.FC = () => {
     (Object.values(destinations || {}) as DestinationMeta[])[0] ||
     DESTINATIONS_REGISTRY['kashmir'];
 
+  useEffect(() => {
+    if (destinationMeta) {
+      const title = destinationMeta.seoMetaTitle || `${destinationMeta.name} Tour Packages & Yatra Guide | Bhakti Sathi`;
+      const description = destinationMeta.seoMetaDescription || `Book ${destinationMeta.name} tour packages with Bhakti Sathi. Verified hotels, private vehicle transfers & 24/7 yatra support.`;
+      const keywords = destinationMeta.seoKeywords || `${destinationMeta.name} tour packages, ${destinationMeta.name} yatra, Bhakti Sathi`;
+      updateDocumentSEO(title, description, keywords);
+    }
+  }, [destinationMeta]);
+
   const destinationTemples = useMemo(() => {
-    return (temples || []).filter(t => {
-      if (!t.destinationSlug) return false;
-      const tSlug = t.destinationSlug.toLowerCase();
-      const dSlug = currentSlug.toLowerCase();
-      const metaId = (destinationMeta?.id || '').toLowerCase();
-      return tSlug === dSlug || tSlug === metaId || dSlug.includes(tSlug) || metaId.includes(tSlug);
+    if (!temples) return [];
+    return temples.filter((t) => {
+      if (t.destinationSlug) {
+        const tSlug = t.destinationSlug.toLowerCase();
+        const dSlug = currentSlug.toLowerCase();
+        const metaId = (destinationMeta?.id || '').toLowerCase();
+        if (tSlug === dSlug || tSlug === metaId || dSlug.includes(tSlug) || metaId.includes(tSlug)) return true;
+      }
+      const stateMatch = t.state && destinationMeta?.state && t.state.toLowerCase() === destinationMeta.state.toLowerCase();
+      const cityMatch = destinationMeta?.name && (t.city.toLowerCase().includes(destinationMeta.name.toLowerCase()) || destinationMeta.name.toLowerCase().includes(t.city.toLowerCase()));
+      return stateMatch || cityMatch;
     });
   }, [temples, currentSlug, destinationMeta]);
 
   // Active view: Packages or Destination Guide
-  const [activeTab, setActiveTab] = useState<'packages' | 'guide' | 'temples'>('packages');
+  const [activeTab, setActiveTab] = useState<'packages' | 'guide'>('packages');
 
   // Filters
   const [selectedDuration, setSelectedDuration] = useState<'all' | 'short' | 'medium' | 'long'>('all');
@@ -285,18 +301,6 @@ export const DestinationPage: React.FC = () => {
               Travel Guide & FAQs
               {activeTab === 'guide' && <span className="absolute bottom-0 inset-x-0 h-0.5 bg-[#FF4B00]" />}
             </button>
-            {destinationTemples.length > 0 && (
-              <button
-                type="button"
-                onClick={() => setActiveTab('temples')}
-                className={`pb-2.5 text-xs sm:text-sm font-black transition relative cursor-pointer whitespace-nowrap ${
-                  activeTab === 'temples' ? 'text-[#FF4B00]' : 'text-stone-500 hover:text-stone-800'
-                }`}
-              >
-                Sacred Temples ({destinationTemples.length})
-                {activeTab === 'temples' && <span className="absolute bottom-0 inset-x-0 h-0.5 bg-[#FF4B00]" />}
-              </button>
-            )}
           </div>
         </div>
       </section>
@@ -620,6 +624,96 @@ export const DestinationPage: React.FC = () => {
               </div>
             </div>
 
+            {/* Sacred Shrines & Temples in Destination */}
+            {destinationTemples.length > 0 && (
+              <div className="bg-white rounded-2xl border border-stone-200 p-5 sm:p-6 shadow-2xs space-y-4">
+                <div className="flex items-center justify-between gap-3 pb-3 border-b border-stone-100">
+                  <div>
+                    <h3 className="text-base sm:text-lg font-black text-stone-900 tracking-tight flex items-center gap-2">
+                      <Landmark className="w-5 h-5 text-[#FF4B00]" />
+                      <span>Sacred Shrines & Holy Temples in {destinationMeta.name}</span>
+                    </h3>
+                    <p className="text-xs text-stone-500 font-medium mt-0.5">
+                      {destinationTemples.length} revered pilgrimage sites & holy shrines in this region
+                    </p>
+                  </div>
+                  <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-50 text-[#FF4B00] border border-orange-200 text-xs font-bold">
+                    <span>Revered Shrines</span>
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {destinationTemples.map((temple) => (
+                    <div
+                      key={temple.id}
+                      className="group rounded-2xl border border-stone-200/90 hover:border-orange-300 bg-stone-50/60 hover:bg-white overflow-hidden transition-all shadow-2xs hover:shadow-md flex flex-col justify-between"
+                    >
+                      <div>
+                        {temple.image && (
+                          <div className="aspect-[16/9] relative bg-stone-100 overflow-hidden">
+                            <img
+                              src={resolveDisplayImage(temple.image, mediaAssets)}
+                              alt={temple.name}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                              loading="lazy"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-stone-950/80 via-transparent to-transparent" />
+                            <div className="absolute bottom-2.5 left-3 right-3 flex items-end justify-between">
+                              <div>
+                                <span className="text-[10px] font-bold text-amber-300 uppercase tracking-wider block">
+                                  {temple.city}, {temple.state}
+                                </span>
+                                <h4 className="text-sm font-black text-white leading-tight drop-shadow-sm">
+                                  {temple.name}
+                                </h4>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        <div className="p-3.5 space-y-2">
+                          {!temple.image && (
+                            <div>
+                              <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block">
+                                {temple.city}, {temple.state}
+                              </span>
+                              <h4 className="text-sm font-black text-stone-900 group-hover:text-[#FF4B00] transition">
+                                {temple.name}
+                              </h4>
+                            </div>
+                          )}
+
+                          {temple.deity && (
+                            <div className="inline-flex items-center gap-1.5 text-[11px] font-bold text-stone-700 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200/80">
+                              <Sparkles className="w-3 h-3 text-amber-600" />
+                              <span>Presiding Deity: {temple.deity}</span>
+                            </div>
+                          )}
+
+                          {temple.tagline && (
+                            <p className="text-xs text-stone-600 font-medium leading-relaxed line-clamp-2">
+                              {temple.tagline}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="p-3.5 pt-0">
+                        <button
+                          type="button"
+                          onClick={() => navigateToTemple(temple.id)}
+                          className="w-full py-2 px-3 rounded-xl bg-stone-900 hover:bg-[#FF4B00] text-white text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
+                        >
+                          <span>Explore Packages for this Shrine</span>
+                          <ChevronRight className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Top Attractions (Photo-free information-rich cards) */}
             <div className="bg-white rounded-2xl border border-stone-200 p-5 sm:p-6 shadow-2xs">
               <div className="flex items-center justify-between gap-3 mb-4 pb-3 border-b border-stone-100">
@@ -751,36 +845,6 @@ export const DestinationPage: React.FC = () => {
                 ))}
               </div>
             </div>
-          </div>
-        ) : activeTab === 'temples' ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {destinationTemples.map((temple) => (
-              <div key={temple.id} className="bg-white rounded-2xl border border-stone-200 overflow-hidden shadow-2xs group flex flex-col h-full cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-                <div className="aspect-[4/3] relative overflow-hidden bg-stone-100">
-                  <img
-                    src={resolveDisplayImage(temple.image, mediaAssets)}
-                    alt={temple.name}
-                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
-                    loading="lazy"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/20 to-transparent pointer-events-none opacity-80" />
-                  <div className="absolute top-3 left-3 bg-white/90 backdrop-blur text-stone-900 text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full flex items-center gap-1.5 shadow-sm">
-                    <MapPin className="w-3 h-3 text-[#FF4B00]" />
-                    {temple.city}
-                  </div>
-                  <div className="absolute bottom-4 left-4 right-4">
-                    <h3 className="text-white text-lg font-black leading-tight group-hover:text-amber-200 transition-colors drop-shadow-md">
-                      {temple.name}
-                    </h3>
-                    {temple.tagline && (
-                      <p className="text-stone-200 text-xs font-medium mt-1 line-clamp-1 drop-shadow">
-                        {temple.tagline}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))}
           </div>
         ) : null}
       </main>
