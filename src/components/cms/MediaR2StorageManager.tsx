@@ -851,7 +851,7 @@ export const MediaR2StorageManager: React.FC<MediaR2StorageManagerProps> = ({
                         d1ApiToken: e.target.value,
                       })
                     }
-                    placeholder="d1_token_bhaktisathi_prod_882"
+                    placeholder="Enter Cloudflare API token..."
                     className="w-full p-2 bg-white border border-stone-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-black font-mono"
                   />
                 </div>

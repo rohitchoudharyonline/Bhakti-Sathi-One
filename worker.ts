@@ -99,7 +99,27 @@ export default {
     const cmsEmails = new Set([...defaultEmails, ...String(env.CMS_STAFF_EMAILS || '').split(',').map(text).map((x) => x.toLowerCase()).filter(Boolean)]);
     const cmsPassword = String(env.CMS_PASSWORD || 'HarHarMahadev@2026').trim();
     const cmsPin = String(env.CMS_PIN || '071224').trim();
-    const cmsToken = async () => verifyToken(cookies(request).bs_cms_session, cmsSecret);
+
+    const cmsToken = async () => {
+      let tok = cookies(request).bs_cms_session;
+      if (!tok && request.headers.get('x-cms-token')) tok = request.headers.get('x-cms-token')!.trim();
+      if (!tok && request.headers.get('authorization')?.startsWith('Bearer ')) {
+        const rawAuth = request.headers.get('authorization')!.slice(7).trim();
+        if (!rawAuth.startsWith('pin_')) tok = rawAuth;
+      }
+      return verifyToken(tok, cmsSecret);
+    };
+
+    const pinTokenCheck = async () => {
+      let tok = cookies(request).bs_cms_pin;
+      if (!tok && request.headers.get('x-pin-token')) tok = request.headers.get('x-pin-token')!.trim();
+      if (!tok && request.headers.get('authorization')?.startsWith('Bearer ')) {
+        const rawAuth = request.headers.get('authorization')!.slice(7).trim();
+        if (rawAuth.startsWith('pin_') || (await verifyToken(rawAuth, cmsSecret)) === 'pin') tok = rawAuth;
+      }
+      return tok ? (await verifyToken(tok, cmsSecret)) === 'pin' : false;
+    };
+
     const requireCms = async () => { const e = await cmsToken(); return e && cmsEmails.has(e.toLowerCase()) ? e.toLowerCase() : null; };
     const requireUser = async () => verifyToken(cookies(request).bs_user_session, cmsSecret);
 
@@ -113,18 +133,19 @@ export default {
           const t = await signedToken('pin', cmsSecret, 86400);
           const h = new Headers(privateHeaders(env, request));
           h.append('Set-Cookie', cookie('bs_cms_pin', t, 86400, request));
-          return json({ success: true, verified: true }, 200, h);
+          return json({ success: true, verified: true, token: t, pinToken: t }, 200, h);
         }
         if (pathname === '/api/admin/pin/session') {
-          const ok = !!(await verifyToken(cookies(request).bs_cms_pin, cmsSecret));
-          return json({ verified: ok, success: ok }, ok ? 200 : 401, privateHeaders(env, request));
+          const ok = await pinTokenCheck();
+          const t = ok ? await signedToken('pin', cmsSecret, 86400) : null;
+          return json({ verified: ok, success: ok, token: t, pinToken: t }, ok ? 200 : 401, privateHeaders(env, request));
         }
         if (pathname === '/api/auth/cms/login' && request.method === 'POST') {
           const b = await request.json().catch(() => ({}));
           const email = text(b.email, 160).toLowerCase();
           const password = String(b.password || '').trim();
           const suppliedPin = String(b.pin || '').trim();
-          const pinCookieOk = !!(await verifyToken(cookies(request).bs_cms_pin, cmsSecret));
+          const pinCookieOk = await pinTokenCheck();
           const pinOk = (suppliedPin && suppliedPin === cmsPin) || pinCookieOk;
 
           if (!pinOk) {
@@ -138,15 +159,20 @@ export default {
           const h = new Headers(privateHeaders(env, request));
           h.append('Set-Cookie', cookie('bs_cms_session', t, 7 * 24 * 60 * 60, request));
           h.append('Set-Cookie', cookie('bs_cms_pin', pinTok, 86400, request));
-          return json({ success: true, authorized: true, authenticated: true, user: { email, role: 'super_admin' } }, 200, h);
+          return json({ success: true, authorized: true, authenticated: true, token: t, pinToken: pinTok, user: { email, role: 'super_admin' } }, 200, h);
         }
         if (pathname === '/api/auth/cms/session' || pathname === '/api/auth/cms') {
           const email = await requireCms();
-          return json(
-            email ? { success: true, authorized: true, authenticated: true, user: { email, role: 'super_admin' } } : { authorized: false, authenticated: false },
-            email ? 200 : 401,
-            privateHeaders(env, request)
-          );
+          if (email) {
+            const t = await signedToken(email, cmsSecret, 7 * 24 * 60 * 60);
+            const pinTok = await signedToken('pin', cmsSecret, 86400);
+            return json(
+              { success: true, authorized: true, authenticated: true, token: t, pinToken: pinTok, user: { email, role: 'super_admin' } },
+              200,
+              privateHeaders(env, request)
+            );
+          }
+          return json({ authorized: false, authenticated: false }, 401, privateHeaders(env, request));
         }
         if ((pathname === '/api/admin/logout' || pathname === '/api/auth/cms/logout') && request.method === 'POST') {
           const h = new Headers(privateHeaders(env, request));
@@ -187,9 +213,138 @@ export default {
           if(request.method==='POST'){const b=await request.json().catch(()=>({})); const id=`bkg-${crypto.randomUUID()}`,now=new Date().toISOString(),trav=Math.min(50,Math.max(1,Number(b.travelersCount)||1)),price=Math.max(0,Number(b.totalPrice)||0); await env.DB.prepare('INSERT INTO bookings (id,user_email,package_id,package_title,travelers_count,total_price,status,details,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?)').bind(id,email,text(b.packageId,100),text(b.packageTitle,300),trav,price,'pending',JSON.stringify(b.details||{}),now,now).run(); return json({success:true,id},201,privateHeaders(env,request));}
         }
 
+        if (pathname === '/api/destinations' || pathname.startsWith('/api/destinations/')) {
+          const parts = pathname.replace('/api/destinations', '').replace(/^\/+/, '').split('/');
+          const targetSlug = text(parts[0], 200);
+
+          if (request.method === 'GET' && env.DB) {
+            const q = await env.DB.prepare('SELECT structured_content FROM contents WHERE id=?').bind('registry-destinations').first();
+            let map: Record<string, any> = {};
+            if (q && q.structured_content) {
+              try {
+                const parsed = JSON.parse(q.structured_content as string);
+                map = typeof parsed.value === 'string' ? JSON.parse(parsed.value) : (parsed.value || {});
+              } catch {}
+            }
+            if (targetSlug) {
+              const dest = map[targetSlug];
+              if (!dest) return json({ error: 'Destination not found' }, 404, publicHeaders(env, request));
+              return json({ success: true, data: dest }, 200, publicHeaders(env, request));
+            }
+            return json({ success: true, data: Object.values(map) }, 200, publicHeaders(env, request));
+          }
+
+          if (['POST', 'PUT', 'DELETE'].includes(request.method)) {
+            const e = await requireCms();
+            if (!e || !env.DB) return json({ error: 'Unauthorized.' }, 401, privateHeaders(env, request));
+
+            const q = await env.DB.prepare('SELECT structured_content FROM contents WHERE id=?').bind('registry-destinations').first();
+            let map: Record<string, any> = {};
+            if (q && q.structured_content) {
+              try {
+                const parsed = JSON.parse(q.structured_content as string);
+                map = typeof parsed.value === 'string' ? JSON.parse(parsed.value) : (parsed.value || {});
+              } catch {}
+            }
+
+            if (request.method === 'DELETE') {
+              if (targetSlug) delete map[targetSlug];
+            } else {
+              const b = await request.json().catch(() => ({}));
+              const slug = text(b.slug || targetSlug, 200).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+              if (!slug) return json({ error: 'Valid slug required.' }, 400, privateHeaders(env, request));
+              map[slug] = { ...map[slug], ...b, slug, id: slug, updated_at: new Date().toISOString() };
+            }
+
+            const now = new Date().toISOString();
+            const structuredContent = {
+              storageKey: 'hh_destinations_registry_v2',
+              value: JSON.stringify(map),
+              updatedAt: now,
+            };
+
+            await env.DB.prepare(
+              `INSERT INTO contents (id, content_type, title, slug, structured_content, status, created_at, updated_at)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+               ON CONFLICT(id) DO UPDATE SET structured_content=excluded.structured_content, updated_at=excluded.updated_at`
+            ).bind(
+              'registry-destinations',
+              'shared_local_state',
+              'Destinations Registry',
+              'hh_destinations_registry_v2',
+              JSON.stringify(structuredContent),
+              'published',
+              now,
+              now
+            ).run();
+
+            return json({ success: true, data: request.method === 'DELETE' ? null : map[targetSlug || Object.keys(map)[0]] }, 200, privateHeaders(env, request));
+          }
+        }
+
         if (pathname === '/api/contents' || pathname.startsWith('/api/contents/')) {
-          if(request.method==='GET'&&env.DB){const parts=pathname.replace('/api/contents','').replace(/^\/+/,'').split('/');let rows:any[]=[];if(!parts[0]){const type=text(url.searchParams.get('type'),80);const q=type?await env.DB.prepare('SELECT id,content_type,title,slug,subtitle,summary,body,structured_content,seo_title,seo_description,seo_keywords,status,media,created_at,updated_at FROM contents WHERE status=? AND content_type=? ORDER BY updated_at DESC LIMIT 200').bind('published',type).all():await env.DB.prepare('SELECT id,content_type,title,slug,subtitle,summary,body,structured_content,seo_title,seo_description,seo_keywords,status,media,created_at,updated_at FROM contents WHERE status=? ORDER BY updated_at DESC LIMIT 200').bind('published').all();rows=q.results||[];}else{const key=text(parts[1]||parts[0],300);const q=parts[0]==='slug'?await env.DB.prepare('SELECT id,content_type,title,slug,subtitle,summary,body,structured_content,seo_title,seo_description,seo_keywords,status,media,created_at,updated_at FROM contents WHERE slug=? AND status=?').bind(key,'published').all():await env.DB.prepare('SELECT id,content_type,title,slug,subtitle,summary,body,structured_content,seo_title,seo_description,seo_keywords,status,media,created_at,updated_at FROM contents WHERE id=? AND status=?').bind(key,'published').all();rows=q.results||[];if(!rows.length)return json({error:'Content not found'},404,publicCacheHeaders(env,request));}for(const r of rows){try{r.structured_content=r.structured_content?JSON.parse(r.structured_content):null;}catch{r.structured_content=null;}}return json({success:true,data:parts[0]?rows[0]:rows},200,publicCacheHeaders(env,request));}
-          if(['POST','PUT','DELETE'].includes(request.method)){const e=await requireCms();if(!e||!env.DB)return json({error:'Unauthorized.'},401,privateHeaders(env,request));if(request.method==='DELETE'){const id=text(pathname.split('/').pop(),100);await env.DB.prepare('DELETE FROM contents WHERE id=?').bind(id).run();return json({success:true},200,privateHeaders(env,request));}const b=await request.json().catch(()=>({})),id=text(b.id||`content-${crypto.randomUUID()}`,100),title=text(b.title,300);if(!title)return json({error:'Title required.'},400,privateHeaders(env,request));const slug=text(b.slug||title.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,''),200),now=new Date().toISOString();await env.DB.prepare('INSERT INTO contents (id,content_type,title,slug,subtitle,summary,body,structured_content,seo_title,seo_description,seo_keywords,status,media,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET content_type=excluded.content_type,title=excluded.title,slug=excluded.slug,subtitle=excluded.subtitle,summary=excluded.summary,body=excluded.body,structured_content=excluded.structured_content,seo_title=excluded.seo_title,seo_description=excluded.seo_description,seo_keywords=excluded.seo_keywords,status=excluded.status,media=excluded.media,updated_at=excluded.updated_at').bind(id,text(b.content_type,80)||'tour',title,slug,text(b.subtitle,500),text(b.summary,3000),text(b.body,50000),typeof b.structured_content==='object'?JSON.stringify(b.structured_content):null,text(b.seo_title,200),text(b.seo_description,500),text(b.seo_keywords,500),['published','draft','archived'].includes(b.status)?b.status:'draft',typeof b.media==='object'?JSON.stringify(b.media):null,now,now).run();return json({success:true,id,slug},200,privateHeaders(env,request));}
+          if (request.method === 'GET' && env.DB) {
+            const parts = pathname.replace('/api/contents', '').replace(/^\/+/, '').split('/');
+            let rows: any[] = [];
+            const isSharedSync = url.searchParams.get('type') === 'shared_local_state' || url.searchParams.has('_nocache');
+
+            if (!parts[0]) {
+              const type = text(url.searchParams.get('type'), 80);
+              const q = type
+                ? await env.DB.prepare('SELECT id,content_type,title,slug,subtitle,summary,body,structured_content,seo_title,seo_description,seo_keywords,status,media,created_at,updated_at FROM contents WHERE status=? AND content_type=? ORDER BY updated_at DESC LIMIT 200').bind('published', type).all()
+                : await env.DB.prepare('SELECT id,content_type,title,slug,subtitle,summary,body,structured_content,seo_title,seo_description,seo_keywords,status,media,created_at,updated_at FROM contents WHERE status=? ORDER BY updated_at DESC LIMIT 200').bind('published').all();
+              rows = q.results || [];
+            } else {
+              const key = text(parts[1] || parts[0], 300);
+              const q = parts[0] === 'slug'
+                ? await env.DB.prepare('SELECT id,content_type,title,slug,subtitle,summary,body,structured_content,seo_title,seo_description,seo_keywords,status,media,created_at,updated_at FROM contents WHERE slug=? AND status=?').bind(key, 'published').all()
+                : await env.DB.prepare('SELECT id,content_type,title,slug,subtitle,summary,body,structured_content,seo_title,seo_description,seo_keywords,status,media,created_at,updated_at FROM contents WHERE id=? AND status=?').bind(key, 'published').all();
+              rows = q.results || [];
+              if (!rows.length) return json({ error: 'Content not found' }, 404, isSharedSync ? privateHeaders(env, request) : publicCacheHeaders(env, request));
+            }
+
+            for (const r of rows) {
+              try { r.structured_content = r.structured_content ? JSON.parse(r.structured_content) : null; } catch { r.structured_content = null; }
+            }
+            return json({ success: true, data: parts[0] ? rows[0] : rows }, 200, isSharedSync ? privateHeaders(env, request) : publicCacheHeaders(env, request));
+          }
+
+          if (['POST', 'PUT', 'DELETE'].includes(request.method)) {
+            const e = await requireCms();
+            if (!e || !env.DB) return json({ error: 'Unauthorized.' }, 401, privateHeaders(env, request));
+            if (request.method === 'DELETE') {
+              const id = text(pathname.split('/').pop(), 100);
+              await env.DB.prepare('DELETE FROM contents WHERE id=?').bind(id).run();
+              return json({ success: true }, 200, privateHeaders(env, request));
+            }
+            const b = await request.json().catch(() => ({}));
+            const id = text(b.id || `content-${crypto.randomUUID()}`, 100);
+            const title = text(b.title, 300);
+            if (!title) return json({ error: 'Title required.' }, 400, privateHeaders(env, request));
+            const slug = text(b.slug || title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''), 200);
+            const now = new Date().toISOString();
+
+            await env.DB.prepare(
+              'INSERT INTO contents (id,content_type,title,slug,subtitle,summary,body,structured_content,seo_title,seo_description,seo_keywords,status,media,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET content_type=excluded.content_type,title=excluded.title,slug=excluded.slug,subtitle=excluded.subtitle,summary=excluded.summary,body=excluded.body,structured_content=excluded.structured_content,seo_title=excluded.seo_title,seo_description=excluded.seo_description,seo_keywords=excluded.seo_keywords,status=excluded.status,media=excluded.media,updated_at=excluded.updated_at'
+            ).bind(
+              id,
+              text(b.content_type, 80) || 'tour',
+              title,
+              slug,
+              text(b.subtitle, 500),
+              text(b.summary, 3000),
+              text(b.body, 50000),
+              typeof b.structured_content === 'object' ? JSON.stringify(b.structured_content) : null,
+              text(b.seo_title, 200),
+              text(b.seo_description, 500),
+              text(b.seo_keywords, 500),
+              ['published', 'draft', 'archived'].includes(b.status) ? b.status : 'draft',
+              typeof b.media === 'object' ? JSON.stringify(b.media) : null,
+              now,
+              now
+            ).run();
+            return json({ success: true, id, slug }, 200, privateHeaders(env, request));
+          }
         }
 
         if(pathname.startsWith('/api/files/')&&request.method==='GET'){if(!env.BUCKET)return json({error:'Not found'},404,publicCacheHeaders(env,request));const key=decodeURIComponent(pathname.replace('/api/files/',''));if(!key||key.includes('..')||key.startsWith('/'))return json({error:'Invalid file key'},400,publicCacheHeaders(env,request));const object=await env.BUCKET.get(key);if(!object)return json({error:'File not found'},404,publicCacheHeaders(env,request));const h=new Headers(publicCacheHeaders(env,request));object.writeHttpMetadata(h);h.set('ETag',object.httpEtag);h.set('Cache-Control','public, max-age=31536000, immutable');return new Response(object.body,{headers:h});}

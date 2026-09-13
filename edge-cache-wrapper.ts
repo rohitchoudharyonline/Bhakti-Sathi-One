@@ -12,7 +12,7 @@ function isPublicCacheable(request: Request) {
   if (request.method !== 'GET') return false;
   if (!PUBLIC_API_PREFIXES.some((prefix) => url.pathname === prefix || url.pathname.startsWith(`${prefix}/`))) return false;
   // Never share-cache requests carrying authentication/session state.
-  if (request.headers.has('Authorization') || request.headers.has('Cookie')) return false;
+  if (request.headers.has('Authorization') || request.headers.has('Cookie') || request.headers.has('X-CMS-Token')) return false;
   // Never cache CMS synchronization registries or explicitly non-cached requests
   if (url.searchParams.get('type') === 'shared_local_state' || url.searchParams.has('_nocache') || url.searchParams.has('nocache')) return false;
   const cc = (request.headers.get('Cache-Control') || '').toLowerCase();

@@ -311,14 +311,14 @@ const STORAGE_KEYS = {
 };
 
 const DEFAULT_CLOUD_SETTINGS: CloudStorageSettings = {
-  r2AccountId: 'a9e18b43f76902cd98ef11',
+  r2AccountId: '',
   r2BucketName: 'bhakti-sathi',
-  r2AccessKeyId: 'r2_prod_key_77a9',
+  r2AccessKeyId: '',
   r2SecretAccessKey: '********************************',
   r2PublicDomain: 'https://pub-r2.mybhaktisathi.com',
   d1DatabaseId: '165b7b99-72e3-443e-aee9-8bf0f8c6c26b',
   d1DatabaseName: 'bhakti-sathi-db',
-  d1ApiToken: 'd1_token_bhaktisathi_prod_882',
+  d1ApiToken: '',
   d1BucketName: 'bhakti-sathi',
   autoCompressOnUpload: true,
   compressionQuality: 0.78,

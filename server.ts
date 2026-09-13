@@ -1698,8 +1698,8 @@ app.post(['/api/media/upload', '/api/upload'], requireCmsSession, async (req, re
 app.post('/api/media/delete', requireCmsSession, async (req, res) => {
   const { storagePath } = req.body;
 
-  const rawAccountId = req.body.r2AccountId || process.env.R2_ACCOUNT_ID || 'a9e18b43f76902cd98ef11';
-  const rawAccessKeyId = req.body.r2AccessKeyId || process.env.R2_ACCESS_KEY_ID || 'r2_prod_key_77a9';
+  const rawAccountId = req.body.r2AccountId || process.env.R2_ACCOUNT_ID;
+  const rawAccessKeyId = req.body.r2AccessKeyId || process.env.R2_ACCESS_KEY_ID;
   const rawSecretAccessKey = req.body.r2SecretAccessKey || process.env.R2_SECRET_ACCESS_KEY;
   const rawBucketName = req.body.r2BucketName || process.env.R2_BUCKET_NAME || 'bhakti-sathi';
 
