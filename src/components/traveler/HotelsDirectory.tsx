@@ -59,16 +59,16 @@ export const HotelsDirectory: React.FC = () => {
               
               <div className="absolute top-3 right-3 bg-white/95 backdrop-blur-xs px-2 py-1 rounded-lg text-xs font-black text-stone-900 flex items-center gap-1 shadow-2xs">
                 <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
-                <span>{hotel.overallRating || hotel.starRating}</span>
+                <span>{hotel.overallRating || 4}</span>
               </div>
             </div>
 
             <div className="p-5 flex-1 flex flex-col">
               <div className="flex items-center gap-1 text-[10px] font-bold text-amber-800 uppercase tracking-wider mb-1">
-                {Array(hotel.starRating).fill(0).map((_, i) => (
+                {Array(Math.round(hotel.overallRating || 4)).fill(0).map((_, i) => (
                   <Star key={i} className="w-3 h-3 text-amber-500 fill-amber-500" />
                 ))}
-                <span className="ml-1 text-stone-500 font-semibold">• {hotel.starRating}-Star Standard</span>
+                <span className="ml-1 text-stone-500 font-semibold">• {Math.round(hotel.overallRating || 4)}-Star Standard</span>
               </div>
               
               <h3 className="font-black text-stone-900 text-base mb-1 line-clamp-1 group-hover:text-stone-600 transition">

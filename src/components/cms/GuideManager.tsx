@@ -44,6 +44,7 @@ export const GuideManager: React.FC<GuideManagerProps> = ({ onEditGuide, onCreat
   const [activeTab, setActiveTab] = useState<'all' | GuideStatus>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedGuideIds, setSelectedGuideIds] = useState<string[]>([]);
   const [deleteModalId, setDeleteModalId] = useState<string | null>(null);
 
   // Workflow statistics
@@ -77,6 +78,33 @@ export const GuideManager: React.FC<GuideManagerProps> = ({ onEditGuide, onCreat
       return true;
     });
   }, [guides, activeTab, selectedCategory, searchQuery]);
+
+  // Bulk Selection Handlers
+  const handleToggleSelectAll = () => {
+    if (selectedGuideIds.length === filteredGuides.length && filteredGuides.length > 0) {
+      setSelectedGuideIds([]);
+    } else {
+      setSelectedGuideIds(filteredGuides.map((g) => g.id));
+    }
+  };
+
+  const handleToggleSelect = (id: string) => {
+    setSelectedGuideIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  };
+
+  const handleBulkDelete = () => {
+    if (selectedGuideIds.length === 0) return;
+    if (
+      window.confirm(
+        `Are you sure you want to delete ${selectedGuideIds.length} selected guide(s)? This action cannot be undone.`
+      )
+    ) {
+      selectedGuideIds.forEach((id) => deleteGuide(id));
+      setSelectedGuideIds([]);
+    }
+  };
 
   const handleDeleteConfirm = () => {
     if (deleteModalId) {
@@ -239,6 +267,40 @@ export const GuideManager: React.FC<GuideManagerProps> = ({ onEditGuide, onCreat
             </select>
           </div>
         </div>
+
+        {/* Bulk Actions Sub-Bar */}
+        {filteredGuides.length > 0 && (
+          <div className="pt-2 border-t border-stone-100 flex items-center justify-between text-xs">
+            <label className="flex items-center gap-2 font-bold text-stone-700 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={
+                  selectedGuideIds.length === filteredGuides.length &&
+                  filteredGuides.length > 0
+                }
+                onChange={handleToggleSelectAll}
+                className="w-4 h-4 rounded border-stone-300 text-stone-900 focus:ring-stone-900 cursor-pointer"
+              />
+              <span>Select All Guides ({filteredGuides.length})</span>
+            </label>
+
+            {selectedGuideIds.length > 0 && (
+              <div className="flex items-center gap-2 animate-fade-in">
+                <span className="font-extrabold text-rose-700 bg-rose-50 px-2.5 py-1 rounded-lg border border-rose-200">
+                  {selectedGuideIds.length} Selected
+                </span>
+                <button
+                  type="button"
+                  onClick={handleBulkDelete}
+                  className="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>Delete Selected ({selectedGuideIds.length})</span>
+                </button>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Guide List */}
@@ -275,10 +337,23 @@ export const GuideManager: React.FC<GuideManagerProps> = ({ onEditGuide, onCreat
             return (
               <div
                 key={guide.id}
-                className="bg-white p-4 sm:p-5 rounded-2xl border border-stone-200 hover:border-stone-300 shadow-xs transition flex flex-col md:flex-row md:items-center justify-between gap-4"
+                className={`bg-white p-4 sm:p-5 rounded-2xl border transition flex flex-col md:flex-row md:items-center justify-between gap-4 ${
+                  selectedGuideIds.includes(guide.id)
+                    ? 'border-amber-500 ring-2 ring-amber-500/20 bg-amber-50/20'
+                    : 'border-stone-200 hover:border-stone-300 shadow-xs'
+                }`}
               >
-                {/* Left side: thumbnail + info */}
+                {/* Left side: checkbox + thumbnail + info */}
                 <div className="flex items-start gap-3.5 min-w-0 flex-1">
+                  <div className="pt-2">
+                    <input
+                      type="checkbox"
+                      checked={selectedGuideIds.includes(guide.id)}
+                      onChange={() => handleToggleSelect(guide.id)}
+                      className="w-4 h-4 rounded border-stone-300 text-stone-900 focus:ring-stone-900 cursor-pointer"
+                    />
+                  </div>
+
                   <div className="w-20 h-20 rounded-xl overflow-hidden bg-stone-100 shrink-0 border border-stone-200/80">
                     <img
                       src={

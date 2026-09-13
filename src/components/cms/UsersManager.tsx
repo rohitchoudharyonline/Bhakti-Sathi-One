@@ -46,6 +46,7 @@ export const UsersManager: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'All' | 'active' | 'blocked'>('All');
   const [tierFilter, setTierFilter] = useState<string>('All');
+  const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
   const [selectedUserForEdit, setSelectedUserForEdit] = useState<RegisteredTravelerUser | null>(null);
   const [selectedUserForBookings, setSelectedUserForBookings] = useState<RegisteredTravelerUser | null>(null);
   const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false);
@@ -92,6 +93,33 @@ export const UsersManager: React.FC = () => {
   const activeUsersCount = registeredUsers.filter((u) => u.status === 'active').length;
   const blockedUsersCount = registeredUsers.filter((u) => u.status === 'blocked').length;
   const totalBookingsCount = registeredUsers.reduce((sum, u) => sum + (u.totalBookings || 0), 0);
+
+  // Bulk Selection Handlers
+  const handleToggleSelectAll = () => {
+    if (selectedUserIds.length === filteredUsers.length && filteredUsers.length > 0) {
+      setSelectedUserIds([]);
+    } else {
+      setSelectedUserIds(filteredUsers.map((u) => u.id));
+    }
+  };
+
+  const handleToggleSelect = (id: string) => {
+    setSelectedUserIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  };
+
+  const handleBulkDelete = () => {
+    if (selectedUserIds.length === 0) return;
+    if (
+      window.confirm(
+        `Are you sure you want to delete ${selectedUserIds.length} selected traveler account(s)?`
+      )
+    ) {
+      selectedUserIds.forEach((id) => deleteRegisteredUser(id));
+      setSelectedUserIds([]);
+    }
+  };
 
   // Copy Feedback Helper
   const triggerCopyFeedback = (msg: string) => {
@@ -510,19 +538,56 @@ export const UsersManager: React.FC = () => {
 
       {/* Users Table */}
       <div className="bg-white rounded-3xl border border-stone-200 shadow-sm overflow-hidden">
-        <div className="p-4 sm:p-5 border-b border-stone-100 flex items-center justify-between">
+        <div className="p-4 sm:p-5 border-b border-stone-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <h3 className="text-base font-black text-stone-900">Traveler User Accounts</h3>
             <span className="text-xs bg-stone-100 text-stone-700 px-2.5 py-0.5 rounded-full font-black">
               {filteredUsers.length} shown
             </span>
           </div>
+
+          {filteredUsers.length > 0 && (
+            <div className="flex items-center gap-3">
+              <label className="flex items-center gap-2 text-xs font-bold text-stone-700 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={
+                    selectedUserIds.length === filteredUsers.length && filteredUsers.length > 0
+                  }
+                  onChange={handleToggleSelectAll}
+                  className="w-4 h-4 rounded border-stone-300 text-[#FF4B00] focus:ring-[#FF4B00] cursor-pointer"
+                />
+                <span>Select All ({filteredUsers.length})</span>
+              </label>
+
+              {selectedUserIds.length > 0 && (
+                <button
+                  type="button"
+                  onClick={handleBulkDelete}
+                  className="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>Delete Selected ({selectedUserIds.length})</span>
+                </button>
+              )}
+            </div>
+          )}
         </div>
 
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead className="bg-stone-50/80 border-b border-stone-200 text-[11px] uppercase tracking-wider font-black text-stone-500">
               <tr>
+                <th className="py-3.5 px-4 w-10">
+                  <input
+                    type="checkbox"
+                    checked={
+                      selectedUserIds.length === filteredUsers.length && filteredUsers.length > 0
+                    }
+                    onChange={handleToggleSelectAll}
+                    className="w-4 h-4 rounded border-stone-300 text-[#FF4B00] focus:ring-[#FF4B00] cursor-pointer"
+                  />
+                </th>
                 <th className="py-3.5 px-4">Traveler / Account</th>
                 <th className="py-3.5 px-4">Contact Details</th>
                 <th className="py-3.5 px-4">Location</th>
@@ -542,9 +607,17 @@ export const UsersManager: React.FC = () => {
                     <tr
                       key={user.id}
                       className={`hover:bg-stone-50/80 transition ${
-                        isBlocked ? 'bg-rose-50/40 opacity-80' : ''
+                        selectedUserIds.includes(user.id) ? 'bg-orange-50/30' : isBlocked ? 'bg-rose-50/40 opacity-80' : ''
                       }`}
                     >
+                      <td className="py-4 px-4">
+                        <input
+                          type="checkbox"
+                          checked={selectedUserIds.includes(user.id)}
+                          onChange={() => handleToggleSelect(user.id)}
+                          className="w-4 h-4 rounded border-stone-300 text-[#FF4B00] focus:ring-[#FF4B00] cursor-pointer"
+                        />
+                      </td>
                       {/* Traveler Info */}
                       <td className="py-4 px-4">
                         <div className="flex items-center gap-3">

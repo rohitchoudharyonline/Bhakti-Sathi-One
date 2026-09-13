@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { ArrowLeft, ArrowRight, Search, X, MapPin, Sparkles, ChevronRight, ShieldCheck, Compass } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Search, X, MapPin, Sparkles, ChevronRight, ShieldCheck, Compass, Landmark } from 'lucide-react';
 import { useTours } from '../../context/TourContext';
 import { updatePageSeo } from '../../utils/seo';
 import { Navbar } from '../common/Navbar';

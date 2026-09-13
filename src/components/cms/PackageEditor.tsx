@@ -2210,7 +2210,7 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
             type="package"
             itemName={title}
             extraData={{
-              city: location,
+              city: destination,
               price: price,
             }}
             seoMetaTitle={seoTitle}

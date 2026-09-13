@@ -4,6 +4,7 @@ import { GuideArticle, GuideFaq, GuideSeo, GuideStatus } from '../../types/guide
 import { analyzeOnPageSeo } from '../../utils/seoEngine';
 import { UniversalImageUploader } from './UniversalImageUploader';
 import { WordPressInlineImageModal } from './WordPressInlineImageModal';
+import { CMSSEOEditor } from './CMSSEOEditor';
 import {
   ArrowLeft,
   Save,
@@ -295,7 +296,7 @@ export const GuideEditor: React.FC<GuideEditorProps> = ({
   // Add custom FAQ
   const handleAddFaq = () => {
     if (!newQuestion.trim() || !newAnswer.trim()) return;
-    setFaqs((prev) => [...prev, { question: newQuestion.trim(), answer: newAnswer.trim() }]);
+    setFaqs((prev) => [...prev, { id: Math.random().toString(36).substring(2, 9), question: newQuestion.trim(), answer: newAnswer.trim() }]);
     setNewQuestion('');
     setNewAnswer('');
   };
@@ -855,89 +856,56 @@ export const GuideEditor: React.FC<GuideEditorProps> = ({
             </div>
           </div>
 
-          {/* SEO Input Fields */}
+          {/* 1-Click Auto SEO Editor */}
+          <CMSSEOEditor
+            type="guide"
+            itemName={title || 'Travel Guide'}
+            extraData={{ city: destination, state: destination }}
+            seoMetaTitle={metaTitle}
+            seoMetaDescription={metaDescription}
+            seoKeywords={primaryKeyword}
+            onChange={(field, val) => {
+              if (field === 'seoMetaTitle') setMetaTitle(val);
+              if (field === 'seoMetaDescription') setMetaDescription(val);
+              if (field === 'seoKeywords') setPrimaryKeyword(val);
+            }}
+            onApplyAll={(seoData) => {
+              setMetaTitle(seoData.seoMetaTitle);
+              setMetaDescription(seoData.seoMetaDescription);
+              setPrimaryKeyword(seoData.seoKeywords);
+            }}
+          />
+
+          {/* Secondary Keywords Card */}
           <div className="bg-white p-5 rounded-2xl border border-stone-200 shadow-xs space-y-4">
-            {/* Meta Title */}
-            <div className="space-y-1.5">
-              <div className="flex items-center justify-between">
-                <label className="text-xs font-bold text-stone-700">SEO Meta Title (Google SERP)</label>
-                <span
-                  className={`text-[11px] font-mono ${
-                    metaTitle.length <= 60 ? 'text-emerald-700' : 'text-rose-600 font-bold'
-                  }`}
-                >
-                  {metaTitle.length}/60 chars
-                </span>
-              </div>
+            <div>
+              <h3 className="text-xs font-black text-stone-700 uppercase tracking-wider">Secondary LSI Keywords</h3>
+              <p className="text-[11px] text-stone-500 mt-0.5">
+                Add helper keywords to assist search engines in contextualizing your guide's contents.
+              </p>
+            </div>
+
+            <div className="flex gap-2">
               <input
                 type="text"
-                value={metaTitle}
-                onChange={(e) => setMetaTitle(e.target.value)}
-                placeholder={title || 'Primary keyword focused title under 60 characters'}
-                className="w-full px-3.5 py-2 bg-stone-50 border border-stone-200 rounded-xl text-xs text-stone-900 focus:bg-white focus:outline-none"
+                value={newSecondaryKeyword}
+                onChange={(e) => setNewSecondaryKeyword(e.target.value)}
+                placeholder="e.g. patnitop climate, patnitop hotel deals"
+                className="flex-1 px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-xs text-stone-900 focus:outline-none"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleAddSecondaryKeyword();
+                  }
+                }}
               />
-              <p className="text-[11px] text-stone-400">
-                Rule: Keep under 60 characters to prevent Google truncation.
-              </p>
-            </div>
-
-            {/* Meta Description */}
-            <div className="space-y-1.5">
-              <div className="flex items-center justify-between">
-                <label className="text-xs font-bold text-stone-700">SEO Meta Description</label>
-                <span
-                  className={`text-[11px] font-mono ${
-                    metaDescription.length <= 130 ? 'text-emerald-700' : 'text-rose-600 font-bold'
-                  }`}
-                >
-                  {metaDescription.length}/130 chars
-                </span>
-              </div>
-              <textarea
-                value={metaDescription}
-                onChange={(e) => setMetaDescription(e.target.value)}
-                rows={2}
-                placeholder="High CTR description incorporating primary keyword, kept strictly under 130 characters."
-                className="w-full px-3.5 py-2 bg-stone-50 border border-stone-200 rounded-xl text-xs text-stone-900 focus:bg-white focus:outline-none"
-              />
-              <p className="text-[11px] text-stone-400">
-                Rule: Keep under 130 characters to guarantee full visibility on mobile search results.
-              </p>
-            </div>
-
-            {/* Keywords */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-stone-700">Focus / Primary Keyword</label>
-                <input
-                  type="text"
-                  value={primaryKeyword}
-                  onChange={(e) => setPrimaryKeyword(e.target.value)}
-                  placeholder="e.g. 9 devi yatra guide"
-                  className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-xs text-stone-900 focus:outline-none"
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-stone-700">Secondary / Semantic Keywords</label>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="text"
-                    value={newSecondaryKeyword}
-                    onChange={(e) => setNewSecondaryKeyword(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddSecondaryKeyword())}
-                    placeholder="Type keyword and press Enter"
-                    className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-xs text-stone-900 focus:outline-none"
-                  />
-                  <button
-                    type="button"
-                    onClick={handleAddSecondaryKeyword}
-                    className="px-3 py-2 bg-stone-800 text-white rounded-xl text-xs font-bold"
-                  >
-                    Add
-                  </button>
-                </div>
-              </div>
+              <button
+                type="button"
+                onClick={handleAddSecondaryKeyword}
+                className="px-4 py-2 bg-stone-900 hover:bg-stone-800 text-white font-bold rounded-xl text-xs transition"
+              >
+                Add
+              </button>
             </div>
 
             {/* Secondary Keyword Badges */}
@@ -946,13 +914,13 @@ export const GuideEditor: React.FC<GuideEditorProps> = ({
                 {secondaryKeywords.map((kw) => (
                   <span
                     key={kw}
-                    className="inline-flex items-center gap-1 px-2.5 py-1 bg-stone-100 text-stone-700 rounded-lg text-xs font-medium"
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-stone-100 text-stone-700 rounded-lg text-xs font-medium"
                   >
                     <span>{kw}</span>
                     <button
                       type="button"
                       onClick={() => handleRemoveSecondaryKeyword(kw)}
-                      className="text-stone-400 hover:text-stone-700"
+                      className="text-stone-400 hover:text-stone-700 font-bold"
                     >
                       &times;
                     </button>
@@ -983,19 +951,19 @@ export const GuideEditor: React.FC<GuideEditorProps> = ({
                   key={idx}
                   className="flex items-start gap-2.5 p-2.5 rounded-xl bg-stone-50/80 border border-stone-100 text-xs"
                 >
-                  {check.status === 'passed' && (
+                  {check.status === 'pass' && (
                     <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                   )}
                   {check.status === 'warning' && (
                     <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
                   )}
-                  {check.status === 'failed' && (
+                  {check.status === 'fail' && (
                     <XCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
                   )}
 
                   <div className="flex-1 min-w-0">
                     <span className="font-semibold text-stone-800">{check.label}: </span>
-                    <span className="text-stone-600">{check.message}</span>
+                    <span className="text-stone-600">{check.description}</span>
                   </div>
                 </div>
               ))}

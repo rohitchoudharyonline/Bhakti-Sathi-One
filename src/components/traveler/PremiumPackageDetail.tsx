@@ -53,7 +53,7 @@ export const PremiumPackageDetail: React.FC<Props> = ({ pkg, onBack }) => {
   const { submitInquiry, toggleWishlist, isWishlisted, agencySettings, travelerUser, setTravelerUser } = useTours();
 
   // Selected Hotel Tier (2-star, 3-star, 4-star, 5-star)
-  const [selectedTier, setSelectedTier] = useState<HotelStarCategory>('3_star');
+  const [selectedTier, setSelectedTier] = useState<HotelStarCategory>('3-star');
 
   const [showEnquiry, setShowEnquiry] = useState(false);
   const [bookingStep, setBookingStep] = useState<'details' | 'review' | 'confirmation'>('details');
@@ -148,14 +148,14 @@ export const PremiumPackageDetail: React.FC<Props> = ({ pkg, onBack }) => {
 
   const currentTierInfo = useMemo(() => {
     if (pkg.pricingTiers) {
-      if (selectedTier === '3_star' && pkg.pricingTiers.star3) return pkg.pricingTiers.star3;
-      if (selectedTier === '4_star' && pkg.pricingTiers.star4) return pkg.pricingTiers.star4;
-      if (selectedTier === '5_star' && pkg.pricingTiers.star5) return pkg.pricingTiers.star5;
+      if (selectedTier === '3-star' && pkg.pricingTiers.star3) return pkg.pricingTiers.star3;
+      if (selectedTier === '4-star' && pkg.pricingTiers.star4) return pkg.pricingTiers.star4;
+      if (selectedTier === '5-star' && pkg.pricingTiers.star5) return pkg.pricingTiers.star5;
     }
 
     // Default fallbacks
     switch (selectedTier) {
-      case '3_star':
+      case '3-star':
         return {
           starRating: 3 as const,
           tierName: 'Deluxe (3-Star)',
@@ -166,7 +166,7 @@ export const PremiumPackageDetail: React.FC<Props> = ({ pkg, onBack }) => {
           mealPlan: 'MAP (Breakfast & Dinner)',
           cabType: 'Dedicated AC Sedan / Ertiga SUV',
         };
-      case '4_star':
+      case '4-star':
         return {
           starRating: 4 as const,
           tierName: 'Super Deluxe (4-Star)',
@@ -177,7 +177,7 @@ export const PremiumPackageDetail: React.FC<Props> = ({ pkg, onBack }) => {
           mealPlan: 'MAP (Lavish Buffet Breakfast & Dinner)',
           cabType: 'Toyota Innova Crysta SUV',
         };
-      case '5_star':
+      case '5-star':
         return {
           starRating: 5 as const,
           tierName: 'Luxury Heritage (5-Star)',
@@ -210,7 +210,7 @@ export const PremiumPackageDetail: React.FC<Props> = ({ pkg, onBack }) => {
     currentTierInfo.priceOnRequest || isBasePriceOnRequest
   );
 
-  const rawPhone = agencySettings.whatsappConciergeNumber || agencySettings.primaryPhone || '+919419915255';
+  const rawPhone = agencySettings.whatsapp || agencySettings.phone || '+919419915255';
   const cleanPhone = rawPhone.replace(/[^0-9]/g, '');
 
   const isFormValid = Boolean(
@@ -725,11 +725,11 @@ export const PremiumPackageDetail: React.FC<Props> = ({ pkg, onBack }) => {
                 Customize number of days, hotel category (3★, 4★, 5★), or add/remove destinations.
               </p>
               <a
-                href={`tel:${cleanPhone || agencySettings.primaryPhone}`}
+                href={`tel:${cleanPhone || agencySettings.phone}`}
                 className="text-stone-900 font-bold mt-1.5 inline-flex items-center gap-1 text-[11px]"
               >
                 <Phone className="w-3 h-3" />
-                <span>Call: {rawPhone || agencySettings.primaryPhone}</span>
+                <span>Call: {rawPhone || agencySettings.phone}</span>
               </a>
             </div>
           </aside>

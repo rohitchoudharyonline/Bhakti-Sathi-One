@@ -103,7 +103,7 @@ export const SitemapPage: React.FC = () => {
     const q = searchQuery.toLowerCase();
     return destinationList.filter(d => 
       d.name.toLowerCase().includes(q) || 
-      d.subtitle?.toLowerCase().includes(q) ||
+      d.tagline?.toLowerCase().includes(q) ||
       d.slug.toLowerCase().includes(q)
     );
   }, [destinationList, searchQuery]);

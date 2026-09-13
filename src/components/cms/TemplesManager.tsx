@@ -55,6 +55,7 @@ export const TemplesManager: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<string>('all');
   const [isTemplesLoading, setIsTemplesLoading] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   useEffect(() => {
     setIsTemplesLoading(true);
@@ -199,6 +200,34 @@ export const TemplesManager: React.FC = () => {
     return matchesSearch && matchesCategory;
   });
 
+  // Bulk Selection Handlers
+  const handleToggleSelectAll = () => {
+    if (selectedIds.length === filteredTemples.length && filteredTemples.length > 0) {
+      setSelectedIds([]);
+    } else {
+      setSelectedIds(filteredTemples.map((t) => t.id));
+    }
+  };
+
+  const handleToggleSelect = (id: string) => {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  };
+
+  const handleBulkDelete = () => {
+    if (selectedIds.length === 0) return;
+    if (
+      window.confirm(
+        `Are you sure you want to delete ${selectedIds.length} selected temple(s)? This action cannot be undone.`
+      )
+    ) {
+      selectedIds.forEach((id) => deleteTemple(id));
+      showNotification(`Successfully deleted ${selectedIds.length} temples.`);
+      setSelectedIds([]);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Toast Notification */}
@@ -249,52 +278,90 @@ export const TemplesManager: React.FC = () => {
 
       {activeTab === 'list' ? (
         <div className="space-y-4">
-          {/* Filter Bar */}
-          <div className="bg-white rounded-2xl border border-stone-200/80 p-4 shadow-xs flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
-            {/* Search */}
-            <div className="relative flex-1">
-              <Search className="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Search temples, deities, cities, or categories..."
-                className="w-full pl-9 pr-4 py-2 bg-stone-50 border border-stone-200 rounded-xl text-xs font-medium text-stone-900 focus:bg-white focus:outline-none focus:border-[#FF4B00] transition-colors"
-              />
+          {/* Filter Bar & Bulk Actions */}
+          <div className="bg-white rounded-2xl border border-stone-200/80 p-4 shadow-xs space-y-3">
+            <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+              {/* Search */}
+              <div className="relative flex-1">
+                <Search className="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Search temples, deities, cities, or categories..."
+                  className="w-full pl-9 pr-4 py-2 bg-stone-50 border border-stone-200 rounded-xl text-xs font-medium text-stone-900 focus:bg-white focus:outline-none focus:border-[#FF4B00] transition-colors"
+                />
+              </div>
+
+              {/* Category Filter Pills */}
+              <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 scrollbar-none">
+                <button
+                  type="button"
+                  onClick={() => setSelectedCategoryFilter('all')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all shrink-0 ${
+                    selectedCategoryFilter === 'all'
+                      ? 'bg-stone-900 text-white shadow-xs'
+                      : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+                  }`}
+                >
+                  All ({temples.length})
+                </button>
+                {TEMPLE_CATEGORIES.map((cat) => {
+                  const count = temples.filter((t) => t.category === cat.id).length;
+                  if (count === 0 && selectedCategoryFilter !== cat.id) return null;
+                  return (
+                    <button
+                      key={cat.id}
+                      type="button"
+                      onClick={() => setSelectedCategoryFilter(cat.id)}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all shrink-0 border ${
+                        selectedCategoryFilter === cat.id
+                          ? 'bg-[#FF4B00] text-white border-[#FF4B00] shadow-xs'
+                          : `${cat.bg} ${cat.text} ${cat.border} hover:opacity-80`
+                      }`}
+                    >
+                      {cat.label} ({count})
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
-            {/* Category Filter Pills */}
-            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 scrollbar-none">
-              <button
-                type="button"
-                onClick={() => setSelectedCategoryFilter('all')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all shrink-0 ${
-                  selectedCategoryFilter === 'all'
-                    ? 'bg-stone-900 text-white shadow-xs'
-                    : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
-                }`}
-              >
-                All ({temples.length})
-              </button>
-              {TEMPLE_CATEGORIES.map((cat) => {
-                const count = temples.filter((t) => t.category === cat.id).length;
-                if (count === 0 && selectedCategoryFilter !== cat.id) return null;
-                return (
-                  <button
-                    key={cat.id}
-                    type="button"
-                    onClick={() => setSelectedCategoryFilter(cat.id)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all shrink-0 border ${
-                      selectedCategoryFilter === cat.id
-                        ? 'bg-[#FF4B00] text-white border-[#FF4B00] shadow-xs'
-                        : `${cat.bg} ${cat.text} ${cat.border} hover:opacity-80`
-                    }`}
-                  >
-                    {cat.label} ({count})
-                  </button>
-                );
-              })}
-            </div>
+            {/* Bulk Selection Sub-Bar */}
+            {filteredTemples.length > 0 && (
+              <div className="pt-3 border-t border-stone-100 flex items-center justify-between gap-3 text-xs">
+                <label className="flex items-center gap-2 font-bold text-stone-700 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={
+                      selectedIds.length === filteredTemples.length &&
+                      filteredTemples.length > 0
+                    }
+                    onChange={handleToggleSelectAll}
+                    className="w-4 h-4 rounded border-stone-300 text-[#FF4B00] focus:ring-[#FF4B00] cursor-pointer"
+                  />
+                  <span>
+                    Select All ({filteredTemples.length})
+                  </span>
+                </label>
+
+                {selectedIds.length > 0 && (
+                  <div className="flex items-center gap-3 animate-fade-in">
+                    <span className="font-extrabold text-[#FF4B00] bg-orange-50 px-2.5 py-1 rounded-lg border border-orange-200">
+                      {selectedIds.length} Selected
+                    </span>
+                    <button
+                      type="button"
+                      onClick={handleBulkDelete}
+                      className="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 active:scale-95 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                      <span>Delete Selected ({selectedIds.length})</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Temples Grid */}
@@ -320,8 +387,22 @@ export const TemplesManager: React.FC = () => {
               return (
                 <div
                   key={temple.id}
-                  className="bg-white rounded-2xl border border-stone-200/80 overflow-hidden shadow-xs hover:shadow-md transition-all flex flex-col group"
+                  className={`bg-white rounded-2xl border overflow-hidden shadow-xs hover:shadow-md transition-all flex flex-col group relative ${
+                    selectedIds.includes(temple.id)
+                      ? 'border-[#FF4B00] ring-2 ring-[#FF4B00]/20 bg-orange-50/10'
+                      : 'border-stone-200/80'
+                  }`}
                 >
+                  {/* Card Select Checkbox */}
+                  <div className="absolute top-3 left-3 z-20">
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.includes(temple.id)}
+                      onChange={() => handleToggleSelect(temple.id)}
+                      className="w-5 h-5 rounded border-2 border-white shadow-md text-[#FF4B00] focus:ring-[#FF4B00] cursor-pointer bg-black/40"
+                    />
+                  </div>
+
                   {/* Image Card Header */}
                   <div className="relative h-44 w-full bg-stone-900 overflow-hidden">
                     <img
@@ -334,7 +415,7 @@ export const TemplesManager: React.FC = () => {
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent pointer-events-none" />
 
                     {/* Top Badges */}
-                    <div className="absolute top-3 left-3 right-3 flex items-center justify-between pointer-events-none">
+                    <div className="absolute top-3 left-10 right-3 flex items-center justify-between pointer-events-none">
                       <span
                         className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full border shadow-xs ${catConfig.bg} ${catConfig.text} ${catConfig.border}`}
                       >
@@ -448,9 +529,9 @@ export const TemplesManager: React.FC = () => {
               </div>
             )}
           </div>
-          )}
-        </div>
-      ) : (
+        )}
+      </div>
+    ) : (
         /* ========================================================
            EDITOR TAB (ADD / EDIT TEMPLE & PLACE)
            ======================================================== */
@@ -783,11 +864,12 @@ export const TemplesManager: React.FC = () => {
               </button>
             </div>
             <MediaR2StorageManager
-              isModalPicker
-              onSelectAsset={(asset) => {
-                setFormData({ ...formData, image: asset.url });
+              isModal
+              onSelectMedia={(url) => {
+                setFormData({ ...formData, image: url });
                 setShowMediaModal(false);
               }}
+              onCloseModal={() => setShowMediaModal(false)}
             />
           </div>
         </div>

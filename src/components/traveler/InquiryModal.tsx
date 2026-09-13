@@ -35,7 +35,7 @@ export const InquiryModal: React.FC<InquiryModalProps> = ({
   initialChildren = 0,
   initialDate = '',
 }) => {
-  const { addInquiry, agencySettings } = useTours();
+  const { submitInquiry, agencySettings } = useTours();
 
   const [travelerName, setTravelerName] = useState('');
   const [email, setEmail] = useState('');
@@ -72,12 +72,11 @@ export const InquiryModal: React.FC<InquiryModalProps> = ({
       adults,
       children,
       specialRequests: specialRequests.trim(),
-      status: 'New' as const,
       estimatedTotal: 0,
     };
 
-    addInquiry(newInq);
-    setSubmittedInquiryId(Date.now().toString().slice(-6));
+    const inqId = submitInquiry(newInq);
+    setSubmittedInquiryId(inqId || Date.now().toString().slice(-6));
     setSubmitted(true);
   };
 

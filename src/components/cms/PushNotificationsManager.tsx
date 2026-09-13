@@ -40,6 +40,7 @@ export const PushNotificationsManager: React.FC = () => {
   } = useTours();
 
   const [activeTab, setActiveTab] = useState<'broadcast' | 'history' | 'subscribers' | 'settings'>('broadcast');
+  const [selectedNotificationIds, setSelectedNotificationIds] = useState<string[]>([]);
 
   // Broadcast Form State
   const [title, setTitle] = useState('❄️ Fresh Snowfall in Gulmarg - Gondola Phase 2 Open!');
@@ -540,17 +541,76 @@ export const PushNotificationsManager: React.FC = () => {
       {/* TAB 2: SENT HISTORY */}
       {activeTab === 'history' && (
         <div className="bg-white rounded-3xl border border-stone-200/90 shadow-sm p-6 space-y-4">
-          <div className="flex items-center justify-between border-b border-stone-100 pb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-stone-100 pb-4">
             <h3 className="text-base font-black text-stone-900 flex items-center gap-2">
               <FileText className="w-4.5 h-4.5 text-[#FF4B00]" /> Sent Broadcast History Log
             </h3>
-            <span className="text-xs text-stone-400 font-bold">{pushNotifications.length} Campaigns</span>
+            
+            {pushNotifications.length > 0 && (
+              <div className="flex items-center gap-3">
+                <label className="flex items-center gap-2 text-xs font-bold text-stone-700 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={
+                      selectedNotificationIds.length === pushNotifications.length &&
+                      pushNotifications.length > 0
+                    }
+                    onChange={() => {
+                      if (selectedNotificationIds.length === pushNotifications.length) {
+                        setSelectedNotificationIds([]);
+                      } else {
+                        setSelectedNotificationIds(pushNotifications.map((n) => n.id));
+                      }
+                    }}
+                    className="w-4 h-4 rounded border-stone-300 text-[#FF4B00] focus:ring-[#FF4B00] cursor-pointer"
+                  />
+                  <span>Select All ({pushNotifications.length})</span>
+                </label>
+
+                {selectedNotificationIds.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (
+                        window.confirm(
+                          `Are you sure you want to delete ${selectedNotificationIds.length} selected notification campaign(s)?`
+                        )
+                      ) {
+                        selectedNotificationIds.forEach((id) => deletePushNotification(id));
+                        setSelectedNotificationIds([]);
+                      }
+                    }}
+                    className="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>Delete Selected ({selectedNotificationIds.length})</span>
+                  </button>
+                )}
+              </div>
+            )}
           </div>
 
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="border-b border-stone-200 text-[11px] uppercase font-black text-stone-400 bg-stone-50/50">
+                  <th className="py-3 px-4 w-10">
+                    <input
+                      type="checkbox"
+                      checked={
+                        selectedNotificationIds.length === pushNotifications.length &&
+                        pushNotifications.length > 0
+                      }
+                      onChange={() => {
+                        if (selectedNotificationIds.length === pushNotifications.length) {
+                          setSelectedNotificationIds([]);
+                        } else {
+                          setSelectedNotificationIds(pushNotifications.map((n) => n.id));
+                        }
+                      }}
+                      className="w-4 h-4 rounded border-stone-300 text-[#FF4B00] focus:ring-[#FF4B00] cursor-pointer"
+                    />
+                  </th>
                   <th className="py-3 px-4">Notification</th>
                   <th className="py-3 px-4">Audience</th>
                   <th className="py-3 px-4">Category</th>
@@ -562,7 +622,26 @@ export const PushNotificationsManager: React.FC = () => {
               </thead>
               <tbody className="divide-y divide-stone-100 text-xs">
                 {pushNotifications.map((notif) => (
-                  <tr key={notif.id} className="hover:bg-stone-50/80 transition">
+                  <tr
+                    key={notif.id}
+                    className={`hover:bg-stone-50/80 transition ${
+                      selectedNotificationIds.includes(notif.id) ? 'bg-orange-50/30' : ''
+                    }`}
+                  >
+                    <td className="py-3.5 px-4">
+                      <input
+                        type="checkbox"
+                        checked={selectedNotificationIds.includes(notif.id)}
+                        onChange={() => {
+                          setSelectedNotificationIds((prev) =>
+                            prev.includes(notif.id)
+                              ? prev.filter((item) => item !== notif.id)
+                              : [...prev, notif.id]
+                          );
+                        }}
+                        className="w-4 h-4 rounded border-stone-300 text-[#FF4B00] focus:ring-[#FF4B00] cursor-pointer"
+                      />
+                    </td>
                     <td className="py-3.5 px-4 max-w-xs">
                       <div className="flex items-center gap-3">
                         {notif.icon ? (

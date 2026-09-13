@@ -65,11 +65,11 @@ export const InvoicesManager: React.FC<{
  const [formDueDate, setFormDueDate] = useState(
   new Date(Date.now() + 10 * 86400000).toISOString().split('T')[0]
  );
- const [formTaxRate, setFormTaxRate] = useState(agencySettings.defaultTaxRate || 5);
+ const [formTaxRate, setFormTaxRate] = useState(5);
  const [formDiscount, setFormDiscount] = useState(0);
  const [formPaidAmount, setFormPaidAmount] = useState(0);
  const [formPaymentMode, setFormPaymentMode] = useState('Credit Card');
- const [formNotes, setFormNotes] = useState(agencySettings.invoiceTerms || 'Thank you for choosing Choudhary Vacations!');
+ const [formNotes, setFormNotes] = useState(() => Array.isArray(agencySettings.invoiceTerms) ? agencySettings.invoiceTerms.join('\n') : (agencySettings.invoiceTerms || 'Thank you for choosing Choudhary Vacations!'));
 
  const [formItems, setFormItems] = useState<InvoiceItem[]>([
   {
@@ -127,7 +127,7 @@ export const InvoicesManager: React.FC<{
    setFormItems([
     {
      id: `item-${Date.now()}`,
-     description: `${pkg.title} - ${pkg.duration}`,
+     description: `${pkg.title} - ${pkg.durationDays}D / ${pkg.durationNights}N`,
      quantity: 1,
      unitPrice: pkg.price,
      amount: pkg.price,
@@ -146,17 +146,17 @@ export const InvoicesManager: React.FC<{
   setFormTravelDates('2026-06-15 to 2026-06-22');
   setFormPaxCount(2);
   setFormDueDate(new Date(Date.now() + 10 * 86400000).toISOString().split('T')[0]);
-  setFormTaxRate(agencySettings.defaultTaxRate || 5);
+  setFormTaxRate(5);
   setFormDiscount(0);
   setFormPaidAmount(0);
   setFormPaymentMode('Credit Card');
-  setFormNotes(agencySettings.invoiceTerms || 'Thank you for traveling with us!');
+  setFormNotes(Array.isArray(agencySettings.invoiceTerms) ? agencySettings.invoiceTerms.join('\n') : (agencySettings.invoiceTerms || 'Thank you for traveling with us!'));
 
   if (packages[0]) {
    setFormItems([
     {
      id: `item-${Date.now()}`,
-     description: `${packages[0].title} - ${packages[0].duration}`,
+     description: `${packages[0].title} - ${packages[0].durationDays}D / ${packages[0].durationNights}N`,
      quantity: 1,
      unitPrice: packages[0].price,
      amount: packages[0].price,
@@ -177,6 +177,9 @@ export const InvoicesManager: React.FC<{
   const bal = Math.max(0, total - formPaidAmount);
   const status: Invoice['status'] = bal === 0 ? 'Paid' : formPaidAmount > 0 ? 'Partial' : 'Unpaid';
 
+  const selectedPkg = packages.find((p) => p.id === formPackageId);
+  const pkgTitle = selectedPkg ? selectedPkg.title : 'Custom Devotional Tour / Yatra';
+
   const logs = [];
   if (formPaidAmount > 0) {
    logs.push({
@@ -194,16 +197,19 @@ export const InvoicesManager: React.FC<{
    clientEmail: formClientEmail,
    clientPhone: formClientPhone,
    clientAddress: formClientAddress,
-   clientGstin: formClientGstin,
+   clientGstOrTaxId: formClientGstin,
    packageId: formPackageId || undefined,
-   travelDates: formTravelDates,
-   paxCount: formPaxCount,
+   packageTitle: pkgTitle,
+   travelDate: formTravelDates,
+   paxAdults: formPaxCount,
+   paxChildren: 0,
    issueDate: new Date().toISOString().split('T')[0],
    dueDate: formDueDate,
+   currency: '₹',
    items: formItems,
    subtotal: sub,
    discount: formDiscount,
-   taxRate: formTaxRate,
+   taxPercent: formTaxRate,
    taxAmount: tax,
    grandTotal: total,
    paidAmount: formPaidAmount,
@@ -212,7 +218,7 @@ export const InvoicesManager: React.FC<{
    paymentMode: formPaymentMode,
    paymentReference: '',
    notes: formNotes,
-   createdByStaffId: currentStaffUser.id,
+   terms: agencySettings.invoiceTerms || ['Thank you for choosing Bhakti Sathi!'],
    paymentLogs: logs,
   });
 
@@ -371,9 +377,9 @@ export const InvoicesManager: React.FC<{
            <h3 className="font-bold text-stone-900 dark:text-white text-base">
             {invoice.clientName}
            </h3>
-           {invoice.clientGstin && (
+           {invoice.clientGstOrTaxId && (
             <span className="text-[10px] text-stone-400 bg-stone-50 dark:bg-stone-800 px-1.5 py-0.5 rounded">
-             GST: {invoice.clientGstin}
+             GST: {invoice.clientGstOrTaxId}
             </span>
            )}
           </div>
@@ -387,10 +393,10 @@ export const InvoicesManager: React.FC<{
             <Phone className="w-3.5 h-3.5 text-stone-400" />
             {invoice.clientPhone}
            </span>
-           {invoice.travelDates && (
+           {invoice.travelDate && (
             <span>
              <strong className="text-stone-700 ">Travel:</strong>{' '}
-             {invoice.travelDates} ({invoice.paxCount} Pax)
+             {invoice.travelDate} ({invoice.paxAdults + invoice.paxChildren} Pax)
             </span>
            )}
           </div>

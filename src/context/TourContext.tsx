@@ -1639,6 +1639,39 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch {}
   }, [mediaAssets]);
 
+  // Multi-tab / Multi-device cross sync listener
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (!e.key) return;
+      try {
+        if (e.key === STORAGE_KEYS.TEMPLES_PLACES && e.newValue) {
+          const parsed = JSON.parse(e.newValue);
+          if (Array.isArray(parsed)) setTemples(parsed);
+        } else if (e.key === STORAGE_KEYS.DESTINATIONS && e.newValue) {
+          const parsed = JSON.parse(e.newValue);
+          if (parsed && typeof parsed === 'object') setDestinations(parsed);
+        } else if (e.key === STORAGE_KEYS.PACKAGES && e.newValue) {
+          const parsed = JSON.parse(e.newValue);
+          if (Array.isArray(parsed)) setPackages(parsed);
+        } else if (e.key === STORAGE_KEYS.BLOG_POSTS && e.newValue) {
+          const parsed = JSON.parse(e.newValue);
+          if (Array.isArray(parsed)) setBlogPosts(parsed);
+        } else if (e.key === STORAGE_KEYS.CUSTOM_PAGES && e.newValue) {
+          const parsed = JSON.parse(e.newValue);
+          if (Array.isArray(parsed)) setCustomPages(parsed);
+        } else if (e.key === STORAGE_KEYS.PAGE_SEO_CONFIGS && e.newValue) {
+          const parsed = JSON.parse(e.newValue);
+          if (parsed && typeof parsed === 'object') setPageSeoConfigs(parsed);
+        }
+      } catch (err) {
+        console.warn('Error syncing storage event:', err);
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
+
   useEffect(() => {
     try {
       localStorage.setItem(STORAGE_KEYS.CLOUD_STORAGE_CONFIG, JSON.stringify(cloudStorageSettings));

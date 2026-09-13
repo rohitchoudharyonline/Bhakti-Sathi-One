@@ -891,7 +891,7 @@ export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, on
                             <div className="space-y-2">
                               <div className="flex items-center justify-between">
                                 <span className="text-[10px] font-black uppercase tracking-widest bg-stone-100 text-stone-600 px-2 py-0.5 rounded-md">
-                                  {pkg.duration}
+                                  {pkg.durationDays}D / {pkg.durationNights}N
                                 </span>
                                 <span className="text-xs font-bold text-[#FF4B00] flex items-center gap-1">
                                   <MapPin className="w-3.5 h-3.5" />
@@ -904,9 +904,9 @@ export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, on
                               <p className="text-xs text-stone-500 line-clamp-2">
                                 {pkg.tagline}
                               </p>
-                              {pkg.cities && (
+                              {pkg.startLocation && pkg.endLocation && (
                                 <p className="text-[10px] font-medium text-stone-400 line-clamp-1">
-                                  Route: {pkg.cities.join(' → ')}
+                                  Route: {pkg.startLocation} → {pkg.endLocation}
                                 </p>
                               )}
                             </div>

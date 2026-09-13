@@ -272,7 +272,7 @@ export const StaffManager: React.FC = () => {
                       <h3 className="font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
                         {member.name}
                         {member.role === 'super_admin' && (
-                          <ShieldCheck className="w-4 h-4 text-red-600" title="Super Admin" />
+                          <span title="Super Admin"><ShieldCheck className="w-4 h-4 text-red-600" /></span>
                         )}
                       </h3>
                       <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">

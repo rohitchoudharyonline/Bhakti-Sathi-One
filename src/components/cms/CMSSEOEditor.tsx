@@ -3,7 +3,7 @@ import { Sparkles, CheckCircle2, Globe, Search } from 'lucide-react';
 import { generateAutoSEO, SEOData } from '../../utils/seoHelper';
 
 interface CMSSEOEditorProps {
-  type: 'destination' | 'temple' | 'package' | 'blog';
+  type: 'destination' | 'temple' | 'package' | 'blog' | 'guide' | 'custom_page' | 'website_page';
   itemName: string;
   extraData?: {
     city?: string;

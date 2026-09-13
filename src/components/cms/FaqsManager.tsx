@@ -19,6 +19,7 @@ export const FaqsManager: React.FC = () => {
 
   const [faqs, setFaqs] = useState<FAQItem[]>(() => agencySettings.faqs || []);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedFaqIds, setSelectedFaqIds] = useState<string[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
 
   // New FAQ form state
@@ -124,6 +125,35 @@ export const FaqsManager: React.FC = () => {
       faq.answer.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // Bulk Selection Handlers
+  const handleToggleSelectAll = () => {
+    if (selectedFaqIds.length === filteredFaqs.length && filteredFaqs.length > 0) {
+      setSelectedFaqIds([]);
+    } else {
+      setSelectedFaqIds(filteredFaqs.map((f) => f.id));
+    }
+  };
+
+  const handleToggleSelect = (id: string) => {
+    setSelectedFaqIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  };
+
+  const handleBulkDelete = () => {
+    if (selectedFaqIds.length === 0) return;
+    if (
+      window.confirm(
+        `Are you sure you want to delete ${selectedFaqIds.length} selected FAQ(s)? This will be updated on the storefront immediately.`
+      )
+    ) {
+      const updated = faqs.filter((f) => !selectedFaqIds.includes(f.id));
+      setFaqs(updated);
+      handleSaveAll(updated);
+      setSelectedFaqIds([]);
+    }
+  };
+
   return (
     <div className="bg-white rounded-3xl p-6 sm:p-8 border border-stone-200 shadow-2xs space-y-6" id="faq-cms-manager">
       {/* Top Title and Actions */}
@@ -199,16 +229,52 @@ export const FaqsManager: React.FC = () => {
 
         {/* Right Column: Manage FAQs with Order Buttons */}
         <div className="lg:col-span-7 space-y-4">
-          {/* Search bar */}
-          <div className="relative">
-            <Search className="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
-              placeholder="Search existing questions & answers..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full text-xs bg-stone-50 border border-stone-200 rounded-xl pl-10 pr-4 py-2.5 focus:bg-white focus:border-[#FF4B00] focus:outline-hidden font-medium"
-            />
+          {/* Search bar & Bulk Bar */}
+          <div className="bg-stone-50 p-3 rounded-2xl border border-stone-200 space-y-3">
+            <div className="relative">
+              <Search className="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                placeholder="Search existing questions & answers..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full text-xs bg-white border border-stone-200 rounded-xl pl-10 pr-4 py-2.5 focus:border-[#FF4B00] focus:outline-hidden font-medium"
+              />
+            </div>
+
+            {/* Bulk Actions Sub-Bar */}
+            {filteredFaqs.length > 0 && (
+              <div className="pt-2 border-t border-stone-200/60 flex items-center justify-between text-xs">
+                <label className="flex items-center gap-2 font-bold text-stone-700 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={
+                      selectedFaqIds.length === filteredFaqs.length &&
+                      filteredFaqs.length > 0
+                    }
+                    onChange={handleToggleSelectAll}
+                    className="w-4 h-4 rounded border-stone-300 text-[#FF4B00] focus:ring-[#FF4B00] cursor-pointer"
+                  />
+                  <span>Select All FAQs ({filteredFaqs.length})</span>
+                </label>
+
+                {selectedFaqIds.length > 0 && (
+                  <div className="flex items-center gap-2 animate-fade-in">
+                    <span className="font-extrabold text-rose-700 bg-rose-50 px-2.5 py-1 rounded-lg border border-rose-200">
+                      {selectedFaqIds.length} Selected
+                    </span>
+                    <button
+                      type="button"
+                      onClick={handleBulkDelete}
+                      className="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <Trash className="w-3.5 h-3.5" />
+                      <span>Delete Selected ({selectedFaqIds.length})</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           <div className="space-y-4 max-h-[550px] overflow-y-auto pr-1">
@@ -270,13 +336,21 @@ export const FaqsManager: React.FC = () => {
                       // Display Mode
                       <div className="space-y-2">
                         <div className="flex items-start justify-between gap-4">
-                          <div className="space-y-1">
-                            <span className="text-[10px] font-extrabold text-stone-400">
-                              FAQ #{globalIndex + 1}
-                            </span>
-                            <h5 className="text-xs font-extrabold text-stone-900 leading-snug">
-                              {faq.question}
-                            </h5>
+                          <div className="flex items-start gap-2.5">
+                            <input
+                              type="checkbox"
+                              checked={selectedFaqIds.includes(faq.id)}
+                              onChange={() => handleToggleSelect(faq.id)}
+                              className="w-4 h-4 rounded border-stone-300 text-[#FF4B00] focus:ring-[#FF4B00] cursor-pointer mt-0.5"
+                            />
+                            <div className="space-y-1">
+                              <span className="text-[10px] font-extrabold text-stone-400">
+                                FAQ #{globalIndex + 1}
+                              </span>
+                              <h5 className="text-xs font-extrabold text-stone-900 leading-snug">
+                                {faq.question}
+                              </h5>
+                            </div>
                           </div>
 
                           {/* Control actions */}

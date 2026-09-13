@@ -52,6 +52,7 @@ export const InquiriesManager: React.FC<{
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('All');
   const [leadTypeFilter, setLeadTypeFilter] = useState<'all' | 'tours' | 'newsletter'>('all');
+  const [selectedInquiryIds, setSelectedInquiryIds] = useState<string[]>([]);
   const [selectedInquiryForQuote, setSelectedInquiryForQuote] = useState<BookingInquiry | null>(null);
   const [selectedInquiryForTimeline, setSelectedInquiryForTimeline] = useState<BookingInquiry | null>(null);
   const [editingInquiry, setEditingInquiry] = useState<BookingInquiry | null>(null);
@@ -115,6 +116,33 @@ export const InquiriesManager: React.FC<{
     }
     return true;
   });
+
+  // Bulk Selection Handlers
+  const handleToggleSelectAll = () => {
+    if (selectedInquiryIds.length === filteredInquiries.length && filteredInquiries.length > 0) {
+      setSelectedInquiryIds([]);
+    } else {
+      setSelectedInquiryIds(filteredInquiries.map((inq) => inq.id));
+    }
+  };
+
+  const handleToggleSelect = (id: string) => {
+    setSelectedInquiryIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  };
+
+  const handleBulkDelete = () => {
+    if (selectedInquiryIds.length === 0) return;
+    if (
+      window.confirm(
+        `Are you sure you want to delete ${selectedInquiryIds.length} selected inquiry/lead(s)? This action cannot be undone.`
+      )
+    ) {
+      selectedInquiryIds.forEach((id) => deleteInquiry(id));
+      setSelectedInquiryIds([]);
+    }
+  };
 
   const handleCopyBookingNumber = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -294,44 +322,80 @@ export const InquiriesManager: React.FC<{
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="bg-white dark:bg-stone-900 p-4 rounded-2xl border border-stone-200 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-3">
-        <div className="relative flex-1 w-full">
-          <Search className="w-4 h-4 text-stone-400 absolute left-3 top-2.5" />
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search by Booking Number (e.g. HH76868), traveler name, email, phone, or package..."
-            className="w-full text-xs bg-stone-50 dark:bg-stone-950 border border-stone-200 rounded-xl pl-9 pr-3 py-2 text-stone-900 focus:outline-none focus:ring-2 focus:ring-[#FC3200]/30"
-          />
-        </div>
-
-        <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
-          <div className="flex flex-wrap items-center gap-1.5">
-            {['All', 'New', 'Contacted', 'Quotation Sent', 'Confirmed', 'Cancelled'].map((st) => (
-              <button
-                key={st}
-                onClick={() => setStatusFilter(st)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${
-                  statusFilter === st
-                    ? 'bg-stone-900 dark:bg-white text-white dark:text-stone-900 shadow-sm'
-                    : 'bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:bg-stone-200'
-                }`}
-              >
-                {st}
-              </button>
-            ))}
+      <div className="bg-white dark:bg-stone-900 p-4 rounded-2xl border border-stone-200 shadow-sm space-y-3">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div className="relative flex-1 w-full">
+            <Search className="w-4 h-4 text-stone-400 absolute left-3 top-2.5" />
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search by Booking Number (e.g. HH76868), traveler name, email, phone, or package..."
+              className="w-full text-xs bg-stone-50 dark:bg-stone-950 border border-stone-200 rounded-xl pl-9 pr-3 py-2 text-stone-900 focus:outline-none focus:ring-2 focus:ring-[#FC3200]/30"
+            />
           </div>
 
-          <button
-            type="button"
-            onClick={() => setIsCreateModalOpen(true)}
-            className="px-3.5 py-1.5 rounded-xl bg-[#FC3200] hover:bg-[#e02c00] text-white text-xs font-black transition flex items-center gap-1.5 shadow-sm ml-auto sm:ml-0 cursor-pointer"
-          >
-            <Plus className="w-3.5 h-3.5" />
-            <span>New Booking</span>
-          </button>
+          <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+            <div className="flex flex-wrap items-center gap-1.5">
+              {['All', 'New', 'Contacted', 'Quotation Sent', 'Confirmed', 'Cancelled'].map((st) => (
+                <button
+                  key={st}
+                  onClick={() => setStatusFilter(st)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${
+                    statusFilter === st
+                      ? 'bg-stone-900 dark:bg-white text-white dark:text-stone-900 shadow-sm'
+                      : 'bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:bg-stone-200'
+                  }`}
+                >
+                  {st}
+                </button>
+              ))}
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setIsCreateModalOpen(true)}
+              className="px-3.5 py-1.5 rounded-xl bg-[#FC3200] hover:bg-[#e02c00] text-white text-xs font-black transition flex items-center gap-1.5 shadow-sm ml-auto sm:ml-0 cursor-pointer"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>New Booking</span>
+            </button>
+          </div>
         </div>
+
+        {/* Bulk Actions Sub-Bar */}
+        {filteredInquiries.length > 0 && (
+          <div className="pt-2 border-t border-stone-100 dark:border-stone-800 flex items-center justify-between text-xs">
+            <label className="flex items-center gap-2 font-bold text-stone-700 dark:text-stone-300 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={
+                  selectedInquiryIds.length === filteredInquiries.length &&
+                  filteredInquiries.length > 0
+                }
+                onChange={handleToggleSelectAll}
+                className="w-4 h-4 rounded border-stone-300 text-[#FC3200] focus:ring-[#FC3200] cursor-pointer"
+              />
+              <span>Select All Inquiries ({filteredInquiries.length})</span>
+            </label>
+
+            {selectedInquiryIds.length > 0 && (
+              <div className="flex items-center gap-2 animate-fade-in">
+                <span className="font-extrabold text-rose-700 bg-rose-50 px-2.5 py-1 rounded-lg border border-rose-200">
+                  {selectedInquiryIds.length} Selected
+                </span>
+                <button
+                  type="button"
+                  onClick={handleBulkDelete}
+                  className="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>Delete Selected ({selectedInquiryIds.length})</span>
+                </button>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Inquiries Table / Cards */}
@@ -345,23 +409,35 @@ export const InquiriesManager: React.FC<{
               return (
                 <div
                   key={inq.id}
-                  className="bg-stone-50/50 p-4 sm:p-5 rounded-2xl border border-stone-200 shadow-xs hover:shadow-md transition space-y-4"
+                  className={`p-4 sm:p-5 rounded-2xl border transition space-y-4 ${
+                    selectedInquiryIds.includes(inq.id)
+                      ? 'border-[#FC3200] ring-2 ring-[#FC3200]/20 bg-orange-50/30'
+                      : 'bg-stone-50/50 border-stone-200 shadow-xs hover:shadow-md'
+                  }`}
                   id={`newsletter-row-${inq.id}`}
                 >
                   <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
-                    <div>
-                      <div className="flex flex-wrap items-center gap-2.5 mb-1.5">
-                        <span className="px-2.5 py-0.5 rounded-full bg-orange-100 text-[#FF4B00] border border-orange-200 text-[10px] font-black tracking-wider uppercase">
-                          📬 Subscriber
-                        </span>
-                        <h3 className="text-base sm:text-lg font-black text-stone-900 truncate">
-                          {inq.email}
-                        </h3>
-                      </div>
-                      <div className="text-xs text-stone-500 font-medium leading-relaxed">
-                        Reader ID: <span className="font-mono font-bold text-stone-700">{formatBookingNumber(inq.id)}</span>
-                        <span className="mx-2">•</span>
-                        Signed up: <span className="font-bold text-stone-700">{new Date(inq.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        checked={selectedInquiryIds.includes(inq.id)}
+                        onChange={() => handleToggleSelect(inq.id)}
+                        className="w-4 h-4 rounded border-stone-300 text-[#FC3200] focus:ring-[#FC3200] cursor-pointer mt-1"
+                      />
+                      <div>
+                        <div className="flex flex-wrap items-center gap-2.5 mb-1.5">
+                          <span className="px-2.5 py-0.5 rounded-full bg-orange-100 text-[#FF4B00] border border-orange-200 text-[10px] font-black tracking-wider uppercase">
+                            📬 Subscriber
+                          </span>
+                          <h3 className="text-base sm:text-lg font-black text-stone-900 truncate">
+                            {inq.email}
+                          </h3>
+                        </div>
+                        <div className="text-xs text-stone-500 font-medium leading-relaxed">
+                          Reader ID: <span className="font-mono font-bold text-stone-700">{formatBookingNumber(inq.id)}</span>
+                          <span className="mx-2">•</span>
+                          Signed up: <span className="font-bold text-stone-700">{new Date(inq.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                        </div>
                       </div>
                     </div>
 
@@ -405,16 +481,27 @@ export const InquiriesManager: React.FC<{
             return (
               <div
                 key={inq.id}
-                className="bg-white p-4 sm:p-5 rounded-2xl border border-stone-200 shadow-sm hover:shadow-md transition space-y-4"
+                className={`p-4 sm:p-5 rounded-2xl border transition space-y-4 ${
+                  selectedInquiryIds.includes(inq.id)
+                    ? 'border-[#FC3200] ring-2 ring-[#FC3200]/20 bg-orange-50/20'
+                    : 'bg-white border-stone-200 shadow-sm hover:shadow-md'
+                }`}
                 id={`inquiry-row-${inq.id}`}
               >
                 {/* Header: Name, Status, Ref */}
                 <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
-                  <div>
-                    <div className="flex flex-wrap items-center gap-2.5 mb-1.5">
-                      <h3 className="text-base sm:text-lg font-black text-stone-900">
-                        {inq.travelerName}
-                      </h3>
+                  <div className="flex items-start gap-3">
+                    <input
+                      type="checkbox"
+                      checked={selectedInquiryIds.includes(inq.id)}
+                      onChange={() => handleToggleSelect(inq.id)}
+                      className="w-4 h-4 rounded border-stone-300 text-[#FC3200] focus:ring-[#FC3200] cursor-pointer mt-1"
+                    />
+                    <div>
+                      <div className="flex flex-wrap items-center gap-2.5 mb-1.5">
+                        <h3 className="text-base sm:text-lg font-black text-stone-900">
+                          {inq.travelerName}
+                        </h3>
                       
                       {/* Memorable Booking Number Badge with 1-click Copy */}
                       <button
@@ -445,6 +532,7 @@ export const InquiriesManager: React.FC<{
                     </div>
                   </div>
                 </div>
+              </div>
 
                 {/* Assignment & Status Controls Row */}
                 <div className="flex flex-wrap items-center gap-2">
@@ -452,7 +540,11 @@ export const InquiriesManager: React.FC<{
                     <UserCheck className="w-3.5 h-3.5 text-stone-400" />
                     <select
                       value={inq.assignedStaffId || ''}
-                      onChange={(e) => assignInquiryStaff(inq.id, e.target.value)}
+                      onChange={(e) => {
+                        const selectedId = e.target.value;
+                        const sMember = staff.find(s => s.id === selectedId);
+                        assignInquiryStaff(inq.id, selectedId, sMember ? sMember.name : 'Unassigned');
+                      }}
                       className="bg-transparent text-xs font-bold text-stone-700 focus:outline-none cursor-pointer"
                     >
                       <option value="">Unassigned</option>

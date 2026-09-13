@@ -129,6 +129,8 @@ export const CMSDashboard: React.FC = () => {
     | 'settings'
     | 'faqs'
     | 'bottom-menus'
+    | 'hotels'
+    | 'post-editor'
   >('dashboard');
 
   const [editingPackage, setEditingPackage] = useState<TourPackage | null>(null);

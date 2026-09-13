@@ -123,6 +123,7 @@ export const CabsBookingSection: React.FC = () => {
     if (!pickupCity.trim() || !customerPhone.trim() || !isValidEmail(customerEmail)) return;
 
     submitInquiry({
+      packageId: 'cab-booking',
       travelerName: customerName || 'Cab Passenger',
       phone: customerPhone,
       email: customerEmail.trim().toLowerCase(),

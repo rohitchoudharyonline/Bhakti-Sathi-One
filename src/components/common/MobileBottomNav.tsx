@@ -30,8 +30,8 @@ export const MobileBottomNav: React.FC = () => {
     navigateToHome,
     navigateToAllTours,
     navigateToDestinationsExplorer,
-    openCustomPage,
-    openInfo,
+    navigateToCustomPage,
+    navigateToInfoPage,
   } = useTours();
 
   // Determine active states
@@ -52,7 +52,7 @@ export const MobileBottomNav: React.FC = () => {
   const publishedCount = packages.filter((p) => p.status === 'published').length || packages.length;
 
   const handleWhatsApp = () => {
-    const rawPhone = agencySettings.whatsappConciergeNumber || agencySettings.whatsapp || agencySettings.primaryPhone || '+919419915255';
+    const rawPhone = agencySettings.whatsapp || agencySettings.phone || '+919419915255';
     const cleanPhone = rawPhone.replace(/[^0-9]/g, '');
     const message = encodeURIComponent(
       'Hi Bhakti Sathi! I would like to inquire about holiday packages and custom itineraries.'
@@ -62,7 +62,7 @@ export const MobileBottomNav: React.FC = () => {
   };
 
   const handleCall = () => {
-    const phone = agencySettings.primaryPhone || agencySettings.phone || '+919419915255';
+    const phone = agencySettings.phone || '+919419915255';
     window.location.href = `tel:${phone.replace(/\s+/g, '')}`;
   };
 
@@ -151,7 +151,7 @@ export const MobileBottomNav: React.FC = () => {
 
     const infoPages = ['about', 'faq', 'terms', 'cancellation', 'privacy', 'security', 'careers', 'contact', 'locate_us'];
     if (infoPages.includes(normalizedSlug)) {
-      openInfo(normalizedSlug);
+      navigateToInfoPage(normalizedSlug);
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
@@ -172,7 +172,7 @@ export const MobileBottomNav: React.FC = () => {
     }
 
     if (cleanUrl) {
-      openCustomPage(cleanUrl);
+      navigateToCustomPage(cleanUrl);
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }

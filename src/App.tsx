@@ -22,7 +22,7 @@ const AllToursDirectory = lazy(() => import('./components/traveler/AllToursDirec
 const CustomPageDetailView = lazy(() => import('./components/traveler/CustomPageDetailView').then((m) => ({ default: m.CustomPageDetailView })));
 const InfoPageView = lazy(() => import('./components/traveler/InfoPageView').then((m) => ({ default: m.InfoPageView })));
 const TravelerProfilePage = lazy(() => import('./components/traveler/TravelerProfilePage').then((m) => ({ default: m.TravelerProfilePage })));
-const TravelerAuthModal = lazy(() => import('./components/traveler/TravelerAuthModal').then((m) => ({ default: m.TravelerAuthModal })));
+import { TravelerAuthModal } from './components/traveler/TravelerAuthModal';
 const TravelerGoogleAuthPage = lazy(() => import('./components/traveler/TravelerGoogleAuthPage').then((m) => ({ default: m.TravelerGoogleAuthPage })));
 const JapCounterPageV2 = lazy(() => import('./components/traveler/JapCounterPageV2').then((m) => ({ default: m.JapCounterPageV2 })));
 const PanchangCalendarPageV3 = lazy(() => import('./components/traveler/PanchangCalendarPageV3').then((m) => ({ default: m.PanchangCalendarPageV3 })));
@@ -97,9 +97,7 @@ const MainAppContent: React.FC = () => {
         </ErrorBoundary>
         {activeView === 'traveler' && !showTravelerGoogleAuth && !isSitemapOpen && !isPanchangOpen && !isHoroscopeOpen && <MobileBottomNav />}
         {activeView === 'traveler' && !showTravelerGoogleAuth && !isSitemapOpen && !isPanchangOpen && !isHoroscopeOpen && <FloatingSupportWidget />}
-        <Suspense fallback={null}>
-          {!showTravelerGoogleAuth && <TravelerAuthModal />}
-        </Suspense>
+        {!showTravelerGoogleAuth && <TravelerAuthModal />}
         <PWAInstallButton />
       </div>
     </>

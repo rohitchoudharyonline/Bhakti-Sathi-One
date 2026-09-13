@@ -179,9 +179,11 @@ export const BlogPostDetailView: React.FC<BlogPostDetailViewProps> = ({ slug }) 
           <div className="my-6 py-2.5 px-4 bg-stone-50/80 rounded-xl border border-stone-200/80 text-xs text-stone-600 flex items-center justify-between gap-4 max-w-fit shadow-2xs">
             <div className="flex items-center gap-2">
               <span className="font-bold text-stone-900 tracking-tight">By Bhakti Sathi Staff</span>
-              <svg className="w-4 h-4 text-blue-600 shrink-0" viewBox="0 0 24 24" fill="currentColor" aria-label="Verified" title="Verified Staff">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1.99 14.5l-3.99-4 1.41-1.42L10.01 13.67l7.59-7.59 1.41 1.41-9 9z"/>
-              </svg>
+              <span title="Verified Staff" className="inline-flex">
+                <svg className="w-4 h-4 text-blue-600 shrink-0" viewBox="0 0 24 24" fill="currentColor" aria-label="Verified">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1.99 14.5l-3.99-4 1.41-1.42L10.01 13.67l7.59-7.59 1.41 1.41-9 9z"/>
+                </svg>
+              </span>
               <span className="text-stone-300">|</span>
               <span className="text-stone-500 font-medium">
                 {new Date(post.publishedAt).toLocaleDateString('en-US', {
@@ -370,7 +372,7 @@ export const BlogPostDetailView: React.FC<BlogPostDetailViewProps> = ({ slug }) 
             <div className="pt-2 flex flex-wrap gap-3">
               <button
                 onClick={() => {
-                  window.open(`https://wa.me/${(agencySettings?.whatsapp || agencySettings?.whatsappNumber || '').replace(/[^0-9]/g, '')}?text=Hi+Bhakti+Sathi,+I+read+your+article+${encodeURIComponent(post.title)}+and+want+a+custom+tour+quote!`, '_blank');
+                  window.open(`https://wa.me/${(agencySettings?.whatsapp || agencySettings?.phone || '').replace(/[^0-9]/g, '')}?text=Hi+Bhakti+Sathi,+I+read+your+article+${encodeURIComponent(post.title)}+and+want+a+custom+tour+quote!`, '_blank');
                 }}
                 className="px-6 py-3 bg-white text-black text-xs font-bold rounded-xl hover:bg-stone-100 transition cursor-pointer"
               >

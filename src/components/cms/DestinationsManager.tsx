@@ -40,6 +40,7 @@ export const DestinationsManager: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'list' | 'editor'>('list');
   const [editingDest, setEditingDest] = useState<DestinationMeta | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedSlugs, setSelectedSlugs] = useState<string[]>([]);
   const [showMediaModal, setShowMediaModal] = useState(false);
   const [editorSubTab, setEditorSubTab] = useState<'basic' | 'guide' | 'attractions' | 'faqs' | 'seo' | 'schema'>('basic');
 
@@ -193,6 +194,32 @@ export const DestinationsManager: React.FC = () => {
 
   const liveSchema = generateTouristDestinationSchema(formData, agencySettings);
 
+  const handleToggleSelectAll = () => {
+    if (selectedSlugs.length === filteredDestinations.length && filteredDestinations.length > 0) {
+      setSelectedSlugs([]);
+    } else {
+      setSelectedSlugs(filteredDestinations.map((d) => d.slug));
+    }
+  };
+
+  const handleToggleSelect = (slug: string) => {
+    setSelectedSlugs((prev) =>
+      prev.includes(slug) ? prev.filter((item) => item !== slug) : [...prev, slug]
+    );
+  };
+
+  const handleBulkDelete = () => {
+    if (selectedSlugs.length === 0) return;
+    if (
+      window.confirm(
+        `Are you sure you want to delete ${selectedSlugs.length} selected destination(s)? This action cannot be undone.`
+      )
+    ) {
+      selectedSlugs.forEach((slug) => deleteDestination(slug));
+      setSelectedSlugs([]);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header bar */}
@@ -230,32 +257,81 @@ export const DestinationsManager: React.FC = () => {
       {/* VIEW 1: DESTINATIONS LIST */}
       {activeTab === 'list' && (
         <div className="space-y-4">
-          <div className="relative w-full sm:w-80">
-            <Search className="w-4 h-4 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
-              placeholder="Search destinations..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-xs focus:bg-white focus:outline-none"
-            />
+          <div className="bg-white rounded-2xl border border-stone-200 p-4 shadow-xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+            <div className="relative w-full sm:w-80">
+              <Search className="w-4 h-4 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                placeholder="Search destinations..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-9 pr-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-xs focus:bg-white focus:outline-none"
+              />
+            </div>
+
+            {filteredDestinations.length > 0 && (
+              <div className="flex items-center gap-3 text-xs">
+                <label className="flex items-center gap-2 font-bold text-stone-700 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={
+                      selectedSlugs.length === filteredDestinations.length &&
+                      filteredDestinations.length > 0
+                    }
+                    onChange={handleToggleSelectAll}
+                    className="w-4 h-4 rounded border-stone-300 text-black focus:ring-black cursor-pointer"
+                  />
+                  <span>Select All ({filteredDestinations.length})</span>
+                </label>
+
+                {selectedSlugs.length > 0 && (
+                  <div className="flex items-center gap-2 animate-fade-in">
+                    <span className="font-extrabold text-rose-700 bg-rose-50 px-2.5 py-1 rounded-lg border border-rose-200">
+                      {selectedSlugs.length} Selected
+                    </span>
+                    <button
+                      type="button"
+                      onClick={handleBulkDelete}
+                      className="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                      <span>Delete Selected ({selectedSlugs.length})</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {filteredDestinations.map((dest) => (
               <div
                 key={dest.slug}
-                className="bg-white border border-stone-200 rounded-2xl overflow-hidden shadow-xs hover:border-black transition flex flex-col justify-between group"
+                className={`bg-white border rounded-2xl overflow-hidden shadow-xs hover:border-black transition flex flex-col justify-between group relative ${
+                  selectedSlugs.includes(dest.slug)
+                    ? 'border-black ring-2 ring-black/20 bg-stone-50'
+                    : 'border-stone-200'
+                }`}
               >
                 <div>
                   <div className="aspect-16/9 relative overflow-hidden bg-stone-100">
+                    {/* Checkbox overlay */}
+                    <div className="absolute top-2 left-2 z-20">
+                      <input
+                        type="checkbox"
+                        checked={selectedSlugs.includes(dest.slug)}
+                        onChange={() => handleToggleSelect(dest.slug)}
+                        className="w-5 h-5 rounded border-2 border-white shadow-md text-black focus:ring-black cursor-pointer bg-black/40"
+                      />
+                    </div>
+
                     <img
                       src={resolveDisplayImage(dest.heroImage, mediaAssets)}
                       alt={dest.name}
                       onError={(e) => handleImageError(e, dest.heroImage, mediaAssets)}
                       className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
                     />
-                    <span className="absolute top-2 left-2 px-2.5 py-1 bg-black/75 text-white text-[10px] font-bold rounded-lg uppercase tracking-wider backdrop-blur-xs">
+                    <span className="absolute top-2 right-2 px-2.5 py-1 bg-black/75 text-white text-[10px] font-bold rounded-lg uppercase tracking-wider backdrop-blur-xs">
                       {dest.state}
                     </span>
                   </div>

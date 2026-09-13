@@ -146,6 +146,7 @@ export const DestinationPage: React.FC = () => {
     if (!leadName.trim() || !leadPhone.trim() || !isValidEmail(leadEmail)) return;
 
     submitInquiry({
+      packageId: 'custom-pilgrimage',
       travelerName: leadName,
       phone: leadPhone,
       email: leadEmail.trim().toLowerCase(),
@@ -169,7 +170,7 @@ export const DestinationPage: React.FC = () => {
   };
 
   const handleWhatsAppInquiry = (pkgTitle?: string, currentTierLabel?: string, currentPriceVal?: number) => {
-    const rawPhone = agencySettings.whatsappConciergeNumber || agencySettings.primaryPhone || '+919419915255';
+    const rawPhone = agencySettings.whatsapp || agencySettings.phone || '+919419915255';
     const cleanPhone = rawPhone.replace(/[^0-9]/g, '');
     const priceText = currentPriceVal ? ` (Approx ₹${currentPriceVal.toLocaleString('en-IN')}/person)` : '';
     const tierText = currentTierLabel ? ` [${currentTierLabel}]` : '';
@@ -213,7 +214,7 @@ export const DestinationPage: React.FC = () => {
             </button>
 
             <a
-              href={`tel:${agencySettings.primaryPhone || '+919419915255'}`}
+              href={`tel:${agencySettings.phone || '+919419915255'}`}
               className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-stone-900 hover:bg-stone-800 text-white text-xs font-bold transition shadow-2xs"
             >
               <Phone className="w-3.5 h-3.5" />

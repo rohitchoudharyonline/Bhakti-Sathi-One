@@ -60,7 +60,7 @@ export const PackageCard: React.FC<PackageCardProps> = ({ pkg, onSelect, onQuick
 
   const handleWhatsAppQuickQuote = (e: React.MouseEvent) => {
     e.stopPropagation();
-    const rawPhone = agencySettings.whatsappConciergeNumber || agencySettings.primaryPhone || '+919419915255';
+    const rawPhone = agencySettings.whatsapp || agencySettings.phone || '+919419915255';
     const cleanPhone = rawPhone.replace(/[^0-9]/g, '');
     const priceText = priceResult.isPriceOnRequest
       ? 'Price on Request'

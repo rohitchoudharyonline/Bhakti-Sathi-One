@@ -7,7 +7,11 @@ export interface SEOData {
 /**
   Generates SEO metadata adhering strictly to title <= 60 chars & description <= 130 chars.
  */
-export function generateAutoSEO(type: 'destination' | 'temple' | 'package' | 'blog', name: string, extra?: { city?: string; state?: string; tagline?: string; price?: number }): SEOData {
+export function generateAutoSEO(
+  type: 'destination' | 'temple' | 'package' | 'blog' | 'guide' | 'custom_page' | 'website_page',
+  name: string,
+  extra?: { city?: string; state?: string; tagline?: string; price?: number; category?: string }
+): SEOData {
   const cleanName = name.trim();
   const locationStr = extra?.city ? `${extra.city}` : extra?.state ? `${extra.state}` : 'India';
 
@@ -16,16 +20,10 @@ export function generateAutoSEO(type: 'destination' | 'temple' | 'package' | 'bl
   let keywords = '';
 
   if (type === 'temple') {
-    // Target Title: <= 60 chars
     title = `${cleanName} ${extra?.city || 'Yatra'} Guide | Bhakti Sathi`;
-    if (title.length > 60) {
-      title = `${cleanName} Guide | Bhakti Sathi`;
-    }
-    if (title.length > 60) {
-      title = `${cleanName.substring(0, 42)}... | Bhakti Sathi`;
-    }
+    if (title.length > 60) title = `${cleanName} Guide | Bhakti Sathi`;
+    if (title.length > 60) title = `${cleanName.substring(0, 42)}... | Bhakti Sathi`;
 
-    // Target Description: <= 130 chars
     const baseDesc = extra?.tagline 
       ? `Visit ${cleanName} in ${locationStr}. ${extra.tagline}`
       : `Complete travel & pilgrimage guide for ${cleanName} in ${locationStr}. Darshan timings, history & tour packages.`;
@@ -41,43 +39,57 @@ export function generateAutoSEO(type: 'destination' | 'temple' | 'package' | 'bl
         description = `${cleanName} yatra guide, darshan timings & pilgrimage tour packages with Bhakti Sathi.`;
       }
     }
-
     keywords = `${cleanName}, ${cleanName} darshan, ${locationStr} temples, ${cleanName} yatra packages, Bhakti Sathi`;
 
   } else if (type === 'destination') {
-    // Target Title: <= 60 chars
     title = `${cleanName} Tour Packages & Yatra Guide | Bhakti Sathi`;
-    if (title.length > 60) {
-      title = `${cleanName} Tour Packages | Bhakti Sathi`;
-    }
+    if (title.length > 60) title = `${cleanName} Tour Packages | Bhakti Sathi`;
+    if (title.length > 60) title = `${cleanName.substring(0, 42)}... | Bhakti Sathi`;
 
-    // Target Description: <= 130 chars
     description = `Book ${cleanName} tour packages with Bhakti Sathi. Explore sacred temples, verified hotels, private cabs & 24/7 yatra support.`;
     if (description.length > 130) {
       description = `Book ${cleanName} tour packages. Verified hotels, private cabs & 24/7 yatra support with Bhakti Sathi.`;
     }
-
     keywords = `${cleanName} tour packages, ${cleanName} yatra, ${cleanName} sacred temples, ${cleanName} holiday package, Bhakti Sathi`;
 
   } else if (type === 'package') {
-    // Target Title: <= 60 chars
     title = `${cleanName} Package | Bhakti Sathi`;
-    if (title.length > 60) {
-      title = `${cleanName.substring(0, 42)}... | Bhakti Sathi`;
-    }
+    if (title.length > 60) title = `${cleanName.substring(0, 42)}... | Bhakti Sathi`;
 
-    // Target Description: <= 130 chars
     const priceText = extra?.price ? ` Starting ₹${extra.price}.` : '';
     description = `Book ${cleanName}.${priceText} Private vehicle, verified hotel stays & 24/7 yatra support by Bhakti Sathi.`;
     if (description.length > 130) {
       description = `Book ${cleanName} with Bhakti Sathi. Verified hotels, private cab transfers & 24/7 yatra assistance.`;
     }
-
     keywords = `${cleanName}, pilgrimage tour, yatra booking, Bhakti Sathi packages`;
 
+  } else if (type === 'guide') {
+    title = `${cleanName} Travel Guide & Tips | Bhakti Sathi`;
+    if (title.length > 60) title = `${cleanName} Guide | Bhakti Sathi`;
+    if (title.length > 60) title = `${cleanName.substring(0, 42)}... | Bhakti Sathi`;
+
+    description = `Read official travel guide for ${cleanName}. Darshan tips, best time to visit, weather & tour packages by Bhakti Sathi.`;
+    if (description.length > 130) {
+      description = `Complete ${cleanName} yatra guide. Darshan timings, itinerary tips & travel packages by Bhakti Sathi.`;
+    }
+    keywords = `${cleanName}, ${cleanName} guide, yatra tips, pilgrimage travel, Bhakti Sathi`;
+
+  } else if (type === 'custom_page' || type === 'website_page') {
+    title = `${cleanName} | Bhakti Sathi Sacred Yatra`;
+    if (title.length > 60) title = `${cleanName} | Bhakti Sathi`;
+    if (title.length > 60) title = `${cleanName.substring(0, 42)}... | Bhakti Sathi`;
+
+    description = `${cleanName} page on Bhakti Sathi. Book verified pilgrimage tours, private cabs & hotel stays across India.`;
+    if (description.length > 130) {
+      description = `${cleanName} on Bhakti Sathi. Verified yatra packages, temple darshan & travel services across India.`;
+    }
+    keywords = `${cleanName}, Bhakti Sathi, yatra packages, pilgrimage tours`;
+
   } else {
-    // Blog or default
+    // Blog
     title = `${cleanName} | Bhakti Sathi`;
+    if (title.length > 60) title = `${cleanName.substring(0, 42)}... | Bhakti Sathi`;
+
     description = `Read about ${cleanName} on Bhakti Sathi. Discover sacred Indian yatra guides, temple histories & travel tips.`;
     if (description.length > 130) {
       description = `Discover ${cleanName} with Bhakti Sathi. Sacred pilgrimage guides & yatra tips across India.`;

@@ -32,6 +32,7 @@ export const VendorsManager: React.FC<{
  const [categoryFilter, setCategoryFilter] = useState<string>('all');
  const [countryFilter, setCountryFilter] = useState<string>('all');
  const [stateFilter, setStateFilter] = useState<string>('all');
+ const [selectedVendorIds, setSelectedVendorIds] = useState<string[]>([]);
  const [editingVendor, setEditingVendor] = useState<Vendor | null>(null);
  const [isCreating, setIsCreating] = useState(false);
 
@@ -160,6 +161,33 @@ export const VendorsManager: React.FC<{
   return matchesCategory && matchesCountry && matchesState && matchesSearch;
  });
 
+ // Bulk Selection Handlers
+ const handleToggleSelectAll = () => {
+  if (selectedVendorIds.length === filteredVendors.length && filteredVendors.length > 0) {
+   setSelectedVendorIds([]);
+  } else {
+   setSelectedVendorIds(filteredVendors.map((v) => v.id));
+  }
+ };
+
+ const handleToggleSelect = (id: string) => {
+  setSelectedVendorIds((prev) =>
+   prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+  );
+ };
+
+ const handleBulkDelete = () => {
+  if (selectedVendorIds.length === 0) return;
+  if (
+   window.confirm(
+    `Are you sure you want to delete ${selectedVendorIds.length} selected vendor(s)?`
+   )
+  ) {
+   selectedVendorIds.forEach((id) => deleteVendor(id));
+   setSelectedVendorIds([]);
+  }
+ };
+
  return (
   <div className="space-y-6" id="vendors-manager">
    {/* Header */}
@@ -259,6 +287,39 @@ export const VendorsManager: React.FC<{
       </button>
      ))}
     </div>
+
+    {/* Bulk Actions Bar */}
+    {filteredVendors.length > 0 && (
+     <div className="p-3 bg-white dark:bg-stone-900 border border-stone-200 rounded-xl flex items-center justify-between text-xs">
+      <label className="flex items-center gap-2 font-bold text-stone-700 dark:text-stone-300 cursor-pointer select-none">
+       <input
+        type="checkbox"
+        checked={
+         selectedVendorIds.length === filteredVendors.length && filteredVendors.length > 0
+        }
+        onChange={handleToggleSelectAll}
+        className="w-4 h-4 rounded border-stone-300 text-[#FC3200] focus:ring-[#FC3200] cursor-pointer"
+       />
+       <span>Select All Vendors ({filteredVendors.length})</span>
+      </label>
+
+      {selectedVendorIds.length > 0 && (
+       <div className="flex items-center gap-2 animate-fade-in">
+        <span className="font-extrabold text-rose-700 bg-rose-50 px-2.5 py-1 rounded-lg border border-rose-200">
+         {selectedVendorIds.length} Selected
+        </span>
+        <button
+         type="button"
+         onClick={handleBulkDelete}
+         className="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center gap-1.5 cursor-pointer"
+        >
+         <Trash2 className="w-3.5 h-3.5" />
+         <span>Delete Selected ({selectedVendorIds.length})</span>
+        </button>
+       </div>
+      )}
+     </div>
+    )}
    </div>
 
    {/* Vendors Grid */}
@@ -266,13 +327,23 @@ export const VendorsManager: React.FC<{
     {filteredVendors.map((vendor) => (
      <div
       key={vendor.id}
-      className="bg-white dark:bg-stone-900 rounded-2xl border border-stone-200 p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
+      className={`rounded-2xl border p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between ${
+       selectedVendorIds.includes(vendor.id)
+        ? 'border-[#FC3200] ring-2 ring-[#FC3200]/20 bg-orange-50/20'
+        : 'bg-white dark:bg-stone-900 border-stone-200'
+      }`}
       id={`vendor-card-${vendor.id}`}
      >
       <div>
        {/* Header */}
        <div className="flex items-start justify-between gap-2">
         <div className="flex items-center gap-2">
+         <input
+          type="checkbox"
+          checked={selectedVendorIds.includes(vendor.id)}
+          onChange={() => handleToggleSelect(vendor.id)}
+          className="w-4 h-4 rounded border-stone-300 text-[#FC3200] focus:ring-[#FC3200] cursor-pointer"
+         />
          <div className="p-2.5 rounded-xl bg-stone-50 dark:bg-stone-800 border border-stone-100 ">
           {getCategoryIcon(vendor.category)}
          </div>

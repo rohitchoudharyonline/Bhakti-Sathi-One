@@ -403,6 +403,7 @@ export const LuxuryHomepage: React.FC = () => {
       : `${leadPhone.replace(/\D/g, '')}@callback.bhaktisathi.com`;
 
     submitInquiry({
+      packageId: 'callback-request',
       travelerName: leadName.trim(),
       phone: leadPhone.trim(),
       email: cleanEmail,

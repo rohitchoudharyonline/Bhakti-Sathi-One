@@ -25,7 +25,7 @@ export const JapCounterPage: React.FC = () => {
       const saved = localStorage.getItem(DEVOTEE_NAME_KEY);
       if (saved?.trim()) return saved.trim();
     } catch {}
-    return travelerUser?.displayName || travelerUser?.name || '';
+    return travelerUser?.name || '';
   });
   const [profileNameInput, setProfileNameInput] = useState(devoteeName);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
@@ -51,8 +51,8 @@ export const JapCounterPage: React.FC = () => {
   }, [records, activeMantra, soundEnabled, vibrationEnabled, targetMalaGoal]);
 
   useEffect(() => {
-    if (!devoteeName && (travelerUser?.displayName || travelerUser?.name)) {
-      setDevoteeName(travelerUser.displayName || travelerUser.name || '');
+    if (!devoteeName && travelerUser?.name) {
+      setDevoteeName(travelerUser.name || '');
     }
   }, [travelerUser, devoteeName]);
 

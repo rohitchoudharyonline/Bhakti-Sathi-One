@@ -31,6 +31,7 @@ export const CustomPagesManager: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'list' | 'editor'>('list');
   const [editingPage, setEditingPage] = useState<CustomPage | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedPageIds, setSelectedPageIds] = useState<string[]>([]);
   const [showMediaModal, setShowMediaModal] = useState(false);
 
   // Form state
@@ -153,6 +154,33 @@ export const CustomPagesManager: React.FC = () => {
     return true;
   });
 
+  // Bulk Selection Handlers
+  const handleToggleSelectAll = () => {
+    if (selectedPageIds.length === filteredPages.length && filteredPages.length > 0) {
+      setSelectedPageIds([]);
+    } else {
+      setSelectedPageIds(filteredPages.map((p) => p.id));
+    }
+  };
+
+  const handleToggleSelect = (id: string) => {
+    setSelectedPageIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  };
+
+  const handleBulkDelete = () => {
+    if (selectedPageIds.length === 0) return;
+    if (
+      window.confirm(
+        `Are you sure you want to delete ${selectedPageIds.length} selected page(s)? This action cannot be undone.`
+      )
+    ) {
+      selectedPageIds.forEach((id) => deleteCustomPage(id));
+      setSelectedPageIds([]);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -179,21 +207,70 @@ export const CustomPagesManager: React.FC = () => {
       {/* VIEW 1: PAGES LIST */}
       {activeTab === 'list' && (
         <div className="space-y-4">
-          <div className="relative w-full sm:w-80">
-            <Search className="w-4 h-4 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
-              placeholder="Search pages..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-xs focus:bg-white focus:outline-none"
-            />
+          <div className="bg-white p-3 rounded-2xl border border-stone-200 shadow-xs space-y-3">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+              <div className="relative w-full sm:w-80">
+                <Search className="w-4 h-4 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  placeholder="Search pages..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-9 pr-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-xs focus:bg-white focus:outline-none"
+                />
+              </div>
+            </div>
+
+            {/* Bulk Actions Sub-Bar */}
+            {filteredPages.length > 0 && (
+              <div className="pt-2 border-t border-stone-100 flex items-center justify-between text-xs">
+                <label className="flex items-center gap-2 font-bold text-stone-700 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={
+                      selectedPageIds.length === filteredPages.length &&
+                      filteredPages.length > 0
+                    }
+                    onChange={handleToggleSelectAll}
+                    className="w-4 h-4 rounded border-stone-300 text-black focus:ring-black cursor-pointer"
+                  />
+                  <span>Select All Pages ({filteredPages.length})</span>
+                </label>
+
+                {selectedPageIds.length > 0 && (
+                  <div className="flex items-center gap-2 animate-fade-in">
+                    <span className="font-extrabold text-rose-700 bg-rose-50 px-2.5 py-1 rounded-lg border border-rose-200">
+                      {selectedPageIds.length} Selected
+                    </span>
+                    <button
+                      type="button"
+                      onClick={handleBulkDelete}
+                      className="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                      <span>Delete Selected ({selectedPageIds.length})</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           <div className="bg-white border border-stone-200 rounded-2xl overflow-hidden shadow-xs">
             <table className="w-full text-left text-xs">
               <thead className="bg-stone-50 text-stone-500 font-semibold border-b border-stone-200">
                 <tr>
+                  <th className="py-3 px-4 w-10">
+                    <input
+                      type="checkbox"
+                      checked={
+                        selectedPageIds.length === filteredPages.length &&
+                        filteredPages.length > 0
+                      }
+                      onChange={handleToggleSelectAll}
+                      className="w-4 h-4 rounded border-stone-300 text-black focus:ring-black cursor-pointer"
+                    />
+                  </th>
                   <th className="py-3 px-4">Page Title & Slug</th>
                   <th className="py-3 px-4 hidden sm:table-cell">Placement</th>
                   <th className="py-3 px-4">Status</th>
@@ -202,7 +279,20 @@ export const CustomPagesManager: React.FC = () => {
               </thead>
               <tbody className="divide-y divide-stone-100">
                 {filteredPages.map((page) => (
-                  <tr key={page.id} className="hover:bg-stone-50 transition">
+                  <tr
+                    key={page.id}
+                    className={`hover:bg-stone-50 transition ${
+                      selectedPageIds.includes(page.id) ? 'bg-amber-50/40' : ''
+                    }`}
+                  >
+                    <td className="py-3 px-4">
+                      <input
+                        type="checkbox"
+                        checked={selectedPageIds.includes(page.id)}
+                        onChange={() => handleToggleSelect(page.id)}
+                        className="w-4 h-4 rounded border-stone-300 text-black focus:ring-black cursor-pointer"
+                      />
+                    </td>
                     <td className="py-3 px-4">
                       <p className="font-bold text-black">{page.title}</p>
                       <p className="text-[10px] text-stone-400 font-mono">/page/{page.slug}</p>

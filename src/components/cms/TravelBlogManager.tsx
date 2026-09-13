@@ -109,6 +109,8 @@ export const TravelBlogManager: React.FC<TravelBlogManagerProps> = ({
   const [statusFilter, setStatusFilter] = useState<'all' | 'published' | 'draft'>('all');
   const [sortBy, setSortBy] = useState<'date-desc' | 'date-asc' | 'title' | 'readTime'>('date-desc');
   const [viewMode, setViewMode] = useState<'table' | 'cards'>('cards');
+  const [selectedPostIds, setSelectedPostIds] = useState<string[]>([]);
+  const [selectedCatIds, setSelectedCatIds] = useState<string[]>([]);
   
   // Modals
   const [showMediaModal, setShowMediaModal] = useState(false);
@@ -602,7 +604,7 @@ Bring thermal layers in winter, comfortable walking boots, and modest attire for
           schemaType: formData.schemaType,
         },
       },
-      agencySettings.companyName || 'Bhakti Sathi Travel'
+      agencySettings
     ),
     null,
     2
@@ -636,6 +638,60 @@ Bring thermal layers in winter, comfortable walking boots, and modest attire for
       }
       return 0;
     });
+
+  // Bulk Selection Handlers for Posts
+  const handleToggleSelectAllPosts = () => {
+    if (selectedPostIds.length === filteredPosts.length && filteredPosts.length > 0) {
+      setSelectedPostIds([]);
+    } else {
+      setSelectedPostIds(filteredPosts.map((p) => p.id));
+    }
+  };
+
+  const handleToggleSelectPost = (id: string) => {
+    setSelectedPostIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  };
+
+  const handleBulkDeletePosts = () => {
+    if (selectedPostIds.length === 0) return;
+    if (
+      window.confirm(
+        `Are you sure you want to delete ${selectedPostIds.length} selected article(s)? This action cannot be undone.`
+      )
+    ) {
+      selectedPostIds.forEach((id) => deleteBlogPost(id));
+      setSelectedPostIds([]);
+    }
+  };
+
+  // Bulk Selection Handlers for Categories
+  const handleToggleSelectAllCats = () => {
+    if (selectedCatIds.length === blogCategories.length && blogCategories.length > 0) {
+      setSelectedCatIds([]);
+    } else {
+      setSelectedCatIds(blogCategories.map((c) => c.id));
+    }
+  };
+
+  const handleToggleSelectCat = (id: string) => {
+    setSelectedCatIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  };
+
+  const handleBulkDeleteCats = () => {
+    if (selectedCatIds.length === 0) return;
+    if (
+      window.confirm(
+        `Are you sure you want to delete ${selectedCatIds.length} selected category/categories? This action cannot be undone.`
+      )
+    ) {
+      selectedCatIds.forEach((id) => deleteBlogCategory(id));
+      setSelectedCatIds([]);
+    }
+  };
 
   const wordCount = formData.content.split(/\s+/).filter(Boolean).length;
   const charCount = formData.content.length;
@@ -777,74 +833,110 @@ Bring thermal layers in winter, comfortable walking boots, and modest attire for
       {activeSubTab === 'posts' && (
         <div className="space-y-4">
           {/* Filter Bar */}
-          <div className="bg-white p-3 sm:p-4 rounded-2xl border border-stone-200 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 shadow-xs">
-            <div className="relative flex-1 w-full">
-              <Search className="w-4 h-4 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2" />
-              <input
-                type="text"
-                placeholder="Search articles by title, keywords, or tags..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-9 pr-4 py-2.5 bg-stone-50 border border-stone-300 rounded-xl text-xs focus:bg-white focus:outline-none focus:ring-1 focus:ring-black font-medium text-stone-900"
-              />
-            </div>
+          <div className="bg-white p-3 sm:p-4 rounded-2xl border border-stone-200 space-y-3 shadow-xs">
+            <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+              <div className="relative flex-1 w-full">
+                <Search className="w-4 h-4 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  placeholder="Search articles by title, keywords, or tags..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-9 pr-4 py-2.5 bg-stone-50 border border-stone-300 rounded-xl text-xs focus:bg-white focus:outline-none focus:ring-1 focus:ring-black font-medium text-stone-900"
+                />
+              </div>
 
-            <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 w-full md:w-auto">
-              <select
-                value={categoryFilter}
-                onChange={(e) => setCategoryFilter(e.target.value)}
-                className="w-full sm:w-auto px-2.5 py-2.5 bg-stone-50 border border-stone-300 rounded-xl text-xs font-bold text-stone-800 focus:outline-none truncate"
-              >
-                <option value="all">All Categories</option>
-                {blogCategories.map((c) => (
-                  <option key={c.id} value={c.slug}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
-
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value as any)}
-                className="w-full sm:w-auto px-2.5 py-2.5 bg-stone-50 border border-stone-300 rounded-xl text-xs font-bold text-stone-800 focus:outline-none"
-              >
-                <option value="all">All Status</option>
-                <option value="published">Published Only</option>
-                <option value="draft">Drafts Only</option>
-              </select>
-
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as any)}
-                className="w-full sm:w-auto px-2.5 py-2.5 bg-stone-50 border border-stone-300 rounded-xl text-xs font-bold text-stone-800 focus:outline-none"
-              >
-                <option value="date-desc">Newest First</option>
-                <option value="date-asc">Oldest First</option>
-                <option value="title">Title (A-Z)</option>
-                <option value="readTime">Read Time</option>
-              </select>
-
-              <div className="col-span-2 sm:col-span-1 flex items-center justify-center bg-stone-100 rounded-xl p-1 border border-stone-200 text-xs shrink-0">
-                <button
-                  type="button"
-                  onClick={() => setViewMode('table')}
-                  className={`flex-1 sm:flex-none px-3 py-1.5 rounded-lg font-bold transition cursor-pointer text-center ${
-                    viewMode === 'table' ? 'bg-white shadow-xs text-stone-900' : 'text-stone-500'
-                  }`}
+              <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 w-full md:w-auto">
+                <select
+                  value={categoryFilter}
+                  onChange={(e) => setCategoryFilter(e.target.value)}
+                  className="w-full sm:w-auto px-2.5 py-2.5 bg-stone-50 border border-stone-300 rounded-xl text-xs font-bold text-stone-800 focus:outline-none truncate"
                 >
-                  Table
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setViewMode('cards')}
-                  className={`flex-1 sm:flex-none px-3 py-1.5 rounded-lg font-bold transition cursor-pointer text-center ${
-                    viewMode === 'cards' ? 'bg-white shadow-xs text-stone-900' : 'text-stone-500'
-                  }`}
+                  <option value="all">All Categories</option>
+                  {blogCategories.map((c) => (
+                    <option key={c.id} value={c.slug}>
+                      {c.name}
+                    </option>
+                  ))}
+                </select>
+
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value as any)}
+                  className="w-full sm:w-auto px-2.5 py-2.5 bg-stone-50 border border-stone-300 rounded-xl text-xs font-bold text-stone-800 focus:outline-none"
                 >
-                  Cards
-                </button>
+                  <option value="all">All Status</option>
+                  <option value="published">Published Only</option>
+                  <option value="draft">Drafts Only</option>
+                </select>
+
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as any)}
+                  className="w-full sm:w-auto px-2.5 py-2.5 bg-stone-50 border border-stone-300 rounded-xl text-xs font-bold text-stone-800 focus:outline-none"
+                >
+                  <option value="date-desc">Newest First</option>
+                  <option value="date-asc">Oldest First</option>
+                  <option value="title">Title (A-Z)</option>
+                  <option value="readTime">Read Time</option>
+                </select>
+
+                <div className="col-span-2 sm:col-span-1 flex items-center justify-center bg-stone-100 rounded-xl p-1 border border-stone-200 text-xs shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setViewMode('table')}
+                    className={`flex-1 sm:flex-none px-3 py-1.5 rounded-lg font-bold transition cursor-pointer text-center ${
+                      viewMode === 'table' ? 'bg-white shadow-xs text-stone-900' : 'text-stone-500'
+                    }`}
+                  >
+                    Table
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setViewMode('cards')}
+                    className={`flex-1 sm:flex-none px-3 py-1.5 rounded-lg font-bold transition cursor-pointer text-center ${
+                      viewMode === 'cards' ? 'bg-white shadow-xs text-stone-900' : 'text-stone-500'
+                    }`}
+                  >
+                    Cards
+                  </button>
+                </div>
               </div>
             </div>
+
+            {/* Bulk Actions Sub-Bar */}
+            {filteredPosts.length > 0 && (
+              <div className="pt-2 border-t border-stone-100 flex items-center justify-between text-xs">
+                <label className="flex items-center gap-2 font-bold text-stone-700 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={
+                      selectedPostIds.length === filteredPosts.length &&
+                      filteredPosts.length > 0
+                    }
+                    onChange={handleToggleSelectAllPosts}
+                    className="w-4 h-4 rounded border-stone-300 text-black focus:ring-black cursor-pointer"
+                  />
+                  <span>Select All Articles ({filteredPosts.length})</span>
+                </label>
+
+                {selectedPostIds.length > 0 && (
+                  <div className="flex items-center gap-2 animate-fade-in">
+                    <span className="font-extrabold text-rose-700 bg-rose-50 px-2.5 py-1 rounded-lg border border-rose-200">
+                      {selectedPostIds.length} Selected
+                    </span>
+                    <button
+                      type="button"
+                      onClick={handleBulkDeletePosts}
+                      className="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                      <span>Delete Selected ({selectedPostIds.length})</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Posts View: Table or Cards */}
@@ -869,6 +961,17 @@ Bring thermal layers in winter, comfortable walking boots, and modest attire for
                 <table className="w-full text-left border-collapse">
                   <thead>
                     <tr className="bg-stone-50 border-b border-stone-200 text-[11px] font-bold text-stone-500 uppercase tracking-wider">
+                      <th className="py-3 px-4 w-10">
+                        <input
+                          type="checkbox"
+                          checked={
+                            selectedPostIds.length === filteredPosts.length &&
+                            filteredPosts.length > 0
+                          }
+                          onChange={handleToggleSelectAllPosts}
+                          className="w-4 h-4 rounded border-stone-300 text-black focus:ring-black cursor-pointer"
+                        />
+                      </th>
                       <th className="py-3 px-4">Article</th>
                       <th className="py-3 px-4">Category & Tags</th>
                       <th className="py-3 px-4">Author</th>
@@ -879,7 +982,20 @@ Bring thermal layers in winter, comfortable walking boots, and modest attire for
                   </thead>
                   <tbody className="divide-y divide-stone-100 text-xs">
                     {filteredPosts.map((post) => (
-                      <tr key={post.id} className="hover:bg-stone-50/70 transition group">
+                      <tr
+                        key={post.id}
+                        className={`hover:bg-stone-50/70 transition group ${
+                          selectedPostIds.includes(post.id) ? 'bg-amber-50/40' : ''
+                        }`}
+                      >
+                        <td className="py-3.5 px-4">
+                          <input
+                            type="checkbox"
+                            checked={selectedPostIds.includes(post.id)}
+                            onChange={() => handleToggleSelectPost(post.id)}
+                            className="w-4 h-4 rounded border-stone-300 text-black focus:ring-black cursor-pointer"
+                          />
+                        </td>
                         <td className="py-3.5 px-4">
                           <div className="flex items-center gap-3">
                             <div className="w-14 h-11 rounded-lg overflow-hidden bg-stone-100 border border-stone-200 shrink-0 relative group">
@@ -1017,15 +1133,32 @@ Bring thermal layers in winter, comfortable walking boots, and modest attire for
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
               {filteredPosts.map((post) => (
-                <div key={post.id} className="bg-white rounded-2xl border border-stone-200 shadow-2xs overflow-hidden flex flex-col justify-between">
+                <div
+                  key={post.id}
+                  className={`bg-white rounded-2xl border shadow-2xs overflow-hidden flex flex-col justify-between relative group ${
+                    selectedPostIds.includes(post.id)
+                      ? 'border-black ring-2 ring-black/20 bg-stone-50'
+                      : 'border-stone-200'
+                  }`}
+                >
                   <div className="relative aspect-[16/10] bg-stone-100">
+                    {/* Checkbox Overlay */}
+                    <div className="absolute top-2 left-2 z-20">
+                      <input
+                        type="checkbox"
+                        checked={selectedPostIds.includes(post.id)}
+                        onChange={() => handleToggleSelectPost(post.id)}
+                        className="w-5 h-5 rounded border-2 border-white shadow-md text-black focus:ring-black cursor-pointer bg-black/40"
+                      />
+                    </div>
+
                     <img
                       src={resolveDisplayImage(post.featuredImage, mediaAssets)}
                       alt={post.title}
                       className="w-full h-full object-cover"
                       onError={(e) => handleImageError(e, post.featuredImage, mediaAssets)}
                     />
-                    <div className="absolute top-2 left-2 flex items-center gap-1">
+                    <div className="absolute top-2 left-9 flex items-center gap-1">
                       <button
                         onClick={() => toggleBlogPostStatus(post.id)}
                         className={`text-[10px] font-bold px-2 py-0.5 rounded-full shadow-xs cursor-pointer ${
@@ -1222,24 +1355,62 @@ Bring thermal layers in winter, comfortable walking boots, and modest attire for
           <div className="md:col-span-2 space-y-3">
             <div className="bg-white rounded-2xl border border-stone-200 overflow-hidden shadow-xs">
               <div className="p-4 bg-stone-50 border-b border-stone-200 flex items-center justify-between">
-                <span className="text-xs font-bold text-stone-700 uppercase tracking-wider">
-                  Active Taxonomy Categories ({blogCategories.length})
-                </span>
+                <label className="flex items-center gap-2 text-xs font-bold text-stone-700 uppercase tracking-wider cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={
+                      selectedCatIds.length === blogCategories.length &&
+                      blogCategories.length > 0
+                    }
+                    onChange={handleToggleSelectAllCats}
+                    className="w-4 h-4 rounded border-stone-300 text-black focus:ring-black cursor-pointer"
+                  />
+                  <span>Active Taxonomy Categories ({blogCategories.length})</span>
+                </label>
+
+                {selectedCatIds.length > 0 && (
+                  <div className="flex items-center gap-2 animate-fade-in">
+                    <span className="font-extrabold text-rose-700 bg-rose-50 px-2 py-0.5 rounded text-[11px] border border-rose-200">
+                      {selectedCatIds.length} Selected
+                    </span>
+                    <button
+                      type="button"
+                      onClick={handleBulkDeleteCats}
+                      className="px-2.5 py-1 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-lg shadow-xs transition flex items-center gap-1 cursor-pointer"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                      <span>Delete Selected</span>
+                    </button>
+                  </div>
+                )}
               </div>
 
               <div className="divide-y divide-stone-100 text-xs">
                 {blogCategories.map((cat) => {
                   const postCount = blogPosts.filter((p) => p.categorySlug === cat.slug).length;
                   return (
-                    <div key={cat.id} className="p-4 hover:bg-stone-50/70 transition flex items-center justify-between gap-4">
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2">
-                          <h4 className="font-bold text-sm text-black">{cat.name}</h4>
-                          <span className="font-mono text-[11px] text-stone-400">/{cat.slug}</span>
+                    <div
+                      key={cat.id}
+                      className={`p-4 hover:bg-stone-50/70 transition flex items-center justify-between gap-4 ${
+                        selectedCatIds.includes(cat.id) ? 'bg-amber-50/40' : ''
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <input
+                          type="checkbox"
+                          checked={selectedCatIds.includes(cat.id)}
+                          onChange={() => handleToggleSelectCat(cat.id)}
+                          className="w-4 h-4 rounded border-stone-300 text-black focus:ring-black cursor-pointer"
+                        />
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <h4 className="font-bold text-sm text-black">{cat.name}</h4>
+                            <span className="font-mono text-[11px] text-stone-400">/{cat.slug}</span>
+                          </div>
+                          {cat.description && (
+                            <p className="text-xs text-stone-500 line-clamp-1">{cat.description}</p>
+                          )}
                         </div>
-                        {cat.description && (
-                          <p className="text-xs text-stone-500 line-clamp-1">{cat.description}</p>
-                        )}
                       </div>
 
                       <div className="flex items-center gap-3 shrink-0">

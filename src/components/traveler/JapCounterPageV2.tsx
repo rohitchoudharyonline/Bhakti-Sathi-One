@@ -225,7 +225,7 @@ export const JapCounterPageV2: React.FC = () => {
 
   const handleDownloadPdf = () => {
     void generateJapSadhanaPdf({
-      pilgrimName: travelerUser?.displayName || travelerUser?.name || 'Devoted Pilgrim',
+      pilgrimName: travelerUser?.name || 'Devoted Pilgrim',
       timeframe,
       totalChants,
       totalMalas,

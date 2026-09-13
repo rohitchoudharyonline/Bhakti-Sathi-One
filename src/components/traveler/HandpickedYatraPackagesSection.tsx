@@ -336,7 +336,7 @@ export const HandpickedYatraPackagesSection: React.FC = () => {
             >
               {handpickedPackages.map((pkg, index) => {
                 const isItemWishlisted = isWishlisted(pkg.id);
-                const startingPrice = Number(pkg.startingPrice ?? pkg.price ?? 0);
+                const startingPrice = Number(pkg.price ?? 0);
                 const durationLabel = `${pkg.durationDays} Days / ${pkg.durationNights || pkg.durationDays - 1} Nights`;
 
                 return (

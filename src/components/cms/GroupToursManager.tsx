@@ -50,6 +50,7 @@ export const GroupToursManager: React.FC<GroupToursManagerProps> = ({
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'filling' | 'guaranteed' | 'soldout'>('all');
   const [destinationFilter, setDestinationFilter] = useState('all');
+  const [selectedPkgIds, setSelectedPkgIds] = useState<string[]>([]);
 
   // Quick Batch Manager Modal
   const [batchModalPkg, setBatchModalPkg] = useState<TourPackage | null>(null);
@@ -139,6 +140,33 @@ export const GroupToursManager: React.FC<GroupToursManagerProps> = ({
       return matchesSearch && matchesDest && matchesStatus;
     });
   }, [groupPackages, searchTerm, destinationFilter, statusFilter]);
+
+  // Bulk Selection Handlers
+  const handleToggleSelectAll = () => {
+    if (selectedPkgIds.length === filteredGroupPackages.length && filteredGroupPackages.length > 0) {
+      setSelectedPkgIds([]);
+    } else {
+      setSelectedPkgIds(filteredGroupPackages.map((p) => p.id));
+    }
+  };
+
+  const handleToggleSelect = (id: string) => {
+    setSelectedPkgIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  };
+
+  const handleBulkDelete = () => {
+    if (selectedPkgIds.length === 0) return;
+    if (
+      window.confirm(
+        `Are you sure you want to delete ${selectedPkgIds.length} selected group tour(s)? This action cannot be undone.`
+      )
+    ) {
+      selectedPkgIds.forEach((id) => deletePackage(id));
+      setSelectedPkgIds([]);
+    }
+  };
 
   // Handle Quick Batch Addition
   const handleAddBatch = (pkg: TourPackage) => {
@@ -362,44 +390,80 @@ export const GroupToursManager: React.FC<GroupToursManagerProps> = ({
       </div>
 
       {/* 2. Filter & Search Bar */}
-      <div className="bg-white rounded-2xl border border-stone-200 p-4 shadow-2xs flex flex-col sm:flex-row items-center justify-between gap-3">
-        <div className="relative w-full sm:w-72">
-          <Search className="w-4 h-4 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2" />
-          <input
-            type="text"
-            placeholder="Search group tours, destinations, coach..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-xs font-medium text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-[#FF4B00]"
-          />
+      <div className="bg-white rounded-2xl border border-stone-200 p-4 shadow-2xs space-y-3">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div className="relative w-full sm:w-72">
+            <Search className="w-4 h-4 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              placeholder="Search group tours, destinations, coach..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-9 pr-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-xs font-medium text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-[#FF4B00]"
+            />
+          </div>
+
+          <div className="flex items-center gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
+            {/* Status Filter */}
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value as any)}
+              className="px-3 py-2 rounded-xl bg-stone-50 border border-stone-200 text-xs font-bold text-stone-700 cursor-pointer focus:outline-none"
+            >
+              <option value="all">All Statuses</option>
+              <option value="filling">Filling Fast (≤8 Seats Left)</option>
+              <option value="guaranteed">Guaranteed Departures</option>
+              <option value="soldout">Sold Out</option>
+            </select>
+
+            {/* Destination Filter */}
+            <select
+              value={destinationFilter}
+              onChange={(e) => setDestinationFilter(e.target.value)}
+              className="px-3 py-2 rounded-xl bg-stone-50 border border-stone-200 text-xs font-bold text-stone-700 cursor-pointer focus:outline-none"
+            >
+              <option value="all">All Destinations</option>
+              <option value="jammu">Jammu & Katra</option>
+              <option value="himachal">Himachal Pradesh</option>
+              <option value="kashmir">Kashmir</option>
+              <option value="amritsar">Amritsar</option>
+            </select>
+          </div>
         </div>
 
-        <div className="flex items-center gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
-          {/* Status Filter */}
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value as any)}
-            className="px-3 py-2 rounded-xl bg-stone-50 border border-stone-200 text-xs font-bold text-stone-700 cursor-pointer focus:outline-none"
-          >
-            <option value="all">All Statuses</option>
-            <option value="filling">Filling Fast (≤8 Seats Left)</option>
-            <option value="guaranteed">Guaranteed Departures</option>
-            <option value="soldout">Sold Out</option>
-          </select>
+        {/* Bulk Actions Sub-Bar */}
+        {filteredGroupPackages.length > 0 && (
+          <div className="pt-2 border-t border-stone-100 flex items-center justify-between text-xs">
+            <label className="flex items-center gap-2 font-bold text-stone-700 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={
+                  selectedPkgIds.length === filteredGroupPackages.length &&
+                  filteredGroupPackages.length > 0
+                }
+                onChange={handleToggleSelectAll}
+                className="w-4 h-4 rounded border-stone-300 text-[#FF4B00] focus:ring-[#FF4B00] cursor-pointer"
+              />
+              <span>Select All Group Tours ({filteredGroupPackages.length})</span>
+            </label>
 
-          {/* Destination Filter */}
-          <select
-            value={destinationFilter}
-            onChange={(e) => setDestinationFilter(e.target.value)}
-            className="px-3 py-2 rounded-xl bg-stone-50 border border-stone-200 text-xs font-bold text-stone-700 cursor-pointer focus:outline-none"
-          >
-            <option value="all">All Destinations</option>
-            <option value="jammu">Jammu & Katra</option>
-            <option value="himachal">Himachal Pradesh</option>
-            <option value="kashmir">Kashmir</option>
-            <option value="amritsar">Amritsar</option>
-          </select>
-        </div>
+            {selectedPkgIds.length > 0 && (
+              <div className="flex items-center gap-2 animate-fade-in">
+                <span className="font-extrabold text-rose-700 bg-rose-50 px-2.5 py-1 rounded-lg border border-rose-200">
+                  {selectedPkgIds.length} Selected
+                </span>
+                <button
+                  type="button"
+                  onClick={handleBulkDelete}
+                  className="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>Delete Selected ({selectedPkgIds.length})</span>
+                </button>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* 3. Group Tours List / Cards */}
@@ -454,10 +518,24 @@ export const GroupToursManager: React.FC<GroupToursManagerProps> = ({
             return (
               <div
                 key={pkg.id}
-                className="bg-white rounded-2xl border border-stone-200 overflow-hidden shadow-2xs hover:shadow-md transition flex flex-col justify-between group"
+                className={`bg-white rounded-2xl border overflow-hidden shadow-2xs hover:shadow-md transition flex flex-col justify-between group relative ${
+                  selectedPkgIds.includes(pkg.id)
+                    ? 'border-[#FF4B00] ring-2 ring-[#FF4B00]/20 bg-orange-50/20'
+                    : 'border-stone-200'
+                }`}
               >
                 {/* Image Header & Badges */}
                 <div className="relative aspect-video w-full overflow-hidden bg-stone-100">
+                  {/* Checkbox Overlay */}
+                  <div className="absolute top-2.5 left-2.5 z-20">
+                    <input
+                      type="checkbox"
+                      checked={selectedPkgIds.includes(pkg.id)}
+                      onChange={() => handleToggleSelect(pkg.id)}
+                      className="w-5 h-5 rounded border-2 border-white shadow-md text-[#FF4B00] focus:ring-[#FF4B00] cursor-pointer bg-black/40"
+                    />
+                  </div>
+
                   <img
                     src={pkg.coverImage}
                     alt={pkg.title}
@@ -467,7 +545,7 @@ export const GroupToursManager: React.FC<GroupToursManagerProps> = ({
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
                   {/* Top Badges */}
-                  <div className="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between">
+                  <div className="absolute top-2.5 left-10 right-2.5 flex items-center justify-between">
                     <span className="bg-[#FF4B00] text-white text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider shadow-sm flex items-center gap-1">
                       <Bus className="w-3 h-3" />
                       <span>Group Departure</span>

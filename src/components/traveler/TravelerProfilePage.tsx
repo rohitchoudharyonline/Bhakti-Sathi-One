@@ -1568,7 +1568,7 @@ export const TravelerProfilePage: React.FC = () => {
                   const percentPaid = Math.min(100, Math.round((paidForTrip / totalTripCost) * 100));
 
                   const matchedPackage = packages.find((p) => p.id === trip.packageId || p.title === trip.packageTitle);
-                  const coverImage = matchedPackage?.heroImage || 'https://images.unsplash.com/photo-1598091383021-15ddea10925d?auto=format&fit=crop&w=800&q=80';
+                  const coverImage = matchedPackage?.coverImage || 'https://images.unsplash.com/photo-1598091383021-15ddea10925d?auto=format&fit=crop&w=800&q=80';
 
                   const travelerStatusLabel = trip.status === 'Confirmed' 
                     ? 'Confirmed' 
@@ -2003,7 +2003,7 @@ export const TravelerProfilePage: React.FC = () => {
                   >
                     <div className="relative h-48">
                       <img
-                        src={pkg.heroImage}
+                        src={pkg.coverImage}
                         alt={pkg.title}
                         className="w-full h-full object-cover"
                       />
@@ -2028,7 +2028,7 @@ export const TravelerProfilePage: React.FC = () => {
                       <div className="pt-3 border-t border-stone-100 flex items-center justify-between">
                         <div>
                           <p className="text-[10px] font-bold text-stone-400">Starting from</p>
-                          <p className="text-sm font-black text-stone-900">₹{pkg.pricing?.standard?.toLocaleString('en-IN') || pkg.price?.toLocaleString('en-IN')}</p>
+                          <p className="text-sm font-black text-stone-900">₹{(pkg.discountedPrice || pkg.price)?.toLocaleString('en-IN')}</p>
                         </div>
 
                         <button

@@ -8,6 +8,7 @@ import { UniversalImageUploader } from './UniversalImageUploader';
 import { WordPressInlineImageModal } from './WordPressInlineImageModal';
 import { ArticleContentRenderer } from '../common/ArticleContentRenderer';
 import { resolveDisplayImage, handleImageError } from '../../utils/imageResolver';
+import { CMSSEOEditor } from './CMSSEOEditor';
 import {
   FileText,
   Eye,
@@ -1229,45 +1230,27 @@ Carry layered clothing, comfortable walking footwear, and keep valid ID proofs h
               </div>
             </div>
 
-            {/* Keyword Input */}
-            <div className="bg-stone-50 p-4 rounded-xl border border-stone-200 space-y-3">
-              <div>
-                <label className="block text-xs font-black text-stone-700 uppercase tracking-wider mb-1">
-                  Focus Target Keyword
-                </label>
-                <input
-                  type="text"
-                  value={formData.focusKeyword}
-                  onChange={(e) => setFormData({ ...formData, focusKeyword: e.target.value })}
-                  placeholder="e.g. Kashmir Travel Guide or Gulmarg Snowfall"
-                  className="w-full p-2.5 bg-white border border-stone-300 rounded-xl text-xs font-bold"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-[11px] font-bold text-stone-600 mb-1">Custom SEO Meta Title</label>
-                  <input
-                    type="text"
-                    value={formData.metaTitle}
-                    onChange={(e) => setFormData({ ...formData, metaTitle: e.target.value })}
-                    placeholder={formData.title || 'Page Title in Google'}
-                    className="w-full p-2 bg-white border border-stone-300 rounded-lg text-xs"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-[11px] font-bold text-stone-600 mb-1">Meta Description</label>
-                  <input
-                    type="text"
-                    value={formData.metaDescription}
-                    onChange={(e) => setFormData({ ...formData, metaDescription: e.target.value })}
-                    placeholder={formData.excerpt || 'Google SERP snippet...'}
-                    className="w-full p-2 bg-white border border-stone-300 rounded-lg text-xs"
-                  />
-                </div>
-              </div>
-            </div>
+            {/* Auto SEO & Metadata Editor */}
+            <CMSSEOEditor
+              type="blog"
+              itemName={formData.title || 'Travel Post'}
+              seoMetaTitle={formData.metaTitle}
+              seoMetaDescription={formData.metaDescription}
+              seoKeywords={formData.focusKeyword}
+              onChange={(field, val) => {
+                if (field === 'seoMetaTitle') setFormData((prev) => ({ ...prev, metaTitle: val }));
+                if (field === 'seoMetaDescription') setFormData((prev) => ({ ...prev, metaDescription: val }));
+                if (field === 'seoKeywords') setFormData((prev) => ({ ...prev, focusKeyword: val }));
+              }}
+              onApplyAll={(seoData) => {
+                setFormData((prev) => ({
+                  ...prev,
+                  metaTitle: seoData.seoMetaTitle,
+                  metaDescription: seoData.seoMetaDescription,
+                  focusKeyword: seoData.seoKeywords,
+                }));
+              }}
+            />
 
             {/* Google SERP Snippet Simulator */}
             <div className="bg-stone-50 p-4 rounded-xl border border-stone-200 space-y-2">

@@ -34,6 +34,7 @@ export const TagsManager: React.FC = () => {
   };
 
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTag, setEditingTag] = useState<GuideTag | null>(null);
 
@@ -108,6 +109,34 @@ export const TagsManager: React.FC = () => {
       t.slug.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // Bulk Selection Handlers
+  const handleToggleSelectAll = () => {
+    if (selectedTagIds.length === filteredTags.length && filteredTags.length > 0) {
+      setSelectedTagIds([]);
+    } else {
+      setSelectedTagIds(filteredTags.map((t) => t.id));
+    }
+  };
+
+  const handleToggleSelect = (id: string) => {
+    setSelectedTagIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  };
+
+  const handleBulkDelete = () => {
+    if (selectedTagIds.length === 0) return;
+    if (
+      window.confirm(
+        `Are you sure you want to delete ${selectedTagIds.length} selected tag(s)?`
+      )
+    ) {
+      const updated = tags.filter((t) => !selectedTagIds.includes(t.id));
+      saveTagsToStorage(updated);
+      setSelectedTagIds([]);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -132,20 +161,55 @@ export const TagsManager: React.FC = () => {
       </div>
 
       {/* Search & Filter Bar */}
-      <div className="bg-white border border-stone-200 rounded-2xl p-4 shadow-2xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-        <div className="relative flex-1">
-          <Search className="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-          <input
-            type="text"
-            placeholder="Search tags..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-stone-200 rounded-xl text-sm bg-white outline-none focus:border-[#FF4B00]"
-          />
+      <div className="bg-white border border-stone-200 rounded-2xl p-4 shadow-2xs space-y-3">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+          <div className="relative flex-1">
+            <Search className="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              placeholder="Search tags..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 border border-stone-200 rounded-xl text-sm bg-white outline-none focus:border-[#FF4B00]"
+            />
+          </div>
+          <span className="text-xs font-bold text-stone-500 self-end sm:self-center">
+            {filteredTags.length} Tags Total
+          </span>
         </div>
-        <span className="text-xs font-bold text-stone-500 self-end sm:self-center">
-          {filteredTags.length} Tags Total
-        </span>
+
+        {/* Bulk Actions Sub-Bar */}
+        {filteredTags.length > 0 && (
+          <div className="pt-2 border-t border-stone-100 flex items-center justify-between text-xs">
+            <label className="flex items-center gap-2 font-bold text-stone-700 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={
+                  selectedTagIds.length === filteredTags.length && filteredTags.length > 0
+                }
+                onChange={handleToggleSelectAll}
+                className="w-4 h-4 rounded border-stone-300 text-[#FF4B00] focus:ring-[#FF4B00] cursor-pointer"
+              />
+              <span>Select All Tags ({filteredTags.length})</span>
+            </label>
+
+            {selectedTagIds.length > 0 && (
+              <div className="flex items-center gap-2 animate-fade-in">
+                <span className="font-extrabold text-rose-700 bg-rose-50 px-2.5 py-1 rounded-lg border border-rose-200">
+                  {selectedTagIds.length} Selected
+                </span>
+                <button
+                  type="button"
+                  onClick={handleBulkDelete}
+                  className="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>Delete Selected ({selectedTagIds.length})</span>
+                </button>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* 1. MOBILE CARD LIST (visible on phones < 768px) */}
@@ -167,15 +231,27 @@ export const TagsManager: React.FC = () => {
             return (
               <div
                 key={`mobile-tag-${tagItem.id}`}
-                className="bg-white border border-stone-200 rounded-2xl p-4 space-y-3 shadow-2xs"
+                className={`border rounded-2xl p-4 space-y-3 shadow-2xs transition ${
+                  selectedTagIds.includes(tagItem.id)
+                    ? 'border-[#FF4B00] ring-2 ring-[#FF4B00]/20 bg-orange-50/20'
+                    : 'bg-white border-stone-200'
+                }`}
               >
                 <div className="flex items-start justify-between gap-2">
-                  <div>
-                    <div className="font-bold text-stone-900 text-base flex items-center gap-1.5">
-                      <Hash className="w-4 h-4 text-[#FF4B00]" />
-                      {tagItem.name}
+                  <div className="flex items-start gap-2.5">
+                    <input
+                      type="checkbox"
+                      checked={selectedTagIds.includes(tagItem.id)}
+                      onChange={() => handleToggleSelect(tagItem.id)}
+                      className="w-4 h-4 rounded border-stone-300 text-[#FF4B00] focus:ring-[#FF4B00] cursor-pointer mt-1"
+                    />
+                    <div>
+                      <div className="font-bold text-stone-900 text-base flex items-center gap-1.5">
+                        <Hash className="w-4 h-4 text-[#FF4B00]" />
+                        {tagItem.name}
+                      </div>
+                      <div className="text-xs font-mono text-stone-500 mt-1">/tag/{tagItem.slug}</div>
                     </div>
-                    <div className="text-xs font-mono text-stone-500 mt-1">/tag/{tagItem.slug}</div>
                   </div>
                   <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-stone-100 text-stone-700 text-xs font-bold shrink-0">
                     <FileText className="w-3 h-3" />
@@ -219,6 +295,17 @@ export const TagsManager: React.FC = () => {
           <table className="w-full text-left border-collapse min-w-[650px]">
             <thead>
               <tr className="bg-stone-50 border-b border-stone-200 text-stone-500 text-xs font-bold uppercase tracking-wider">
+                <th className="p-4 w-10">
+                  <input
+                    type="checkbox"
+                    checked={
+                      selectedTagIds.length === filteredTags.length &&
+                      filteredTags.length > 0
+                    }
+                    onChange={handleToggleSelectAll}
+                    className="w-4 h-4 rounded border-stone-300 text-[#FF4B00] focus:ring-[#FF4B00] cursor-pointer"
+                  />
+                </th>
                 <th className="p-4">Tag Name</th>
                 <th className="p-4">Slug</th>
                 <th className="p-4">Description</th>
@@ -229,7 +316,7 @@ export const TagsManager: React.FC = () => {
             <tbody className="divide-y divide-stone-100">
               {filteredTags.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="p-8 text-center text-stone-400">
+                  <td colSpan={6} className="p-8 text-center text-stone-400">
                     No tags found. Click "Add Tag" to create one.
                   </td>
                 </tr>
@@ -244,7 +331,20 @@ export const TagsManager: React.FC = () => {
                   ).length;
 
                   return (
-                    <tr key={`desktop-tag-${tagItem.id}`} className="hover:bg-stone-50/80 transition-colors">
+                    <tr
+                      key={`desktop-tag-${tagItem.id}`}
+                      className={`hover:bg-stone-50/80 transition-colors ${
+                        selectedTagIds.includes(tagItem.id) ? 'bg-orange-50/30' : ''
+                      }`}
+                    >
+                      <td className="p-4">
+                        <input
+                          type="checkbox"
+                          checked={selectedTagIds.includes(tagItem.id)}
+                          onChange={() => handleToggleSelect(tagItem.id)}
+                          className="w-4 h-4 rounded border-stone-300 text-[#FF4B00] focus:ring-[#FF4B00] cursor-pointer"
+                        />
+                      </td>
                       <td className="p-4">
                         <div className="font-bold text-stone-900 flex items-center gap-1.5">
                           <Hash className="w-4 h-4 text-[#FF4B00]" />
