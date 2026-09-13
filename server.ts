@@ -1,13 +1,63 @@
 import express, { Request, Response, NextFunction } from 'express';
+import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
 import nodemailer from 'nodemailer';
 import { createServer as createViteServer } from 'vite';
 import { GoogleGenAI, Type } from '@google/genai';
 import dotenv from 'dotenv';
-import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, PutObjectCommand, DeleteObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
 
 dotenv.config();
+
+// Ensure persistent storage directories exist
+const DATA_DIR = path.join(process.cwd(), 'data');
+const DB_DIR = path.join(DATA_DIR, 'db');
+const UPLOADS_DIR = path.join(DATA_DIR, 'uploads');
+try {
+  if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+  if (!fs.existsSync(DB_DIR)) fs.mkdirSync(DB_DIR, { recursive: true });
+  if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+} catch (e) {
+  console.warn('Could not initialize data directories:', e);
+}
+
+const CONTENTS_FILE = path.join(DB_DIR, 'contents.json');
+const DESTINATIONS_FILE = path.join(DB_DIR, 'destinations.json');
+
+function saveJsonSafely(filePath: string, data: any) {
+  try {
+    const tempPath = `${filePath}.${Date.now()}.tmp`;
+    fs.writeFileSync(tempPath, JSON.stringify(data, null, 2), 'utf8');
+    fs.renameSync(tempPath, filePath);
+  } catch (err) {
+    console.error(`Failed to save JSON to ${filePath}:`, err);
+  }
+}
+
+function loadJsonSafely<T>(filePath: string, fallback: T): T {
+  try {
+    if (fs.existsSync(filePath)) {
+      const raw = fs.readFileSync(filePath, 'utf8');
+      return JSON.parse(raw) as T;
+    }
+  } catch (err) {
+    console.warn(`Failed to read JSON from ${filePath}:`, err);
+  }
+  return fallback;
+}
+
+const MIME_TYPES: Record<string, string> = {
+  '.webp': 'image/webp',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.png': 'image/png',
+  '.gif': 'image/gif',
+  '.svg': 'image/svg+xml',
+  '.avif': 'image/avif',
+  '.json': 'application/json',
+  '.pdf': 'application/pdf',
+};
 
 const app = express();
 const PORT = Number(process.env.PORT || 3000);
@@ -796,7 +846,7 @@ app.post('/api/admin/logout', (req, res) => {
   return res.json({ success: true });
 });
 
-// Content Synchronization Endpoints
+// Content Synchronization & Persistent Store
 interface ContentRow {
   id: string;
   content_type: string;
@@ -814,7 +864,277 @@ interface ContentRow {
   created_at: string;
   updated_at: string;
 }
+
 const serverContentsStore = new Map<string, ContentRow>();
+const initialContents = loadJsonSafely<Record<string, ContentRow>>(CONTENTS_FILE, {});
+for (const [k, v] of Object.entries(initialContents)) {
+  serverContentsStore.set(k, v);
+}
+
+const serverDestinationsStore = new Map<string, any>();
+const initialDestinations = loadJsonSafely<Record<string, any>>(DESTINATIONS_FILE, {});
+for (const [k, v] of Object.entries(initialDestinations)) {
+  serverDestinationsStore.set(k, v);
+}
+
+function persistContents() {
+  const obj: Record<string, ContentRow> = {};
+  for (const [k, v] of serverContentsStore.entries()) obj[k] = v;
+  saveJsonSafely(CONTENTS_FILE, obj);
+}
+
+function persistDestinations() {
+  const obj: Record<string, any> = {};
+  for (const [k, v] of serverDestinationsStore.entries()) obj[k] = v;
+  saveJsonSafely(DESTINATIONS_FILE, obj);
+}
+
+// Dedicated Files Delivery Route - Serves uploaded media with full caching & fallback
+app.get(['/api/files/*', '/api/files/:key(*)'], async (req, res) => {
+  const rawKey = req.params[0] || (req.params as any).key || req.path.replace(/^\/api\/files\/?/, '');
+  const key = decodeURIComponent(rawKey).replace(/^\/+/, '');
+
+  if (!key || key.includes('..') || path.isAbsolute(key)) {
+    return res.status(400).json({ error: 'Invalid file key.' });
+  }
+
+  const localFilePath = path.join(UPLOADS_DIR, key);
+  const ext = path.extname(key).toLowerCase();
+  const contentType = MIME_TYPES[ext] || 'application/octet-stream';
+
+  if (fs.existsSync(localFilePath)) {
+    res.setHeader('Content-Type', contentType);
+    res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+    return fs.createReadStream(localFilePath).pipe(res);
+  }
+
+  // Fallback to Cloudflare R2 if credentials exist
+  const rawAccountId = process.env.R2_ACCOUNT_ID;
+  const rawAccessKeyId = process.env.R2_ACCESS_KEY_ID;
+  const rawSecretAccessKey = process.env.R2_SECRET_ACCESS_KEY;
+  const rawBucketName = process.env.R2_BUCKET_NAME || 'bhakti-sathi';
+  const cleanAccountId = String(rawAccountId || '').replace(/^https?:\/\//i, '').replace(/\.r2\.cloudflarestorage\.com.*$/i, '').trim();
+
+  if (cleanAccountId && rawAccessKeyId && rawSecretAccessKey && !rawSecretAccessKey.includes('*')) {
+    try {
+      const s3 = new S3Client({
+        region: 'auto',
+        endpoint: `https://${cleanAccountId}.r2.cloudflarestorage.com`,
+        credentials: {
+          accessKeyId: rawAccessKeyId.trim(),
+          secretAccessKey: rawSecretAccessKey.trim(),
+        },
+      });
+      const data = await s3.send(new GetObjectCommand({
+        Bucket: rawBucketName.trim(),
+        Key: key,
+      }));
+      if (data.Body) {
+        res.setHeader('Content-Type', data.ContentType || contentType);
+        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+        const parentDir = path.dirname(localFilePath);
+        if (!fs.existsSync(parentDir)) fs.mkdirSync(parentDir, { recursive: true });
+        const stream = data.Body as any;
+        const writeStream = fs.createWriteStream(localFilePath);
+        stream.pipe(writeStream);
+        return stream.pipe(res);
+      }
+    } catch (r2Err) {
+      // not found in R2
+    }
+  }
+
+  return res.status(404).json({ error: 'File not found' });
+});
+
+// Dedicated Destinations CRUD Endpoints
+app.get('/api/destinations', (_req, res) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+
+  const destinations = Array.from(serverDestinationsStore.values());
+  return res.json({
+    success: true,
+    data: destinations,
+    timestamp: new Date().toISOString(),
+    count: destinations.length,
+  });
+});
+
+app.get('/api/destinations/:slug', (req, res) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+
+  const slug = cleanText(req.params.slug, 200);
+  const dest = serverDestinationsStore.get(slug);
+  if (!dest) return res.status(404).json({ error: 'Destination not found' });
+  return res.json({ success: true, data: dest });
+});
+
+app.post('/api/destinations', requireCmsSession, async (req, res) => {
+  const b = req.body || {};
+  const slug = cleanText(b.slug || b.id || b.name, 200).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  if (!slug) return res.status(400).json({ error: 'Slug or name is required.' });
+
+  const now = new Date().toISOString();
+  const existing = serverDestinationsStore.get(slug) || {};
+  const version = (existing.version || 0) + 1;
+
+  const destinationRecord = {
+    ...existing,
+    ...b,
+    id: slug,
+    slug,
+    name: cleanText(b.name || slug, 200),
+    displayName: cleanText(b.displayName || b.name || slug, 200),
+    state: cleanText(b.state || 'India', 100),
+    tagline: cleanText(b.tagline || '', 500),
+    heroImage: String(b.heroImage || '').trim(),
+    destinationType: b.destinationType === 'temple' ? 'temple' : 'regular',
+    guideTitle: cleanText(b.guideTitle || `${b.name || slug} Guide`, 200),
+    weatherInfo: cleanText(b.weatherInfo || '', 100),
+    bestSeason: cleanText(b.bestSeason || '', 100),
+    startingPrice: Number(b.startingPrice) || 6499,
+    popularCities: Array.isArray(b.popularCities) ? b.popularCities : [],
+    categoryFilters: Array.isArray(b.categoryFilters) ? b.categoryFilters : [],
+    guide: b.guide || {},
+    seoMetaTitle: cleanText(b.seoMetaTitle || '', 200),
+    seoMetaDescription: cleanText(b.seoMetaDescription || '', 500),
+    seoKeywords: cleanText(b.seoKeywords || '', 500),
+    created_at: existing.created_at || now,
+    updated_at: now,
+    version,
+  };
+
+  serverDestinationsStore.set(slug, destinationRecord);
+  persistDestinations();
+
+  // Sync with registry-destinations
+  const registryRow = serverContentsStore.get('registry-destinations');
+  let currentRegistryObj: Record<string, any> = {};
+  if (registryRow?.structured_content?.value) {
+    try {
+      currentRegistryObj = typeof registryRow.structured_content.value === 'string'
+        ? JSON.parse(registryRow.structured_content.value)
+        : registryRow.structured_content.value;
+    } catch {}
+  }
+  currentRegistryObj[slug] = destinationRecord;
+  serverContentsStore.set('registry-destinations', {
+    id: 'registry-destinations',
+    content_type: 'shared_local_state',
+    title: 'Destinations Registry',
+    slug: 'hh_destinations_registry_v2',
+    status: 'published',
+    structured_content: {
+      storageKey: 'hh_destinations_registry_v2',
+      value: JSON.stringify(currentRegistryObj),
+      updatedAt: now,
+    },
+    created_at: registryRow?.created_at || now,
+    updated_at: now,
+  });
+  persistContents();
+
+  return res.json({ success: true, data: destinationRecord, version, slug });
+});
+
+app.put('/api/destinations/:slug', requireCmsSession, async (req, res) => {
+  const targetSlug = cleanText(req.params.slug, 200);
+  const b = req.body || {};
+  const slug = cleanText(b.slug || targetSlug, 200).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  if (!slug) return res.status(400).json({ error: 'Valid slug required.' });
+
+  const now = new Date().toISOString();
+  const existing = serverDestinationsStore.get(targetSlug) || serverDestinationsStore.get(slug) || {};
+  const version = (existing.version || 0) + 1;
+
+  const destinationRecord = {
+    ...existing,
+    ...b,
+    id: slug,
+    slug,
+    name: cleanText(b.name || existing.name || slug, 200),
+    displayName: cleanText(b.displayName || b.name || existing.displayName || slug, 200),
+    state: cleanText(b.state || existing.state || 'India', 100),
+    tagline: cleanText(b.tagline || existing.tagline || '', 500),
+    heroImage: String(b.heroImage || existing.heroImage || '').trim(),
+    destinationType: b.destinationType === 'temple' ? 'temple' : (b.destinationType === 'regular' ? 'regular' : (existing.destinationType || 'regular')),
+    guideTitle: cleanText(b.guideTitle || existing.guideTitle || `${b.name || slug} Guide`, 200),
+    weatherInfo: cleanText(b.weatherInfo || existing.weatherInfo || '', 100),
+    bestSeason: cleanText(b.bestSeason || existing.bestSeason || '', 100),
+    startingPrice: Number(b.startingPrice) || existing.startingPrice || 6499,
+    popularCities: Array.isArray(b.popularCities) ? b.popularCities : (existing.popularCities || []),
+    categoryFilters: Array.isArray(b.categoryFilters) ? b.categoryFilters : (existing.categoryFilters || []),
+    guide: b.guide || existing.guide || {},
+    seoMetaTitle: cleanText(b.seoMetaTitle || existing.seoMetaTitle || '', 200),
+    seoMetaDescription: cleanText(b.seoMetaDescription || existing.seoMetaDescription || '', 500),
+    seoKeywords: cleanText(b.seoKeywords || existing.seoKeywords || '', 500),
+    created_at: existing.created_at || now,
+    updated_at: now,
+    version,
+  };
+
+  if (targetSlug !== slug) {
+    serverDestinationsStore.delete(targetSlug);
+  }
+  serverDestinationsStore.set(slug, destinationRecord);
+  persistDestinations();
+
+  // Sync to registry-destinations
+  const registryRow = serverContentsStore.get('registry-destinations');
+  let currentRegistryObj: Record<string, any> = {};
+  if (registryRow?.structured_content?.value) {
+    try {
+      currentRegistryObj = typeof registryRow.structured_content.value === 'string'
+        ? JSON.parse(registryRow.structured_content.value)
+        : registryRow.structured_content.value;
+    } catch {}
+  }
+  if (targetSlug !== slug) delete currentRegistryObj[targetSlug];
+  currentRegistryObj[slug] = destinationRecord;
+  serverContentsStore.set('registry-destinations', {
+    id: 'registry-destinations',
+    content_type: 'shared_local_state',
+    title: 'Destinations Registry',
+    slug: 'hh_destinations_registry_v2',
+    status: 'published',
+    structured_content: {
+      storageKey: 'hh_destinations_registry_v2',
+      value: JSON.stringify(currentRegistryObj),
+      updatedAt: now,
+    },
+    created_at: registryRow?.created_at || now,
+    updated_at: now,
+  });
+  persistContents();
+
+  return res.json({ success: true, data: destinationRecord, version, slug });
+});
+
+app.delete('/api/destinations/:slug', requireCmsSession, async (req, res) => {
+  const slug = cleanText(req.params.slug, 200);
+  serverDestinationsStore.delete(slug);
+  persistDestinations();
+
+  const registryRow = serverContentsStore.get('registry-destinations');
+  if (registryRow?.structured_content?.value) {
+    try {
+      const obj = typeof registryRow.structured_content.value === 'string'
+        ? JSON.parse(registryRow.structured_content.value)
+        : registryRow.structured_content.value;
+      delete obj[slug];
+      registryRow.structured_content.value = JSON.stringify(obj);
+      registryRow.updated_at = new Date().toISOString();
+      serverContentsStore.set('registry-destinations', registryRow);
+      persistContents();
+    } catch {}
+  }
+
+  return res.json({ success: true, slug });
+});
 
 app.get('/api/contents', (req, res) => {
   const type = typeof req.query?.type === 'string' ? req.query.type.trim() : '';
@@ -822,15 +1142,14 @@ app.get('/api/contents', (req, res) => {
     .filter((r) => (!type || r.content_type === type))
     .sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
 
-  if (type === 'shared_local_state' || req.query._nocache !== undefined) {
-    res.setHeader('Cache-Control', 'private, no-store, max-age=0');
-  } else {
-    res.setHeader('Cache-Control', 'public, max-age=60, stale-while-revalidate=3600');
-  }
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+  res.setHeader('Pragma', 'no-cache');
   return res.json({ success: true, data: rows });
 });
 
 app.get('/api/contents/:id', (req, res) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+  res.setHeader('Pragma', 'no-cache');
   const id = req.params.id;
   const row = serverContentsStore.get(id);
   if (!row) return res.status(404).json({ error: 'Content not found' });
@@ -862,6 +1181,7 @@ app.post('/api/contents', async (req, res) => {
     updated_at: now,
   };
   serverContentsStore.set(id, row);
+  persistContents();
   return res.json({ success: true, id, slug });
 });
 
@@ -889,12 +1209,14 @@ app.put('/api/contents/:id', async (req, res) => {
     updated_at: now,
   };
   serverContentsStore.set(id, row);
+  persistContents();
   return res.json({ success: true, id, slug });
 });
 
 app.delete('/api/contents/:id', async (req, res) => {
   const id = cleanText(req.params.id, 100);
   serverContentsStore.delete(id);
+  persistContents();
   return res.json({ success: true });
 });
 
@@ -1292,61 +1614,63 @@ app.post('/api/fetch-hotel-details', publicApiRateLimit, requireCmsSession, asyn
   return res.json(generateUnverifiedHotel(url));
 });
 
-// Real R2 Media Upload & Deletion endpoints proxies
-app.post('/api/media/upload', requireCmsSession, async (req, res) => {
+// Real R2 & Local Media Upload & Deletion endpoints
+app.post(['/api/media/upload', '/api/upload'], requireCmsSession, async (req, res) => {
   const {
     fileBase64,
     fileName,
     contentType,
     storagePath,
-  } = req.body;
+  } = req.body || {};
 
-  const rawAccountId = req.body.r2AccountId || process.env.R2_ACCOUNT_ID || 'a9e18b43f76902cd98ef11';
-  const rawAccessKeyId = req.body.r2AccessKeyId || process.env.R2_ACCESS_KEY_ID || 'r2_prod_key_77a9';
+  if (!fileBase64 || !storagePath) {
+    return res.status(400).json({ error: 'Missing required parameters (fileBase64, storagePath).' });
+  }
+
+  const cleanStoragePath = String(storagePath).replace(/^\/+/, '').replace(/\.\./g, '');
+  const localTarget = path.join(UPLOADS_DIR, cleanStoragePath);
+  const targetDir = path.dirname(localTarget);
+  if (!fs.existsSync(targetDir)) fs.mkdirSync(targetDir, { recursive: true });
+
+  const base64Data = fileBase64.replace(/^data:[^;]+;base64,/, '');
+  const buffer = Buffer.from(base64Data, 'base64');
+  fs.writeFileSync(localTarget, buffer);
+
+  // Optional sync to R2 if credentials provided or present
+  const rawAccountId = req.body.r2AccountId || process.env.R2_ACCOUNT_ID;
+  const rawAccessKeyId = req.body.r2AccessKeyId || process.env.R2_ACCESS_KEY_ID;
   const rawSecretAccessKey = req.body.r2SecretAccessKey || process.env.R2_SECRET_ACCESS_KEY;
   const rawBucketName = req.body.r2BucketName || process.env.R2_BUCKET_NAME || 'bhakti-sathi';
+  const cleanAccountId = String(rawAccountId || '').replace(/^https?:\/\//i, '').replace(/\.r2\.cloudflarestorage\.com.*$/i, '').trim();
 
-  if (!fileBase64 || !fileName || !storagePath) {
-    return res.status(400).json({ error: 'Missing required parameters (fileBase64, fileName, storagePath).' });
+  let r2Synced = false;
+  if (cleanAccountId && rawAccessKeyId && rawSecretAccessKey && !rawSecretAccessKey.includes('*')) {
+    try {
+      const s3 = new S3Client({
+        region: 'auto',
+        endpoint: `https://${cleanAccountId}.r2.cloudflarestorage.com`,
+        credentials: {
+          accessKeyId: rawAccessKeyId.trim(),
+          secretAccessKey: rawSecretAccessKey.trim(),
+        },
+      });
+
+      await s3.send(
+        new PutObjectCommand({
+          Bucket: rawBucketName.trim(),
+          Key: cleanStoragePath,
+          Body: buffer,
+          ContentType: contentType || MIME_TYPES[path.extname(cleanStoragePath).toLowerCase()] || 'image/webp',
+        })
+      );
+      r2Synced = true;
+    } catch (r2Err) {
+      console.warn('R2 sync notice (stored locally):', r2Err);
+    }
   }
 
-  const cleanAccountId = String(rawAccountId).replace(/^https?:\/\//i, '').replace(/\.r2\.cloudflarestorage\.com.*$/i, '').trim();
-
-  if (!cleanAccountId || !rawAccessKeyId || !rawSecretAccessKey || !rawBucketName) {
-    return res.status(400).json({ error: 'R2 storage credentials are not configured in settings or server environment.' });
-  }
-
-  if (typeof rawSecretAccessKey === 'string' && (rawSecretAccessKey.includes('*') || rawSecretAccessKey.trim() === '')) {
-    return res.status(400).json({ error: 'R2 secret access key is masked or empty. Please enter your real Cloudflare R2 Secret Access Key in storage settings.' });
-  }
-
-  try {
-    const s3 = new S3Client({
-      region: 'auto',
-      endpoint: `https://${cleanAccountId}.r2.cloudflarestorage.com`,
-      credentials: {
-        accessKeyId: rawAccessKeyId.trim(),
-        secretAccessKey: rawSecretAccessKey.trim(),
-      },
-    });
-
-    const base64Data = fileBase64.replace(/^data:image\/\w+;base64,/, '');
-    const buffer = Buffer.from(base64Data, 'base64');
-
-    await s3.send(
-      new PutObjectCommand({
-        Bucket: rawBucketName.trim(),
-        Key: storagePath.replace(/^\//, ''),
-        Body: buffer,
-        ContentType: contentType || 'image/webp',
-      })
-    );
-
-    return res.json({ success: true, storagePath });
-  } catch (error: any) {
-    console.error('R2 upload failed:', error);
-    return res.status(500).json({ error: `R2 upload failed: ${error.message || error}` });
-  }
+  const publicUrl = `/api/files/${encodeURIComponent(cleanStoragePath)}`;
+  return res.json({ success: true, storagePath: cleanStoragePath, url: publicUrl, r2Synced });
 });
 
 app.post('/api/media/delete', requireCmsSession, async (req, res) => {

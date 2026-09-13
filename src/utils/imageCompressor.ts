@@ -162,7 +162,7 @@ export async function compressPaymentProof(file: File): Promise<{
   return { dataUrl: result.dataUrl, fileName: result.asset.fileName, r2Path: result.asset.storagePath, compressedKb: result.compressedSizeKb, originalKb: result.originalSizeKb };
 }
 
-/** Uploads media using only the server-side Worker. R2 credentials never enter browser code. */
+/** Uploads media using the server-side proxy. R2 credentials and local disk persist automatically. */
 export async function uploadToR2(
   fileBase64: string,
   fileName: string,
@@ -171,9 +171,16 @@ export async function uploadToR2(
   settings?: CloudStorageSettings
 ): Promise<boolean> {
   try {
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    const token = typeof window !== 'undefined' ? window.localStorage.getItem('bs_cms_session_token') : null;
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+      headers['X-CMS-Token'] = token;
+    }
+
     const response = await fetch('/api/media/upload', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers,
       credentials: 'include',
       body: JSON.stringify({
         fileBase64,
@@ -188,13 +195,13 @@ export async function uploadToR2(
     });
     if (!response.ok) {
       const err = await response.json().catch(() => null);
-      console.warn('R2 upload response not ok:', err);
+      console.warn('Media upload response not ok:', err);
       return false;
     }
     const data = await response.json();
     return data.success === true;
   } catch (error) {
-    console.warn('R2 upload could not complete:', error);
+    console.warn('Media upload could not complete:', error);
     return false;
   }
 }
@@ -204,9 +211,16 @@ export async function deleteFromR2(
   settings?: CloudStorageSettings
 ): Promise<boolean> {
   try {
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    const token = typeof window !== 'undefined' ? window.localStorage.getItem('bs_cms_session_token') : null;
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+      headers['X-CMS-Token'] = token;
+    }
+
     const response = await fetch('/api/media/delete', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers,
       credentials: 'include',
       body: JSON.stringify({
         storagePath,
@@ -220,7 +234,7 @@ export async function deleteFromR2(
     const data = await response.json();
     return data.success === true;
   } catch (error) {
-    console.warn('R2 deletion could not complete:', error);
+    console.warn('Media deletion could not complete:', error);
     return false;
   }
 }

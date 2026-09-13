@@ -7,6 +7,7 @@
  */
 
 import { saveAllMediaAssetsToDb } from '../utils/mediaStorage';
+import { DestinationMeta } from '../data/destinationsData';
 
 export interface SyncedRegistryDef {
   id: string;
@@ -326,6 +327,103 @@ export async function syncRegistryToServer(key: string, value: string): Promise<
 
   inFlightPushes.set(key, pushPromise);
   return pushPromise;
+}
+
+/**
+ * Fetches all authoritative destinations directly from the server database.
+ */
+export async function fetchDestinationsFromServer(): Promise<Record<string, DestinationMeta> | null> {
+  if (typeof window === 'undefined') return null;
+  try {
+    const res = await fetch('/api/destinations?_t=' + Date.now(), {
+      credentials: 'include',
+      cache: 'no-store',
+      headers: {
+        'Accept': 'application/json',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+      },
+    });
+    if (!res.ok) return null;
+    const json = await res.json().catch(() => null);
+    if (json && json.success && Array.isArray(json.data) && json.data.length > 0) {
+      const map: Record<string, DestinationMeta> = {};
+      for (const d of json.data) {
+        if (d && d.slug) {
+          map[d.slug] = d;
+        }
+      }
+      return map;
+    }
+  } catch (err) {
+    console.warn('[ContentSync] fetchDestinationsFromServer error:', err);
+  }
+  return null;
+}
+
+/**
+ * Saves or updates a destination directly in the server database.
+ */
+export async function saveDestinationToServer(destination: DestinationMeta): Promise<boolean> {
+  if (typeof window === 'undefined' || !destination || !destination.slug) return false;
+  try {
+    const syncHeaders: Record<string, string> = {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    };
+    const token = window.localStorage.getItem('bs_cms_session_token');
+    if (token) {
+      syncHeaders['Authorization'] = `Bearer ${token}`;
+      syncHeaders['X-CMS-Token'] = token;
+    }
+
+    const res = await fetch(`/api/destinations/${encodeURIComponent(destination.slug)}`, {
+      method: 'PUT',
+      credentials: 'include',
+      cache: 'no-store',
+      headers: syncHeaders,
+      body: JSON.stringify(destination),
+    });
+
+    if (res.ok) {
+      // Also update local registry
+      const raw = window.localStorage.getItem('hh_destinations_registry_v2');
+      let map: Record<string, any> = {};
+      if (raw) {
+        try { map = JSON.parse(raw); } catch {}
+      }
+      map[destination.slug] = destination;
+      window.localStorage.setItem('hh_destinations_registry_v2', JSON.stringify(map));
+      return true;
+    }
+    return false;
+  } catch (e) {
+    console.warn('[ContentSync] saveDestinationToServer failed:', e);
+    return false;
+  }
+}
+
+/**
+ * Deletes a destination from the server database.
+ */
+export async function deleteDestinationFromServer(slug: string): Promise<boolean> {
+  if (typeof window === 'undefined' || !slug) return false;
+  try {
+    const syncHeaders: Record<string, string> = {};
+    const token = window.localStorage.getItem('bs_cms_session_token');
+    if (token) {
+      syncHeaders['Authorization'] = `Bearer ${token}`;
+      syncHeaders['X-CMS-Token'] = token;
+    }
+    const res = await fetch(`/api/destinations/${encodeURIComponent(slug)}`, {
+      method: 'DELETE',
+      credentials: 'include',
+      cache: 'no-store',
+      headers: syncHeaders,
+    });
+    return res.ok;
+  } catch {
+    return false;
+  }
 }
 
 /**

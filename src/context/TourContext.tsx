@@ -32,6 +32,7 @@ import { DEFAULT_PAGE_SEO_CONFIGS } from '../data/defaultPageSeoData';
 import { DEFAULT_PUSH_NOTIFICATIONS, DEFAULT_PUSH_SUBSCRIBERS, DEFAULT_PUSH_SETTINGS } from '../data/defaultPushData';
 import { DEFAULT_TEMPLES_DATA, TemplePlace } from '../data/templesData';
 import { initMediaStorage, saveMediaAssetToDb, saveAllMediaAssetsToDb, deleteMediaAssetFromDb } from '../utils/mediaStorage';
+import { fetchDestinationsFromServer, saveDestinationToServer, deleteDestinationFromServer } from '../services/contentSyncService';
 
 export interface SystemSearchParams {
   destinationSlug?: string;
@@ -1646,6 +1647,16 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
         });
       }
     });
+
+    // Fetch authoritative destinations from server database
+    void fetchDestinationsFromServer().then((serverDests) => {
+      if (serverDests && Object.keys(serverDests).length > 0) {
+        setDestinations((prev) => ({
+          ...prev,
+          ...serverDests,
+        }));
+      }
+    });
   }, []);
 
   useEffect(() => {
@@ -2111,6 +2122,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
       ...prev,
       [destinationItem.slug]: destinationItem,
     }));
+    void saveDestinationToServer(destinationItem);
     return destinationItem.slug;
   };
 
@@ -2119,6 +2131,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
       ...prev,
       [updatedDest.slug]: updatedDest,
     }));
+    void saveDestinationToServer(updatedDest);
   };
 
   const deleteDestination = (slug: string) => {
@@ -2127,6 +2140,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
       delete next[slug];
       return next;
     });
+    void deleteDestinationFromServer(slug);
   };
 
   const duplicateDestination = (slug: string) => {
@@ -2144,6 +2158,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
       ...prev,
       [newSlug]: copy,
     }));
+    void saveDestinationToServer(copy);
   };
 
   // Temples & Sacred Shrines Operations
