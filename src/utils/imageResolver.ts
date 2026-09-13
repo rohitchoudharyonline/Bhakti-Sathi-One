@@ -36,6 +36,29 @@ function recordDiagnostic(diag: ImageDiagnostic) {
   }
 }
 
+const STORAGE_PREFIXES = [
+  'destinations/',
+  'temples/',
+  'tours/',
+  'packages/',
+  'media/',
+  'uploads/',
+  'blogs/',
+  'blog/',
+  'guides/',
+  'guide/',
+  'payments/',
+  'reviews/',
+  'itinerary/',
+  'hotels/',
+  'custom/',
+  'shrine/',
+  'shrines/',
+  'misc/',
+  'banners/',
+  'hero/',
+];
+
 /**
  * Extracts a clean relative storage key from any URL or path
  * e.g., "https://pub-r2.mybhaktisathi.com/destinations/2026/09/sample.webp" -> "destinations/2026/09/sample.webp"
@@ -45,41 +68,62 @@ export function extractStorageKey(url?: string | null): string | null {
   const clean = url.trim();
   if (clean.startsWith('data:') || clean.startsWith('blob:')) return null;
 
-  // If already relative
+  // Handle direct /api/files/ paths
+  if (clean.startsWith('/api/files/') || clean.startsWith('api/files/')) {
+    const unproxied = decodeURIComponent(clean.replace(/^\/?api\/files\/?/, '').replace(/^\/+/, ''));
+    if (unproxied) return unproxied;
+  }
+
+  // If already a relative storage path
   if (!clean.startsWith('http://') && !clean.startsWith('https://')) {
     const withoutSlash = clean.replace(/^\/+/, '');
-    if (
-      withoutSlash.startsWith('destinations/') ||
-      withoutSlash.startsWith('temples/') ||
-      withoutSlash.startsWith('packages/') ||
-      withoutSlash.startsWith('media/') ||
-      withoutSlash.startsWith('uploads/') ||
-      withoutSlash.startsWith('blogs/') ||
-      withoutSlash.startsWith('guides/') ||
-      withoutSlash.startsWith('payments/')
-    ) {
+    if (STORAGE_PREFIXES.some((prefix) => withoutSlash.startsWith(prefix))) {
       return withoutSlash;
     }
   }
 
-  // If contains known R2 domain or storage prefixes
+  // If full HTTP/HTTPS URL
   try {
     const parsed = new URL(clean);
-    const pathname = parsed.pathname.replace(/^\/+/, '');
+    const pathname = decodeURIComponent(parsed.pathname.replace(/^\/+/, ''));
+
+    // If pathname starts with api/files
+    if (pathname.startsWith('api/files/')) {
+      return pathname.replace(/^api\/files\/?/, '');
+    }
+
+    // If matches any known storage prefix
+    for (const prefix of STORAGE_PREFIXES) {
+      if (pathname.startsWith(prefix)) {
+        return pathname;
+      }
+      const idx = pathname.indexOf(prefix);
+      if (idx !== -1) {
+        return pathname.slice(idx);
+      }
+    }
+
+    // If on R2 domain or custom bucket host
+    const host = parsed.hostname.toLowerCase();
     if (
-      pathname.startsWith('destinations/') ||
-      pathname.startsWith('temples/') ||
-      pathname.startsWith('packages/') ||
-      pathname.startsWith('media/') ||
-      pathname.startsWith('uploads/') ||
-      pathname.startsWith('blogs/') ||
-      pathname.startsWith('guides/') ||
-      pathname.startsWith('payments/')
+      host === 'pub-r2.mybhaktisathi.com' ||
+      host.includes('r2.cloudflarestorage.com') ||
+      host.includes('.r2.dev') ||
+      host.includes('bhaktisathi')
     ) {
-      return pathname;
+      if (pathname && !pathname.startsWith('http')) {
+        return pathname;
+      }
     }
   } catch {
     // Non-parseable or relative with weird formatting
+    const withoutSlash = clean.replace(/^\/+/, '');
+    for (const prefix of STORAGE_PREFIXES) {
+      const idx = withoutSlash.indexOf(prefix);
+      if (idx !== -1) {
+        return withoutSlash.slice(idx);
+      }
+    }
   }
 
   return null;

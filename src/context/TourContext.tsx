@@ -32,7 +32,7 @@ import { DEFAULT_PAGE_SEO_CONFIGS } from '../data/defaultPageSeoData';
 import { DEFAULT_PUSH_NOTIFICATIONS, DEFAULT_PUSH_SUBSCRIBERS, DEFAULT_PUSH_SETTINGS } from '../data/defaultPushData';
 import { DEFAULT_TEMPLES_DATA, TemplePlace } from '../data/templesData';
 import { initMediaStorage, saveMediaAssetToDb, saveAllMediaAssetsToDb, deleteMediaAssetFromDb } from '../utils/mediaStorage';
-import { fetchDestinationsFromServer, saveDestinationToServer, deleteDestinationFromServer } from '../services/contentSyncService';
+import { fetchDestinationsFromServer, saveDestinationToServer, deleteDestinationFromServer, loadAuthoritativeServerContent } from '../services/contentSyncService';
 
 export interface SystemSearchParams {
   destinationSlug?: string;
@@ -1657,6 +1657,9 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }));
       }
     });
+
+    // Refresh all shared collections from server
+    void loadAuthoritativeServerContent();
   }, []);
 
   useEffect(() => {

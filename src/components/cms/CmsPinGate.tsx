@@ -61,10 +61,12 @@ export const CmsPinGate: React.FC<CmsPinGateProps> = ({ onPinVerified }) => {
       const data = await response.json().catch(() => ({}));
       if (!response.ok || !data.success) throw new Error(data.error || 'Invalid PIN. Please try again.');
 
-      // Pass the verified PIN to the next step. The login screen will perform
-      // one immediate server verification before submitting credentials so a
-      // stale/missing browser cookie can never create a false "PIN verified"
-      // state.
+      if (data.token) {
+        try {
+          localStorage.setItem('bs_cms_pin_token', data.token);
+        } catch {}
+      }
+
       onPinVerified(pinString);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Access denied. Incorrect PIN.');

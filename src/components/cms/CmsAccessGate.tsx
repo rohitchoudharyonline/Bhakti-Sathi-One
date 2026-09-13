@@ -37,6 +37,10 @@ export const CmsAccessGate: React.FC<{ children: React.ReactNode }> = ({ childre
         cmsHeaders['Authorization'] = `Bearer ${savedToken}`;
         cmsHeaders['X-CMS-Token'] = savedToken;
       }
+      const savedPinToken = localStorage.getItem('bs_cms_pin_token');
+      if (savedPinToken) {
+        cmsHeaders['X-PIN-Token'] = savedPinToken;
+      }
 
       const cmsRes = await fetch('/api/auth/cms/session', {
         credentials: 'include',
@@ -49,6 +53,9 @@ export const CmsAccessGate: React.FC<{ children: React.ReactNode }> = ({ childre
         if (cmsData && isAuthorizedSession(cmsData)) {
           if (cmsData.token) {
             localStorage.setItem('bs_cms_session_token', cmsData.token);
+          }
+          if (cmsData.pinToken) {
+            localStorage.setItem('bs_cms_pin_token', cmsData.pinToken);
           }
           setAuthState('authenticated');
           return;
@@ -124,6 +131,9 @@ export const CmsAccessGate: React.FC<{ children: React.ReactNode }> = ({ childre
 
       if (data.token) {
         localStorage.setItem('bs_cms_session_token', data.token);
+      }
+      if (data.pinToken) {
+        localStorage.setItem('bs_cms_pin_token', data.pinToken);
       }
 
       setAuthState('authenticated');

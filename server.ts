@@ -229,7 +229,16 @@ function signPinSession(): string {
 
 function readPinSession(req: Request): boolean {
   const cookies = parseCookies(req.headers.cookie);
-  const token = cookies[PIN_COOKIE_NAME];
+  let token = cookies[PIN_COOKIE_NAME];
+  if (!token && typeof req.headers['x-pin-token'] === 'string') {
+    token = req.headers['x-pin-token'].trim();
+  }
+  if (!token && typeof req.headers['authorization'] === 'string' && req.headers['authorization'].startsWith('Bearer ')) {
+    const authHeader = req.headers['authorization'].slice(7).trim();
+    if (authHeader.startsWith('pin_') || verifyTokenUniversal(authHeader, cmsSecret()) === 'pin') {
+      token = authHeader;
+    }
+  }
   if (!token) return false;
   const subject = verifyTokenUniversal(token, cmsSecret());
   return subject === 'pin';
@@ -784,7 +793,18 @@ app.get('/api/auth/cms/session', async (req, res) => {
     const email = await establishCmsIdentity(req, res);
     if (!email) return res.status(401).json({ authorized: false, authenticated: false });
     const provider = readCmsSession(req) ? 'session' : 'cloudflare';
-    return res.json({ success: true, authorized: true, authenticated: true, email, provider, user: { email, role: 'super_admin' } });
+    const token = setCmsSession(res, email);
+    const pinToken = setPinSession(res);
+    return res.json({
+      success: true,
+      authorized: true,
+      authenticated: true,
+      email,
+      provider,
+      token,
+      pinToken,
+      user: { email, role: 'super_admin' },
+    });
   } catch (error) {
     console.error('CMS session verification error:', error);
     return res.status(401).json({ authorized: false, authenticated: false, error: error instanceof Error ? error.message : 'CMS authorization failed.' });
@@ -798,8 +818,8 @@ app.post('/api/admin/pin/verify', authRateLimit, (req, res) => {
   if (pin !== cmsPin()) {
     return res.status(401).json({ success: false, error: 'Invalid PIN.' });
   }
-  setPinSession(res);
-  return res.json({ success: true, verified: true });
+  const token = setPinSession(res);
+  return res.json({ success: true, verified: true, token });
 });
 
 // Admin PIN Session Check
@@ -826,12 +846,14 @@ app.post('/api/auth/cms/login', authRateLimit, (req, res) => {
     return res.status(401).json({ success: false, error: 'Invalid email or password.' });
   }
 
-  setCmsSession(res, email);
-  setPinSession(res);
+  const token = setCmsSession(res, email);
+  const pinToken = setPinSession(res);
   return res.json({
     success: true,
     authorized: true,
     authenticated: true,
+    token,
+    pinToken,
     user: { email, role: 'super_admin' },
   });
 });

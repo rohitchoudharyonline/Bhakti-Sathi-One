@@ -133,11 +133,10 @@ export const UniversalImageUploader: React.FC<UniversalImageUploaderProps> = ({
           result.asset.storagePath,
           cloudStorageSettings
         );
-        if (r2Uploaded) {
-          addMediaAsset({ ...result.asset, dataUrl: result.dataUrl, r2Synced: true });
-        }
+        addMediaAsset({ ...result.asset, dataUrl: result.dataUrl, r2Synced: r2Uploaded });
       } catch (r2Err) {
         console.warn('R2 sync notice (image preserved in media catalog):', r2Err);
+        addMediaAsset({ ...result.asset, dataUrl: result.dataUrl, r2Synced: false });
       }
 
       const stats: CompressionStats = {
