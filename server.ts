@@ -60,7 +60,7 @@ const MIME_TYPES: Record<string, string> = {
 };
 
 const app = express();
-const PORT = Number(process.env.PORT || 3000);
+const PORT = 3000;
 const isProduction = process.env.NODE_ENV === 'production';
 const CMS_COOKIE_NAME = 'bs_cms_session';
 const CMS_SESSION_MAX_AGE_MS = 8 * 60 * 60 * 1000;

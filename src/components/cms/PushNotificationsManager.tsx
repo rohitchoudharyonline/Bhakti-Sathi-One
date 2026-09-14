@@ -499,7 +499,7 @@ export const PushNotificationsManager: React.FC = () => {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between text-[10px] text-stone-400 mb-0.5 font-semibold">
-                      <span>HOLIDAYS HUNT TRAVEL</span>
+                      <span>BHAKTI SATHI</span>
                       <span>Now</span>
                     </div>
                     <h4 className="text-xs font-bold text-white leading-tight line-clamp-1">{title || 'Notification Title'}</h4>
