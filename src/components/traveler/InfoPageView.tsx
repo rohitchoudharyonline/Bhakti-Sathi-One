@@ -913,10 +913,18 @@ export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, on
 
                             <div className="pt-3 border-t border-stone-100 flex items-center justify-between">
                               <div>
-                                <p className="text-[10px] text-stone-400 font-semibold uppercase tracking-wider">Starting price</p>
+                                <p className="text-[10px] text-stone-400 font-semibold uppercase tracking-wider">
+                                  {pkg.priceOnRequest || (!pkg.price && !pkg.discountedPrice) || ((pkg.price || 0) <= 0 && (!pkg.discountedPrice || pkg.discountedPrice <= 0)) ? 'Quotation' : 'Starting price'}
+                                </p>
                                 <p className="text-base font-black text-stone-900">
-                                  ₹{pkg.price?.toLocaleString('en-IN')}{" "}
-                                  <span className="text-[10px] font-medium text-stone-500">/ person</span>
+                                  {pkg.priceOnRequest || (!pkg.price && !pkg.discountedPrice) || ((pkg.price || 0) <= 0 && (!pkg.discountedPrice || pkg.discountedPrice <= 0)) ? (
+                                    'Price on Request'
+                                  ) : (
+                                    <>
+                                      ₹{(pkg.discountedPrice || pkg.price)?.toLocaleString('en-IN')}{" "}
+                                      <span className="text-[10px] font-medium text-stone-500">/ person</span>
+                                    </>
+                                  )}
                                 </p>
                               </div>
                               <button

@@ -132,8 +132,14 @@ export const PremiumTravelMarketplace: React.FC = () => {
 
                 <div className="mt-4 pt-3 border-t border-stone-100 flex items-center justify-between">
                   <div>
-                    <span className="text-[10px] text-stone-400 font-bold block">Starting</span>
-                    <b className="text-lg text-stone-900">{p.currency}{(p.discountedPrice ?? p.price).toLocaleString('en-IN')}</b>
+                    <span className="text-[10px] text-stone-400 font-bold block">
+                      {p.priceOnRequest || (!p.price && !p.discountedPrice) || ((p.price || 0) <= 0 && (!p.discountedPrice || p.discountedPrice <= 0)) ? 'Quotation' : 'Starting'}
+                    </span>
+                    {p.priceOnRequest || (!p.price && !p.discountedPrice) || ((p.price || 0) <= 0 && (!p.discountedPrice || p.discountedPrice <= 0)) ? (
+                      <b className="text-sm font-black text-stone-900">Price on Request</b>
+                    ) : (
+                      <b className="text-lg text-stone-900">{p.currency || '₹'}{(p.discountedPrice ?? p.price).toLocaleString('en-IN')}</b>
+                    )}
                   </div>
                   <button
                     onClick={() => setSelectedPackageId(p.id)}

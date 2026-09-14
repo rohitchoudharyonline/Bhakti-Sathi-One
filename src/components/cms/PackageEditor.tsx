@@ -231,11 +231,13 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
   // Pricing & duration
   const [durationDays, setDurationDays] = useState(initialPackage?.durationDays || 5);
   const [durationNights, setDurationNights] = useState(initialPackage?.durationNights || 4);
-  const [price, setPrice] = useState(initialPackage?.price || 799);
+  const [price, setPrice] = useState<number>(initialPackage ? (initialPackage.price ?? 0) : 0);
   const [discountedPrice, setDiscountedPrice] = useState<number | undefined>(
-    initialPackage?.discountedPrice || 649
+    initialPackage?.discountedPrice
   );
-  const [priceOnRequest, setPriceOnRequest] = useState<boolean>(initialPackage?.priceOnRequest || false);
+  const [priceOnRequest, setPriceOnRequest] = useState<boolean>(
+    initialPackage?.priceOnRequest ?? (initialPackage?.price === 0)
+  );
   const [pricingTiers, setPricingTiers] = useState<PricingTiers>(initialPackage?.pricingTiers || {});
   const [currency, setCurrency] = useState(initialPackage?.currency || agencySettings.currencySymbol);
   const [status, setStatus] = useState<'published' | 'draft'>(initialPackage?.status || 'published');
@@ -413,9 +415,9 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
       badge: badge ? (badge as PackageBadge) : undefined,
       durationDays: Number(durationDays),
       durationNights: Number(durationNights),
-      price: Number(price),
-      discountedPrice: discountedPrice ? Number(discountedPrice) : undefined,
-      priceOnRequest,
+      price: Number(price) || 0,
+      discountedPrice: discountedPrice && Number(discountedPrice) > 0 ? Number(discountedPrice) : undefined,
+      priceOnRequest: priceOnRequest || Number(price) <= 0,
       pricingTiers,
       currency: currency || agencySettings.currencySymbol,
       rating: initialPackage?.rating || 4.9,
@@ -1307,7 +1309,7 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
                   </span>
                   <input
                     type="number"
-                    min={1}
+                    min={0}
                     value={price}
                     onChange={(e) => setPrice(Number(e.target.value))}
                     className="w-full text-xs font-bold bg-slate-50 border border-slate-200 rounded-xl pl-8 pr-3 py-2 focus:bg-white focus:border-brand focus:outline-hidden"

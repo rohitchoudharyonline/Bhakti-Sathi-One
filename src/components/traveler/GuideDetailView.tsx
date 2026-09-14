@@ -433,9 +433,15 @@ export const GuideDetailView: React.FC<GuideDetailViewProps> = ({ slug }) => {
 
                   <div className="p-4 pt-0 border-t border-stone-100 flex items-center justify-between mt-2">
                     <div>
-                      <span className="text-[10px] text-stone-400 block">Starting from</span>
+                      <span className="text-[10px] text-stone-400 block">
+                        {pkg.priceOnRequest || (!pkg.price && !pkg.discountedPrice) || ((pkg.price || 0) <= 0 && (!pkg.discountedPrice || pkg.discountedPrice <= 0))
+                          ? 'Quotation'
+                          : 'Starting from'}
+                      </span>
                       <span className="text-sm font-extrabold text-stone-900">
-                        ₹{(pkg.discountedPrice || pkg.price).toLocaleString('en-IN')}
+                        {pkg.priceOnRequest || (!pkg.price && !pkg.discountedPrice) || ((pkg.price || 0) <= 0 && (!pkg.discountedPrice || pkg.discountedPrice <= 0))
+                          ? 'Price on Request'
+                          : `₹${(pkg.discountedPrice || pkg.price).toLocaleString('en-IN')}`}
                       </span>
                     </div>
 

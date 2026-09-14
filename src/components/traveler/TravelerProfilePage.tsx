@@ -2027,8 +2027,14 @@ export const TravelerProfilePage: React.FC = () => {
 
                       <div className="pt-3 border-t border-stone-100 flex items-center justify-between">
                         <div>
-                          <p className="text-[10px] font-bold text-stone-400">Starting from</p>
-                          <p className="text-sm font-black text-stone-900">₹{(pkg.discountedPrice || pkg.price)?.toLocaleString('en-IN')}</p>
+                          <p className="text-[10px] font-bold text-stone-400">
+                            {pkg.priceOnRequest || (!pkg.price && !pkg.discountedPrice) || ((pkg.price || 0) <= 0 && (!pkg.discountedPrice || pkg.discountedPrice <= 0)) ? 'Quotation' : 'Starting from'}
+                          </p>
+                          <p className="text-sm font-black text-stone-900">
+                            {pkg.priceOnRequest || (!pkg.price && !pkg.discountedPrice) || ((pkg.price || 0) <= 0 && (!pkg.discountedPrice || pkg.discountedPrice <= 0))
+                              ? 'Price on Request'
+                              : `₹${(pkg.discountedPrice || pkg.price)?.toLocaleString('en-IN')}`}
+                          </p>
                         </div>
 
                         <button

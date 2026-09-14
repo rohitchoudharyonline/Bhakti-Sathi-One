@@ -343,7 +343,9 @@ export const SitemapPage: React.FC = () => {
                             {pkg.category || 'Pilgrimage'}
                           </span>
                           <span className="text-[11px] font-extrabold text-stone-900">
-                            ₹{pkg.discountedPrice?.toLocaleString('en-IN') || pkg.price?.toLocaleString('en-IN')}
+                            {pkg.priceOnRequest || (!pkg.price && !pkg.discountedPrice) || ((pkg.price || 0) <= 0 && (!pkg.discountedPrice || pkg.discountedPrice <= 0))
+                              ? 'Price on Request'
+                              : `₹${(pkg.discountedPrice || pkg.price)?.toLocaleString('en-IN')}`}
                           </span>
                         </div>
                         <h3 className="text-xs font-bold text-stone-900 group-hover:text-[#FF4B00] transition line-clamp-2 leading-snug pt-1">

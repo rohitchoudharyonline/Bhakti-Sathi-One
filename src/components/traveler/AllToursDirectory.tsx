@@ -5,6 +5,7 @@ import { DestinationMeta } from '../../data/destinationsData';
 import { updatePageSeo } from '../../utils/seo';
 import { generateBreadcrumbSchema } from '../../utils/seoEngine';
 import { resolveDisplayImage, handleImageError } from '../../utils/imageResolver';
+import { formatPackagePrice } from '../../utils/priceHelper';
 import { Navbar } from '../common/Navbar';
 import { GlobalFooter } from './GlobalFooter';
 import { FreeTravelInsuranceCard } from './FreeTravelInsuranceCard';
@@ -540,7 +541,7 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
                 <h1 className="text-2xl sm:text-3xl font-black text-stone-900 tracking-tight">
                   {currentDestMeta && selectedDestSlug !== 'all'
                     ? `${currentDestMeta.name} Tour Packages`
-                    : 'Sacred Pilgrimage & Mountain Holiday Packages'}
+                    : 'Pilgrimage Tours'}
                 </h1>
                 <p className="text-stone-600 text-xs sm:text-sm font-medium leading-relaxed">
                   {currentDestMeta && selectedDestSlug !== 'all' ? (
@@ -728,13 +729,19 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-bold text-black flex items-center gap-2">
               <Compass className="w-5 h-5 text-stone-600" />
-              Available Holiday Packages ({sortedPackages.length})
+              Available Pilgrimage Packages ({sortedPackages.length})
             </h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {sortedPackages.map((pkg) => {
               const coverImg = resolveDisplayImage(pkg.coverImage || (pkg as any).image, mediaAssets);
+              const priceResult = formatPackagePrice(
+                pkg.price,
+                pkg.discountedPrice,
+                agencySettings.currencySymbol,
+                pkg.priceOnRequest || (!pkg.price && !pkg.discountedPrice) || (pkg.price <= 0 && (!pkg.discountedPrice || pkg.discountedPrice <= 0))
+              );
 
               return (
                 <div
@@ -796,14 +803,26 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
                     <div className="flex items-center justify-between gap-3">
                       <div>
                         <span className="text-[10px] text-stone-500 uppercase font-bold block">
-                          Starting From
+                          {priceResult.isPriceOnRequest ? 'Quotation' : 'Starting From'}
                         </span>
                         <div className="flex items-baseline gap-1">
-                          <span className="text-lg font-black text-black">
-                            {agencySettings.currencySymbol}
-                            {(pkg.price || 0).toLocaleString('en-IN')}
-                          </span>
-                          <span className="text-[10px] text-stone-400">/ person</span>
+                          {priceResult.isPriceOnRequest ? (
+                            <span className="text-base sm:text-lg font-black text-black">
+                              Price on Request
+                            </span>
+                          ) : (
+                            <>
+                              <span className="text-lg font-black text-black">
+                                {priceResult.displayPrice}
+                              </span>
+                              {priceResult.originalPrice && (
+                                <span className="text-[11px] font-bold text-stone-400 line-through">
+                                  {priceResult.originalPrice}
+                                </span>
+                              )}
+                              <span className="text-[10px] text-stone-400">/ person</span>
+                            </>
+                          )}
                         </div>
                       </div>
 
