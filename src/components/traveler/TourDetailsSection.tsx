@@ -59,7 +59,7 @@ export const TourDetailsSection: React.FC<TourDetailsSectionProps> = ({
   const accommodationList = useMemo(() => {
     if (pkg.hotels && pkg.hotels.length > 0) {
       return pkg.hotels.map((h, idx) => {
-        const cityPart = h.city || extractCleanCity(h.location || '', pkg.destination);
+        const cityPart = (h.location && h.location.trim()) || (h.city && h.city.trim()) || extractCleanCity(h.location || '', pkg.destination);
         const countryPart = h.country || pkg.country || 'India';
         const hotelNameStr =
           h.name.includes('/or similar') || h.name.includes('/ similar')

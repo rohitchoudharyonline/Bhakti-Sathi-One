@@ -425,14 +425,20 @@ export const HandpickedYatraPackagesSection: React.FC = () => {
                       <div className="pt-3 border-t border-stone-100 flex items-center justify-between gap-2">
                         <div className="flex flex-col">
                           <span className="text-[10px] uppercase font-bold tracking-wider text-stone-400">
-                            Starting from
+                            {startingPrice > 0 && !pkg.priceOnRequest ? 'Starting from' : 'Quotation'}
                           </span>
                           <div className="flex items-baseline gap-1">
-                            <span className="text-lg sm:text-xl font-black text-[#FF4B00]">
-                              ₹{startingPrice > 0 ? startingPrice.toLocaleString('en-IN') : 'Custom'}
-                            </span>
-                            {startingPrice > 0 && (
-                              <span className="text-[10px] text-stone-500 font-medium">/ person</span>
+                            {startingPrice > 0 && !pkg.priceOnRequest ? (
+                              <>
+                                <span className="text-lg sm:text-xl font-black text-[#FF4B00]">
+                                  ₹{startingPrice.toLocaleString('en-IN')}
+                                </span>
+                                <span className="text-[10px] text-stone-500 font-medium">/ person</span>
+                              </>
+                            ) : (
+                              <span className="text-base sm:text-lg font-black text-[#FF4B00]">
+                                Price on Request
+                              </span>
                             )}
                           </div>
                         </div>

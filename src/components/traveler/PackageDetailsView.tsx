@@ -782,7 +782,7 @@ export const PackageDetailsView: React.FC<PackageDetailsViewProps> = ({ pkg, onB
                               <div className="flex items-center gap-1.5 min-w-0">
                                 <MapPin className="w-3.5 h-3.5 text-[#FF4B00] shrink-0" />
                                 <span className="font-extrabold text-stone-900 text-xs sm:text-sm tracking-tight truncate">
-                                  {hotel.city || hotel.location || pkg.destination}, {hotel.country || pkg.country || 'India'}
+                                  {hotel.location || hotel.city || pkg.destination}, {hotel.country || pkg.country || 'India'}
                                 </span>
                               </div>
                               <span className="shrink-0 bg-stone-100 text-stone-800 font-extrabold text-[11px] sm:text-xs px-2.5 py-0.5 rounded-full border border-stone-200 flex items-center gap-1">
@@ -959,15 +959,23 @@ export const PackageDetailsView: React.FC<PackageDetailsViewProps> = ({ pkg, onB
                   </span>
                 </div>
                 <div className="mt-2 flex items-baseline gap-2">
-                  <span className="text-3xl sm:text-4xl font-black text-stone-900">
-                    {pkg.currency}{pkg.discountedPrice ? pkg.discountedPrice.toLocaleString() : pkg.price.toLocaleString()}
-                  </span>
-                  {pkg.discountedPrice && (
-                    <span className="text-sm font-bold text-stone-400 line-through">
-                      {pkg.currency}{pkg.price.toLocaleString()}
+                  {pkg.priceOnRequest || (!pkg.price && !pkg.discountedPrice) || (pkg.price <= 0) ? (
+                    <span className="text-2xl sm:text-3xl font-black text-stone-900">
+                      Price on Request
                     </span>
+                  ) : (
+                    <>
+                      <span className="text-3xl sm:text-4xl font-black text-stone-900">
+                        {pkg.currency}{pkg.discountedPrice ? pkg.discountedPrice.toLocaleString() : pkg.price.toLocaleString()}
+                      </span>
+                      {pkg.discountedPrice && pkg.price > pkg.discountedPrice && (
+                        <span className="text-sm font-bold text-stone-400 line-through">
+                          {pkg.currency}{pkg.price.toLocaleString()}
+                        </span>
+                      )}
+                      <span className="text-xs text-stone-500 font-medium">/ person</span>
+                    </>
                   )}
-                  <span className="text-xs text-stone-500 font-medium">/ person</span>
                 </div>
                 <p className="text-xs text-stone-500 mt-1">
                   All-inclusive for {pkg.durationDays} Days / {pkg.durationNights} Nights with Darshan Assistance, 4-Star Stays, AC Vehicle & Hotel Meals.

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   TourPackage,
   ItineraryDay,
@@ -14,6 +14,7 @@ import {
   GroupTourDetails,
 } from '../../types/tour';
 import { useTours } from '../../context/TourContext';
+import { DestinationMeta } from '../../data/destinationsData';
 import {
   Save,
   X,
@@ -118,7 +119,12 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
   onSaveComplete,
   onCancel,
 }) => {
-  const { addPackage, updatePackage, agencySettings, temples, mediaAssets } = useTours();
+  const { addPackage, updatePackage, agencySettings, temples, mediaAssets, destinations } = useTours();
+
+  const destinationList = useMemo(() => {
+    if (!destinations) return [];
+    return (Object.values(destinations) as DestinationMeta[]).filter((d) => Boolean(d && (d.slug || d.id)));
+  }, [destinations]);
 
   const [activeTab, setActiveTab] = useState<'basic' | 'pricing' | 'itinerary' | 'inclusions' | 'hotels' | 'policies' | 'seo' | 'group'>('basic');
 
@@ -126,7 +132,14 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
   const [title, setTitle] = useState(initialPackage?.title || '');
   const [tagline, setTagline] = useState(initialPackage?.tagline || '');
   const [destination, setDestination] = useState(initialPackage?.destination || '');
-  const [destinationTag, setDestinationTag] = useState<string>(initialPackage?.destinationTag || 'jammu');
+  const [destinationTag, setDestinationTag] = useState<string>(() => {
+    if (initialPackage?.destinationTag) return initialPackage.destinationTag;
+    if (destinations) {
+      const list = Object.values(destinations) as DestinationMeta[];
+      if (list.length > 0 && list[0]?.slug) return list[0].slug;
+    }
+    return 'jammu-kashmir';
+  });
   const [selectedTempleIds, setSelectedTempleIds] = useState<string[]>(() => {
     if (initialPackage?.templeIds && initialPackage.templeIds.length > 0) {
       return initialPackage.templeIds;
@@ -790,37 +803,42 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
                 </div>
 
                 <div>
-                  <label className="text-xs font-bold text-slate-700 block mb-1">
-                    Destination Hub / Page *
-                  </label>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="text-xs font-bold text-slate-700 block">
+                      Destination Hub / Page *
+                    </label>
+                    <span className="text-[11px] font-semibold text-slate-500">
+                      {destinationList.length} destination{destinationList.length === 1 ? '' : 's'} in list
+                    </span>
+                  </div>
                   <select
                     value={destinationTag}
                     onChange={(e) => setDestinationTag(e.target.value)}
-                    className="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 focus:bg-white focus:border-brand focus:outline-hidden font-bold text-slate-800"
+                    className="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 focus:bg-white focus:border-brand focus:outline-hidden font-bold text-slate-800"
                   >
-                    <optgroup label="Domestic Destinations">
-                      <option value="jammu">🙏 Jammu & Katra (Vaishno Devi, Patnitop, Shivkhori)</option>
-                      <option value="kashmir">🏔️ Kashmir (Srinagar, Gulmarg, Pahalgam, Sonmarg)</option>
-                      <option value="himachal">🌲 Himachal (Manali, Shimla, Dharamshala, Dalhousie)</option>
-                      <option value="amritsar">✨ Amritsar (Golden Temple, Wagah Border)</option>
-                      <option value="ladakh">❄️ Leh Ladakh (Nubra, Pangong, Khardung La)</option>
-                      <option value="himachal_devi">🙏 Himachal Devi Darshan (Jwala Ji, Kangra, Chintpurni)</option>
-                      <option value="kerala">🌴 Kerala Backwaters (Munnar, Alleppey)</option>
-                      <option value="rajasthan">🏰 Royal Rajasthan (Jaipur, Udaipur, Jaisalmer)</option>
-                      <option value="goa">🏖️ Goa Beaches</option>
-                      <option value="andaman">🏝️ Andaman Islands (Port Blair, Havelock, Neil)</option>
-                      <option value="northeast">⛰️ North East (Meghalaya, Gangtok, Darjeeling)</option>
-                    </optgroup>
-                    <optgroup label="International Destinations">
-                      <option value="thailand">🇹🇭 Thailand (Bangkok, Pattaya, Phuket, Coral Island)</option>
-                      <option value="vietnam">🇻🇳 Vietnam (Hanoi, Ha Long Bay, Da Nang, Hoi An)</option>
-                      <option value="indonesia">🇮🇩 Indonesia (Bali, Ubud, Seminyak, Nusa Penida)</option>
-                      <option value="singapore">🇸🇬 Singapore (Universal Studios, Marina Bay)</option>
-                      <option value="dubai">🇦🇪 Dubai & Abu Dhabi (Burj Khalifa, Desert Safari)</option>
-                      <option value="malaysia">🇲🇾 Malaysia (Kuala Lumpur, Genting, Langkawi)</option>
-                      <option value="srilanka">🇱🇰 Sri Lanka (Colombo, Kandy, Nuwara Eliya)</option>
-                    </optgroup>
+                    {destinationList.length === 0 ? (
+                      <option value="">No destinations created yet — add in Destinations Hub</option>
+                    ) : (
+                      <>
+                        {destinationList.map((dest) => (
+                          <option key={dest.slug || dest.id} value={dest.slug || dest.id}>
+                            📍 {dest.displayName || dest.name} {dest.state ? `(${dest.state})` : ''}
+                          </option>
+                        ))}
+                        {/* If existing package has a custom destinationTag not in list, preserve it */}
+                        {destinationTag && !destinationList.some((d) => d.slug === destinationTag || d.id === destinationTag) && (
+                          <option value={destinationTag}>
+                            Current: {destinationTag}
+                          </option>
+                        )}
+                      </>
+                    )}
                   </select>
+                  {destinationList.length === 0 && (
+                    <p className="text-[11px] text-amber-600 mt-1 font-medium">
+                      ⚠️ No destinations found. Go to <strong>CMS → Destinations Hub</strong> to add destinations, and they will immediately appear here.
+                    </p>
+                  )}
                 </div>
 
                 <div>
@@ -2052,9 +2070,9 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
                         <input
                           type="text"
                           value={hotel.location}
-                          onChange={(e) => handleUpdateHotel(hotel.id, { location: e.target.value })}
+                          onChange={(e) => handleUpdateHotel(hotel.id, { location: e.target.value, city: e.target.value })}
                           placeholder="e.g. Pahalgam Riverside"
-                          className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 focus:border-brand focus:outline-hidden"
+                          className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 focus:border-brand focus:outline-hidden font-semibold"
                         />
                       </div>
 

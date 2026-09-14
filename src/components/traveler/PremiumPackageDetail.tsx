@@ -652,7 +652,7 @@ export const PremiumPackageDetail: React.FC<Props> = ({ pkg, onBack }) => {
                   {currentTierInfo.tierName || 'Selected Tier'}
                 </span>
                 <span className="text-[10px] text-stone-400 font-bold">
-                  {activePriceResult.isPriceOnRequest ? 'Custom Quote' : 'Per Person'}
+                  {activePriceResult.isPriceOnRequest ? 'Quotation' : 'Per Person'}
                 </span>
               </div>
 
@@ -1039,7 +1039,7 @@ export const PremiumPackageDetail: React.FC<Props> = ({ pkg, onBack }) => {
             </button>
           </span>
           <div className="text-lg font-black text-stone-950 truncate">
-            {activePriceResult.isPriceOnRequest ? 'On Request' : activePriceResult.displayPrice}
+            {activePriceResult.isPriceOnRequest ? 'Price on Request' : activePriceResult.displayPrice}
           </div>
         </div>
 

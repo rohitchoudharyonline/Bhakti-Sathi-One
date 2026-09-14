@@ -147,12 +147,18 @@ export const GroupToursSection: React.FC = () => {
             >
               {groupPackages.map((pkg) => {
                 const isFavorite = favoriteIds.includes(pkg.id);
-                const startingPrice = pkg.discountedPrice || pkg.price;
+                const isPriceOnRequest = Boolean(
+                  pkg.priceOnRequest ||
+                  !pkg.price ||
+                  pkg.price <= 0 ||
+                  (pkg.discountedPrice !== undefined && pkg.discountedPrice <= 0 && (!pkg.price || pkg.price <= 0))
+                );
+                const startingPrice = pkg.discountedPrice && pkg.discountedPrice > 0 ? pkg.discountedPrice : (pkg.price || 0);
                 const grp = pkg.groupTourDetails;
                 const totalSeats = grp?.totalSeats || 24;
                 const bookedSeats = grp?.bookedSeats || 0;
                 const availableSeats = Math.max(1, totalSeats - bookedSeats);
-                const savings = grp?.perPersonSavings || Math.max(0, pkg.price - pkg.discountedPrice);
+                const savings = isPriceOnRequest ? 0 : (grp?.perPersonSavings || Math.max(0, (pkg.price || 0) - startingPrice));
                 const departureDate = grp?.nextDeparture || 'Every Weekend Departure';
 
                 return (
@@ -274,18 +280,26 @@ export const GroupToursSection: React.FC = () => {
                       <div className="pt-3.5 mt-3 border-t border-stone-100 flex items-center justify-between gap-2">
                         <div className="flex flex-col">
                           <span className="text-[10px] uppercase font-bold tracking-wider text-stone-400">
-                            Fixed Fare
+                            {isPriceOnRequest ? 'Pricing' : 'Fixed Fare'}
                           </span>
                           <div className="flex items-baseline gap-1.5">
-                            <span className="text-lg sm:text-xl font-black text-[#FF4B00]">
-                              ₹{startingPrice > 0 ? startingPrice.toLocaleString('en-IN') : 'Custom'}
-                            </span>
-                            {pkg.price > pkg.discountedPrice && (
-                              <span className="text-[11px] text-stone-400 line-through font-medium">
-                                ₹{pkg.price.toLocaleString('en-IN')}
+                            {isPriceOnRequest ? (
+                              <span className="text-base sm:text-lg font-black text-[#FF4B00]">
+                                Price on Request
                               </span>
+                            ) : (
+                              <>
+                                <span className="text-lg sm:text-xl font-black text-[#FF4B00]">
+                                  ₹{startingPrice.toLocaleString('en-IN')}
+                                </span>
+                                {pkg.discountedPrice && pkg.price > pkg.discountedPrice && (
+                                  <span className="text-[11px] text-stone-400 line-through font-medium">
+                                    ₹{pkg.price.toLocaleString('en-IN')}
+                                  </span>
+                                )}
+                                <span className="text-[10px] text-stone-500 font-medium">/ seat</span>
+                              </>
                             )}
-                            <span className="text-[10px] text-stone-500 font-medium">/ seat</span>
                           </div>
                         </div>
 

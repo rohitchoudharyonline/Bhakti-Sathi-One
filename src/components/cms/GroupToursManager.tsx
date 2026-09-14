@@ -45,7 +45,13 @@ export const GroupToursManager: React.FC<GroupToursManagerProps> = ({
     setSelectedPackageId,
     setActiveView,
     agencySettings,
+    destinations,
   } = useTours();
+
+  const destinationList = useMemo(() => {
+    if (!destinations) return [];
+    return (Object.values(destinations) as any[]).filter((d) => Boolean(d && (d.slug || d.id)));
+  }, [destinations]);
 
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'filling' | 'guaranteed' | 'soldout'>('all');
@@ -423,10 +429,11 @@ export const GroupToursManager: React.FC<GroupToursManagerProps> = ({
               className="px-3 py-2 rounded-xl bg-stone-50 border border-stone-200 text-xs font-bold text-stone-700 cursor-pointer focus:outline-none"
             >
               <option value="all">All Destinations</option>
-              <option value="jammu">Jammu & Katra</option>
-              <option value="himachal">Himachal Pradesh</option>
-              <option value="kashmir">Kashmir</option>
-              <option value="amritsar">Amritsar</option>
+              {destinationList.map((d) => (
+                <option key={d.slug || d.id} value={d.slug || d.id}>
+                  {d.name}
+                </option>
+              ))}
             </select>
           </div>
         </div>
