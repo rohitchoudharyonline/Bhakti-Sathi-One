@@ -999,12 +999,6 @@ export const LuxuryHomepage: React.FC = () => {
                       {item.description}
                     </p>
                   </div>
-
-                  {/* Minimalist Bottom Indicator Line */}
-                  <div className="pt-4 mt-4 border-t border-stone-100 flex items-center justify-between text-[11px] font-bold text-stone-500">
-                    <span>HOLIDAYS HUNT EXCLUSIVE</span>
-                    <span className="w-2 h-2 rounded-full bg-[#FF4B00] inline-block" />
-                  </div>
                 </div>
               );
             })}
