@@ -415,22 +415,7 @@ export const TemplesManager: React.FC = () => {
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       loading="lazy"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent pointer-events-none" />
-
-                    {/* Top Badges */}
-                    <div className="absolute top-3 left-10 right-3 flex items-center justify-between pointer-events-none">
-                      <span
-                        className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full border shadow-xs ${catConfig.bg} ${catConfig.text} ${catConfig.border}`}
-                      >
-                        {temple.category}
-                      </span>
-                      {temple.featured && (
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/90 text-white backdrop-blur-xs flex items-center gap-1">
-                          <Sparkles className="w-3 h-3" />
-                          <span>Featured</span>
-                        </span>
-                      )}
-                    </div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
 
                     {/* Bottom Title Overlay */}
                     <div className="absolute bottom-3 left-3 right-3 text-white pointer-events-none">

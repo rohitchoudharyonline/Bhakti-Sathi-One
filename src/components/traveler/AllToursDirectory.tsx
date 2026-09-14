@@ -385,74 +385,148 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
           </div>
         </div>
 
-        {/* Dedicated Temple Banner when a Temple is Selected */}
+        {/* Dedicated Full Temple Hero Showcase when a Temple is Selected */}
         {selectedTempleMeta && selectedTempleId !== 'all' && (
-          <div className="bg-gradient-to-r from-stone-900 via-stone-850 to-stone-900 text-white border-b border-stone-800 py-6 sm:py-8 px-4 sm:px-8">
-            <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-6">
-              <div className="flex items-start gap-4 sm:gap-5">
-                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden border border-white/20 shrink-0 bg-stone-800 shadow-md">
-                  <img
-                    src={resolveDisplayImage(selectedTempleMeta.image, mediaAssets)}
-                    alt={selectedTempleMeta.name}
-                    onError={(e) => handleImageError(e, selectedTempleMeta.image, mediaAssets)}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] uppercase font-black tracking-wider px-2 py-0.5 rounded-full bg-[#FF4B00] text-white">
-                      Holy Shrine
-                    </span>
-                    {selectedTempleMeta.city && (
-                      <span className="text-xs text-stone-300 font-medium flex items-center gap-1">
-                        <MapPin className="w-3.5 h-3.5 text-[#FF4B00]" />
-                        {selectedTempleMeta.city}, {selectedTempleMeta.state}
-                      </span>
-                    )}
-                  </div>
-                  <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight">
-                    {selectedTempleMeta.name}
-                  </h1>
-                  {selectedTempleMeta.hindiName && (
-                    <p className="text-xs text-amber-300 font-medium">
-                      {selectedTempleMeta.hindiName}
-                    </p>
-                  )}
-                  <div className="flex flex-wrap items-center gap-3 text-[11px] text-stone-300 pt-1">
-                    {selectedTempleMeta.deity && (
-                      <span>
-                        <strong className="text-white">Deity:</strong> {selectedTempleMeta.deity}
-                      </span>
-                    )}
-                    {selectedTempleMeta.darshanTimings && (
-                      <span>
-                        <strong className="text-white">Darshan:</strong> {selectedTempleMeta.darshanTimings}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </div>
+          <div className="relative bg-stone-950 text-white overflow-hidden border-b border-stone-800">
+            {/* Full High-Resolution Temple Background Image */}
+            <div className="absolute inset-0 w-full h-full">
+              <img
+                src={resolveDisplayImage(selectedTempleMeta.image, mediaAssets)}
+                alt={selectedTempleMeta.name}
+                onError={(e) => handleImageError(e, selectedTempleMeta.image, mediaAssets)}
+                className="w-full h-full object-cover object-center transform scale-105 filter blur-xs brightness-40"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/80 to-stone-950/60" />
+            </div>
 
-              <div className="flex items-center gap-2.5 shrink-0 self-start md:self-center">
-                <a
-                  href={`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
-                    `Namaste Bhakti Sathi, I want to book a customized sacred pilgrimage & darshan package for ${selectedTempleMeta.name}.`
-                  )}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-4 py-2.5 bg-[#FF4B00] hover:bg-[#E04200] text-white text-xs font-bold rounded-xl transition shadow-sm inline-flex items-center gap-1.5"
-                >
-                  <MessageCircle className="w-3.5 h-3.5" />
-                  <span>Custom Yatra Inquiry</span>
-                </a>
-                <button
-                  type="button"
-                  onClick={() => setSelectedTempleId('all')}
-                  className="px-3.5 py-2.5 bg-white/10 hover:bg-white/20 text-white text-xs font-bold rounded-xl transition cursor-pointer inline-flex items-center gap-1"
-                >
-                  <X className="w-3.5 h-3.5" />
-                  <span>View All Shrines</span>
-                </button>
+            <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 md:py-14">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
+                {/* Full Image Card */}
+                <div className="lg:col-span-5 w-full">
+                  <div className="relative aspect-[4/3] sm:aspect-[16/10] lg:aspect-[4/3] w-full rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl border-2 border-white/20 bg-stone-900 group">
+                    <img
+                      src={resolveDisplayImage(selectedTempleMeta.image, mediaAssets)}
+                      alt={selectedTempleMeta.name}
+                      onError={(e) => handleImageError(e, selectedTempleMeta.image, mediaAssets)}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
+                    {selectedTempleMeta.city && (
+                      <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-xs text-white drop-shadow-md">
+                        <span className="flex items-center gap-1 font-semibold">
+                          <MapPin className="w-3.5 h-3.5 text-[#FF4B00]" />
+                          {selectedTempleMeta.city}, {selectedTempleMeta.state}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Temple Information & Actions */}
+                <div className="lg:col-span-7 space-y-4">
+                  <div className="space-y-2">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="text-[11px] uppercase font-black tracking-wider px-3 py-1 rounded-full bg-[#FF4B00] text-white shadow-xs">
+                        Sacred Shrine
+                      </span>
+                      {selectedTempleMeta.city && (
+                        <span className="text-xs text-stone-300 font-medium flex items-center gap-1 bg-white/10 backdrop-blur-md px-3 py-1 rounded-full border border-white/10">
+                          <MapPin className="w-3.5 h-3.5 text-amber-400" />
+                          {selectedTempleMeta.city}, {selectedTempleMeta.state}
+                        </span>
+                      )}
+                    </div>
+
+                    <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-tight">
+                      {selectedTempleMeta.name}
+                    </h1>
+
+                    {selectedTempleMeta.hindiName && (
+                      <p className="text-sm sm:text-base text-amber-300 font-bold">
+                        {selectedTempleMeta.hindiName}
+                      </p>
+                    )}
+
+                    {selectedTempleMeta.tagline && (
+                      <p className="text-sm sm:text-base text-stone-300 font-medium italic">
+                        "{selectedTempleMeta.tagline}"
+                      </p>
+                    )}
+
+                    {selectedTempleMeta.description && (
+                      <p className="text-xs sm:text-sm text-stone-300 leading-relaxed font-normal pt-1 max-w-2xl">
+                        {selectedTempleMeta.description}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Temple Key Details Grid */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2 max-w-2xl">
+                    {selectedTempleMeta.deity && (
+                      <div className="bg-white/10 backdrop-blur-md rounded-xl p-2.5 border border-white/10 flex items-start gap-2 text-xs">
+                        <Sparkles className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                        <div>
+                          <span className="text-stone-400 block text-[10px] font-bold uppercase tracking-wider">Presiding Deity</span>
+                          <span className="font-semibold text-white">{selectedTempleMeta.deity}</span>
+                        </div>
+                      </div>
+                    )}
+
+                    {selectedTempleMeta.darshanTimings && (
+                      <div className="bg-white/10 backdrop-blur-md rounded-xl p-2.5 border border-white/10 flex items-start gap-2 text-xs">
+                        <Clock className="w-4 h-4 text-[#FF4B00] shrink-0 mt-0.5" />
+                        <div>
+                          <span className="text-stone-400 block text-[10px] font-bold uppercase tracking-wider">Darshan Timings</span>
+                          <span className="font-semibold text-white">{selectedTempleMeta.darshanTimings}</span>
+                        </div>
+                      </div>
+                    )}
+
+                    {selectedTempleMeta.dressCode && (
+                      <div className="bg-white/10 backdrop-blur-md rounded-xl p-2.5 border border-white/10 flex items-start gap-2 text-xs">
+                        <Shirt className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                        <div>
+                          <span className="text-stone-400 block text-[10px] font-bold uppercase tracking-wider">Dress Code</span>
+                          <span className="font-semibold text-white">{selectedTempleMeta.dressCode}</span>
+                        </div>
+                      </div>
+                    )}
+
+                    {selectedTempleMeta.bestTimeToVisit && (
+                      <div className="bg-white/10 backdrop-blur-md rounded-xl p-2.5 border border-white/10 flex items-start gap-2 text-xs">
+                        <CalendarDays className="w-4 h-4 text-sky-400 shrink-0 mt-0.5" />
+                        <div>
+                          <span className="text-stone-400 block text-[10px] font-bold uppercase tracking-wider">Best Time to Visit</span>
+                          <span className="font-semibold text-white">{selectedTempleMeta.bestTimeToVisit}</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex flex-wrap items-center gap-3 pt-3">
+                    <a
+                      href={`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
+                        `Namaste Bhakti Sathi, I want to book a customized sacred pilgrimage & darshan package for ${selectedTempleMeta.name}.`
+                      )}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-5 py-3 bg-[#FF4B00] hover:bg-[#E04200] text-white text-xs sm:text-sm font-bold rounded-xl transition shadow-lg shadow-orange-950/40 inline-flex items-center gap-2 cursor-pointer active:scale-95"
+                    >
+                      <MessageCircle className="w-4 h-4" />
+                      <span>Custom Yatra Inquiry on WhatsApp</span>
+                    </a>
+
+                    <button
+                      type="button"
+                      onClick={() => setSelectedTempleId('all')}
+                      className="px-4 py-3 bg-white/15 hover:bg-white/25 text-white text-xs sm:text-sm font-bold rounded-xl transition cursor-pointer inline-flex items-center gap-1.5 backdrop-blur-md border border-white/15 active:scale-95"
+                    >
+                      <X className="w-4 h-4" />
+                      <span>View All Shrines</span>
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

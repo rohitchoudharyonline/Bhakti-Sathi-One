@@ -1044,7 +1044,7 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
                                 {temple.name}
                               </p>
                               <p className="text-[10px] text-slate-500 truncate">
-                                {temple.city} • <span className="font-semibold text-orange-600">{temple.category}</span>
+                                {temple.city}
                               </p>
                             </div>
                           </div>
