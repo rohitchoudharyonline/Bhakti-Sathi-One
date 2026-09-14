@@ -230,7 +230,7 @@ export const PackageDetailsView: React.FC<PackageDetailsViewProps> = ({ pkg, onB
               <div>
                 <span className="text-stone-500 block text-[11px] font-medium">Darshan Type</span>
                 <span className="font-bold text-stone-900 flex items-center gap-1.5 mt-0.5 truncate">
-                  <Sparkles className="w-4 h-4 text-amber-600 shrink-0" /> VIP Sanctum Pass
+                  <Sparkles className="w-4 h-4 text-amber-600 shrink-0" /> Darshan Assistance
                 </span>
               </div>
             </div>
@@ -693,7 +693,7 @@ export const PackageDetailsView: React.FC<PackageDetailsViewProps> = ({ pkg, onB
                       <div>
                         <h3 className="text-base font-black text-stone-900">What is Included in Yatra</h3>
                         <p className="text-xs text-emerald-800 font-bold">
-                          {pkg.inclusions.length} Premium Services & VIP Passes Included
+                          {pkg.inclusions.length} Premium Services & Inclusions Included
                         </p>
                       </div>
                     </div>
@@ -955,7 +955,7 @@ export const PackageDetailsView: React.FC<PackageDetailsViewProps> = ({ pkg, onB
                     Sacred Pilgrimage Package
                   </span>
                   <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-stone-100 text-stone-900 border border-stone-300">
-                    VIP Darshan
+                    Darshan Assistance
                   </span>
                 </div>
                 <div className="mt-2 flex items-baseline gap-2">
@@ -970,7 +970,7 @@ export const PackageDetailsView: React.FC<PackageDetailsViewProps> = ({ pkg, onB
                   <span className="text-xs text-stone-500 font-medium">/ person</span>
                 </div>
                 <p className="text-xs text-stone-500 mt-1">
-                  All-inclusive for {pkg.durationDays} Days / {pkg.durationNights} Nights with VIP Darshan, 4-Star Stays, AC Vehicle & Hotel Meals.
+                  All-inclusive for {pkg.durationDays} Days / {pkg.durationNights} Nights with Darshan Assistance, 4-Star Stays, AC Vehicle & Hotel Meals.
                 </p>
                 <p className="text-xs text-emerald-700 font-bold mt-2 flex items-center gap-1">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600" />
@@ -1049,7 +1049,7 @@ export const PackageDetailsView: React.FC<PackageDetailsViewProps> = ({ pkg, onB
                     onChange={(e) => setHotelPref(e.target.value)}
                     className="w-full text-xs bg-white border border-stone-300 rounded-xl px-2 py-2 focus:border-stone-900 focus:outline-hidden font-medium"
                   >
-                    <option value="4-Star Luxury & VIP Bhawan Stays">4-Star Luxury & VIP Bhawan Stays</option>
+                    <option value="4-Star Luxury & Premium Bhawan Stays">4-Star Luxury & Premium Bhawan Stays</option>
                     <option value="5-Star Deluxe Pilgrim Resorts">5-Star Deluxe Pilgrim Resorts</option>
                     <option value="3-Star Clean Standard Stays">3-Star Clean Standard Stays</option>
                     <option value="Helicopter + Luxury Suite Package">Helicopter + Luxury Suite Package</option>
@@ -1068,7 +1068,7 @@ export const PackageDetailsView: React.FC<PackageDetailsViewProps> = ({ pkg, onB
                   onClick={() => setIsInquiryOpen(true)}
                   className="w-full py-3.5 px-4 rounded-2xl bg-stone-900 hover:bg-stone-800 text-white font-extrabold text-sm shadow-md transition cursor-pointer flex items-center justify-center gap-2 active:scale-[0.98]"
                 >
-                  <span>Book Yatra & Check VIP Slots</span>
+                  <span>Book Yatra & Check Availability</span>
                 </button>
 
                 <button
@@ -1081,7 +1081,7 @@ export const PackageDetailsView: React.FC<PackageDetailsViewProps> = ({ pkg, onB
 
                 <a
                   href={`https://wa.me/${(agencySettings?.whatsapp || '').replace(/[^0-9]/g, '')}?text=${encodeURIComponent(
-                    `Namaste ${agencySettings.agencyName}! I am inquiring about *${pkg.title}* (${pkg.durationDays}D/${pkg.durationNights}N). Please confirm VIP Darshan availability and quotation for ${calcAdults} Pilgrims${calcChildren > 0 ? ` and ${calcChildren} Children` : ''} on ${calcDate}.`
+                    `Namaste ${agencySettings.agencyName}! I am inquiring about *${pkg.title}* (${pkg.durationDays}D/${pkg.durationNights}N). Please confirm package availability and quotation for ${calcAdults} Pilgrims${calcChildren > 0 ? ` and ${calcChildren} Children` : ''} on ${calcDate}.`
                   )}`}
                   target="_blank"
                   rel="noopener noreferrer"

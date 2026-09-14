@@ -73,7 +73,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             Sacred Dhams & Divine Yatras Handcrafted with Devotion
           </h1>
           <p className="text-sm sm:text-lg text-stone-200 leading-relaxed max-w-3xl mx-auto font-medium drop-shadow-sm">
-            Experience spiritually fulfilling journeys with guaranteed VIP Darshan passes, confirmed travel bookings, verified hotel stays, and dedicated senior citizen assistance.
+            Experience spiritually fulfilling journeys with guided Darshan assistance, confirmed travel bookings, verified hotel stays, and dedicated senior citizen assistance.
           </p>
         </div>
 
@@ -165,8 +165,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
               <Sparkles className="w-4 h-4 text-stone-200" />
             </div>
             <div>
-              <h4 className="text-white text-xs font-bold leading-tight">VIP Darshan Passes</h4>
-              <p className="text-stone-300 text-[11px] leading-tight mt-0.5 font-medium">Fast-track temple entry</p>
+              <h4 className="text-white text-xs font-bold leading-tight">Darshan Assistance</h4>
+              <p className="text-stone-300 text-[11px] leading-tight mt-0.5 font-medium">Sacred temple support</p>
             </div>
           </div>
 

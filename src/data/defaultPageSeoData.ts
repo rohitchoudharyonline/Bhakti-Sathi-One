@@ -85,7 +85,7 @@ export const DEFAULT_PAGE_SEO_CONFIGS: Record<string, PageSeoConfig> = {
     metaTitle: 'About Bhakti Sathi — Sacred Pilgrimage & Yatra Tour Packages',
     metaDescription: 'Discover Bhakti Sathi, India’s premier spiritual tour operator. Specializing in Vaishno Devi, Himachal Devi Darshan, Kashi Varanasi, Ayodhya Ram Mandir & Char Dham.',
     ogTitle: 'About Bhakti Sathi — Sacred Pilgrimage & Yatra Tour Packages',
-    ogDescription: 'India’s most trusted spiritual tour partner providing VIP darshan assistance and sanitized transfers.',
+    ogDescription: 'India’s most trusted spiritual tour partner providing guided darshan assistance and sanitized transfers.',
     ogImage: 'https://images.unsplash.com/photo-1598091383021-15ddea10925d?auto=format&fit=crop&w=1200&q=85',
     noIndex: false,
     noFollow: false,

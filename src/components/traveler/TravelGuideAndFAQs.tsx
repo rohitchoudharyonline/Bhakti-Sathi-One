@@ -8,8 +8,8 @@ export const TravelGuideAndFAQs: React.FC = () => {
 
   const faqs = [
     {
-      q: 'How does VIP Sanctum Darshan work for Mata Vaishno Devi & Himachal Temples?',
-      a: 'We coordinate authorized priority passes and timing with local temple authorities (e.g. Shri Mata Vaishno Devi Shrine Board, Kangra Devi, Jwala Ji, and Chamunda Devi). A dedicated local coordinator or private chauffeur assists your family through the designated gate so senior citizens and families avoid tedious queues.',
+      q: 'How does Darshan assistance work for Mata Vaishno Devi & Himachal Temples?',
+      a: 'We provide comprehensive yatra coordination, timing guidance, and ground logistics for sacred shrines (e.g. Shri Mata Vaishno Devi Shrine Board, Kangra Devi, Jwala Ji, and Chamunda Devi). A dedicated local coordinator or private chauffeur assists your family with registration, route guidance, and comfortable scheduling so senior citizens and families travel without stress.',
     },
     {
       q: 'What meal arrangements are included in the packages?',
@@ -48,7 +48,7 @@ export const TravelGuideAndFAQs: React.FC = () => {
           </h2>
 
           <p className="text-xs sm:text-sm text-stone-600 font-medium max-w-lg mx-auto">
-            Essential information regarding VIP Darshans, hotel dining, elderly care, and government biometric registrations.
+            Essential information regarding temple darshans, hotel dining, elderly care, and government biometric registrations.
           </p>
         </div>
 

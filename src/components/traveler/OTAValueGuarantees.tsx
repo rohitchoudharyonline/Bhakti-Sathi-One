@@ -5,9 +5,9 @@ export const OTAValueGuarantees: React.FC = () => {
   const guarantees = [
     {
       icon: Sparkles,
-      title: 'Guaranteed VIP Darshan Passes',
-      description: 'Pre-booked VIP passes for Kedarnath, Kashi Vishwanath Sugam Darshan, and Tirupati Sheegra Darshan.',
-      badge: 'VIP Sanctum Entry',
+      title: 'Guided Darshan Assistance',
+      description: 'Pre-planned assistance for Kedarnath, Kashi Vishwanath Sugam Darshan, and shrine entry coordination.',
+      badge: 'Darshan Support',
     },
     {
       icon: Utensils,

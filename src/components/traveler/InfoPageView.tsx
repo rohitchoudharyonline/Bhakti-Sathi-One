@@ -325,7 +325,7 @@ export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, on
                       Sacred Pilgrimage & Yatra FAQ Hub
                     </h3>
                     <p className="text-xs sm:text-sm text-stone-600 font-medium">
-                      Find expert guidance on VIP Darshan passes, Senior Citizen care, Hotel Dining, Helicopter passes, and Temple rules across 15+ Sacred Shrines of India.
+                      Find expert guidance on Temple Darshan rules, Senior Citizen care, Hotel Dining, Helicopter passes, and Yatra planning across 15+ Sacred Shrines of India.
                     </p>
                   </div>
 
@@ -371,7 +371,7 @@ export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, on
                     <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400" />
                     <input
                       type="text"
-                      placeholder={`Search Yatra FAQs in ${currentDest.name} (e.g. VIP Darshan, Helicopter, Hotel Stays, Palki)...`}
+                      placeholder={`Search Yatra FAQs in ${currentDest.name} (e.g. Darshan Timings, Helicopter, Hotel Stays, Palki)...`}
                       value={faqSearch}
                       onChange={(e) => setFaqSearch(e.target.value)}
                       className="w-full pl-10 pr-4 py-3 rounded-xl bg-stone-50 border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-600 transition"
@@ -820,7 +820,7 @@ export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, on
                           ? 'Inspected romantic stays, private sunset shikara cruises, complimentary candle-light dinner, flower-bed styling, and on-trip assistance.'
                           : pageSlug === 'family'
                           ? 'Kids & senior-friendly vehicles, carefully selected deluxe hotel rooms with local food options, and leisurely paced private sightseeing.'
-                          : 'VIP temple darshan passes, verified clean hotel stay arrangements, and senior-safe travel assistance.'}
+                          : 'Guided temple darshan assistance, verified clean hotel stay arrangements, and senior-safe travel assistance.'}
                       </p>
                     </div>
                     <a

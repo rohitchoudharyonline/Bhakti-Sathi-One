@@ -35,7 +35,7 @@ export const InteractiveTripPlanner: React.FC = () => {
   const [children, setChildren] = useState(0);
   const [travelMonth, setTravelMonth] = useState('Next 30 Days (Upcoming)');
   const [specialInterests, setSpecialInterests] = useState<string[]>([
-    'VIP Sanctum Darshan Passes',
+    'Guided Darshan Assistance',
     'Senior Citizen Palki / Doli Support',
     'Custom Meal Preferences On Request',
   ]);
@@ -60,27 +60,27 @@ export const InteractiveTripPlanner: React.FC = () => {
       badge: 'Economical',
     },
     {
-      id: '4-Star Luxury & VIP Bhawan Hotels',
-      title: '4-Star Luxury & VIP Bhawan Hotels',
+      id: '4-Star Luxury & Premium Bhawan Hotels',
+      title: '4-Star Luxury & Premium Bhawan Hotels',
       desc: 'Premium hotel rooms, river/mountain views, priority shrine transit',
       badge: 'Most Revered',
     },
     {
       id: '5-Star Deluxe Pilgrim Resorts & Heli Camps',
       title: '5-Star Deluxe Pilgrim Resorts & Heli Camps',
-      desc: 'VIP suites, luxury alpine tents, private priest assistance',
-      badge: 'VIP Signature',
+      desc: 'Premium suites, luxury alpine tents, local guide assistance',
+      badge: 'Signature',
     },
   ];
 
   const VEHICLE_OPTIONS = [
     { id: 'Private Mountain Innova Crysta', label: 'Private Mountain Innova Crysta', desc: 'Hill certified chauffeur, 2-5 pilgrims' },
     { id: 'Luxury Force Urbania / Tempo Traveller', label: 'Luxury Force Urbania / Tempo Traveller', desc: '9-16 Seater for joint family & groups' },
-    { id: 'Helicopter Charter + VIP Ground Transit', label: 'Helicopter Charter + VIP Ground Transit', desc: 'Dehradun to Kedarnath & Badrinath' },
+    { id: 'Helicopter Charter + Dedicated Ground Transit', label: 'Helicopter Charter + Dedicated Ground Transit', desc: 'Dehradun to Kedarnath & Badrinath' },
   ];
 
   const INTEREST_OPTIONS = [
-    'VIP Sanctum Darshan Passes',
+    'Guided Darshan Assistance',
     'Senior Citizen Palki / Doli Support',
     'Custom Meal Preferences On Request',
     'Medical Oxygen Cylinder Mountain Kit',
@@ -157,7 +157,7 @@ export const InteractiveTripPlanner: React.FC = () => {
 📞 Phone: ${travelerPhone || 'N/A'}
 📧 Email: ${travelerEmail || 'N/A'}
 
-Please provide the detailed custom Yatra itinerary and VIP slot confirmation.`;
+Please provide the detailed custom Yatra itinerary and package quotation.`;
 
     return `https://wa.me/${agencySettings.whatsapp.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(text)}`;
   };
@@ -177,7 +177,7 @@ Please provide the detailed custom Yatra itinerary and VIP slot confirmation.`;
           </h2>
 
           <p className="text-xs sm:text-base text-stone-600 font-medium">
-            Tailor every spiritual detail—sacred shrines, VIP Darshan slots, sanitized mountain vehicles, senior citizen assistance, and comfortable stay options.
+            Tailor every spiritual detail—sacred shrines, convenient Darshan time slots, sanitized mountain vehicles, senior citizen assistance, and comfortable stay options.
           </p>
         </div>
 
@@ -503,7 +503,7 @@ Please provide the detailed custom Yatra itinerary and VIP slot confirmation.`;
                 Price on Request
               </div>
               <p className="text-[11px] text-stone-600 mt-1 leading-snug font-medium">
-                Transparent direct ground rate with guaranteed VIP Darshan passes & hotel stays.
+                Transparent direct ground rate with guided Darshan coordination & hotel stays.
               </p>
             </div>
 

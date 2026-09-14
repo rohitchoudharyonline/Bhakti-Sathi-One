@@ -97,7 +97,7 @@ export const PILGRIMAGE_FAQS_REGISTRY: DestinationFaqs[] = [
       },
       {
         question: 'How many days are needed for a comfortable 5 Devi Darshan with senior citizens?',
-        answer: 'A 4 Nights / 5 Days or 5 Nights / 6 Days itinerary allows relaxed temple visits, easy check-ins, VIP darshan assistance, and comfortable private vehicle travel without fatigue.'
+        answer: 'A 4 Nights / 5 Days or 5 Nights / 6 Days itinerary allows relaxed temple visits, easy check-ins, guided darshan assistance, and comfortable private vehicle travel without fatigue.'
       },
       {
         question: 'Are there ropeways or battery cars available at Naina Devi and Chintpurni?',
@@ -121,7 +121,7 @@ export const PILGRIMAGE_FAQS_REGISTRY: DestinationFaqs[] = [
       },
       {
         question: 'How do Kedarnath Helicopter bookings work from Phata, Guptkashi & Sirsi?',
-        answer: 'Helicopters operate from Phata, Guptkashi, and Sirsi helipads to Kedarnath helipad (10-minute flight). Bhakti Sathi secures confirmed helicopter tickets along with VIP Darshan passes.'
+        answer: 'Helicopters operate from Phata, Guptkashi, and Sirsi helipads to Kedarnath helipad (10-minute flight). Bhakti Sathi secures confirmed helicopter tickets along with local yatra coordination.'
       },
       {
         question: 'What is the trek distance for Yamunotri and Kedarnath?',
@@ -168,8 +168,8 @@ export const PILGRIMAGE_FAQS_REGISTRY: DestinationFaqs[] = [
     tagline: 'Sacred City of Lord Shiva, Kashi Vishwanath Dham & Dashashwamedh Aarti',
     faqs: [
       {
-        question: 'How does Kashi Vishwanath VIP Sugam Darshan work?',
-        answer: 'Sugam Darshan allows pilgrims to skip general queue lines and enter the Kashi Vishwanath Sanctum through designated VIP gates. Bhakti Sathi arranges pre-booked Sugam Darshan passes.'
+        question: 'How does Kashi Vishwanath Sugam Darshan work?',
+        answer: 'Sugam Darshan allows pilgrims convenient entry into the Kashi Vishwanath Sanctum through designated Sugam gates. Bhakti Sathi assists with pre-booked Sugam Darshan passes.'
       },
       {
         question: 'How do we watch the world-famous Evening Ganga Aarti at Dashashwamedh Ghat?',
@@ -196,8 +196,8 @@ export const PILGRIMAGE_FAQS_REGISTRY: DestinationFaqs[] = [
     tagline: 'Birthplace of Lord Shri Ram, Magnificent Ram Mandir & Saryu Aarti',
     faqs: [
       {
-        question: 'How can devotees book VIP Darshan for Shri Ram Janmabhoomi Mandir?',
-        answer: 'General darshan is free. VIP Darshan and Aarti passes (Sugam Darshan & Aarti Passes) are issued by Shri Ram Janmabhoomi Teerth Kshetra Trust. We assist our guests in securing confirmed time slots.'
+        question: 'How can devotees book Sugam Darshan for Shri Ram Janmabhoomi Mandir?',
+        answer: 'General darshan is free. Sugam Darshan and Aarti passes are issued by Shri Ram Janmabhoomi Teerth Kshetra Trust. We assist our guests in securing confirmed time slots.'
       },
       {
         question: 'What are the temple rules regarding electronic items inside Ram Mandir?',
@@ -332,8 +332,8 @@ export const PILGRIMAGE_FAQS_REGISTRY: DestinationFaqs[] = [
     tagline: 'Kalighat Kali Mandir, Dakshineswar & Belur Math',
     faqs: [
       {
-        question: 'What are the timings and VIP entry for Kalighat Kali Temple?',
-        answer: 'Kalighat is one of the 51 Shakti Peeths (where Sati’s right toe fell). Temple opens 5:00 AM to 1:30 PM & 5:00 PM to 10:30 PM. We assist guests with VIP panda guidance.'
+        question: 'What are the timings and entry guide for Kalighat Kali Temple?',
+        answer: 'Kalighat is one of the 51 Shakti Peeths (where Sati’s right toe fell). Temple opens 5:00 AM to 1:30 PM & 5:00 PM to 10:30 PM. We assist guests with local temple guide assistance.'
       },
       {
         question: 'How do we visit Dakshineswar Kali Temple and Belur Math together?',

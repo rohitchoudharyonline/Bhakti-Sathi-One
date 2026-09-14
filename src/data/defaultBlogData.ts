@@ -122,8 +122,8 @@ Book your customized Kashmir holiday with **Bhakti Sathi** for verified 3★ to 
   },
   {
     id: 'post-vaishno-devi-helicopter-guide',
-    slug: 'mata-vaishno-devi-yatra-helicopter-booking-and-vip-darshan-guide',
-    title: 'Mata Vaishno Devi Yatra 2026: Helicopter Booking, RFID Card & VIP Darshan Guide',
+    slug: 'mata-vaishno-devi-yatra-helicopter-booking-and-darshan-guide',
+    title: 'Mata Vaishno Devi Yatra 2026: Helicopter Booking, RFID Card & Darshan Guide',
     excerpt: 'Official guide on booking SMVDSB helicopter tickets directly on the Shrine Board portal, RFID registration, battery cars, and Bhairon ropeway.',
     content: `
 # Mata Vaishno Devi Yatra: Official Helicopter & Darshan Guide
@@ -173,7 +173,7 @@ Book complete Katra + Vaishno Devi packages with dedicated cabs and verified del
     featured: true,
     seo: {
       focusKeyword: 'Mata Vaishno Devi Helicopter Booking',
-      metaTitle: 'Mata Vaishno Devi Helicopter Booking & VIP Darshan (2026)',
+      metaTitle: 'Mata Vaishno Devi Helicopter Booking & Darshan Guide (2026)',
       metaDescription: 'Step-by-step official guide on SMVDSB Katra to Sanjichhat helicopter tickets portal, RFID yatra pass, battery cars, and Bhairon Ghati ropeway.',
       schemaType: 'BlogPosting',
     },

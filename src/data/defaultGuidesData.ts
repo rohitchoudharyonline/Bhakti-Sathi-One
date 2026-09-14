@@ -599,7 +599,7 @@ Autumn is favored by photographers and honeymooners:
   },
   {
     id: 'guide-vaishno-devi-helicopter-guide',
-    slug: 'mata-vaishno-devi-yatra-helicopter-booking-and-vip-darshan-guide',
+    slug: 'mata-vaishno-devi-yatra-helicopter-booking-and-darshan-guide',
     title: 'Mata Vaishno Devi Yatra: Official Helicopter Booking, RFID Card & Darshan Guide',
     excerpt: 'Official advisory on booking SMVDSB helicopter tickets directly on the Shrine Board portal, mandatory RFID registration, battery cars, and Bhairon ropeway.',
     content: `## Mata Vaishno Devi Yatra: Official Helicopter & Darshan Guide
@@ -650,7 +650,7 @@ Every year, millions of devotees embark on the sacred pilgrimage to Shri Mata Va
       metaDescription: 'Step-by-step official guide on SMVDSB Katra to Sanjichhat helicopter tickets portal, RFID yatra pass, battery cars, and Bhairon Ghati ropeway.',
       primaryKeyword: 'Mata Vaishno Devi Helicopter Booking',
       secondaryKeywords: ['SMVDSB Katra helicopter', 'Vaishno Devi RFID card', 'Bhairon ropeway Katra'],
-      canonicalUrl: 'https://mybhaktisathi.com/guide/mata-vaishno-devi-yatra-helicopter-booking-and-vip-darshan-guide',
+      canonicalUrl: 'https://mybhaktisathi.com/guide/mata-vaishno-devi-yatra-helicopter-booking-and-darshan-guide',
     },
     faqs: [
       {

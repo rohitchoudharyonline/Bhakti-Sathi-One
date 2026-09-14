@@ -130,7 +130,7 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
       : toursSeo?.metaTitle || 'Book Sacred Yatra & Spiritual Pilgrimage Packages | Bhakti Sathi';
 
     const pageDescription = isTempleSpecific
-      ? `Book customized pilgrimage itineraries and VIP darshan tour packages for ${selectedTempleMeta?.name}. Verified stays, private transfers, and experienced yatra guides.`
+      ? `Book customized pilgrimage itineraries and guided tour packages for ${selectedTempleMeta?.name}. Verified stays, private transfers, and experienced yatra guides.`
       : isDestSpecific
       ? `Explore all verified ${currentDestMeta?.name} holiday packages. Dedicated private cabs, inspected 3-star/4-star hotels, and 24/7 mountain support.`
       : toursSeo?.metaDescription || 'Book premium spiritual and devotional tour packages. Unbeatable local prices, private cabs, premium stays, and 24/7 mountain assistance.';
@@ -436,7 +436,7 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
               <div className="flex items-center gap-2.5 shrink-0 self-start md:self-center">
                 <a
                   href={`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
-                    `Namaste Bhakti Sathi, I want to book a customized VIP pilgrimage & darshan package for ${selectedTempleMeta.name}.`
+                    `Namaste Bhakti Sathi, I want to book a customized sacred pilgrimage & darshan package for ${selectedTempleMeta.name}.`
                   )}`}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -556,7 +556,7 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
                 <option value="all">All Sacred Yatras</option>
                 <option value="pilgrimage">Spiritual Yatra / Pilgrimage</option>
                 <option value="family">Family Pilgrimage</option>
-                <option value="luxury">VIP Darshan & Luxury</option>
+                <option value="luxury">Luxury & Heritage</option>
               </select>
 
               <select
@@ -765,7 +765,7 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
               </h4>
               <p className="text-xs text-stone-600 max-w-md mx-auto leading-relaxed">
                 {selectedTempleMeta
-                  ? `We offer bespoke VIP darshan itineraries, certified hotel stays, helicopter arrangements, and private chauffeur transfers to ${selectedTempleMeta.name}. Connect with our sacred pilgrimage desk to craft your custom yatra.`
+                  ? `We offer customized sacred pilgrimage itineraries, certified hotel stays, helicopter arrangements, and private chauffeur transfers to ${selectedTempleMeta.name}. Connect with our sacred pilgrimage desk to craft your custom yatra.`
                   : 'Try selecting "All Destinations" or clearing your search term to browse all available packages.'}
               </p>
               <div className="flex flex-wrap items-center justify-center gap-3 pt-2">

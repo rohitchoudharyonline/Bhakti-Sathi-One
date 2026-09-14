@@ -13,6 +13,7 @@ export type PackageBadge =
   | 'Top Rated'
   | 'Heritage Classic'
   | 'Fun & Leisure'
+  | 'Darshan Assistance'
   | 'VIP Darshan'
   | 'Helicopter'
   | 'Senior Friendly'

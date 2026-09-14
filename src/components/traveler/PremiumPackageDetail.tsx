@@ -1001,7 +1001,7 @@ export const PremiumPackageDetail: React.FC<Props> = ({ pkg, onBack }) => {
                     </label>
                     <textarea
                       rows={2}
-                      placeholder="Optional: VIP darshan assistance, senior citizen support, meal preferences, etc."
+                      placeholder="Optional: Guided darshan assistance, senior citizen support, meal preferences, etc."
                       value={message}
                       onChange={(e) => setMessage(e.target.value)}
                       className="w-full px-3 py-2 rounded-xl border border-stone-300 text-xs focus:ring-2 focus:ring-stone-900 focus:outline-hidden resize-none"

@@ -305,7 +305,7 @@ Please share the complete pilgrimage itinerary, darshan assistance details, and 
                   rows={2}
                   value={specialRequests}
                   onChange={(e) => setSpecialRequests(e.target.value)}
-                  placeholder="e.g. VIP darshan assistance, senior citizen support, sattvic meal preferences, railway/airport pick up..."
+                  placeholder="e.g. Guided darshan assistance, senior citizen support, sattvic meal preferences, railway/airport pick up..."
                   className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 focus:bg-white focus:border-brand focus:outline-hidden"
                 />
               </div>

@@ -223,7 +223,7 @@ export const PublicGuidesHub: React.FC = () => {
               Plan Your Sacred Yatra With Bhakti Sathi
             </h2>
             <p className="text-xs text-stone-300 max-w-xl">
-              From VIP darshan logistics and local shrine guides to verified clean accommodation, our team helps ensure a hassle-free pilgrimage.
+              From local shrine guidance and temple logistics to verified clean accommodation, our team helps ensure a hassle-free pilgrimage.
             </p>
           </div>
 

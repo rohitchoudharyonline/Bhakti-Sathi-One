@@ -158,7 +158,7 @@ export const TravelerPortal: React.FC = () => {
               Explore All Sacred Pilgrimage Packages
             </h2>
             <p className="text-xs sm:text-sm text-stone-600 mt-1 font-medium">
-              Showing <strong className="text-stone-900">{filteredPackages.length}</strong> of {publishedPackages.length} sacred yatra itineraries • With VIP Darshan & Verified Stays
+              Showing <strong className="text-stone-900">{filteredPackages.length}</strong> of {publishedPackages.length} sacred yatra itineraries • With Guided Darshan & Verified Stays
             </p>
           </div>
 
@@ -293,7 +293,7 @@ export const TravelerPortal: React.FC = () => {
               Planning a Sacred Yatra for Your Parents or Family?
             </h2>
             <p className="text-xs sm:text-sm text-stone-300 mt-2 leading-relaxed font-medium">
-              Speak directly with our senior pilgrimage coordinators at Katra, Varanasi & Haridwar. We customize every detail—senior citizen pacing, VIP passes, Yatra registration guidance, and comfortable stay options.
+              Speak directly with our senior pilgrimage coordinators at Katra, Varanasi & Haridwar. We customize every detail—senior citizen pacing, Darshan assistance, Yatra registration guidance, and comfortable stay options.
             </p>
           </div>
 
