@@ -138,7 +138,7 @@ const REVIEWS = [
   },
 ];
 
-const WHY_HOLIDAYS_HUNT = [
+const WHY_BHAKTI_SATHI = [
   {
     id: 'free-insurance',
     icon: ShieldCheck,
@@ -920,7 +920,7 @@ export const LuxuryHomepage: React.FC = () => {
         <GroupToursSection />
 
         {/* ========================================================
-            WHY HOLIDAYS HUNT? (BLACK & WHITE SMOOTH SWIPE CAROUSEL)
+            WHY BHAKTI SATHI? (CAROUSEL)
             ======================================================== */}
         <section className="py-12 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto overflow-hidden">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6 sm:mb-8">
@@ -969,7 +969,7 @@ export const LuxuryHomepage: React.FC = () => {
             id="why-us-carousel"
             className="flex gap-4 sm:gap-6 overflow-x-auto snap-x snap-mandatory pb-4 pt-1 scroll-smooth -mx-4 px-4 sm:mx-0 sm:px-0 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
           >
-            {WHY_HOLIDAYS_HUNT.map((item, idx) => {
+            {WHY_BHAKTI_SATHI.map((item, idx) => {
               const IconComp = item.icon;
 
               return (

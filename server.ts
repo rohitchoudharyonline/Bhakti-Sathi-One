@@ -912,8 +912,8 @@ function persistDestinations() {
 }
 
 // Dedicated Files Delivery Route - Serves uploaded media with full caching & fallback
-app.get(['/api/files/*', '/api/files/:key(*)'], async (req, res) => {
-  const rawKey = req.params[0] || (req.params as any).key || req.path.replace(/^\/api\/files\/?/, '');
+app.get('/api/files/{*key}', async (req, res) => {
+  const rawKey = (req.params as any).key || req.path.replace(/^\/api\/files\/?/, '');
   const key = decodeURIComponent(rawKey).replace(/^\/+/, '');
 
   if (!key || key.includes('..') || path.isAbsolute(key)) {
@@ -1775,6 +1775,6 @@ if (!isProduction) {
 } else {
   const distPath = path.join(process.cwd(), 'dist');
   app.use(express.static(distPath, { maxAge: '1d' }));
-  app.get('*', (_req, res) => res.sendFile(path.join(distPath, 'index.html')));
+  app.get('{*all}', (_req, res) => res.sendFile(path.join(distPath, 'index.html')));
   app.listen(PORT, '0.0.0.0', () => console.log(`Server running on port ${PORT}`));
 }

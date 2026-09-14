@@ -458,6 +458,36 @@ const DEFAULT_SEED_INQUIRIES: BookingInquiry[] = [
 ];
 
 export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  // Helper to get deleted entities from persistent local storage
+  const getDeletedItems = (key: string): string[] => {
+    try {
+      const saved = localStorage.getItem(key);
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  };
+
+  // Helper to mark entity as deleted persistently
+  const markItemDeleted = (key: string, idOrSlug: string) => {
+    try {
+      const items = getDeletedItems(key);
+      if (!items.includes(idOrSlug)) {
+        items.push(idOrSlug);
+        localStorage.setItem(key, JSON.stringify(items));
+      }
+    } catch {}
+  };
+
+  // Helper to unmark entity when created or re-added
+  const unmarkItemDeleted = (key: string, idOrSlug: string) => {
+    try {
+      const items = getDeletedItems(key);
+      const filtered = items.filter((x) => x !== idOrSlug);
+      localStorage.setItem(key, JSON.stringify(filtered));
+    } catch {}
+  };
+
   // Helper to normalize category to one of the 3 clean categories
   const normalizePackageCategory = (cat: string): string => {
     const c = (cat || '').toLowerCase().trim();
@@ -468,13 +498,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // 1. Packages State
   const [packages, setPackages] = useState<TourPackage[]>(() => {
-    let deletedIds: string[] = [];
-    try {
-      const savedDeleted = localStorage.getItem('hh_deleted_package_ids');
-      if (savedDeleted) {
-        deletedIds = JSON.parse(savedDeleted);
-      }
-    } catch {}
+    const deletedIds = getDeletedItems('hh_deleted_package_ids');
 
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.PACKAGES);
@@ -507,23 +531,25 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // 2. Destinations Registry State (Strictly Jammu & Kashmir, Himachal Pradesh, Amritsar)
   const [destinations, setDestinations] = useState<Record<string, DestinationMeta>>(() => {
+    const deletedSlugs = getDeletedItems('hh_deleted_destination_slugs');
+
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.DESTINATIONS);
       if (saved) {
         const parsed = JSON.parse(saved);
         if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
-          const merged: Record<string, DestinationMeta> = { ...DESTINATIONS_REGISTRY };
-          Object.keys(parsed).forEach((slug) => {
-            if (parsed[slug]) {
+          const result: Record<string, DestinationMeta> = {};
+          for (const [slug, rawItem] of Object.entries(parsed)) {
+            if (!deletedSlugs.includes(slug) && rawItem) {
               const defaultDest: any = DESTINATIONS_REGISTRY[slug] || {};
-              const item: any = parsed[slug];
-              merged[slug] = {
+              const item: any = rawItem;
+              result[slug] = {
                 ...defaultDest,
                 ...item,
-                name: item.name || defaultDest.name,
-                displayName: item.displayName || defaultDest.displayName || item.name,
-                tagline: item.tagline || defaultDest.tagline,
-                heroImage: item.heroImage || defaultDest.heroImage,
+                name: item.name || defaultDest.name || slug,
+                displayName: item.displayName || defaultDest.displayName || item.name || slug,
+                tagline: item.tagline || defaultDest.tagline || '',
+                heroImage: item.heroImage || defaultDest.heroImage || '',
                 destinationType: item.destinationType || defaultDest.destinationType || 'regular',
                 guide: {
                   ...(defaultDest.guide || {}),
@@ -535,84 +561,98 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 startingPrice: item.startingPrice || defaultDest.startingPrice || 6499,
               };
             }
-          });
-          return merged;
+          }
+          return result;
         }
       }
     } catch {}
-    return DESTINATIONS_REGISTRY;
+
+    const initial: Record<string, DestinationMeta> = {};
+    for (const [slug, dest] of Object.entries(DESTINATIONS_REGISTRY)) {
+      if (!deletedSlugs.includes(slug)) {
+        initial[slug] = dest;
+      }
+    }
+    return initial;
   });
 
   // 2.1 Sacred Temples & Holy Places State
   const [temples, setTemples] = useState<TemplePlace[]>(() => {
+    const deletedIds = getDeletedItems('hh_deleted_temple_ids');
+
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.TEMPLES_PLACES);
       if (saved !== null) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed)) {
-          // Merge missing defaults so new default shrines from code are never lost
-          const existingIds = new Set(parsed.map((t: TemplePlace) => t.id || t.slug));
-          const missingDefaults = DEFAULT_TEMPLES_DATA.filter((dt) => !existingIds.has(dt.id) && !existingIds.has(dt.slug));
-          if (missingDefaults.length > 0) {
-            return [...parsed, ...missingDefaults];
-          }
-          return parsed;
+          return parsed.filter((t: TemplePlace) => !deletedIds.includes(t.id) && !deletedIds.includes(t.slug));
         }
       }
     } catch {}
-    return DEFAULT_TEMPLES_DATA;
+
+    return DEFAULT_TEMPLES_DATA.filter((dt) => !deletedIds.includes(dt.id) && !deletedIds.includes(dt.slug));
   });
 
   const [selectedTempleId, setSelectedTempleId] = useState<string | null>(null);
 
   // 3. Blog Posts & Categories State
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>(() => {
+    const deletedIds = getDeletedItems('hh_deleted_blog_post_ids');
+
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.BLOG_POSTS);
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) return parsed;
+        if (Array.isArray(parsed)) return parsed.filter((p: BlogPost) => !deletedIds.includes(p.id));
       }
     } catch {}
-    return DEFAULT_BLOG_POSTS;
+    return DEFAULT_BLOG_POSTS.filter((p) => !deletedIds.includes(p.id));
   });
 
   const [blogCategories, setBlogCategories] = useState<BlogCategory[]>(() => {
+    const deletedIds = getDeletedItems('hh_deleted_blog_category_ids');
+
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.BLOG_CATEGORIES);
       if (saved !== null) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) return parsed;
+        if (Array.isArray(parsed)) return parsed.filter((c: BlogCategory) => !deletedIds.includes(c.id));
       }
     } catch {}
-    return DEFAULT_BLOG_CATEGORIES;
+    return DEFAULT_BLOG_CATEGORIES.filter((c) => !deletedIds.includes(c.id));
   });
 
   // Guides State
   const [guides, setGuides] = useState<GuideArticle[]>(() => {
+    const deletedIds = getDeletedItems('hh_deleted_guide_ids');
+
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.GUIDES);
       if (saved !== null) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) return parsed;
+        if (Array.isArray(parsed)) return parsed.filter((g: GuideArticle) => !deletedIds.includes(g.id));
       }
     } catch {}
-    return DEFAULT_GUIDES;
+    return DEFAULT_GUIDES.filter((g) => !deletedIds.includes(g.id));
   });
 
   const [guideCategories, setGuideCategories] = useState<GuideCategory[]>(() => {
+    const deletedIds = getDeletedItems('hh_deleted_guide_category_ids');
+
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.GUIDE_CATEGORIES);
       if (saved !== null) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) return parsed;
+        if (Array.isArray(parsed)) return parsed.filter((c: GuideCategory) => !deletedIds.includes(c.id));
       }
     } catch {}
-    return DEFAULT_GUIDE_CATEGORIES;
+    return DEFAULT_GUIDE_CATEGORIES.filter((c) => !deletedIds.includes(c.id));
   });
 
   // 4. Custom Pages State
   const [customPages, setCustomPages] = useState<CustomPage[]>(() => {
+    const deletedIds = getDeletedItems('hh_deleted_custom_page_ids');
+
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.CUSTOM_PAGES);
       if (saved !== null) {
@@ -626,6 +666,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
             'about-us', 'why-choose-us', 'honeymoon-special-inclusions'
           ];
           const cleaned = parsed.filter(p => 
+            !deletedIds.includes(p.id) &&
             !unwantedIds.includes(p.id) &&
             !unwantedIds.includes(p.slug)
           );
@@ -633,7 +674,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       }
     } catch {}
-    return DEFAULT_CUSTOM_PAGES;
+    return DEFAULT_CUSTOM_PAGES.filter(p => !deletedIds.includes(p.id));
   });
 
   // 4.1. Website Pages SEO State (All Core Pages: Home, Tours, Destinations, Blog, FAQ, etc.)
@@ -1650,11 +1691,26 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     // Fetch authoritative destinations from server database
     void fetchDestinationsFromServer().then((serverDests) => {
-      if (serverDests && Object.keys(serverDests).length > 0) {
-        setDestinations((prev) => ({
-          ...prev,
-          ...serverDests,
-        }));
+      const deletedSlugs = getDeletedItems('hh_deleted_destination_slugs');
+      if (serverDests && typeof serverDests === 'object') {
+        const cleanServerDests: Record<string, DestinationMeta> = {};
+        for (const [k, v] of Object.entries(serverDests)) {
+          if (!deletedSlugs.includes(k) && v) {
+            cleanServerDests[k] = v;
+          }
+        }
+        if (Object.keys(cleanServerDests).length > 0) {
+          setDestinations((prev) => {
+            const next = { ...prev, ...cleanServerDests };
+            for (const s of deletedSlugs) {
+              delete next[s];
+            }
+            try {
+              localStorage.setItem(STORAGE_KEYS.DESTINATIONS, JSON.stringify(next));
+            } catch {}
+            return next;
+          });
+        }
       }
     });
 
@@ -1681,23 +1737,38 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (!e.key) return;
       try {
         if (e.key === STORAGE_KEYS.TEMPLES_PLACES && e.newValue) {
+          const deletedTempleIds = getDeletedItems('hh_deleted_temple_ids');
           const parsed = JSON.parse(e.newValue);
-          if (Array.isArray(parsed)) setTemples(parsed);
+          if (Array.isArray(parsed)) {
+            setTemples(parsed.filter((t: TemplePlace) => !deletedTempleIds.includes(t.id) && !deletedTempleIds.includes(t.slug)));
+          }
         } else if (e.key === STORAGE_KEYS.DESTINATIONS && e.newValue) {
+          const deletedDestSlugs = getDeletedItems('hh_deleted_destination_slugs');
           const parsed = JSON.parse(e.newValue);
-          if (parsed && typeof parsed === 'object') setDestinations(parsed);
+          if (parsed && typeof parsed === 'object') {
+            const clean: Record<string, DestinationMeta> = {};
+            for (const [k, v] of Object.entries(parsed)) {
+              if (!deletedDestSlugs.includes(k) && v) {
+                clean[k] = v as DestinationMeta;
+              }
+            }
+            setDestinations(clean);
+          }
         } else if (e.key === STORAGE_KEYS.PACKAGES && e.newValue) {
+          const deletedPkgIds = getDeletedItems('hh_deleted_package_ids');
           const parsed = JSON.parse(e.newValue);
-          if (Array.isArray(parsed)) setPackages(parsed);
+          if (Array.isArray(parsed)) setPackages(parsed.filter((p: TourPackage) => !deletedPkgIds.includes(p.id)));
         } else if (e.key === STORAGE_KEYS.BLOG_POSTS && e.newValue) {
+          const deletedBlogIds = getDeletedItems('hh_deleted_blog_post_ids');
           const parsed = JSON.parse(e.newValue);
-          if (Array.isArray(parsed)) setBlogPosts(parsed);
+          if (Array.isArray(parsed)) setBlogPosts(parsed.filter((b: BlogPost) => !deletedBlogIds.includes(b.id)));
         } else if (e.key === STORAGE_KEYS.MEDIA_ASSETS && e.newValue) {
           const parsed = JSON.parse(e.newValue);
           if (Array.isArray(parsed)) setMediaAssets(parsed);
         } else if (e.key === STORAGE_KEYS.CUSTOM_PAGES && e.newValue) {
+          const deletedPageIds = getDeletedItems('hh_deleted_custom_page_ids');
           const parsed = JSON.parse(e.newValue);
-          if (Array.isArray(parsed)) setCustomPages(parsed);
+          if (Array.isArray(parsed)) setCustomPages(parsed.filter((p: CustomPage) => !deletedPageIds.includes(p.id)));
         } else if (e.key === STORAGE_KEYS.PAGE_SEO_CONFIGS && e.newValue) {
           const parsed = JSON.parse(e.newValue);
           if (parsed && typeof parsed === 'object') setPageSeoConfigs(parsed);
@@ -1710,30 +1781,53 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // When D1 server sync hydrates data into localStorage, update in-memory state
     const handleContentSynced = () => {
       try {
+        const deletedDestSlugs = getDeletedItems('hh_deleted_destination_slugs');
+        const deletedTempleIds = getDeletedItems('hh_deleted_temple_ids');
+        const deletedPkgIds = getDeletedItems('hh_deleted_package_ids');
+        const deletedBlogIds = getDeletedItems('hh_deleted_blog_post_ids');
+        const deletedPageIds = getDeletedItems('hh_deleted_custom_page_ids');
+
         const d = localStorage.getItem(STORAGE_KEYS.DESTINATIONS);
         if (d) {
           const parsed = JSON.parse(d);
-          if (parsed && typeof parsed === 'object') setDestinations(parsed);
+          if (parsed && typeof parsed === 'object') {
+            const clean: Record<string, DestinationMeta> = {};
+            for (const [k, v] of Object.entries(parsed)) {
+              if (!deletedDestSlugs.includes(k) && v) {
+                clean[k] = v as DestinationMeta;
+              }
+            }
+            setDestinations(clean);
+          }
         }
         const t = localStorage.getItem(STORAGE_KEYS.TEMPLES_PLACES);
         if (t) {
           const parsed = JSON.parse(t);
-          if (Array.isArray(parsed)) setTemples(parsed);
+          if (Array.isArray(parsed)) {
+            setTemples(parsed.filter((item: TemplePlace) => !deletedTempleIds.includes(item.id) && !deletedTempleIds.includes(item.slug)));
+          }
         }
         const p = localStorage.getItem(STORAGE_KEYS.PACKAGES);
         if (p) {
           const parsed = JSON.parse(p);
-          if (Array.isArray(parsed)) setPackages(parsed);
+          if (Array.isArray(parsed)) {
+            setPackages(parsed.filter((item: TourPackage) => !deletedPkgIds.includes(item.id)));
+          }
         }
         const b = localStorage.getItem(STORAGE_KEYS.BLOG_POSTS);
         if (b) {
           const parsed = JSON.parse(b);
-          if (Array.isArray(parsed)) setBlogPosts(parsed);
+          if (Array.isArray(parsed)) setBlogPosts(parsed.filter((item: BlogPost) => !deletedBlogIds.includes(item.id)));
         }
         const m = localStorage.getItem(STORAGE_KEYS.MEDIA_ASSETS);
         if (m) {
           const parsed = JSON.parse(m);
           if (Array.isArray(parsed)) setMediaAssets(parsed);
+        }
+        const cp = localStorage.getItem(STORAGE_KEYS.CUSTOM_PAGES);
+        if (cp) {
+          const parsed = JSON.parse(cp);
+          if (Array.isArray(parsed)) setCustomPages(parsed.filter((item: CustomPage) => !deletedPageIds.includes(item.id)));
         }
         const s = localStorage.getItem(STORAGE_KEYS.PAGE_SEO_CONFIGS);
         if (s) {
@@ -2061,86 +2155,141 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
       id,
       createdAt: new Date().toISOString(),
     };
-    setPackages((prev) => [pkgWithId, ...prev]);
+    unmarkItemDeleted('hh_deleted_package_ids', id);
+    setPackages((prev) => {
+      const next = [pkgWithId, ...prev];
+      try {
+        localStorage.setItem(STORAGE_KEYS.PACKAGES, JSON.stringify(next));
+      } catch {}
+      return next;
+    });
     return id;
   };
 
   const updatePackage = (updatedPkg: TourPackage) => {
-    setPackages((prev) => prev.map((pkg) => (pkg.id === updatedPkg.id ? updatedPkg : pkg)));
+    unmarkItemDeleted('hh_deleted_package_ids', updatedPkg.id);
+    setPackages((prev) => {
+      const next = prev.map((pkg) => (pkg.id === updatedPkg.id ? updatedPkg : pkg));
+      try {
+        localStorage.setItem(STORAGE_KEYS.PACKAGES, JSON.stringify(next));
+      } catch {}
+      return next;
+    });
   };
 
   const deletePackage = (id: string) => {
-    const updated = packages.filter((pkg) => pkg.id !== id);
-    setPackages(updated);
-    try {
-      localStorage.setItem(STORAGE_KEYS.PACKAGES, JSON.stringify(updated));
-      const savedDeleted = localStorage.getItem('hh_deleted_package_ids');
-      const deletedIds: string[] = savedDeleted ? JSON.parse(savedDeleted) : [];
-      if (!deletedIds.includes(id)) {
-        deletedIds.push(id);
-        localStorage.setItem('hh_deleted_package_ids', JSON.stringify(deletedIds));
-      }
-    } catch {}
+    markItemDeleted('hh_deleted_package_ids', id);
+    setPackages((prev) => {
+      const next = prev.filter((pkg) => pkg.id !== id);
+      try {
+        localStorage.setItem(STORAGE_KEYS.PACKAGES, JSON.stringify(next));
+      } catch {}
+      return next;
+    });
   };
 
   const duplicatePackage = (id: string) => {
     const original = packages.find((p) => p.id === id);
     if (!original) return;
+    const newId = `pkg-${Date.now()}`;
     const duplicated: TourPackage = {
       ...original,
-      id: `pkg-${Date.now()}`,
+      id: newId,
       title: `${original.title} (Copy)`,
       slug: `${original.slug}-copy`,
       status: 'draft',
       featured: false,
       createdAt: new Date().toISOString(),
     };
-    setPackages((prev) => [duplicated, ...prev]);
+    unmarkItemDeleted('hh_deleted_package_ids', newId);
+    setPackages((prev) => {
+      const next = [duplicated, ...prev];
+      try {
+        localStorage.setItem(STORAGE_KEYS.PACKAGES, JSON.stringify(next));
+      } catch {}
+      return next;
+    });
   };
 
   const togglePublishStatus = (id: string) => {
-    setPackages((prev) =>
-      prev.map((pkg) =>
+    setPackages((prev) => {
+      const next = prev.map((pkg) =>
         pkg.id === id
-          ? { ...pkg, status: pkg.status === 'published' ? 'draft' : 'published' }
+          ? { ...pkg, status: (pkg.status === 'published' ? 'draft' : 'published') as 'published' | 'draft' }
           : pkg
-      )
-    );
+      );
+      try {
+        localStorage.setItem(STORAGE_KEYS.PACKAGES, JSON.stringify(next));
+      } catch {}
+      return next;
+    });
   };
 
   const toggleFeatured = (id: string) => {
-    setPackages((prev) =>
-      prev.map((pkg) => (pkg.id === id ? { ...pkg, featured: !pkg.featured } : pkg))
-    );
+    setPackages((prev) => {
+      const next = prev.map((pkg) => (pkg.id === id ? { ...pkg, featured: !pkg.featured } : pkg));
+      try {
+        localStorage.setItem(STORAGE_KEYS.PACKAGES, JSON.stringify(next));
+      } catch {}
+      return next;
+    });
   };
 
   // Destinations Operations
   const addDestination = (newDest: Omit<DestinationMeta, 'id'>): string => {
-    const id = newDest.slug || `dest-${Date.now()}`;
+    const slug = newDest.slug || newDest.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    const id = slug;
     const destinationItem: DestinationMeta = {
       ...newDest,
       id,
+      slug,
     };
-    setDestinations((prev) => ({
-      ...prev,
-      [destinationItem.slug]: destinationItem,
-    }));
+    unmarkItemDeleted('hh_deleted_destination_slugs', slug);
+    setDestinations((prev) => {
+      const next = {
+        ...prev,
+        [destinationItem.slug]: destinationItem,
+      };
+      try {
+        localStorage.setItem(STORAGE_KEYS.DESTINATIONS, JSON.stringify(next));
+      } catch {}
+      return next;
+    });
     void saveDestinationToServer(destinationItem);
     return destinationItem.slug;
   };
 
   const updateDestination = (updatedDest: DestinationMeta) => {
-    setDestinations((prev) => ({
-      ...prev,
-      [updatedDest.slug]: updatedDest,
-    }));
+    unmarkItemDeleted('hh_deleted_destination_slugs', updatedDest.slug);
+    setDestinations((prev) => {
+      const next = {
+        ...prev,
+        [updatedDest.slug]: updatedDest,
+      };
+      try {
+        localStorage.setItem(STORAGE_KEYS.DESTINATIONS, JSON.stringify(next));
+      } catch {}
+      return next;
+    });
     void saveDestinationToServer(updatedDest);
   };
 
   const deleteDestination = (slug: string) => {
+    markItemDeleted('hh_deleted_destination_slugs', slug);
     setDestinations((prev) => {
       const next = { ...prev };
       delete next[slug];
+      try {
+        localStorage.setItem(STORAGE_KEYS.DESTINATIONS, JSON.stringify(next));
+        const rawV2 = localStorage.getItem('hh_destinations_registry_v2');
+        if (rawV2) {
+          try {
+            const parsedV2 = JSON.parse(rawV2);
+            delete parsedV2[slug];
+            localStorage.setItem('hh_destinations_registry_v2', JSON.stringify(parsedV2));
+          } catch {}
+        }
+      } catch {}
       return next;
     });
     void deleteDestinationFromServer(slug);
@@ -2157,32 +2306,69 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
       name: `${original.name} (Copy)`,
       displayName: `${original.displayName} (COPY)`,
     };
-    setDestinations((prev) => ({
-      ...prev,
-      [newSlug]: copy,
-    }));
+    unmarkItemDeleted('hh_deleted_destination_slugs', newSlug);
+    setDestinations((prev) => {
+      const next = {
+        ...prev,
+        [newSlug]: copy,
+      };
+      try {
+        localStorage.setItem(STORAGE_KEYS.DESTINATIONS, JSON.stringify(next));
+      } catch {}
+      return next;
+    });
     void saveDestinationToServer(copy);
   };
 
   // Temples & Sacred Shrines Operations
   const addTemple = (templeData: Omit<TemplePlace, 'id' | 'slug'> & { id?: string; slug?: string }): string => {
     const slug = templeData.slug || templeData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    const id = templeData.id || `temple-${Date.now()}`;
     const newTemple: TemplePlace = {
       ...templeData,
-      id: templeData.id || `temple-${Date.now()}`,
+      id,
       slug,
       order: templeData.order ?? (temples.length + 1),
     };
-    setTemples((prev) => [...prev, newTemple]);
+    unmarkItemDeleted('hh_deleted_temple_ids', id);
+    unmarkItemDeleted('hh_deleted_temple_ids', slug);
+    setTemples((prev) => {
+      const next = [...prev, newTemple];
+      try {
+        localStorage.setItem(STORAGE_KEYS.TEMPLES_PLACES, JSON.stringify(next));
+      } catch {}
+      return next;
+    });
     return newTemple.id;
   };
 
   const updateTemple = (updatedTemple: TemplePlace) => {
-    setTemples((prev) => prev.map((t) => (t.id === updatedTemple.id ? updatedTemple : t)));
+    unmarkItemDeleted('hh_deleted_temple_ids', updatedTemple.id);
+    unmarkItemDeleted('hh_deleted_temple_ids', updatedTemple.slug);
+    setTemples((prev) => {
+      const next = prev.map((t) => (t.id === updatedTemple.id ? updatedTemple : t));
+      try {
+        localStorage.setItem(STORAGE_KEYS.TEMPLES_PLACES, JSON.stringify(next));
+      } catch {}
+      return next;
+    });
   };
 
   const deleteTemple = (id: string) => {
-    setTemples((prev) => prev.filter((t) => t.id !== id && t.slug !== id));
+    const target = temples.find(t => t.id === id || t.slug === id);
+    if (target) {
+      markItemDeleted('hh_deleted_temple_ids', target.id);
+      markItemDeleted('hh_deleted_temple_ids', target.slug);
+    } else {
+      markItemDeleted('hh_deleted_temple_ids', id);
+    }
+    setTemples((prev) => {
+      const next = prev.filter((t) => t.id !== id && t.slug !== id);
+      try {
+        localStorage.setItem(STORAGE_KEYS.TEMPLES_PLACES, JSON.stringify(next));
+      } catch {}
+      return next;
+    });
   };
 
   const navigateToTemple = (templeId: string) => {
@@ -2205,30 +2391,50 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
       viewsCount: 0,
       likesCount: 0,
     };
-    setBlogPosts((prev) => [post, ...prev]);
+    unmarkItemDeleted('hh_deleted_blog_post_ids', id);
+    setBlogPosts((prev) => {
+      const next = [post, ...prev];
+      try {
+        localStorage.setItem(STORAGE_KEYS.BLOG_POSTS, JSON.stringify(next));
+      } catch {}
+      return next;
+    });
     return post.slug || id;
   };
 
   const updateBlogPost = (updatedPost: BlogPost) => {
-    setBlogPosts((prev) =>
-      prev.map((post) =>
+    unmarkItemDeleted('hh_deleted_blog_post_ids', updatedPost.id);
+    setBlogPosts((prev) => {
+      const next = prev.map((post) =>
         post.id === updatedPost.id
           ? { ...updatedPost, updatedAt: new Date().toISOString() }
           : post
-      )
-    );
+      );
+      try {
+        localStorage.setItem(STORAGE_KEYS.BLOG_POSTS, JSON.stringify(next));
+      } catch {}
+      return next;
+    });
   };
 
   const deleteBlogPost = (id: string) => {
-    setBlogPosts((prev) => prev.filter((p) => p.id !== id));
+    markItemDeleted('hh_deleted_blog_post_ids', id);
+    setBlogPosts((prev) => {
+      const next = prev.filter((p) => p.id !== id);
+      try {
+        localStorage.setItem(STORAGE_KEYS.BLOG_POSTS, JSON.stringify(next));
+      } catch {}
+      return next;
+    });
   };
 
   const duplicateBlogPost = (id: string) => {
     const original = blogPosts.find((p) => p.id === id);
     if (!original) return;
+    const newId = `post-${Date.now()}`;
     const copy: BlogPost = {
       ...original,
-      id: `post-${Date.now()}`,
+      id: newId,
       slug: `${original.slug}-copy`,
       title: `${original.title} (Draft Copy)`,
       status: 'draft',
@@ -2236,34 +2442,66 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
       updatedAt: new Date().toISOString(),
       viewsCount: 0,
     };
-    setBlogPosts((prev) => [copy, ...prev]);
+    unmarkItemDeleted('hh_deleted_blog_post_ids', newId);
+    setBlogPosts((prev) => {
+      const next = [copy, ...prev];
+      try {
+        localStorage.setItem(STORAGE_KEYS.BLOG_POSTS, JSON.stringify(next));
+      } catch {}
+      return next;
+    });
   };
 
   const toggleBlogPostStatus = (id: string) => {
-    setBlogPosts((prev) =>
-      prev.map((post) =>
+    setBlogPosts((prev) => {
+      const next = prev.map((post) =>
         post.id === id
           ? {
               ...post,
-              status: post.status === 'published' ? 'draft' : 'published',
+              status: (post.status === 'published' ? 'draft' : 'published') as 'published' | 'draft',
               updatedAt: new Date().toISOString(),
             }
           : post
-      )
-    );
+      );
+      try {
+        localStorage.setItem(STORAGE_KEYS.BLOG_POSTS, JSON.stringify(next));
+      } catch {}
+      return next;
+    });
   };
 
   const addBlogCategory = (cat: Omit<BlogCategory, 'id'>) => {
     const id = `cat-${Date.now()}`;
-    setBlogCategories((prev) => [...prev, { ...cat, id, postCount: 0 }]);
+    unmarkItemDeleted('hh_deleted_blog_category_ids', id);
+    setBlogCategories((prev) => {
+      const next = [...prev, { ...cat, id, postCount: 0 }];
+      try {
+        localStorage.setItem(STORAGE_KEYS.BLOG_CATEGORIES, JSON.stringify(next));
+      } catch {}
+      return next;
+    });
   };
 
   const updateBlogCategory = (cat: BlogCategory) => {
-    setBlogCategories((prev) => prev.map((c) => (c.id === cat.id ? cat : c)));
+    unmarkItemDeleted('hh_deleted_blog_category_ids', cat.id);
+    setBlogCategories((prev) => {
+      const next = prev.map((c) => (c.id === cat.id ? cat : c));
+      try {
+        localStorage.setItem(STORAGE_KEYS.BLOG_CATEGORIES, JSON.stringify(next));
+      } catch {}
+      return next;
+    });
   };
 
   const deleteBlogCategory = (id: string) => {
-    setBlogCategories((prev) => prev.filter((c) => c.id !== id));
+    markItemDeleted('hh_deleted_blog_category_ids', id);
+    setBlogCategories((prev) => {
+      const next = prev.filter((c) => c.id !== id);
+      try {
+        localStorage.setItem(STORAGE_KEYS.BLOG_CATEGORIES, JSON.stringify(next));
+      } catch {}
+      return next;
+    });
   };
 
   // Pilgrimage & Travel Guides Operations
@@ -2277,67 +2515,110 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
       updatedAt: now,
       status: 'draft', // Critical rule: newly created article always starts as draft!
     };
-    setGuides((prev) => [created, ...prev]);
+    unmarkItemDeleted('hh_deleted_guide_ids', id);
+    setGuides((prev) => {
+      const next = [created, ...prev];
+      try {
+        localStorage.setItem(STORAGE_KEYS.GUIDES, JSON.stringify(next));
+      } catch {}
+      return next;
+    });
     return id;
   };
 
   const updateGuide = (updated: GuideArticle) => {
-    setGuides((prev) =>
-      prev.map((g) => (g.id === updated.id ? { ...updated, updatedAt: new Date().toISOString() } : g))
-    );
+    unmarkItemDeleted('hh_deleted_guide_ids', updated.id);
+    setGuides((prev) => {
+      const next = prev.map((g) => (g.id === updated.id ? { ...updated, updatedAt: new Date().toISOString() } : g));
+      try {
+        localStorage.setItem(STORAGE_KEYS.GUIDES, JSON.stringify(next));
+      } catch {}
+      return next;
+    });
   };
 
   const deleteGuide = (id: string) => {
-    setGuides((prev) => prev.filter((g) => g.id !== id));
+    markItemDeleted('hh_deleted_guide_ids', id);
+    setGuides((prev) => {
+      const next = prev.filter((g) => g.id !== id);
+      try {
+        localStorage.setItem(STORAGE_KEYS.GUIDES, JSON.stringify(next));
+      } catch {}
+      return next;
+    });
   };
 
   const moveGuideToReview = (id: string) => {
-    setGuides((prev) =>
-      prev.map((g) => (g.id === id ? { ...g, status: 'review', updatedAt: new Date().toISOString() } : g))
-    );
+    setGuides((prev) => {
+      const next = prev.map((g) => (g.id === id ? { ...g, status: 'review' as const, updatedAt: new Date().toISOString() } : g));
+      try {
+        localStorage.setItem(STORAGE_KEYS.GUIDES, JSON.stringify(next));
+      } catch {}
+      return next;
+    });
   };
 
   const publishGuide = (id: string) => {
-    setGuides((prev) =>
-      prev.map((g) =>
+    setGuides((prev) => {
+      const next = prev.map((g) =>
         g.id === id
           ? {
               ...g,
-              status: 'published',
+              status: 'published' as const,
               publishedAt: g.publishedAt || new Date().toISOString(),
               updatedAt: new Date().toISOString(),
             }
           : g
-      )
-    );
+      );
+      try {
+        localStorage.setItem(STORAGE_KEYS.GUIDES, JSON.stringify(next));
+      } catch {}
+      return next;
+    });
   };
 
   const unpublishGuide = (id: string) => {
-    setGuides((prev) =>
-      prev.map((g) => (g.id === id ? { ...g, status: 'draft', updatedAt: new Date().toISOString() } : g))
-    );
+    setGuides((prev) => {
+      const next = prev.map((g) => (g.id === id ? { ...g, status: 'draft' as const, updatedAt: new Date().toISOString() } : g));
+      try {
+        localStorage.setItem(STORAGE_KEYS.GUIDES, JSON.stringify(next));
+      } catch {}
+      return next;
+    });
   };
 
   const returnGuideToDraft = (id: string) => {
-    setGuides((prev) =>
-      prev.map((g) => (g.id === id ? { ...g, status: 'draft', updatedAt: new Date().toISOString() } : g))
-    );
+    setGuides((prev) => {
+      const next = prev.map((g) => (g.id === id ? { ...g, status: 'draft' as const, updatedAt: new Date().toISOString() } : g));
+      try {
+        localStorage.setItem(STORAGE_KEYS.GUIDES, JSON.stringify(next));
+      } catch {}
+      return next;
+    });
   };
 
   const duplicateGuide = (id: string) => {
     const existing = guides.find((g) => g.id === id);
     if (!existing) return;
     const now = new Date().toISOString();
+    const newId = `guide-${Date.now()}`;
     const duplicated: GuideArticle = {
       ...existing,
-      id: `guide-${Date.now()}`,
+      id: newId,
       slug: `${existing.slug}-copy-${Date.now().toString().slice(-4)}`,
       title: `${existing.title} (Copy)`,
       status: 'draft',
       createdAt: now,
       updatedAt: now,
     };
-    setGuides((prev) => [duplicated, ...prev]);
+    unmarkItemDeleted('hh_deleted_guide_ids', newId);
+    setGuides((prev) => {
+      const next = [duplicated, ...prev];
+      try {
+        localStorage.setItem(STORAGE_KEYS.GUIDES, JSON.stringify(next));
+      } catch {}
+      return next;
+    });
   };
 
   const addGuideCategory = (cat: Omit<GuideCategory, 'id'>) => {
@@ -2346,15 +2627,36 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
       id: `cat-${Date.now()}`,
       guideCount: 0,
     };
-    setGuideCategories((prev) => [...prev, newCat]);
+    unmarkItemDeleted('hh_deleted_guide_category_ids', newCat.id);
+    setGuideCategories((prev) => {
+      const next = [...prev, newCat];
+      try {
+        localStorage.setItem(STORAGE_KEYS.GUIDE_CATEGORIES, JSON.stringify(next));
+      } catch {}
+      return next;
+    });
   };
 
   const updateGuideCategory = (cat: GuideCategory) => {
-    setGuideCategories((prev) => prev.map((c) => (c.id === cat.id ? cat : c)));
+    unmarkItemDeleted('hh_deleted_guide_category_ids', cat.id);
+    setGuideCategories((prev) => {
+      const next = prev.map((c) => (c.id === cat.id ? cat : c));
+      try {
+        localStorage.setItem(STORAGE_KEYS.GUIDE_CATEGORIES, JSON.stringify(next));
+      } catch {}
+      return next;
+    });
   };
 
   const deleteGuideCategory = (id: string) => {
-    setGuideCategories((prev) => prev.filter((c) => c.id !== id));
+    markItemDeleted('hh_deleted_guide_category_ids', id);
+    setGuideCategories((prev) => {
+      const next = prev.filter((c) => c.id !== id);
+      try {
+        localStorage.setItem(STORAGE_KEYS.GUIDE_CATEGORIES, JSON.stringify(next));
+      } catch {}
+      return next;
+    });
   };
 
   // Custom Pages Operations
@@ -2366,18 +2668,30 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
-    setCustomPages((prev) => [page, ...prev]);
+    unmarkItemDeleted('hh_deleted_custom_page_ids', id);
+    setCustomPages((prev) => {
+      const next = [page, ...prev];
+      try {
+        localStorage.setItem(STORAGE_KEYS.CUSTOM_PAGES, JSON.stringify(next));
+      } catch {}
+      return next;
+    });
     return page.slug || id;
   };
 
   const updateCustomPage = (updatedPage: CustomPage) => {
-    setCustomPages((prev) =>
-      prev.map((p) =>
+    unmarkItemDeleted('hh_deleted_custom_page_ids', updatedPage.id);
+    setCustomPages((prev) => {
+      const next = prev.map((p) =>
         p.id === updatedPage.id
           ? { ...updatedPage, updatedAt: new Date().toISOString() }
           : p
-      )
-    );
+      );
+      try {
+        localStorage.setItem(STORAGE_KEYS.CUSTOM_PAGES, JSON.stringify(next));
+      } catch {}
+      return next;
+    });
   };
 
   const deleteCustomPage = (id: string) => {
@@ -2386,7 +2700,14 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
       alert("This is a core system page and cannot be deleted.");
       return;
     }
-    setCustomPages((prev) => prev.filter((p) => p.id !== id));
+    markItemDeleted('hh_deleted_custom_page_ids', id);
+    setCustomPages((prev) => {
+      const next = prev.filter((p) => p.id !== id);
+      try {
+        localStorage.setItem(STORAGE_KEYS.CUSTOM_PAGES, JSON.stringify(next));
+      } catch {}
+      return next;
+    });
   };
 
   // Media Library Operations

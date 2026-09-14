@@ -366,6 +366,17 @@ export async function fetchDestinationsFromServer(): Promise<Record<string, Dest
 export async function saveDestinationToServer(destination: DestinationMeta): Promise<boolean> {
   if (typeof window === 'undefined' || !destination || !destination.slug) return false;
   try {
+    // Unmark as deleted locally
+    try {
+      const savedDeleted = window.localStorage.getItem('hh_deleted_destination_slugs');
+      if (savedDeleted) {
+        const arr = JSON.parse(savedDeleted);
+        if (Array.isArray(arr)) {
+          window.localStorage.setItem('hh_deleted_destination_slugs', JSON.stringify(arr.filter((s) => s !== destination.slug)));
+        }
+      }
+    } catch {}
+
     const syncHeaders: Record<string, string> = {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
@@ -384,18 +395,23 @@ export async function saveDestinationToServer(destination: DestinationMeta): Pro
       body: JSON.stringify(destination),
     });
 
-    if (res.ok) {
-      // Also update local registry
-      const raw = window.localStorage.getItem('hh_destinations_registry_v2');
-      let map: Record<string, any> = {};
-      if (raw) {
-        try { map = JSON.parse(raw); } catch {}
-      }
-      map[destination.slug] = destination;
-      window.localStorage.setItem('hh_destinations_registry_v2', JSON.stringify(map));
-      return true;
-    }
-    return false;
+    // Update local registry caches
+    const updateLocalMap = (storageKey: string) => {
+      try {
+        const raw = window.localStorage.getItem(storageKey);
+        let map: Record<string, any> = {};
+        if (raw) {
+          try { map = JSON.parse(raw); } catch {}
+        }
+        map[destination.slug] = destination;
+        window.localStorage.setItem(storageKey, JSON.stringify(map));
+      } catch {}
+    };
+
+    updateLocalMap('hh_destinations_registry_v2');
+    updateLocalMap('hh_destinations_registry_v1');
+
+    return res.ok;
   } catch (e) {
     console.warn('[ContentSync] saveDestinationToServer failed:', e);
     return false;
@@ -408,6 +424,33 @@ export async function saveDestinationToServer(destination: DestinationMeta): Pro
 export async function deleteDestinationFromServer(slug: string): Promise<boolean> {
   if (typeof window === 'undefined' || !slug) return false;
   try {
+    // 1. Mark as deleted in local tombstone tracking
+    try {
+      const savedDeleted = window.localStorage.getItem('hh_deleted_destination_slugs');
+      const arr: string[] = savedDeleted ? JSON.parse(savedDeleted) : [];
+      if (!arr.includes(slug)) {
+        arr.push(slug);
+        window.localStorage.setItem('hh_deleted_destination_slugs', JSON.stringify(arr));
+      }
+    } catch {}
+
+    // 2. Remove from local caches
+    const removeFromMap = (storageKey: string) => {
+      try {
+        const raw = window.localStorage.getItem(storageKey);
+        if (raw) {
+          const map = JSON.parse(raw);
+          if (map && typeof map === 'object') {
+            delete map[slug];
+            window.localStorage.setItem(storageKey, JSON.stringify(map));
+          }
+        }
+      } catch {}
+    };
+
+    removeFromMap('hh_destinations_registry_v2');
+    removeFromMap('hh_destinations_registry_v1');
+
     const syncHeaders: Record<string, string> = {};
     const token = window.localStorage.getItem('bs_cms_session_token');
     if (token) {
