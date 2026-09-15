@@ -196,33 +196,67 @@ export const AllDestinationsExplorer: React.FC = () => {
                   />
 
                   {/* Scrim Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/20 to-transparent pointer-events-none z-10" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/40 to-transparent group-hover:from-stone-950/95 group-hover:via-stone-950/70 transition-all duration-300 pointer-events-none z-10" />
 
                   {/* Brand Color Hover Overlay */}
                   <div className="absolute inset-0 bg-[#FF4B00]/0 group-hover:bg-[#FF4B00]/10 transition-colors duration-500 pointer-events-none z-10 mix-blend-overlay" />
 
                   {/* Top Right High-CTR Interactive Icon & Optional Badge */}
                   <div className="relative z-10 flex justify-between items-start pointer-events-none">
-                    <div>
+                    <div className="flex flex-wrap gap-1 items-center">
                       {dest.destinationType === 'temple' && (
                         <span className="inline-flex items-center gap-1 bg-[#FF4B00]/90 backdrop-blur-md text-white px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wide shadow-md border border-white/20">
                           <Landmark className="w-3 h-3" />
                           Temple Destination
                         </span>
                       )}
+                      <span className="text-[9px] font-bold text-amber-300 bg-black/60 px-2 py-0.5 rounded-full backdrop-blur-xs border border-white/10">
+                        {dest.state}
+                      </span>
                     </div>
                     <div className="w-9 h-9 rounded-full bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white group-hover:bg-[#FF4B00] group-hover:scale-110 transition-all duration-300 shadow-md">
                       <Compass className="w-4 h-4 group-hover:rotate-45 transition-transform duration-500" />
                     </div>
                   </div>
 
-                  {/* Bottom Destination Name & Action Button */}
-                  <div className="relative z-10 text-white pointer-events-none flex items-end justify-between gap-3">
-                    <h3 className="text-xl sm:text-2xl font-black text-white group-hover:text-amber-200 transition-colors drop-shadow-md leading-tight">
-                      {dest.displayName || dest.name}
-                    </h3>
-                    <div className="w-8 h-8 rounded-full bg-stone-900/80 backdrop-blur-md border border-white/20 flex items-center justify-center text-amber-300 group-hover:translate-x-1 transition-transform shrink-0 shadow-lg">
-                      <ArrowRight className="w-3.5 h-3.5" />
+                  {/* Bottom Destination Name, Top Activities, & Action Button */}
+                  <div className="relative z-10 text-white pointer-events-none flex flex-col justify-end gap-2">
+                    {/* Desktop Hover Revealed Top Activities & CTA */}
+                    <div className="hidden sm:flex flex-col gap-1.5 max-h-0 opacity-0 group-hover:max-h-44 group-hover:opacity-100 transition-all duration-300 overflow-hidden ease-out">
+                      {dest.tagline && (
+                        <p className="text-[11px] text-stone-200 line-clamp-2 leading-tight font-medium">
+                          {dest.tagline}
+                        </p>
+                      )}
+                      
+                      {/* Top Activities Chips */}
+                      <div className="flex flex-wrap gap-1 pt-0.5">
+                        {(dest.keyHighlights || dest.popularCities || []).slice(0, 2).map((act, i) => (
+                          <span
+                            key={i}
+                            className="inline-flex items-center gap-1 text-[9px] font-bold text-amber-200 bg-white/15 backdrop-blur-md px-1.5 py-0.5 rounded-md border border-white/20"
+                          >
+                            <Sparkles className="w-2.5 h-2.5 text-amber-300" />
+                            <span className="truncate">{act}</span>
+                          </span>
+                        ))}
+                      </div>
+
+                      {/* Explore Details CTA Bar */}
+                      <div className="mt-0.5 inline-flex items-center justify-between w-full bg-[#FF4B00] text-white px-2.5 py-1 rounded-lg text-[11px] font-black shadow-md transition-colors">
+                        <span>Explore Details</span>
+                        <ArrowRight className="w-3 h-3" />
+                      </div>
+                    </div>
+
+                    {/* Default Footer Bar */}
+                    <div className="flex items-end justify-between gap-2 pt-1 border-t border-white/15 group-hover:border-transparent transition-colors">
+                      <h3 className="text-lg sm:text-xl font-black text-white group-hover:text-amber-200 transition-colors drop-shadow-md leading-tight">
+                        {dest.displayName || dest.name}
+                      </h3>
+                      <div className="w-8 h-8 rounded-full bg-stone-900/80 backdrop-blur-md border border-white/20 flex items-center justify-center text-amber-300 group-hover:translate-x-1 group-hover:bg-[#FF4B00] group-hover:text-white transition-all shrink-0 shadow-lg">
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </div>
                     </div>
                   </div>
                 </motion.div>
