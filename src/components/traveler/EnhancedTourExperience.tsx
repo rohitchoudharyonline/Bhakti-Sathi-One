@@ -7,7 +7,7 @@ import { Footer } from './Footer';
 
 export const EnhancedTourExperience: React.FC = () => {
   const { packages, selectedPackageId, setSelectedPackageId } = useTours();
-  const pkg = selectedPackageId ? packages.find(p => p.id === selectedPackageId) : undefined;
+  const pkg = selectedPackageId ? packages.find(p => p.id === selectedPackageId || p.slug === selectedPackageId || p.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') === selectedPackageId.toLowerCase()) : undefined;
   if (!pkg) return <PremiumTravelMarketplace />;
   return <>
     <PremiumPackageDetail pkg={pkg} onBack={() => setSelectedPackageId(null)} />

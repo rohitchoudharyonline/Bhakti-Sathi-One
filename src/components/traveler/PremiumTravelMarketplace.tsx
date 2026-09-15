@@ -24,7 +24,7 @@ export const PremiumTravelMarketplace: React.FC = () => {
   const [email, setEmail] = useState(travelerUser?.email || '');
   const [phone, setPhone] = useState('');
 
-  const selected = selectedPackageId ? packages.find(p => p.id === selectedPackageId) : undefined;
+  const selected = selectedPackageId ? packages.find(p => p.id === selectedPackageId || p.slug === selectedPackageId || p.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') === selectedPackageId.toLowerCase()) : undefined;
   if (selected) return <PremiumPackageDetail pkg={selected} onBack={() => setSelectedPackageId(null)} />;
 
   const published = packages.filter(p => p.status === 'published');

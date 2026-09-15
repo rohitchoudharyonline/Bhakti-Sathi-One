@@ -90,7 +90,7 @@ export const TravelerPortal: React.FC = () => {
   }, [publishedPackages, searchTerm, selectedCategory, selectedDuration, sortBy]);
 
   // If a package is selected, show the full details view
-  const selectedPackage = packages.find((p) => p.id === selectedPackageId);
+  const selectedPackage = packages.find((p) => p.id === selectedPackageId || p.slug === selectedPackageId || p.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') === selectedPackageId?.toLowerCase());
   if (selectedPackage) {
     return (
       <PackageDetailsView
