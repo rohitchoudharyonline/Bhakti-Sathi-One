@@ -86,7 +86,7 @@ export async function runR2Diagnostic(
 
   const recommendations: string[] = [];
   const bucketName = settings.r2BucketName || 'bhakti-sathi';
-  const publicDomain = settings.r2PublicDomain || 'https://pub-r2.mybhaktisathi.com';
+  const publicDomain = settings.r2PublicDomain || 'https://media.holidayshunt.com';
   const d1DatabaseId = settings.d1DatabaseId || '165b7b99-72e3-443e-aee9-8bf0f8c6c26b';
 
   // Step 1: Config Check

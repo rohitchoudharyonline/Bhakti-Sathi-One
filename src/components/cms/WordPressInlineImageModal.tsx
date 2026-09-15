@@ -65,7 +65,7 @@ export const WordPressInlineImageModal: React.FC<WordPressInlineImageModalProps>
         quality: cloudStorageSettings?.compressionQuality || 0.8,
         maxWidth: 1400,
         outputFormat: 'webp',
-        r2PublicDomain: cloudStorageSettings?.r2PublicDomain || 'https://pub-r2.mybhaktisathi.com',
+        r2PublicDomain: cloudStorageSettings?.r2PublicDomain || 'https://media.holidayshunt.com',
         folder,
       });
 

@@ -95,7 +95,7 @@ export interface CloudStorageSettings {
   r2BucketName: string;
   r2AccessKeyId: string;
   r2SecretAccessKey: string;
-  r2PublicDomain: string; // e.g. "https://pub-r2.mybhaktisathi.com"
+  r2PublicDomain: string; // e.g. "https://media.holidayshunt.com"
   
   // Cloudflare D1 Database & Storage
   d1DatabaseId: string;

@@ -106,9 +106,11 @@ export function extractStorageKey(url?: string | null): string | null {
     // If on R2 domain or custom bucket host
     const host = parsed.hostname.toLowerCase();
     if (
+      host === 'media.holidayshunt.com' ||
       host === 'pub-r2.mybhaktisathi.com' ||
       host.includes('r2.cloudflarestorage.com') ||
       host.includes('.r2.dev') ||
+      host.includes('holidayshunt') ||
       host.includes('bhaktisathi')
     ) {
       if (pathname && !pathname.startsWith('http')) {

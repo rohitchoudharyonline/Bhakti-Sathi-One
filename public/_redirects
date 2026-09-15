@@ -1,0 +1,35 @@
+# Cloudflare Pages 301 Permanent Redirects to preserve 2000+ WordPress URLs
+
+# 1. Standard WordPress Tour Packages -> New Clean Modern Routes
+/package/:slug          /tours/:slug          301
+/packages/:slug         /tours/:slug          301
+/tour-package/:slug     /tours/:slug          301
+/holidays/package/:slug /tours/:slug          301
+/tour/:slug             /tours/:slug          301
+
+# 2. Destinations & Regional Categories
+/destination/:slug      /destinations/:slug   301
+/destinations-guide/:slug /destinations/:slug 301
+/holiday-type/:slug     /destinations/:slug   301
+/location/:slug         /destinations/:slug   301
+
+# 3. Destination Wildcards (Directing traffic to primary hubs)
+/kashmir/*              /destinations/kashmir 301
+/himachal/*             /destinations/himachal 301
+/vaishno-devi/*         /destinations/vaishno-devi 301
+/katra/*                /destinations/vaishno-devi 301
+/ladakh/*               /destinations/ladakh  301
+/char-dham/*            /destinations/char-dham 301
+
+# 4. Blog Posts & Guides
+/blog/:slug             /travel-blog/:slug    301
+/blogs/:slug            /travel-blog/:slug    301
+/guide/:slug            /travel-blog/:slug    301
+/article/:slug          /travel-blog/:slug    301
+
+# 5. Generic Categories & Tags
+/category/*             /tours                301
+/tag/*                  /tours                301
+
+# 6. React Single Page App Fallback (Catch-All)
+/*                      /index.html           200

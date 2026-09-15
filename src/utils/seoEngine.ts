@@ -390,7 +390,7 @@ function escapeRegExp(string: string) {
  * for Reviews and AggregateRating stars in search listings.
  */
 export function generateTouristTripSchema(pkg: TourPackage, agency: AgencySettings) {
-  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://mybhaktisathi.com';
+  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://holidayshunt.com';
   const pkgUrl = `${origin}/tours/${pkg.destinationTag || 'india'}/${pkg.slug || pkg.id}`;
 
   const ratingVal = pkg.rating || 4.9;
@@ -465,7 +465,7 @@ export function generateTouristTripSchema(pkg: TourPackage, agency: AgencySettin
         '@type': 'TravelAgency',
         name: agency.agencyName || 'Bhakti Sathi',
         telephone: agency.phone || '+91 94199 15255',
-        email: agency.email || 'care@mybhaktisathi.com',
+        email: agency.email || 'info@holidayshunt.com',
         url: origin,
         image: 'https://images.unsplash.com/photo-1598091383021-15ddea10925d?auto=format&fit=crop&w=800&q=80',
         address: {
@@ -527,7 +527,7 @@ export function generateTouristTripSchema(pkg: TourPackage, agency: AgencySettin
  * Generates Google Rich Snippet JSON-LD Schema for Agency Google Reviews & AggregateRating
  */
 export function generateAgencyReviewSchema(agency: AgencySettings) {
-  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://mybhaktisathi.com';
+  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://holidayshunt.com';
   return {
     '@context': 'https://schema.org',
     '@type': 'TravelAgency',
@@ -535,7 +535,7 @@ export function generateAgencyReviewSchema(agency: AgencySettings) {
     name: agency.agencyName || 'Bhakti Sathi',
     url: origin,
     telephone: agency.phone || '+91 94199 15255',
-    email: agency.email || 'care@mybhaktisathi.com',
+    email: agency.email || 'info@holidayshunt.com',
     priceRange: '₹₹ - ₹₹₹₹',
     image: 'https://images.unsplash.com/photo-1598091383021-15ddea10925d?auto=format&fit=crop&w=800&q=80',
     address: {
@@ -560,7 +560,7 @@ export function generateAgencyReviewSchema(agency: AgencySettings) {
  * Generates Schema for TouristDestination
  */
 export function generateTouristDestinationSchema(dest: DestinationMeta, agency: AgencySettings) {
-  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://mybhaktisathi.com';
+  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://holidayshunt.com';
   const destUrl = `${origin}/destinations/${dest.slug}`;
 
   return {
@@ -588,7 +588,7 @@ export function generateTouristDestinationSchema(dest: DestinationMeta, agency: 
  * Generates Schema for BlogPosting / Article
  */
 export function generateBlogPostingSchema(post: BlogPost, agency: AgencySettings) {
-  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://mybhaktisathi.com';
+  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://holidayshunt.com';
   const postUrl = `${origin}/travel-blog/${post.slug}`;
 
   return {
@@ -674,7 +674,7 @@ export function generateGuideArticleSchema(
   },
   agency: AgencySettings
 ) {
-  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://mybhaktisathi.com';
+  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://holidayshunt.com';
   const guideUrl = `${origin}/guide/${guide.slug}`;
 
   return {

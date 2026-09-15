@@ -114,7 +114,7 @@ export const UniversalImageUploader: React.FC<UniversalImageUploaderProps> = ({
         maxHeight,
         outputFormat: targetFormat,
         r2PublicDomain:
-          cloudStorageSettings?.r2PublicDomain || 'https://pub-r2.mybhaktisathi.com',
+          cloudStorageSettings?.r2PublicDomain || 'https://media.holidayshunt.com',
         folder,
       });
 

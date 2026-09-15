@@ -22,14 +22,18 @@ export async function compressAndProcessImage(
   file: File,
   options: CompressImageOptions = {}
 ): Promise<CompressionResult> {
-  const {
+  let {
     maxWidth = 1920,
     maxHeight = 1920,
     quality = 0.8,
     outputFormat = 'webp',
-    r2PublicDomain = 'https://pub-r2.mybhaktisathi.com',
+    r2PublicDomain = 'https://media.holidayshunt.com',
     folder = 'uploads',
   } = options;
+
+  if (!r2PublicDomain || r2PublicDomain.includes('mybhaktisathi')) {
+    r2PublicDomain = 'https://media.holidayshunt.com';
+  }
 
   const originalSizeKb = Math.round(file.size / 1024);
   const fileExt = file.name.split('.').pop()?.toLowerCase() || 'jpg';

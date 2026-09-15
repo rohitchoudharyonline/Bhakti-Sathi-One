@@ -60,7 +60,7 @@ function header(d:jsPDF,a:AgencySettings,label:string,p:number,logoData?:any){
     d.setFont('helvetica','bold');
     d.setFontSize(13);
     d.setTextColor(...INK);
-    d.text('Bhakti Sathi',28,26);
+    d.text(clean(a.agencyName || 'Holidays Hunt'),28,26);
     d.setFontSize(8.5);
     d.setTextColor(...GOLD);
     d.text(clean(label).toUpperCase(),28,36);
@@ -69,8 +69,8 @@ function header(d:jsPDF,a:AgencySettings,label:string,p:number,logoData?:any){
   d.setFont('helvetica','normal');
   d.setFontSize(8.5);
   d.setTextColor(...BODY);
-  const displayEmail = 'care@mybhaktisathi.com';
-  const displayWebsite = 'mybhaktisathi.com';
+  const displayEmail = a.email || 'info@holidayshunt.com';
+  const displayWebsite = 'holidayshunt.com';
   if(a.phone)d.text(clean(a.phone),w-28,22,{align:'right'});
   d.text(displayEmail,w-28,34,{align:'right'});
   d.text(displayWebsite,w-28,46,{align:'right'});

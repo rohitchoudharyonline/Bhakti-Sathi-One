@@ -122,7 +122,7 @@ export const MediaR2StorageManager: React.FC<MediaR2StorageManagerProps> = ({
           quality: cloudStorageSettings.compressionQuality || 0.78,
           maxWidth,
           outputFormat: customFormat || cloudStorageSettings.outputFormat || 'webp',
-          r2PublicDomain: cloudStorageSettings.r2PublicDomain || 'https://pub-r2.mybhaktisathi.com',
+          r2PublicDomain: cloudStorageSettings.r2PublicDomain || 'https://media.holidayshunt.com',
           folder: selectedFolder === 'all' ? 'uploads' : selectedFolder,
         });
 
@@ -715,7 +715,7 @@ export const MediaR2StorageManager: React.FC<MediaR2StorageManagerProps> = ({
                 <div>
                   <div className="flex items-center justify-between mb-1">
                     <label className="block text-stone-500 font-medium">R2 Public CDN Domain</label>
-                    <span className="text-[10px] text-stone-400 font-mono">Current: {cloudStorageSettings.r2PublicDomain || 'https://pub-r2.mybhaktisathi.com'}</span>
+                    <span className="text-[10px] text-stone-400 font-mono">Current: {cloudStorageSettings.r2PublicDomain || 'https://media.holidayshunt.com'}</span>
                   </div>
                   <input
                     type="text"
@@ -726,7 +726,7 @@ export const MediaR2StorageManager: React.FC<MediaR2StorageManagerProps> = ({
                         r2PublicDomain: e.target.value,
                       })
                     }
-                    placeholder="https://pub-r2.mybhaktisathi.com or https://pub-xxxx.r2.dev"
+                    placeholder="https://media.holidayshunt.com"
                     className="w-full p-2 bg-white border border-stone-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-black font-mono"
                   />
                   
@@ -737,17 +737,17 @@ export const MediaR2StorageManager: React.FC<MediaR2StorageManagerProps> = ({
                       onClick={() =>
                         updateCloudStorageSettings({
                           ...cloudStorageSettings,
-                          r2PublicDomain: 'https://pub-r2.mybhaktisathi.com',
+                          r2PublicDomain: 'https://media.holidayshunt.com',
                         })
                       }
-                      className="px-2 py-0.5 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded text-[10px] font-mono cursor-pointer border border-stone-200"
+                      className="px-2 py-0.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 rounded text-[10px] font-mono cursor-pointer border border-emerald-200 font-bold"
                     >
-                      pub-r2.mybhaktisathi.com
+                      media.holidayshunt.com (Connected)
                     </button>
                     <button
                       type="button"
                       onClick={() => {
-                        const devDomain = prompt('Enter your Cloudflare R2 Public Subdomain (e.g. pub-123456789.r2.dev):', 'https://pub-bhaktisathi.r2.dev');
+                        const devDomain = prompt('Enter custom R2 Public Domain (e.g. https://media.holidayshunt.com):', 'https://media.holidayshunt.com');
                         if (devDomain) {
                           updateCloudStorageSettings({
                             ...cloudStorageSettings,
@@ -755,15 +755,15 @@ export const MediaR2StorageManager: React.FC<MediaR2StorageManagerProps> = ({
                           });
                         }
                       }}
-                      className="px-2 py-0.5 bg-amber-50 hover:bg-amber-100 text-amber-800 rounded text-[10px] font-mono cursor-pointer border border-amber-200"
+                      className="px-2 py-0.5 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded text-[10px] font-mono cursor-pointer border border-stone-200"
                     >
-                      Use R2.dev Subdomain
+                      Custom Domain...
                     </button>
                   </div>
 
-                  <p className="mt-2 text-[11px] text-stone-600 bg-amber-50/80 border border-amber-200/80 rounded-lg p-2.5 leading-normal">
-                    <strong className="text-amber-900 block font-bold mb-0.5">💡 DNS_PROBE_FINISHED_NXDOMAIN Fix:</strong>
-                    If opening the URL in a browser tab gives a DNS error, your custom domain <code className="bg-amber-100 px-1 rounded font-mono text-[10px]">pub-r2.mybhaktisathi.com</code> is not mapped in Cloudflare DNS. In Cloudflare Dashboard, go to <strong>R2 &gt; {cloudStorageSettings.r2BucketName || 'bhakti-sathi'} &gt; Settings &gt; Custom Domains</strong> and add it, or use your <code className="bg-amber-100 px-1 rounded font-mono text-[10px]">*.r2.dev</code> public bucket URL above. All images in the app continue to load instantly via data backup.
+                  <p className="mt-2 text-[11px] text-stone-600 bg-emerald-50/80 border border-emerald-200/80 rounded-lg p-2.5 leading-normal">
+                    <strong className="text-emerald-900 block font-bold mb-0.5">Custom Domain Connected:</strong>
+                    Images and assets are served directly through your fast custom CDN at <code className="bg-emerald-100 px-1 rounded font-mono text-[10px]">https://media.holidayshunt.com</code> with SSL.
                   </p>
                 </div>
 
