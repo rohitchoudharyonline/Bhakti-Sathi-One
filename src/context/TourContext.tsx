@@ -899,8 +899,24 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // 9. Navigation / Routing States
   const [activeView, setActiveView] = useState<'traveler' | 'cms'>('traveler');
-  const [selectedPackageId, setSelectedPackageId] = useState<string | null>(null);
-  const [selectedDestinationSlug, setSelectedDestinationSlug] = useState<string | null>(null);
+  const [selectedPackageId, _setSelectedPackageId] = useState<string | null>(null);
+  const [selectedDestinationSlug, _setSelectedDestinationSlug] = useState<string | null>(null);
+
+  const setSelectedPackageId = (id: string | null) => {
+    if (id) {
+      navigateToPackage(id);
+    } else {
+      navigateToHome();
+    }
+  };
+
+  const setSelectedDestinationSlug = (slug: string | null) => {
+    if (slug) {
+      navigateToDestination(slug);
+    } else {
+      navigateToHome();
+    }
+  };
   const [isDestinationsExplorerOpen, setIsDestinationsExplorerOpen] = useState<boolean>(false);
   const [isToursDirectoryOpen, setIsToursDirectoryOpen] = useState<boolean>(false);
   const [selectedToursDestination, setSelectedToursDestination] = useState<string | null>(null);
@@ -1510,16 +1526,16 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
           // Check if segment matches a package id or slug or title slug
           const matchedPkg = packages.find(p => p.id.toLowerCase() === segment || p.slug.toLowerCase() === segment || p.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') === segment);
           if (matchedPkg) {
-            setSelectedPackageId(matchedPkg.id);
-            setSelectedDestinationSlug(null);
+            _setSelectedPackageId(matchedPkg.id);
+            _setSelectedDestinationSlug(null);
             setIsToursDirectoryOpen(false);
           } else {
-            setSelectedPackageId(null);
+            _setSelectedPackageId(null);
             setSelectedToursDestination(segment);
             setIsToursDirectoryOpen(true);
           }
         } else {
-          setSelectedPackageId(null);
+          _setSelectedPackageId(null);
           setSelectedToursDestination(null);
           setIsToursDirectoryOpen(true);
         }
@@ -1529,17 +1545,17 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setIsBlogHubOpen(false);
         setActiveBlogSlug(null);
         setActiveCustomPageSlug(null);
-        setSelectedPackageId(null);
+        _setSelectedPackageId(null);
         setIsGuidesHubOpen(false);
         setActiveGuideSlug(null);
         setIsJapCounterOpen(false);
         const subSlug = path.replace('/destinations', '').replace(/^\/+/, '').split('/')[0];
         if (subSlug && subSlug.length > 0) {
           setIsDestinationsExplorerOpen(false);
-          setSelectedDestinationSlug(subSlug);
+          _setSelectedDestinationSlug(subSlug);
         } else {
           setIsDestinationsExplorerOpen(true);
-          setSelectedDestinationSlug(null);
+          _setSelectedDestinationSlug(null);
         }
       } else if (path.startsWith('/holidays/')) {
         setActiveView('traveler');
@@ -1547,17 +1563,17 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setIsBlogHubOpen(false);
         setActiveBlogSlug(null);
         setActiveCustomPageSlug(null);
-        setSelectedPackageId(null);
+        _setSelectedPackageId(null);
         setIsGuidesHubOpen(false);
         setActiveGuideSlug(null);
         setIsJapCounterOpen(false);
         const subSlug = path.replace('/holidays/', '').split('/')[0];
         if (subSlug && subSlug.length > 0) {
           setIsDestinationsExplorerOpen(false);
-          setSelectedDestinationSlug(subSlug);
+          _setSelectedDestinationSlug(subSlug);
         } else {
           setIsDestinationsExplorerOpen(true);
-          setSelectedDestinationSlug(null);
+          _setSelectedDestinationSlug(null);
         }
       } else if (path === '/sitemap' || path === '/sitemap/' || path === '/sitemap.html' || path === '/info/sitemap' || path === '/info/sitemap/') {
         setActiveView('traveler');
@@ -1567,8 +1583,8 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setIsBlogHubOpen(false);
         setActiveBlogSlug(null);
         setActiveCustomPageSlug(null);
-        setSelectedPackageId(null);
-        setSelectedDestinationSlug(null);
+        _setSelectedPackageId(null);
+        _setSelectedDestinationSlug(null);
         setIsGuidesHubOpen(false);
         setActiveGuideSlug(null);
         setIsJapCounterOpen(false);
@@ -1576,8 +1592,8 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const infoSlug = path.replace('/', '');
         setActiveView('traveler');
         setActiveInfoPage(infoSlug);
-        setSelectedPackageId(null);
-        setSelectedDestinationSlug(null);
+        _setSelectedPackageId(null);
+        _setSelectedDestinationSlug(null);
         setIsDestinationsExplorerOpen(false);
         setIsToursDirectoryOpen(false);
         setIsBlogHubOpen(false);
@@ -1587,8 +1603,8 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const infoSlug = path.replace('/info/', '').split('/')[0];
         setActiveView('traveler');
         setActiveInfoPage(infoSlug);
-        setSelectedPackageId(null);
-        setSelectedDestinationSlug(null);
+        _setSelectedPackageId(null);
+        _setSelectedDestinationSlug(null);
         setIsDestinationsExplorerOpen(false);
         setIsToursDirectoryOpen(false);
         setIsBlogHubOpen(false);
@@ -1608,15 +1624,15 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const matchedPkg = packages.find(p => p.id.toLowerCase() === pkgIdOrSlug.toLowerCase() || p.slug.toLowerCase() === pkgIdOrSlug.toLowerCase() || p.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') === pkgIdOrSlug.toLowerCase());
         setActiveView('traveler');
         if (matchedPkg) {
-          setSelectedPackageId(matchedPkg.id);
+          _setSelectedPackageId(matchedPkg.id);
           const targetSlug = matchedPkg.slug || matchedPkg.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
           if (typeof window !== 'undefined' && window.history.replaceState) {
             window.history.replaceState({}, '', `/tours/${targetSlug}`);
           }
         } else {
-          setSelectedPackageId(pkgIdOrSlug || null);
+          _setSelectedPackageId(pkgIdOrSlug || null);
         }
-        setSelectedDestinationSlug(null);
+        _setSelectedDestinationSlug(null);
         setIsDestinationsExplorerOpen(false);
         setIsToursDirectoryOpen(false);
         setIsBlogHubOpen(false);
@@ -1625,13 +1641,27 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const slug = path.replace('/holidays/', '').split('/')[0];
         if (slug) {
           setActiveView('traveler');
-          setSelectedDestinationSlug(slug);
-          setSelectedPackageId(null);
+          _setSelectedDestinationSlug(slug);
+          _setSelectedPackageId(null);
           setIsDestinationsExplorerOpen(false);
           setIsToursDirectoryOpen(false);
           setIsBlogHubOpen(false);
           setActiveBlogSlug(null);
         }
+      } else {
+        setActiveView('traveler');
+        _setSelectedPackageId(null);
+        _setSelectedDestinationSlug(null);
+        setIsDestinationsExplorerOpen(false);
+        setIsToursDirectoryOpen(false);
+        setIsBlogHubOpen(false);
+        setActiveBlogSlug(null);
+        setIsGuidesHubOpen(false);
+        setActiveGuideSlug(null);
+        setActiveCustomPageSlug(null);
+        setActiveInfoPageRaw(null);
+        setIsJapCounterOpen(false);
+        setIsTravelerProfileOpen(false);
       }
     };
 
