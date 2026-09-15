@@ -1352,11 +1352,16 @@ export async function generateTourPDF(pkg:TourPackage,a:AgencySettings,onProgres
   // Calculate dynamic height for details card
   const detailsCardH = 40 + 20 + (hLines.length * 14) + (mLines.length * 14) + (cLines.length * 14) + 16;
   
+  const isPor = pkg.priceOnRequest || (!pkg.price && !pkg.discountedPrice) || ((pkg.price || 0) <= 0 && (!pkg.discountedPrice || pkg.discountedPrice <= 0));
+  const effectivePrice = pkg.discountedPrice && pkg.discountedPrice > 0 ? pkg.discountedPrice : (pkg.price || 0);
+  const priceDisplayStr = isPor ? 'Price on Request' : money(effectivePrice);
+  const priceFontSize = isPor ? 15 : 20;
+
   drawCard(d, margin, y, contentWidth, detailsCardH, CREAM, GOLD, true);
   d.setFont('helvetica','bold');
-  d.setFontSize(20);
+  d.setFontSize(priceFontSize);
   d.setTextColor(...GOLD);
-  d.text(money(pkg.price), margin + 20, y + 34);
+  d.text(priceDisplayStr, margin + 20, y + 34);
   d.setFont('helvetica','normal');
   d.setFontSize(11);
   d.setTextColor(...BODY);

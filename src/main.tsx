@@ -21,7 +21,8 @@ const mountApp = () => {
   );
 };
 
-// Install synchronization bridge and load authoritative content from D1 before mounting
+// Install synchronization bridge and load authoritative content asynchronously without blocking mount
 installContentSyncBridge();
-void loadAuthoritativeServerContent().finally(mountApp);
+mountApp();
+void loadAuthoritativeServerContent();
 
