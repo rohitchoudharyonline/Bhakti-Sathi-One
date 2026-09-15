@@ -1505,11 +1505,21 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setIsDestinationsExplorerOpen(false);
         setActiveCustomPageSlug(null);
         const subParts = path.replace('/tours', '').replace(/^\/+/, '').split('/');
-        if (subParts[0] && subParts[0].length > 0) {
-          // e.g. /tours/jammu-and-kashmir or /tours/kashmir
-          setSelectedToursDestination(subParts[0]);
-          setIsToursDirectoryOpen(true);
+        const segment = subParts[0] ? subParts[0].toLowerCase() : '';
+        if (segment && segment.length > 0) {
+          // Check if segment matches a package id or slug or title slug
+          const matchedPkg = packages.find(p => p.id.toLowerCase() === segment || p.slug.toLowerCase() === segment || p.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') === segment);
+          if (matchedPkg) {
+            setSelectedPackageId(matchedPkg.id);
+            setSelectedDestinationSlug(null);
+            setIsToursDirectoryOpen(false);
+          } else {
+            setSelectedPackageId(null);
+            setSelectedToursDestination(segment);
+            setIsToursDirectoryOpen(true);
+          }
         } else {
+          setSelectedPackageId(null);
           setSelectedToursDestination(null);
           setIsToursDirectoryOpen(true);
         }
@@ -1594,9 +1604,18 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setActiveBlogSlug(null);
       } else if (path.includes('/holidays/package/') || path.includes('/package/')) {
         const parts = path.split('/package/');
-        const pkgId = parts[1]?.replace('/', '') || null;
+        const pkgIdOrSlug = parts[1]?.replace('/', '') || '';
+        const matchedPkg = packages.find(p => p.id.toLowerCase() === pkgIdOrSlug.toLowerCase() || p.slug.toLowerCase() === pkgIdOrSlug.toLowerCase() || p.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') === pkgIdOrSlug.toLowerCase());
         setActiveView('traveler');
-        setSelectedPackageId(pkgId);
+        if (matchedPkg) {
+          setSelectedPackageId(matchedPkg.id);
+          const targetSlug = matchedPkg.slug || matchedPkg.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+          if (typeof window !== 'undefined' && window.history.replaceState) {
+            window.history.replaceState({}, '', `/tours/${targetSlug}`);
+          }
+        } else {
+          setSelectedPackageId(pkgIdOrSlug || null);
+        }
         setSelectedDestinationSlug(null);
         setIsDestinationsExplorerOpen(false);
         setIsToursDirectoryOpen(false);
@@ -1954,9 +1973,13 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const navigateToPackage = (id: string) => {
+  const navigateToPackage = (idOrSlug: string) => {
     setActiveView('traveler');
-    setSelectedPackageId(id);
+    const pkg = packages.find(p => p.id === idOrSlug || p.slug === idOrSlug || p.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') === idOrSlug.toLowerCase());
+    const targetId = pkg ? pkg.id : idOrSlug;
+    const targetSlug = pkg?.slug || (pkg?.title ? pkg.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') : idOrSlug);
+
+    setSelectedPackageId(targetId);
     setSelectedDestinationSlug(null);
     setIsDestinationsExplorerOpen(false);
     setIsToursDirectoryOpen(false);
@@ -1968,7 +1991,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsJapCounterOpen(false);
     setIsTravelerProfileOpen(false);
     if (typeof window !== 'undefined' && window.history.pushState) {
-      window.history.pushState({}, '', `/package/${id}`);
+      window.history.pushState({}, '', `/tours/${targetSlug}`);
     }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };

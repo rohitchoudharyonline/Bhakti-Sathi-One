@@ -447,7 +447,7 @@ export const CustomPagesManager: React.FC = () => {
                   defaultFormat="webp"
                   currentUrl={formData.heroImage}
                   onImageSelected={(url, asset) => {
-                    const chosen = asset?.dataUrl || url;
+                    const chosen = url || asset?.url || asset?.storagePath || asset?.dataUrl || '';
                     setFormData({ ...formData, heroImage: chosen });
                   }}
                   showR2LibraryPicker={true}

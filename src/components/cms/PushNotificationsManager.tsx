@@ -45,7 +45,7 @@ export const PushNotificationsManager: React.FC = () => {
   // Broadcast Form State
   const [title, setTitle] = useState('❄️ Fresh Snowfall in Gulmarg - Gondola Phase 2 Open!');
   const [body, setBody] = useState('Powder snow alert! Book your Gulmarg winter ski itinerary now before slots fill up.');
-  const [url, setUrl] = useState('/package/pkg-kashmir-02');
+  const [url, setUrl] = useState('/tours/kashmir-winter-wonderland-gulmarg');
   const [image, setImage] = useState('https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=600&q=80');
   const [targetAudience, setTargetAudience] = useState<PushNotification['targetAudience']>('kashmir_enthusiasts');
   const [category, setCategory] = useState<PushNotification['category']>('weather_alert');
@@ -66,7 +66,7 @@ export const PushNotificationsManager: React.FC = () => {
     if (preset === 'snow') {
       setTitle('❄️ Heavy Snowfall Alert in Gulmarg!');
       setBody('Slopes have 4+ feet of powder snow. Special winter packages starting at ₹18,999.');
-      setUrl('/package/pkg-kashmir-02');
+      setUrl('/tours/kashmir-winter-wonderland-gulmarg');
       setImage('https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=600&q=80');
       setTargetAudience('kashmir_enthusiasts');
       setCategory('weather_alert');
@@ -74,7 +74,7 @@ export const PushNotificationsManager: React.FC = () => {
     } else if (preset === 'tulip') {
       setTitle('🌷 Spring Tulip Garden Festival - Early Bird ₹5,000 OFF!');
       setBody('Indira Gandhi Tulip Garden opens April 1st. Reserve your 6D/5N Luxury Kashmir tour today.');
-      setUrl('/package/pkg-kashmir-01');
+      setUrl('/tours/kashmir-paradise-luxury-tour');
       setImage('https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=600&q=80');
       setTargetAudience('honeymooners');
       setCategory('deal');
@@ -388,7 +388,7 @@ export const PushNotificationsManager: React.FC = () => {
                     type="text"
                     value={url}
                     onChange={(e) => setUrl(e.target.value)}
-                    placeholder="/package/pkg-kashmir-01"
+                    placeholder="/tours/kashmir-paradise-luxury-tour"
                     className="w-full px-3.5 py-2 rounded-xl bg-stone-50 border border-stone-200 text-xs font-semibold focus:outline-stone-900"
                   />
                 </div>

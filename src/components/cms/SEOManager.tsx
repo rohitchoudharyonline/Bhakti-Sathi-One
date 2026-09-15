@@ -370,7 +370,7 @@ export const SEOManager: React.FC = () => {
                   defaultFormat="webp"
                   currentUrl={editingSitePage.ogImage || ''}
                   onImageSelected={(url, asset) => {
-                    const finalImg = asset?.dataUrl || url;
+                    const finalImg = url || asset?.url || asset?.storagePath || asset?.dataUrl || '';
                     setEditingSitePage({
                       ...editingSitePage,
                       ogImage: finalImg,
@@ -887,7 +887,7 @@ export const SEOManager: React.FC = () => {
               defaultFormat="webp"
               currentUrl={pageSeo.ogImage || editingCustomPage.heroImage || ''}
               onImageSelected={(url, asset) => {
-                const finalImg = asset?.dataUrl || url;
+                const finalImg = url || asset?.url || asset?.storagePath || asset?.dataUrl || '';
                 setEditingCustomPage({
                   ...editingCustomPage,
                   heroImage: finalImg,

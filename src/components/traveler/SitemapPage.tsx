@@ -144,7 +144,8 @@ export const SitemapPage: React.FC = () => {
 
     // Packages
     packages.forEach(pkg => {
-      entries.push({ loc: `${baseUrl}/package/${pkg.slug || pkg.id}`, lastmod: today, changefreq: 'weekly', priority: '0.9' });
+      const pkgSlug = pkg.slug || pkg.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+      entries.push({ loc: `${baseUrl}/tours/${pkgSlug}`, lastmod: today, changefreq: 'weekly', priority: '0.9' });
     });
 
     // Destinations
@@ -352,7 +353,7 @@ export const SitemapPage: React.FC = () => {
                           {pkg.title}
                         </h3>
                         <p className="text-[10px] text-stone-500 flex items-center gap-1 font-mono">
-                          /package/{pkg.slug || pkg.id}
+                          /tours/{pkg.slug || pkg.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}
                         </p>
                       </div>
                     </div>
