@@ -906,7 +906,10 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (id) {
       navigateToPackage(id);
     } else {
-      navigateToHome();
+      _setSelectedPackageId(null);
+      if (typeof window !== 'undefined' && window.history.pushState) {
+        window.history.pushState({}, '', '/');
+      }
     }
   };
 
@@ -914,7 +917,10 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (slug) {
       navigateToDestination(slug);
     } else {
-      navigateToHome();
+      _setSelectedDestinationSlug(null);
+      if (typeof window !== 'undefined' && window.history.pushState) {
+        window.history.pushState({}, '', '/');
+      }
     }
   };
   const [isDestinationsExplorerOpen, setIsDestinationsExplorerOpen] = useState<boolean>(false);
@@ -1986,8 +1992,8 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const navigateToDestination = (slug: string) => {
     setActiveView('traveler');
-    setSelectedDestinationSlug(slug);
-    setSelectedPackageId(null);
+    _setSelectedDestinationSlug(slug);
+    _setSelectedPackageId(null);
     setIsDestinationsExplorerOpen(false);
     setIsToursDirectoryOpen(false);
     setIsBlogHubOpen(false);
@@ -2009,8 +2015,8 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const targetId = pkg ? pkg.id : idOrSlug;
     const targetSlug = pkg?.slug || (pkg?.title ? pkg.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') : idOrSlug);
 
-    setSelectedPackageId(targetId);
-    setSelectedDestinationSlug(null);
+    _setSelectedPackageId(targetId);
+    _setSelectedDestinationSlug(null);
     setIsDestinationsExplorerOpen(false);
     setIsToursDirectoryOpen(false);
     setIsBlogHubOpen(false);
