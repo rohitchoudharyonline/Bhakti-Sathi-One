@@ -1343,7 +1343,7 @@ export async function generateTourPDF(pkg:TourPackage,a:AgencySettings,onProgres
   d.setFont('helvetica','normal');
   d.setFontSize(11);
   const hotelSummaryNames = pkg.hotels && pkg.hotels.length > 0 
-    ? pkg.hotels.map(h => h.name).join(', ')
+    ? pkg.hotels.map(h => `${h.name}${h.location || h.city ? ` (${h.location || h.city})` : ''}`).join(', ')
     : 'Verified Accommodations & Stays';
   const hLines = d.splitTextToSize(`Hotels: ${clean(hotelSummaryNames)}`, contentWidth - 40);
   const mLines = d.splitTextToSize(`Meals: ${clean(pkg.hotels?.[0]?.mealPlan || 'Daily Breakfast & Dinner Included')}`, contentWidth - 40);
@@ -1382,7 +1382,7 @@ export async function generateTourPDF(pkg:TourPackage,a:AgencySettings,onProgres
       d.setFont('helvetica','normal');
       d.setFontSize(10.5);
       const starText = hotel.starRating ? `${hotel.starRating}-Star | ` : '';
-      const locText = clean(hotel.city || hotel.location || pkg.destination);
+      const locText = clean(hotel.location || hotel.city || hotel.country || pkg.destination);
       const infoLines = d.splitTextToSize(`${starText}${locText} | ${clean(hotel.roomType || 'Deluxe Room')} (${hotel.nights}N)`, contentWidth - 32);
       let amLines: string[] = [];
       if (hotel.amenities?.length) {
