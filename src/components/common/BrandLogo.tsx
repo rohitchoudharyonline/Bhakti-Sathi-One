@@ -19,11 +19,11 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
   const [imgError, setImgError] = useState(false);
 
   const heightMap = {
-    xs: 'h-8 sm:h-9',
-    sm: 'h-10 sm:h-11',
-    md: 'h-12 sm:h-14',
-    lg: 'h-16 sm:h-20',
-    xl: 'h-20 sm:h-24',
+    xs: 'h-[42px] sm:h-[47px]',
+    sm: 'h-[52px] sm:h-[57px]',
+    md: 'h-[62px] sm:h-[73px]',
+    lg: 'h-[83px] sm:h-[104px]',
+    xl: 'h-[104px] sm:h-[125px]',
   };
 
   const textMap = {
