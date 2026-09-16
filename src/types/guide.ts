@@ -22,6 +22,8 @@ export interface GuideSeo {
   canonicalUrl?: string;
   noIndex?: boolean;
   ogImage?: string;
+  ogTitle?: string;
+  ogDescription?: string;
 }
 
 export interface GuideArticle {

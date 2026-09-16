@@ -66,6 +66,8 @@ export interface CustomPage {
     metaTitle: string;
     metaDescription: string;
     ogImage?: string;
+    ogTitle?: string;
+    ogDescription?: string;
   };
 }
 

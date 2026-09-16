@@ -97,7 +97,6 @@ export const RedirectsManager: React.FC = () => {
   };
 
   const handleDeleteRule = async (id: string, pathLabel: string) => {
-    if (!window.confirm(`Delete redirect rule for "${pathLabel}"?`)) return;
     try {
       const res = await fetch(`/api/redirects/${id}`, { method: 'DELETE' });
       if (res.ok) {

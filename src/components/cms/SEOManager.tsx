@@ -17,6 +17,7 @@ import {
   FolderTree,
   Filter,
   CheckCheck,
+  Image as ImageIcon,
 } from 'lucide-react';
 import { TourPackage } from '../../types/tour';
 import { DestinationMeta } from '../../data/destinationsData';
@@ -24,6 +25,7 @@ import { GuideArticle } from '../../types/guide';
 import { CustomPage, PageSeoConfig } from '../../types/cms';
 import { UnifiedSEOModal, UnifiedSeoItem } from './UnifiedSEOModal';
 import { RedirectsManager } from './RedirectsManager';
+import { resolveDisplayImage, handleImageError } from '../../utils/imageResolver';
 
 type ContentSection =
   | 'all'
@@ -48,6 +50,7 @@ export const SEOManager: React.FC = () => {
     updateCustomPage,
     pageSeoConfigs,
     updatePageSeoConfig,
+    mediaAssets,
   } = useTours();
 
   const [activeSection, setActiveSection] = useState<ContentSection>('all');
@@ -106,6 +109,9 @@ export const SEOManager: React.FC = () => {
         destination: pkg.destination,
         tagline: pkg.tagline,
         overview: pkg.overview,
+        ogImage: (pkg as any).ogImage || pkg.coverImage || (pkg.gallery && pkg.gallery[0]?.url) || '',
+        ogTitle: (pkg as any).ogTitle,
+        ogDescription: (pkg as any).ogDescription,
       });
     });
 
@@ -147,6 +153,9 @@ export const SEOManager: React.FC = () => {
         destination: meta.name || slug,
         tagline: meta.tagline,
         overview: meta.guide?.overview || meta.tagline,
+        ogImage: (meta as any).ogImage || meta.heroImage || '',
+        ogTitle: (meta as any).ogTitle,
+        ogDescription: (meta as any).ogDescription,
       });
     });
 
@@ -165,6 +174,9 @@ export const SEOManager: React.FC = () => {
         metaDescription: g.seo?.metaDescription || g.excerpt || '',
         destination: g.destination,
         overview: g.excerpt,
+        ogImage: g.seo?.ogImage || g.featuredImage || '',
+        ogTitle: g.seo?.ogTitle,
+        ogDescription: g.seo?.ogDescription,
       });
     });
 
@@ -182,6 +194,9 @@ export const SEOManager: React.FC = () => {
         metaTitle: cp.seo?.metaTitle || `${cp.title} | Holidays Hunt`,
         metaDescription: cp.seo?.metaDescription || cp.subtitle || '',
         overview: cp.subtitle,
+        ogImage: cp.seo?.ogImage || cp.heroImage || '',
+        ogTitle: cp.seo?.ogTitle,
+        ogDescription: cp.seo?.ogDescription,
       });
     });
 
@@ -195,14 +210,15 @@ export const SEOManager: React.FC = () => {
     const desc = item.metaDescription || '';
     const kw = item.focusKeyword || '';
 
-    if (title.length >= 35 && title.length <= 65) score += 35;
+    if (title.length >= 35 && title.length <= 65) score += 30;
     else if (title.length > 0) score += 15;
 
-    if (desc.length >= 110 && desc.length <= 165) score += 35;
+    if (desc.length >= 110 && desc.length <= 165) score += 30;
     else if (desc.length > 0) score += 15;
 
     if (kw.trim().length > 0) score += 15;
     if (kw.trim().length > 0 && title.toLowerCase().includes(kw.toLowerCase())) score += 15;
+    if (item.ogImage && item.ogImage.trim().length > 0) score += 10;
 
     return Math.min(100, score);
   };
@@ -298,6 +314,10 @@ export const SEOManager: React.FC = () => {
           seoKeywords: updated.focusKeyword,
           seoTitle: updated.metaTitle,
           metaDescription: updated.metaDescription,
+          coverImage: updated.ogImage || existing.coverImage,
+          ...((updated.ogImage ? { ogImage: updated.ogImage } : {}) as any),
+          ...((updated.ogTitle ? { ogTitle: updated.ogTitle } : {}) as any),
+          ...((updated.ogDescription ? { ogDescription: updated.ogDescription } : {}) as any),
         });
       }
     } else if (updated.itemType === 'page') {
@@ -325,6 +345,8 @@ export const SEOManager: React.FC = () => {
           seoMetaTitle: updated.metaTitle,
           seoMetaDescription: updated.metaDescription,
           seoKeywords: updated.focusKeyword,
+          heroImage: updated.ogImage || existing.heroImage,
+          ...((updated.ogImage ? { ogImage: updated.ogImage } : {}) as any),
         });
       }
     } else if (updated.itemType === 'guide') {
@@ -332,11 +354,15 @@ export const SEOManager: React.FC = () => {
       if (existing) {
         updateGuide({
           ...existing,
+          featuredImage: updated.ogImage || existing.featuredImage,
           seo: {
             ...existing.seo,
             metaTitle: updated.metaTitle || '',
             metaDescription: updated.metaDescription || '',
             primaryKeyword: updated.focusKeyword || '',
+            ogImage: updated.ogImage || existing.seo?.ogImage,
+            ogTitle: updated.ogTitle || existing.seo?.ogTitle,
+            ogDescription: updated.ogDescription || existing.seo?.ogDescription,
           },
         });
       }
@@ -345,17 +371,19 @@ export const SEOManager: React.FC = () => {
       if (existing) {
         updateCustomPage({
           ...existing,
+          heroImage: updated.ogImage || existing.heroImage,
           seo: {
+            ...existing.seo,
             focusKeyword: updated.focusKeyword || '',
             metaTitle: updated.metaTitle || '',
             metaDescription: updated.metaDescription || '',
-            ogImage: existing.seo?.ogImage,
+            ogImage: updated.ogImage || existing.seo?.ogImage,
           },
         });
       }
     }
 
-    setNotice(`✓ Saved SEO metadata for "${updated.name}"`);
+    setNotice(`✓ Saved SEO metadata & R2 image for "${updated.name}"`);
     setTimeout(() => setNotice(null), 4000);
   };
 
@@ -634,45 +662,65 @@ export const SEOManager: React.FC = () => {
                       key={`${item.itemType}-${item.id}`}
                       className="bg-white border border-stone-200 hover:border-stone-300 rounded-2xl p-4 sm:p-5 shadow-xs transition hover:shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4"
                     >
-                      {/* Left: Item Type, Tour Type, Title & Canonical URL */}
-                      <div className="space-y-1.5 flex-1 min-w-0">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <span className="px-2 py-0.5 rounded-md bg-stone-100 text-stone-600 text-[10px] font-black uppercase tracking-wider">
-                            {item.itemType.replace('-', ' ')}
-                          </span>
-
-                          {item.itemType === 'tour' && (
-                            <span
-                              className={`px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider ${
-                                (item.tourType || '').toLowerCase().includes('honeymoon')
-                                  ? 'bg-rose-50 text-rose-700 border border-rose-200'
-                                  : (item.tourType || '').toLowerCase().includes('pilgrimage')
-                                  ? 'bg-amber-50 text-amber-800 border border-amber-200'
-                                  : (item.tourType || '').toLowerCase().includes('family')
-                                  ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
-                                  : 'bg-sky-50 text-sky-800 border border-sky-200'
-                              }`}
-                            >
-                              {item.tourType || 'Family'} Tour
-                            </span>
-                          )}
-
-                          {item.destination && (
-                            <span className="text-[11px] font-medium text-stone-400">
-                              • {item.destination}
-                            </span>
+                      {/* Left: Thumbnail & Item Info */}
+                      <div className="flex items-start sm:items-center gap-3.5 flex-1 min-w-0">
+                        {/* SEO / OG Image Thumbnail */}
+                        <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-xl overflow-hidden bg-stone-100 border border-stone-200 shrink-0 relative">
+                          {item.ogImage ? (
+                            <img
+                              src={resolveDisplayImage(item.ogImage, mediaAssets)}
+                              alt=""
+                              className="w-full h-full object-cover"
+                              onError={(e) => handleImageError(e, item.ogImage, mediaAssets)}
+                            />
+                          ) : (
+                            <div className="w-full h-full flex flex-col items-center justify-center text-stone-300 bg-stone-50">
+                              <ImageIcon className="w-4 h-4 text-stone-300" />
+                              <span className="text-[8px] font-bold text-stone-400 mt-0.5">No Img</span>
+                            </div>
                           )}
                         </div>
 
-                        <h3 className="text-sm sm:text-base font-black text-stone-900 truncate">
-                          {item.name}
-                        </h3>
+                        {/* Title, Category & Canonical URL */}
+                        <div className="space-y-1 flex-1 min-w-0">
+                          <div className="flex flex-wrap items-center gap-1.5">
+                            <span className="px-2 py-0.5 rounded-md bg-stone-100 text-stone-600 text-[10px] font-black uppercase tracking-wider">
+                              {item.itemType.replace('-', ' ')}
+                            </span>
 
-                        <div className="flex items-center gap-1.5 font-mono text-[11px] text-stone-500 truncate">
-                          <Globe className="w-3 h-3 text-[#FF4B00] shrink-0" />
-                          <span className="text-stone-700 font-semibold truncate">
-                            {item.canonicalUrl}
-                          </span>
+                            {item.itemType === 'tour' && (
+                              <span
+                                className={`px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider ${
+                                  (item.tourType || '').toLowerCase().includes('honeymoon')
+                                    ? 'bg-rose-50 text-rose-700 border border-rose-200'
+                                    : (item.tourType || '').toLowerCase().includes('pilgrimage')
+                                    ? 'bg-amber-50 text-amber-800 border border-amber-200'
+                                    : (item.tourType || '').toLowerCase().includes('family')
+                                    ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                                    : 'bg-sky-50 text-sky-800 border border-sky-200'
+                                }`}
+                              >
+                                {item.tourType || 'Family'} Tour
+                              </span>
+                            )}
+
+                            {item.destination && (
+                              <span className="text-[11px] font-medium text-stone-400">
+                                • {item.destination}
+                              </span>
+                            )}
+                          </div>
+
+                          <h3 className="text-sm sm:text-base font-black text-stone-900 truncate">
+                            {item.name}
+                          </h3>
+
+                          <div className="flex items-center gap-1.5 font-mono text-[11px] text-stone-500 truncate">
+                            <Globe className="w-3 h-3 text-[#FF4B00] shrink-0" />
+                            <span className="text-stone-700 font-semibold truncate">
+                              {item.canonicalUrl}
+                            </span>
+                          </div>
                         </div>
                       </div>
 
@@ -705,6 +753,14 @@ export const SEOManager: React.FC = () => {
                           >
                             Desc: {item.metaDescription?.length || 0}c
                           </span>
+                          <span className="text-stone-300">•</span>
+                          {item.ogImage ? (
+                            <span className="text-emerald-700 font-bold flex items-center gap-0.5">
+                              <Check className="w-3 h-3" /> R2
+                            </span>
+                          ) : (
+                            <span className="text-amber-600 font-semibold">No OG</span>
+                          )}
                         </div>
                       </div>
 
