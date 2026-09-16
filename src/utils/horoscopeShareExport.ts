@@ -1,5 +1,5 @@
 import { ZODIAC_SIGNS, HoroscopeContent } from '../data/horoscopeContent';
-import logoUrl from '../assets/images/logo-holidays-hunt.png';
+import logoUrl from '../assets/images/logo-holidays-hunt-v3.png';
 const loadImage = (src: string) => new Promise<HTMLImageElement>((resolve, reject) => { const image = new Image(); image.onload = () => resolve(image); image.onerror = reject; image.src = src; });
 const wrap = (ctx: CanvasRenderingContext2D, text: string, maxWidth: number, maxLines = 4) => { const words = text.split(/\s+/); const lines: string[] = []; let line = ''; for (const word of words) { const test = line ? `${line} ${word}` : word; if (ctx.measureText(test).width > maxWidth && line) { lines.push(line); line = word; } else line = test; } if (line) lines.push(line); return lines.slice(0, maxLines); };
 export async function createHoroscopeShareImage(signId: string, date: string, content: HoroscopeContent): Promise<Blob> {

@@ -1055,7 +1055,7 @@ function drawLandscapePlaceholder(d: jsPDF, x: number, y: number, w: number, h: 
 }
 
 async function loadBrandLogoData(): Promise<{ dataUrl: string; width: number; height: number; format: string } | null> {
-  const sources = ['/logo-holidays-hunt.png', '/logo.png'];
+  const sources = ['/logo-holidays-hunt-v3.png', '/logo.png'];
   for (const src of sources) {
     try {
       const img = await new Promise<HTMLImageElement>((resolve, reject) => {

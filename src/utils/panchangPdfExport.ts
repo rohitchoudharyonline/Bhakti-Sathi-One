@@ -1,6 +1,6 @@
 import { jsPDF } from 'jspdf';
 import { PanchangDay, formatLongDate } from '../data/panchangData';
-import logoUrl from '../assets/images/logo-holidays-hunt.png';
+import logoUrl from '../assets/images/logo-holidays-hunt-v3.png';
 
 interface PanchangPdfOptions {
   panchang: PanchangDay;

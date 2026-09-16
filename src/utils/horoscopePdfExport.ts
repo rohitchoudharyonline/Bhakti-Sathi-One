@@ -1,6 +1,6 @@
 import { jsPDF } from 'jspdf';
 import { HoroscopeContent, ZodiacSign } from '../data/horoscopeContent';
-import logoUrl from '../assets/images/logo-holidays-hunt.png';
+import logoUrl from '../assets/images/logo-holidays-hunt-v3.png';
 
 const loadLogo = async () => { const response = await fetch(logoUrl); const blob = await response.blob(); return new Promise<HTMLImageElement>((resolve, reject) => { const image = new Image(); image.onload = () => resolve(image); image.onerror = reject; image.src = URL.createObjectURL(blob); }); };
 const text = (ctx: CanvasRenderingContext2D, value: string, x: number, y: number, size: number, weight = 600, color = '#171717', align: CanvasTextAlign = 'left') => { ctx.font = `${weight} ${size}px Arial, "Noto Sans Devanagari", "Nirmala UI", Mangal, sans-serif`; ctx.fillStyle = color; ctx.textAlign = align; ctx.textBaseline = 'alphabetic'; ctx.fillText(value, x, y); };

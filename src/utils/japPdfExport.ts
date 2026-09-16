@@ -1,7 +1,7 @@
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { JapSessionRecord, JapTimeframe } from '../types/japCounter';
-import logoUrl from '../assets/images/logo-holidays-hunt.png';
+import logoUrl from '../assets/images/logo-holidays-hunt-v3.png';
 
 interface PdfExportOptions {
   pilgrimName: string;

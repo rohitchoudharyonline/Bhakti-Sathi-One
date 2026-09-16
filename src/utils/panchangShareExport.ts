@@ -1,5 +1,5 @@
 import { PanchangDay, formatLongDate } from '../data/panchangData';
-import logoUrl from '../assets/images/logo-holidays-hunt.png';
+import logoUrl from '../assets/images/logo-holidays-hunt-v3.png';
 
 const FONT = 'Arial, sans-serif';
 const bilingual: Record<string, string> = {};
