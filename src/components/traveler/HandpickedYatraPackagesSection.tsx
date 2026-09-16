@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { useTours } from '../../context/TourContext';
 import { TourPackage } from '../../types/tour';
+import { resolveDisplayImage, handleImageError } from '../../utils/imageResolver';
 
 interface GenericToursSectionProps {
   id: string;
@@ -178,6 +179,7 @@ export const CategoryToursCarouselSection: React.FC<GenericToursSectionProps> = 
 }) => {
   const {
     packages,
+    mediaAssets,
     setSelectedPackageId,
     toggleWishlist,
     isWishlisted,
@@ -342,6 +344,7 @@ export const CategoryToursCarouselSection: React.FC<GenericToursSectionProps> = 
                 const isItemWishlisted = isWishlisted(pkg.id);
                 const startingPrice = Number(pkg.price ?? 0);
                 const durationLabel = `${pkg.durationDays} Days / ${pkg.durationNights || pkg.durationDays - 1} Nights`;
+                const coverImg = resolveDisplayImage(pkg.coverImage, mediaAssets);
 
                 return (
                   <div
@@ -352,8 +355,9 @@ export const CategoryToursCarouselSection: React.FC<GenericToursSectionProps> = 
                     {/* Card Top: Image Area */}
                     <div className="relative aspect-[16/10] w-full overflow-hidden bg-stone-100">
                       <img
-                        src={pkg.coverImage}
+                        src={coverImg}
                         alt={pkg.title}
+                        onError={(e) => handleImageError(e, pkg.coverImage, mediaAssets)}
                         loading={index === 0 ? 'eager' : 'lazy'}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
                       />

@@ -195,15 +195,18 @@ export const SAMPLE_TOUR_REVIEWS: TourReviewExtended[] = [
   },
 ];
 
-export function getPackageGalleryPhotos(destination: string, customGallery?: GalleryItem[], coverImage?: string): GalleryItem[] {
-  // If custom gallery items exist, or coverImage exists, use normalized gallery list
-  const normalized = normalizeGalleryImages(customGallery, coverImage);
-  if (normalized && normalized.length > 0) {
-    return normalized;
-  }
+export function getPackageGalleryPhotos(
+  destination: string,
+  customGallery?: GalleryItem[],
+  coverImage?: string,
+  mediaAssets?: any
+): GalleryItem[] {
+  const normalized = normalizeGalleryImages(customGallery, coverImage, mediaAssets);
+  const result: GalleryItem[] = [...normalized];
+  const seenUrls = new Set(result.map((r) => r.url));
 
   const destLower = (destination || '').toLowerCase();
-  let baseList: GalleryItem[] = DESTINATION_GUEST_PHOTOS.default;
+  let baseList: GalleryItem[] = DESTINATION_GUEST_PHOTOS.kashmir;
   if (destLower.includes('kashmir') || destLower.includes('srinagar') || destLower.includes('gulmarg') || destLower.includes('pahalgam')) {
     baseList = DESTINATION_GUEST_PHOTOS.kashmir;
   } else if (destLower.includes('himachal') || destLower.includes('manali') || destLower.includes('shimla') || destLower.includes('dharamshala')) {
@@ -216,10 +219,18 @@ export function getPackageGalleryPhotos(destination: string, customGallery?: Gal
     baseList = DESTINATION_GUEST_PHOTOS.kerala;
   }
 
-  return baseList.map((g, idx) => ({
-    ...g,
-    url: resolveDisplayImage(g.url),
-  }));
+  baseList.forEach((g) => {
+    const resolved = resolveDisplayImage(g.url, mediaAssets);
+    if (resolved && !seenUrls.has(resolved) && !seenUrls.has(g.url)) {
+      seenUrls.add(resolved);
+      result.push({
+        ...g,
+        url: resolved,
+      });
+    }
+  });
+
+  return result;
 }
 
 export function getPackageReviews(pkgTitle: string, customReviews?: TourReview[]): TourReviewExtended[] {

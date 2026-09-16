@@ -14,9 +14,10 @@ import {
   ShieldCheck,
 } from 'lucide-react';
 import { useTours } from '../../context/TourContext';
+import { resolveDisplayImage, handleImageError } from '../../utils/imageResolver';
 
 export const GroupToursSection: React.FC = () => {
-  const { packages, setSelectedPackageId, setActiveView, navigateToSearch } = useTours();
+  const { packages, mediaAssets, setSelectedPackageId, setActiveView, navigateToSearch } = useTours();
   const carouselRef = useRef<HTMLDivElement>(null);
   const [activeSlideIndex, setActiveSlideIndex] = useState(0);
 
@@ -170,8 +171,9 @@ export const GroupToursSection: React.FC = () => {
                     {/* Left Column: Image with Group Tour Badge */}
                     <div className="relative w-full sm:w-52 md:w-60 shrink-0 aspect-[16/10] sm:aspect-auto overflow-hidden bg-stone-100">
                       <img
-                        src={pkg.coverImage}
+                        src={resolveDisplayImage(pkg.coverImage, mediaAssets)}
                         alt={pkg.title}
+                        onError={(e) => handleImageError(e, pkg.coverImage, mediaAssets)}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         loading="lazy"
                         referrerPolicy="no-referrer"

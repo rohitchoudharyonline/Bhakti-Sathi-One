@@ -5,6 +5,7 @@ import { useTours } from '../../context/TourContext';
 import { PDFBrochureModal } from './PDFBrochureModal';
 import { Footer } from './Footer';
 import { getPackageGalleryPhotos } from '../../data/tourReviewsData';
+import { resolveDisplayImage, handleImageError } from '../../utils/imageResolver';
 import {
   ArrowLeft,
   Clock,
@@ -43,7 +44,7 @@ interface PackageDetailsViewProps {
 }
 
 export const PackageDetailsView: React.FC<PackageDetailsViewProps> = ({ pkg, onBack }) => {
-  const { agencySettings } = useTours();
+  const { agencySettings, mediaAssets } = useTours();
 
   const [activeTab, setActiveTab] = useState<'itinerary' | 'inclusions' | 'hotels' | 'policies' | 'gallery'>('itinerary');
   const [expandedDays, setExpandedDays] = useState<Record<string, boolean>>({
@@ -81,23 +82,28 @@ export const PackageDetailsView: React.FC<PackageDetailsViewProps> = ({ pkg, onB
   const fourPhotos = useMemo(() => {
     const items: { id: string; url: string; caption: string }[] = [];
     if (pkg.coverImage) {
-      items.push({ id: 'cover', url: pkg.coverImage, caption: pkg.title || 'Tour Highlight' });
+      const resolvedCover = resolveDisplayImage(pkg.coverImage, mediaAssets);
+      if (resolvedCover) {
+        items.push({ id: 'cover', url: resolvedCover, caption: pkg.title || 'Tour Highlight' });
+      }
     }
     if (pkg.gallery && pkg.gallery.length > 0) {
       pkg.gallery.forEach((g, idx) => {
-        if (!items.some((it) => it.url === g.url)) {
-          items.push({ id: g.id || `gallery-${idx}`, url: g.url, caption: g.caption || `Tour View ${idx + 1}` });
+        const resolved = resolveDisplayImage(g.url, mediaAssets);
+        if (resolved && !items.some((it) => it.url === resolved)) {
+          items.push({ id: g.id || `gallery-${idx}`, url: resolved, caption: g.caption || `Tour View ${idx + 1}` });
         }
       });
     }
-    const fallbackList = getPackageGalleryPhotos(pkg.destination || '', pkg.gallery, pkg.coverImage);
+    const fallbackList = getPackageGalleryPhotos(pkg.destination || '', pkg.gallery, pkg.coverImage, mediaAssets);
     fallbackList.forEach((fb, idx) => {
-      if (items.length < 4 && !items.some((it) => it.url === fb.url)) {
-        items.push({ id: fb.id || `fb-${idx}`, url: fb.url, caption: fb.caption || `Scenic View ${idx + 1}` });
+      const resolved = resolveDisplayImage(fb.url, mediaAssets);
+      if (items.length < 4 && resolved && !items.some((it) => it.url === resolved)) {
+        items.push({ id: fb.id || `fb-${idx}`, url: resolved, caption: fb.caption || `Scenic View ${idx + 1}` });
       }
     });
     return items.slice(0, 4);
-  }, [pkg]);
+  }, [pkg, mediaAssets]);
 
   const activeMainPhoto = fourPhotos[selectedPhotoIndex] || fourPhotos[0] || { url: pkg.coverImage, caption: pkg.title };
   const thumbnailPhotos = fourPhotos
@@ -243,6 +249,7 @@ export const PackageDetailsView: React.FC<PackageDetailsViewProps> = ({ pkg, onB
                 key={activeMainPhoto.url}
                 src={activeMainPhoto.url}
                 alt={activeMainPhoto.caption || pkg.title}
+                onError={(e) => handleImageError(e, activeMainPhoto.url, mediaAssets)}
                 className="w-full h-full object-cover transition-all duration-500 ease-out"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
@@ -270,6 +277,7 @@ export const PackageDetailsView: React.FC<PackageDetailsViewProps> = ({ pkg, onB
                     <img
                       src={item.photo.url}
                       alt={item.photo.caption || 'Tour Photo'}
+                      onError={(e) => handleImageError(e, item.photo.url, mediaAssets)}
                       className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
                     />
                     <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition" />
@@ -910,12 +918,13 @@ export const PackageDetailsView: React.FC<PackageDetailsViewProps> = ({ pkg, onB
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {/* Cover */}
                   <div
-                    onClick={() => setLightboxImg(pkg.coverImage)}
+                    onClick={() => setLightboxImg(resolveDisplayImage(pkg.coverImage, mediaAssets))}
                     className="relative rounded-2xl overflow-hidden aspect-[16/10] group cursor-pointer border border-stone-200"
                   >
                     <img
-                      src={pkg.coverImage}
+                      src={resolveDisplayImage(pkg.coverImage, mediaAssets)}
                       alt="Cover"
+                      onError={(e) => handleImageError(e, pkg.coverImage, mediaAssets)}
                       className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-stone-950/80 to-transparent flex items-end p-4">
@@ -924,22 +933,26 @@ export const PackageDetailsView: React.FC<PackageDetailsViewProps> = ({ pkg, onB
                   </div>
 
                   {/* Gallery items */}
-                  {pkg.gallery.map((item) => (
-                    <div
-                      key={item.id}
-                      onClick={() => setLightboxImg(item.url)}
-                      className="relative rounded-2xl overflow-hidden aspect-[16/10] group cursor-pointer border border-stone-200"
-                    >
-                      <img
-                        src={item.url}
-                        alt={item.caption}
-                        className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-stone-950/80 to-transparent flex items-end p-4">
-                        <span className="text-xs font-bold text-white">{item.caption}</span>
+                  {pkg.gallery.map((item) => {
+                    const resolved = resolveDisplayImage(item.url, mediaAssets);
+                    return (
+                      <div
+                        key={item.id}
+                        onClick={() => setLightboxImg(resolved)}
+                        className="relative rounded-2xl overflow-hidden aspect-[16/10] group cursor-pointer border border-stone-200"
+                      >
+                        <img
+                          src={resolved}
+                          alt={item.caption}
+                          onError={(e) => handleImageError(e, item.url, mediaAssets)}
+                          className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-stone-950/80 to-transparent flex items-end p-4">
+                          <span className="text-xs font-bold text-white">{item.caption}</span>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             )}

@@ -5,6 +5,7 @@ import { TourDetailsSection } from './TourDetailsSection';
 import { DayWiseItinerary } from './DayWiseItinerary';
 import { formatPackagePrice } from '../../utils/priceHelper';
 import { getPackageGalleryPhotos } from '../../data/tourReviewsData';
+import { resolveDisplayImage, handleImageError } from '../../utils/imageResolver';
 import { TourReviewsAndGalleryModal } from './TourReviewsAndGalleryModal';
 import { FreeTravelInsuranceCard } from './FreeTravelInsuranceCard';
 import { updatePageSeo } from '../../utils/seo';
@@ -50,7 +51,7 @@ interface Props {
 }
 
 export const PremiumPackageDetail: React.FC<Props> = ({ pkg, onBack }) => {
-  const { submitInquiry, toggleWishlist, isWishlisted, agencySettings, travelerUser, setTravelerUser } = useTours();
+  const { submitInquiry, toggleWishlist, isWishlisted, agencySettings, mediaAssets, travelerUser, setTravelerUser } = useTours();
 
   // Selected Hotel Tier (2-star, 3-star, 4-star, 5-star)
   const [selectedTier, setSelectedTier] = useState<HotelStarCategory>('3-star');
@@ -119,23 +120,28 @@ export const PremiumPackageDetail: React.FC<Props> = ({ pkg, onBack }) => {
   const fourPhotos = useMemo(() => {
     const items: { id: string; url: string; caption: string }[] = [];
     if (pkg.coverImage) {
-      items.push({ id: 'cover', url: pkg.coverImage, caption: pkg.title || 'Tour Highlight' });
+      const resolvedCover = resolveDisplayImage(pkg.coverImage, mediaAssets);
+      if (resolvedCover) {
+        items.push({ id: 'cover', url: resolvedCover, caption: pkg.title || 'Tour Highlight' });
+      }
     }
     if (pkg.gallery && pkg.gallery.length > 0) {
       pkg.gallery.forEach((g, idx) => {
-        if (!items.some(it => it.url === g.url)) {
-          items.push({ id: g.id || `gallery-${idx}`, url: g.url, caption: g.caption || `Tour View ${idx + 1}` });
+        const resolved = resolveDisplayImage(g.url, mediaAssets);
+        if (resolved && !items.some(it => it.url === resolved)) {
+          items.push({ id: g.id || `gallery-${idx}`, url: resolved, caption: g.caption || `Tour View ${idx + 1}` });
         }
       });
     }
-    const fallbackList = getPackageGalleryPhotos(pkg.destination || '', pkg.gallery, pkg.coverImage);
+    const fallbackList = getPackageGalleryPhotos(pkg.destination || '', pkg.gallery, pkg.coverImage, mediaAssets);
     fallbackList.forEach((fb, idx) => {
-      if (items.length < 4 && !items.some(it => it.url === fb.url)) {
-        items.push({ id: fb.id || `fb-${idx}`, url: fb.url, caption: fb.caption || `Scenic View ${idx + 1}` });
+      const resolved = resolveDisplayImage(fb.url, mediaAssets);
+      if (items.length < 4 && resolved && !items.some(it => it.url === resolved)) {
+        items.push({ id: fb.id || `fb-${idx}`, url: resolved, caption: fb.caption || `Scenic View ${idx + 1}` });
       }
     });
     return items.slice(0, 4);
-  }, [pkg]);
+  }, [pkg, mediaAssets]);
 
   const activeMainPhoto = fourPhotos[selectedPhotoIndex] || fourPhotos[0] || { url: pkg.coverImage, caption: pkg.title };
   const thumbnailPhotos = fourPhotos
@@ -446,6 +452,7 @@ export const PremiumPackageDetail: React.FC<Props> = ({ pkg, onBack }) => {
               key={activeMainPhoto.url}
               src={activeMainPhoto.url}
               alt={activeMainPhoto.caption || pkg.title}
+              onError={(e) => handleImageError(e, activeMainPhoto.url, mediaAssets)}
               className="w-full h-full object-cover transition-all duration-500 ease-out"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent pointer-events-none" />
@@ -473,6 +480,7 @@ export const PremiumPackageDetail: React.FC<Props> = ({ pkg, onBack }) => {
                   <img
                     src={item.photo.url}
                     alt={item.photo.caption || 'Tour Photo'}
+                    onError={(e) => handleImageError(e, item.photo.url, mediaAssets)}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                   <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition" />

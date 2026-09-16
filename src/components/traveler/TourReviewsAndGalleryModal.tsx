@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { Star, X, CheckCircle2, Image as ImageIcon, ChevronLeft, ChevronRight, User, ShieldCheck } from 'lucide-react';
 import { TourPackage } from '../../types/tour';
+import { useTours } from '../../context/TourContext';
 import { getPackageGalleryPhotos, getPackageReviews } from '../../data/tourReviewsData';
+import { handleImageError } from '../../utils/imageResolver';
 
 interface Props {
   pkg: TourPackage;
@@ -16,6 +18,7 @@ export const TourReviewsAndGalleryModal: React.FC<Props> = ({
   onClose,
   initialTab = 'reviews',
 }) => {
+  const { mediaAssets } = useTours();
   const [activeTab, setActiveTab] = useState<'reviews' | 'gallery'>(initialTab);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
@@ -27,7 +30,7 @@ export const TourReviewsAndGalleryModal: React.FC<Props> = ({
   if (!isOpen) return null;
 
   const reviews = getPackageReviews(pkg.title, pkg.reviews);
-  const gallery = getPackageGalleryPhotos(pkg.destination, pkg.gallery, pkg.coverImage);
+  const gallery = getPackageGalleryPhotos(pkg.destination, pkg.gallery, pkg.coverImage, mediaAssets);
   const reviewCount = pkg.reviewCount || 485;
   const rating = pkg.rating || 5.0;
 
@@ -180,6 +183,7 @@ export const TourReviewsAndGalleryModal: React.FC<Props> = ({
                     <img
                       src={img.url}
                       alt={img.caption}
+                      onError={(e) => handleImageError(e, img.url, mediaAssets)}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       loading="lazy"
                     />
@@ -222,6 +226,7 @@ export const TourReviewsAndGalleryModal: React.FC<Props> = ({
               <img
                 src={gallery[lightboxIndex].url}
                 alt={gallery[lightboxIndex].caption}
+                onError={(e) => handleImageError(e, gallery[lightboxIndex].url, mediaAssets)}
                 className="max-w-full max-h-[75vh] object-contain rounded-lg shadow-2xl"
               />
               <p className="text-white text-sm mt-3 text-center font-medium bg-black/50 px-4 py-1.5 rounded-full backdrop-blur-xs">
