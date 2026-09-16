@@ -3,6 +3,7 @@ import { useTours } from '../../context/TourContext';
 import { GuideArticle, GuideFaq } from '../../types/guide';
 import { ArticleContentRenderer } from '../common/ArticleContentRenderer';
 import { resolveDisplayImage, handleImageError } from '../../utils/imageResolver';
+import { GlobalFooter } from './GlobalFooter';
 import {
   generateGuideArticleSchema,
   generateFAQPageSchema,
@@ -38,12 +39,14 @@ export const GuideDetailView: React.FC<GuideDetailViewProps> = ({ slug }) => {
   const {
     guides,
     packages,
+    destinations,
     agencySettings,
     mediaAssets,
     navigateToGuideHub,
     navigateToGuideDetail,
     navigateToHome,
     navigateToPackage,
+    navigateToDestination,
   } = useTours();
 
   const [copiedLink, setCopiedLink] = useState(false);
@@ -99,6 +102,11 @@ export const GuideDetailView: React.FC<GuideDetailViewProps> = ({ slug }) => {
       .filter((g) => g.id !== guide.id && g.status === 'published')
       .slice(0, 3);
   }, [guide, guides]);
+
+  // Destination Cards list
+  const destinationList = useMemo(() => {
+    return Object.values(destinations || {}).slice(0, 4);
+  }, [destinations]);
 
   // SEO Injection
   useEffect(() => {
@@ -518,7 +526,48 @@ export const GuideDetailView: React.FC<GuideDetailViewProps> = ({ slug }) => {
             </div>
           </section>
         )}
+
+        {/* Featured Destination Cards Carousel / Grid */}
+        {destinationList.length > 0 && (
+          <section className="space-y-4 pt-6 border-t border-stone-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <span className="text-xs font-bold text-amber-800 uppercase tracking-wider">Top Destinations</span>
+                <h2 className="text-lg font-bold text-stone-900">Explore Popular Destinations</h2>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              {destinationList.map((dest) => (
+                <div
+                  key={dest.slug}
+                  onClick={() => navigateToDestination(dest.slug)}
+                  className="bg-white rounded-2xl border border-stone-200 overflow-hidden shadow-xs hover:shadow-md hover:border-amber-400 cursor-pointer transition group flex flex-col"
+                >
+                  <div className="aspect-16/10 bg-stone-100 overflow-hidden relative">
+                    <img
+                      src={resolveDisplayImage(dest.heroImage, mediaAssets)}
+                      alt={dest.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+                      onError={handleImageError}
+                      loading="lazy"
+                    />
+                  </div>
+                  <div className="p-3.5 space-y-1">
+                    <h3 className="text-xs font-bold text-stone-900 group-hover:text-amber-700 transition">
+                      {dest.name}
+                    </h3>
+                    <p className="text-[11px] text-stone-500 line-clamp-1">
+                      {dest.tagline || 'Explore scenic holiday tours'}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
       </article>
+      <GlobalFooter />
     </div>
   );
 };

@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { useTours } from '../../context/TourContext';
 import { GuideArticle } from '../../types/guide';
 import { generateBreadcrumbSchema } from '../../utils/seoEngine';
+import { GlobalFooter } from './GlobalFooter';
 import {
   BookOpen,
   Search,
@@ -31,7 +32,7 @@ export const PublicGuidesHub: React.FC = () => {
 
   // SEO: Update page title and meta description
   useEffect(() => {
-    document.title = 'Pilgrimage & Travel Guides | Holidays Hunt';
+    document.title = 'Travel & Holiday Guides | Holidays Hunt';
 
     let metaDesc = document.querySelector('meta[name="description"]');
     if (!metaDesc) {
@@ -41,13 +42,13 @@ export const PublicGuidesHub: React.FC = () => {
     }
     metaDesc.setAttribute(
       'content',
-      'Explore useful guides, temple information, travel tips and yatra planning resources curated for devotees and travelers by Holidays Hunt.'
+      'Explore useful travel guides, destination information, holiday tips and itinerary planning resources curated by Holidays Hunt.'
     );
 
     // Inject Breadcrumb JSON-LD
     const breadcrumbData = generateBreadcrumbSchema([
       { name: 'Home', url: 'https://holidayshunt.com/' },
-      { name: 'Pilgrimage & Travel Guides', url: 'https://holidayshunt.com/guides' },
+      { name: 'Travel & Holiday Guides', url: 'https://holidayshunt.com/guides' },
     ]);
 
     const script = document.createElement('script');
@@ -101,22 +102,22 @@ export const PublicGuidesHub: React.FC = () => {
             <span>Home</span>
           </button>
           <ChevronRight className="w-3 h-3 text-stone-400" />
-          <span className="font-semibold text-stone-800">Pilgrimage & Travel Guides</span>
+          <span className="font-semibold text-stone-800">Travel & Holiday Guides</span>
         </nav>
 
         {/* Hero Section */}
         <div className="text-center max-w-3xl mx-auto space-y-4 pt-4">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-100/70 border border-amber-200/80 text-amber-900 text-xs font-bold tracking-wide">
             <BookOpen className="w-3.5 h-3.5 text-amber-700" />
-            <span>Sacred Yatra & Darshan Directory</span>
+            <span>Destination & Travel Guide Directory</span>
           </div>
 
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-stone-900 tracking-tight leading-tight">
-            Pilgrimage & Travel Guides
+            Travel & Holiday Guides
           </h1>
 
           <p className="text-base sm:text-lg text-stone-600 leading-relaxed max-w-2xl mx-auto">
-            Explore useful guides, temple information, travel tips and yatra planning resources curated for devotees and travelers.
+            Explore useful destination guides, sightseeing info, holiday tips and itinerary planning resources curated for travelers.
           </p>
         </div>
 
@@ -128,7 +129,7 @@ export const PublicGuidesHub: React.FC = () => {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search temple guides, darshan tips, yatra routes..."
+              placeholder="Search travel guides, sightseeing tips, itineraries..."
               className="w-full pl-12 pr-4 py-3.5 bg-white border border-stone-200 rounded-2xl text-sm text-stone-900 placeholder:text-stone-400 shadow-xs focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition"
             />
           </div>
@@ -247,6 +248,7 @@ export const PublicGuidesHub: React.FC = () => {
           </div>
         </div>
       </main>
+      <GlobalFooter />
     </div>
   );
 };

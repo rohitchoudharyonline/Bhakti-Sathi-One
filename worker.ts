@@ -95,11 +95,21 @@ export default {
     const url = new URL(request.url), pathname = url.pathname;
     if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: publicHeaders(env, request) });
 
-    const cmsSecret = String(env.CMS_SESSION_SECRET || 'bhakti-bharat-yatra-cms-secret-session-key-32-chars-ok').trim();
+    // Safely retrieve or generate random fallbacks for edge runtime
+    const cmsSecret = (env.CMS_SESSION_SECRET && String(env.CMS_SESSION_SECRET).trim().length >= 32) 
+      ? String(env.CMS_SESSION_SECRET).trim() 
+      : crypto.randomUUID().replace(/-/g, '') + crypto.randomUUID().replace(/-/g, ''); // Generate 64 char random fallback
+
     const defaultEmails = ['rohitchoudharyonline@gmail.com', 'holidayshunt@gmail.com', 'admin@example.com', 'staff@bhaktibharatyatra.com'];
     const cmsEmails = new Set([...defaultEmails, ...String(env.CMS_STAFF_EMAILS || '').split(',').map(text).map((x) => x.toLowerCase()).filter(Boolean)]);
-    const cmsPassword = String(env.CMS_PASSWORD || 'HarHarMahadev@2026').trim();
-    const cmsPin = String(env.CMS_PIN || '071224').trim();
+    
+    const cmsPassword = (env.CMS_PASSWORD && String(env.CMS_PASSWORD).trim().length >= 8) 
+      ? String(env.CMS_PASSWORD).trim() 
+      : crypto.randomUUID(); // Random if not set
+
+    const cmsPin = (env.CMS_PIN && String(env.CMS_PIN).trim().length >= 4) 
+      ? String(env.CMS_PIN).trim() 
+      : Math.floor(100000 + Math.random() * 900000).toString(); // Random 6 digit pin if not set
 
     const cmsToken = async () => {
       let tok = cookies(request).bs_cms_session;

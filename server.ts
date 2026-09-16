@@ -229,11 +229,15 @@ function parseCookies(header: string | undefined): Record<string, string> {
     return [part.slice(0, index).trim(), decodeURIComponent(part.slice(index + 1).trim())];
   }).filter(([key]) => Boolean(key)));
 }
-const DEFAULT_FALLBACK_SECRET = 'holidays-hunt-travel-cms-secret-session-key-32-chars-ok';
 function cmsSecret(): string {
   const secret = process.env.CMS_SESSION_SECRET?.trim();
   if (secret && secret.length >= 32) return secret;
-  return DEFAULT_FALLBACK_SECRET;
+  
+  if (!globalThis.__SAFE_FALLBACK_SECRET) {
+    globalThis.__SAFE_FALLBACK_SECRET = (Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2)).padEnd(32, 'a');
+    console.warn("WARNING: CMS_SESSION_SECRET missing or too short. Using random secret. Sessions will not persist across restarts.");
+  }
+  return globalThis.__SAFE_FALLBACK_SECRET;
 }
 function allowedCmsEmails(): Set<string> {
   const list = (process.env.CMS_STAFF_EMAILS || '').split(',').map((email) => email.trim().toLowerCase()).filter(Boolean);
@@ -247,10 +251,26 @@ function allowedCmsEmails(): Set<string> {
 }
 
 function cmsPin(): string {
-  return (process.env.CMS_PIN || '071224').trim();
+  const pin = process.env.CMS_PIN?.trim();
+  if (pin && pin.length >= 4) return pin;
+  
+  // No hardcoded fallback. If env is missing, generate a random one on boot to prevent access.
+  if (!globalThis.__SAFE_FALLBACK_PIN) {
+    globalThis.__SAFE_FALLBACK_PIN = Math.random().toString().slice(2, 8);
+    console.warn("WARNING: CMS_PIN missing from environment. Using random PIN to secure CMS.");
+  }
+  return globalThis.__SAFE_FALLBACK_PIN;
 }
+
 function cmsPassword(): string {
-  return (process.env.CMS_PASSWORD || 'HarHarMahadev@2026').trim();
+  const pwd = process.env.CMS_PASSWORD?.trim();
+  if (pwd && pwd.length >= 8) return pwd;
+
+  if (!globalThis.__SAFE_FALLBACK_PWD) {
+    globalThis.__SAFE_FALLBACK_PWD = Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
+    console.warn("WARNING: CMS_PASSWORD missing from environment. Using random password to secure CMS.");
+  }
+  return globalThis.__SAFE_FALLBACK_PWD;
 }
 
 function verifyTokenUniversal(token: string, secret: string): string | null {

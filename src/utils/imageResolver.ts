@@ -368,8 +368,8 @@ export function diagnoseDisplayImage(
 export function resolveDisplayImage(
   url?: string | null,
   mediaAssets?: MediaAsset[] | unknown,
-  fallbackUrl: string = ''
-): string {
+  fallbackUrl?: string
+): string | undefined {
   if (!url || typeof url !== 'string' || !url.trim()) return fallbackUrl;
   const diagnostic = diagnoseDisplayImage(url, mediaAssets);
   return diagnostic.resolvedUrl || fallbackUrl;
