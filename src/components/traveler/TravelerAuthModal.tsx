@@ -47,7 +47,7 @@ export const TravelerAuthModal: React.FC = () => {
         localStorage.removeItem('hh_google_oauth_token');
       } catch {}
 
-      setSuccessMessage('Google account verified. Your Bhakti Sathi account is ready.');
+      setSuccessMessage('Google account verified. Your Holidays Hunt account is ready.');
       window.setTimeout(() => {
         handleClose();
         navigateToTravelerProfile();
@@ -101,7 +101,7 @@ export const TravelerAuthModal: React.FC = () => {
 
           <div className="text-center space-y-4 py-2">
             <p className="text-xs text-stone-600 font-medium leading-relaxed">
-              Use your Google account. New users are created automatically; existing users are signed into the same Bhakti Sathi account.
+              Use your Google account. New users are created automatically; existing users are signed into the same Holidays Hunt account.
             </p>
 
             <div className="flex justify-center w-full min-h-11">

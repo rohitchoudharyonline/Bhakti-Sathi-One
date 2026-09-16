@@ -11,7 +11,7 @@ interface AuthDiagnosticsModalProps {
 
 export const AuthDiagnosticsModal: React.FC<AuthDiagnosticsModalProps> = ({ isOpen, onClose }) => {
   const [logs, setLogs] = useState<Array<{ timestamp: string; type: 'info' | 'success' | 'error'; message: string; data?: any }>>([
-    { timestamp: new Date().toLocaleTimeString(), type: 'info', message: 'Auth Diagnostics initialized for mybhaktisathi.com' },
+    { timestamp: new Date().toLocaleTimeString(), type: 'info', message: 'Auth Diagnostics initialized for holidayshunt.com' },
   ]);
   const [rawGoogleResponse, setRawGoogleResponse] = useState<any>(null);
 
@@ -80,7 +80,7 @@ export const AuthDiagnosticsModal: React.FC<AuthDiagnosticsModalProps> = ({ isOp
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-stone-300">
               <div className="p-3 bg-stone-900 rounded-xl border border-stone-800">
                 <span className="text-[10px] text-stone-500 block uppercase font-bold">Target Domain</span>
-                <span className="font-mono font-bold text-stone-200">mybhaktisathi.com</span>
+                <span className="font-mono font-bold text-stone-200">holidayshunt.com</span>
               </div>
               <div className="p-3 bg-stone-900 rounded-xl border border-stone-800">
                 <span className="text-[10px] text-stone-500 block uppercase font-bold">Current Origin</span>

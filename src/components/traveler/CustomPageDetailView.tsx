@@ -18,7 +18,7 @@ export const CustomPageDetailView: React.FC<CustomPageDetailViewProps> = ({ slug
 
   useEffect(() => {
     if (!page) return;
-    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://mybhaktisathi.com';
+    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://holidayshunt.com';
     const pageUrl = `${origin}/page/${page.slug}`;
 
     const breadcrumbs = generateBreadcrumbSchema([
@@ -27,7 +27,7 @@ export const CustomPageDetailView: React.FC<CustomPageDetailViewProps> = ({ slug
     ]);
 
     updatePageSeo({
-      title: page.seo?.metaTitle || `${page.title} | Bhakti Sathi Travel`,
+      title: page.seo?.metaTitle || `${page.title} | Holidays Hunt Travel`,
       description: page.seo?.metaDescription || page.subtitle || page.content.slice(0, 150),
       canonicalPath: `/page/${page.slug}`,
       schemaData: breadcrumbs,

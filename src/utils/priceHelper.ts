@@ -1,5 +1,5 @@
 /**
- * Price formatting helper for Bhakti Sathi tour packages
+ * Price formatting helper for Holidays Hunt tour packages
  * Gracefully handles number prices and "Price on Request" states
  */
 

@@ -12,7 +12,7 @@ export const FloatingSupportWidget: React.FC = () => {
   const cleanPhone = (agencySettings.phone || '+919419915255').replace(/[^0-9]/g, '');
   const rawWhatsapp = agencySettings.whatsapp || agencySettings.phone || '+919419915255';
   const cleanWhatsapp = rawWhatsapp.replace(/[^0-9]/g, '');
-  const whatsappUrl = `https://wa.me/${cleanWhatsapp}?text=Hello%20Bhakti%20Sathi,%20I%20would%20like%20instant%20support%20and%20assistance%20regarding%20tour%20packages.`;
+  const whatsappUrl = `https://wa.me/${cleanWhatsapp}?text=Hello%20Holidays%20Hunt,%20I%20would%20like%20instant%20support%20and%20assistance%20regarding%20tour%20packages.`;
 
   // Close when clicking outside
   useEffect(() => {

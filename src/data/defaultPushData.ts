@@ -131,12 +131,12 @@ export const DEFAULT_PUSH_SUBSCRIBERS: PushSubscriber[] = [
 
 export const DEFAULT_PUSH_SETTINGS: PushSettings = {
   enabled: true,
-  vapidPublicKey: 'BEl62iUYgUivxIkv69yViEuiBIa4_S_G_T23-VAPIDKeyBhaktiSathiPublicDemoKey998877',
+  vapidPublicKey: 'BEl62iUYgUivxIkv69yViEuiBIa4_S_G_T23-VAPIDKeyHolidaysHuntPublicDemoKey998877',
   vapidPrivateKey: '************************************',
-  welcomeNotificationTitle: '🎉 Welcome to Bhakti Sathi Travel!',
+  welcomeNotificationTitle: '🎉 Welcome to Holidays Hunt Travel!',
   welcomeNotificationBody: 'Thank you for subscribing! You will receive instant notifications for snow alerts, deals, and itinerary updates.',
   autoPromptOnVisit: true,
   autoPromptDelaySeconds: 5,
-  fcmApiKey: 'AIzaSyA8877665544332211_FCMKeyBhaktiSathiDemo',
+  fcmApiKey: 'AIzaSyA8877665544332211_FCMKeyHolidaysHuntDemo',
   oneSignalAppId: '4a3b2c1d-89ef-4123-abcd-1234567890ef',
 };

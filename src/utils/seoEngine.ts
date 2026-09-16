@@ -405,21 +405,21 @@ export function generateTouristTripSchema(pkg: TourPackage, agency: AgencySettin
           author: 'Bhagyashri & Family',
           rating: 5,
           date: '2026-07-15',
-          text: 'It was a great vacation planned by Bhakti Sathi. The team was constantly in touch with us from Day 1. The tour managers and our dedicated cab chauffeur were extremely polite and ensured this tour was a grand success.',
+          text: 'It was a great vacation planned by Holidays Hunt. The team was constantly in touch with us from Day 1. The tour managers and our dedicated cab chauffeur were extremely polite and ensured this tour was a grand success.',
         },
         {
           id: 'r-2',
           author: 'Vijay & Snehal Patil',
           rating: 5,
           date: '2026-08-10',
-          text: 'Unforgettable holiday tour experience with Bhakti Sathi! The accommodation, verified food quality, and private cab transfers were top-notch throughout our trip.',
+          text: 'Unforgettable holiday tour experience with Holidays Hunt! The accommodation, verified food quality, and private cab transfers were top-notch throughout our trip.',
         },
         {
           id: 'r-3',
           author: 'Dr. Rajesh Sharma',
           rating: 5,
           date: '2026-06-20',
-          text: 'Seamless experience with Bhakti Sathi. The private cab was impeccably clean and our chauffeur was gentle and knowledgeable. Highly recommended!',
+          text: 'Seamless experience with Holidays Hunt. The private cab was impeccably clean and our chauffeur was gentle and knowledgeable. Highly recommended!',
         },
       ];
 
@@ -439,7 +439,7 @@ export function generateTouristTripSchema(pkg: TourPackage, agency: AgencySettin
     },
     publisher: {
       '@type': 'Organization',
-      name: agency.agencyName || 'Bhakti Sathi',
+      name: agency.agencyName || 'Holidays Hunt',
     },
   }));
 
@@ -463,7 +463,7 @@ export function generateTouristTripSchema(pkg: TourPackage, agency: AgencySettin
       },
       provider: {
         '@type': 'TravelAgency',
-        name: agency.agencyName || 'Bhakti Sathi',
+        name: agency.agencyName || 'Holidays Hunt',
         telephone: agency.phone || '+91 94199 15255',
         email: agency.email || 'info@holidayshunt.com',
         url: origin,
@@ -532,7 +532,7 @@ export function generateAgencyReviewSchema(agency: AgencySettings) {
     '@context': 'https://schema.org',
     '@type': 'TravelAgency',
     '@id': `${origin}#agency`,
-    name: agency.agencyName || 'Bhakti Sathi',
+    name: agency.agencyName || 'Holidays Hunt',
     url: origin,
     telephone: agency.phone || '+91 94199 15255',
     email: agency.email || 'info@holidayshunt.com',
@@ -605,12 +605,12 @@ export function generateBlogPostingSchema(post: BlogPost, agency: AgencySettings
     dateModified: post.updatedAt || post.publishedAt,
     author: {
       '@type': 'Person',
-      name: post.author?.name || 'Bhakti Sathi Travel Team',
+      name: post.author?.name || 'Holidays Hunt Travel Team',
       jobTitle: post.author?.role || 'Senior Destination Specialist',
     },
     publisher: {
       '@type': 'Organization',
-      name: agency.agencyName || 'Bhakti Sathi',
+      name: agency.agencyName || 'Holidays Hunt',
       logo: {
         '@type': 'ImageObject',
         url: 'https://images.unsplash.com/photo-1598091383021-15ddea10925d?auto=format&fit=crop&w=800&q=80',
@@ -697,12 +697,12 @@ export function generateGuideArticleSchema(
     },
     author: {
       '@type': 'Organization',
-      name: guide.authorName || 'Bhakti Sathi Yatra Team',
+      name: guide.authorName || 'Holidays Hunt Yatra Team',
       url: origin,
     },
     publisher: {
       '@type': 'Organization',
-      name: agency.agencyName || 'Bhakti Sathi',
+      name: agency.agencyName || 'Holidays Hunt',
       logo: {
         '@type': 'ImageObject',
         url: 'https://images.unsplash.com/photo-1598091383021-15ddea10925d?auto=format&fit=crop&w=800&q=80',

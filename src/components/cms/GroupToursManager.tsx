@@ -271,7 +271,7 @@ export const GroupToursManager: React.FC<GroupToursManagerProps> = ({
       minGroupSize: 10,
       maxGroupSize: convertSeats,
       perPersonSavings: convertSavings,
-      tourLeader: 'Dedicated Bhakti Guide & On-Ground Coordinator Included',
+      tourLeader: 'Dedicated Tour Guide & On-Ground Coordinator Included',
       boardingPoints: ['Delhi (Kashmere Gate)', 'Chandigarh (Sector 43)', 'Jammu Tawi Station'],
       batches: defaultBatches,
     };
@@ -512,7 +512,7 @@ export const GroupToursManager: React.FC<GroupToursManagerProps> = ({
               coachType: '2x2 AC Pushback Coach',
               nextDeparture: '15 Oct 2025',
               perPersonSavings: 3500,
-              tourLeader: 'Dedicated Bhakti Guide Included',
+              tourLeader: 'Dedicated Tour Guide Included',
               batches: [],
             };
 

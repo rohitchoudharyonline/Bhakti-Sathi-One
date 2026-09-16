@@ -8,7 +8,7 @@ export const TravelerReviewsSection: React.FC = () => {
   const jsonLdSchema = {
     "@context": "https://schema.org",
     "@type": "TravelAgency",
-    "name": "Bhakti Sathi",
+    "name": "Holidays Hunt",
     "url": googleReviewsUrl,
     "aggregateRating": {
       "@type": "AggregateRating",
@@ -59,7 +59,7 @@ export const TravelerReviewsSection: React.FC = () => {
               <div>
                 <div className="flex flex-wrap items-center gap-2 mb-1">
                   <h3 className="text-base font-extrabold text-stone-900 tracking-tight leading-tight">
-                    Bhakti Sathi Travel & Hospitality
+                    Holidays Hunt Travel & Hospitality
                   </h3>
                   <span className="inline-flex items-center gap-1 bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full text-[10px] font-bold border border-blue-100">
                     <CheckCircle className="w-3 h-3 text-blue-600" />

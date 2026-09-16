@@ -222,7 +222,7 @@ export const CmsAccessGate: React.FC<{ children: React.ReactNode }> = ({ childre
             value={email}
             onChange={(event) => setEmail(event.target.value)}
             className="w-full rounded-xl bg-stone-800 border border-stone-700 px-4 py-3 text-sm text-white focus:outline-hidden focus:border-orange-500 transition"
-            placeholder="admin@bhaktibharatyatra.com"
+            placeholder="admin@holidayshunt.com"
             required
           />
         </div>

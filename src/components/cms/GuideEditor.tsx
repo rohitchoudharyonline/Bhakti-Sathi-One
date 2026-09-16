@@ -68,7 +68,7 @@ export const GuideEditor: React.FC<GuideEditorProps> = ({
   const [imageAlt, setImageAlt] = useState(initialGuide?.imageAlt || '');
   const [status, setStatus] = useState<GuideStatus>(initialGuide?.status || 'draft');
   const [authorName, setAuthorName] = useState(
-    initialGuide?.authorName || 'Bhakti Sathi Yatra Team'
+    initialGuide?.authorName || 'Holidays Hunt Yatra Team'
   );
   const [relatedPackageIds, setRelatedPackageIds] = useState<string[]>(
     initialGuide?.relatedPackageIds || []
@@ -340,7 +340,7 @@ export const GuideEditor: React.FC<GuideEditorProps> = ({
       featuredImage: featuredImage.trim(),
       imageAlt: imageAlt.trim() || title.trim(),
       status: finalStatus,
-      authorName: authorName.trim() || 'Bhakti Sathi Yatra Team',
+      authorName: authorName.trim() || 'Holidays Hunt Yatra Team',
       readingTimeMinutes: readingTime,
       wordCount,
       relatedPackageIds,
@@ -349,7 +349,7 @@ export const GuideEditor: React.FC<GuideEditorProps> = ({
         metaDescription: metaDescription.trim() || excerpt.trim(),
         primaryKeyword: primaryKeyword.trim(),
         secondaryKeywords,
-        canonicalUrl: `https://mybhaktisathi.com/guide/${cleanSlug}`,
+        canonicalUrl: `https://holidayshunt.com/guide/${cleanSlug}`,
       },
       faqs,
       createdAt: initialGuide?.createdAt || new Date().toISOString(),
@@ -841,7 +841,7 @@ export const GuideEditor: React.FC<GuideEditorProps> = ({
 
             <div className="bg-stone-50 p-4 rounded-xl border border-stone-200/80 max-w-2xl space-y-1">
               <div className="flex items-center gap-1.5 text-xs text-stone-600">
-                <span className="font-semibold text-stone-800">Bhakti Sathi</span>
+                <span className="font-semibold text-stone-800">Holidays Hunt</span>
                 <span>›</span>
                 <span>guide</span>
                 <span>›</span>
@@ -1117,7 +1117,7 @@ export const GuideEditor: React.FC<GuideEditorProps> = ({
                 type="text"
                 value={authorName}
                 onChange={(e) => setAuthorName(e.target.value)}
-                placeholder="Bhakti Sathi Yatra Team"
+                placeholder="Holidays Hunt Yatra Team"
                 className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-xs text-stone-900 focus:outline-none"
               />
             </div>

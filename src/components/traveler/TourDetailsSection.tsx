@@ -392,7 +392,7 @@ export const TourDetailsSection: React.FC<TourDetailsSectionProps> = ({
                   Driver and vehicle contact details with vehicle registration number will be dispatched via WhatsApp and SMS 24 hours prior to travel date.
                 </li>
                 <li>
-                  A 24x7 dedicated Bhakti Sathi Operations Manager will remain on standby to assist with any itinerary coordination.
+                  A 24x7 dedicated Holidays Hunt Operations Manager will remain on standby to assist with any itinerary coordination.
                 </li>
               </ul>
             </div>

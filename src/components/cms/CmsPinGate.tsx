@@ -85,7 +85,7 @@ export const CmsPinGate: React.FC<CmsPinGateProps> = ({ onPinVerified }) => {
             <ShieldCheck className="w-7 h-7 text-[#FF4B00]" />
           </div>
           <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight">CMS Access Gateway</h1>
-          <p className="text-xs text-stone-400 font-medium mt-1">Bhakti Sathi One • Secure Administrative Portal</p>
+          <p className="text-xs text-stone-400 font-medium mt-1">Holidays Hunt One • Secure Administrative Portal</p>
         </div>
 
         {error && (

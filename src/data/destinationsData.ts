@@ -424,7 +424,7 @@ export const DESTINATIONS_REGISTRY: Record<string, DestinationMeta> = {
       ],
       travelTips: [
         'Plan the 5 Devi circuit in geographical order: Naina Devi (Bilaspur) → Chintpurni (Una) → Jwala Ji (Kangra) → Brajeshwari (Kangra) → Chamunda Devi (Dharamshala) for minimal travel time.',
-        'During Navratri festivals, queues can be long. Bhakti Sathi provides senior-friendly facilitation and verified nearby accommodations to ensure relaxed darshans.',
+        'During Navratri festivals, queues can be long. Holidays Hunt provides senior-friendly facilitation and verified nearby accommodations to ensure relaxed darshans.',
         'Carry a light jacket or shawl even during summer months for hill stations like Dharamshala, McLeodganj, Shimla, and Manali.',
         'Private sanitized SUVs (Innova, Crysta, Ertiga) with certified hill drivers are strongly recommended for seamless ghat travel.',
       ],

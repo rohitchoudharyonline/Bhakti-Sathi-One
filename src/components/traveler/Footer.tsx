@@ -72,8 +72,8 @@ export const Footer: React.FC<FooterProps> = ({ onSelectDestination, onSelectDha
     if (navigator.share) {
       try {
         await navigator.share({
-          title: 'Bhakti Sathi — All India Sacred Pilgrimage & Yatra Tours',
-          text: 'Book customized pilgrimage packages for Mata Vaishno Devi, Himachal Devi Darshan, Kashi Vishwanath Varanasi, Ayodhya Ram Mandir, Char Dham, Mathura Vrindavan, Dwarka Somnath, Kali Mata Kolkata, Amritsar & Tirupati Balaji with Bhakti Sathi.',
+          title: 'Holidays Hunt — All India Sacred Pilgrimage & Yatra Tours',
+          text: 'Book customized pilgrimage packages for Mata Vaishno Devi, Himachal Devi Darshan, Kashi Vishwanath Varanasi, Ayodhya Ram Mandir, Char Dham, Mathura Vrindavan, Dwarka Somnath, Kali Mata Kolkata, Amritsar & Tirupati Balaji with Holidays Hunt.',
           url: window.location.href,
         });
       } catch {
@@ -237,10 +237,10 @@ export const Footer: React.FC<FooterProps> = ({ onSelectDestination, onSelectDha
             <div>
               <p className="text-sm font-medium text-stone-800">For Feedback & Enquiries</p>
               <a
-                href="mailto:care@mybhaktisathi.com"
+                href="mailto:care@holidayshunt.com"
                 className="text-sm font-bold text-stone-900 underline underline-offset-4 hover:text-stone-600 transition"
               >
-                care@mybhaktisathi.com
+                care@holidayshunt.com
               </a>
             </div>
           </div>
@@ -258,7 +258,7 @@ export const Footer: React.FC<FooterProps> = ({ onSelectDestination, onSelectDha
 
             {/* Facebook */}
             <a
-              href="https://facebook.com/teammybhaktisathi"
+              href="https://facebook.com/teamholidayshunt"
               target="_blank"
               rel="noreferrer"
               aria-label="Facebook"
@@ -270,7 +270,7 @@ export const Footer: React.FC<FooterProps> = ({ onSelectDestination, onSelectDha
 
             {/* X (Twitter) */}
             <a
-              href="https://x.com/mybhaktisathi"
+              href="https://x.com/holidayshunt"
               target="_blank"
               rel="noreferrer"
               aria-label="X (Twitter)"
@@ -282,7 +282,7 @@ export const Footer: React.FC<FooterProps> = ({ onSelectDestination, onSelectDha
 
             {/* YouTube */}
             <a
-              href="https://youtube.com/@mybhaktisathi"
+              href="https://youtube.com/@holidayshunt"
               target="_blank"
               rel="noreferrer"
               aria-label="YouTube"
@@ -490,7 +490,7 @@ export const Footer: React.FC<FooterProps> = ({ onSelectDestination, onSelectDha
 
           {/* Bottom Copyright Strip */}
           <div className="pt-6 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-slate-400">
-            <p>© 2026 Bhakti Sathi, a brand name of Holidays Hunt Travel and Hospitality Pvt Ltd. All Rights Reserved.</p>
+            <p>© 2026 Holidays Hunt, a brand name of Holidays Hunt Travel and Hospitality Pvt Ltd. All Rights Reserved.</p>
           </div>
 
         </div>

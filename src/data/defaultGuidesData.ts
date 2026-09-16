@@ -107,7 +107,7 @@ A balanced 4 to 5-day journey from Chandigarh or Delhi allows unhurried darshans
     destinationName: 'Himachal Pradesh',
     tags: ['Devi Darshan', 'Himachal Pilgrimage', 'Shaktipeeth', 'Kangra Valley', 'Temple Guide'],
     author: {
-      name: 'Bhakti Sathi Editorial Team',
+      name: 'Holidays Hunt Editorial Team',
       role: 'Pilgrimage Specialist',
     },
     featuredImage: '/temple_pencil_sketch.jpg',
@@ -126,11 +126,11 @@ A balanced 4 to 5-day journey from Chandigarh or Delhi allows unhurried darshans
     createdAt: '2026-08-15T09:00:00Z',
     readTimeMinutes: 5,
     seo: {
-      seoTitle: 'Himachal Pradesh Devi Darshan Guide | Bhakti Sathi',
+      seoTitle: 'Himachal Pradesh Devi Darshan Guide | Holidays Hunt',
       metaDescription: 'Complete Himachal Devi Darshan guide covering sacred Shaktipeeths, route planning, best visiting months and pilgrim tips.',
       primaryKeyword: 'Himachal Pradesh Devi Darshan',
       secondaryKeywords: ['Himachal Shaktipeeth circuit', 'Devi Darshan route map', 'Kangra temple darshan', 'Himachal yatra guide'],
-      canonicalUrl: 'https://mybhaktisathi.com/guide/himachal-pradesh-devi-darshan-guide',
+      canonicalUrl: 'https://holidayshunt.com/guide/himachal-pradesh-devi-darshan-guide',
     },
     faqs: [
       {
@@ -198,7 +198,7 @@ Thousands of families undertake this journey every year, especially during the a
     destinationName: 'Himachal Pradesh',
     tags: ['9 Devi Yatra', 'Nav Devi', 'Himachal', 'Vaishno Devi', 'Shaktipeeth'],
     author: {
-      name: 'Bhakti Sathi Editorial Team',
+      name: 'Holidays Hunt Editorial Team',
       role: 'Pilgrimage Specialist',
     },
     featuredImage: '/sacred_temple_complex.jpg',
@@ -210,11 +210,11 @@ Thousands of families undertake this journey every year, especially during the a
     createdAt: '2026-08-20T10:00:00Z',
     readTimeMinutes: 6,
     seo: {
-      seoTitle: 'Himachal 9 Devi Yatra Guide | Bhakti Sathi',
+      seoTitle: 'Himachal 9 Devi Yatra Guide | Holidays Hunt',
       metaDescription: 'Step-by-step 9 Devi Yatra route itinerary covering sacred temples across Himachal Pradesh and Katra Vaishno Devi.',
       primaryKeyword: 'Himachal 9 Devi Yatra',
       secondaryKeywords: ['Nav Devi yatra route', '9 Devi tour itinerary', 'Himachal Katra pilgrimage', 'Shaktipeeth tour'],
-      canonicalUrl: 'https://mybhaktisathi.com/guide/himachal-9-devi-yatra-guide',
+      canonicalUrl: 'https://holidayshunt.com/guide/himachal-9-devi-yatra-guide',
     },
     faqs: [
       {
@@ -262,7 +262,7 @@ Within the sanctum sanctorum, nine flames are worshipped, representing Maa Mahak
     destinationName: 'Himachal Pradesh',
     tags: ['Jwala Ji', 'Kangra', 'Eternal Flame', 'Shaktipeeth'],
     author: {
-      name: 'Bhakti Sathi Editorial Team',
+      name: 'Holidays Hunt Editorial Team',
       role: 'Temple Researcher',
     },
     featuredImage: '/temple_pencil_sketch.jpg',
@@ -274,11 +274,11 @@ Within the sanctum sanctorum, nine flames are worshipped, representing Maa Mahak
     createdAt: '2026-08-25T08:00:00Z',
     readTimeMinutes: 4,
     seo: {
-      seoTitle: 'Jwala Ji Temple Guide | Bhakti Sathi',
+      seoTitle: 'Jwala Ji Temple Guide | Holidays Hunt',
       metaDescription: 'Discover history, darshan guidance and travel advice for Maa Jwala Ji temple in Kangra, Himachal Pradesh.',
       primaryKeyword: 'Jwala Ji temple guide',
       secondaryKeywords: ['Jwala Ji darshan', 'Kangra Jwalaji history', 'Jwala Ji eternal flame', 'Himachal Shaktipeeth'],
-      canonicalUrl: 'https://mybhaktisathi.com/guide/jwala-ji-temple-guide',
+      canonicalUrl: 'https://holidayshunt.com/guide/jwala-ji-temple-guide',
     },
     faqs: [
       {
@@ -318,7 +318,7 @@ Legend attributes the discovery of this holy site to Mai Das, an ardent devotee 
     destinationName: 'Himachal Pradesh',
     tags: ['Chintpurni', 'Una', 'Shaktipeeth', 'Devi Darshan'],
     author: {
-      name: 'Bhakti Sathi Editorial Team',
+      name: 'Holidays Hunt Editorial Team',
       role: 'Pilgrimage Specialist',
     },
     featuredImage: '/pencil_temple_center.jpg',
@@ -330,11 +330,11 @@ Legend attributes the discovery of this holy site to Mai Das, an ardent devotee 
     createdAt: '2026-08-28T11:00:00Z',
     readTimeMinutes: 4,
     seo: {
-      seoTitle: 'Chintpurni Temple Guide | Bhakti Sathi',
+      seoTitle: 'Chintpurni Temple Guide | Holidays Hunt',
       metaDescription: 'Detailed pilgrim guide to Maa Chintpurni temple in Una, Himachal Pradesh, with route information and darshan tips.',
       primaryKeyword: 'Chintpurni temple guide',
       secondaryKeywords: ['Maa Chintpurni Una', 'Chhinnamastika Dham', 'Chintpurni darshan tips', 'Himachal temple'],
-      canonicalUrl: 'https://mybhaktisathi.com/guide/chintpurni-temple-guide',
+      canonicalUrl: 'https://holidayshunt.com/guide/chintpurni-temple-guide',
     },
     faqs: [
       {
@@ -374,7 +374,7 @@ Pilgrims can reach the temple summit either by climbing traditional stepped path
     destinationName: 'Himachal Pradesh',
     tags: ['Naina Devi', 'Bilaspur', 'Gobind Sagar', 'Shaktipeeth'],
     author: {
-      name: 'Bhakti Sathi Editorial Team',
+      name: 'Holidays Hunt Editorial Team',
       role: 'Pilgrimage Specialist',
     },
     featuredImage: '/temple_pencil_sketch.png',
@@ -386,11 +386,11 @@ Pilgrims can reach the temple summit either by climbing traditional stepped path
     createdAt: '2026-08-30T10:00:00Z',
     readTimeMinutes: 4,
     seo: {
-      seoTitle: 'Naina Devi Temple Guide | Bhakti Sathi',
+      seoTitle: 'Naina Devi Temple Guide | Holidays Hunt',
       metaDescription: 'Explore Maa Naina Devi hilltop temple in Bilaspur with ropeway details, holy history and visiting guidelines.',
       primaryKeyword: 'Naina Devi temple guide',
       secondaryKeywords: ['Maa Naina Devi Bilaspur', 'Naina Devi ropeway', 'Himachal Shaktipeeth', 'Naina Devi darshan'],
-      canonicalUrl: 'https://mybhaktisathi.com/guide/naina-devi-temple-guide',
+      canonicalUrl: 'https://holidayshunt.com/guide/naina-devi-temple-guide',
     },
     faqs: [
       {
@@ -436,7 +436,7 @@ The New Delhi - Amb Andaura Vande Bharat Express (Train No. 22447) reaches Una H
     destinationName: 'Himachal Pradesh',
     tags: ['Delhi to Himachal', 'Devi Darshan Route', 'Yatra Plan', 'Road Trip'],
     author: {
-      name: 'Bhakti Sathi Editorial Team',
+      name: 'Holidays Hunt Editorial Team',
       role: 'Travel Logistics Specialist',
     },
     featuredImage: '/sacred_temple_complex.jpg',
@@ -448,11 +448,11 @@ The New Delhi - Amb Andaura Vande Bharat Express (Train No. 22447) reaches Una H
     createdAt: '2026-09-02T08:00:00Z',
     readTimeMinutes: 5,
     seo: {
-      seoTitle: 'Himachal Devi Darshan from Delhi | Bhakti Sathi',
+      seoTitle: 'Himachal Devi Darshan from Delhi | Holidays Hunt',
       metaDescription: 'Planning a Himachal Devi yatra from Delhi? Find highway route tips, Vande Bharat train advice and a 4-day travel plan.',
       primaryKeyword: 'Himachal Devi Darshan from Delhi',
       secondaryKeywords: ['Delhi to Himachal Devi tour', 'Delhi to Kangra route', 'Delhi to Chintpurni car', 'Vande Bharat Una darshan'],
-      canonicalUrl: 'https://mybhaktisathi.com/guide/himachal-devi-darshan-from-delhi',
+      canonicalUrl: 'https://holidayshunt.com/guide/himachal-devi-darshan-from-delhi',
     },
     faqs: [
       {
@@ -486,7 +486,7 @@ The temple is dedicated to the fierce aspect of Devi Durga who manifested to van
     destinationName: 'Himachal Pradesh',
     tags: ['Chamunda Devi', 'Kangra', 'Draft Guide'],
     author: {
-      name: 'Bhakti Sathi Editorial Team',
+      name: 'Holidays Hunt Editorial Team',
       role: 'Researcher',
     },
     featuredImage: '/temple_pencil_sketch.jpg',
@@ -497,11 +497,11 @@ The temple is dedicated to the fierce aspect of Devi Durga who manifested to van
     createdAt: '2026-09-07T09:00:00Z',
     readTimeMinutes: 3,
     seo: {
-      seoTitle: 'Chamunda Devi Temple Guide | Bhakti Sathi',
+      seoTitle: 'Chamunda Devi Temple Guide | Holidays Hunt',
       metaDescription: 'Complete pilgrim guide to Maa Chamunda Devi shrine near Dharamshala with riverbank darshan information.',
       primaryKeyword: 'Chamunda Devi temple guide',
       secondaryKeywords: ['Maa Chamunda Dharamshala', 'Chamunda Devi darshan', 'Kangra temples'],
-      canonicalUrl: 'https://mybhaktisathi.com/guide/chamunda-devi-temple-guide',
+      canonicalUrl: 'https://holidayshunt.com/guide/chamunda-devi-temple-guide',
     },
     faqs: [],
     relatedPackageIds: ['pkg-himachal-01'],
@@ -580,7 +580,7 @@ Autumn is favored by photographers and honeymooners:
       metaDescription: 'Complete month-by-month guide to Kashmir weather, snowfall in Gulmarg, tulip garden timings, and recommended 6-day holiday itineraries.',
       primaryKeyword: 'Best Time to Visit Kashmir',
       secondaryKeywords: ['Kashmir snow season', 'Gulmarg gondola winter', 'Srinagar tulip festival'],
-      canonicalUrl: 'https://mybhaktisathi.com/guide/best-time-to-visit-kashmir-season-wise-guide',
+      canonicalUrl: 'https://holidayshunt.com/guide/best-time-to-visit-kashmir-season-wise-guide',
     },
     faqs: [
       {
@@ -650,7 +650,7 @@ Every year, millions of devotees embark on the sacred pilgrimage to Shri Mata Va
       metaDescription: 'Step-by-step official guide on SMVDSB Katra to Sanjichhat helicopter tickets portal, RFID yatra pass, battery cars, and Bhairon Ghati ropeway.',
       primaryKeyword: 'Mata Vaishno Devi Helicopter Booking',
       secondaryKeywords: ['SMVDSB Katra helicopter', 'Vaishno Devi RFID card', 'Bhairon ropeway Katra'],
-      canonicalUrl: 'https://mybhaktisathi.com/guide/mata-vaishno-devi-yatra-helicopter-booking-and-darshan-guide',
+      canonicalUrl: 'https://holidayshunt.com/guide/mata-vaishno-devi-yatra-helicopter-booking-and-darshan-guide',
     },
     faqs: [
       {
@@ -686,7 +686,7 @@ Planning a road trip through Himachal Pradesh? Knowing standard cab fares and in
 ---
 
 ### 2. What Must Be Included in a Reliable Tour Cab Quote?
-When booking with Bhakti Sathi, your quote always includes:
+When booking with Holidays Hunt, your quote always includes:
 - Fuel (Diesel / Petrol)
 - Commercial state entry permits for Himachal Pradesh
 - Highway tolls & green cess taxes
@@ -722,12 +722,12 @@ When booking with Bhakti Sathi, your quote always includes:
       metaDescription: 'Complete price list for Delhi & Chandigarh to Shimla Manali cabs. Transparent Sedan and Innova Crysta rates with tolls included.',
       primaryKeyword: 'Himachal Taxi Rates',
       secondaryKeywords: ['Chandigarh to Shimla taxi fare', 'Manali Innova cab price', 'Himachal driver allowance'],
-      canonicalUrl: 'https://mybhaktisathi.com/guide/himachal-taxi-rates-delhi-chandigarh-to-shimla-manali-guide',
+      canonicalUrl: 'https://holidayshunt.com/guide/himachal-taxi-rates-delhi-chandigarh-to-shimla-manali-guide',
     },
     faqs: [
       {
         id: 'faq-taxi-toll',
-        question: 'Are highway tolls and state taxes included in Bhakti Sathi cab quotes?',
+        question: 'Are highway tolls and state taxes included in Holidays Hunt cab quotes?',
         answer: 'Yes, all toll taxes, interstate border permits, and driver charges are all-inclusive with zero surprise surcharges.',
       },
     ],

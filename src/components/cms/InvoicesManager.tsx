@@ -218,7 +218,7 @@ export const InvoicesManager: React.FC<{
    paymentMode: formPaymentMode,
    paymentReference: '',
    notes: formNotes,
-   terms: agencySettings.invoiceTerms || ['Thank you for choosing Bhakti Sathi!'],
+   terms: agencySettings.invoiceTerms || ['Thank you for choosing Holidays Hunt!'],
    paymentLogs: logs,
   });
 

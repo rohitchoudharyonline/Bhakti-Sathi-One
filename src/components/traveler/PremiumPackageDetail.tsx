@@ -82,7 +82,7 @@ export const PremiumPackageDetail: React.FC<Props> = ({ pkg, onBack }) => {
   useEffect(() => {
     try {
       const tripSchemas = generateTouristTripSchema(pkg, agencySettings);
-      const origin = typeof window !== 'undefined' ? window.location.origin : 'https://mybhaktisathi.com';
+      const origin = typeof window !== 'undefined' ? window.location.origin : 'https://holidayshunt.com';
       const breadcrumbSchema = generateBreadcrumbSchema([
         { name: 'Home', url: origin },
         { name: 'Tours', url: `${origin}/tours` },
@@ -93,7 +93,7 @@ export const PremiumPackageDetail: React.FC<Props> = ({ pkg, onBack }) => {
       const allSchemas = Array.isArray(tripSchemas) ? [...tripSchemas, breadcrumbSchema] : [tripSchemas, breadcrumbSchema];
 
       updatePageSeo({
-        title: `${pkg.title} | Bhakti Sathi Sacred Yatra`,
+        title: `${pkg.title} | Holidays Hunt Sacred Yatra`,
         description: pkg.overview || pkg.tagline || `Book ${pkg.title} (${pkg.durationDays} Days / ${pkg.durationNights} Nights) with verified deluxe hotels and private chauffeur cab transfers.`,
         canonicalPath: `/tours/${pkg.destinationTag || 'india'}/${pkg.slug || pkg.id}`,
         ogImage: pkg.coverImage,
@@ -272,7 +272,7 @@ export const PremiumPackageDetail: React.FC<Props> = ({ pkg, onBack }) => {
   };
 
   const whatsappInquiryUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(
-    `Hello Bhakti Sathi! I am interested in booking *${pkg.title}* with *${currentTierInfo.tierName}* (${activePriceResult.isPriceOnRequest ? 'Price on Request' : `${activePriceResult.displayPrice}/person`}) for ${pkg.durationDays}D/${pkg.durationNights}N. Please confirm hotel details, dates, and pricing.`
+    `Hello Holidays Hunt! I am interested in booking *${pkg.title}* with *${currentTierInfo.tierName}* (${activePriceResult.isPriceOnRequest ? 'Price on Request' : `${activePriceResult.displayPrice}/person`}) for ${pkg.durationDays}D/${pkg.durationNights}N. Please confirm hotel details, dates, and pricing.`
   )}`;
 
   const openReviewsModal = (tab: 'reviews' | 'gallery') => {
@@ -329,7 +329,7 @@ export const PremiumPackageDetail: React.FC<Props> = ({ pkg, onBack }) => {
             </button>
             <div className="min-w-0 flex-1">
               <span className="text-[10px] sm:text-xs uppercase tracking-wider text-stone-900 font-black block leading-tight truncate">
-                {agencySettings.agencyName || 'Bhakti Sathi'} • Verified Tour
+                {agencySettings.agencyName || 'Holidays Hunt'} • Verified Tour
               </span>
               <b className="block text-xs sm:text-base font-black text-[#1D1C1C] truncate">{pkg.title}</b>
             </div>
@@ -605,7 +605,7 @@ export const PremiumPackageDetail: React.FC<Props> = ({ pkg, onBack }) => {
               <ShieldCheck className="w-4 h-4 text-emerald-600" />
             </div>
             <span>
-              Tour includes the services of <b>Bhakti Sathi's Dedicated Chauffeur & 24x7 Trip Manager</b>.
+              Tour includes the services of <b>Holidays Hunt's Dedicated Chauffeur & 24x7 Trip Manager</b>.
             </span>
           </div>
         </section>

@@ -9,21 +9,30 @@ import {
   Car,
   MapPin,
   Sparkles,
-  Star,
   ShieldCheck,
+  Users,
+  Compass,
 } from 'lucide-react';
 import { useTours } from '../../context/TourContext';
 import { TourPackage } from '../../types/tour';
 
+interface GenericToursSectionProps {
+  id: string;
+  badgeLabel: string;
+  badgeIcon?: React.ReactNode;
+  heading: string;
+  description: string;
+  categoryFilter: 'Family' | 'Honeymoon' | 'Pilgrimage';
+  viewAllCategoryName: string;
+  bgColor?: string;
+  borderColor?: string;
+  showGarland?: boolean;
+}
+
 /**
  * Authentic Real Flower Mala (Garland) & Repeating Toran
- * - Real flowers: 🌺 (Auspicious Red Hibiscus), 🌼 (Golden Marigold), ☘️ (Sacred Green Leaves)
- * - Repeating marigold & flower toran pattern across the full top edge
- * - Exactly 3 graceful curved folds across mobile screens (< 640px)
- * - 6 graceful folds across desktop screens (>= 640px)
- * - Sacred red-and-gold Kalawa/Mauli thread catenary drape
+ * Shown ONLY for Pilgrimage Tours when showGarland is true
  */
-
 interface RealFlowerProps {
   type: 'hibiscus' | 'marigold' | 'leaf';
   sizeClass?: string;
@@ -84,20 +93,15 @@ const FOLD_BLOSSOMS = [
   { x: 87, y: 12, type: 'marigold' as const },
 ];
 
-/**
- * Single Swag / Fold Component with Real Flowers
- */
 const MarigoldFold: React.FC<{ isMobile?: boolean }> = ({ isMobile = false }) => {
   return (
     <div className={`relative ${isMobile ? 'h-9' : 'h-10 sm:h-11'} w-full overflow-visible`}>
-      {/* Sacred twisted Kalawa (Mauli) cord hanging along catenary curve */}
       <svg
         className="absolute inset-0 w-full h-full pointer-events-none overflow-visible"
         preserveAspectRatio="none"
         viewBox="0 0 100 28"
         aria-hidden="true"
       >
-        {/* Red strand */}
         <path
           d="M 0,5 Q 50,23 100,5"
           fill="none"
@@ -106,7 +110,6 @@ const MarigoldFold: React.FC<{ isMobile?: boolean }> = ({ isMobile = false }) =>
           strokeDasharray="4 2"
           opacity="0.8"
         />
-        {/* Golden amber strand */}
         <path
           d="M 0,5 Q 50,23 100,5"
           fill="none"
@@ -116,14 +119,10 @@ const MarigoldFold: React.FC<{ isMobile?: boolean }> = ({ isMobile = false }) =>
           opacity="0.9"
         />
       </svg>
-
-      {/* Left Anchor Peak (x = 0): Sacred Green Leaf + Red Hibiscus */}
       <div className="absolute left-0 top-[5px] -translate-x-1/2 -translate-y-1/2 z-[3] flex items-center justify-center pointer-events-none">
         <RealFlower type="leaf" className="-mr-1.5 rotate-[-20deg]" />
         <RealFlower type="hibiscus" />
       </div>
-
-      {/* Blossoms strung gracefully along the drape curve: 🌼🌼🌼 🌺 🌼🌼🌼 */}
       {FOLD_BLOSSOMS.map((b, idx) => (
         <div
           key={`blossom-${idx}`}
@@ -140,34 +139,22 @@ const MarigoldFold: React.FC<{ isMobile?: boolean }> = ({ isMobile = false }) =>
   );
 };
 
-/**
- * High-Quality Real Flower Garland (Mala)
- * - Features real flowers: 🌺🌺🌼🌼☘️☘️
- * - Spans 100% full width edge-to-edge
- * - Exactly 3 graceful curved folds across mobile screens (< 640px)
- * - 6 graceful folds across desktop screens (>= 640px)
- */
 const TraditionalMarigoldGarlandTop: React.FC = () => {
   return (
     <div className="w-full relative select-none pointer-events-none -mt-0.5 overflow-hidden pt-1.5 pb-1" aria-hidden="true">
-      {/* Mobile Screens (< 640px): EXACTLY 3 FOLDS across the entire screen width */}
       <div className="grid grid-cols-3 w-full sm:hidden relative px-2.5">
         {[0, 1, 2].map((foldIdx) => (
           <MarigoldFold key={`m-fold-${foldIdx}`} isMobile={true} />
         ))}
-        {/* Right Edge Closing Peak (x = 100%): Red Hibiscus + Sacred Green Leaf */}
         <div className="absolute top-[5px] right-2.5 translate-x-1/2 -translate-y-1/2 z-[3] flex items-center justify-center pointer-events-none">
           <RealFlower type="hibiscus" />
           <RealFlower type="leaf" className="-ml-1.5 rotate-[20deg]" />
         </div>
       </div>
-
-      {/* Tablet & Desktop Screens (>= 640px): 6 Graceful Folds across wide screens */}
       <div className="hidden sm:grid sm:grid-cols-6 w-full relative px-4">
         {[0, 1, 2, 3, 4, 5].map((foldIdx) => (
           <MarigoldFold key={`d-fold-${foldIdx}`} isMobile={false} />
         ))}
-        {/* Right Edge Closing Peak (x = 100%): Red Hibiscus + Sacred Green Leaf */}
         <div className="absolute top-[5px] right-4 translate-x-1/2 -translate-y-1/2 z-[3] flex items-center justify-center pointer-events-none">
           <RealFlower type="hibiscus" />
           <RealFlower type="leaf" className="-ml-1.5 rotate-[20deg]" />
@@ -177,7 +164,18 @@ const TraditionalMarigoldGarlandTop: React.FC = () => {
   );
 };
 
-export const HandpickedYatraPackagesSection: React.FC = () => {
+export const CategoryToursCarouselSection: React.FC<GenericToursSectionProps> = ({
+  id,
+  badgeLabel,
+  badgeIcon,
+  heading,
+  description,
+  categoryFilter,
+  viewAllCategoryName,
+  bgColor = 'bg-stone-50/50',
+  borderColor = 'border-stone-200/80',
+  showGarland = false,
+}) => {
   const {
     packages,
     setSelectedPackageId,
@@ -191,19 +189,33 @@ export const HandpickedYatraPackagesSection: React.FC = () => {
   const [canScrollRight, setCanScrollRight] = useState(true);
   const [activeSlideIndex, setActiveSlideIndex] = useState(0);
 
-  // Filter curated pilgrimage & yatra packages
-  const handpickedPackages = useMemo(() => {
+  // Filter curated packages matching category type or tags
+  const matchedPackages = useMemo(() => {
     const published = packages.filter((pkg) => pkg.status === 'published');
-    const pilgrimage = published.filter(
-      (pkg) =>
-        String(pkg.category).toLowerCase().includes('pilgrimage') ||
-        String(pkg.title).toLowerCase().includes('yatra') ||
-        String(pkg.title).toLowerCase().includes('darshan') ||
-        String(pkg.destination).toLowerCase().includes('kashmir') ||
-        String(pkg.destination).toLowerCase().includes('himachal')
-    );
+    const targetType = categoryFilter.toLowerCase();
 
-    const source = pilgrimage.length >= 3 ? pilgrimage : published;
+    const filtered = published.filter((pkg) => {
+      // Direct tourType match
+      if (pkg.tourType && pkg.tourType.toLowerCase() === targetType) return true;
+      // Category match
+      const cat = String(pkg.category || '').toLowerCase();
+      if (cat.includes(targetType)) return true;
+      // Title match or tags match
+      const title = String(pkg.title || '').toLowerCase();
+      if (targetType === 'honeymoon' && (title.includes('honeymoon') || title.includes('romantic') || cat.includes('honeymoon'))) {
+        return true;
+      }
+      if (targetType === 'family' && (title.includes('family') || cat.includes('family') || cat.includes('holiday') || cat.includes('leisure'))) {
+        return true;
+      }
+      if (targetType === 'pilgrimage' && (title.includes('yatra') || title.includes('darshan') || title.includes('temple') || cat.includes('pilgrimage') || cat.includes('spiritual') || cat.includes('yatra'))) {
+        return true;
+      }
+      return false;
+    });
+
+    // If fewer than 2 match directly, fallback to general published packages
+    const source = filtered.length >= 2 ? filtered : published;
 
     return [...source]
       .sort(
@@ -213,19 +225,17 @@ export const HandpickedYatraPackagesSection: React.FC = () => {
           a.title.localeCompare(b.title)
       )
       .slice(0, 8);
-  }, [packages]);
+  }, [packages, categoryFilter]);
 
-  // Update carousel scroll buttons state
   const checkScrollState = () => {
     const el = carouselRef.current;
     if (!el) return;
     setCanScrollLeft(el.scrollLeft > 15);
     setCanScrollRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 15);
 
-    // Calculate approximate slide index for pagination dots
-    const cardWidth = el.querySelector<HTMLElement>('.yatra-package-card')?.offsetWidth || 320;
+    const cardWidth = el.querySelector<HTMLElement>('.tour-package-card')?.offsetWidth || 320;
     const currentIdx = Math.round(el.scrollLeft / cardWidth);
-    setActiveSlideIndex(Math.min(currentIdx, handpickedPackages.length - 1));
+    setActiveSlideIndex(Math.min(currentIdx, matchedPackages.length - 1));
   };
 
   useEffect(() => {
@@ -238,12 +248,12 @@ export const HandpickedYatraPackagesSection: React.FC = () => {
       el.removeEventListener('scroll', checkScrollState);
       window.removeEventListener('resize', checkScrollState);
     };
-  }, [handpickedPackages]);
+  }, [matchedPackages]);
 
   const scrollByDirection = (direction: 'left' | 'right') => {
     const el = carouselRef.current;
     if (!el) return;
-    const card = el.querySelector<HTMLElement>('.yatra-package-card');
+    const card = el.querySelector<HTMLElement>('.tour-package-card');
     const scrollAmount = card ? card.offsetWidth + 20 : 340;
     el.scrollBy({
       left: direction === 'left' ? -scrollAmount : scrollAmount,
@@ -258,51 +268,45 @@ export const HandpickedYatraPackagesSection: React.FC = () => {
 
   return (
     <section
-      id="handpicked-packages-section-container"
-      data-section="handpicked-packages"
-      className="relative bg-[#FAF2EA] border-y border-[#EADBCC] pb-12 sm:pb-14 overflow-hidden font-['Plus_Jakarta_Sans',sans-serif]"
+      id={id}
+      data-section={id}
+      className={`relative ${bgColor} border-y ${borderColor} pb-12 sm:pb-14 overflow-hidden font-['Plus_Jakarta_Sans',sans-serif]`}
     >
-      {/* Anchor for backward compatibility */}
-      <div id="handpicked-yatra-packages-section" className="absolute top-0 left-0 pointer-events-none" aria-hidden="true" />
+      {/* Flower Garland for Pilgrimage Only */}
+      {showGarland && <TraditionalMarigoldGarlandTop />}
 
-      {/* 1. High-Quality Indian Marigold Garland (Mala) looping across top full width with 3 folds on mobile */}
-      <TraditionalMarigoldGarlandTop />
-
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-3 sm:pt-5">
-        {/* 2. Section Header */}
+      <div className={`max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 ${showGarland ? 'pt-3 sm:pt-5' : 'pt-8 sm:pt-10'}`}>
+        {/* Section Header */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6 sm:mb-8">
           <div>
             <div className="inline-flex items-center gap-2 mb-2">
               <span className="text-[10px] sm:text-xs font-black uppercase tracking-widest text-[#FF4B00] bg-[#FF4B00]/10 px-3 py-1 rounded-full border border-[#FF4B00]/20 inline-flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-[#FF4B00]" />
-                <span>Popular Yatra Packages</span>
+                {badgeIcon || <Sparkles className="w-3.5 h-3.5 text-[#FF4B00]" />}
+                <span>{badgeLabel}</span>
               </span>
-              <span className="text-xs font-semibold text-stone-400">पवित्र यात्राएं</span>
             </div>
 
             <h2 className="text-2xl sm:text-3xl font-black text-stone-900 tracking-tight flex items-center gap-2">
-              <span>Handpicked Yatra Packages</span>
+              <span>{heading}</span>
               <span className="hidden sm:inline-block w-8 h-1 bg-[#FF4B00] rounded-full" />
             </h2>
 
             <p className="text-xs sm:text-sm text-stone-600 font-medium mt-1 leading-relaxed max-w-xl">
-              Curated sacred journeys with verified comfortable hotel stays and dedicated private transfers.
+              {description}
             </p>
           </div>
 
           {/* Navigation Controls & View All Button */}
           <div className="flex items-center gap-2 self-start sm:self-auto shrink-0">
-            {/* View All Button */}
             <button
               type="button"
-              onClick={() => navigateToSearch({ category: 'Pilgrimage' })}
+              onClick={() => navigateToSearch({ category: viewAllCategoryName })}
               className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-white border border-stone-300 text-stone-800 text-xs sm:text-sm font-bold hover:border-[#FF4B00] hover:text-[#FF4B00] hover:shadow-2xs transition-all cursor-pointer shadow-2xs"
             >
-              <span>View All Packages</span>
+              <span>View All {viewAllCategoryName}</span>
               <ArrowRight className="w-4 h-4 text-[#FF4B00]" />
             </button>
 
-            {/* Desktop / Tablet Carousel Arrows */}
             <div className="hidden sm:flex items-center gap-1.5 ml-1">
               <button
                 type="button"
@@ -327,14 +331,14 @@ export const HandpickedYatraPackagesSection: React.FC = () => {
           </div>
         </div>
 
-        {/* 3. Horizontal Touch / Swipe Carousel */}
-        {handpickedPackages.length > 0 ? (
+        {/* Horizontal Touch / Swipe Carousel */}
+        {matchedPackages.length > 0 ? (
           <div className="relative">
             <div
               ref={carouselRef}
               className="flex gap-4 sm:gap-6 overflow-x-auto snap-x snap-mandatory pb-4 pt-1 scroll-smooth -mx-4 px-4 sm:mx-0 sm:px-0 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
             >
-              {handpickedPackages.map((pkg, index) => {
+              {matchedPackages.map((pkg, index) => {
                 const isItemWishlisted = isWishlisted(pkg.id);
                 const startingPrice = Number(pkg.price ?? 0);
                 const durationLabel = `${pkg.durationDays} Days / ${pkg.durationNights || pkg.durationDays - 1} Nights`;
@@ -343,7 +347,7 @@ export const HandpickedYatraPackagesSection: React.FC = () => {
                   <div
                     key={pkg.id}
                     onClick={() => handlePackageClick(pkg.id)}
-                    className="yatra-package-card group w-[84vw] sm:w-[330px] md:w-[350px] lg:w-[calc(33.333%-16px)] shrink-0 snap-start bg-white rounded-2xl sm:rounded-[20px] border border-stone-200/90 shadow-2xs hover:shadow-xl hover:border-[#FF4B00]/40 transition-all duration-300 flex flex-col justify-between overflow-hidden cursor-pointer active:scale-[0.99]"
+                    className="tour-package-card group w-[84vw] sm:w-[330px] md:w-[350px] lg:w-[calc(33.333%-16px)] shrink-0 snap-start bg-white rounded-2xl sm:rounded-[20px] border border-stone-200/90 shadow-2xs hover:shadow-xl hover:border-[#FF4B00]/40 transition-all duration-300 flex flex-col justify-between overflow-hidden cursor-pointer active:scale-[0.99]"
                   >
                     {/* Card Top: Image Area */}
                     <div className="relative aspect-[16/10] w-full overflow-hidden bg-stone-100">
@@ -354,10 +358,8 @@ export const HandpickedYatraPackagesSection: React.FC = () => {
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
                       />
 
-                      {/* Gentle bottom shadow gradient on image */}
                       <div className="absolute inset-0 bg-gradient-to-t from-stone-950/75 via-stone-950/15 to-transparent pointer-events-none" />
 
-                      {/* Top Badges: Duration / Bestseller + Wishlist Button */}
                       <div className="absolute top-3 left-3 right-3 flex items-center justify-between z-10">
                         <span className="text-[10px] font-black tracking-wider text-white bg-[#FF4B00] px-2.5 py-1 rounded-full uppercase shadow-xs">
                           {pkg.badge || durationLabel}
@@ -380,7 +382,6 @@ export const HandpickedYatraPackagesSection: React.FC = () => {
                         </button>
                       </div>
 
-                      {/* Image Bottom Overlays: Start Location & Duration */}
                       <div className="absolute bottom-2.5 left-3 right-3 flex items-center justify-between text-white text-[11px] font-semibold drop-shadow-sm pointer-events-none">
                         <span className="inline-flex items-center gap-1 truncate">
                           <MapPin className="w-3.5 h-3.5 text-amber-300 shrink-0" />
@@ -394,20 +395,17 @@ export const HandpickedYatraPackagesSection: React.FC = () => {
                       </div>
                     </div>
 
-                    {/* Card Body: Title, Route & Inclusions */}
+                    {/* Card Body */}
                     <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between gap-3">
                       <div>
-                        {/* Package Title */}
                         <h3 className="text-base sm:text-[17px] font-black text-stone-900 leading-snug line-clamp-2 group-hover:text-[#FF4B00] transition-colors">
                           {pkg.title}
                         </h3>
 
-                        {/* Destination Route line */}
                         <p className="text-xs text-stone-500 font-medium mt-1 line-clamp-1">
-                          {pkg.destination || `${pkg.startLocation} to Sacred Shrine`}
+                          {pkg.destination || `${pkg.startLocation} Circuit`}
                         </p>
 
-                        {/* Feature Badges inside Card: Verified Stay & Private Cab */}
                         <div className="grid grid-cols-2 gap-2 mt-3 pt-3 border-t border-stone-100 text-[11px] font-bold text-stone-700">
                           <span className="inline-flex items-center justify-center gap-1.5 bg-stone-50 hover:bg-stone-100/80 px-2.5 py-1.5 rounded-lg border border-stone-200/80 transition-colors text-center shadow-2xs">
                             <Hotel className="w-3.5 h-3.5 text-[#FF4B00] shrink-0" />
@@ -421,7 +419,7 @@ export const HandpickedYatraPackagesSection: React.FC = () => {
                         </div>
                       </div>
 
-                      {/* Card Footer: Pricing & Action */}
+                      {/* Card Footer */}
                       <div className="pt-3 border-t border-stone-100 flex items-center justify-between gap-2">
                         <div className="flex flex-col">
                           <span className="text-[10px] uppercase font-bold tracking-wider text-stone-400">
@@ -461,17 +459,17 @@ export const HandpickedYatraPackagesSection: React.FC = () => {
               })}
             </div>
 
-            {/* Mobile Carousel Indicators & Next Peek Hint */}
+            {/* Mobile Carousel Indicators */}
             <div className="flex sm:hidden items-center justify-between mt-3 px-1">
               <div className="flex items-center gap-1.5">
-                {handpickedPackages.map((_, dotIdx) => (
+                {matchedPackages.map((_, dotIdx) => (
                   <button
                     key={dotIdx}
                     type="button"
                     onClick={() => {
                       const el = carouselRef.current;
                       if (!el) return;
-                      const card = el.querySelector<HTMLElement>('.yatra-package-card');
+                      const card = el.querySelector<HTMLElement>('.tour-package-card');
                       if (card) {
                         el.scrollTo({
                           left: dotIdx * (card.offsetWidth + 16),
@@ -494,24 +492,40 @@ export const HandpickedYatraPackagesSection: React.FC = () => {
             </div>
           </div>
         ) : (
-          /* Empty state fallback */
           <div className="bg-white rounded-2xl p-8 text-center border border-stone-200 shadow-2xs">
             <ShieldCheck className="w-10 h-10 text-[#FF4B00] mx-auto mb-3" />
-            <h3 className="text-base font-black text-stone-900">Curating Sacred Yatra Packages</h3>
+            <h3 className="text-base font-black text-stone-900">Curating {heading}</h3>
             <p className="text-xs text-stone-600 mt-1 max-w-md mx-auto">
-              Our travel experts are updating current yatra schedules and hotel stays. Explore our entire directory below.
+              Our travel experts are updating current schedules and hotel stays. Explore our entire directory below.
             </p>
             <button
               type="button"
-              onClick={() => navigateToSearch({ category: 'Pilgrimage' })}
+              onClick={() => navigateToSearch({ category: viewAllCategoryName })}
               className="mt-4 px-5 py-2 rounded-xl bg-[#FF4B00] text-white font-black text-xs inline-flex items-center gap-2 shadow-xs cursor-pointer"
             >
-              <span>Explore All Yatras</span>
+              <span>Explore All {viewAllCategoryName}</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
         )}
       </div>
     </section>
+  );
+};
+
+// Backwards-compatible export for Pilgrimage Tours
+export const HandpickedYatraPackagesSection: React.FC = () => {
+  return (
+    <CategoryToursCarouselSection
+      id="pilgrimage-tours-section"
+      badgeLabel="Sacred & Divine Pilgrimages"
+      heading="Pilgrimage Tours"
+      description="Curated sacred journeys with verified comfortable hotel stays, priority darshan guidance, and dedicated private transfers."
+      categoryFilter="Pilgrimage"
+      viewAllCategoryName="Pilgrimage"
+      bgColor="bg-[#FAF2EA]"
+      borderColor="border-[#EADBCC]"
+      showGarland={true}
+    />
   );
 };

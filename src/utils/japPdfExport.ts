@@ -1,7 +1,7 @@
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { JapSessionRecord, JapTimeframe } from '../types/japCounter';
-import logoUrl from '../assets/images/logo-bhakti-sathi.png';
+import logoUrl from '../assets/images/logo-holidays-hunt.png';
 
 interface PdfExportOptions {
   pilgrimName: string;
@@ -64,12 +64,12 @@ const timeframeLabel = (timeframe: JapTimeframe): string => ({
 }[timeframe]);
 
 export async function generateJapSadhanaPdf(options: PdfExportOptions): Promise<void> {
-  const { pilgrimName, timeframe, totalChants, totalMalas, streakDays, activeMantra, records, agencyName = 'Bhakti Sathi' } = options;
+  const { pilgrimName, timeframe, totalChants, totalMalas, streakDays, activeMantra, records, agencyName = 'Holidays Hunt' } = options;
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
   const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();
   const margin = 14;
-  const mantraImage = mantraAsDataUrl(activeMantra || 'साम्ब सदाशिव');
+  const mantraImage = mantraAsDataUrl(activeMantra || 'Samba Sadashiva');
   const logo = await loadImage(logoUrl);
   const generatedDate = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
 
@@ -202,6 +202,6 @@ export async function generateJapSadhanaPdf(options: PdfExportOptions): Promise<
     },
   });
 
-  const filename = `BhaktiSathi_Japa_Report_${timeframe}_${new Date().toISOString().split('T')[0]}.pdf`;
+  const filename = `HolidaysHunt_Japa_Report_${timeframe}_${new Date().toISOString().split('T')[0]}.pdf`;
   doc.save(filename);
 }

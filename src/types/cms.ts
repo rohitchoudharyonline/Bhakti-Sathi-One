@@ -141,7 +141,7 @@ export interface RegisteredTravelerUser {
   state: string;
   country: string;
   status: 'active' | 'blocked';
-  memberTier: 'Member' | 'Silver Explorer' | 'Gold Explorer' | 'Bhakti Sathi Elite';
+  memberTier: 'Member' | 'Silver Explorer' | 'Gold Explorer' | 'Holidays Hunt Elite';
   authProvider: 'google' | 'email' | 'phone';
   signupDate: string;
   lastLogin: string;

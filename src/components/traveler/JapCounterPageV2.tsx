@@ -39,7 +39,7 @@ const syncToGoogleCalendar = async (token: string, mantra: string, totalChants: 
   // 2. Build Event Schema
   const eventBody = {
     summary: `📿 Jap Sadhana: ${totalChants} chants (${totalMalas} Malas)`,
-    description: `Daily Jap spiritual chanting practice logged on Bhakti Sathi.\n\n- Active Mantra: ॥ ${mantra} ॥\n- Today's Total Chants: ${totalChants} beads\n- Completed Malas: ${totalMalas}\n- Last Sync: ${new Date().toLocaleTimeString()}\n\nKeep up your divine spiritual connection!`,
+    description: `Daily Jap spiritual chanting practice logged on Holidays Hunt.\n\n- Active Mantra: ॥ ${mantra} ॥\n- Today's Total Chants: ${totalChants} beads\n- Completed Malas: ${totalMalas}\n- Last Sync: ${new Date().toLocaleTimeString()}\n\nKeep up your divine spiritual connection!`,
     start: {
       date: todayStr
     },
@@ -232,7 +232,7 @@ export const JapCounterPageV2: React.FC = () => {
       streakDays,
       activeMantra,
       records: filteredRecords,
-      agencyName: agencySettings?.agencyName || 'Bhakti Sathi',
+      agencyName: agencySettings?.agencyName || 'Holidays Hunt',
     });
   };
 
@@ -332,7 +332,7 @@ export const JapCounterPageV2: React.FC = () => {
 
               {/* Direct 1-Click Google Calendar Event (No OAuth / No Warning Screen) */}
               <a
-                href={`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(`📿 Jap Sadhana: ${todayChants} Chants (${todayMalas} Malas)`)}&details=${encodeURIComponent(`Daily spiritual japa sadhana practice logged with Bhakti Sathi.\n\n• Mantra: ॥ ${activeMantra} ॥\n• Total Chants: ${todayChants} beads\n• Malas Completed: ${todayMalas}\n• Website: https://mybhaktisathi.com\n\nMay the divine blessings always be with you!`)}&dates=${new Date().toISOString().replace(/-|:|\.\d\d\d/g, '').slice(0, 8)}/${new Date().toISOString().replace(/-|:|\.\d\d\d/g, '').slice(0, 8)}`}
+                href={`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(`📿 Jap Sadhana: ${todayChants} Chants (${todayMalas} Malas)`)}&details=${encodeURIComponent(`Daily spiritual japa sadhana practice logged with Holidays Hunt.\n\n• Mantra: ॥ ${activeMantra} ॥\n• Total Chants: ${todayChants} beads\n• Malas Completed: ${todayMalas}\n• Website: https://holidayshunt.com\n\nMay the divine blessings always be with you!`)}&dates=${new Date().toISOString().replace(/-|:|\.\d\d\d/g, '').slice(0, 8)}/${new Date().toISOString().replace(/-|:|\.\d\d\d/g, '').slice(0, 8)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="px-3.5 py-2.5 rounded-xl text-xs font-bold bg-amber-50 text-amber-900 border border-amber-200 hover:bg-amber-100 transition flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
@@ -384,7 +384,7 @@ export const JapCounterPageV2: React.FC = () => {
               <Sparkles className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
               <div>
                 <span className="font-black">Google Sign-in Tip: </span>
-                When Google shows <em>"Google hasn't verified this app"</em>, tap <strong className="underline">Advanced</strong> at the bottom left, then tap <strong className="underline font-bold">Go to Bhakti Sathi (unsafe)</strong> &rarr; <strong className="font-bold">Continue</strong>. Or use the <strong>Instant 1-Click Add</strong> button!
+                When Google shows <em>"Google hasn't verified this app"</em>, tap <strong className="underline">Advanced</strong> at the bottom left, then tap <strong className="underline font-bold">Go to Holidays Hunt (unsafe)</strong> &rarr; <strong className="font-bold">Continue</strong>. Or use the <strong>Instant 1-Click Add</strong> button!
               </div>
             </div>
           )}
@@ -403,7 +403,7 @@ export const JapCounterPageV2: React.FC = () => {
           )}
         </section>
 
-        <section className="mt-6 sm:mt-8 rounded-[24px] bg-[#FFF8F3] border border-[#F4DED2] px-5 sm:px-8 py-4 sm:py-5 text-center shadow-sm"><div className="text-brand-orange text-2xl font-serif leading-none">“</div><p className="text-sm sm:text-base font-serif font-semibold text-stone-700 leading-relaxed max-w-2xl mx-auto">A calm mind, a devoted heart, and a sacred name on your lips can change everything.</p><div className="mt-1 text-[10px] font-bold text-stone-400">— Bhakti Sathi</div></section>
+        <section className="mt-6 sm:mt-8 rounded-[24px] bg-[#FFF8F3] border border-[#F4DED2] px-5 sm:px-8 py-4 sm:py-5 text-center shadow-sm"><div className="text-brand-orange text-2xl font-serif leading-none">“</div><p className="text-sm sm:text-base font-serif font-semibold text-stone-700 leading-relaxed max-w-2xl mx-auto">A calm mind, a devoted heart, and a sacred name on your lips can change everything.</p><div className="mt-1 text-[10px] font-bold text-stone-400">— Holidays Hunt</div></section>
 
         <section className="mt-7 sm:mt-9">
           <div className="flex items-end justify-between mb-4"><div><div className="text-[9px] uppercase tracking-[0.2em] font-black text-brand-orange">Your practice</div><h2 className="text-xl sm:text-2xl font-black mt-0.5">Sadhana insights</h2></div><button type="button" onClick={handleDownloadPdf} className="inline-flex items-center gap-1.5 rounded-xl bg-white border border-stone-200 px-3 py-2 text-[10px] font-black text-stone-600 hover:border-brand-orange/30 hover:text-brand-orange transition cursor-pointer"><Download className="w-3.5 h-3.5" /><span className="hidden sm:inline">Export PDF</span></button></div>

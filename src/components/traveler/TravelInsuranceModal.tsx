@@ -211,7 +211,7 @@ export const TravelInsuranceModal: React.FC<TravelInsuranceModalProps> = ({
               <div className="flex items-start gap-2">
                 <CheckCircle2 className="w-3.5 h-3.5 text-stone-900 shrink-0 mt-0.5" />
                 <p>
-                  <strong>Zero Agency Liability:</strong> Bhakti Sathi operates purely as a tour operator and facilitator. Bhakti Sathi is not an insurance provider and holds zero financial liability, obligation, or responsibility for any medical expenses, hospital dues, luggage losses, claim settlements, or disputes.
+                  <strong>Zero Agency Liability:</strong> Holidays Hunt operates purely as a tour operator and facilitator. Holidays Hunt is not an insurance provider and holds zero financial liability, obligation, or responsibility for any medical expenses, hospital dues, luggage losses, claim settlements, or disputes.
                 </p>
               </div>
               <div className="flex items-start gap-2">

@@ -143,7 +143,7 @@ export const PanchangCalendarPage: React.FC = () => {
 
   const handleDownload = () => {
     if (!panchang) return;
-    void generatePanchangPdf({ panchang, cityLabel: city.label, agencyName: 'Bhakti Sathi' });
+    void generatePanchangPdf({ panchang, cityLabel: city.label, agencyName: 'Holidays Hunt' });
   };
 
   const selectedDateLabel = formatLongDate(selectedDate);
@@ -154,7 +154,7 @@ export const PanchangCalendarPage: React.FC = () => {
         <div className="max-w-6xl mx-auto min-h-[68px] px-4 sm:px-6 lg:px-8 flex items-center gap-3">
           <button type="button" onClick={handleBack} className="w-10 h-10 shrink-0 rounded-xl border border-stone-200 bg-white text-stone-500 hover:text-brand-orange hover:border-brand-orange/30 transition flex items-center justify-center cursor-pointer" aria-label="Back to home"><ArrowLeft className="w-5 h-5" /></button>
           <div className="min-w-0 flex-1">
-            <div className="text-[9px] uppercase tracking-[0.22em] font-black text-brand-orange">Bhakti Sathi • Sacred Calendar</div>
+            <div className="text-[9px] uppercase tracking-[0.22em] font-black text-brand-orange">Holidays Hunt • Sacred Calendar</div>
             <h1 className="text-xl sm:text-2xl font-black tracking-tight truncate">Panchang Calendar</h1>
           </div>
           <button type="button" onClick={handleDownload} disabled={!panchang || loading} className="inline-flex items-center gap-2 rounded-xl bg-brand-orange text-white px-3 sm:px-4 py-2.5 text-[10px] font-black shadow-[0_8px_20px_rgba(255,75,0,0.18)] hover:bg-brand-orange-hover disabled:opacity-50 disabled:cursor-not-allowed transition cursor-pointer" title="Download one-page Panchang PDF"><Download className="w-4 h-4" /><span className="hidden sm:inline">Download PDF</span></button>

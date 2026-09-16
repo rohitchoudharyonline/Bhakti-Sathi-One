@@ -68,9 +68,9 @@ export const DestinationPage: React.FC = () => {
 
   useEffect(() => {
     if (destinationMeta) {
-      const title = destinationMeta.seoMetaTitle || `${destinationMeta.name} Tour Packages & Yatra Guide | Bhakti Sathi`;
-      const description = destinationMeta.seoMetaDescription || `Book ${destinationMeta.name} tour packages with Bhakti Sathi. Verified hotels, private vehicle transfers & 24/7 yatra support.`;
-      const keywords = destinationMeta.seoKeywords || `${destinationMeta.name} tour packages, ${destinationMeta.name} yatra, Bhakti Sathi`;
+      const title = destinationMeta.seoMetaTitle || `${destinationMeta.name} Tour Packages & Yatra Guide | Holidays Hunt`;
+      const description = destinationMeta.seoMetaDescription || `Book ${destinationMeta.name} tour packages with Holidays Hunt. Verified hotels, private vehicle transfers & 24/7 yatra support.`;
+      const keywords = destinationMeta.seoKeywords || `${destinationMeta.name} tour packages, ${destinationMeta.name} yatra, Holidays Hunt`;
       updateDocumentSEO(title, description, keywords);
     }
   }, [destinationMeta]);
@@ -175,7 +175,7 @@ export const DestinationPage: React.FC = () => {
     const priceText = currentPriceVal ? ` (Approx ₹${currentPriceVal.toLocaleString('en-IN')}/person)` : '';
     const tierText = currentTierLabel ? ` [${currentTierLabel}]` : '';
     const message = encodeURIComponent(
-      `Hello Bhakti Sathi! I am interested in booking "${pkgTitle || `${destinationMeta.name} Tour Package`}"${tierText}${priceText}. Please share the detailed itinerary and customized quotation.`
+      `Hello Holidays Hunt! I am interested in booking "${pkgTitle || `${destinationMeta.name} Tour Package`}"${tierText}${priceText}. Please share the detailed itinerary and customized quotation.`
     );
     window.open(`https://wa.me/${cleanPhone}?text=${message}`, '_blank');
   };

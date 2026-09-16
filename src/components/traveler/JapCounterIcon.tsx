@@ -21,7 +21,7 @@ export const JapCounterIcon: React.FC = () => {
   const { navigateToJapCounter } = useTours();
   const navigate = (path: string) => { window.history.pushState({}, '', path); window.dispatchEvent(new PopStateEvent('popstate')); window.scrollTo({ top: 0, behavior: 'smooth' }); };
   return (
-    <div className="mt-4 sm:mt-5 flex items-start justify-center gap-3 sm:gap-7" aria-label="Bhakti Sathi spiritual shortcuts">
+    <div className="mt-4 sm:mt-5 flex items-start justify-center gap-3 sm:gap-7" aria-label="Holidays Hunt spiritual shortcuts">
       <Shortcut label="Jap Counter" icon={<RudrakshaIcon />} onClick={navigateToJapCounter} />
       <Shortcut label="Panchang" icon={<CalendarDays className="w-6 h-6 text-[#FF4B00]" strokeWidth={1.8} />} onClick={() => navigate('/panchang')} />
       <Shortcut label="Rashifal" icon={<Sparkles className="w-6 h-6 text-[#5B35D5]" strokeWidth={1.8} />} onClick={() => navigate('/rashifal')} />

@@ -83,8 +83,8 @@ function header(d:jsPDF,a:AgencySettings,label:string,p:number,logoData?:any){
   d.line(28, h-26, w-28, h-26);
   d.setFontSize(8.5);
   d.setTextColor(...MUTED);
-  d.text(clean(a.agencyName||'Bhakti Sathi'), 28, h-12);
-  const contactStr = [a.phone, 'care@mybhaktisathi.com', 'mybhaktisathi.com'].filter(Boolean).map(clean).join('  |  ');
+  d.text(clean(a.agencyName||'Holidays Hunt'), 28, h-12);
+  const contactStr = [a.phone, 'care@holidayshunt.com', 'holidayshunt.com'].filter(Boolean).map(clean).join('  |  ');
   if (contactStr) {
     d.text(contactStr, w/2, h-12, {align:'center'});
   }
@@ -154,7 +154,7 @@ export async function generateQuotationPDF(inq:BookingInquiry,pkg:TourPackage|un
   const contentWidth = 539;
   const maxPageHeight = 770; // adjusted for footer
 
-  d.setProperties({title:`Travel Proposal - ${inq.travelerName}`,author:a.agencyName||'Bhakti Sathi'});
+  d.setProperties({title:`Travel Proposal - ${inq.travelerName}`,author:a.agencyName||'Holidays Hunt'});
   let p=1,y=72;
   drawBackground(d,false,SOFT);
   header(d,a,'Travel Quotation & Proposal',p, logoData);
@@ -188,7 +188,7 @@ export async function generateQuotationPDF(inq:BookingInquiry,pkg:TourPackage|un
   y+=24;
   
   y=title(d,inq.packageTitle||pkg?.title||'Custom Holiday',y,15)+4;
-  y=para(d,pkg?.tagline||'A thoughtfully designed journey by Bhakti Sathi',y,539,9.5)+10;
+  y=para(d,pkg?.tagline||'A thoughtfully designed journey by Holidays Hunt',y,539,9.5)+10;
   
   // Traveller & Validity Card
   drawCard(d, margin, y, contentWidth, 84, SOFT, LINE);
@@ -399,9 +399,9 @@ export async function generateQuotationPDF(inq:BookingInquiry,pkg:TourPackage|un
   d.setFont('helvetica','bold');
   d.setFontSize(9);
   d.setTextColor(...GOLD);
-  d.text('Thank you for choosing Bhakti Sathi.', margin+10, y+62);
+  d.text('Thank you for choosing Holidays Hunt.', margin+10, y+62);
   
-  d.save(`Bhakti-Sathi-Proposal-${clean(inq.travelerName).replace(/[^a-z0-9]+/gi,'-')}.pdf`);
+  d.save(`Holidays-Hunt-Proposal-${clean(inq.travelerName).replace(/[^a-z0-9]+/gi,'-')}.pdf`);
 }
 export async function generateInvoicePDF(inv:Invoice,a:AgencySettings):Promise<void>{
   const d=doc();
@@ -426,7 +426,7 @@ export async function generateInvoicePDF(inv:Invoice,a:AgencySettings):Promise<v
     d.setFont('helvetica', 'bold');
     d.setFontSize(16);
     d.setTextColor(...INK);
-    d.text('Bhakti Sathi', margin, y + 16);
+    d.text('Holidays Hunt', margin, y + 16);
   }
 
   const isTax = inv.taxPercent && inv.taxPercent > 0;
@@ -691,16 +691,16 @@ export async function generateInvoicePDF(inv:Invoice,a:AgencySettings):Promise<v
   d.setFont('helvetica', 'bold');
   d.setFontSize(8);
   d.setTextColor(...INK);
-  d.text('Bhakti Sathi', margin, h - 22);
+  d.text('Holidays Hunt', margin, h - 22);
   
   d.setFont('helvetica', 'normal');
   d.setFontSize(7);
   d.setTextColor(...MUTED);
-  const footContact = `Phone: ${a.phone||''}  |  Email: care@mybhaktisathi.com  |  Website: mybhaktisathi.com`;
+  const footContact = `Phone: ${a.phone||''}  |  Email: care@holidayshunt.com  |  Website: holidayshunt.com`;
   d.text(footContact, margin, h - 12);
   d.text(`Generated: ${new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}`, w - margin, h - 12, { align: 'right' });
 
-  d.save(`Bhakti-Sathi-${inv.invoiceNumber}.pdf`);
+  d.save(`Holidays-Hunt-${inv.invoiceNumber}.pdf`);
 }
 
 export async function generateVendorVoucherPDF(pay:VendorPayment,vendor:Vendor|undefined,a:AgencySettings):Promise<void>{
@@ -726,7 +726,7 @@ export async function generateVendorVoucherPDF(pay:VendorPayment,vendor:Vendor|u
     d.setFont('helvetica', 'bold');
     d.setFontSize(16);
     d.setTextColor(...INK);
-    d.text('Bhakti Sathi', margin, y + 16);
+    d.text('Holidays Hunt', margin, y + 16);
   }
 
   d.setFont('helvetica', 'bold');
@@ -962,16 +962,16 @@ export async function generateVendorVoucherPDF(pay:VendorPayment,vendor:Vendor|u
   d.setFont('helvetica', 'bold');
   d.setFontSize(8);
   d.setTextColor(...INK);
-  d.text('Bhakti Sathi', margin, h - 22);
+  d.text('Holidays Hunt', margin, h - 22);
   
   d.setFont('helvetica', 'normal');
   d.setFontSize(7);
   d.setTextColor(...MUTED);
-  const footContact = `Phone: ${a.phone||''}  |  Email: care@mybhaktisathi.com  |  Website: mybhaktisathi.com`;
+  const footContact = `Phone: ${a.phone||''}  |  Email: care@holidayshunt.com  |  Website: holidayshunt.com`;
   d.text(footContact, margin, h - 12);
   d.text(`Generated: ${new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}`, w - margin, h - 12, { align: 'right' });
 
-  d.save(`Bhakti-Sathi-${clean(pay.voucherNumber)}.pdf`);
+  d.save(`Holidays-Hunt-${clean(pay.voucherNumber)}.pdf`);
 }
 
 const DESTINATION_IMAGES: Record<string, string> = {
@@ -1055,7 +1055,7 @@ function drawLandscapePlaceholder(d: jsPDF, x: number, y: number, w: number, h: 
 }
 
 async function loadBrandLogoData(): Promise<{ dataUrl: string; width: number; height: number; format: string } | null> {
-  const sources = ['/logo-bhakti-sathi.png', '/logo.png'];
+  const sources = ['/logo-holidays-hunt.png', '/logo.png'];
   for (const src of sources) {
     try {
       const img = await new Promise<HTMLImageElement>((resolve, reject) => {
@@ -1168,7 +1168,7 @@ export async function generateTourPDF(pkg:TourPackage,a:AgencySettings,onProgres
 
   tempD.setFont('helvetica', 'normal');
   tempD.setFontSize(12);
-  const overviewText = pkg.overview || pkg.tagline || 'A thoughtfully crafted journey by Bhakti Sathi.';
+  const overviewText = pkg.overview || pkg.tagline || 'A thoughtfully crafted journey by Holidays Hunt.';
   const overviewLines = tempD.splitTextToSize(clean(overviewText), contentWidth);
   calcY += overviewLines.length * 16 + 24;
 
@@ -1245,7 +1245,7 @@ export async function generateTourPDF(pkg:TourPackage,a:AgencySettings,onProgres
 
   // 2. Initialize final continuous mobile PDF document
   const d = new jsPDF({ orientation: 'portrait', unit: 'pt', format: [w, totalHeight], compress: true });
-  d.setProperties({title:`Tour Brochure - ${pkg.title}`,author:a.agencyName||'Bhakti Sathi'});
+  d.setProperties({title:`Tour Brochure - ${pkg.title}`,author:a.agencyName||'Holidays Hunt'});
 
   // Background
   d.setFillColor(255, 255, 255);
@@ -1266,7 +1266,7 @@ export async function generateTourPDF(pkg:TourPackage,a:AgencySettings,onProgres
     d.setFont('helvetica', 'bold');
     d.setFontSize(22);
     d.setTextColor(...INK);
-    d.text('Bhakti Sathi', margin, 46);
+    d.text('Holidays Hunt', margin, 46);
   }
 
   d.setFont('helvetica', 'normal');
@@ -1565,13 +1565,13 @@ export async function generateTourPDF(pkg:TourPackage,a:AgencySettings,onProgres
   d.setFont('helvetica', 'bold');
   d.setFontSize(9.5);
   d.setTextColor(...INK);
-  d.text('Bhakti Sathi', w / 2, totalHeight - 40, { align: 'center' });
+  d.text('Holidays Hunt', w / 2, totalHeight - 40, { align: 'center' });
   d.setFont('helvetica', 'normal');
   d.setFontSize(9);
   d.setTextColor(...MUTED);
-  d.text(`Phone: ${clean(a.phone || '+91 94199 15255')}  |  Email: ${clean(a.email || 'care@mybhaktisathi.com')}`, w / 2, totalHeight - 26, { align: 'center' });
+  d.text(`Phone: ${clean(a.phone || '+91 94199 15255')}  |  Email: ${clean(a.email || 'care@holidayshunt.com')}`, w / 2, totalHeight - 26, { align: 'center' });
 
-  const safeFilename = `BhaktiSathi_MobileBrochure_${clean(pkg.title).replace(/[^a-zA-Z0-9_-]/g, '')}.pdf`;
+  const safeFilename = `HolidaysHunt_MobileBrochure_${clean(pkg.title).replace(/[^a-zA-Z0-9_-]/g, '')}.pdf`;
   d.save(safeFilename);
 }
 

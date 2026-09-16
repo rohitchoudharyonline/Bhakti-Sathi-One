@@ -50,7 +50,7 @@ export const OTAValueGuarantees: React.FC = () => {
               The Sacred Yatra Advantage
             </span>
             <h2 className="text-2xl sm:text-3xl font-black text-stone-900 tracking-tight">
-              Why Devotees & Families Trust Bhakti Sathi
+              Why Devotees & Families Trust Holidays Hunt
             </h2>
           </div>
           <p className="text-xs sm:text-sm text-stone-600 max-w-md font-medium">

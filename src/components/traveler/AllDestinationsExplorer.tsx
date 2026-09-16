@@ -22,9 +22,9 @@ export const AllDestinationsExplorer: React.FC = () => {
   useEffect(() => {
     const destinationsSeo = pageSeoConfigs?.['destinations'];
     updatePageSeo({
-      title: destinationsSeo?.metaTitle || "Sacred Destinations & Temple Circuits in India | Bhakti Sathi",
+      title: destinationsSeo?.metaTitle || "Sacred Destinations & Temple Circuits in India | Holidays Hunt",
       description: destinationsSeo?.metaDescription || "Explore India’s most revered holy destinations including Katra Vaishno Devi, Varanasi, Ayodhya Ram Mandir, Mathura Vrindavan, and Himachal Devi Temples.",
-      canonicalUrl: destinationsSeo?.canonicalUrl || "https://mybhaktisathi.com/destinations",
+      canonicalUrl: destinationsSeo?.canonicalUrl || "https://holidayshunt.com/destinations",
       canonicalPath: "/destinations",
       noIndex: destinationsSeo?.noIndex,
       noFollow: destinationsSeo?.noFollow,
@@ -32,7 +32,7 @@ export const AllDestinationsExplorer: React.FC = () => {
         "@context": "https://schema.org",
         "@type": "ItemList",
         "name": "Holiday Destinations",
-        "description": "Comprehensive list of pilgrimage travel packages available on Bhakti Sathi.",
+        "description": "Comprehensive list of pilgrimage travel packages available on Holidays Hunt.",
         "itemListElement": destinationsList.map((dest, index) => ({
           "@type": "ListItem",
           "position": index + 1,

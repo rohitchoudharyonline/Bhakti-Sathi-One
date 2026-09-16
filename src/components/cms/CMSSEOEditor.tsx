@@ -96,7 +96,7 @@ export const CMSSEOEditor: React.FC<CMSSEOEditorProps> = ({
             type="text"
             value={seoMetaTitle}
             onChange={(e) => onChange('seoMetaTitle', e.target.value)}
-            placeholder={`e.g. ${itemName || 'Page'} Tour Packages & Yatra Guide | Bhakti Sathi`}
+            placeholder={`e.g. ${itemName || 'Page'} Tour Packages & Yatra Guide | Holidays Hunt`}
             className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 focus:ring-2 focus:ring-[#FF4B00] focus:border-transparent text-sm font-medium text-stone-900 bg-stone-50/50"
           />
         </div>
@@ -124,7 +124,7 @@ export const CMSSEOEditor: React.FC<CMSSEOEditorProps> = ({
             rows={2}
             value={seoMetaDescription}
             onChange={(e) => onChange('seoMetaDescription', e.target.value)}
-            placeholder="Book customized pilgrimage tour packages with Bhakti Sathi. Verified hotels, private cabs & 24/7 yatra support."
+            placeholder="Book customized pilgrimage tour packages with Holidays Hunt. Verified hotels, private cabs & 24/7 yatra support."
             className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 focus:ring-2 focus:ring-[#FF4B00] focus:border-transparent text-sm font-medium text-stone-900 bg-stone-50/50"
           />
         </div>
@@ -138,7 +138,7 @@ export const CMSSEOEditor: React.FC<CMSSEOEditorProps> = ({
             type="text"
             value={seoKeywords}
             onChange={(e) => onChange('seoKeywords', e.target.value)}
-            placeholder="pilgrimage packages, yatra, temple darshan, Bhakti Sathi"
+            placeholder="pilgrimage packages, yatra, temple darshan, Holidays Hunt"
             className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 focus:ring-2 focus:ring-[#FF4B00] focus:border-transparent text-sm font-medium text-stone-900 bg-stone-50/50"
           />
         </div>
@@ -154,13 +154,13 @@ export const CMSSEOEditor: React.FC<CMSSEOEditorProps> = ({
         <div className="bg-stone-50 p-3.5 rounded-xl border border-stone-200 font-sans space-y-1">
           <div className="flex items-center gap-2 text-xs text-stone-600">
             <Globe className="w-3.5 h-3.5 text-stone-400" />
-            <span className="truncate">https://mybhaktisathi.com › {type}s</span>
+            <span className="truncate">https://holidayshunt.com › {type}s</span>
           </div>
           <h3 className="text-blue-700 text-sm font-bold hover:underline cursor-pointer line-clamp-1">
-            {seoMetaTitle || `${itemName || 'Page Title'} | Bhakti Sathi`}
+            {seoMetaTitle || `${itemName || 'Page Title'} | Holidays Hunt`}
           </h3>
           <p className="text-xs text-stone-600 line-clamp-2 leading-relaxed">
-            {seoMetaDescription || 'Book customized sacred pilgrimage tour packages across India with Bhakti Sathi. Verified hotels, private vehicle transfers & 24/7 yatra support.'}
+            {seoMetaDescription || 'Book customized sacred pilgrimage tour packages across India with Holidays Hunt. Verified hotels, private vehicle transfers & 24/7 yatra support.'}
           </p>
         </div>
       </div>

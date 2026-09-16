@@ -16,7 +16,7 @@ export const TourReviewsSection: React.FC<Props> = ({ pkg }) => {
   const [expandedReviewId, setExpandedReviewId] = useState<string | null>(null);
 
   const reviews = getPackageReviews(pkg.title, pkg.reviews);
-  const agencyName = agencySettings.agencyName || 'Bhakti Sathi';
+  const agencyName = agencySettings.agencyName || 'Holidays Hunt';
 
   const openReviewsModal = (tab: 'reviews' | 'gallery') => {
     setModalTab(tab);

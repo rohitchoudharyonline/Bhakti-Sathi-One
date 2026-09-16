@@ -119,16 +119,16 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
 
   // SEO & Dynamic Title / Schema Configuration
   useEffect(() => {
-    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://mybhaktisathi.com';
+    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://holidayshunt.com';
     const isTempleSpecific = selectedTempleId !== 'all' && selectedTempleMeta;
     const isDestSpecific = selectedDestSlug !== 'all' && currentDestMeta;
     const toursSeo = pageSeoConfigs?.['tours'];
 
     const pageTitle = isTempleSpecific
-      ? `${selectedTempleMeta?.name} Pilgrimage & Darshan Tour Packages 2026 | Bhakti Sathi`
+      ? `${selectedTempleMeta?.name} Pilgrimage & Darshan Tour Packages 2026 | Holidays Hunt`
       : isDestSpecific
-      ? `${currentDestMeta?.name} Tour Packages 2026 | Bhakti Sathi`
-      : toursSeo?.metaTitle || 'Book Sacred Yatra & Spiritual Pilgrimage Packages | Bhakti Sathi';
+      ? `${currentDestMeta?.name} Tour Packages 2026 | Holidays Hunt`
+      : toursSeo?.metaTitle || 'Book Sacred Yatra & Spiritual Pilgrimage Packages | Holidays Hunt';
 
     const pageDescription = isTempleSpecific
       ? `Book customized pilgrimage itineraries and guided tour packages for ${selectedTempleMeta?.name}. Verified stays, private transfers, and experienced yatra guides.`
@@ -239,24 +239,36 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
       if (!match) return false;
     }
 
-    // Category / Travel Style
+    // Category / Tour Type (Pilgrimage, Honeymoon, Family)
     if (selectedCategory !== 'all') {
       const cat = selectedCategory.toLowerCase();
       const pkgCat = (pkg.category || '').toLowerCase();
+      const pkgTourType = ((pkg as any).tourType || '').toLowerCase();
       const pkgTitle = (pkg.title || '').toLowerCase();
       const pkgDesc = ((pkg as any).description || pkg.tagline || pkg.overview || '').toLowerCase();
 
       if (cat === 'family') {
         const isFamily =
           pkgCat.includes('family') ||
+          pkgTourType.includes('family') ||
           pkgTitle.includes('family') ||
           pkgTitle.includes('vacation') ||
           pkgDesc.includes('family') ||
           (pkg as any).tags?.includes('family');
         if (!isFamily) return false;
+      } else if (cat === 'honeymoon') {
+        const isHoneymoon =
+          pkgCat.includes('honeymoon') ||
+          pkgTourType.includes('honeymoon') ||
+          pkgTitle.includes('honeymoon') ||
+          pkgTitle.includes('romantic') ||
+          pkgDesc.includes('honeymoon') ||
+          pkgDesc.includes('romantic');
+        if (!isHoneymoon) return false;
       } else if (cat === 'pilgrimage') {
         const isPilgrimage =
           pkgCat.includes('pilgrimage') ||
+          pkgTourType.includes('pilgrimage') ||
           pkgCat.includes('yatra') ||
           pkgTitle.includes('yatra') ||
           pkgTitle.includes('vaishno') ||
@@ -270,14 +282,6 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
           pkgTitle.includes('premium') ||
           (pkg.price || 0) >= 25000;
         if (!isLuxury) return false;
-      } else if (cat === 'adventure') {
-        const isAdventure =
-          pkgCat.includes('adventure') ||
-          pkgTitle.includes('trek') ||
-          pkgTitle.includes('adventure') ||
-          (pkg.destination || '').toLowerCase() === 'ladakh' ||
-          (pkg.destination || '').toLowerCase() === 'spiti';
-        if (!isAdventure) return false;
       }
     }
 
@@ -442,12 +446,6 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
                       {selectedTempleMeta.name}
                     </h1>
 
-                    {selectedTempleMeta.hindiName && (
-                      <p className="text-sm sm:text-base text-amber-300 font-bold">
-                        {selectedTempleMeta.hindiName}
-                      </p>
-                    )}
-
                     {selectedTempleMeta.tagline && (
                       <p className="text-sm sm:text-base text-stone-300 font-medium italic">
                         "{selectedTempleMeta.tagline}"
@@ -508,7 +506,7 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
                   <div className="flex flex-wrap items-center gap-3 pt-3">
                     <a
                       href={`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
-                        `Namaste Bhakti Sathi, I want to book a customized sacred pilgrimage & darshan package for ${selectedTempleMeta.name}.`
+                        `Namaste Holidays Hunt, I want to book a customized sacred pilgrimage & darshan package for ${selectedTempleMeta.name}.`
                       )}`}
                       target="_blank"
                       rel="noopener noreferrer"
@@ -628,10 +626,11 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
                 onChange={(e) => setSelectedCategory(e.target.value)}
                 className="p-2 bg-stone-100 border border-stone-200 rounded-xl text-xs font-semibold text-stone-800 focus:outline-none focus:ring-2 focus:ring-[#FF4B00]/20"
               >
-                <option value="all">All Sacred Yatras</option>
-                <option value="pilgrimage">Spiritual Yatra / Pilgrimage</option>
-                <option value="family">Family Pilgrimage</option>
-                <option value="luxury">Luxury & Heritage</option>
+                <option value="all">All Tour Types</option>
+                <option value="pilgrimage">Pilgrimage Tours</option>
+                <option value="honeymoon">Honeymoon Tours</option>
+                <option value="family">Family Tours</option>
+                <option value="luxury">Luxury & Premium</option>
               </select>
 
               <select
@@ -864,7 +863,7 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
               <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
                 <a
                   href={`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
-                    `Namaste Bhakti Sathi, I would like to arrange a customized pilgrimage tour package for ${selectedTempleMeta?.name || 'this sacred shrine'}.`
+                    `Namaste Holidays Hunt, I would like to arrange a customized pilgrimage tour package for ${selectedTempleMeta?.name || 'this sacred shrine'}.`
                   )}`}
                   target="_blank"
                   rel="noopener noreferrer"

@@ -110,7 +110,7 @@ const DEFAULT_SAMPLE_PAYMENTS: TravelerPaymentRecord[] = [
     id: 'HH-REC-9011',
     bookingId: 'inq-hh-901',
     packageTitle: 'Paradise Kashmir: Srinagar, Gulmarg, Pahalgam & Luxury Houseboat',
-    userEmail: 'care@mybhaktisathi.com',
+    userEmail: 'care@holidayshunt.com',
     amountPaid: 48500,
     remainingAmount: 0,
     paymentDate: '01 Sep 2026, 04:30 PM',
@@ -316,7 +316,7 @@ export const TravelerProfilePage: React.FC = () => {
       const inqPhone = (inq.phone || '').replace(/[^0-9]/g, '');
       
       const emailMatch = inqEmail === currentEmail ||
-        (currentEmail.includes('mybhaktisathi') && inqEmail.includes('mybhaktisathi')) ||
+        (currentEmail.includes('holidayshunt') && inqEmail.includes('holidayshunt')) ||
         (currentEmail.includes('vip') && inqEmail.includes('vip'));
       
       const phoneMatch = currentPhone.length >= 10 && inqPhone.includes(currentPhone.slice(-10));
@@ -346,7 +346,7 @@ export const TravelerProfilePage: React.FC = () => {
     return paymentRecords.filter((pay) => {
       const payEmail = pay.userEmail.toLowerCase().trim();
       const emailMatch = payEmail === currentEmail ||
-        (currentEmail.includes('mybhaktisathi') && payEmail.includes('mybhaktisathi')) ||
+        (currentEmail.includes('holidayshunt') && payEmail.includes('holidayshunt')) ||
         (currentEmail.includes('vip') && payEmail.includes('vip'));
       
       const inqMatch = userInquiries.some((inq) => inq.id === pay.bookingId);
@@ -378,7 +378,7 @@ export const TravelerProfilePage: React.FC = () => {
       bookingId: record.bookingId,
       packageTitle: record.packageTitle,
       travelerName: travelerUser?.name || matchingInquiry?.travelerName || 'Guest Traveler',
-      travelerEmail: record.userEmail || travelerUser?.email || matchingInquiry?.email || 'guest@mybhaktisathi.com',
+      travelerEmail: record.userEmail || travelerUser?.email || matchingInquiry?.email || 'guest@holidayshunt.com',
       travelerPhone: travelerUser?.phone || matchingInquiry?.phone || '+91 94199 15255',
       travelDate: matchingInquiry?.travelDate,
       amountPaid: record.amountPaid,
@@ -402,7 +402,7 @@ export const TravelerProfilePage: React.FC = () => {
       bookingId: trip.id,
       packageTitle: trip.packageTitle,
       travelerName: travelerUser?.name || trip.travelerName || 'Guest Traveler',
-      travelerEmail: travelerUser?.email || trip.email || 'guest@mybhaktisathi.com',
+      travelerEmail: travelerUser?.email || trip.email || 'guest@holidayshunt.com',
       travelerPhone: travelerUser?.phone || trip.phone || '+91 94199 15255',
       travelDate: trip.travelDate,
       amountPaid: paidAmount,
@@ -473,7 +473,7 @@ export const TravelerProfilePage: React.FC = () => {
       id: newReceiptId,
       bookingId: selectedBookingId,
       packageTitle: targetInquiry?.packageTitle || 'Custom Holiday Tour Package',
-      userEmail: travelerUser?.email || 'care@mybhaktisathi.com',
+      userEmail: travelerUser?.email || 'care@holidayshunt.com',
       amountPaid: paidNum,
       remainingAmount: remaining,
       paymentDate: new Date().toLocaleDateString('en-IN', {
@@ -723,7 +723,7 @@ export const TravelerProfilePage: React.FC = () => {
                   ? 'Reset Your Password'
                   : guestAuthMode === 'otp'
                   ? 'Sign In with Email OTP'
-                  : 'Sign In to Bhakti Sathi'}
+                  : 'Sign In to Holidays Hunt'}
               </h1>
               <p className="text-xs text-stone-500 max-w-xs mx-auto">
                 Access your personalized itineraries, booking inquiries, wishlists &amp; daily Jap Sadhana practice.
@@ -1272,7 +1272,7 @@ export const TravelerProfilePage: React.FC = () => {
                   </h1>
                   <span className="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300 text-[10px] font-black uppercase tracking-wider flex items-center gap-1">
                     <Award className="w-3 h-3 text-amber-600" />
-                    <span>{travelerUser.memberTier || 'Bhakti Sathi Elite'}</span>
+                    <span>{travelerUser.memberTier || 'Holidays Hunt Elite'}</span>
                   </span>
                 </div>
 
@@ -1311,7 +1311,7 @@ export const TravelerProfilePage: React.FC = () => {
 
               <a
                 href={`https://wa.me/${(agencySettings.whatsapp || '+919419915255').replace(/[^0-9]/g, '')}?text=${encodeURIComponent(
-                  `Hi Bhakti Sathi Team, I am logged in as ${travelerUser.name} (${travelerUser.email}) and need assistance with my bookings.`
+                  `Hi Holidays Hunt Team, I am logged in as ${travelerUser.name} (${travelerUser.email}) and need assistance with my bookings.`
                 )}`}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -1687,7 +1687,7 @@ export const TravelerProfilePage: React.FC = () => {
 
                         <a
                           href={`https://wa.me/${(agencySettings.whatsapp || '+919419915255').replace(/[^0-9]/g, '')}?text=${encodeURIComponent(
-                            `Hi Bhakti Sathi Team, I am inquiring about my booking #${trip.id} for ${trip.packageTitle}.`
+                            `Hi Holidays Hunt Team, I am inquiring about my booking #${trip.id} for ${trip.packageTitle}.`
                           )}`}
                           target="_blank"
                           rel="noopener noreferrer"
@@ -1757,7 +1757,7 @@ export const TravelerProfilePage: React.FC = () => {
 
                 <a
                   href={`https://wa.me/${(agencySettings.whatsapp || '+919419915255').replace(/[^0-9]/g, '')}?text=${encodeURIComponent(
-                    `Hi Bhakti Sathi Accounts Team, I have a query regarding payment receipt / bank transfer verification.`
+                    `Hi Holidays Hunt Accounts Team, I have a query regarding payment receipt / bank transfer verification.`
                   )}`}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -2276,7 +2276,7 @@ export const TravelerProfilePage: React.FC = () => {
                     <Sparkles className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
                     <div>
                       <span className="font-bold">Google Calendar Authorization: </span>
-                      When Google displays <em>"Google hasn't verified this app"</em>, tap <strong className="underline">Advanced</strong> at the bottom-left, then tap <strong className="underline font-bold">Go to Bhakti Sathi (unsafe)</strong> &rarr; <strong className="font-bold">Continue</strong> to complete the sync connection.
+                      When Google displays <em>"Google hasn't verified this app"</em>, tap <strong className="underline">Advanced</strong> at the bottom-left, then tap <strong className="underline font-bold">Go to Holidays Hunt (unsafe)</strong> &rarr; <strong className="font-bold">Continue</strong> to complete the sync connection.
                     </div>
                   </div>
                 </div>

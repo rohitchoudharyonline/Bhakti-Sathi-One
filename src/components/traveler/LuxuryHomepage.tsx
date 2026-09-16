@@ -65,8 +65,7 @@ import { isValidEmail } from '../../utils/validation';
 import { EmailVerificationInput } from '../common/EmailVerificationInput';
 import { JapCounterIcon } from './JapCounterIcon';
 import { PencilTempleIllustration } from './PencilTempleIllustration';
-import { HandpickedYatraPackagesSection } from './HandpickedYatraPackagesSection';
-import { GroupToursSection } from './GroupToursSection';
+import { HandpickedYatraPackagesSection, CategoryToursCarouselSection } from './HandpickedYatraPackagesSection';
 import { PullToRefresh } from '../common/PullToRefresh';
 import { FaqSection } from './FaqSection';
 
@@ -113,7 +112,7 @@ const REVIEWS = [
     trip: 'Kashmir Paradise (4-Star Super Deluxe)',
     rating: 5,
     comment:
-      'Bhakti Sathi delivered an unforgettable experience. The Gulmarg Gondola Phase 2 and Dal Lake houseboat stays were pristine. Our private Innova driver was punctual, friendly, and courteous with our senior parents.',
+      'Holidays Hunt delivered an unforgettable experience. The Gulmarg Gondola Phase 2 and Dal Lake houseboat stays were pristine. Our private Innova driver was punctual, friendly, and courteous with our senior parents.',
     verified: true,
   },
   {
@@ -138,7 +137,7 @@ const REVIEWS = [
   },
 ];
 
-const WHY_BHAKTI_SATHI = [
+const WHY_HOLIDAYS_HUNT = [
   {
     id: 'free-insurance',
     icon: ShieldCheck,
@@ -224,9 +223,9 @@ export const LuxuryHomepage: React.FC = () => {
     const homeSeo = pageSeoConfigs?.['home'];
     
     updatePageSeo({
-      title: homeSeo?.metaTitle || "Bhakti Sathi — All India Sacred Pilgrimage & Yatra Packages",
+      title: homeSeo?.metaTitle || "Holidays Hunt — All India Sacred Pilgrimage & Yatra Packages",
       description: homeSeo?.metaDescription || "Book customized sacred pilgrimage and yatra tour packages across India with verified hotel stays, priority darshan support, 1,300+ 5-star traveler reviews, and dedicated private transfers.",
-      canonicalUrl: homeSeo?.canonicalUrl || "https://mybhaktisathi.com",
+      canonicalUrl: homeSeo?.canonicalUrl || "https://holidayshunt.com",
       canonicalPath: "/",
       schemaData: agencySchema,
       noIndex: homeSeo?.noIndex,
@@ -237,12 +236,13 @@ export const LuxuryHomepage: React.FC = () => {
   // Filter States
   const [destinationScope, setDestinationScope] = useState<'all' | 'domestic' | 'international'>('domestic');
   const [activeSpecificDest, setActiveSpecificDest] = useState<string>('all');
+  const [selectedTourType, setSelectedTourType] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedMonth, setSelectedMonth] = useState('any');
   const [durationFilter, setDurationFilter] = useState('all');
   const [budgetFilter, setBudgetFilter] = useState('all');
   const [openWhyId, setOpenWhyId] = useState<string | null>('stays-deals');
-  const [openDropdown, setOpenDropdown] = useState<'dest' | 'month' | null>(null);
+  const [openDropdown, setOpenDropdown] = useState<'dest' | 'month' | 'type' | null>(null);
   const [isSearching, setIsSearching] = useState(false);
   const [loadedImages, setLoadedImages] = useState<Record<string, boolean>>({});
   const [pulsingTempleId, setPulsingTempleId] = useState<string | null>(null);
@@ -335,6 +335,8 @@ export const LuxuryHomepage: React.FC = () => {
     setOpenDropdown(null);
 
     setTimeout(() => {
+      const categoryParam = selectedTourType !== 'all' ? selectedTourType.toLowerCase() : undefined;
+
       if (activeSpecificDest.startsWith('temple:')) {
         const rawTempleId = activeSpecificDest.replace('temple:', '');
         const targetTemple = temples.find((t) => t.id === rawTempleId);
@@ -342,14 +344,14 @@ export const LuxuryHomepage: React.FC = () => {
           templeId: rawTempleId,
           templeName: targetTemple ? targetTemple.name : undefined,
           searchQuery: searchQuery,
-          category: 'pilgrimage',
+          category: categoryParam,
           month: selectedMonth !== 'any' ? selectedMonth : undefined,
         });
       } else {
         navigateToSearch({
           destinationSlug: activeSpecificDest,
           searchQuery: searchQuery,
-          category: 'pilgrimage',
+          category: categoryParam,
           month: selectedMonth !== 'any' ? selectedMonth : undefined,
         });
       }
@@ -369,7 +371,7 @@ export const LuxuryHomepage: React.FC = () => {
       const stats = JSON.parse(stored);
       stats[locationId] = (stats[locationId] || 0) + 1;
       localStorage.setItem('holidays_hunt_analytics_clicks', JSON.stringify(stats));
-      console.log(`[Bhakti Sathi Analytics] Captured interaction for "${locationName}" (${locationId}). Total clicks: ${stats[locationId]}`);
+      console.log(`[Holidays Hunt Analytics] Captured interaction for "${locationName}" (${locationId}). Total clicks: ${stats[locationId]}`);
     } catch (e) {
       console.error('Failed to capture destination interaction', e);
     }
@@ -400,14 +402,14 @@ export const LuxuryHomepage: React.FC = () => {
 
     const cleanEmail = leadEmail.trim()
       ? leadEmail.trim().toLowerCase()
-      : `${leadPhone.replace(/\D/g, '')}@callback.bhaktisathi.com`;
+      : `${leadPhone.replace(/\D/g, '')}@callback.holidayshunt.com`;
 
     submitInquiry({
       packageId: 'callback-request',
       travelerName: leadName.trim(),
       phone: leadPhone.trim(),
       email: cleanEmail,
-      packageTitle: `Pilgrimage Callback Request${leadYatra.trim() ? `: ${leadYatra.trim()}` : ''}`,
+      packageTitle: `Holiday & Tour Callback Request${leadYatra.trim() ? `: ${leadYatra.trim()}` : ''}`,
       travelDate: 'Flexible',
       adults: 1,
       children: 0,
@@ -436,27 +438,27 @@ export const LuxuryHomepage: React.FC = () => {
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
               <div className="max-w-2xl">
                 <h1 className="text-2xl sm:text-4xl font-extrabold text-stone-900 tracking-tight drop-shadow-2xs">
-                  Which sacred shrine would you like to visit?
+                  Where would you like to travel next?
                 </h1>
                 <p className="text-xs sm:text-sm text-stone-600 font-semibold mt-1">
-                  Curating sacred pilgrimage tours with love, care, and devotion across <b className="text-stone-900 font-extrabold">India</b>.
+                  Curating <b className="text-stone-900 font-extrabold">Family Vacations, Honeymoons &amp; Sacred Tours</b> across Domestic &amp; International destinations.
                 </p>
               </div>
 
-              {/* Verified Best Sacred Pilgrimage Specialist Badge */}
+              {/* Verified Holiday Specialist Badge */}
               <div className="inline-flex items-center gap-2 p-1 rounded-xl bg-[#FFF0EB]/95 backdrop-blur-xs border border-[#FF4B00]/30 text-xs font-bold shrink-0 self-start md:self-auto shadow-2xs">
                 <span className="px-3 py-1.5 rounded-lg bg-[#FF4B00] text-white font-black inline-flex items-center gap-1.5 shadow-xs">
                   <ShieldCheck className="w-4 h-4 text-white" />
-                  India&apos;s Best Sacred Pilgrimage &amp; Yatra Specialist
+                  India&apos;s Trusted Holiday &amp; Tour Facilitator
                 </span>
               </div>
             </div>
 
-            {/* MASTER SEARCH WIDGET (CLEAN, DEDICATED DEVOTIONAL SEARCH) */}
+            {/* MASTER SEARCH WIDGET (CLEAN, DEDICATED SEARCH) */}
             <div id="search-widget-container" className="relative z-20 bg-white rounded-2xl border-2 border-stone-200/90 shadow-lg p-4 sm:p-5">
-              <form onSubmit={handleHeroSearch} className="grid grid-cols-1 md:grid-cols-12 gap-3 relative">
-                {/* Column 1: Sacred Destination / Temple Selector */}
-                <div className="md:col-span-5 relative hero-search-dropdown-container">
+              <form onSubmit={handleHeroSearch} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 relative">
+                {/* Column 1: Destination / Shrine Selector */}
+                <div className="lg:col-span-4 relative hero-search-dropdown-container">
                   <button
                     type="button"
                     onClick={() => setOpenDropdown(openDropdown === 'dest' ? null : 'dest')}
@@ -467,13 +469,13 @@ export const LuxuryHomepage: React.FC = () => {
                     }`}
                   >
                     <span className="block text-[10px] font-black uppercase tracking-wider text-stone-400">
-                      Sacred Destination / Shrine
+                      Destination / Tour Circuit
                     </span>
                     <div className="flex items-center justify-between gap-2 mt-0.5 sm:mt-1">
                       <div className="flex items-center gap-2 min-w-0">
                         <MapPin className="w-4 h-4 text-[#FF4B00] shrink-0" />
                         <span className="text-xs sm:text-sm font-bold text-stone-900 truncate">
-                          {destinationSearchOptions.find((d) => d.id === activeSpecificDest)?.name || 'All Sacred Destinations'}
+                          {destinationSearchOptions.find((d) => d.id === activeSpecificDest)?.name || 'All Destinations & Circuits'}
                         </span>
                       </div>
                       <ChevronDown
@@ -488,7 +490,7 @@ export const LuxuryHomepage: React.FC = () => {
                   {openDropdown === 'dest' && (
                     <div className="absolute top-full left-0 right-0 sm:min-w-[320px] mt-2 bg-white rounded-2xl border border-stone-200 shadow-2xl z-50 p-2 space-y-1 max-h-[320px] overflow-y-auto">
                       <div className="px-2 py-1 text-[10px] font-extrabold uppercase tracking-wider text-stone-400">
-                        Select Sacred Destination
+                        Select Destination
                       </div>
                       {destinationSearchOptions.map((dest) => {
                         const isSelected = activeSpecificDest === dest.id;
@@ -526,8 +528,84 @@ export const LuxuryHomepage: React.FC = () => {
                   )}
                 </div>
 
-                {/* Column 2: Travel Month / Yatra Season */}
-                <div className="md:col-span-4 relative hero-search-dropdown-container">
+                {/* Column 2: Tour Type Selector (Pilgrimage, Honeymoon, Family) */}
+                <div className="lg:col-span-3 relative hero-search-dropdown-container">
+                  <button
+                    type="button"
+                    onClick={() => setOpenDropdown(openDropdown === 'type' ? null : 'type')}
+                    className={`w-full text-left p-2.5 sm:p-3 rounded-xl bg-stone-50 border transition cursor-pointer flex flex-col justify-between min-h-[52px] sm:min-h-[56px] ${
+                      openDropdown === 'type'
+                        ? 'border-stone-900 ring-2 ring-stone-100 bg-white'
+                        : 'border-stone-200 hover:border-stone-300'
+                    }`}
+                  >
+                    <span className="block text-[10px] font-black uppercase tracking-wider text-stone-400">
+                      Tour Type
+                    </span>
+                    <div className="flex items-center justify-between gap-2 mt-0.5 sm:mt-1">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <Sparkles className="w-4 h-4 text-[#FF4B00] shrink-0" />
+                        <span className="text-xs sm:text-sm font-bold text-stone-900 truncate">
+                          {selectedTourType === 'all'
+                            ? 'All Tour Types'
+                            : selectedTourType === 'Pilgrimage'
+                            ? 'Pilgrimage'
+                            : selectedTourType === 'Honeymoon'
+                            ? 'Honeymoon'
+                            : selectedTourType === 'Family'
+                            ? 'Family'
+                            : selectedTourType}
+                        </span>
+                      </div>
+                      <ChevronDown
+                        className={`w-4 h-4 text-stone-400 shrink-0 transition-transform duration-200 ${
+                          openDropdown === 'type' ? 'rotate-180 text-stone-900' : ''
+                        }`}
+                      />
+                    </div>
+                  </button>
+
+                  {/* Tour Type Dropdown Popover */}
+                  {openDropdown === 'type' && (
+                    <div className="absolute top-full left-0 right-0 sm:min-w-[240px] mt-2 bg-white rounded-2xl border border-stone-200 shadow-2xl z-50 p-2 space-y-1">
+                      <div className="px-2 py-1 text-[10px] font-extrabold uppercase tracking-wider text-stone-400">
+                        Select Tour Type
+                      </div>
+                      {[
+                        { id: 'all', label: 'All Tour Types', desc: 'Pilgrimage, Family & Honeymoon' },
+                        { id: 'Pilgrimage', label: 'Pilgrimage', desc: 'Sacred Temples, Yatras & Shrines' },
+                        { id: 'Honeymoon', label: 'Honeymoon', desc: 'Romantic Scenic Getaways & Resorts' },
+                        { id: 'Family', label: 'Family', desc: 'Relaxed Vacations & Sightseeing' },
+                      ].map((t) => {
+                        const isSelected = selectedTourType === t.id;
+                        return (
+                          <button
+                            key={t.id}
+                            type="button"
+                            onClick={() => {
+                              setSelectedTourType(t.id);
+                              setOpenDropdown(null);
+                            }}
+                            className={`w-full text-left p-2.5 rounded-xl transition flex items-center justify-between gap-2 cursor-pointer ${
+                              isSelected
+                                ? 'bg-[#FFF0EB] text-[#FF4B00] font-bold border border-[#FF4B00]/20'
+                                : 'hover:bg-stone-50 text-stone-800'
+                            }`}
+                          >
+                            <div className="min-w-0">
+                              <span className="text-xs sm:text-sm font-bold block">{t.label}</span>
+                              <span className="text-[10px] text-stone-500 block truncate font-normal">{t.desc}</span>
+                            </div>
+                            {isSelected && <Check className="w-4 h-4 text-[#FF4B00] shrink-0" />}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+
+                {/* Column 3: Travel Month / Yatra Season */}
+                <div className="lg:col-span-3 relative hero-search-dropdown-container">
                   <button
                     type="button"
                     onClick={() => setOpenDropdown(openDropdown === 'month' ? null : 'month')}
@@ -591,8 +669,8 @@ export const LuxuryHomepage: React.FC = () => {
                   )}
                 </div>
 
-                {/* Column 3: Search Action Button */}
-                <div className="md:col-span-3 flex items-center">
+                {/* Column 4: Search Action Button */}
+                <div className="lg:col-span-2 flex items-center">
                   <button
                     type="submit"
                     disabled={isSearching}
@@ -606,7 +684,7 @@ export const LuxuryHomepage: React.FC = () => {
                     ) : (
                       <>
                         <Search className="w-4 h-4 text-white shrink-0" />
-                        <span>Search Sacred Yatras</span>
+                        <span>Search Tours</span>
                       </>
                     )}
                   </button>
@@ -677,7 +755,6 @@ export const LuxuryHomepage: React.FC = () => {
                   <span className="text-[10px] sm:text-xs font-extrabold uppercase tracking-widest text-[#FF4B00] bg-[#FF4B00]/10 px-2.5 py-0.5 rounded-full border border-[#FF4B00]/20">
                     Sacred Pilgrimages
                   </span>
-                  <span className="text-[11px] font-medium text-stone-400">तीर्थ स्थल</span>
                 </div>
                 <h2 className="text-2xl sm:text-3xl font-black text-stone-900 tracking-tight flex items-center gap-2">
                   <span>Pavitra Teerth Sthal</span>
@@ -863,7 +940,7 @@ export const LuxuryHomepage: React.FC = () => {
                     <Landmark className="w-3 h-3" />
                     <span>Holy Shrine & Temple</span>
                   </span>
-                  <span className="text-[11px] font-medium text-stone-400">धाम एवं मंदिर दर्शन</span>
+                  <span className="text-[11px] font-medium text-stone-400">Sacred Temples & Shrines</span>
                 </div>
                 <h2 className="text-2xl sm:text-3xl font-black text-stone-900 tracking-tight flex items-center gap-2">
                   <span>Pavitra Mandir & Dham</span>
@@ -949,24 +1026,51 @@ export const LuxuryHomepage: React.FC = () => {
         </section>
 
         {/* ========================================================
-            HANDPICKED YATRA PACKAGES (CURATED PILGRIMAGES & DARSHANS)
+            FAMILY TOUR PACKAGES (CURATED FAMILY VACATIONS)
+            ======================================================== */}
+        <CategoryToursCarouselSection
+          id="family-tours-section"
+          badgeLabel="Memorable Family Holidays"
+          badgeIcon={<Users className="w-3.5 h-3.5 text-[#FF4B00]" />}
+          heading="Family Tours"
+          description="Handcrafted leisure holidays with spacious vehicles, child and elder-friendly accommodations, and relaxed sightseeing schedules."
+          categoryFilter="Family"
+          viewAllCategoryName="Family"
+          bgColor="bg-white"
+          borderColor="border-stone-200"
+          showGarland={false}
+        />
+
+        {/* ========================================================
+            HONEYMOON TOUR PACKAGES (ROMANTIC GETAWAYS)
+            ======================================================== */}
+        <CategoryToursCarouselSection
+          id="honeymoon-tours-section"
+          badgeLabel="Romantic & Couples Getaways"
+          badgeIcon={<Heart className="w-3.5 h-3.5 text-[#FF4B00]" />}
+          heading="Honeymoon Tours"
+          description="Private scenic retreats, luxury honeymoon suites, candle-light dinners, and intimate romantic experiences designed just for couples."
+          categoryFilter="Honeymoon"
+          viewAllCategoryName="Honeymoon"
+          bgColor="bg-rose-50/30"
+          borderColor="border-rose-100"
+          showGarland={false}
+        />
+
+        {/* ========================================================
+            PILGRIMAGE TOURS (SACRED YATRAS & DARSHANS)
             ======================================================== */}
         <HandpickedYatraPackagesSection />
 
         {/* ========================================================
-            GROUP TOURS & SANGHA PILGRIMAGES
-            ======================================================== */}
-        <GroupToursSection />
-
-        {/* ========================================================
-            WHY BHAKTI SATHI? (CAROUSEL)
+            WHY HOLIDAYS HUNT? (CAROUSEL)
             ======================================================== */}
         <section className="py-12 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto overflow-hidden">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6 sm:mb-8">
             <div>
               <span className="text-[11px] font-black uppercase tracking-widest text-black bg-stone-100 px-3.5 py-1.5 rounded-full border border-black/10 inline-flex items-center gap-1.5 mb-2.5">
                 <Sparkles className="w-3.5 h-3.5 text-black" />
-                <span>The Bhakti Sathi Guarantee</span>
+                <span>The Holidays Hunt Guarantee</span>
               </span>
               <h2 className="text-2xl sm:text-3xl font-black text-black tracking-tight">
                 Why Travel With Us?
@@ -1008,7 +1112,7 @@ export const LuxuryHomepage: React.FC = () => {
             id="why-us-carousel"
             className="flex gap-4 sm:gap-6 overflow-x-auto snap-x snap-mandatory pb-4 pt-1 scroll-smooth -mx-4 px-4 sm:mx-0 sm:px-0 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
           >
-            {WHY_BHAKTI_SATHI.map((item, idx) => {
+            {WHY_HOLIDAYS_HUNT.map((item, idx) => {
               const IconComp = item.icon;
 
               return (
@@ -1062,7 +1166,7 @@ export const LuxuryHomepage: React.FC = () => {
                 Request an Instant Call Back
               </h2>
               <p className="text-xs sm:text-sm text-stone-300 mt-2 leading-relaxed">
-                Have questions or need a customized pilgrimage plan? Enter your WhatsApp or phone number. Our yatra specialist will call you back within 15 minutes with complete details.
+                Have questions or need a customized Family, Honeymoon, or Pilgrimage holiday plan? Enter your WhatsApp or phone number. Our travel specialist will call you back within 15 minutes with complete details.
               </p>
 
               <div className="mt-6 grid grid-cols-2 gap-3 sm:gap-4 text-xs font-bold text-stone-200">
@@ -1105,7 +1209,7 @@ export const LuxuryHomepage: React.FC = () => {
                   </div>
                   <h3 className="text-base font-bold text-stone-900">Callback Request Received!</h3>
                   <p className="text-xs text-stone-600 mt-1.5">
-                    Our pilgrimage specialist will call or WhatsApp you at <b className="text-[#FF4B00]">{leadPhone}</b> shortly.
+                    Our travel specialist will call or WhatsApp you at <b className="text-[#FF4B00]">{leadPhone}</b> shortly.
                   </p>
                   <button
                     type="button"
@@ -1131,7 +1235,7 @@ export const LuxuryHomepage: React.FC = () => {
                         <b className="text-xs sm:text-sm font-black text-stone-900 block leading-tight">
                           Request a Call Back
                         </b>
-                        <span className="text-[10px] text-stone-500 font-medium">Yatra expert connects in 15 mins</span>
+                        <span className="text-[10px] text-stone-500 font-medium">Travel expert connects in 15 mins</span>
                       </div>
                     </div>
                     <span className="px-2 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-[10px] font-extrabold flex items-center gap-1 shrink-0">
@@ -1206,23 +1310,23 @@ export const LuxuryHomepage: React.FC = () => {
                     </p>
                   </div>
 
-                  {/* Pilgrimage / Yatra of Interest (Open text input, no dropdown options) */}
+                  {/* Destination / Tour of Interest */}
                   <div>
                     <label className="block text-[10.5px] font-black uppercase tracking-wider text-stone-800 mb-1 flex items-center gap-1">
                       <Compass className="w-3.5 h-3.5 text-[#FF4B00]" />
-                      <span>Pilgrimage / Yatra of Interest</span>
+                      <span>Destination / Tour of Interest</span>
                       <span className="text-stone-400 font-normal normal-case ml-1">(Optional)</span>
                     </label>
                     <input
                       type="text"
                       value={leadYatra}
                       onChange={(e) => setLeadYatra(e.target.value)}
-                      placeholder="e.g. Mata Vaishno Devi, Amarnath, Kedarnath, Char Dham..."
+                      placeholder="e.g. Kashmir Family Holiday, Manali Honeymoon, Vaishno Devi, Char Dham, Thailand..."
                       className="w-full px-3 py-2 rounded-xl bg-stone-50/80 border border-stone-200 text-xs font-semibold focus:bg-white focus:outline-none focus:border-[#FF4B00] focus:ring-2 focus:ring-[#FF4B00]/20 transition"
                     />
                   </div>
 
-                  {/* Requirements / Query (Open text area, no options) */}
+                  {/* Requirements / Query */}
                   <div>
                     <label className="block text-[10.5px] font-black uppercase tracking-wider text-stone-800 mb-1 flex items-center gap-1">
                       <FileText className="w-3.5 h-3.5 text-[#FF4B00]" />
@@ -1233,7 +1337,7 @@ export const LuxuryHomepage: React.FC = () => {
                       rows={2}
                       value={leadNotes}
                       onChange={(e) => setLeadNotes(e.target.value)}
-                      placeholder="e.g. Need helicopter ticket guidance, senior citizen darshan, tentative dates..."
+                      placeholder="e.g. Number of adults/children, honeymoon inclusions, tentative travel dates..."
                       className="w-full px-3 py-2 rounded-xl bg-stone-50/80 border border-stone-200 text-xs font-semibold focus:bg-white focus:outline-none focus:border-[#FF4B00] focus:ring-2 focus:ring-[#FF4B00]/20 transition resize-none"
                     />
                   </div>
@@ -1245,7 +1349,7 @@ export const LuxuryHomepage: React.FC = () => {
                     label="Email Address"
                     placeholder="e.g. yourname@gmail.com (Optional)"
                     required={false}
-                    helperText="Optional: To receive yatra itinerary copy on email."
+                    helperText="Optional: To receive customized itinerary copy on email."
                     inputClassName="bg-stone-50/80 border-stone-200 py-2 text-xs"
                   />
 

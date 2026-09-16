@@ -55,7 +55,7 @@ export const MobileBottomNav: React.FC = () => {
     const rawPhone = agencySettings.whatsapp || agencySettings.phone || '+919419915255';
     const cleanPhone = rawPhone.replace(/[^0-9]/g, '');
     const message = encodeURIComponent(
-      'Hi Bhakti Sathi! I would like to inquire about holiday packages and custom itineraries.'
+      'Hi Holidays Hunt! I would like to inquire about holiday packages and custom itineraries.'
     );
     const waUrl = `https://wa.me/${cleanPhone}?text=${message}`;
     window.open(waUrl, '_blank');

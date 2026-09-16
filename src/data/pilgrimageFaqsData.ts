@@ -20,8 +20,8 @@ export const PILGRIMAGE_FAQS_REGISTRY: DestinationFaqs[] = [
     tagline: 'Holy Cave Shrine of Mata Rani in Trikuta Hills, Katra',
     faqs: [
       {
-        question: 'Does Bhakti Sathi sell or book Mata Vaishno Devi Helicopter tickets?',
-        answer: 'NO. Bhakti Sathi DOES NOT sell, resell, or book helicopter tickets for Mata Vaishno Devi. In strict compliance with Shri Mata Vaishno Devi Shrine Board (SMVDSB) regulations, helicopter tickets for Katra to Sanjichhat can ONLY be booked directly by pilgrims on the official SMVDSB website (maavaishnodeviboard.org). Beware of fraudulent agents or fake websites claiming to provide helicopter passes. Our tour packages include Katra hotel stays, private cab transfers, RFID registration assistance, and ground coordination, but helicopter tickets must be booked directly by devotees on the official portal.'
+        question: 'Does Holidays Hunt sell or book Mata Vaishno Devi Helicopter tickets?',
+        answer: 'NO. Holidays Hunt DOES NOT sell, resell, or book helicopter tickets for Mata Vaishno Devi. In strict compliance with Shri Mata Vaishno Devi Shrine Board (SMVDSB) regulations, helicopter tickets for Katra to Sanjichhat can ONLY be booked directly by pilgrims on the official SMVDSB website (maavaishnodeviboard.org). Beware of fraudulent agents or fake websites claiming to provide helicopter passes. Our tour packages include Katra hotel stays, private cab transfers, RFID registration assistance, and ground coordination, but helicopter tickets must be booked directly by devotees on the official portal.'
       },
       {
         question: 'What is the compulsory RFID Yatra Access Card and where do I get it?',
@@ -117,11 +117,11 @@ export const PILGRIMAGE_FAQS_REGISTRY: DestinationFaqs[] = [
     faqs: [
       {
         question: 'Is Uttarakhand Tourist Care biometric registration mandatory for Char Dham?',
-        answer: 'Yes, mandatory biometric registration is required for all pilgrims entering Uttarakhand Char Dham Yatra. Bhakti Sathi registers all guests and issues valid QR yatra passes beforehand.'
+        answer: 'Yes, mandatory biometric registration is required for all pilgrims entering Uttarakhand Char Dham Yatra. Holidays Hunt registers all guests and issues valid QR yatra passes beforehand.'
       },
       {
         question: 'How do Kedarnath Helicopter bookings work from Phata, Guptkashi & Sirsi?',
-        answer: 'Helicopters operate from Phata, Guptkashi, and Sirsi helipads to Kedarnath helipad (10-minute flight). Bhakti Sathi secures confirmed helicopter tickets along with local yatra coordination.'
+        answer: 'Helicopters operate from Phata, Guptkashi, and Sirsi helipads to Kedarnath helipad (10-minute flight). Holidays Hunt secures confirmed helicopter tickets along with local yatra coordination.'
       },
       {
         question: 'What is the trek distance for Yamunotri and Kedarnath?',
@@ -152,7 +152,7 @@ export const PILGRIMAGE_FAQS_REGISTRY: DestinationFaqs[] = [
         answer: 'Both hilltop temples are accessible via Udankhatola ropeway (cable car) or walking stairs. We provide combo ropeway passes for quick and comfortable visits.'
       },
       {
-        question: 'Can Bhakti Sathi arrange authentic Pandit pujas and Pind Daan rituals at Haridwar?',
+        question: 'Can Holidays Hunt arrange authentic Pandit pujas and Pind Daan rituals at Haridwar?',
         answer: 'Yes! We coordinate with hereditary Teerth Purohits at Har Ki Pauri for Pitru Dosh Shanti, Rudrabhishekam, Asthi Visarjan, and Ganga Puja with sacred Vedic mantras.'
       },
       {
@@ -169,7 +169,7 @@ export const PILGRIMAGE_FAQS_REGISTRY: DestinationFaqs[] = [
     faqs: [
       {
         question: 'How does Kashi Vishwanath Sugam Darshan work?',
-        answer: 'Sugam Darshan allows pilgrims convenient entry into the Kashi Vishwanath Sanctum through designated Sugam gates. Bhakti Sathi assists with pre-booked Sugam Darshan passes.'
+        answer: 'Sugam Darshan allows pilgrims convenient entry into the Kashi Vishwanath Sanctum through designated Sugam gates. Holidays Hunt assists with pre-booked Sugam Darshan passes.'
       },
       {
         question: 'How do we watch the world-famous Evening Ganga Aarti at Dashashwamedh Ghat?',
@@ -249,7 +249,7 @@ export const PILGRIMAGE_FAQS_REGISTRY: DestinationFaqs[] = [
       },
       {
         question: 'What is the Goverdhan Parikrama and how can senior citizens complete it?',
-        answer: 'Goverdhan Parikrama is a 21 KM sacred walk around Goverdhan Hill. For elderly pilgrims, Bhakti Sathi arranges golf carts or e-rickshaws to complete the Parikrama comfortably.'
+        answer: 'Goverdhan Parikrama is a 21 KM sacred walk around Goverdhan Hill. For elderly pilgrims, Holidays Hunt arranges golf carts or e-rickshaws to complete the Parikrama comfortably.'
       },
       {
         question: 'What are the evening light show timings at Prem Mandir Vrindavan?',
@@ -349,7 +349,7 @@ export const PILGRIMAGE_FAQS_REGISTRY: DestinationFaqs[] = [
     faqs: [
       {
         question: 'How do we book Rs. 300 Special Entry Darshan (SED) for Tirupati Balaji?',
-        answer: 'Special Entry Darshan passes are released monthly on the official TTD (Tirumala Tirupati Devasthanams) portal. Bhakti Sathi includes pre-reserved SED passes in our South Yatra packages.'
+        answer: 'Special Entry Darshan passes are released monthly on the official TTD (Tirumala Tirupati Devasthanams) portal. Holidays Hunt includes pre-reserved SED passes in our South Yatra packages.'
       },
       {
         question: 'What is the strict dress code enforced at Tirumala Temple?',

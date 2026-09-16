@@ -42,12 +42,12 @@ export const SitemapPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'all' | 'packages' | 'destinations' | 'guides' | 'pages'>('all');
   const [viewingXml, setViewingXml] = useState(false);
 
-  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://mybhaktisathi.com';
+  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://holidayshunt.com';
 
   useEffect(() => {
     updatePageSeo({
-      title: 'HTML & XML Sitemap | Bhakti Sathi Pilgrimage & Yatra Directory',
-      description: 'Explore the complete directory of sacred yatra packages, spiritual destinations, temple travel guides, and policy pages on Bhakti Sathi.',
+      title: 'HTML & XML Sitemap | Holidays Hunt Pilgrimage & Yatra Directory',
+      description: 'Explore the complete directory of sacred yatra packages, spiritual destinations, temple travel guides, and policy pages on Holidays Hunt.',
       canonicalPath: '/sitemap',
       schemaData: generateBreadcrumbSchema([
         { name: 'Home', url: origin },
@@ -66,7 +66,7 @@ export const SitemapPage: React.FC = () => {
     { title: 'Daily Panchang & Tithi Calendar', path: '/panchang', slug: 'panchang', category: 'Spiritual Utility' },
     { title: 'Daily Rashifal (Horoscope)', path: '/rashifal', slug: 'rashifal', category: 'Spiritual Utility' },
     { title: 'Verified Traveller Reviews', path: '/reviews', slug: 'reviews', category: 'Company', action: () => navigateToInfoPage('reviews') },
-    { title: 'About Bhakti Sathi', path: '/info/about', slug: 'about', category: 'Company', action: () => navigateToInfoPage('about') },
+    { title: 'About Holidays Hunt', path: '/info/about', slug: 'about', category: 'Company', action: () => navigateToInfoPage('about') },
     { title: 'Contact Us & Office Locations', path: '/info/locate_us', slug: 'locate_us', category: 'Company', action: () => navigateToInfoPage('locate_us') },
     { title: 'Frequently Asked Questions (FAQ)', path: '/info/faq', slug: 'faq', category: 'Help', action: () => navigateToInfoPage('faq') },
     { title: 'Careers & Join Our Team', path: '/info/careers', slug: 'careers', category: 'Company', action: () => navigateToInfoPage('careers') },
@@ -134,7 +134,7 @@ export const SitemapPage: React.FC = () => {
   // Auto-generate XML content
   const xmlContent = useMemo(() => {
     const today = new Date().toISOString().split('T')[0];
-    const baseUrl = 'https://mybhaktisathi.com';
+    const baseUrl = 'https://holidayshunt.com';
     let entries: Array<{ loc: string; lastmod: string; changefreq: string; priority: string }> = [];
 
     // Core
@@ -295,7 +295,7 @@ export const SitemapPage: React.FC = () => {
               <div className="flex items-center justify-between pb-3 border-b border-stone-800 mb-4 text-stone-400">
                 <span className="font-bold flex items-center gap-2">
                   <Globe className="w-4 h-4 text-[#FF4B00]" />
-                  https://mybhaktisathi.com/sitemap.xml
+                  https://holidayshunt.com/sitemap.xml
                 </span>
                 <span className="text-[11px]">{totalUrls} URL entries generated</span>
               </div>

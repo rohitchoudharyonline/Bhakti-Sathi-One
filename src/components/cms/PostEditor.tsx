@@ -162,7 +162,7 @@ export const PostEditor: React.FC<PostEditorProps> = ({
     category: blogCategories[0]?.name || 'Kashmir Travel Guides',
     categorySlug: blogCategories[0]?.slug || 'kashmir-travel-guides',
     tags: 'Kashmir, Travel Guide, Snow, Houseboat',
-    authorName: 'Bhakti Sathi Editorial Team',
+    authorName: 'Holidays Hunt Editorial Team',
     authorRole: 'Senior Travel Specialist',
     authorAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
     status: 'published',
@@ -187,7 +187,7 @@ export const PostEditor: React.FC<PostEditorProps> = ({
         category: initialPost.category || blogCategories[0]?.name || 'Travel Guides',
         categorySlug: initialPost.categorySlug || blogCategories[0]?.slug || 'travel-guides',
         tags: initialPost.tags?.join(', ') || '',
-        authorName: initialPost.author?.name || 'Bhakti Sathi Team',
+        authorName: initialPost.author?.name || 'Holidays Hunt Team',
         authorRole: initialPost.author?.role || 'Travel Specialist',
         authorAvatar: initialPost.author?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
         status: (initialPost.status as any) || 'published',
@@ -232,7 +232,7 @@ Carry layered clothing, comfortable walking footwear, and keep valid ID proofs h
         category: blogCategories[0]?.name || 'Kashmir Travel Guides',
         categorySlug: blogCategories[0]?.slug || 'kashmir-travel-guides',
         tags: 'Kashmir, Gulmarg, Dal Lake, Itinerary, Vacation',
-        authorName: 'Bhakti Sathi Editorial Team',
+        authorName: 'Holidays Hunt Editorial Team',
         authorRole: 'Senior Travel Specialist',
         authorAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
         status: 'published',
@@ -277,7 +277,7 @@ Carry layered clothing, comfortable walking footwear, and keep valid ID proofs h
           name: formData.authorName,
           role: formData.authorRole,
           avatar: formData.authorAvatar,
-          bio: 'Bhakti Sathi Travel Writer & Himalayan Expert',
+          bio: 'Holidays Hunt Travel Writer & Himalayan Expert',
         },
         status: formData.status,
         publishedAt: initialPost?.publishedAt || new Date().toISOString(),
@@ -540,7 +540,7 @@ Carry layered clothing, comfortable walking footwear, and keep valid ID proofs h
         name: formData.authorName,
         role: formData.authorRole,
         avatar: formData.authorAvatar,
-        bio: 'Bhakti Sathi Travel Writer & Himalayan Destination Expert.',
+        bio: 'Holidays Hunt Travel Writer & Himalayan Destination Expert.',
       },
       status: finalStatus,
       publishedAt: initialPost?.publishedAt || new Date().toISOString(),
@@ -1260,11 +1260,11 @@ Carry layered clothing, comfortable walking footwear, and keep valid ID proofs h
 
               <div className="bg-white p-4 rounded-xl border border-stone-200 space-y-1">
                 <div className="flex items-center gap-1.5 text-xs text-stone-600 font-mono">
-                  <span className="font-black text-stone-900">mybhaktisathi.com</span>
+                  <span className="font-black text-stone-900">holidayshunt.com</span>
                   <span>› travel-blog › {formData.slug || 'article-slug'}</span>
                 </div>
                 <h4 className="text-blue-800 text-sm sm:text-base font-medium hover:underline cursor-pointer line-clamp-1">
-                  {formData.metaTitle || formData.title || 'Untitled Article Title - Bhakti Sathi'}
+                  {formData.metaTitle || formData.title || 'Untitled Article Title - Holidays Hunt'}
                 </h4>
                 <p className="text-xs text-stone-600 line-clamp-2">
                   {formData.metaDescription || formData.excerpt || 'Read this comprehensive travel guide to plan your dream vacation.'}

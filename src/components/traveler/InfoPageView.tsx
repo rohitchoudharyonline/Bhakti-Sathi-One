@@ -79,8 +79,8 @@ export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, on
     const pageSeo = pageSeoConfigs?.[pageSlug] || pageSeoConfigs?.[pageSlug.replace(/_/g, '-')];
     const customPageData = customPages?.find((p) => p.slug === pageSlug);
     
-    const metaTitle = pageSeo?.metaTitle || customPageData?.seo?.metaTitle || `${pageTitle} | Bhakti Sathi`;
-    const metaDescription = pageSeo?.metaDescription || customPageData?.seo?.metaDescription || `Read detailed information on ${pageTitle} with Bhakti Sathi. Verified guides, transparent quotes, and absolute safety guarantee.`;
+    const metaTitle = pageSeo?.metaTitle || customPageData?.seo?.metaTitle || `${pageTitle} | Holidays Hunt`;
+    const metaDescription = pageSeo?.metaDescription || customPageData?.seo?.metaDescription || `Read detailed information on ${pageTitle} with Holidays Hunt. Verified guides, transparent quotes, and absolute safety guarantee.`;
 
     updatePageSeo({
       title: metaTitle,
@@ -135,7 +135,7 @@ export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, on
                 <div className={contactImgError ? 'max-w-3xl mx-auto w-full space-y-6' : 'lg:col-span-7 space-y-6'}>
                   <div>
                     <p className="text-sm text-stone-600 leading-relaxed font-semibold">
-                      Contact <span className="text-[#FF4B00] font-black">Bhakti Sathi (a brand name of Holidays Hunt Travel and Hospitality Pvt Ltd)</span>, India's premier spiritual tour operator. We specialize in customized pilgrimage yatra packages, sacred temple darshans, comfortable hotel stays, and reliable private cab transfers with 24/7 on-trip assistance across Katra Vaishno Devi, Varanasi, Haridwar, Mathura Vrindavan, Amritsar, Tirupati, Himachal, and Kashmir. Reach out to our yatra experts today!
+                      Contact <span className="text-[#FF4B00] font-black">Holidays Hunt (a brand name of Holidays Hunt Travel and Hospitality Pvt Ltd)</span>, your premier travel partner for Family, Pilgrimage, and Honeymoon tours. We specialize in handcrafted holiday packages featuring verified hotel & resort stays, private dedicated chauffeur transfers, and 24/7 on-trip concierge assistance across Jammu & Kashmir, Himachal Pradesh, Ladakh, Amritsar, as well as top Domestic & International destinations including Thailand, Vietnam, Indonesia, South Korea, Japan, and beyond. Reach out to our travel specialists today!
                     </p>
                   </div>
 
@@ -169,8 +169,8 @@ export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, on
                       <div className="space-y-1">
                         <h3 className="text-xs font-black uppercase tracking-wider text-stone-500">Email Address</h3>
                         <div className="flex flex-col gap-1">
-                          <a href="mailto:care@mybhaktisathi.com" className="text-base font-bold text-stone-900 hover:text-[#FF4B00] transition">
-                            care@mybhaktisathi.com
+                          <a href="mailto:care@holidayshunt.com" className="text-base font-bold text-stone-900 hover:text-[#FF4B00] transition">
+                            care@holidayshunt.com
                           </a>
                         </div>
                       </div>
@@ -209,7 +209,7 @@ export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, on
                     <h4 className="text-[11px] font-black text-stone-400 uppercase tracking-widest">Connect With Us</h4>
                     <div className="flex gap-3">
                       <a 
-                        href="https://facebook.com/mybhaktisathi" 
+                        href="https://facebook.com/holidayshunt" 
                         target="_blank" 
                         rel="noreferrer" 
                         className="w-10 h-10 rounded-xl bg-stone-100 hover:bg-[#FF4B00] hover:text-white text-stone-600 transition flex items-center justify-center"
@@ -218,7 +218,7 @@ export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, on
                         <Facebook className="w-5 h-5" />
                       </a>
                       <a 
-                        href="https://instagram.com/mybhaktisathi" 
+                        href="https://instagram.com/holidayshunt" 
                         target="_blank" 
                         rel="noreferrer" 
                         className="w-10 h-10 rounded-xl bg-stone-100 hover:bg-[#FF4B00] hover:text-white text-stone-600 transition flex items-center justify-center"
@@ -227,7 +227,7 @@ export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, on
                         <Instagram className="w-5 h-5" />
                       </a>
                       <a 
-                        href="https://youtube.com/mybhaktisathi" 
+                        href="https://youtube.com/holidayshunt" 
                         target="_blank" 
                         rel="noreferrer" 
                         className="w-10 h-10 rounded-xl bg-stone-100 hover:bg-[#FF4B00] hover:text-white text-stone-600 transition flex items-center justify-center"
@@ -256,14 +256,14 @@ export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, on
                       <img 
                         src="/unnamed.webp" 
                         onError={() => setContactImgError(true)}
-                        alt="Bhakti Sathi Office" 
+                        alt="Holidays Hunt Office" 
                         className="w-full h-auto object-cover transition-transform duration-700 group-hover:scale-105"
                         referrerPolicy="no-referrer"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-90"></div>
                       <div className="absolute bottom-4 left-4 right-4 text-white">
                         <p className="text-[10px] font-black uppercase tracking-wider text-[#FF4B00] mb-0.5">Workspace</p>
-                        <p className="text-sm font-bold">Bhakti Sathi Executive Office</p>
+                        <p className="text-sm font-bold">Holidays Hunt Executive Office</p>
                       </div>
                     </div>
                   </div>
@@ -275,10 +275,10 @@ export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, on
             {/* 2. ABOUT US */}
             {pageSlug === 'about' && (
               <div className="space-y-6 text-xs sm:text-sm text-stone-700 leading-relaxed">
-                <p className="text-sm text-stone-600 font-semibold mb-4">Your trusted partner for 100% customized sacred yatra and pilgrimage packages across India.</p>
+                <p className="text-sm text-stone-600 font-semibold mb-4">Your trusted travel partner for 100% customized Family, Pilgrimage, and Honeymoon tour packages across India and International destinations.</p>
 
                 <p>
-                  Founded with a passion for authentic mountain hospitality, <strong>Bhakti Sathi</strong> has grown into one of India&apos;s leading tour operators. We specialize in handcrafted holiday packages featuring verified deluxe and luxury stays, private dedicated chauffeur cabs, and 24x7 expert local tour coordinators.
+                  Founded with a passion for authentic mountain hospitality and world-class leisure travel, <strong>Holidays Hunt</strong> is a premier tour operator. We specialize in handcrafted holiday packages featuring verified 3-star to 5-star deluxe and luxury stays, private dedicated chauffeur cabs, customized daily itineraries, and 24x7 expert concierge support.
                 </p>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
@@ -296,8 +296,19 @@ export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, on
                   </div>
                 </div>
 
+                <div className="bg-stone-50 p-5 rounded-2xl border border-stone-200/80 space-y-3">
+                  <h4 className="text-sm font-black text-stone-900">Our Signature Travel Offerings:</h4>
+                  <ul className="list-disc pl-5 space-y-1.5 text-stone-600 font-medium">
+                    <li><strong>Family Vacations:</strong> Relaxed, family-friendly itineraries with comfortable transfers and top sightseeing spots.</li>
+                    <li><strong>Honeymoon & Romantic Getaways:</strong> Candlelight dinners, private shikara rides, scenic mountain resorts, and special room setups.</li>
+                    <li><strong>Spiritual & Pilgrimage Yatras:</strong> Seamless darshans and guided yatras to Mata Vaishno Devi, Golden Temple Amritsar, and sacred Himalayan shrines.</li>
+                    <li><strong>Domestic Destinations:</strong> Jammu & Kashmir (Srinagar, Gulmarg, Pahalgam), Himachal Pradesh (Shimla, Manali, Dharamshala), Ladakh, and Punjab (Amritsar).</li>
+                    <li><strong>International Holidays:</strong> Seamless packages to Thailand, Vietnam, Indonesia (Bali), South Korea, Japan, and more.</li>
+                  </ul>
+                </div>
+
                 <p>
-                  Whether you wish to glide over the snowy slopes of Gulmarg, cruise on a traditional Dal Lake houseboat in Srinagar, seek divine blessings at Mata Vaishno Devi Katra, or stroll through the pine forests of Shimla and Manali, Bhakti Sathi guarantees an unforgettable, worry-free vacation.
+                  Whether you wish to glide over the snowy slopes of Gulmarg, cruise on a traditional Dal Lake houseboat in Srinagar, seek divine blessings at Mata Vaishno Devi Katra, explore ancient temples in Bali, or wander under the cherry blossoms in Japan, Holidays Hunt guarantees an unforgettable, worry-free vacation.
                 </p>
               </div>
             )}
@@ -487,7 +498,7 @@ export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, on
             {pageSlug === 'terms' && (
               <div className="space-y-6 text-stone-700 leading-relaxed pt-2">
                 <div className="p-6 rounded-2xl bg-[#FF4B00]/5 border border-[#FF4B00]/20 space-y-3">
-                  <p className="font-extrabold text-stone-900 text-sm">Welcome to <span className="text-[#FF4B00]">Bhakti Sathi</span></p>
+                  <p className="font-extrabold text-stone-900 text-sm">Welcome to <span className="text-[#FF4B00]">Holidays Hunt</span></p>
                   <p className="text-xs sm:text-sm text-stone-600">
                     By booking a custom holiday itinerary, premium hotel stay, or private cab rental service with us, you agree to the following terms and conditions.
                   </p>
@@ -534,7 +545,7 @@ export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, on
             {pageSlug === 'cancellation' && (
               <div className="space-y-6 text-stone-700 leading-relaxed pt-2">
                 <div className="p-6 rounded-2xl bg-[#FF4B00]/5 border border-[#FF4B00]/20 space-y-3">
-                  <h3 className="font-extrabold text-stone-900 text-base">Cancellation Policy for Bhakti Sathi:</h3>
+                  <h3 className="font-extrabold text-stone-900 text-base">Cancellation Policy for Holidays Hunt:</h3>
                   <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
                     The services to be provided are booked several months in advance. Cancellation of such services earmarked for a particular departure results in the Company losing money depending upon the time of cancellation to the Supplier. Therefore, any cancellation of tour or services booked will attract cancellation charges as specified by the company.
                   </p>
@@ -602,7 +613,7 @@ export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, on
                     The cancellation policy applies to the entire holiday package cost, including accommodation, transportation, and any other included services. The cancellation charges are based on the number of days prior to the departure date when the cancellation is made.
                   </p>
                   <p>
-                    It is important for customers to be aware of the cancellation policy and consider it when making their travel arrangements. The company (Bhakti Sathi) reserves the right to cancel any Tour prior to the departure, without assigning any reason. The company cannot assume responsibility for any additional cost or any fees relating to the issuance and/or cancellation of air tickets or other arrangements not done through the company.
+                    It is important for customers to be aware of the cancellation policy and consider it when making their travel arrangements. The company (Holidays Hunt) reserves the right to cancel any Tour prior to the departure, without assigning any reason. The company cannot assume responsibility for any additional cost or any fees relating to the issuance and/or cancellation of air tickets or other arrangements not done through the company.
                   </p>
                 </div>
 
@@ -623,7 +634,7 @@ export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, on
             {pageSlug === 'privacy' && (
               <div className="space-y-6 text-stone-700 leading-relaxed pt-2">
                 <div className="p-6 rounded-2xl bg-[#FF4B00]/5 border border-[#FF4B00]/20 space-y-3">
-                  <p className="font-extrabold text-stone-900 text-sm">Privacy Commitment at <span className="text-[#FF4B00]">Bhakti Sathi</span></p>
+                  <p className="font-extrabold text-stone-900 text-sm">Privacy Commitment at <span className="text-[#FF4B00]">Holidays Hunt</span></p>
                   <p className="text-xs sm:text-sm text-stone-600">
                     Your personal privacy is extremely important to us. We collect necessary client information (such as your full name, mobile number, email id, travel dates, and companion details) strictly for the purpose of booking verified hotels, arranging inner-line travel permits, and routing transport cabs.
                   </p>
@@ -640,7 +651,7 @@ export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, on
                   <p className="text-xs text-stone-500 font-bold">Data Control Officer Contact:</p>
                   <p className="text-xs text-stone-700">
                     Should you have any questions about data deletion or our privacy practices, contact our officer directly at{" "}
-                    <a href="mailto:care@mybhaktisathi.com" className="text-[#FF4B00] font-bold hover:underline">care@mybhaktisathi.com</a>{" "}
+                    <a href="mailto:care@holidayshunt.com" className="text-[#FF4B00] font-bold hover:underline">care@holidayshunt.com</a>{" "}
                     or reach us via our helpline at <span className="font-bold text-stone-900">+91 94199 15255</span>.
                   </p>
                 </div>
@@ -658,7 +669,7 @@ export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, on
                       ))}
                     </div>
                     <p className="text-xs sm:text-sm italic text-stone-700">
-                      &quot;Our Kashmir trip with Bhakti Sathi was magical. The houseboat in Srinagar and heated hotel in Gulmarg were top-notch. Driver Rohit was extremely polite and professional.&quot;
+                      &quot;Our Kashmir trip with Holidays Hunt was magical. The houseboat in Srinagar and heated hotel in Gulmarg were top-notch. Driver Rohit was extremely polite and professional.&quot;
                     </p>
                     <p className="text-xs font-bold text-stone-900">— Rajesh & Sunita Sharma (Delhi)</p>
                   </div>
@@ -670,7 +681,7 @@ export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, on
                       ))}
                     </div>
                     <p className="text-xs sm:text-sm italic text-stone-700">
-                      &quot;Flawless Himachal Devi Darshan package. Every hotel check-in was smooth, and the private SUV was in pristine condition. Highly recommend Bhakti Sathi!&quot;
+                      &quot;Flawless Himachal Devi Darshan package. Every hotel check-in was smooth, and the private SUV was in pristine condition. Highly recommend Holidays Hunt!&quot;
                     </p>
                     <p className="text-xs font-bold text-stone-900">— Vikram & Priya Patel (Mumbai)</p>
                   </div>
@@ -678,7 +689,7 @@ export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, on
 
                 <div className="p-5 rounded-2xl bg-stone-100 border border-stone-200 text-center space-y-2">
                   <h3 className="text-sm font-bold text-stone-900">Want to share your experience?</h3>
-                  <p className="text-xs text-stone-600">Send your review or feedback directly to our support team at care@mybhaktisathi.com or call +91 94199 15255.</p>
+                  <p className="text-xs text-stone-600">Send your review or feedback directly to our support team at care@holidayshunt.com or call +91 94199 15255.</p>
                 </div>
               </div>
             )}
@@ -694,10 +705,10 @@ export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, on
                     <span className="text-xs font-black uppercase tracking-widest">JOIN OUR TEAM</span>
                   </div>
                   <h3 className="text-lg sm:text-xl font-black text-stone-900 leading-tight">
-                    Start Your Hospitality Journey with Bhakti Sathi
+                    Start Your Hospitality Journey with Holidays Hunt
                   </h3>
                   <p className="text-stone-700 text-sm leading-relaxed">
-                    At <span className="font-extrabold text-[#FF4B00]">Bhakti Sathi</span>, we believe that the magic of travel begins with the passion of our people. As one of Northern India's leading pilgrimage management companies, we craft life-long sacred memories for devotees, families, senior citizens, and pilgrims across Jammu & Kashmir, Himachal Pradesh, and beyond.
+                    At <span className="font-extrabold text-[#FF4B00]">Holidays Hunt</span>, we believe that the magic of travel begins with the passion of our people. As one of Northern India's leading pilgrimage management companies, we craft life-long sacred memories for devotees, families, senior citizens, and pilgrims across Jammu & Kashmir, Himachal Pradesh, and beyond.
                   </p>
                   <p className="text-stone-600 text-xs sm:text-sm leading-relaxed">
                     Our team thrives on creative problem-solving, empathetic client care, on-ground operational integrity, and an absolute dedication to keeping our travelers safe, comfortable, and happy. If you love travel planning, guest relations, or field operations, you belong here.
@@ -753,7 +764,7 @@ export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, on
                   </div>
                   <div className="pt-2 border-t border-stone-200/60 max-w-md mx-auto">
                     <p className="text-[11px] text-stone-500 leading-normal">
-                      We are always looking for outstanding minds! Proactively send your CV or profile to <a href="mailto:care@mybhaktisathi.com" className="font-bold text-[#FF4B00] hover:underline">care@mybhaktisathi.com</a>. We will store it securely and reach out to you first when a matching slot opens.
+                      We are always looking for outstanding minds! Proactively send your CV or profile to <a href="mailto:care@holidayshunt.com" className="font-bold text-[#FF4B00] hover:underline">care@holidayshunt.com</a>. We will store it securely and reach out to you first when a matching slot opens.
                     </p>
                   </div>
                 </div>
@@ -969,7 +980,7 @@ export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, on
                   <div className="p-5 rounded-2xl bg-stone-50 border border-stone-200/80 flex items-center gap-3">
                     <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
                     <p className="text-xs text-stone-600 font-medium">
-                      All packages include 24/7 on-ground assistance, dedicated sanitized SUV cab transfers, and fully vetted, pre-audited hotel properties verified by <span className="font-bold text-stone-800">Bhakti Sathi</span>.
+                      All packages include 24/7 on-ground assistance, dedicated sanitized SUV cab transfers, and fully vetted, pre-audited hotel properties verified by <span className="font-bold text-stone-800">Holidays Hunt</span>.
                     </p>
                   </div>
 
@@ -993,7 +1004,7 @@ export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, on
               pageSlug !== 'pilgrimage' && (
                 <div className="space-y-4 text-xs sm:text-sm text-stone-700 leading-relaxed pt-2">
                   <p>
-                    Welcome to the official information portal of <strong>Bhakti Sathi</strong>. We are committed to providing transparent, world-class travel services across Jammu & Kashmir, Himachal Pradesh, and top national & international destinations.
+                    Welcome to the official information portal of <strong>Holidays Hunt</strong>. We are committed to providing transparent, world-class travel services across Jammu & Kashmir, Himachal Pradesh, and top national & international destinations.
                   </p>
                   <p>
                     For any custom itineraries, group bookings, corporate tours, or immediate assistance regarding {pageSlug.replace(/_/g, ' ')}, please connect with our 24x7 support desk:
@@ -1001,7 +1012,7 @@ export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, on
                   <div className="p-5 rounded-2xl bg-stone-100 border border-stone-200 flex flex-col sm:flex-row items-center justify-between gap-3">
                     <div>
                       <p className="font-bold text-stone-900">24x7 Helpline: +91 94199 15255</p>
-                      <p className="text-xs text-stone-600">Email: care@mybhaktisathi.com</p>
+                      <p className="text-xs text-stone-600">Email: care@holidayshunt.com</p>
                     </div>
                     <a
                       href="tel:+919419915255"

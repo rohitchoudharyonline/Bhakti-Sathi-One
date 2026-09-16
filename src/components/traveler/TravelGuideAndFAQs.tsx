@@ -20,8 +20,8 @@ export const TravelGuideAndFAQs: React.FC = () => {
       a: 'We understand the physical comfort required for family and temple journeys. We provide:\n1. Pre-booked Battery-operated e-rickshaws or Palki/Pony arrangements for Vaishno Devi Bhawan.\n2. Ground-floor or elevator-accessible rooms in all verified hotel categories.\n3. Dedicated private chauffeur vehicles (Innova / Crysta) with flexible rest stops.\n4. Personalized pacing so senior family members travel comfortably.',
     },
     {
-      q: 'Does Bhakti Sathi sell or book Mata Vaishno Devi Helicopter tickets?',
-      a: 'NO. Bhakti Sathi DOES NOT sell or book helicopter tickets for Mata Vaishno Devi. In strict compliance with Shri Mata Vaishno Devi Shrine Board (SMVDSB) regulations, Katra–Sanjichhat helicopter tickets must be booked directly by devotees on the official Shrine Board portal (maavaishnodeviboard.org). Beware of fraudulent sites or fake promises. Our packages provide Katra hotel stays, private cab transfers, RFID yatra card guidance, and ground assistance.',
+      q: 'Does Holidays Hunt sell or book Mata Vaishno Devi Helicopter tickets?',
+      a: 'NO. Holidays Hunt DOES NOT sell or book helicopter tickets for Mata Vaishno Devi. In strict compliance with Shri Mata Vaishno Devi Shrine Board (SMVDSB) regulations, Katra–Sanjichhat helicopter tickets must be booked directly by devotees on the official Shrine Board portal (maavaishnodeviboard.org). Beware of fraudulent sites or fake promises. Our packages provide Katra hotel stays, private cab transfers, RFID yatra card guidance, and ground assistance.',
     },
     {
       q: 'What is included in the Himachal 5 Devi Darshan tour?',

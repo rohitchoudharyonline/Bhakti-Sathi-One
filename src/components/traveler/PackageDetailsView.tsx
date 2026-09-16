@@ -64,9 +64,9 @@ export const PackageDetailsView: React.FC<PackageDetailsViewProps> = ({ pkg, onB
 
   useEffect(() => {
     if (pkg) {
-      const title = pkg.seoMetaTitle || pkg.seoTitle || `${pkg.title} | Bhakti Sathi`;
-      const description = pkg.seoMetaDescription || pkg.metaDescription || `Book ${pkg.title} (${pkg.durationDays}D/${pkg.durationNights}N). Includes hotels, transfers & guide with Bhakti Sathi.`;
-      const keywords = pkg.seoKeywords || `${pkg.title}, tour package, yatra, Bhakti Sathi`;
+      const title = pkg.seoMetaTitle || pkg.seoTitle || `${pkg.title} | Holidays Hunt`;
+      const description = pkg.seoMetaDescription || pkg.metaDescription || `Book ${pkg.title} (${pkg.durationDays}D/${pkg.durationNights}N). Includes hotels, transfers & guide with Holidays Hunt.`;
+      const keywords = pkg.seoKeywords || `${pkg.title}, tour package, yatra, Holidays Hunt`;
       updateDocumentSEO(title, description, keywords);
     }
   }, [pkg]);

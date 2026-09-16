@@ -107,7 +107,7 @@ export const GuideDetailView: React.FC<GuideDetailViewProps> = ({ slug }) => {
     // 1. Title & Meta Description
     const metaTitle = guide.seo?.metaTitle || guide.title;
     const metaDesc = guide.seo?.metaDescription || guide.excerpt;
-    document.title = `${metaTitle} | Bhakti Sathi`;
+    document.title = `${metaTitle} | Holidays Hunt`;
 
     let descEl = document.querySelector('meta[name="description"]');
     if (!descEl) {
@@ -118,7 +118,7 @@ export const GuideDetailView: React.FC<GuideDetailViewProps> = ({ slug }) => {
     descEl.setAttribute('content', metaDesc);
 
     // 2. Canonical Tag
-    const canonicalUrl = guide.seo?.canonicalUrl || `https://mybhaktisathi.com/guides/${guide.slug}`;
+    const canonicalUrl = guide.seo?.canonicalUrl || `https://holidayshunt.com/guides/${guide.slug}`;
     let canonEl = document.querySelector('link[rel="canonical"]');
     if (!canonEl) {
       canonEl = document.createElement('link');
@@ -148,8 +148,8 @@ export const GuideDetailView: React.FC<GuideDetailViewProps> = ({ slug }) => {
 
     // 5. Inject Breadcrumb Schema
     const breadcrumbSchema = generateBreadcrumbSchema([
-      { name: 'Home', url: 'https://mybhaktisathi.com/' },
-      { name: 'Pilgrimage & Travel Guides', url: 'https://mybhaktisathi.com/guides' },
+      { name: 'Home', url: 'https://holidayshunt.com/' },
+      { name: 'Pilgrimage & Travel Guides', url: 'https://holidayshunt.com/guides' },
       { name: guide.title, url: canonicalUrl },
     ]);
     const breadcrumbScript = document.createElement('script');
@@ -175,8 +175,8 @@ export const GuideDetailView: React.FC<GuideDetailViewProps> = ({ slug }) => {
 
   const handleShareWhatsApp = () => {
     if (!guide) return;
-    const url = typeof window !== 'undefined' ? window.location.href : `https://mybhaktisathi.com/guides/${guide.slug}`;
-    const text = encodeURIComponent(`*${guide.title}*\n\nRead this holy Guide by Bhakti Sathi:\n${url}`);
+    const url = typeof window !== 'undefined' ? window.location.href : `https://holidayshunt.com/guides/${guide.slug}`;
+    const text = encodeURIComponent(`*${guide.title}*\n\nRead this holy Guide by Holidays Hunt:\n${url}`);
     window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
   };
 
@@ -279,12 +279,12 @@ export const GuideDetailView: React.FC<GuideDetailViewProps> = ({ slug }) => {
             <div className="flex items-center gap-2">
               <img
                 src="/icon.png"
-                alt="Bhakti Sathi"
+                alt="Holidays Hunt"
                 className="w-7 h-7 rounded-full object-cover bg-white border border-stone-100"
               />
               <div>
                 <div className="flex items-center gap-1">
-                  <span className="font-bold text-stone-800">Posted by Bhakti Sathi</span>
+                  <span className="font-bold text-stone-800">Posted by Holidays Hunt</span>
                   <BadgeCheck className="w-4 h-4 text-orange-600 fill-orange-50" />
                 </div>
               </div>
@@ -446,7 +446,7 @@ export const GuideDetailView: React.FC<GuideDetailViewProps> = ({ slug }) => {
                     </div>
 
                     <a
-                      href={`https://wa.me/${(agencySettings.whatsapp || '919419915255').replace(/\D/g, '')}?text=Namaste%20Bhakti%20Sathi%2C%20I%20am%20interested%20in%20the%20${encodeURIComponent(pkg.title)}%20package`}
+                      href={`https://wa.me/${(agencySettings.whatsapp || '919419915255').replace(/\D/g, '')}?text=Hello%20Holidays%20Hunt%2C%20I%20am%20interested%20in%20the%20${encodeURIComponent(pkg.title)}%20package`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-1 px-3 py-1.5 bg-amber-700 hover:bg-amber-800 text-white rounded-xl text-xs font-bold transition shadow-xs"
@@ -468,7 +468,7 @@ export const GuideDetailView: React.FC<GuideDetailViewProps> = ({ slug }) => {
               Need Personalized Yatra Guidance?
             </span>
             <h2 className="text-lg sm:text-2xl font-bold">
-              Plan Your Sacred Yatra With Bhakti Sathi
+              Plan Your Sacred Yatra With Holidays Hunt
             </h2>
             <p className="text-xs text-stone-300 max-w-xl">
               From local shrine guidance and temple logistics to verified clean accommodation, our team helps ensure a hassle-free pilgrimage.
@@ -477,7 +477,7 @@ export const GuideDetailView: React.FC<GuideDetailViewProps> = ({ slug }) => {
 
           <div className="flex flex-wrap items-center justify-center gap-3 w-full md:w-auto">
             <a
-              href={`https://wa.me/${(agencySettings.whatsapp || '919419915255').replace(/\D/g, '')}?text=Namaste%20Bhakti%20Sathi%2C%20I%20am%20reading%20${encodeURIComponent(guide.title)}%20and%20need%20yatra%20guidance`}
+              href={`https://wa.me/${(agencySettings.whatsapp || '919419915255').replace(/\D/g, '')}?text=Hello%20Holidays%20Hunt%2C%20I%20am%20reading%20${encodeURIComponent(guide.title)}%20and%20need%20yatra%20guidance`}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm transition w-full sm:w-auto"

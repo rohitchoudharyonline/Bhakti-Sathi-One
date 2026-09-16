@@ -68,7 +68,7 @@ export const PDFBrochureModal: React.FC<PDFBrochureModalProps> = ({
                   Official Luxury PDF Brochure
                 </span>
                 <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-brand/10 text-brand border border-brand/20">
-                  {agencySettings.agencyName || 'Bhakti Sathi'}
+                  {agencySettings.agencyName || 'Holidays Hunt'}
                 </span>
               </div>
               <p className="text-xs text-slate-500 truncate max-w-md">

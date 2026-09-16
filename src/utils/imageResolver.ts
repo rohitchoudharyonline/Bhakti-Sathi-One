@@ -61,7 +61,7 @@ const STORAGE_PREFIXES = [
 
 /**
  * Extracts a clean relative storage key from any URL or path
- * e.g., "https://pub-r2.mybhaktisathi.com/destinations/2026/09/sample.webp" -> "destinations/2026/09/sample.webp"
+ * e.g., "https://pub-r2.holidayshunt.com/destinations/2026/09/sample.webp" -> "destinations/2026/09/sample.webp"
  */
 export function extractStorageKey(url?: string | null): string | null {
   if (!url || typeof url !== 'string') return null;
@@ -107,11 +107,10 @@ export function extractStorageKey(url?: string | null): string | null {
     const host = parsed.hostname.toLowerCase();
     if (
       host === 'media.holidayshunt.com' ||
-      host === 'pub-r2.mybhaktisathi.com' ||
+      host === 'pub-r2.holidayshunt.com' ||
       host.includes('r2.cloudflarestorage.com') ||
       host.includes('.r2.dev') ||
-      host.includes('holidayshunt') ||
-      host.includes('bhaktisathi')
+      host.includes('holidayshunt')
     ) {
       if (pathname && !pathname.startsWith('http')) {
         return pathname;

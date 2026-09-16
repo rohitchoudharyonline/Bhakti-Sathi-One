@@ -195,7 +195,7 @@ export const FaqsManager: React.FC = () => {
                 <input
                   type="text"
                   required
-                  placeholder="e.g., Does Bhakti Sathi offer senior citizen assistance?"
+                  placeholder="e.g., Does Holidays Hunt offer senior citizen assistance?"
                   value={newQuestion}
                   onChange={(e) => setNewQuestion(e.target.value)}
                   className="w-full text-xs font-semibold bg-white border border-stone-200 rounded-xl px-3.5 py-2.5 focus:border-[#FF4B00] focus:outline-hidden"
@@ -209,7 +209,7 @@ export const FaqsManager: React.FC = () => {
                 <textarea
                   required
                   rows={6}
-                  placeholder="Write a clear, professional answer explaining Bhakti Sathi's facilitation..."
+                  placeholder="Write a clear, professional answer explaining Holidays Hunt's facilitation..."
                   value={newAnswer}
                   onChange={(e) => setNewAnswer(e.target.value)}
                   className="w-full text-xs bg-white border border-stone-200 rounded-xl px-3.5 py-2.5 focus:border-[#FF4B00] focus:outline-hidden resize-none"

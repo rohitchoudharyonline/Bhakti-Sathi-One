@@ -181,7 +181,7 @@ export interface TourPackage {
   endLocation: string;
   groupSizeLimit?: string;
   bestTimeToVisit?: string;
-  tourType?: 'Private Tour' | 'Group Tour' | 'Customizable Tour';
+  tourType?: TourType | 'Pilgrimage' | 'Honeymoon' | 'Family' | 'Private Tour' | 'Group Tour' | 'Customizable Tour' | string;
   isGroupTour?: boolean;
   groupTourDetails?: GroupTourDetails;
   itinerary: ItineraryDay[];
@@ -468,7 +468,7 @@ export interface TravelerUserProfile {
   roomPreference?: string;
   emergencyContact?: string;
   authProvider?: 'google' | 'email' | 'phone';
-  memberTier?: 'Member' | 'Silver Explorer' | 'Gold Explorer' | 'Bhakti Sathi Elite';
+  memberTier?: 'Member' | 'Silver Explorer' | 'Gold Explorer' | 'Holidays Hunt Elite';
   memberSince?: string;
   rewardCoins?: number;
   coTravelers?: CoTraveler[];

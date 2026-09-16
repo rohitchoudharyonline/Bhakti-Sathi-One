@@ -26,17 +26,17 @@ import {
 export const InteractiveTripPlanner: React.FC = () => {
   const { agencySettings, submitInquiry } = useTours();
 
-  const [destination, setDestination] = useState('Mata Vaishno Devi & Kashmir Shivkhori Cave (Heli Option)');
+  const [destination, setDestination] = useState('Kashmir Valley, Gulmarg & Pahalgam');
   const [durationDays, setDurationDays] = useState(6);
   const [hotelTier, setHotelTier] = useState('3-Star Deluxe & Verified Stays');
-  const [vehicleType, setVehicleType] = useState('Private Mountain Innova Crysta');
+  const [vehicleType, setVehicleType] = useState('Private Mountain Innova Crysta / Sedan');
   const [mealPlan, setMealPlan] = useState('MAP Plan (Daily Breakfast & Dinner)');
   const [adults, setAdults] = useState(2);
   const [children, setChildren] = useState(0);
   const [travelMonth, setTravelMonth] = useState('Next 30 Days (Upcoming)');
   const [specialInterests, setSpecialInterests] = useState<string[]>([
-    'Guided Darshan Assistance',
-    'Senior Citizen Palki / Doli Support',
+    'Sightseeing & Private Chauffeur',
+    'Family & Honeymoon Special Inclusions',
     'Custom Meal Preferences On Request',
   ]);
   const [travelerName, setTravelerName] = useState('');
@@ -44,12 +44,15 @@ export const InteractiveTripPlanner: React.FC = () => {
   const [travelerEmail, setTravelerEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
 
-  const PILGRIMAGE_DESTINATIONS = [
-    { label: 'Mata Vaishno Devi & Kashmir Shivkhori Cave (Heli Option)' },
-    { label: 'Himachal 5 Devi Darshan (Jwala Ji, Kangra, Chintpurni)' },
-    { label: 'Kashmir Valley & Gulmarg Family Holiday' },
+  const HOLIDAY_DESTINATIONS = [
+    { label: 'Kashmir Valley, Gulmarg & Pahalgam' },
     { label: 'Himachal Complete Tour (Shimla, Manali & Dharamshala)' },
+    { label: 'Ladakh High Altitude Circuit (Leh, Nubra, Pangong)' },
     { label: 'Amritsar Golden Temple & Wagah Border' },
+    { label: 'Mata Vaishno Devi Ji & Katra Yatra' },
+    { label: 'Thailand (Bangkok, Pattaya & Coral Island)' },
+    { label: 'Vietnam (Hanoi, Ha Long Bay & Da Nang)' },
+    { label: 'Bali Tropical Villa & Nusa Penida Island' },
   ];
 
   const HOTEL_TIERS = [
@@ -60,32 +63,32 @@ export const InteractiveTripPlanner: React.FC = () => {
       badge: 'Economical',
     },
     {
-      id: '4-Star Luxury & Premium Bhawan Hotels',
-      title: '4-Star Luxury & Premium Bhawan Hotels',
-      desc: 'Premium hotel rooms, river/mountain views, priority shrine transit',
-      badge: 'Most Revered',
+      id: '4-Star Luxury & Premium Hotels',
+      title: '4-Star Luxury & Premium Hotels',
+      desc: 'Premium hotel rooms, scenic views, priority check-in',
+      badge: 'Most Popular',
     },
     {
-      id: '5-Star Deluxe Pilgrim Resorts & Heli Camps',
-      title: '5-Star Deluxe Pilgrim Resorts & Heli Camps',
-      desc: 'Premium suites, luxury alpine tents, local guide assistance',
-      badge: 'Signature',
+      id: '5-Star Deluxe Resorts & Private Villas',
+      title: '5-Star Deluxe Resorts & Private Villas',
+      desc: 'Premium suites, luxury hospitality, dedicated concierge',
+      badge: 'Signature Luxury',
     },
   ];
 
   const VEHICLE_OPTIONS = [
-    { id: 'Private Mountain Innova Crysta', label: 'Private Mountain Innova Crysta', desc: 'Hill certified chauffeur, 2-5 pilgrims' },
+    { id: 'Private Mountain Innova Crysta / Sedan', label: 'Private Innova Crysta / Sedan', desc: 'Courteous chauffeur, 2-5 travelers' },
     { id: 'Luxury Force Urbania / Tempo Traveller', label: 'Luxury Force Urbania / Tempo Traveller', desc: '9-16 Seater for joint family & groups' },
-    { id: 'Helicopter Charter + Dedicated Ground Transit', label: 'Helicopter Charter + Dedicated Ground Transit', desc: 'Dehradun to Kedarnath & Badrinath' },
+    { id: 'Private Luxury AC Coach / Van', label: 'Private Luxury AC Coach / Van', desc: 'Airport transfers & custom circuits' },
   ];
 
   const INTEREST_OPTIONS = [
-    'Guided Darshan Assistance',
-    'Senior Citizen Palki / Doli Support',
+    'Sightseeing & Private Chauffeur',
+    'Family & Honeymoon Special Inclusions',
     'Custom Meal Preferences On Request',
-    'Medical Oxygen Cylinder Mountain Kit',
-    'Special Vedic Rudrabhishek Puja Seva',
-    'Evening Ganga Aarti Private Boat Seva',
+    'Adventure Sports & Gondola Coordination',
+    'Senior Citizen Palki / Assistance',
+    'Airport VIP Chauffeur Pickup',
   ];
 
   const toggleInterest = (item: string) => {
@@ -105,7 +108,7 @@ export const InteractiveTripPlanner: React.FC = () => {
     if (!travelerName.trim() || !travelerPhone.trim() || !isValidEmail(travelerEmail)) return;
 
     submitInquiry({
-      packageId: 'custom-yatra-planner-lead',
+      packageId: 'custom-tour-planner-lead',
       packageTitle: `Custom ${durationDays}D/${durationDays - 1}N ${destination} (${hotelTier})`,
       travelerName: travelerName.trim(),
       email: travelerEmail.trim().toLowerCase(),
@@ -130,7 +133,7 @@ export const InteractiveTripPlanner: React.FC = () => {
         vehicleType,
         mealPlan,
         travelerName: travelerName || 'Valued Traveler',
-        travelerEmail: travelerEmail || 'guest@mybhaktisathi.com',
+        travelerEmail: travelerEmail || 'guest@holidayshunt.com',
         travelerPhone: travelerPhone || agencySettings.phone,
         travelMonth,
         specialInterests,
@@ -142,22 +145,22 @@ export const InteractiveTripPlanner: React.FC = () => {
   };
 
   const getWhatsAppMessage = () => {
-    const text = `Namaste ${agencySettings.agencyName}! I configured a custom sacred pilgrimage itinerary on your website:
+    const text = `Hello ${agencySettings.agencyName}! I configured a custom holiday itinerary on your website:
 
-🕉️ Sacred Tour: ${destination}
+✈️ Destination: ${destination}
 ⏱️ Duration: ${durationDays} Days / ${durationDays - 1} Nights
 🏨 Accommodation: ${hotelTier}
 🚗 Vehicle: ${vehicleType}
-🍽️ Diet: ${mealPlan}
-👥 Pilgrims: ${adults} Adults, ${children} Children
-📅 Yatra Month: ${travelMonth}
-✨ Sacred Add-ons: ${specialInterests.join(', ')}
+🍽️ Meal Plan: ${mealPlan}
+👥 Travelers: ${adults} Adults, ${children} Children
+📅 Travel Month: ${travelMonth}
+✨ Special Add-ons: ${specialInterests.join(', ')}
 
-👤 Pilgrim Name: ${travelerName || 'Devotee'}
+👤 Traveler Name: ${travelerName || 'Guest'}
 📞 Phone: ${travelerPhone || 'N/A'}
 📧 Email: ${travelerEmail || 'N/A'}
 
-Please provide the detailed custom Yatra itinerary and package quotation.`;
+Please provide the detailed custom itinerary and package quotation.`;
 
     return `https://wa.me/${agencySettings.whatsapp.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(text)}`;
   };
@@ -169,15 +172,15 @@ Please provide the detailed custom Yatra itinerary and package quotation.`;
         <div className="text-center max-w-3xl mx-auto mb-10">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white border border-stone-300 text-stone-900 text-[11px] font-black uppercase tracking-wider mb-3 shadow-2xs">
             <Sparkles className="w-3.5 h-3.5" />
-            <span>Custom Yatra Wizard</span>
+            <span>Custom Holiday Wizard</span>
           </div>
 
           <h2 className="text-2xl sm:text-4xl font-black text-stone-900 tracking-tight mb-3 font-serif">
-            Design Your Personalized Sacred Pilgrimage
+            Design Your Personalized Holiday &amp; Tour
           </h2>
 
           <p className="text-xs sm:text-base text-stone-600 font-medium">
-            Tailor every spiritual detail—sacred shrines, convenient Darshan time slots, sanitized mountain vehicles, senior citizen assistance, and comfortable stay options.
+            Tailor every detail—destinations, duration, private chauffeur vehicles, family &amp; honeymoon inclusions, verified stays, and 24/7 on-ground assistance.
           </p>
         </div>
 
@@ -190,17 +193,17 @@ Please provide the detailed custom Yatra itinerary and package quotation.`;
                   <CheckCircle2 className="w-8 h-8" />
                 </div>
                 <h3 className="text-2xl font-black text-stone-900 mb-2 font-serif">
-                  Sacred Yatra Inquiry Received!
+                  Holiday Inquiry Received!
                 </h3>
                 <p className="text-sm text-stone-600 max-w-md mx-auto mb-6 font-medium">
-                  Jai Shri Ram! Thank you, <strong className="text-stone-900">{travelerName}</strong>. Our senior pilgrimage coordinator in Haridwar has received your custom <strong>{durationDays}D {destination}</strong> itinerary configuration.
+                  Thank you, <strong className="text-stone-900">{travelerName}</strong>. Our holiday travel desk has received your custom <strong>{durationDays}D {destination}</strong> itinerary configuration.
                 </p>
 
                 <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 max-w-md mx-auto mb-6 text-xs text-emerald-950 text-left space-y-1.5 font-medium">
                   <div className="font-bold flex items-center gap-1.5 text-emerald-900">
-                    <Check className="w-4 h-4 text-emerald-600" /> Assigned to Head Yatra Desk
+                    <Check className="w-4 h-4 text-emerald-600" /> Assigned to Dedicated Travel Planner
                   </div>
-                  <div>• Estimated itinerary & quotation: <strong>Under 30 minutes</strong></div>
+                  <div>• Estimated customized itinerary & quote: <strong>Under 30 minutes</strong></div>
                   <div>• 24/7 Helpline: <strong>{agencySettings.phone}</strong></div>
                 </div>
 
@@ -219,7 +222,7 @@ Please provide the detailed custom Yatra itinerary and package quotation.`;
                     onClick={() => setSubmitted(false)}
                     className="w-full sm:w-auto px-5 py-3.5 rounded-2xl bg-stone-100 hover:bg-stone-200 text-stone-800 font-bold text-xs transition cursor-pointer border border-stone-200"
                   >
-                    Configure Another Yatra
+                    Configure Another Holiday
                   </button>
 
                   <button
@@ -237,10 +240,10 @@ Please provide the detailed custom Yatra itinerary and package quotation.`;
                 <div>
                   <label className="text-xs font-black uppercase text-stone-700 block mb-2.5 flex items-center gap-2">
                     <span className="w-5 h-5 rounded-full bg-stone-900 text-white text-[10px] flex items-center justify-center font-bold">1</span>
-                    Select Sacred Pilgrimage Destination
+                    Select Holiday Destination / Circuit
                   </label>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                    {PILGRIMAGE_DESTINATIONS.map((dest) => (
+                    {HOLIDAY_DESTINATIONS.map((dest) => (
                       <button
                         type="button"
                         key={dest.label}
@@ -262,7 +265,7 @@ Please provide the detailed custom Yatra itinerary and package quotation.`;
                   <div className="flex items-center justify-between mb-2">
                     <label className="text-xs font-black uppercase text-stone-700 flex items-center gap-2">
                       <span className="w-5 h-5 rounded-full bg-stone-900 text-white text-[10px] flex items-center justify-center font-bold">2</span>
-                      Yatra Duration
+                      Trip Duration
                     </label>
                     <span className="text-xs font-bold text-stone-900 bg-stone-100 px-3 py-1 rounded-full border border-stone-300">
                       {durationDays} Days / {durationDays - 1} Nights
@@ -278,17 +281,17 @@ Please provide the detailed custom Yatra itinerary and package quotation.`;
                     className="w-full accent-stone-900 cursor-pointer"
                   />
                   <div className="flex justify-between text-[11px] font-bold text-stone-500 mt-1">
-                    <span>3 Days (Short Yatra)</span>
-                    <span>7-9 Days (Extended Tour)</span>
-                    <span>14 Days (Complete Tour)</span>
+                    <span>3 Days (Quick Getaway)</span>
+                    <span>6-8 Days (Standard Holiday)</span>
+                    <span>14 Days (Grand Vacation)</span>
                   </div>
                 </div>
 
-                {/* Step 3: Hotel Tier */}
+                {/* Step 3: Hotel Category */}
                 <div>
                   <label className="text-xs font-black uppercase text-stone-700 block mb-2.5 flex items-center gap-2">
                     <span className="w-5 h-5 rounded-full bg-stone-900 text-white text-[10px] flex items-center justify-center font-bold">3</span>
-                    Accommodation Standard
+                    Preferred Stay Category
                   </label>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     {HOTEL_TIERS.map((tier) => (
@@ -296,67 +299,69 @@ Please provide the detailed custom Yatra itinerary and package quotation.`;
                         type="button"
                         key={tier.id}
                         onClick={() => setHotelTier(tier.id)}
-                        className={`p-4 rounded-2xl text-left transition flex flex-col justify-between border cursor-pointer ${
+                        className={`p-3.5 rounded-2xl text-left transition border cursor-pointer flex flex-col justify-between ${
                           hotelTier === tier.id
-                            ? 'bg-stone-100 border-stone-900 text-stone-900 shadow-2xs ring-1 ring-stone-900/20'
-                            : 'bg-white border-stone-200 text-stone-700 hover:bg-stone-50'
+                            ? 'bg-stone-100 border-stone-900 shadow-2xs ring-1 ring-stone-900/20'
+                            : 'bg-white border-stone-200 hover:bg-stone-50'
                         }`}
                       >
                         <div>
-                          <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-white text-stone-900 border border-stone-300 inline-block mb-1.5">
-                            {tier.badge}
-                          </span>
-                          <h4 className="text-xs font-black text-stone-900 mb-1">{tier.title}</h4>
-                          <p className="text-[11px] text-stone-600 leading-tight">{tier.desc}</p>
+                          <div className="flex items-center justify-between gap-1 mb-1">
+                            <span className="text-xs font-black text-stone-900">{tier.title}</span>
+                            <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-stone-200 text-stone-800">
+                              {tier.badge}
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-stone-500 leading-snug">{tier.desc}</p>
                         </div>
                       </button>
                     ))}
                   </div>
                 </div>
 
-                {/* Step 4: Vehicle & Meal Plan */}
+                {/* Step 4: Vehicle & Logistics */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="text-xs font-black uppercase text-stone-700 block mb-1.5 flex items-center gap-2">
+                    <label className="text-xs font-black uppercase text-stone-700 block mb-2 flex items-center gap-2">
                       <span className="w-5 h-5 rounded-full bg-stone-900 text-white text-[10px] flex items-center justify-center font-bold">4</span>
-                      Private Chauffeur & Vehicle
+                      Private Vehicle Selection
                     </label>
                     <select
                       value={vehicleType}
                       onChange={(e) => setVehicleType(e.target.value)}
-                      className="w-full text-xs font-bold bg-white border border-stone-300 rounded-xl px-3 py-2.5 focus:border-stone-900 focus:outline-hidden"
+                      className="w-full text-xs font-bold bg-white border border-stone-300 rounded-xl p-3 focus:border-stone-900 focus:outline-hidden"
                     >
                       {VEHICLE_OPTIONS.map((v) => (
                         <option key={v.id} value={v.id}>
-                          {v.label} ({v.desc})
+                          {v.label}
                         </option>
                       ))}
                     </select>
                   </div>
 
                   <div>
-                    <label className="text-xs font-black uppercase text-stone-700 block mb-1.5 flex items-center gap-2">
+                    <label className="text-xs font-black uppercase text-stone-700 block mb-2 flex items-center gap-2">
                       <span className="w-5 h-5 rounded-full bg-stone-900 text-white text-[10px] flex items-center justify-center font-bold">5</span>
-                      Meal Plan Selection
+                      Meal Plan Preference
                     </label>
                     <select
                       value={mealPlan}
                       onChange={(e) => setMealPlan(e.target.value)}
-                      className="w-full text-xs font-bold bg-white border border-stone-300 rounded-xl px-3 py-2.5 focus:border-stone-900 focus:outline-hidden"
+                      className="w-full text-xs font-bold bg-white border border-stone-300 rounded-xl p-3 focus:border-stone-900 focus:outline-hidden"
                     >
                       <option value="MAP Plan (Daily Breakfast & Dinner)">MAP Plan (Daily Breakfast & Dinner)</option>
                       <option value="CP Plan (Daily Breakfast Only)">CP Plan (Daily Breakfast Only)</option>
-                      <option value="Full AP Plan (Breakfast, Lunch & Dinner)">Full AP Plan (All 3 Meals Included)</option>
+                      <option value="AP Plan (All Meals - Breakfast, Lunch & Dinner)">AP Plan (All Meals - Breakfast, Lunch & Dinner)</option>
                       <option value="Custom Meal Plan on Request">Custom Meal Plan on Request</option>
                     </select>
                   </div>
                 </div>
 
-                {/* Step 5: Special Devotional Add-ons */}
+                {/* Step 5: Special Devotional & Tour Add-ons */}
                 <div>
                   <label className="text-xs font-black uppercase text-stone-700 block mb-2 flex items-center gap-2">
                     <span className="w-5 h-5 rounded-full bg-stone-900 text-white text-[10px] flex items-center justify-center font-bold">6</span>
-                    Sacred Add-ons & Senior Assistance
+                    Special Inclusions &amp; Add-ons
                   </label>
                   <div className="flex flex-wrap gap-2">
                     {INTEREST_OPTIONS.map((interest) => {
@@ -384,7 +389,7 @@ Please provide the detailed custom Yatra itinerary and package quotation.`;
                 <div className="pt-4 border-t border-stone-200">
                   <h4 className="text-xs font-black uppercase text-stone-700 mb-3 flex items-center gap-2">
                     <span className="w-5 h-5 rounded-full bg-stone-900 text-white text-[10px] flex items-center justify-center font-bold">7</span>
-                    Pilgrim Contact Details for Custom Itinerary
+                    Traveler Contact Details for Custom Itinerary
                   </h4>
 
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -397,7 +402,7 @@ Please provide the detailed custom Yatra itinerary and package quotation.`;
                         required
                         value={travelerName}
                         onChange={(e) => setTravelerName(e.target.value)}
-                        placeholder="e.g. Rameshwar Sharma"
+                        placeholder="e.g. Rahul Sharma"
                         className="w-full text-xs font-semibold bg-white border border-stone-300 rounded-xl px-3 py-2.5 focus:border-stone-900 focus:outline-hidden"
                       />
                     </div>
@@ -421,7 +426,7 @@ Please provide the detailed custom Yatra itinerary and package quotation.`;
                       value={travelerEmail}
                       onChange={(val) => setTravelerEmail(val)}
                       label="Email Address (Verification Step)"
-                      placeholder="e.g. sharma@example.com"
+                      placeholder="e.g. rahul@example.com"
                       required
                       helperText="Enter a correctly formatted email to receive quotation and sync to your profile."
                       inputClassName="bg-white border-stone-300 py-2.5"
@@ -437,7 +442,7 @@ Please provide the detailed custom Yatra itinerary and package quotation.`;
                     className="w-full py-4 px-6 rounded-2xl bg-stone-900 hover:bg-black disabled:bg-stone-300 disabled:cursor-not-allowed disabled:hover:bg-stone-300 text-white font-extrabold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md transition cursor-pointer active:scale-[0.98]"
                   >
                     <Send className="w-4 h-4" />
-                    <span>Submit & Request Custom Yatra Quotation</span>
+                    <span>Submit &amp; Request Custom Holiday Quotation</span>
                   </button>
                   {!isValidEmail(travelerEmail) && (
                     <p className="text-[10px] text-center text-stone-500 font-semibold">
@@ -454,7 +459,7 @@ Please provide the detailed custom Yatra itinerary and package quotation.`;
             <div className="flex items-center justify-between pb-3.5 mb-3.5 border-b border-stone-100">
               <div>
                 <span className="text-[10px] font-extrabold uppercase tracking-wider text-stone-900">
-                  Live Yatra Summary
+                  Live Tour Summary
                 </span>
                 <h3 className="text-base font-black text-stone-900 font-serif">
                   Configured Itinerary
@@ -467,7 +472,7 @@ Please provide the detailed custom Yatra itinerary and package quotation.`;
 
             <div className="space-y-2.5 text-xs mb-5">
               <div className="p-3 rounded-xl bg-stone-50 border border-stone-200">
-                <div className="text-[10px] text-stone-500 font-extrabold uppercase">Holy Tour</div>
+                <div className="text-[10px] text-stone-500 font-extrabold uppercase">Destination</div>
                 <div className="font-black text-stone-900 mt-0.5">{destination}</div>
               </div>
 
@@ -478,7 +483,7 @@ Please provide the detailed custom Yatra itinerary and package quotation.`;
                 </div>
 
                 <div className="p-3 rounded-xl bg-stone-50 border border-stone-200">
-                  <div className="text-[10px] text-stone-500 font-extrabold uppercase">Pilgrims</div>
+                  <div className="text-[10px] text-stone-500 font-extrabold uppercase">Travelers</div>
                   <div className="font-black text-stone-900 mt-0.5">{adults} Adults</div>
                 </div>
               </div>
@@ -489,7 +494,7 @@ Please provide the detailed custom Yatra itinerary and package quotation.`;
               </div>
 
               <div className="p-3 rounded-xl bg-stone-50 border border-stone-200">
-                <div className="text-[10px] text-stone-500 font-extrabold uppercase">Vehicle & Dietary Meal</div>
+                <div className="text-[10px] text-stone-500 font-extrabold uppercase">Vehicle & Meal Plan</div>
                 <div className="font-bold text-stone-900 mt-0.5">{vehicleType}</div>
                 <div className="text-[11px] text-emerald-800 font-bold mt-1">✓ {mealPlan}</div>
               </div>
@@ -497,13 +502,13 @@ Please provide the detailed custom Yatra itinerary and package quotation.`;
 
             <div className="p-4 rounded-2xl bg-stone-100 border border-stone-300 text-center mb-5">
               <div className="text-[10px] font-extrabold uppercase tracking-wider text-stone-900 mb-0.5">
-                Sacred Yatra Quote
+                Holiday Tour Quote
               </div>
               <div className="text-xl font-black text-stone-900">
                 Price on Request
               </div>
               <p className="text-[11px] text-stone-600 mt-1 leading-snug font-medium">
-                Transparent direct ground rate with guided Darshan coordination & hotel stays.
+                Transparent direct ground rate with verified hotel stays and private chauffeur.
               </p>
             </div>
 
@@ -521,15 +526,15 @@ Please provide the detailed custom Yatra itinerary and package quotation.`;
             <div className="space-y-2 text-[11px] text-stone-700 font-medium">
               <div className="flex items-center gap-2">
                 <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
-                <span>Govt. Registered Shrine Operator</span>
+                <span>Govt. Registered Tour Operator</span>
               </div>
               <div className="flex items-center gap-2">
                 <HeartHandshake className="w-4 h-4 text-stone-900 shrink-0" />
-                <span>Senior citizen & high-altitude medical care</span>
+                <span>Verified Handpicked Hotels & Private Cabs</span>
               </div>
               <div className="flex items-center gap-2">
                 <Award className="w-4 h-4 text-amber-600 shrink-0" />
-                <span>Dedicated Vedic Yatra Pandits & 24/7 Support</span>
+                <span>Dedicated Tour Coordinators & 24/7 Support</span>
               </div>
             </div>
           </div>

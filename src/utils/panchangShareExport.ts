@@ -1,14 +1,8 @@
 import { PanchangDay, formatLongDate } from '../data/panchangData';
-import logoUrl from '../assets/images/logo-bhakti-sathi.png';
+import logoUrl from '../assets/images/logo-holidays-hunt.png';
 
-const FONT = '"Noto Sans Devanagari", "Nirmala UI", "Mangal", Arial, sans-serif';
-const bilingual: Record<string, string> = {
-  'रविवार': 'Sunday', 'सोमवार': 'Monday', 'मंगलवार': 'Tuesday', 'बुधवार': 'Wednesday', 'गुरुवार': 'Thursday', 'शुक्रवार': 'Friday', 'शनिवार': 'Saturday',
-  'शुक्ल प्रतिपदा': 'Shukla Pratipada', 'शुक्ल द्वितीया': 'Shukla Dwitiya', 'शुक्ल तृतीया': 'Shukla Tritiya', 'शुक्ल चतुर्थी': 'Shukla Chaturthi', 'शुक्ल पंचमी': 'Shukla Panchami', 'शुक्ल षष्ठी': 'Shukla Shashthi', 'शुक्ल सप्तमी': 'Shukla Saptami', 'शुक्ल अष्टमी': 'Shukla Ashtami', 'शुक्ल नवमी': 'Shukla Navami', 'शुक्ल दशमी': 'Shukla Dashami', 'शुक्ल एकादशी': 'Shukla Ekadashi', 'शुक्ल द्वादशी': 'Shukla Dwadashi', 'शुक्ल त्रयोदशी': 'Shukla Trayodashi', 'शुक्ल चतुर्दशी': 'Shukla Chaturdashi', 'पूर्णिमा': 'Purnima', 'कृष्ण प्रतिपदा': 'Krishna Pratipada', 'कृष्ण द्वितीया': 'Krishna Dwitiya', 'कृष्ण तृतीया': 'Krishna Tritiya', 'कृष्ण चतुर्थी': 'Krishna Chaturthi', 'कृष्ण पंचमी': 'Krishna Panchami', 'कृष्ण षष्ठी': 'Krishna Shashthi', 'कृष्ण सप्तमी': 'Krishna Saptami', 'कृष्ण अष्टमी': 'Krishna Ashtami', 'कृष्ण नवमी': 'Krishna Navami', 'कृष्ण दशमी': 'Krishna Dashami', 'कृष्ण एकादशी': 'Krishna Ekadashi', 'कृष्ण द्वादशी': 'Krishna Dwadashi', 'कृष्ण त्रयोदशी': 'Krishna Trayodashi', 'कृष्ण चतुर्दशी': 'Krishna Chaturdashi', 'अमावस्या': 'Amavasya',
-  'अश्विनी': 'Ashwini', 'भरणी': 'Bharani', 'कृत्तिका': 'Krittika', 'रोहिणी': 'Rohini', 'मृगशिरा': 'Mrigashira', 'आर्द्रा': 'Ardra', 'पुनर्वसु': 'Punarvasu', 'पुष्य': 'Pushya', 'आश्लेषा': 'Ashlesha', 'मघा': 'Magha', 'पूर्वा फाल्गुनी': 'Purva Phalguni', 'उत्तरा फाल्गुनी': 'Uttara Phalguni', 'हस्त': 'Hasta', 'चित्रा': 'Chitra', 'स्वाती': 'Swati', 'विशाखा': 'Vishakha', 'अनुराधा': 'Anuradha', 'ज्येष्ठा': 'Jyeshtha', 'मूल': 'Mula', 'पूर्वाषाढ़ा': 'Purva Ashadha', 'उत्तराषाढ़ा': 'Uttara Ashadha', 'श्रवण': 'Shravana', 'धनिष्ठा': 'Dhanishtha', 'शतभिषा': 'Shatabhisha', 'पूर्वाभाद्रपद': 'Purva Bhadrapada', 'उत्तराभाद्रपद': 'Uttara Bhadrapada', 'रेवती': 'Revati',
-  'विष्कम्भ': 'Vishkambha', 'प्रीति': 'Priti', 'आयुष्मान': 'Ayushman', 'सौभाग्य': 'Saubhagya', 'शोभन': 'Shobhana', 'अतिगण्ड': 'Atiganda', 'सुकर्मा': 'Sukarma', 'धृति': 'Dhriti', 'शूल': 'Shula', 'गण्ड': 'Ganda', 'वृद्धि': 'Vriddhi', 'ध्रुव': 'Dhruva', 'व्याघात': 'Vyaghata', 'हर्षण': 'Harshana', 'वज्र': 'Vajra', 'सिद्धि': 'Siddhi', 'व्यतीपात': 'Vyatipata', 'वरीयान': 'Variyan', 'परिघ': 'Parigha', 'शिव': 'Shiva', 'सिद्ध': 'Siddha', 'साध्य': 'Sadhya', 'शुभ': 'Shubha', 'शुक्ल': 'Shukla', 'ब्रह्म': 'Brahma', 'इन्द्र': 'Indra', 'वैधृति': 'Vaidhriti',
-  'बव': 'Bava', 'बालव': 'Balava', 'कौलव': 'Kaulava', 'तैतिल': 'Taitila', 'गर': 'Gara', 'वणिज': 'Vanija', 'विष्टि': 'Vishti', 'शकुनि': 'Shakuni', 'चतुष्पाद': 'Chatushpada', 'नाग': 'Naga', 'किंस्तुघ्न': 'Kimstughna'
-};
+const FONT = 'Arial, sans-serif';
+const bilingual: Record<string, string> = {};
 const en = (value: string) => bilingual[value] || value;
 const loadImage = (src: string) => new Promise<HTMLImageElement>((resolve, reject) => { const image = new Image(); image.onload = () => resolve(image); image.onerror = reject; image.src = src; });
 const text = (ctx: CanvasRenderingContext2D, value: string, x: number, y: number, size: number, weight = 600, color = '#171717', align: CanvasTextAlign = 'left') => { ctx.font = `${weight} ${size}px ${FONT}`; ctx.fillStyle = color; ctx.textAlign = align; ctx.textBaseline = 'alphabetic'; ctx.fillText(value, x, y); };
@@ -17,17 +11,17 @@ const card = (ctx: CanvasRenderingContext2D, x: number, y: number, w: number, la
 export async function sharePanchangImage(panchang: PanchangDay, cityLabel: string): Promise<'shared' | 'downloaded'> {
   const canvas = document.createElement('canvas'); canvas.width = 1080; canvas.height = 1920; const ctx = canvas.getContext('2d'); if (!ctx) throw new Error('Canvas unavailable');
   ctx.fillStyle = '#FFFBF8'; ctx.fillRect(0, 0, 1080, 1920); ctx.fillStyle = '#FF4B00'; ctx.fillRect(0, 0, 1080, 18);
-  const logo = await loadImage(logoUrl); const logoW = 280; const logoH = Math.min(logoW * logo.naturalHeight / logo.naturalWidth, 95); ctx.drawImage(logo, 55, 48, logoW, logoH); text(ctx, 'DAILY PANCHANG / दैनिक पंचांग', 1025, 82, 21, 800, '#665E59', 'right');
-  text(ctx, 'आज का पंचांग / Today’s Panchang', 55, 210, 39, 800); text(ctx, formatLongDate(panchang.date), 55, 253, 22, 600, '#625A55'); text(ctx, `${cityLabel} / ${cityLabel}`, 55, 288, 21, 600, '#625A55'); text(ctx, en(panchang.vara.name), 1025, 288, 21, 700, '#FF4B00', 'right');
+  const logo = await loadImage(logoUrl); const logoW = 280; const logoH = Math.min(logoW * logo.naturalHeight / logo.naturalWidth, 95); ctx.drawImage(logo, 55, 48, logoW, logoH); text(ctx, 'DAILY PANCHANG', 1025, 82, 21, 800, '#665E59', 'right');
+  text(ctx, 'Today\'s Panchang', 55, 210, 39, 800); text(ctx, formatLongDate(panchang.date), 55, 253, 22, 600, '#625A55'); text(ctx, `${cityLabel}`, 55, 288, 21, 600, '#625A55'); text(ctx, en(panchang.vara.name), 1025, 288, 21, 700, '#FF4B00', 'right');
   const cards = [
-    ['तिथि / Tithi', `${panchang.tithi.name} / ${en(panchang.tithi.name)}`], ['नक्षत्र / Nakshatra', `${panchang.nakshatra.name} / ${en(panchang.nakshatra.name)} • Pada ${panchang.nakshatra.pada || '—'}`],
-    ['योग / Yoga', `${panchang.yoga.name} / ${en(panchang.yoga.name)}`], ['करण / Karana', `${panchang.karana.name} / ${en(panchang.karana.name)}`],
-    ['सूर्योदय / Sunrise', panchang.sun.sunrise], ['सूर्यास्त / Sunset', panchang.sun.sunset], ['राहुकाल / Rahu Kalam', panchang.muhurta.rahuKalam || 'Not available'], ['यमगण्ड / Yamagandam', panchang.muhurta.yamagandam || 'Not available'],
-    ['अभिजित मुहूर्त / Abhijit Muhurtam', panchang.muhurta.abhijit || 'Not available'], ['गुलिक काल / Gulika Kalam', panchang.muhurta.gulikaKalam || 'Not available']
+    ['Tithi', `${en(panchang.tithi.name)}`], ['Nakshatra', `${en(panchang.nakshatra.name)} • Pada ${panchang.nakshatra.pada || '—'}`],
+    ['Yoga', `${en(panchang.yoga.name)}`], ['Karana', `${en(panchang.karana.name)}`],
+    ['Sunrise', panchang.sun.sunrise], ['Sunset', panchang.sun.sunset], ['Rahu Kalam', panchang.muhurta.rahuKalam || 'Not available'], ['Yamagandam', panchang.muhurta.yamagandam || 'Not available'],
+    ['Abhijit Muhurtam', panchang.muhurta.abhijit || 'Not available'], ['Gulika Kalam', panchang.muhurta.gulikaKalam || 'Not available']
   ];
   cards.forEach(([label, value], i) => card(ctx, 40, 350 + i * 137, 1000, label, value, i < 4 ? '#FF4B00' : i < 6 ? '#F59E0B' : '#7C3AED'));
-  ctx.beginPath(); ctx.roundRect(40, 1730, 1000, 110, 24); ctx.fillStyle = '#FFF0E8'; ctx.fill(); text(ctx, 'भक्ति के साथ हर दिन • Bhakti Sathi', 540, 1798, 25, 800, '#FF4B00', 'center');
-  const blob = await new Promise<Blob>((resolve, reject) => canvas.toBlob((b) => b ? resolve(b) : reject(new Error('Image export failed')), 'image/png')); const file = new File([blob], `BhaktiSathi_Panchang_${panchang.date}.png`, { type: 'image/png' });
-  if (navigator.share && (!navigator.canShare || navigator.canShare({ files: [file] }))) { await navigator.share({ title: 'Bhakti Sathi — आज का पंचांग', text: `आज का पंचांग • ${cityLabel}`, files: [file] }); return 'shared'; }
+  ctx.beginPath(); ctx.roundRect(40, 1730, 1000, 110, 24); ctx.fillStyle = '#FFF0E8'; ctx.fill(); text(ctx, 'Holidays Hunt • Your Travel Partner', 540, 1798, 25, 800, '#FF4B00', 'center');
+  const blob = await new Promise<Blob>((resolve, reject) => canvas.toBlob((b) => b ? resolve(b) : reject(new Error('Image export failed')), 'image/png')); const file = new File([blob], `HolidaysHunt_Panchang_${panchang.date}.png`, { type: 'image/png' });
+  if (navigator.share && (!navigator.canShare || navigator.canShare({ files: [file] }))) { await navigator.share({ title: 'Holidays Hunt — Today\'s Panchang', text: `Today's Panchang • ${cityLabel}`, files: [file] }); return 'shared'; }
   const url = URL.createObjectURL(blob); const anchor = document.createElement('a'); anchor.href = url; anchor.download = file.name; document.body.appendChild(anchor); anchor.click(); anchor.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000); return 'downloaded';
 }

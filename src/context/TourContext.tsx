@@ -414,8 +414,8 @@ const DEFAULT_SEED_INQUIRIES: BookingInquiry[] = [
     id: 'HH89123',
     packageId: 'pkg-kashmir-01',
     packageTitle: 'Paradise Kashmir: Srinagar, Gulmarg, Pahalgam & Luxury Houseboat',
-    travelerName: 'Bhakti Sathi Guest',
-    email: 'care@mybhaktisathi.com',
+    travelerName: 'Holidays Hunt Guest',
+    email: 'care@holidayshunt.com',
     phone: '+91 94199 15255',
     travelDate: '2026-09-28',
     adults: 2,
@@ -429,8 +429,8 @@ const DEFAULT_SEED_INQUIRIES: BookingInquiry[] = [
     id: 'HH65201',
     packageId: 'pkg-ladakh-01',
     packageTitle: 'Mesmerizing Ladakh & Pangong Tso Highland Odyssey',
-    travelerName: 'Bhakti Sathi Guest',
-    email: 'care@mybhaktisathi.com',
+    travelerName: 'Holidays Hunt Guest',
+    email: 'care@holidayshunt.com',
     phone: '+91 94199 15255',
     travelDate: '2026-10-12',
     adults: 3,
@@ -724,7 +724,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (Array.isArray(parsed)) {
           return parsed.map((item: MediaAsset) => ({
             ...item,
-            url: (item.url || '').replace(/https?:\/\/pub-r2\.mybhaktisathi\.com/g, 'https://media.holidayshunt.com'),
+            url: (item.url || '').replace(/https?:\/\/pub-r2\.holidayshunt\.com/g, 'https://media.holidayshunt.com'),
           }));
         }
       }
@@ -741,11 +741,11 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
           return {
             ...DEFAULT_CLOUD_SETTINGS,
             ...parsed,
-            r2PublicDomain: (!parsed.r2PublicDomain || parsed.r2PublicDomain.includes('mybhaktisathi')) ? 'https://media.holidayshunt.com' : parsed.r2PublicDomain,
-            r2BucketName: (!parsed.r2BucketName || parsed.r2BucketName === 'mybhaktisathi-media-r2') ? 'bhakti-sathi' : parsed.r2BucketName,
-            d1BucketName: (!parsed.d1BucketName || parsed.d1BucketName === 'mybhaktisathi-media-r2') ? 'bhakti-sathi' : parsed.d1BucketName,
-            d1DatabaseId: (!parsed.d1DatabaseId || parsed.d1DatabaseId === 'mybhaktisathi-d1-db' || parsed.d1DatabaseId === 'bhakti-sathi-db') ? '165b7b99-72e3-443e-aee9-8bf0f8c6c26b' : parsed.d1DatabaseId,
-            d1DatabaseName: (!parsed.d1DatabaseName || parsed.d1DatabaseName === 'mybhaktisathi-d1-db') ? 'bhakti-sathi-db' : parsed.d1DatabaseName,
+            r2PublicDomain: (!parsed.r2PublicDomain || parsed.r2PublicDomain.includes('holidayshunt')) ? 'https://media.holidayshunt.com' : parsed.r2PublicDomain,
+            r2BucketName: (!parsed.r2BucketName || parsed.r2BucketName === 'holidayshunt-media-r2') ? 'bhakti-sathi' : parsed.r2BucketName,
+            d1BucketName: (!parsed.d1BucketName || parsed.d1BucketName === 'holidayshunt-media-r2') ? 'bhakti-sathi' : parsed.d1BucketName,
+            d1DatabaseId: (!parsed.d1DatabaseId || parsed.d1DatabaseId === 'holidayshunt-d1-db' || parsed.d1DatabaseId === 'bhakti-sathi-db') ? '165b7b99-72e3-443e-aee9-8bf0f8c6c26b' : parsed.d1DatabaseId,
+            d1DatabaseName: (!parsed.d1DatabaseName || parsed.d1DatabaseName === 'holidayshunt-d1-db') ? 'bhakti-sathi-db' : parsed.d1DatabaseName,
           };
         }
       }
@@ -760,7 +760,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed)) {
-          // Ensure seed inquiries for test emails (vip.traveler, mybhaktisathi) are always available
+          // Ensure seed inquiries for test emails (vip.traveler, holidayshunt) are always available
           const existingIds = new Set(parsed.map((p: BookingInquiry) => p.id));
           const missing = DEFAULT_SEED_INQUIRIES.filter((s) => !existingIds.has(s.id));
           return [...parsed, ...missing];
@@ -776,8 +776,8 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const saved = localStorage.getItem(STORAGE_KEYS.SETTINGS);
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (parsed.sacredMantra === 'ॐ ऐं ह्रीं श्रीं वैष्णव्यै नमः' || !parsed.sacredMantra) {
-          parsed.sacredMantra = 'साम्ब सदाशिव';
+        if (parsed.sacredMantra === 'ॐ ऐं ह्रीं श्रीं वैष्णव्यै नमः' || parsed.sacredMantra === 'साम्ब सदाशिव') {
+          parsed.sacredMantra = '';
         }
         // Ensure footerMenus is initialized from defaults if not set, without reverting user deletions
         if (!parsed.footerMenus || !Array.isArray(parsed.footerMenus)) {
@@ -799,8 +799,8 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
             if (hasUnwantedCopy) {
               return {
                 ...faq,
-                question: "What is Bhakti Sathi's role regarding meals and restaurant suggestions?",
-                answer: "Bhakti Sathi does not operate restaurants, kitchens, or hotel dining services. However, we understand the importance of dietary preferences on a sacred journey. We provide curated recommendations for reputable local vegetarian restaurants and hotel kitchens along your yatra route that offer clean, high-quality vegetarian food."
+                question: "What is Holidays Hunt's role regarding meals and restaurant suggestions?",
+                answer: "Holidays Hunt does not operate restaurants, kitchens, or hotel dining services. However, we understand the importance of dietary preferences on a sacred journey. We provide curated recommendations for reputable local vegetarian restaurants and hotel kitchens along your yatra route that offer clean, high-quality vegetarian food."
               };
             }
 
@@ -812,7 +812,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
             if (hasIncorrectCancellationCopy) {
               return {
                 ...faq,
-                question: "What is the cancellation and refund policy for a Bhakti Sathi coordinated yatra?",
+                question: "What is the cancellation and refund policy for a Holidays Hunt coordinated yatra?",
                 answer: "Cancellations attract charges based on the departure timeline. Prior to 46 days from departure, the 30% advance booking deposit (or ₹30,000, whichever is lower) is non-refundable. Cancellations made between 31 to 45 days attract a 70% charge, and cancellations within 30 days or less are 100% non-refundable. Eligible refunds are processed within 21 working days."
               };
             }
@@ -959,7 +959,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
       roomPreference: metadata.roomPreference || 'Mountain View / King Bed',
       emergencyContact: metadata.emergencyContact || '',
       authProvider: 'google',
-      memberTier: metadata.memberTier || 'Bhakti Sathi Elite',
+      memberTier: metadata.memberTier || 'Holidays Hunt Elite',
       memberSince: new Date(user.created_at || Date.now()).toLocaleDateString('en-IN', { month: 'long', year: 'numeric' }),
       rewardCoins: metadata.rewardCoins !== undefined ? metadata.rewardCoins : 2500,
       coTravelers: metadata.coTravelers || [

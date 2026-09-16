@@ -14,7 +14,7 @@ export const TagsManager: React.FC = () => {
 
   const [tags, setTags] = useState<GuideTag[]>(() => {
     try {
-      const saved = localStorage.getItem('bhakti_guide_tags');
+      const saved = localStorage.getItem('holidayshunt_guide_tags') || localStorage.getItem('bhakti_guide_tags');
       if (saved) return JSON.parse(saved);
     } catch {}
     return [
@@ -29,7 +29,7 @@ export const TagsManager: React.FC = () => {
   const saveTagsToStorage = (newTags: GuideTag[]) => {
     setTags(newTags);
     try {
-      localStorage.setItem('bhakti_guide_tags', JSON.stringify(newTags));
+      localStorage.setItem('holidayshunt_guide_tags', JSON.stringify(newTags));
     } catch {}
   };
 

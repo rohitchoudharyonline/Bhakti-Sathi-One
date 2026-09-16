@@ -31,7 +31,7 @@ export async function compressAndProcessImage(
     folder = 'uploads',
   } = options;
 
-  if (!r2PublicDomain || r2PublicDomain.includes('mybhaktisathi')) {
+  if (!r2PublicDomain || r2PublicDomain.includes('holidayshunt')) {
     r2PublicDomain = 'https://media.holidayshunt.com';
   }
 

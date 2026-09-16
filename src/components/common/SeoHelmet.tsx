@@ -22,12 +22,12 @@ export const SeoHelmet: React.FC<SeoHelmetProps> = ({
   canonicalUrl,
   ogImage,
   noIndex = false,
-  siteName = 'Bhakti Sathi',
-  authorName = 'Bhakti Sathi Team',
+  siteName = 'Holidays Hunt',
+  authorName = 'Holidays Hunt Team',
   type = 'article',
 }) => {
-  const displayTitle = metaTitle || title || 'Bhakti Sathi - Spiritual Pilgrimage & Travel Guides';
-  const fullTitle = displayTitle.includes('Bhakti Sathi') ? displayTitle : `${displayTitle} | ${siteName}`;
+  const displayTitle = metaTitle || title || 'Holidays Hunt - Spiritual Pilgrimage & Travel Guides';
+  const fullTitle = displayTitle.includes('Holidays Hunt') ? displayTitle : `${displayTitle} | ${siteName}`;
   const description = metaDescription || 'Discover spiritual pilgrimage packages, travel guides, VIP temple darshan updates, and cultural heritage itineraries across India.';
   
   const formattedKeywords = Array.isArray(keywords)

@@ -8,18 +8,18 @@ export interface ZodiacSign {
 }
 
 export const ZODIAC_SIGNS: ZodiacSign[] = [
-  { id: 'mesha', name: 'मेष राशि', english: 'Aries', symbol: '♈', dates: '21 मार्च – 19 अप्रैल', accent: '#FF4B00' },
-  { id: 'vrishabha', name: 'वृषभ राशि', english: 'Taurus', symbol: '♉', dates: '20 अप्रैल – 20 मई', accent: '#B45309' },
-  { id: 'mithuna', name: 'मिथुन राशि', english: 'Gemini', symbol: '♊', dates: '21 मई – 20 जून', accent: '#7C3AED' },
-  { id: 'karka', name: 'कर्क राशि', english: 'Cancer', symbol: '♋', dates: '21 जून – 22 जुलाई', accent: '#2563EB' },
-  { id: 'simha', name: 'सिंह राशि', english: 'Leo', symbol: '♌', dates: '23 जुलाई – 22 अगस्त', accent: '#D97706' },
-  { id: 'kanya', name: 'कन्या राशि', english: 'Virgo', symbol: '♍', dates: '23 अगस्त – 22 सितंबर', accent: '#15803D' },
-  { id: 'tula', name: 'तुला राशि', english: 'Libra', symbol: '♎', dates: '23 सितंबर – 22 अक्टूबर', accent: '#DB2777' },
-  { id: 'vrishchika', name: 'वृश्चिक राशि', english: 'Scorpio', symbol: '♏', dates: '23 अक्टूबर – 21 नवंबर', accent: '#BE123C' },
-  { id: 'dhanu', name: 'धनु राशि', english: 'Sagittarius', symbol: '♐', dates: '22 नवंबर – 21 दिसंबर', accent: '#9333EA' },
-  { id: 'makara', name: 'मकर राशि', english: 'Capricorn', symbol: '♑', dates: '22 दिसंबर – 19 जनवरी', accent: '#475569' },
-  { id: 'kumbha', name: 'कुंभ राशि', english: 'Aquarius', symbol: '♒', dates: '20 जनवरी – 18 फरवरी', accent: '#0369A1' },
-  { id: 'meena', name: 'मीन राशि', english: 'Pisces', symbol: '♓', dates: '19 फरवरी – 20 मार्च', accent: '#0F766E' },
+  { id: 'mesha', name: 'Aries (Mesha)', english: 'Aries', symbol: '♈', dates: 'Mar 21 – Apr 19', accent: '#FF4B00' },
+  { id: 'vrishabha', name: 'Taurus (Vrishabha)', english: 'Taurus', symbol: '♉', dates: 'Apr 20 – May 20', accent: '#B45309' },
+  { id: 'mithuna', name: 'Gemini (Mithuna)', english: 'Gemini', symbol: '♊', dates: 'May 21 – Jun 20', accent: '#7C3AED' },
+  { id: 'karka', name: 'Cancer (Karka)', english: 'Cancer', symbol: '♋', dates: 'Jun 21 – Jul 22', accent: '#2563EB' },
+  { id: 'simha', name: 'Leo (Simha)', english: 'Leo', symbol: '♌', dates: 'Jul 23 – Aug 22', accent: '#D97706' },
+  { id: 'kanya', name: 'Virgo (Kanya)', english: 'Virgo', symbol: '♍', dates: 'Aug 23 – Sep 22', accent: '#15803D' },
+  { id: 'tula', name: 'Libra (Tula)', english: 'Libra', symbol: '♎', dates: 'Sep 23 – Oct 22', accent: '#DB2777' },
+  { id: 'vrishchika', name: 'Scorpio (Vrishchika)', english: 'Scorpio', symbol: '♏', dates: 'Oct 23 – Nov 21', accent: '#BE123C' },
+  { id: 'dhanu', name: 'Sagittarius (Dhanu)', english: 'Sagittarius', symbol: '♐', dates: 'Nov 22 – Dec 21', accent: '#9333EA' },
+  { id: 'makara', name: 'Capricorn (Makara)', english: 'Capricorn', symbol: '♑', dates: 'Dec 22 – Jan 19', accent: '#475569' },
+  { id: 'kumbha', name: 'Aquarius (Kumbha)', english: 'Aquarius', symbol: '♒', dates: 'Jan 20 – Feb 18', accent: '#0369A1' },
+  { id: 'meena', name: 'Pisces (Meena)', english: 'Pisces', symbol: '♓', dates: 'Feb 19 – Mar 20', accent: '#0F766E' },
 ];
 
 export interface HoroscopeContent {
@@ -37,17 +37,17 @@ export interface HoroscopeContent {
 }
 
 const FALLBACK: Record<string, HoroscopeContent> = Object.fromEntries(ZODIAC_SIGNS.map((sign, index) => [sign.id, {
-  overview: `आज ${sign.name} के लिए दिन सकारात्मक ऊर्जा और स्पष्ट निर्णयों का संकेत देता है। अधूरे कामों को व्यवस्थित करके आगे बढ़ें और जल्दबाज़ी से बचें।`,
-  career: 'कामकाज में आपकी योजना और संवाद कौशल उपयोगी रहेंगे। किसी महत्वपूर्ण निर्णय से पहले प्राथमिकताएँ स्पष्ट करें।',
-  finance: 'आर्थिक मामलों में संतुलित दृष्टिकोण रखें। आवश्यक खर्च और बचत के बीच अच्छा संतुलन बनाने का समय है।',
-  health: 'स्वास्थ्य सामान्य रहने की संभावना है। पर्याप्त पानी, नियमित भोजन और थोड़े विश्राम पर ध्यान दें।',
-  love: 'रिश्तों में खुला संवाद और धैर्य सकारात्मक वातावरण बनाएगा। प्रियजनों के साथ समय निकालें।',
-  family: 'परिवार में सहयोग और अपनापन बढ़ेगा। किसी बड़े सदस्य की सलाह लाभदायक हो सकती है।',
+  overview: `Today indicates positive momentum and clarity for ${sign.english}. Organize pending tasks methodically and move forward with confidence.`,
+  career: 'Strategic planning and effective communication will yield tangible results. Outline top priorities before making key commitments.',
+  finance: 'Maintain a balanced approach towards expenditures and savings. Financial stability is well supported today.',
+  health: 'Energy levels remain balanced. Ensure adequate hydration, nutritious meals, and mindful pauses between tasks.',
+  love: 'Heartfelt communication and mutual understanding strengthen connections with your loved ones.',
+  family: 'Warmth and supportive dialogue prevail at home. Valuable insights from family members will guide you well.',
   luckyNumber: String((index + 3) * 2),
-  luckyColor: ['लाल','पीला','हरा','सफेद','केसरिया','नीला'][index % 6],
-  remedy: 'प्रातः ईश्वर का स्मरण करें और अपनी श्रद्धा के अनुसार दीपक जलाएँ।',
-  mantra: ['ॐ नमः शिवाय','ॐ नमो भगवते वासुदेवाय','ॐ श्री गणेशाय नमः','ॐ दुं दुर्गायै नमः'][index % 4],
-  auspiciousWindow: 'प्रातः 09:00 – 11:00',
+  luckyColor: ['Crimson Red', 'Golden Yellow', 'Forest Green', 'Pure White', 'Royal Saffron', 'Deep Blue'][index % 6],
+  remedy: 'Begin your day with grateful reflection and light a ceremonial lamp for peace and focus.',
+  mantra: ['Om Namah Shivaya', 'Om Namo Bhagavate Vasudevaya', 'Om Gam Ganapataye Namah', 'Om Dum Durgayai Namah'][index % 4],
+  auspiciousWindow: 'Morning 09:00 AM – 11:00 AM',
 }]));
 
 export const getFallbackHoroscope = (signId: string): HoroscopeContent => FALLBACK[signId] || FALLBACK.mesha;

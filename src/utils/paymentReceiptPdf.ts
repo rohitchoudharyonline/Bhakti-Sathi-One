@@ -22,7 +22,7 @@ export interface PaymentReceiptData {
  * Loads an image from the provided sources and converts to base64 DataURL for reliable jsPDF embedding.
  */
 async function loadBrandLogoData(): Promise<{ dataUrl: string; width: number; height: number; format: string } | null> {
-  const sources = ['/logo-bhakti-sathi.png', '/logo.png'];
+  const sources = ['/logo-holidays-hunt.png', '/logo.png'];
   for (const src of sources) {
     try {
       const img = await new Promise<HTMLImageElement>((resolve, reject) => {
@@ -401,7 +401,7 @@ export async function generatePaymentReceiptPdf(data: PaymentReceiptData): Promi
   doc.setFontSize(7);
   doc.setFont('helvetica', 'normal');
   doc.setTextColor(textMuted[0], textMuted[1], textMuted[2]);
-  const footerContact = `Phone: ${data.agencySettings.phone}  |  Email: ${data.agencySettings.email}  |  Website: www.mybhaktisathi.com`;
+  const footerContact = `Phone: ${data.agencySettings.phone}  |  Email: ${data.agencySettings.email}  |  Website: www.holidayshunt.com`;
   doc.text(footerContact, margin, footerY + 4);
 
   const footerAddress = data.agencySettings.address || 'Main Boulevard, Srinagar / New Delhi / Shimla';
@@ -418,6 +418,6 @@ export async function generatePaymentReceiptPdf(data: PaymentReceiptData): Promi
   // -------------------------------------------------------------
   // 7. DOWNLOAD PDF
   // -------------------------------------------------------------
-  const safeFilename = `BhaktiSathi_Receipt_${data.receiptNumber.replace(/[^a-zA-Z0-9_-]/g, '')}.pdf`;
+  const safeFilename = `HolidaysHunt_Receipt_${data.receiptNumber.replace(/[^a-zA-Z0-9_-]/g, '')}.pdf`;
   doc.save(safeFilename);
 }

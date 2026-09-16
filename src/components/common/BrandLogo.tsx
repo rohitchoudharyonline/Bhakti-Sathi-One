@@ -14,39 +14,39 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
   className = '',
   imageClassName = '',
   showTagline = false,
-  taglineText = 'SACRED PILGRIMAGE & YATRA',
+  taglineText = 'FAMILY • HONEYMOON • PILGRIMAGE • INTERNATIONAL',
 }) => {
   const [imgError, setImgError] = useState(false);
 
   const heightMap = {
-    xs: 'h-6',
-    sm: 'h-8',
-    md: 'h-9 sm:h-10',
-    lg: 'h-12 sm:h-14',
-    xl: 'h-16 sm:h-20',
+    xs: 'h-10 sm:h-11',
+    sm: 'h-13 sm:h-14',
+    md: 'h-16 sm:h-18',
+    lg: 'h-20 sm:h-24',
+    xl: 'h-26 sm:h-32',
   };
 
   const textMap = {
-    xs: 'text-lg',
-    sm: 'text-xl',
-    md: 'text-2xl sm:text-[26px]',
-    lg: 'text-3xl sm:text-4xl',
-    xl: 'text-4xl sm:text-5xl',
+    xs: 'text-2xl',
+    sm: 'text-3xl',
+    md: 'text-4xl sm:text-[44px]',
+    lg: 'text-5xl sm:text-6xl',
+    xl: 'text-6xl sm:text-7xl',
   };
 
   return (
     <div className={`inline-flex flex-col ${className}`}>
       {!imgError ? (
         <img
-          src="/logo-bhakti-sathi.png"
-          alt="Bhakti Sathi"
+          src="/logo-holidays-hunt.png"
+          alt="Holidays Hunt"
           onError={() => setImgError(true)}
           className={`${heightMap[size]} w-auto object-contain select-none ${imageClassName}`}
         />
       ) : (
         <div className="inline-flex items-baseline select-none tracking-[-0.03em] font-extrabold font-['Plus_Jakarta_Sans',sans-serif]">
-          <span className={`${textMap[size]} text-[#1A1A1A]`}>Bhakti</span>
-          <span className={`${textMap[size]} text-[#FF4B00] ml-1`}>Sathi</span>
+          <span className={`${textMap[size]} text-[#1A1A1A]`}>Holidays</span>
+          <span className={`${textMap[size]} text-[#FF4B00] ml-1`}>Hunt</span>
         </div>
       )}
       {showTagline && (

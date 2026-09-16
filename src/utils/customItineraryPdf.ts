@@ -28,7 +28,7 @@ export interface CustomItineraryData {
 }
 
 async function loadBrandLogoData(): Promise<{ dataUrl: string; width: number; height: number; format: string } | null> {
-  const sources = ['/logo-bhakti-sathi.png', '/logo.png'];
+  const sources = ['/logo-holidays-hunt.png', '/logo.png'];
   for (const src of sources) {
     try {
       const img = await new Promise<HTMLImageElement>((resolve, reject) => {
@@ -94,12 +94,12 @@ export async function generateCustomItineraryPdf(data: CustomItineraryData): Pro
     doc.setFontSize(7.5);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(darkCharcoal[0], darkCharcoal[1], darkCharcoal[2]);
-    doc.text(data.agencySettings.agencyName || 'Bhakti Sathi', margin, footerY);
+    doc.text(data.agencySettings.agencyName || 'Holidays Hunt', margin, footerY);
 
     doc.setFontSize(7);
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(textMuted[0], textMuted[1], textMuted[2]);
-    const footerContact = `Phone: ${data.agencySettings.phone}  |  Email: ${data.agencySettings.email}  |  Website: www.mybhaktisathi.com`;
+    const footerContact = `Phone: ${data.agencySettings.phone}  |  Email: ${data.agencySettings.email}  |  Website: www.holidayshunt.com`;
     doc.text(footerContact, margin, footerY + 3.5);
 
     doc.text(`Page ${pageNumber}`, pageWidth - margin, footerY + 3.5, { align: 'right' });
@@ -304,7 +304,7 @@ export async function generateCustomItineraryPdf(data: CustomItineraryData): Pro
         dayNumber: i + 1,
         title: i === 0 ? `Arrival & Welcome at ${data.destination.split('&')[0]}` : i === data.durationDays - 1 ? 'Departure & Return Journey' : `Scenic Exploration & Sightseeing Day ${i + 1}`,
         location: data.destination,
-        description: `Enjoy a fully customized day exploring the finest scenic spots, chauffeured private transfers, and comfortable stays curated by Bhakti Sathi.`,
+        description: `Enjoy a fully customized day exploring the finest scenic spots, chauffeured private transfers, and comfortable stays curated by Holidays Hunt.`,
         activities: [],
         stayHotel: data.hotelTier,
         meals: [data.mealPlan || 'Daily Breakfast & Dinner'],
@@ -387,6 +387,6 @@ export async function generateCustomItineraryPdf(data: CustomItineraryData): Pro
   drawHeaderAndFooter();
 
   // Save PDF
-  const safeFilename = `BhaktiSathi_CustomItinerary_${data.travelerName.replace(/[^a-zA-Z0-9_-]/g, '') || 'Devotee'}.pdf`;
+  const safeFilename = `HolidaysHunt_CustomItinerary_${data.travelerName.replace(/[^a-zA-Z0-9_-]/g, '') || 'Devotee'}.pdf`;
   doc.save(safeFilename);
 }

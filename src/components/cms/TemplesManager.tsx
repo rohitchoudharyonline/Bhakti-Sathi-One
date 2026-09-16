@@ -588,16 +588,16 @@ export const TemplesManager: React.FC = () => {
                 />
               </div>
 
-              {/* Hindi Name */}
+              {/* Alternative Name */}
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-stone-700">
-                  Hindi / Sanskrit Name (Optional)
+                  Alternative / Local Name (Optional)
                 </label>
                 <input
                   type="text"
                   value={formData.hindiName || ''}
                   onChange={(e) => setFormData({ ...formData, hindiName: e.target.value })}
-                  placeholder="e.g., श्री माता वैष्णो देवी भवन"
+                  placeholder="e.g., Mata Vaishno Devi Shrine"
                   className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-medium text-stone-900 focus:bg-white focus:outline-none focus:border-[#FF4B00]"
                 />
               </div>

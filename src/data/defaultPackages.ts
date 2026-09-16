@@ -9,13 +9,12 @@ export const DEFAULT_BOTTOM_NAV_ITEMS: MobileBottomNavItem[] = [
 
 export const DEFAULT_AGENCY_SETTINGS: AgencySettings = {
   agencyName: 'Holidays Hunt',
-  tagline: "India's Premier Holiday & Tour Packages • Verified Stays • Dedicated Chauffeurs",
+  tagline: "India's Premier Family, Honeymoon, Pilgrimage & International Tour Facilitator",
   email: 'info@holidayshunt.com',
   phone: '+91 94199 15255',
   whatsapp: '+919419915255',
   address: 'Holidays Hunt Travel & Hospitality Pvt Ltd, Boulevard / Rajbagh, Srinagar, Kashmir / Katra / New Delhi',
   currencySymbol: '₹',
-  sacredMantra: 'साम्ब सदाशिव',
   taxRegistrationNumber: 'GSTIN: 07AAACH9921M1Z4',
   bankName: 'HDFC Bank Ltd.',
   accountName: 'Holidays Hunt',
@@ -34,53 +33,53 @@ export const DEFAULT_AGENCY_SETTINGS: AgencySettings = {
   faqs: [
     {
       id: 'faq-1',
-      question: 'How does Bhakti Sathi assist in planning customizable spiritual Yatras?',
-      answer: 'Bhakti Sathi is a premier digital platform and travel facilitator. We coordinate customized travel itineraries, connecting you with verified local transport coordinators and accommodation providers. Our expert team assists you in selecting custom routes, durations, and comfort-aligned options suitable for families and senior citizens.'
+      question: 'What types of tour packages does Holidays Hunt specialize in?',
+      answer: 'Holidays Hunt specializes in customized Family Vacations, Romantic Honeymoon Getaways, Sacred Pilgrimage & Yatra Tours, and Leisure Holidays across top Domestic destinations (Jammu & Kashmir, Himachal Pradesh, Ladakh, Amritsar, Char Dham, Goa, Kerala) and International hotspots (Thailand, Vietnam, Bali Indonesia, South Korea, Japan, and more).'
     },
     {
       id: 'faq-2',
-      question: 'How does Bhakti Sathi help ensure comfort for senior citizens on pilgrimages like Vaishno Devi or Char Dham?',
-      answer: 'Bhakti Sathi is dedicated to organizing stress-free, senior-friendly spiritual journeys. While hotels and helicopter services are managed by independent third-party operators, Bhakti Sathi coordinators handpick recommended hotels with elevators and close proximity to the shrines. We also assist in coordinating priority assist requests, planning gentle travel paces, and arranging dedicated, comfortable ground vehicles with experienced chauffeurs to support our elderly guests.'
+      question: 'How does Holidays Hunt ensure a smooth and personalized holiday experience?',
+      answer: 'Holidays Hunt pairs you with verified local hotel partners, experienced chauffeurs, and dedicated 24x7 tour managers. We customize every itinerary according to your travel pace, family preferences, hotel category choices, and sightseeing interests.'
     },
     {
       id: 'faq-3',
-      question: 'What is Bhakti Sathi\'s role regarding meals and restaurant suggestions?',
-      answer: 'Bhakti Sathi does not operate restaurants, kitchens, or hotel dining services. However, we understand the importance of dietary preferences on a sacred journey. We provide curated recommendations for reputable local vegetarian restaurants and hotel kitchens along your yatra route that offer clean, high-quality vegetarian food.'
+      question: 'Can Holidays Hunt customize a private tour itinerary for families or couples?',
+      answer: 'Absolutely! Every itinerary at Holidays Hunt is 100% customizable. Whether you are traveling as a honeymoon couple seeking private candlelight dinners and scenic retreats, or a multi-generational family requiring spacious vehicles and child/elderly-friendly hotels, our team tailors every detail.'
     },
     {
       id: 'faq-4',
-      question: 'Can Bhakti Sathi customize a spiritual tour itinerary for my family?',
-      answer: 'Absolutely! Bhakti Sathi is famous for custom-made, private spiritual itineraries. Whether you are planning a family trip to Kashi Vishwanath, Ayodhya Ram Mandir, or Himachal Devi Darshans, our expert team can adjust the travel duration, suggest select category stays, and coordinate private transport matching your family\'s speed and requirements.'
+      question: 'How does Holidays Hunt handle sacred pilgrimages like Mata Vaishno Devi or Char Dham?',
+      answer: 'For sacred yatras, Holidays Hunt provides end-to-end facilitation including handpicked hotels near shrines, assistance with priority darshan guidance/helicopter updates, dedicated comfortable transfers, and respectful local coordination for senior citizens.'
     },
     {
       id: 'faq-5',
-      question: 'What is Bhakti Sathi\'s payment schedule and booking policy?',
-      answer: 'To secure your preferred hotels and dedicated vehicle bookings, Bhakti Sathi requires a standard 30% advance deposit. The remaining 70% balance can be settled in easy installments up to 7 days before your departure. We accept UPI, bank transfer, Net Banking, and all major debit/credit cards with 100% transparent invoicing.'
+      question: 'What is Holidays Hunt\'s payment schedule and booking policy?',
+      answer: 'To secure your hotel reservations and private cab bookings, Holidays Hunt requires a standard advance deposit. The remaining balance can be settled as per the agreed payment schedule before or upon arrival. We accept UPI, Net Banking, credit/debit cards, and bank transfers with complete GST invoicing.'
     },
     {
       id: 'faq-6',
-      question: 'What is the cancellation and refund policy for a Bhakti Sathi coordinated yatra?',
-      answer: 'Cancellations attract charges based on the departure timeline. Prior to 46 days from departure, the 30% advance booking deposit (or ₹30,000, whichever is lower) is non-refundable. Cancellations made between 31 to 45 days attract a 70% charge, and cancellations within 30 days or less are 100% non-refundable. Eligible refunds are processed within 21 working days.'
+      question: 'What is the cancellation and refund policy for Holidays Hunt bookings?',
+      answer: 'Cancellations follow clear transparent timelines based on hotel and operational partner policies. Any eligible refunds are processed promptly to your original payment mode within standard banking turnaround times.'
     },
     {
       id: 'faq-7',
-      question: 'Are local tour guides and temple historians provided by Bhakti Sathi?',
-      answer: 'Yes, upon request, Bhakti Sathi can connect you with certified, knowledgeable local guides and religious experts at various historical temples. They help explain the historical significance, temple legends, and rich cultural heritage of the sacred shrines.'
+      question: 'Does Holidays Hunt provide International tour packages like Thailand, Vietnam, and Bali?',
+      answer: 'Yes! Holidays Hunt organizes bespoke international holidays to Thailand (Phuket, Krabi, Bangkok), Vietnam (Hanoi, Da Nang, Halong Bay), Indonesia (Bali), South Korea, Japan, Dubai, and the Maldives with visa assistance, luxury resort stays, and guided city excursions.'
     },
     {
       id: 'faq-8',
-      question: 'Does Bhakti Sathi coordinate helicopter bookings for Yatras like Vaishno Devi or Kedarnath?',
-      answer: 'Bhakti Sathi assists travelers by providing guidance, booking schedule updates, and facilitation support for third-party helicopter tickets. Please note that helicopter tickets are subject to official government portal schedules, verification requirements, and availability.'
+      question: 'Are meals and special dietary preferences accommodated during the tour?',
+      answer: 'Yes, our tour packages include flexible meal plans (such as MAP Plan with Daily Breakfast & Dinner). We recommend and coordinate with partner hotels and reputable local restaurants to ensure clean, high-quality, and pure vegetarian / Jain / halal meal options as per guest requirements.'
     },
     {
       id: 'faq-9',
-      question: 'How does Bhakti Sathi handle travel logistics in hilly and mountainous regions?',
-      answer: 'We coordinate with licensed local drivers who are highly experienced with hilly terrains. For the safety of our guests, we strictly adhere to mountain safety guidelines, such as completing travel before dark, maintaining safe speed limits, and ensuring proper vehicle fitness.'
+      question: 'How are transportation and safety managed in hilly regions?',
+      answer: 'We deploy only experienced, courteous, and licensed mountain drivers with well-maintained commercial vehicles (Innova Crysta, Ertiga, Tempo Traveller, Dzire). Safety protocols, terrain expertise, and guest comfort are our highest priorities.'
     },
     {
       id: 'faq-10',
-      question: 'What sets Bhakti Sathi apart from conventional tour operators?',
-      answer: 'Bhakti Sathi is a specialized platform focusing exclusively on custom-made devotional, family, and senior-friendly yatras. We provide personalized 24/7 travel desk support during your trip, complete billing transparency, and reliable local partners to make your pilgrimage seamless and spiritually enriching.'
+      question: 'What sets Holidays Hunt apart from conventional travel operators?',
+      answer: 'Holidays Hunt delivers genuine on-ground concierge support, 100% transparent pricing with no hidden charges, verified hotel stays, and personalized itineraries designed for unforgettable Family, Honeymoon, and Pilgrimage memories.'
     }
   ],
   footerMenus: [
@@ -88,31 +87,33 @@ export const DEFAULT_AGENCY_SETTINGS: AgencySettings = {
       id: 'fm-discover',
       title: 'DISCOVER US',
       items: [
-        { id: 'fmi-about', label: 'About us', url: 'about' },
+        { id: 'fmi-about', label: 'About Us', url: 'about' },
         { id: 'fmi-careers', label: 'Careers', url: 'careers' },
-        { id: 'fmi-contact', label: 'Contact us', url: 'locate_us' },
+        { id: 'fmi-contact', label: 'Contact Us', url: 'locate_us' },
         { id: 'fmi-faq', label: 'FAQ', url: 'faq' },
-        { id: 'fmi-guide', label: 'Guide', url: 'guide' },
+        { id: 'fmi-guide', label: 'Travel Guides', url: 'guide' },
         { id: 'fmi-sitemap', label: 'Sitemap', url: 'sitemap' }
       ]
     },
     {
-      id: 'fm-yatras',
-      title: 'SACRED YATRAS',
+      id: 'fm-categories',
+      title: 'TOUR CATEGORIES',
       items: [
-        { id: 'fmi-vd', label: 'Vaishno Devi Yatra', url: 'pilgrimage' },
-        { id: 'fmi-hd', label: 'Himachal Devi Darshan', url: 'pilgrimage' },
-        { id: 'fmi-fam', label: 'Family Devotional Tours', url: 'family' }
+        { id: 'fmi-fam', label: 'Family Vacations', url: 'family' },
+        { id: 'fmi-honey', label: 'Honeymoon Specials', url: 'honeymoon' },
+        { id: 'fmi-pilgrim', label: 'Sacred Pilgrimages', url: 'pilgrimage' },
+        { id: 'fmi-group', label: 'Group Departures', url: 'tours' }
       ]
     },
     {
-      id: 'fm-tours',
-      title: 'TOP TOURS',
+      id: 'fm-destinations',
+      title: 'TOP DESTINATIONS',
       items: [
         { id: 'fmi-t-kashmir', label: 'Kashmir Paradise', url: 'kashmir' },
-        { id: 'fmi-t-himachal', label: 'Himachal Mountains', url: 'himachal' },
+        { id: 'fmi-t-himachal', label: 'Himachal Hills', url: 'himachal' },
+        { id: 'fmi-t-ladakh', label: 'Ladakh Odyssey', url: 'ladakh' },
         { id: 'fmi-t-vaishno', label: 'Mata Vaishno Devi', url: 'jammu' },
-        { id: 'fmi-t-hd', label: 'Himachal Devi Darshan', url: 'himachal_devi' }
+        { id: 'fmi-t-inter', label: 'Thailand & Vietnam', url: 'destinations' }
       ]
     },
     {
@@ -213,7 +214,7 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
       },
     ],
     overview:
-      'Immerse yourself in the jewel of the Himalayas with Bhakti Sathi. Experience the serene beauty of Srinagar Mughal Gardens, a dreamy sunset Shikara ride across Dal Lake, the alpine wonderland of Gulmarg (featuring the world-famous Gondola cable car), and the scenic valleys of Pahalgam (Betaab Valley, Chandanwari & Aru). Accompanied by private chauffeur vehicle, authentic Kashmiri hospitality, and choice of 2, 3, 4, or 5-star stays.',
+      'Immerse yourself in the jewel of the Himalayas with Holidays Hunt. Experience the serene beauty of Srinagar Mughal Gardens, a dreamy sunset Shikara ride across Dal Lake, the alpine wonderland of Gulmarg (featuring the world-famous Gondola cable car), and the scenic valleys of Pahalgam (Betaab Valley, Chandanwari & Aru). Accompanied by private chauffeur vehicle, authentic Kashmiri hospitality, and choice of 2, 3, 4, or 5-star stays.',
     startLocation: 'Sheikh ul-Alam International Airport Srinagar (SXR)',
     endLocation: 'Sheikh ul-Alam International Airport Srinagar (SXR)',
     status: 'published',
@@ -299,7 +300,7 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
       'Private dedicated AC Sedan / SUV / Innova Crysta for all transfers and sightseeing',
       'All toll taxes, parking fees, fuel, and mountain driver allowances',
       'Welcome drink on arrival (Traditional Kashmiri Kahwa with crushed almonds)',
-      '24x7 dedicated Bhakti Sathi guest support team assistance',
+      '24x7 dedicated Holidays Hunt guest support team assistance',
     ],
     exclusions: [
       'Airfare to and from Srinagar Airport',
@@ -416,7 +417,7 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
       },
     ],
     overview:
-      'Experience the ultimate Himachal mountain holiday with Bhakti Sathi. Wander along the historic Mall Road and Ridge of Shimla, enjoy yak rides at Kufri, raft through the rapids of Beas River in Kullu, and venture into the snow wonderland of Solang Valley and Atal Tunnel in Manali. Complete with private sanitized chauffeur cabs and choice of 2★, 3★, 4★, and 5★ hotels.',
+      'Experience the ultimate Himachal mountain holiday with Holidays Hunt. Wander along the historic Mall Road and Ridge of Shimla, enjoy yak rides at Kufri, raft through the rapids of Beas River in Kullu, and venture into the snow wonderland of Solang Valley and Atal Tunnel in Manali. Complete with private sanitized chauffeur cabs and choice of 2★, 3★, 4★, and 5★ hotels.',
     startLocation: 'Delhi / Chandigarh Airport / Railway Station',
     endLocation: 'Delhi / Chandigarh Airport / Railway Station',
     status: 'published',
@@ -596,7 +597,7 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
       },
     ],
     overview:
-      'God’s Own Country awaits you with Bhakti Sathi. Revel in the refreshing mist of Munnar tea estates, witness cascading Cheeyappara waterfalls, encounter wild elephants and aromatic cardamom plantations in Thekkady, and spend a dreamy night on a traditional private houseboat drifting through the palm-fringed canals of Alleppey.',
+      'God’s Own Country awaits you with Holidays Hunt. Revel in the refreshing mist of Munnar tea estates, witness cascading Cheeyappara waterfalls, encounter wild elephants and aromatic cardamom plantations in Thekkady, and spend a dreamy night on a traditional private houseboat drifting through the palm-fringed canals of Alleppey.',
     startLocation: 'Cochin International Airport (COK) / Railway Station',
     endLocation: 'Cochin International Airport (COK) / Railway Station',
     status: 'published',
@@ -789,7 +790,7 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
       },
     ],
     overview:
-      'Undertake the auspicious Himachal Devi Darshan Yatra with Bhakti Sathi. Seek the divine eternal grace of Mata Mansa Devi, Mata Naina Devi, Mata Chintpurni (Chhinnamastika Dham), Mata Jwala Ji (Eternal Flame), Mata Kangra Brajeshwari, Mata Chamunda Devi, and Mata Baglamukhi. Includes sanitized private vehicle, daily breakfast & meals, verified comfortable stays, and elderly-friendly pacing.',
+      'Undertake the auspicious Himachal Devi Darshan Yatra with Holidays Hunt. Seek the divine eternal grace of Mata Mansa Devi, Mata Naina Devi, Mata Chintpurni (Chhinnamastika Dham), Mata Jwala Ji (Eternal Flame), Mata Kangra Brajeshwari, Mata Chamunda Devi, and Mata Baglamukhi. Includes sanitized private vehicle, daily breakfast & meals, verified comfortable stays, and elderly-friendly pacing.',
     startLocation: 'Chandigarh / Delhi / Pathankot Station',
     endLocation: 'Chandigarh / Delhi / Pathankot Station',
     status: 'published',
@@ -957,7 +958,7 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
       },
     ],
     overview:
-      'Step into the land of maharajas and valor with Bhakti Sathi. Marvel at the grand Amber Fort and Hawa Mahal in the Pink City of Jaipur, discover the blue alleys and mighty Mehrangarh Fort in Jodhpur, ride camels on golden sand dunes under starry skies in Jaisalmer, and cruise the romantic waters of Lake Pichola in Udaipur.',
+      'Step into the land of maharajas and valor with Holidays Hunt. Marvel at the grand Amber Fort and Hawa Mahal in the Pink City of Jaipur, discover the blue alleys and mighty Mehrangarh Fort in Jodhpur, ride camels on golden sand dunes under starry skies in Jaisalmer, and cruise the romantic waters of Lake Pichola in Udaipur.',
     startLocation: 'Jaipur International Airport (JAI) / Railway Station',
     endLocation: 'Udaipur Airport (UDR) / Railway Station',
     status: 'published',
@@ -1136,7 +1137,7 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
       },
     ],
     overview:
-      'Unwind in the sunshine state of Goa with Bhakti Sathi. Lounge on the bustling beaches of Calangute, Baga, and Anjuna, discover the 17th-century Portuguese fortress of Fort Aguada, marvel at the sacred relics of St. Francis Xavier in Old Goa UNESCO churches, and enjoy a lively sunset cruise on the Mandovi River with Goan folk dances and DJ.',
+      'Unwind in the sunshine state of Goa with Holidays Hunt. Lounge on the bustling beaches of Calangute, Baga, and Anjuna, discover the 17th-century Portuguese fortress of Fort Aguada, marvel at the sacred relics of St. Francis Xavier in Old Goa UNESCO churches, and enjoy a lively sunset cruise on the Mandovi River with Goan folk dances and DJ.',
     startLocation: 'Goa Airport (GOI Dabolim / GOX Mopa) / Madgaon Station',
     endLocation: 'Goa Airport (GOI Dabolim / GOX Mopa) / Madgaon Station',
     status: 'published',
@@ -1238,7 +1239,7 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
       minGroupSize: 10,
       maxGroupSize: 24,
       perPersonSavings: 4500,
-      tourLeader: 'Dedicated Bhakti Guide & On-Ground Coordinator Included',
+      tourLeader: 'Dedicated Tour Guide & On-Ground Coordinator Included',
       boardingPoints: [
         'Delhi (Kashmere Gate / Majnu Ka Tila)',
         'Ambala Cantt',
@@ -1325,7 +1326,7 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
       },
     ],
     overview:
-      'Undertake the blessed pilgrimage to Shri Mata Vaishno Devi Ji with Bhakti Sathi. Begin at the holy basecamp of Katra with comfortable transfers, pre-arranged RFID yatra card assistance, and battery car/palki coordination. After fulfilling your darshan at the Holy Cave and Bhairon Nath Temple, ascend to the tranquil deodar pine hills of Patnitop and Sanasar Lake for rejuvenation and panoramic Himalayan vistas.',
+      'Undertake the blessed pilgrimage to Shri Mata Vaishno Devi Ji with Holidays Hunt. Begin at the holy basecamp of Katra with comfortable transfers, pre-arranged RFID yatra card assistance, and battery car/palki coordination. After fulfilling your darshan at the Holy Cave and Bhairon Nath Temple, ascend to the tranquil deodar pine hills of Patnitop and Sanasar Lake for rejuvenation and panoramic Himalayan vistas.',
     startLocation: 'Jammu Airport (IXJ) / Jammu Tawi (JAT) / Katra Railway Station (SVDK)',
     endLocation: 'Jammu Airport (IXJ) / Jammu Tawi (JAT) / Katra Railway Station (SVDK)',
     status: 'published',
@@ -1687,7 +1688,7 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
       },
     ],
     overview:
-      'Immerse your soul in the golden warmth and hospitality of Amritsar with Bhakti Sathi. Experience the unforgettable spiritual serenity of Sri Harmandir Sahib (Golden Temple), participate in the sacred Palki Sahib night procession, witness the goosebump-inducing Beating Retreat ceremony at the Attari-Wagah Border, pay respects at Jallianwala Bagh, and indulge in world-famous Amritsari Kulchas, Makki Di Roti, and creamy Malai Lassi.',
+      'Immerse your soul in the golden warmth and hospitality of Amritsar with Holidays Hunt. Experience the unforgettable spiritual serenity of Sri Harmandir Sahib (Golden Temple), participate in the sacred Palki Sahib night procession, witness the goosebump-inducing Beating Retreat ceremony at the Attari-Wagah Border, pay respects at Jallianwala Bagh, and indulge in world-famous Amritsari Kulchas, Makki Di Roti, and creamy Malai Lassi.',
     startLocation: 'Sri Guru Ram Dass Jee International Airport Amritsar (ATQ) / Amritsar Junction (ASR)',
     endLocation: 'Sri Guru Ram Dass Jee International Airport Amritsar (ATQ) / Amritsar Junction (ASR)',
     status: 'published',
@@ -1975,7 +1976,7 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
       },
     ],
     overview:
-      'Embark on the ultimate high-altitude Himalayan safari with Bhakti Sathi. Traverse Khardung La (17,582 ft), ride double-humped Bactrian camels across the sand dunes of Nubra Valley, camp under cosmic star-studded skies beside the color-changing waters of Pangong Lake, and discover the ancient Buddhist wisdom of Thiksey and Hemis monasteries.',
+      'Embark on the ultimate high-altitude Himalayan safari with Holidays Hunt. Traverse Khardung La (17,582 ft), ride double-humped Bactrian camels across the sand dunes of Nubra Valley, camp under cosmic star-studded skies beside the color-changing waters of Pangong Lake, and discover the ancient Buddhist wisdom of Thiksey and Hemis monasteries.',
     startLocation: 'Kushok Bakula Rimpochee Airport Leh (IXL)',
     endLocation: 'Kushok Bakula Rimpochee Airport Leh (IXL)',
     status: 'published',
@@ -2149,7 +2150,7 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
       { id: 'th2', url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1000&q=80', caption: 'Pristine turquoise waters of Coral Island Pattaya' },
       { id: 'th3', url: 'https://images.unsplash.com/photo-1528181304800-259b08848526?auto=format&fit=crop&w=1000&q=80', caption: 'Glittering golden Grand Palace Bangkok' },
     ],
-    overview: 'Experience the magic of Thailand with Bhakti Sathi. Land in Bangkok, cruise down the glamorous Pattaya coast, speed through crystal blue waters to Coral Island for thrilling water sports, and indulge in a sunset Chao Phraya Princess luxury dinner cruise with live entertainment and sumptuous multi-cuisine buffet.',
+    overview: 'Experience the magic of Thailand with Holidays Hunt. Land in Bangkok, cruise down the glamorous Pattaya coast, speed through crystal blue waters to Coral Island for thrilling water sports, and indulge in a sunset Chao Phraya Princess luxury dinner cruise with live entertainment and sumptuous multi-cuisine buffet.',
     startLocation: 'Suvarnabhumi International Airport Bangkok (BKK)',
     endLocation: 'Suvarnabhumi International Airport Bangkok (BKK)',
     status: 'published',
@@ -2160,7 +2161,7 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
         dayNumber: 1,
         title: 'Arrival in Bangkok – Transfer to Pattaya & Alcazar Show',
         location: 'Bangkok Airport to Pattaya (120 KM / 2 Hrs)',
-        description: 'Warm welcome by Bhakti Sathi tour manager at Bangkok Airport. Private transfer to Pattaya in comfortable AC van. Check into your hotel. In the evening, attend the world-renowned Alcazar Cabaret Show with dazzling lighting and grand choreography.',
+        description: 'Warm welcome by Holidays Hunt tour manager at Bangkok Airport. Private transfer to Pattaya in comfortable AC van. Check into your hotel. In the evening, attend the world-renowned Alcazar Cabaret Show with dazzling lighting and grand choreography.',
         meals: ['Dinner'],
         stayHotel: 'Selected Category Hotel in Pattaya',
         activities: ['Airport VIP Meet & Assist', 'Scenic Highway Transfer to Pattaya', 'Alcazar Cabaret Show VIP Entry', 'Indian Dinner'],
@@ -2208,7 +2209,7 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
         meals: ['Breakfast'],
         stayHotel: 'Departure Day - No Hotel Stay',
         activities: ['Duty Free Souvenir Shopping', 'Airport VIP Drop'],
-        highlights: ['Seamless airport departure with dedicated Bhakti Sathi assistance'],
+        highlights: ['Seamless airport departure with dedicated Holidays Hunt assistance'],
       },
     ],
     inclusions: [
@@ -2219,7 +2220,7 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
       'Bangkok City Temple tour tickets (Wat Traimit & Marble Temple)',
       'Private dedicated AC vehicle for all airport transfers and city sightseeing',
       'All toll taxes, parking fees, and driver allowances',
-      '24/7 dedicated Bhakti Sathi guest support team assistance',
+      '24/7 dedicated Holidays Hunt guest support team assistance',
     ],
     exclusions: [
       'International airfare to/from Bangkok',
@@ -2336,7 +2337,7 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
         dayNumber: 1,
         title: 'Arrival at Phuket Airport & Transfer to Patong Beach Resort',
         location: 'Phuket Airport to Patong Beach (38 KM / 50 Mins)',
-        description: 'Warm welcome at Phuket International Airport by Bhakti Sathi representative. Private transfer to your hotel/resort in Patong Beach. Check-in, relax, and explore the lively Patong beachfront and Bangla Street night market.',
+        description: 'Warm welcome at Phuket International Airport by Holidays Hunt representative. Private transfer to your hotel/resort in Patong Beach. Check-in, relax, and explore the lively Patong beachfront and Bangla Street night market.',
         meals: ['Dinner'],
         stayHotel: 'Deevana Plaza Phuket / Diamond Cliff Resort',
         activities: ['Airport Meet & Greet', 'Patong Beach Sunset Walk', 'Bangla Road Night Market'],
@@ -2395,7 +2396,7 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
         meals: ['Breakfast'],
         stayHotel: 'Departure Day - No Hotel Stay',
         activities: ['Ao Nang Souvenir Shopping', 'Airport VIP Drop'],
-        highlights: ['Seamless airport transfer with dedicated Bhakti Sathi team'],
+        highlights: ['Seamless airport transfer with dedicated Holidays Hunt team'],
       },
     ],
     inclusions: [
@@ -2408,7 +2409,7 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
       'Intercity private transfer from Phuket to Krabi',
       'Private airport pickups & drops with English-speaking driver',
       'All toll taxes, parking fees, fuel, and national park permits',
-      '24/7 dedicated Bhakti Sathi guest support team assistance',
+      '24/7 dedicated Holidays Hunt guest support team assistance',
     ],
     exclusions: ['Airfare tickets', 'Personal water sports rentals', 'Travel insurance'],
     hotels: [
@@ -2591,7 +2592,7 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
         meals: ['Breakfast'],
         stayHotel: 'Departure Day - No Hotel Stay',
         activities: ['Souvenir Shopping', 'Airport VIP Drop'],
-        highlights: ['Effortless VIP airport drop-off by Bhakti Sathi private chauffeur'],
+        highlights: ['Effortless VIP airport drop-off by Holidays Hunt private chauffeur'],
       },
     ],
     inclusions: [
@@ -2604,7 +2605,7 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
       'Phi Phi Islands & Maya Bay speedboat tour with lunch',
       'Private AC vehicle for all transfers and city sightseeing',
       'All toll taxes, fuel, driver allowances, and park fees',
-      '24/7 dedicated Bhakti Sathi guest support team assistance',
+      '24/7 dedicated Holidays Hunt guest support team assistance',
     ],
     exclusions: ['Airfare tickets', 'Personal expenses', 'Travel insurance'],
     hotels: [
@@ -2725,7 +2726,7 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
         dayNumber: 1,
         title: 'Arrival in Hanoi – French Quarter & Evening Street Food Tour',
         location: 'Hanoi Airport to City (30 KM / 40 Mins)',
-        description: 'Warm welcome by Bhakti Sathi chauffeur at Hanoi Airport. Transfer to boutique hotel in the historic French Old Quarter. Evening cyclo rickshaw ride around Hoan Kiem Lake, visiting Ngoc Son Temple and tasting famous Hanoi specialty drip coffee.',
+        description: 'Warm welcome by Holidays Hunt chauffeur at Hanoi Airport. Transfer to boutique hotel in the historic French Old Quarter. Evening cyclo rickshaw ride around Hoan Kiem Lake, visiting Ngoc Son Temple and tasting famous Hanoi specialty drip coffee.',
         meals: ['Dinner'],
         stayHotel: 'Selected Category Hotel in Hanoi Old Quarter',
         activities: ['Airport VIP Pickup', 'Cyclo Ride Hoan Kiem Lake', 'Specialty Coffee Tasting', 'Welcome Dinner'],
@@ -2795,7 +2796,7 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
       'Cam Thanh Coconut forest basket boat ride tickets',
       'Private dedicated AC vehicle for all transfers and city sightseeing',
       'All toll taxes, harbor docking fees, and English-speaking tour guide',
-      '24/7 Bhakti Sathi support team assistance',
+      '24/7 Holidays Hunt support team assistance',
     ],
     exclusions: ['International and domestic airfares', 'Personal shopping and beverages', 'Travel insurance'],
     hotels: [
@@ -2906,7 +2907,7 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
       { id: 'id2', url: 'https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?auto=format&fit=crop&w=1000&q=80', caption: 'Kelingking T-Rex Beach in Nusa Penida with crystal turquoise water' },
       { id: 'id3', url: 'https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=1000&q=80', caption: 'Tegalalang emerald tiered rice terraces and jungle swings in Ubud' },
     ],
-    overview: 'Surrender to the tropical paradise of Bali with Bhakti Sathi. Unwind in your own private pool villa in Seminyak, soar above lush emerald palms on the famous Ubud jungle swing, explore dramatic limestone cliffs at Nusa Penida, and witness the magical golden sunset at Uluwatu Temple accompanied by the hypnotic Kecak fire dance.',
+    overview: 'Surrender to the tropical paradise of Bali with Holidays Hunt. Unwind in your own private pool villa in Seminyak, soar above lush emerald palms on the famous Ubud jungle swing, explore dramatic limestone cliffs at Nusa Penida, and witness the magical golden sunset at Uluwatu Temple accompanied by the hypnotic Kecak fire dance.',
     startLocation: 'Ngurah Rai International Airport Denpasar Bali (DPS)',
     endLocation: 'Ngurah Rai International Airport Denpasar Bali (DPS)',
     status: 'published',
@@ -2917,7 +2918,7 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
         dayNumber: 1,
         title: 'Arrival in Bali (Denpasar) – Transfer to Private Pool Villa & Welcome Flower Lei',
         location: 'DPS Airport to Seminyak / Kuta (15 KM / 30 Mins)',
-        description: 'Warm traditional Balinese welcome with fragrant frangipani flower leis by your private Bhakti Sathi chauffeur at Denpasar Airport. Transfer to your luxury private pool villa in Seminyak. Check in and spend evening relaxing by your private swimming pool or enjoying Seminyak beach sunset.',
+        description: 'Warm traditional Balinese welcome with fragrant frangipani flower leis by your private Holidays Hunt chauffeur at Denpasar Airport. Transfer to your luxury private pool villa in Seminyak. Check in and spend evening relaxing by your private swimming pool or enjoying Seminyak beach sunset.',
         meals: ['Dinner'],
         stayHotel: 'Luxury Private Pool Villa in Seminyak / Kuta',
         activities: ['Airport VIP Greeting with Flower Leis', 'Villa Check-in & Floating Welcome Drink', 'Seminyak Beach Sunset', 'Indian Dinner'],
@@ -2976,7 +2977,7 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
         meals: ['Breakfast'],
         stayHotel: 'Departure Day - No Hotel Stay',
         activities: ['Krisna Handicrafts Souvenir Shopping', 'Airport VIP Drop'],
-        highlights: ['Seamless airport transfer with dedicated Bhakti Sathi team'],
+        highlights: ['Seamless airport transfer with dedicated Holidays Hunt team'],
       },
     ],
     inclusions: [
@@ -2988,7 +2989,7 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
       'Uluwatu Sunset Temple & Kecak Fire Dance entry tickets',
       'Private dedicated AC vehicle and friendly English-speaking driver for all sightseeing',
       'All toll taxes, parking fees, fuel, and temple entry fees',
-      '24/7 dedicated Bhakti Sathi guest support team assistance',
+      '24/7 dedicated Holidays Hunt guest support team assistance',
     ],
     exclusions: ['International airfares', 'Visa on Arrival fee (500,000 IDR / ~₹2,700 paid at airport)', 'Personal expenses'],
     hotels: [

@@ -44,7 +44,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
           {/* Main Visual Centerpiece Stack */}
           <div className="relative z-20 flex flex-col items-center justify-center max-w-md w-full text-center">
             
-            {/* 1. Professional Pencil-Style Master Illustration */}
+            {/* 1. Professional Kashmir Shikara Ride Master Line Illustration */}
             <motion.div
               initial={{ opacity: 0, y: 15, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -52,9 +52,9 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
                 duration: 1.2,
                 ease: [0.16, 1, 0.3, 1],
               }}
-              className="relative w-72 sm:w-80 h-56 sm:h-64 flex flex-col items-center justify-center mb-4"
+              className="relative w-72 sm:w-80 h-52 sm:h-60 flex flex-col items-center justify-center mb-4"
             >
-              {/* Soft Golden Aura */}
+              {/* Soft Warm Aura */}
               <motion.div
                 animate={{
                   scale: [0.9, 1.1, 0.9],
@@ -65,7 +65,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
                   repeat: Infinity,
                   ease: 'easeInOut',
                 }}
-                className="absolute w-48 h-48 rounded-full bg-amber-500/15 blur-3xl pointer-events-none"
+                className="absolute w-48 h-48 rounded-full bg-[#FF4B00]/10 blur-3xl pointer-events-none"
               />
 
               {/* Gentle Floating Motion */}
@@ -81,80 +81,70 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
                 className="relative w-full h-full flex items-center justify-center pointer-events-none"
               >
                 <svg
-                  viewBox="0 0 400 300"
+                  viewBox="0 0 400 240"
                   className="w-full h-full"
                   fill="none"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 >
-                  {/* Subtle Radiating Halo / Divine Aura */}
-                  <circle cx="200" cy="130" r="95" stroke="#F4F4F5" strokeWidth="1" strokeDasharray="3 4" opacity="0.8" />
-                  <circle cx="200" cy="130" r="115" stroke="#FAFAFA" strokeWidth="1" opacity="0.6" />
+                  {/* Distant Himalayan Mountains */}
+                  <path
+                    d="M30 145 L90 85 L145 135 L190 70 L250 140 L310 80 L370 145"
+                    stroke="#E4E4E7"
+                    strokeWidth="1.2"
+                    strokeDasharray="4 4"
+                  />
+                  <path
+                    d="M190 70 L210 95 L225 80"
+                    stroke="#D4D4D8"
+                    strokeWidth="1"
+                  />
 
-                  {/* Stylized Lotus Pedestal (Fine Line Art) */}
+                  {/* Water Ripples / Dal Lake */}
+                  <path d="M40 195 Q100 190 160 195 T280 195 T360 195" stroke="#E4E4E7" strokeWidth="1" />
+                  <path d="M70 205 Q140 200 210 205 T330 205" stroke="#F4F4F5" strokeWidth="1" />
+                  <path d="M110 215 Q170 210 230 215 T310 215" stroke="#F4F4F5" strokeWidth="0.8" />
+
+                  {/* Shikara Boat Hull */}
                   <motion.path
                     initial={{ pathLength: 0, opacity: 0 }}
                     animate={{ pathLength: 1, opacity: 1 }}
                     transition={{ duration: 1.2, delay: 0.1 }}
-                    d="M110 245 C135 232 170 228 200 228 C230 228 265 232 290 245 C270 254 235 258 200 258 C165 258 130 254 110 245 Z"
-                    stroke="#A1A1AA"
-                    strokeWidth="1.2"
+                    d="M60 175 Q120 190 200 190 Q280 190 340 168 Q310 185 200 185 Q100 185 60 175 Z"
+                    stroke="#3F3F46"
+                    strokeWidth="1.5"
                     fill="#FFFFFF"
                   />
-                  <path d="M130 245 C150 238 175 235 200 235 C225 235 250 238 270 245" stroke="#D4D4D8" strokeWidth="1" />
-                  <path d="M150 248 C165 244 182 242 200 242 C218 242 235 244 250 248" stroke="#E4E4E7" strokeWidth="0.8" />
+                  {/* Pointed Prow & Stern Curves */}
+                  <path d="M60 175 C45 170 40 160 38 152" stroke="#FF4B00" strokeWidth="1.8" />
+                  <path d="M340 168 C355 162 365 155 368 148" stroke="#3F3F46" strokeWidth="1.5" />
 
-                  {/* Sacred Temple Base Platform */}
-                  <rect x="135" y="210" width="130" height="20" rx="1" stroke="#52525B" strokeWidth="1.2" fill="#FFFFFF" />
-                  <line x1="140" y1="216" x2="260" y2="216" stroke="#D4D4D8" strokeWidth="0.8" />
-                  <line x1="145" y1="222" x2="255" y2="222" stroke="#D4D4D8" strokeWidth="0.8" />
-
-                  {/* Main Sanctum Garbhagriha */}
-                  <rect x="155" y="145" width="90" height="65" rx="1.5" stroke="#3F3F46" strokeWidth="1.2" fill="#FFFFFF" />
-                  
-                  {/* Fine Architectural Pillars & Panels */}
-                  <line x1="170" y1="145" x2="170" y2="210" stroke="#A1A1AA" strokeWidth="0.8" />
-                  <line x1="230" y1="145" x2="230" y2="210" stroke="#A1A1AA" strokeWidth="0.8" />
-
-                  {/* Sacred Arch Entrance (Torana) */}
-                  <path d="M182 210 V168 C182 156 218 156 218 168 V210" stroke="#3F3F46" strokeWidth="1.2" fill="#FAFAFA" />
-                  <circle cx="200" cy="160" r="3" stroke="#FF4B00" strokeWidth="1.2" fill="#FFF7ED" />
-
-                  {/* Shikhara Tower (Nagara Architectural Curved Spire) */}
-                  <path d="M155 145 Q200 85 200 55 Q200 85 245 145 Z" stroke="#3F3F46" strokeWidth="1.2" fill="#FFFFFF" />
-
-                  {/* Shikhara Horizontal Architectural Banding (Fine Pencil Lines) */}
-                  <path d="M161 135 H239 M166 125 H234 M172 115 H228 M178 105 H222 M184 95 H216 M190 85 H210 M195 75 H205" stroke="#A1A1AA" strokeWidth="0.8" />
-                  
-                  {/* Center Spire Vertical Axis */}
-                  <line x1="200" y1="55" x2="200" y2="145" stroke="#E4E4E7" strokeWidth="0.8" strokeDasharray="2 2" />
-
-                  {/* Amalaka (Ribbed Crown Disk) */}
-                  <ellipse cx="200" cy="53" rx="14" ry="4.5" stroke="#3F3F46" strokeWidth="1.2" fill="#F4F4F5" />
-
-                  {/* Kalash (Sacred Pitcher Finial) */}
-                  <path d="M198 47 C198 42 202 42 202 47 C202 39 198 39 198 47 Z" stroke="#3F3F46" strokeWidth="1.2" fill="#E4E4E7" />
-                  <line x1="200" y1="39" x2="200" y2="28" stroke="#3F3F46" strokeWidth="1.4" />
-
-                  {/* Sacred Flag (Dhwaja) with Gentle Wave Motion */}
-                  <motion.path
-                    animate={{
-                      d: [
-                        "M200 28 C216 22 222 32 200 36 Z",
-                        "M200 28 C220 24 226 34 200 36 Z",
-                        "M200 28 C216 22 222 32 200 36 Z"
-                      ]
-                    }}
-                    transition={{
-                      duration: 3,
-                      repeat: Infinity,
-                      ease: "easeInOut"
-                    }}
-                    fill="#FF4B00"
-                    fillOpacity="0.8"
-                    stroke="#C2410C"
-                    strokeWidth="1"
+                  {/* Shikara Canopy Roof (Canopy with Scalloped Edge) */}
+                  <path
+                    d="M130 125 C150 118 250 118 270 125 L265 145 C245 140 155 140 135 145 Z"
+                    stroke="#3F3F46"
+                    strokeWidth="1.3"
+                    fill="#FFF7ED"
                   />
+                  <path d="M135 145 Q145 150 155 145 Q165 150 175 145 Q185 150 195 145 Q205 150 215 145 Q225 150 235 145 Q245 150 255 145 Q260 148 265 145" stroke="#FF4B00" strokeWidth="1.2" />
+
+                  {/* Canopy Support Wooden Pillars */}
+                  <line x1="145" y1="145" x2="145" y2="183" stroke="#71717A" strokeWidth="1.2" />
+                  <line x1="175" y1="143" x2="175" y2="184" stroke="#A1A1AA" strokeWidth="0.8" />
+                  <line x1="225" y1="143" x2="225" y2="184" stroke="#A1A1AA" strokeWidth="0.8" />
+                  <line x1="255" y1="145" x2="255" y2="183" stroke="#71717A" strokeWidth="1.2" />
+
+                  {/* Cushioned Seating Inside */}
+                  <rect x="150" y="168" width="95" height="13" rx="3" stroke="#FF4B00" strokeWidth="1" fill="#FFEDD5" />
+                  <circle cx="160" cy="172" r="2.5" fill="#FF4B00" />
+                  <circle cx="235" cy="172" r="2.5" fill="#FF4B00" />
+
+                  {/* Boatman / Oarsman Silhouette at the Stern */}
+                  <circle cx="325" cy="148" r="4.5" stroke="#3F3F46" strokeWidth="1.2" fill="#FFFFFF" />
+                  <path d="M325 153 L325 170 L318 180" stroke="#3F3F46" strokeWidth="1.2" />
+                  {/* Heart-shaped Kashmir Shikara Paddle Oar */}
+                  <line x1="330" y1="158" x2="350" y2="200" stroke="#71717A" strokeWidth="1.2" />
+                  <path d="M348 196 C344 198 344 204 348 206 C352 208 356 204 352 198 Z" stroke="#FF4B00" strokeWidth="1.2" fill="#FF4B00" />
                 </svg>
               </motion.div>
             </motion.div>
@@ -177,7 +167,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
               <BrandLogo size="xl" />
             </motion.div>
 
-            {/* 3. Refined Typography & Slogan */}
+            {/* 3. Refined Tagline */}
             <motion.div
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
@@ -186,13 +176,10 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
                 duration: 1,
                 ease: [0.16, 1, 0.3, 1],
               }}
-              className="mt-1 mb-6 flex flex-col items-center gap-1.5 px-4"
+              className="mt-2 mb-6 flex flex-col items-center gap-1 px-4"
             >
-              <span className="font-['Playfair_Display',serif] italic text-base sm:text-lg font-medium text-stone-700 tracking-wide">
-                “Curating Pilgrimage Tours with Love and Devotion”
-              </span>
-              <span className="text-[10px] sm:text-[11px] font-bold tracking-[0.24em] text-[#FF4B00] uppercase font-['Outfit',sans-serif]">
-                Sacred Yatra Journeys Across India
+              <span className="text-sm sm:text-base font-bold tracking-wide text-stone-700 font-['Plus_Jakarta_Sans',sans-serif]">
+                Your Travel partner
               </span>
             </motion.div>
 

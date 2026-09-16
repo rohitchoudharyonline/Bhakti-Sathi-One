@@ -31,7 +31,7 @@ export const PublicGuidesHub: React.FC = () => {
 
   // SEO: Update page title and meta description
   useEffect(() => {
-    document.title = 'Pilgrimage & Travel Guides | Bhakti Sathi';
+    document.title = 'Pilgrimage & Travel Guides | Holidays Hunt';
 
     let metaDesc = document.querySelector('meta[name="description"]');
     if (!metaDesc) {
@@ -41,13 +41,13 @@ export const PublicGuidesHub: React.FC = () => {
     }
     metaDesc.setAttribute(
       'content',
-      'Explore useful guides, temple information, travel tips and yatra planning resources curated for devotees and travelers by Bhakti Sathi.'
+      'Explore useful guides, temple information, travel tips and yatra planning resources curated for devotees and travelers by Holidays Hunt.'
     );
 
     // Inject Breadcrumb JSON-LD
     const breadcrumbData = generateBreadcrumbSchema([
-      { name: 'Home', url: 'https://mybhaktisathi.com/' },
-      { name: 'Pilgrimage & Travel Guides', url: 'https://mybhaktisathi.com/guides' },
+      { name: 'Home', url: 'https://holidayshunt.com/' },
+      { name: 'Pilgrimage & Travel Guides', url: 'https://holidayshunt.com/guides' },
     ]);
 
     const script = document.createElement('script');
@@ -220,7 +220,7 @@ export const PublicGuidesHub: React.FC = () => {
               Need Personalized Yatra Guidance?
             </span>
             <h2 className="text-xl sm:text-2xl font-bold">
-              Plan Your Sacred Yatra With Bhakti Sathi
+              Plan Your Sacred Yatra With Holidays Hunt
             </h2>
             <p className="text-xs text-stone-300 max-w-xl">
               From local shrine guidance and temple logistics to verified clean accommodation, our team helps ensure a hassle-free pilgrimage.
@@ -229,7 +229,7 @@ export const PublicGuidesHub: React.FC = () => {
 
           <div className="flex flex-wrap items-center gap-3">
             <a
-              href={`https://wa.me/${(agencySettings.whatsapp || '919419915255').replace(/\D/g, '')}?text=Namaste%20Bhakti%20Sathi%2C%20I%20need%20assistance%20planning%20my%20yatra`}
+              href={`https://wa.me/${(agencySettings.whatsapp || '919419915255').replace(/\D/g, '')}?text=Hello%20Holidays%20Hunt%2C%20I%20need%20assistance%20planning%20my%20yatra`}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm transition"

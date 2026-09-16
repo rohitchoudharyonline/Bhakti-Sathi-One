@@ -142,7 +142,7 @@ export const SAMPLE_TOUR_REVIEWS: TourReviewExtended[] = [
     photoThumbnail: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=300&q=80',
     location: 'Mumbai, Maharashtra',
     verified: true,
-    text: 'It was a great vacation planned by Bhakti Sathi. The team was constantly in touch with us from Day 1. The tour managers and our dedicated cab chauffeur were extremely polite and ensured this tour was a grand success. Every sightseeing spot listed was covered on time with generous leisure intervals. The hotels were 4-star verified and reflected authentic local culture. Highly recommend Bhakti Sathi!',
+    text: 'It was a great vacation planned by Holidays Hunt. The team was constantly in touch with us from Day 1. The tour managers and our dedicated cab chauffeur were extremely polite and ensured this tour was a grand success. Every sightseeing spot listed was covered on time with generous leisure intervals. The hotels were 4-star verified and reflected authentic local culture. Highly recommend Holidays Hunt!',
   },
   {
     id: 'rev-02',
@@ -154,7 +154,7 @@ export const SAMPLE_TOUR_REVIEWS: TourReviewExtended[] = [
     photoThumbnail: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&q=80',
     location: 'Pune, Maharashtra',
     verified: true,
-    text: '⭐ अविस्मरणीय सहल अनुभव – Bhakti Sathi सोबत! ⭐ अलीकडेच आम्ही ही सहल अत्यंत सुंदर आणि संस्मरणीय रीतीने पूर्ण केली. निवास व्यवस्था, दर्जेदार भोजन आणि आरामदायी गाडी या सर्व बाबतीत उत्कृष्ट सेवा मिळाली. विशेषतः आमचे टूर कोऑर्डिनेटर आणि ड्रायव्हर यांनी अतिशय जबाबदारीने काळजी घेतली. मनापासून धन्यवाद Bhakti Sathi टीम!',
+    text: 'Unforgettable holiday experience with Holidays Hunt! We completed our trip smoothly and memorably. The hotel stays, delicious meals, and comfortable private vehicle were exceptional. Our tour coordinator and chauffeur took wonderful care of our family. Heartfelt thanks to the Holidays Hunt team!',
   },
   {
     id: 'rev-03',

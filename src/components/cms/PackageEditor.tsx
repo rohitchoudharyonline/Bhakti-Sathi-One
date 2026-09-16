@@ -155,9 +155,9 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
   const [templeSearchQuery, setTempleSearchQuery] = useState('');
   const [templeCategoryFilter, setTempleCategoryFilter] = useState<string>('all');
   const [country, setCountry] = useState(initialPackage?.country || '');
-  const [category, setCategory] = useState<PackageCategory>(initialPackage?.category || 'Honeymoon');
+  const [category, setCategory] = useState<PackageCategory>(initialPackage?.category || 'Family');
   const [badge, setBadge] = useState<PackageBadge | ''>(initialPackage?.badge || 'Best Seller');
-  const [tourType, setTourType] = useState<TourPackage['tourType']>(initialPackage?.tourType || 'Customizable Tour');
+  const [tourType, setTourType] = useState<TourPackage['tourType']>(initialPackage?.tourType || 'Family');
   const [groupSizeLimit, setGroupSizeLimit] = useState(initialPackage?.groupSizeLimit || 'Max 12 People (Private Available)');
   const [bestTimeToVisit, setBestTimeToVisit] = useState(initialPackage?.bestTimeToVisit || 'Year Round');
   const [startLocation, setStartLocation] = useState(initialPackage?.startLocation || 'International Airport');
@@ -374,7 +374,7 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
       }
     } catch {
       // Local fallback in case of server/network hiccups
-      const fallbackTitle = `${title.trim()} - ${destination.trim()} | Bhakti Sathi`.slice(0, 60);
+      const fallbackTitle = `${title.trim()} - ${destination.trim()} | Holidays Hunt`.slice(0, 60);
       const fallbackDesc = (tagline?.trim() || overview?.trim() || `Book our ${title.trim()} in ${destination.trim()} with verified hotel stays, private transfers & daily meals.`).slice(0, 155);
       setSeoTitle(fallbackTitle);
       setMetaDescription(fallbackDesc);
@@ -873,50 +873,43 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
 
                 <div>
                   <label className="text-xs font-bold text-slate-700 block mb-1">
-                    Tour Type & Category *
+                    Tour Type *
+                  </label>
+                  <select
+                    value={tourType || 'Family'}
+                    onChange={(e) => {
+                      const val = e.target.value as TourPackage['tourType'];
+                      setTourType(val);
+                      if (val === 'Family' || val === 'Honeymoon' || val === 'Pilgrimage') {
+                        setCategory(val as PackageCategory);
+                      }
+                    }}
+                    className="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 focus:bg-white focus:border-brand focus:outline-hidden font-bold text-slate-800"
+                  >
+                    <option value="Pilgrimage">Pilgrimage</option>
+                    <option value="Honeymoon">Honeymoon</option>
+                    <option value="Family">Family</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-slate-700 block mb-1">
+                    Category Classification
                   </label>
                   <select
                     value={category}
-                    onChange={(e) => setCategory(e.target.value as PackageCategory)}
+                    onChange={(e) => {
+                      const val = e.target.value as PackageCategory;
+                      setCategory(val);
+                      if (val === 'Family' || val === 'Honeymoon' || val === 'Pilgrimage') {
+                        setTourType(val as any);
+                      }
+                    }}
                     className="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 focus:bg-white focus:border-brand focus:outline-hidden font-medium"
                   >
                     <option value="Family">Family</option>
                     <option value="Honeymoon">Honeymoon</option>
                     <option value="Pilgrimage">Pilgrimage</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="text-xs font-bold text-slate-700 block mb-1">
-                    Badge / Promo Tag
-                  </label>
-                  <select
-                    value={badge}
-                    onChange={(e) => setBadge(e.target.value as PackageBadge | '')}
-                    className="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 focus:bg-white focus:border-brand focus:outline-hidden font-medium"
-                  >
-                    <option value="">No Badge</option>
-                    <option value="Best Seller">Best Seller</option>
-                    <option value="Trending">Trending</option>
-                    <option value="Luxury">Luxury</option>
-                    <option value="Flash Deal">Flash Deal</option>
-                    <option value="Family Special">Family Special</option>
-                    <option value="Featured">Featured</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="text-xs font-bold text-slate-700 block mb-1">
-                    Tour Type
-                  </label>
-                  <select
-                    value={tourType}
-                    onChange={(e) => setTourType(e.target.value as TourPackage['tourType'])}
-                    className="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 focus:bg-white focus:border-brand focus:outline-hidden font-medium"
-                  >
-                    <option value="Customizable Tour">Customizable Tour</option>
-                    <option value="Private Tour">Private Tour</option>
-                    <option value="Group Tour">Group Tour</option>
                   </select>
                 </div>
 

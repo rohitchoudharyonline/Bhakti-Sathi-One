@@ -20,9 +20,9 @@ export function generateAutoSEO(
   let keywords = '';
 
   if (type === 'temple') {
-    title = `${cleanName} ${extra?.city || 'Yatra'} Guide | Bhakti Sathi`;
-    if (title.length > 60) title = `${cleanName} Guide | Bhakti Sathi`;
-    if (title.length > 60) title = `${cleanName.substring(0, 42)}... | Bhakti Sathi`;
+    title = `${cleanName} ${extra?.city || 'Yatra'} Guide | Holidays Hunt`;
+    if (title.length > 60) title = `${cleanName} Guide | Holidays Hunt`;
+    if (title.length > 60) title = `${cleanName.substring(0, 42)}... | Holidays Hunt`;
 
     const baseDesc = extra?.tagline 
       ? `Visit ${cleanName} in ${locationStr}. ${extra.tagline}`
@@ -31,70 +31,70 @@ export function generateAutoSEO(
     if (baseDesc.length <= 130) {
       description = baseDesc;
     } else {
-      description = `Visit ${cleanName} in ${locationStr}. Check darshan timings, sacred significance & yatra packages with Bhakti Sathi.`;
+      description = `Visit ${cleanName} in ${locationStr}. Check darshan timings, sacred significance & yatra packages with Holidays Hunt.`;
       if (description.length > 130) {
-        description = `Explore ${cleanName} in ${locationStr}. Complete yatra guide, darshan info & tour packages by Bhakti Sathi.`;
+        description = `Explore ${cleanName} in ${locationStr}. Complete yatra guide, darshan info & tour packages by Holidays Hunt.`;
       }
       if (description.length > 130) {
-        description = `${cleanName} yatra guide, darshan timings & pilgrimage tour packages with Bhakti Sathi.`;
+        description = `${cleanName} yatra guide, darshan timings & pilgrimage tour packages with Holidays Hunt.`;
       }
     }
-    keywords = `${cleanName}, ${cleanName} darshan, ${locationStr} temples, ${cleanName} yatra packages, Bhakti Sathi`;
+    keywords = `${cleanName}, ${cleanName} darshan, ${locationStr} temples, ${cleanName} yatra packages, Holidays Hunt`;
 
   } else if (type === 'destination') {
-    title = `${cleanName} Tour Packages & Yatra Guide | Bhakti Sathi`;
-    if (title.length > 60) title = `${cleanName} Tour Packages | Bhakti Sathi`;
-    if (title.length > 60) title = `${cleanName.substring(0, 42)}... | Bhakti Sathi`;
+    title = `${cleanName} Tour Packages & Yatra Guide | Holidays Hunt`;
+    if (title.length > 60) title = `${cleanName} Tour Packages | Holidays Hunt`;
+    if (title.length > 60) title = `${cleanName.substring(0, 42)}... | Holidays Hunt`;
 
-    description = `Book ${cleanName} tour packages with Bhakti Sathi. Explore sacred temples, verified hotels, private cabs & 24/7 yatra support.`;
+    description = `Book ${cleanName} tour packages with Holidays Hunt. Explore sacred temples, verified hotels, private cabs & 24/7 yatra support.`;
     if (description.length > 130) {
-      description = `Book ${cleanName} tour packages. Verified hotels, private cabs & 24/7 yatra support with Bhakti Sathi.`;
+      description = `Book ${cleanName} tour packages. Verified hotels, private cabs & 24/7 yatra support with Holidays Hunt.`;
     }
-    keywords = `${cleanName} tour packages, ${cleanName} yatra, ${cleanName} sacred temples, ${cleanName} holiday package, Bhakti Sathi`;
+    keywords = `${cleanName} tour packages, ${cleanName} yatra, ${cleanName} sacred temples, ${cleanName} holiday package, Holidays Hunt`;
 
   } else if (type === 'package') {
-    title = `${cleanName} Package | Bhakti Sathi`;
-    if (title.length > 60) title = `${cleanName.substring(0, 42)}... | Bhakti Sathi`;
+    title = `${cleanName} Package | Holidays Hunt`;
+    if (title.length > 60) title = `${cleanName.substring(0, 42)}... | Holidays Hunt`;
 
     const priceText = extra?.price ? ` Starting ₹${extra.price}.` : '';
-    description = `Book ${cleanName}.${priceText} Private vehicle, verified hotel stays & 24/7 yatra support by Bhakti Sathi.`;
+    description = `Book ${cleanName}.${priceText} Private vehicle, verified hotel stays & 24/7 yatra support by Holidays Hunt.`;
     if (description.length > 130) {
-      description = `Book ${cleanName} with Bhakti Sathi. Verified hotels, private cab transfers & 24/7 yatra assistance.`;
+      description = `Book ${cleanName} with Holidays Hunt. Verified hotels, private cab transfers & 24/7 yatra assistance.`;
     }
-    keywords = `${cleanName}, pilgrimage tour, yatra booking, Bhakti Sathi packages`;
+    keywords = `${cleanName}, pilgrimage tour, yatra booking, Holidays Hunt packages`;
 
   } else if (type === 'guide') {
-    title = `${cleanName} Travel Guide & Tips | Bhakti Sathi`;
-    if (title.length > 60) title = `${cleanName} Guide | Bhakti Sathi`;
-    if (title.length > 60) title = `${cleanName.substring(0, 42)}... | Bhakti Sathi`;
+    title = `${cleanName} Travel Guide & Tips | Holidays Hunt`;
+    if (title.length > 60) title = `${cleanName} Guide | Holidays Hunt`;
+    if (title.length > 60) title = `${cleanName.substring(0, 42)}... | Holidays Hunt`;
 
-    description = `Read official travel guide for ${cleanName}. Darshan tips, best time to visit, weather & tour packages by Bhakti Sathi.`;
+    description = `Read official travel guide for ${cleanName}. Darshan tips, best time to visit, weather & tour packages by Holidays Hunt.`;
     if (description.length > 130) {
-      description = `Complete ${cleanName} yatra guide. Darshan timings, itinerary tips & travel packages by Bhakti Sathi.`;
+      description = `Complete ${cleanName} yatra guide. Darshan timings, itinerary tips & travel packages by Holidays Hunt.`;
     }
-    keywords = `${cleanName}, ${cleanName} guide, yatra tips, pilgrimage travel, Bhakti Sathi`;
+    keywords = `${cleanName}, ${cleanName} guide, yatra tips, pilgrimage travel, Holidays Hunt`;
 
   } else if (type === 'custom_page' || type === 'website_page') {
-    title = `${cleanName} | Bhakti Sathi Sacred Yatra`;
-    if (title.length > 60) title = `${cleanName} | Bhakti Sathi`;
-    if (title.length > 60) title = `${cleanName.substring(0, 42)}... | Bhakti Sathi`;
+    title = `${cleanName} | Holidays Hunt Sacred Yatra`;
+    if (title.length > 60) title = `${cleanName} | Holidays Hunt`;
+    if (title.length > 60) title = `${cleanName.substring(0, 42)}... | Holidays Hunt`;
 
-    description = `${cleanName} page on Bhakti Sathi. Book verified pilgrimage tours, private cabs & hotel stays across India.`;
+    description = `${cleanName} page on Holidays Hunt. Book verified pilgrimage tours, private cabs & hotel stays across India.`;
     if (description.length > 130) {
-      description = `${cleanName} on Bhakti Sathi. Verified yatra packages, temple darshan & travel services across India.`;
+      description = `${cleanName} on Holidays Hunt. Verified yatra packages, temple darshan & travel services across India.`;
     }
-    keywords = `${cleanName}, Bhakti Sathi, yatra packages, pilgrimage tours`;
+    keywords = `${cleanName}, Holidays Hunt, yatra packages, pilgrimage tours`;
 
   } else {
     // Blog
-    title = `${cleanName} | Bhakti Sathi`;
-    if (title.length > 60) title = `${cleanName.substring(0, 42)}... | Bhakti Sathi`;
+    title = `${cleanName} | Holidays Hunt`;
+    if (title.length > 60) title = `${cleanName.substring(0, 42)}... | Holidays Hunt`;
 
-    description = `Read about ${cleanName} on Bhakti Sathi. Discover sacred Indian yatra guides, temple histories & travel tips.`;
+    description = `Read about ${cleanName} on Holidays Hunt. Discover sacred Indian yatra guides, temple histories & travel tips.`;
     if (description.length > 130) {
-      description = `Discover ${cleanName} with Bhakti Sathi. Sacred pilgrimage guides & yatra tips across India.`;
+      description = `Discover ${cleanName} with Holidays Hunt. Sacred pilgrimage guides & yatra tips across India.`;
     }
-    keywords = `${cleanName}, yatra guide, temple history, Bhakti Sathi`;
+    keywords = `${cleanName}, yatra guide, temple history, Holidays Hunt`;
   }
 
   return {
@@ -110,8 +110,8 @@ export function generateAutoSEO(
 export function updateDocumentSEO(title?: string, description?: string, keywords?: string) {
   if (typeof document === 'undefined') return;
 
-  const defaultTitle = 'Bhakti Sathi — All India Sacred Pilgrimage & Yatra Tour Packages';
-  const defaultDesc = 'Book customized All India Sacred Pilgrimage Tour Packages with Bhakti Sathi. Explore Mata Vaishno Devi, Kashi Vishwanath, Ayodhya, Char Dham & more.';
+  const defaultTitle = 'Holidays Hunt — All India Sacred Pilgrimage & Yatra Tour Packages';
+  const defaultDesc = 'Book customized All India Sacred Pilgrimage Tour Packages with Holidays Hunt. Explore Mata Vaishno Devi, Kashi Vishwanath, Ayodhya, Char Dham & more.';
 
   document.title = title || defaultTitle;
 

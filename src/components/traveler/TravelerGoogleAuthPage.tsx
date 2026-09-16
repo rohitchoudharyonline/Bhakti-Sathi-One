@@ -61,7 +61,7 @@ export const TravelerGoogleAuthPage: React.FC = () => {
             )}
 
             <p className="text-center text-sm text-stone-600 leading-relaxed">
-              New travelers are registered automatically. Existing travelers are signed into the same Bhakti Sathi account.
+              New travelers are registered automatically. Existing travelers are signed into the same Holidays Hunt account.
             </p>
 
             <div className="min-h-12 flex justify-center">

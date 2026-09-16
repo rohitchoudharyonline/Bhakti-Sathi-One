@@ -91,7 +91,7 @@ Autumn is favored by photographers and honeymooners:
 5. **Day 5:** Excursion to Sonmarg (Thajiwas Glacier) + Night in Luxury Houseboat
 6. **Day 6:** Mughal Gardens Tour & Airport Departure
 
-Book your customized Kashmir holiday with **Bhakti Sathi** for verified 3★ to 5★ heated hotels, zero hidden costs, and dedicated chauffeur cabs!
+Book your customized Kashmir holiday with **Holidays Hunt** for verified 3★ to 5★ heated hotels, zero hidden costs, and dedicated chauffeur cabs!
     `,
     featuredImage: 'https://images.unsplash.com/photo-1598091383021-15ddea10925d?auto=format&fit=crop&w=1200&q=85',
     featuredImageAlt: 'Snow capped mountains and Dal Lake in Srinagar Kashmir',
@@ -151,7 +151,7 @@ Every year, millions of devotees embark on the sacred pilgrimage to Shri Mata Va
 1. **Electric Battery Cars:** Operate on the Himkoti route between Ardhkuwari and Bhawan for elderly pilgrims and persons with disabilities.
 2. **Bhairon Ropeway:** Connects Bhawan to Bhairon Ghati in just 3 minutes. Saves a steep 1.5 KM climb and provides panoramic valley views.
 
-Book complete Katra + Vaishno Devi packages with dedicated cabs and verified deluxe hotels with Bhakti Sathi!
+Book complete Katra + Vaishno Devi packages with dedicated cabs and verified deluxe hotels with Holidays Hunt!
     `,
     featuredImage: 'https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?auto=format&fit=crop&w=1200&q=85',
     featuredImageAlt: 'Mata Vaishno Devi Bhawan in Katra Trikuta Hills',
@@ -200,7 +200,7 @@ Planning a road trip through Himachal Pradesh? Knowing standard cab fares and in
 ---
 
 ## 2. What Must Be Included in a Honest Tour Cab Quote?
-When booking with Bhakti Sathi, your quote always includes:
+When booking with Holidays Hunt, your quote always includes:
 - Fuel (Diesel / Petrol)
 - Commercial state entry permits for Himachal Pradesh
 - Highway tolls & green cess taxes
@@ -213,7 +213,7 @@ When booking with Bhakti Sathi, your quote always includes:
 - **Atal Tunnel (Rohtang):** Open year-round for all passenger vehicles connecting Manali to Sissu (Lahaul Valley).
 - **Rohtang Pass Snow Point:** Requires an official NGT eco-permit. Our operations team arranges valid permits well in advance.
 
-Enjoy guaranteed clean cars, polite hill-experienced drivers, and on-time pickups with Bhakti Sathi.
+Enjoy guaranteed clean cars, polite hill-experienced drivers, and on-time pickups with Holidays Hunt.
     `,
     featuredImage: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=85',
     featuredImageAlt: 'Mountain road trip with private cab in Himachal Pradesh',

@@ -382,7 +382,7 @@ export const CustomPagesManager: React.FC = () => {
                   </label>
                   <input
                     type="text"
-                    placeholder="e.g. About Bhakti Sathi Travel"
+                    placeholder="e.g. About Holidays Hunt Travel"
                     value={formData.title}
                     onChange={(e) => {
                       const val = e.target.value;
@@ -398,7 +398,7 @@ export const CustomPagesManager: React.FC = () => {
 
                 <div className="flex items-center gap-2 text-xs text-stone-500">
                   <span className="font-semibold">Permalink:</span>
-                  <span className="text-stone-400 font-mono">mybhaktisathi.com/page/</span>
+                  <span className="text-stone-400 font-mono">holidayshunt.com/page/</span>
                   <input
                     type="text"
                     value={formData.slug}
@@ -492,7 +492,7 @@ export const CustomPagesManager: React.FC = () => {
                     type="text"
                     value={formData.focusKeyword}
                     onChange={(e) => setFormData({ ...formData, focusKeyword: e.target.value })}
-                    placeholder="e.g. Bhakti Sathi Travel"
+                    placeholder="e.g. Holidays Hunt Travel"
                     className="w-full p-2 bg-stone-50 border border-stone-200 rounded-lg"
                   />
                 </div>

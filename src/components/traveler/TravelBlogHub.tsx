@@ -42,7 +42,7 @@ export const TravelBlogHub: React.FC = () => {
 
   // SEO & Schema Initialization
   useEffect(() => {
-    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://mybhaktisathi.com';
+    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://holidayshunt.com';
     const breadcrumbSchema = generateBreadcrumbSchema([
       { name: 'Home', url: origin },
       { name: 'Travel Blog & Guides', url: `${origin}/travel-blog` },
@@ -50,10 +50,10 @@ export const TravelBlogHub: React.FC = () => {
     const blogSeo = pageSeoConfigs?.['blog'];
 
     updatePageSeo({
-      title: blogSeo?.metaTitle || 'Sacred Yatra Blog & Pilgrimage Destination Guides (2026) | Bhakti Sathi',
+      title: blogSeo?.metaTitle || 'Sacred Yatra Blog & Pilgrimage Destination Guides (2026) | Holidays Hunt',
       description:
         blogSeo?.metaDescription || 'Read expert pilgrimage travel guides, Vaishno Devi SMVDSB yatra registration instructions, Char Dham advisories, Kashi Vishwanath darshan tips, and transparent yatra packages.',
-      canonicalUrl: blogSeo?.canonicalUrl || 'https://mybhaktisathi.com/travel-blog',
+      canonicalUrl: blogSeo?.canonicalUrl || 'https://holidayshunt.com/travel-blog',
       canonicalPath: '/travel-blog',
       schemaData: breadcrumbSchema,
       noIndex: blogSeo?.noIndex,

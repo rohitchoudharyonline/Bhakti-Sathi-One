@@ -10,14 +10,14 @@ export const PWAInstallButton: React.FC = () => {
 
   useEffect(() => {
     // Check if the user already dismissed the installation banner in this session
-    const dismissed = localStorage.getItem('bhakti_sathi_pwa_dismissed') === 'true';
+    const dismissed = localStorage.getItem('holidays_hunt_pwa_dismissed') === 'true' || localStorage.getItem('bhakti_sathi_pwa_dismissed') === 'true';
     setIsBannerDismissed(dismissed);
   }, []);
 
   const handleDismiss = (e: React.MouseEvent) => {
     e.stopPropagation();
     setIsBannerDismissed(true);
-    localStorage.setItem('bhakti_sathi_pwa_dismissed', 'true');
+    localStorage.setItem('holidays_hunt_pwa_dismissed', 'true');
   };
 
   // If already installed, banner is dismissed, or neither iOS nor standard PWA is installable, hide the UI
@@ -60,7 +60,7 @@ export const PWAInstallButton: React.FC = () => {
             <div className="w-12 h-12 rounded-xl bg-orange-50 border border-orange-200/60 flex items-center justify-center shrink-0">
               <img 
                 src="/icon.png" 
-                alt="Bhakti Sathi Logo" 
+                alt="Holidays Hunt Logo" 
                 className="w-9 h-9 object-contain"
                 referrerPolicy="no-referrer"
               />
@@ -81,7 +81,7 @@ export const PWAInstallButton: React.FC = () => {
                 </button>
               </div>
               <h3 className="text-xs font-black text-stone-900 mt-0.5 leading-tight">
-                Add Bhakti Sathi to Home Screen
+                Add Holidays Hunt to Home Screen
               </h3>
               <p className="text-[11px] text-stone-500 mt-1 font-medium leading-normal">
                 Access sacred darshans, tours, & Jap counter instantly in full-screen. Updates automatically!
@@ -127,7 +127,7 @@ export const PWAInstallButton: React.FC = () => {
               <div className="flex justify-between items-start">
                 <div className="flex items-center gap-2">
                   <Smartphone className="w-5 h-5 text-[#FF4B00]" />
-                  <h3 className="text-sm font-black text-stone-950">Add Bhakti Sathi to iPhone / iPad</h3>
+                  <h3 className="text-sm font-black text-stone-950">Add Holidays Hunt to iPhone / iPad</h3>
                 </div>
                 <button
                   onClick={() => setShowIOSGuide(false)}

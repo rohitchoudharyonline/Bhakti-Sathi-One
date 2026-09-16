@@ -22,7 +22,7 @@ export const GroupToursSection: React.FC = () => {
 
   const [favoriteIds, setFavoriteIds] = useState<string[]>(() => {
     try {
-      const saved = localStorage.getItem('bhakti_fav_group_tours');
+      const saved = localStorage.getItem('holidayshunt_fav_group_tours') || localStorage.getItem('bhakti_fav_group_tours');
       return saved ? JSON.parse(saved) : [];
     } catch {
       return [];
@@ -45,7 +45,7 @@ export const GroupToursSection: React.FC = () => {
     setFavoriteIds((prev) => {
       const next = prev.includes(pkgId) ? prev.filter((id) => id !== pkgId) : [...prev, pkgId];
       try {
-        localStorage.setItem('bhakti_fav_group_tours', JSON.stringify(next));
+        localStorage.setItem('holidayshunt_fav_group_tours', JSON.stringify(next));
       } catch {}
       return next;
     });

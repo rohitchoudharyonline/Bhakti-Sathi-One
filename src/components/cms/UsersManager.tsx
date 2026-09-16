@@ -167,7 +167,7 @@ export const UsersManager: React.FC = () => {
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement('a');
     link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `Bhakti_Sathi_Travelers_Export_${new Date().toISOString().slice(0, 10)}.csv`);
+    link.setAttribute('download', `Holidays_Hunt_Travelers_Export_${new Date().toISOString().slice(0, 10)}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -196,7 +196,7 @@ export const UsersManager: React.FC = () => {
       <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
       <head>
         <meta charset='utf-8'>
-        <title>Bhakti Sathi - Registered Travelers Directory</title>
+        <title>Holidays Hunt - Registered Travelers Directory</title>
         <style>
           body { font-family: Arial, sans-serif; margin: 20px; }
           h1 { color: #FF4B00; font-size: 20pt; }
@@ -231,7 +231,7 @@ export const UsersManager: React.FC = () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `Bhakti_Sathi_Travelers_Directory_${new Date().toISOString().slice(0, 10)}.doc`;
+    a.download = `Holidays_Hunt_Travelers_Directory_${new Date().toISOString().slice(0, 10)}.doc`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -291,7 +291,7 @@ export const UsersManager: React.FC = () => {
       },
     });
 
-    doc.save(`Bhakti_Sathi_Travelers_Report_${new Date().toISOString().slice(0, 10)}.pdf`);
+    doc.save(`Holidays_Hunt_Travelers_Report_${new Date().toISOString().slice(0, 10)}.pdf`);
     triggerCopyFeedback('PDF Directory Report Downloaded');
   };
 
@@ -496,7 +496,7 @@ export const UsersManager: React.FC = () => {
             ))}
 
             <span className="text-[11px] font-black text-stone-400 uppercase tracking-wider ml-2 mr-1">Tier:</span>
-            {['All', 'Member', 'Silver Explorer', 'Gold Explorer', 'Bhakti Sathi Elite'].map((tier) => (
+            {['All', 'Member', 'Silver Explorer', 'Gold Explorer', 'Holidays Hunt Elite'].map((tier) => (
               <button
                 key={tier}
                 type="button"
@@ -629,7 +629,7 @@ export const UsersManager: React.FC = () => {
                           <div>
                             <div className="font-black text-stone-900 text-sm flex items-center gap-1.5">
                               <span>{user.name}</span>
-                              {user.email === 'care@mybhaktisathi.com' && (
+                              {user.email === 'care@holidayshunt.com' && (
                                 <span className="bg-[#FFF0EB] text-[#FF4B00] text-[9px] px-1.5 py-0.2 rounded-md uppercase font-black">
                                   Official
                                 </span>
@@ -1017,7 +1017,7 @@ export const UsersManager: React.FC = () => {
                     <option value="Member">Member</option>
                     <option value="Silver Explorer">Silver Explorer</option>
                     <option value="Gold Explorer">Gold Explorer</option>
-                    <option value="Bhakti Sathi Elite">Bhakti Sathi Elite</option>
+                    <option value="Holidays Hunt Elite">Holidays Hunt Elite</option>
                   </select>
                 </div>
 

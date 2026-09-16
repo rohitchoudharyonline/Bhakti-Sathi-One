@@ -50,53 +50,53 @@ export const SettingsManager: React.FC<{ initialTab?: 'branding' | 'faqs' | 'foo
     faqs: agencySettings.faqs || [
       {
         id: 'faq-1',
-        question: 'How does Bhakti Sathi assist in planning customizable spiritual Yatras?',
-        answer: 'Bhakti Sathi is a premier digital platform and travel facilitator. We coordinate customized travel itineraries, connecting you with verified local transport coordinators and accommodation providers. Our expert team assists you in selecting custom routes, durations, and comfort-aligned options suitable for families and senior citizens.'
+        question: 'How does Holidays Hunt assist in planning customizable spiritual Yatras?',
+        answer: 'Holidays Hunt is a premier digital platform and travel facilitator. We coordinate customized travel itineraries, connecting you with verified local transport coordinators and accommodation providers. Our expert team assists you in selecting custom routes, durations, and comfort-aligned options suitable for families and senior citizens.'
       },
       {
         id: 'faq-2',
-        question: 'How does Bhakti Sathi help ensure comfort for senior citizens on pilgrimages like Vaishno Devi or Char Dham?',
-        answer: 'Bhakti Sathi is dedicated to organizing stress-free, senior-friendly spiritual journeys. While hotels and helicopter services are managed by independent third-party operators, Bhakti Sathi coordinators handpick recommended hotels with elevators and close proximity to the shrines. We also assist in coordinating priority assist requests, planning gentle travel paces, and arranging dedicated, comfortable ground vehicles with experienced chauffeurs to support our elderly guests.'
+        question: 'How does Holidays Hunt help ensure comfort for senior citizens on pilgrimages like Vaishno Devi or Char Dham?',
+        answer: 'Holidays Hunt is dedicated to organizing stress-free, senior-friendly spiritual journeys. While hotels and helicopter services are managed by independent third-party operators, Holidays Hunt coordinators handpick recommended hotels with elevators and close proximity to the shrines. We also assist in coordinating priority assist requests, planning gentle travel paces, and arranging dedicated, comfortable ground vehicles with experienced chauffeurs to support our elderly guests.'
       },
       {
         id: 'faq-3',
-        question: 'What is Bhakti Sathi\'s role regarding meals and restaurant suggestions?',
-        answer: 'Bhakti Sathi does not operate restaurants, kitchens, or hotel dining services. However, we understand the importance of dietary preferences on a sacred journey. We provide curated recommendations for reputable local vegetarian restaurants and hotel kitchens along your yatra route that offer clean, high-quality vegetarian food.'
+        question: 'What is Holidays Hunt\'s role regarding meals and restaurant suggestions?',
+        answer: 'Holidays Hunt does not operate restaurants, kitchens, or hotel dining services. However, we understand the importance of dietary preferences on a sacred journey. We provide curated recommendations for reputable local vegetarian restaurants and hotel kitchens along your yatra route that offer clean, high-quality vegetarian food.'
       },
       {
         id: 'faq-4',
-        question: 'Can Bhakti Sathi customize a spiritual tour itinerary for my family?',
-        answer: 'Absolutely! Bhakti Sathi is famous for custom-made, private spiritual itineraries. Whether you are planning a family trip to Kashi Vishwanath, Ayodhya Ram Mandir, or Himachal Devi Darshans, our expert team can adjust the travel duration, suggest select category stays, and coordinate private transport matching your family\'s speed and requirements.'
+        question: 'Can Holidays Hunt customize a spiritual tour itinerary for my family?',
+        answer: 'Absolutely! Holidays Hunt is famous for custom-made, private spiritual itineraries. Whether you are planning a family trip to Kashi Vishwanath, Ayodhya Ram Mandir, or Himachal Devi Darshans, our expert team can adjust the travel duration, suggest select category stays, and coordinate private transport matching your family\'s speed and requirements.'
       },
       {
         id: 'faq-5',
-        question: 'What is Bhakti Sathi\'s payment schedule and booking policy?',
-        answer: 'To secure your preferred hotels and dedicated vehicle bookings, Bhakti Sathi requires a standard 30% advance deposit. The remaining 70% balance can be settled in easy installments up to 7 days before your departure. We accept UPI, bank transfer, Net Banking, and all major debit/credit cards with 100% transparent invoicing.'
+        question: 'What is Holidays Hunt\'s payment schedule and booking policy?',
+        answer: 'To secure your preferred hotels and dedicated vehicle bookings, Holidays Hunt requires a standard 30% advance deposit. The remaining 70% balance can be settled in easy installments up to 7 days before your departure. We accept UPI, bank transfer, Net Banking, and all major debit/credit cards with 100% transparent invoicing.'
       },
       {
         id: 'faq-6',
-        question: 'What is the cancellation and refund policy for a Bhakti Sathi coordinated yatra?',
+        question: 'What is the cancellation and refund policy for a Holidays Hunt coordinated yatra?',
         answer: 'Cancellations attract charges based on the departure timeline. Prior to 46 days from departure, the 30% advance booking deposit (or ₹30,000, whichever is lower) is non-refundable. Cancellations made between 31 to 45 days attract a 70% charge, and cancellations within 30 days or less are 100% non-refundable. Eligible refunds are processed within 21 working days.'
       },
       {
         id: 'faq-7',
-        question: 'Are local tour guides and temple historians provided by Bhakti Sathi?',
-        answer: 'Yes, upon request, Bhakti Sathi can connect you with certified, knowledgeable local guides and religious experts at various historical temples. They help explain the historical significance, temple legends, and rich cultural heritage of the sacred shrines.'
+        question: 'Are local tour guides and temple historians provided by Holidays Hunt?',
+        answer: 'Yes, upon request, Holidays Hunt can connect you with certified, knowledgeable local guides and religious experts at various historical temples. They help explain the historical significance, temple legends, and rich cultural heritage of the sacred shrines.'
       },
       {
         id: 'faq-8',
-        question: 'Does Bhakti Sathi coordinate helicopter bookings for Yatras like Vaishno Devi or Kedarnath?',
-        answer: 'Bhakti Sathi assists travelers by providing guidance, booking schedule updates, and facilitation support for third-party helicopter tickets. Please note that helicopter tickets are subject to official government portal schedules, verification requirements, and availability.'
+        question: 'Does Holidays Hunt coordinate helicopter bookings for Yatras like Vaishno Devi or Kedarnath?',
+        answer: 'Holidays Hunt assists travelers by providing guidance, booking schedule updates, and facilitation support for third-party helicopter tickets. Please note that helicopter tickets are subject to official government portal schedules, verification requirements, and availability.'
       },
       {
         id: 'faq-9',
-        question: 'How does Bhakti Sathi handle travel logistics in hilly and mountainous regions?',
+        question: 'How does Holidays Hunt handle travel logistics in hilly and mountainous regions?',
         answer: 'We coordinate with licensed local drivers who are highly experienced with hilly terrains. For the safety of our guests, we strictly adhere to mountain safety guidelines, such as completing travel before dark, maintaining safe speed limits, and ensuring proper vehicle fitness.'
       },
       {
         id: 'faq-10',
-        question: 'What sets Bhakti Sathi apart from conventional tour operators?',
-        answer: 'Bhakti Sathi is a specialized platform focusing exclusively on custom-made devotional, family, and senior-friendly yatras. We provide personalized 24/7 travel desk support during your trip, complete billing transparency, and reliable local partners to make your pilgrimage seamless and spiritually enriching.'
+        question: 'What sets Holidays Hunt apart from conventional tour operators?',
+        answer: 'Holidays Hunt is a specialized platform focusing exclusively on custom-made devotional, family, and senior-friendly yatras. We provide personalized 24/7 travel desk support during your trip, complete billing transparency, and reliable local partners to make your pilgrimage seamless and spiritually enriching.'
       }
     ],
     footerMenus: agencySettings.footerMenus || [
@@ -587,7 +587,7 @@ export const SettingsManager: React.FC<{ initialTab?: 'branding' | 'faqs' | 'foo
             <div className="space-y-2">
               <input
                 type="text"
-                placeholder="Question (e.g. How does Bhakti Sathi handle booking details?)"
+                placeholder="Question (e.g. How does Holidays Hunt handle booking details?)"
                 value={newFaqQuestion}
                 onChange={(e) => setNewFaqQuestion(e.target.value)}
                 className="w-full text-xs font-semibold bg-white border border-slate-200 rounded-xl px-3 py-2 focus:border-brand focus:outline-hidden"

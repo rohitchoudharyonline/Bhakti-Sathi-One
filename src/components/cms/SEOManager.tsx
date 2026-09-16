@@ -199,7 +199,7 @@ export const SEOManager: React.FC = () => {
                 </h3>
                 <div className="p-3.5 bg-stone-50 rounded-xl border border-stone-200 font-sans space-y-1 h-[140px] flex flex-col justify-center overflow-hidden">
                   <div className="text-[11px] text-stone-500 flex flex-wrap items-center gap-1 break-all">
-                    <span className="font-semibold text-stone-700">https://mybhaktisathi.com</span>
+                    <span className="font-semibold text-stone-700">https://holidayshunt.com</span>
                     {displaySlug && (
                       <>
                         <span>›</span>
@@ -239,12 +239,12 @@ export const SEOManager: React.FC = () => {
                   </div>
                   <div className="p-2.5 bg-white flex-1 flex flex-col justify-between overflow-hidden border-l border-stone-200">
                     <div>
-                      <div className="text-[9px] font-bold uppercase tracking-wider text-stone-400">MYBHAKTISATHI.COM</div>
+                      <div className="text-[9px] font-bold uppercase tracking-wider text-stone-400">HOLIDAYSHUNT.COM</div>
                       <div className="text-xs font-bold text-stone-900 line-clamp-2 leading-tight mt-0.5">
                         {editingSitePage.metaTitle || editingSitePage.pageName}
                       </div>
                       <div className="text-[10px] text-stone-500 line-clamp-2 leading-tight mt-1">
-                        {editingSitePage.metaDescription || 'Bhakti Sathi spiritual pilgrimage tours.'}
+                        {editingSitePage.metaDescription || 'Holidays Hunt spiritual pilgrimage tours.'}
                       </div>
                     </div>
                     <div className="text-[9px] text-emerald-600 font-medium flex items-center gap-1">
@@ -345,7 +345,7 @@ export const SEOManager: React.FC = () => {
                     })
                   }
                   className="w-full px-3.5 py-2.5 border border-stone-200 rounded-xl text-sm font-mono outline-none focus:border-[#FF4B00]"
-                  placeholder="https://mybhaktisathi.com/..."
+                  placeholder="https://holidayshunt.com/..."
                 />
                 <p className="text-[11px] text-stone-400 mt-1">
                   Canonical link helps prevent duplicate content penalties across different protocols or domains.
@@ -522,7 +522,7 @@ export const SEOManager: React.FC = () => {
       metaDescription: editingGuide.excerpt || '',
       primaryKeyword: '',
       secondaryKeywords: [],
-      canonicalUrl: `https://mybhaktisathi.com/guides/${editingGuide.slug}`,
+      canonicalUrl: `https://holidayshunt.com/guides/${editingGuide.slug}`,
     };
 
     const audit = calculateSeoAudit(
@@ -564,14 +564,14 @@ export const SEOManager: React.FC = () => {
               </h3>
               <div className="p-4 bg-stone-50 rounded-xl border border-stone-200 font-sans space-y-1">
                 <div className="text-[11px] text-stone-500 flex flex-wrap items-center gap-1 break-all">
-                  <span>https://mybhaktisathi.com</span>
+                  <span>https://holidayshunt.com</span>
                   <span>›</span>
                   <span>guides</span>
                   <span>›</span>
                   <span className="font-semibold">{editingGuide.slug}</span>
                 </div>
                 <div className="text-[#1a0dab] text-base sm:text-lg font-medium cursor-pointer hover:underline line-clamp-2">
-                  {seoData.metaTitle || editingGuide.title} | Bhakti Sathi
+                  {seoData.metaTitle || editingGuide.title} | Holidays Hunt
                 </div>
                 <div className="text-[#4d5156] text-xs line-clamp-2">
                   {seoData.metaDescription || 'No description set. Google will display a snippet from your body text.'}
@@ -659,7 +659,7 @@ export const SEOManager: React.FC = () => {
                     })
                   }
                   className="w-full px-3.5 py-2.5 border border-stone-200 rounded-xl text-sm font-mono outline-none focus:border-[#FF4B00]"
-                  placeholder="https://mybhaktisathi.com/guides/your-post-slug"
+                  placeholder="https://holidayshunt.com/guides/your-post-slug"
                 />
               </div>
 

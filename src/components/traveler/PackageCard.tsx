@@ -65,7 +65,7 @@ export const PackageCard: React.FC<PackageCardProps> = ({ pkg, onSelect, onQuick
     const priceText = priceResult.isPriceOnRequest
       ? 'Price on Request'
       : `${priceResult.displayPrice}/person`;
-    const text = `Hello Bhakti Sathi! I am interested in "${pkg.title}" (${pkg.durationDays}D/${pkg.durationNights}N - ${priceText}). Please share quotes and hotel details for my dates.`;
+    const text = `Hello Holidays Hunt! I am interested in "${pkg.title}" (${pkg.durationDays}D/${pkg.durationNights}N - ${priceText}). Please share quotes and hotel details for my dates.`;
     window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(text)}`, '_blank');
   };
 

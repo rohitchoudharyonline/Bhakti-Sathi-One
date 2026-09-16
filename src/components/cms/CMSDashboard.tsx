@@ -865,7 +865,7 @@ export const CMSDashboard: React.FC = () => {
                   minGroupSize: 10,
                   maxGroupSize: 24,
                   perPersonSavings: 3500,
-                  tourLeader: 'Dedicated Bhakti Guide & On-Ground Coordinator Included',
+                  tourLeader: 'Dedicated Tour Guide & On-Ground Coordinator Included',
                   boardingPoints: [
                     'Delhi (Kashmere Gate / Majnu Ka Tila)',
                     'Chandigarh (Sector 43 Bus Stand)',
