@@ -30,7 +30,7 @@ export default defineConfig(() => ({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['icon-holidays-hunt-v3.png'],
+      includeAssets: ['icon-holidays-hunt.png'],
       manifest: {
         id: '/',
         name: 'Holidays Hunt',
@@ -42,9 +42,9 @@ export default defineConfig(() => ({
         start_url: '/',
         scope: '/',
         icons: [
-          { src: '/icon-holidays-hunt-v3.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
-          { src: '/icon-holidays-hunt-v3.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
-          { src: '/icon-holidays-hunt-v3.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+          { src: '/icon-holidays-hunt.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+          { src: '/icon-holidays-hunt.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+          { src: '/icon-holidays-hunt.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
         ],
       },
       workbox: {
