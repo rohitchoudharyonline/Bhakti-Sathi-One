@@ -1,4 +1,5 @@
 import { TourReview, GalleryItem } from '../types/tour';
+import { resolveDisplayImage, normalizeGalleryImages } from '../utils/imageResolver';
 
 export interface TourReviewExtended extends TourReview {
   categoryTag?: 'Family' | 'Honeymoon' | 'Friends' | 'Couple' | 'Senior Citizens';
@@ -195,10 +196,13 @@ export const SAMPLE_TOUR_REVIEWS: TourReviewExtended[] = [
 ];
 
 export function getPackageGalleryPhotos(destination: string, customGallery?: GalleryItem[], coverImage?: string): GalleryItem[] {
-  if (customGallery && customGallery.length > 1) {
-    return customGallery;
+  // If custom gallery items exist, or coverImage exists, use normalized gallery list
+  const normalized = normalizeGalleryImages(customGallery, coverImage);
+  if (normalized && normalized.length > 0) {
+    return normalized;
   }
-  const destLower = destination.toLowerCase();
+
+  const destLower = (destination || '').toLowerCase();
   let baseList: GalleryItem[] = DESTINATION_GUEST_PHOTOS.default;
   if (destLower.includes('kashmir') || destLower.includes('srinagar') || destLower.includes('gulmarg') || destLower.includes('pahalgam')) {
     baseList = DESTINATION_GUEST_PHOTOS.kashmir;
@@ -212,11 +216,10 @@ export function getPackageGalleryPhotos(destination: string, customGallery?: Gal
     baseList = DESTINATION_GUEST_PHOTOS.kerala;
   }
 
-  if (coverImage) {
-    const listWithoutCover = baseList.filter(g => g.url !== coverImage);
-    return [{ id: 'cover-1', url: coverImage, caption: 'Tour Highlight View' }, ...listWithoutCover];
-  }
-  return baseList;
+  return baseList.map((g, idx) => ({
+    ...g,
+    url: resolveDisplayImage(g.url),
+  }));
 }
 
 export function getPackageReviews(pkgTitle: string, customReviews?: TourReview[]): TourReviewExtended[] {

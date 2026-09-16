@@ -913,22 +913,40 @@ function persistDestinations() {
 }
 
 // Dedicated Files Delivery Route - Serves uploaded media with full caching & fallback
-app.get('/api/files/{*key}', async (req, res) => {
-  const rawKey = (req.params as any).key || req.path.replace(/^\/api\/files\/?/, '');
-  const key = decodeURIComponent(rawKey).replace(/^\/+/, '');
+app.get(['/api/files/*', '/api/files'], async (req, res) => {
+  const rawPath = req.path.replace(/^\/api\/files\/?/, '');
+  if (!rawPath) {
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    return res.status(400).json({ error: 'File key required.' });
+  }
+
+  let key = rawPath;
+  try {
+    key = decodeURIComponent(rawPath);
+  } catch {}
+  key = key.replace(/^r2:\/\//i, '').replace(/^\/+/, '');
 
   if (!key || key.includes('..') || path.isAbsolute(key)) {
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
     return res.status(400).json({ error: 'Invalid file key.' });
   }
 
-  const localFilePath = path.join(UPLOADS_DIR, key);
   const ext = path.extname(key).toLowerCase();
-  const contentType = MIME_TYPES[ext] || 'application/octet-stream';
+  const contentType = MIME_TYPES[ext] || 'image/jpeg';
 
-  if (fs.existsSync(localFilePath)) {
-    res.setHeader('Content-Type', contentType);
-    res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
-    return fs.createReadStream(localFilePath).pipe(res);
+  const localCandidates = [
+    path.join(UPLOADS_DIR, key),
+    path.join(UPLOADS_DIR, rawPath),
+    path.join(UPLOADS_DIR, key.replace(/\//g, '_')),
+  ];
+
+  for (const localFilePath of localCandidates) {
+    if (fs.existsSync(localFilePath) && fs.statSync(localFilePath).isFile()) {
+      res.setHeader('Content-Type', contentType);
+      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      return fs.createReadStream(localFilePath).pipe(res);
+    }
   }
 
   // Fallback to Cloudflare R2 if credentials exist
@@ -948,26 +966,38 @@ app.get('/api/files/{*key}', async (req, res) => {
           secretAccessKey: rawSecretAccessKey.trim(),
         },
       });
-      const data = await s3.send(new GetObjectCommand({
-        Bucket: rawBucketName.trim(),
-        Key: key,
-      }));
-      if (data.Body) {
-        res.setHeader('Content-Type', data.ContentType || contentType);
-        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
-        const parentDir = path.dirname(localFilePath);
-        if (!fs.existsSync(parentDir)) fs.mkdirSync(parentDir, { recursive: true });
-        const stream = data.Body as any;
-        const writeStream = fs.createWriteStream(localFilePath);
-        stream.pipe(writeStream);
-        return stream.pipe(res);
+
+      const r2KeysToTry = [key, rawPath];
+      if (key.includes('/')) r2KeysToTry.push(key.replace(/\//g, '%2F'));
+      if (key.includes('%2F')) r2KeysToTry.push(key.replace(/%2F/gi, '/'));
+
+      for (const r2Key of r2KeysToTry) {
+        try {
+          const data = await s3.send(new GetObjectCommand({
+            Bucket: rawBucketName.trim(),
+            Key: r2Key,
+          }));
+          if (data.Body) {
+            res.setHeader('Content-Type', data.ContentType || contentType);
+            res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+            res.setHeader('Access-Control-Allow-Origin', '*');
+            const targetLocal = path.join(UPLOADS_DIR, key);
+            const parentDir = path.dirname(targetLocal);
+            if (!fs.existsSync(parentDir)) fs.mkdirSync(parentDir, { recursive: true });
+            const stream = data.Body as any;
+            const writeStream = fs.createWriteStream(targetLocal);
+            stream.pipe(writeStream);
+            return stream.pipe(res);
+          }
+        } catch {}
       }
     } catch (r2Err) {
-      // not found in R2
+      console.warn('R2 fetch error:', r2Err);
     }
   }
 
-  return res.status(404).json({ error: 'File not found' });
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+  return res.status(404).json({ error: 'File not found', key });
 });
 
 // Dedicated Destinations CRUD Endpoints

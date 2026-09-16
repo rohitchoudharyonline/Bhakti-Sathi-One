@@ -3,6 +3,7 @@ import { TourPackage } from '../../types/tour';
 import { useTours } from '../../context/TourContext';
 import { PDFBrochureModal } from './PDFBrochureModal';
 import { formatPackagePrice } from '../../utils/priceHelper';
+import { resolveDisplayImage, handleImageError } from '../../utils/imageResolver';
 import {
   Clock,
   MapPin,
@@ -26,9 +27,11 @@ interface PackageCardProps {
 }
 
 export const PackageCard: React.FC<PackageCardProps> = ({ pkg, onSelect, onQuickBook }) => {
-  const { agencySettings, toggleWishlist, isWishlisted } = useTours();
+  const { agencySettings, mediaAssets, toggleWishlist, isWishlisted } = useTours();
   const [showPdfModal, setShowPdfModal] = useState(false);
   const isSaved = isWishlisted(pkg.id);
+
+  const coverImg = resolveDisplayImage(pkg.coverImage, mediaAssets);
 
   const getBadgeColor = (badge?: string) => {
     switch (badge) {
@@ -81,10 +84,11 @@ export const PackageCard: React.FC<PackageCardProps> = ({ pkg, onSelect, onQuick
           onClick={() => onSelect(pkg.id)}
         >
           <img
-            src={pkg.coverImage}
+            src={coverImg}
             alt={pkg.title}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             loading="lazy"
+            onError={(e) => handleImageError(e, pkg.coverImage, mediaAssets)}
           />
 
           {/* Gradient Overlay */}

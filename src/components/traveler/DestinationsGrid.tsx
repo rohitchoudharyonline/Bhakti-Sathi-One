@@ -1,6 +1,8 @@
 import React from 'react';
 import { Sparkles, ArrowRight } from 'lucide-react';
 import { motion } from 'motion/react';
+import { useTours } from '../../context/TourContext';
+import { resolveDisplayImage, handleImageError } from '../../utils/imageResolver';
 
 interface DestinationsGridProps {
   onSelectDestination: (dest: string) => void;
@@ -63,6 +65,8 @@ export const DestinationsGrid: React.FC<DestinationsGridProps> = ({
   onSelectDestination,
   selectedDestination,
 }) => {
+  const { destinations, mediaAssets } = useTours();
+
   return (
     <section id="destinations-section" className="py-14 bg-stone-50 border-t border-stone-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -87,6 +91,9 @@ export const DestinationsGrid: React.FC<DestinationsGridProps> = ({
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {PILGRIMAGE_DESTINATIONS.map((dest, index) => {
             const isSelected = selectedDestination.toLowerCase().includes(dest.id.toLowerCase());
+            const destState = destinations ? (destinations as Record<string, any>)[dest.id] : null;
+            const rawImg = destState?.heroImage || dest.image;
+            const displayImg = resolveDisplayImage(rawImg, mediaAssets, dest.image);
 
             return (
               <motion.div
@@ -104,10 +111,11 @@ export const DestinationsGrid: React.FC<DestinationsGridProps> = ({
               >
                 {/* Background Image */}
                 <img
-                  src={dest.image}
+                  src={displayImg}
                   alt={dest.name}
                   className="absolute inset-0 w-full h-full object-cover group-hover:scale-108 transition-transform duration-700 ease-out"
                   loading="lazy"
+                  onError={(e) => handleImageError(e, rawImg, mediaAssets, dest.image)}
                 />
 
                 {/* Scrim Overlay */}
