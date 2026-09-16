@@ -33,9 +33,9 @@ export default defineConfig(() => ({
       includeAssets: ['icon.png'],
       manifest: {
         id: '/',
-        name: 'Bhakti Sathi',
-        short_name: 'BhaktiSathi',
-        description: "India's Premier Sacred Pilgrimage & Yatra Tour Packages across Mata Vaishno Devi, Himachal Devi Darshan, Varanasi, Ayodhya, Chardham Yatra, and more.",
+        name: 'Holidays Hunt',
+        short_name: 'HolidaysHunt',
+        description: 'Book customized Family, Honeymoon, Pilgrimage, Leisure, Domestic & International tour packages with Holidays Hunt.',
         theme_color: '#FF4B00',
         background_color: '#FAFAFA',
         display: 'standalone',
@@ -53,10 +53,10 @@ export default defineConfig(() => ({
         maximumFileSizeToCacheInBytes: 2 * 1024 * 1024,
         runtimeCaching: [
           {
-            urlPattern: /^https:\/\/(?:mybhaktisathi\.com|pub-r2\.mybhaktisathi\.com)\/.*\.(?:png|jpe?g|webp|avif|gif|svg)$/i,
+            urlPattern: /^https:\/\/(?:holidayshunt\.com|media\.holidayshunt\.com)\/.*\.(?:png|jpe?g|webp|avif|gif|svg)$/i,
             handler: 'CacheFirst',
             options: {
-              cacheName: 'bhakti-sathi-images',
+              cacheName: 'holidays-hunt-images',
               expiration: { maxEntries: 200, maxAgeSeconds: 60 * 60 * 24 * 30 },
               cacheableResponse: { statuses: [0, 200] },
             },

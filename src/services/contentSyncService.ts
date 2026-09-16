@@ -206,7 +206,7 @@ export async function loadAuthoritativeServerContent(): Promise<boolean> {
     // Broadcast synchronization to all in-memory React contexts
     try {
       window.dispatchEvent(
-        new CustomEvent('bhakti_content_synced', {
+        new CustomEvent('holidayshunt_content_synced', {
           detail: { keys: Array.from(serverItemsByKey.keys()) },
         })
       );

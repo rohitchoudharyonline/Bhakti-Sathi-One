@@ -114,7 +114,7 @@ function getAi(): GoogleGenAI {
   if (!aiClient) {
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) throw new Error('GEMINI_API_KEY environment variable is not configured.');
-    aiClient = new GoogleGenAI({ apiKey, httpOptions: { headers: { 'User-Agent': 'bhakti-sathi-server' } } });
+    aiClient = new GoogleGenAI({ apiKey, httpOptions: { headers: { 'User-Agent': 'holidays-hunt-server' } } });
   }
   return aiClient;
 }
@@ -122,12 +122,12 @@ function getAi(): GoogleGenAI {
 function generateSmartFallbackSeo(title: string, destination: string, tagline?: string, overview?: string) {
   const cleanTitle = cleanText(title, 120);
   const cleanDest = cleanText(destination, 100);
-  let seoTitle = `${cleanTitle} - ${cleanDest} | Bhakti Sathi`;
-  if (seoTitle.length > 60) seoTitle = `${cleanTitle.slice(0, 42).trim()}... | Bhakti Sathi`;
+  let seoTitle = `${cleanTitle} - ${cleanDest} | Holidays Hunt`;
+  if (seoTitle.length > 60) seoTitle = `${cleanTitle.slice(0, 42).trim()}... | Holidays Hunt`;
   if (seoTitle.length > 60) seoTitle = `${cleanTitle.slice(0, 57).trim()}...`;
   let base = tagline?.trim() || overview?.replace(/\s+/g, ' ').trim() || `Explore ${cleanTitle} in ${cleanDest}`;
   base = cleanText(base, 140);
-  let metaDescription = `${base}. Book with Bhakti Sathi for travel planning and yatra support.`;
+  let metaDescription = `${base}. Book with Holidays Hunt for customized holiday and tour planning.`;
   if (metaDescription.length > 160) metaDescription = `${metaDescription.slice(0, 157).trim()}...`;
   return { seoTitle, metaDescription };
 }
@@ -158,7 +158,7 @@ function parseCookies(header: string | undefined): Record<string, string> {
     return [part.slice(0, index).trim(), decodeURIComponent(part.slice(index + 1).trim())];
   }).filter(([key]) => Boolean(key)));
 }
-const DEFAULT_FALLBACK_SECRET = 'bhakti-bharat-yatra-cms-secret-session-key-32-chars-ok';
+const DEFAULT_FALLBACK_SECRET = 'holidays-hunt-travel-cms-secret-session-key-32-chars-ok';
 function cmsSecret(): string {
   const secret = process.env.CMS_SESSION_SECRET?.trim();
   if (secret && secret.length >= 32) return secret;
@@ -170,6 +170,7 @@ function allowedCmsEmails(): Set<string> {
   set.add('rohitchoudharyonline@gmail.com');
   set.add('holidayshunt@gmail.com');
   set.add('admin@example.com');
+  set.add('care@holidayshunt.com');
   set.add('staff@bhaktibharatyatra.com');
   return set;
 }
@@ -515,7 +516,7 @@ app.post('/api/auth/google', authRateLimit, async (req, res) => {
         dietPreference: 'Vegetarian',
         roomPreference: 'Standard',
         authProvider: 'google',
-        memberTier: 'Bhakti Sathi Elite',
+        memberTier: 'Holidays Hunt Elite',
         memberSince: new Date().toLocaleDateString('en-IN', { month: 'long', year: 'numeric' }),
         rewardCoins: 2500,
         coTravelers: [],
@@ -609,7 +610,7 @@ app.post('/api/auth/traveler/send-otp', authRateLimit, async (req, res) => {
     expiresAt: Date.now() + 10 * 60 * 1000, // 10 minutes
   });
 
-  console.log(`[Bhakti Sathi Security] 6-Digit OTP generated for ${email}: ${otpCode}`);
+  console.log(`[Holidays Hunt Security] 6-Digit OTP generated for ${email}: ${otpCode}`);
 
   return res.json({
     success: true,
@@ -1320,8 +1321,8 @@ function generateFallbackGuideSeo(title: string, destination: string, _category:
   const cleanD = cleanText(destination || 'Himachal', 60);
   
   // Hard limit: <= 60 chars
-  let seoTitle = `${cleanT} | Bhakti Sathi`;
-  if (seoTitle.length > 60) seoTitle = `${cleanT.slice(0, 44).trim()} | Bhakti Sathi`;
+  let seoTitle = `${cleanT} | Holidays Hunt`;
+  if (seoTitle.length > 60) seoTitle = `${cleanT.slice(0, 44).trim()} | Holidays Hunt`;
   if (seoTitle.length > 60) seoTitle = cleanT.slice(0, 58).trim();
 
   // Hard limit: <= 130 chars
@@ -1384,8 +1385,8 @@ app.post('/api/generate-guide-article', publicApiRateLimit, requireCmsSession, a
   try {
     if (process.env.GEMINI_API_KEY) {
       const ai = getAi();
-      const systemInstruction = `You are a respectful, knowledgeable Indian pilgrimage and travel writer for Bhakti Sathi.
-Write a human-first, well-structured, natural pilgrimage guide in clean Markdown.
+      const systemInstruction = `You are a knowledgeable, courteous travel specialist and tour advisor for Holidays Hunt.
+Write a human-first, well-structured, natural travel and pilgrimage guide in clean Markdown.
 CRITICAL SAFETY & TRUTH CONSTRAINTS:
 - NEVER invent temple timings, exact distances, ticket prices, historical facts, religious claims, transport schedules, opening/closing hours, government statistics, reviews, or testimonials.
 - If specific timings or regulations vary, state that devotees should confirm locally with the temple shrine board.
@@ -1513,7 +1514,7 @@ app.post('/api/generate-guide-seo', publicApiRateLimit, requireCmsSession, async
   try {
     if (process.env.GEMINI_API_KEY) {
       const ai = getAi();
-      const prompt = `Act as an expert SEO strategist and copywriter for Bhakti Sathi.
+      const prompt = `Act as an expert SEO strategist and copywriter for Holidays Hunt.
 Analyze this pilgrimage guide and generate high-intent, natural SEO metadata.
 Title: ${title}
 Destination: ${destination}
@@ -1572,7 +1573,7 @@ Return JSON only.`;
 
 // Dynamic XML Sitemap for public search engines
 app.get('/sitemap.xml', (_req, res) => {
-  const baseUrl = 'https://mybhaktisathi.com';
+  const baseUrl = 'https://holidayshunt.com';
   const today = new Date().toISOString().split('T')[0];
 
   const staticRoutes = [
@@ -1754,7 +1755,7 @@ app.post('/api/notify-lead', leadRateLimit, async (req, res) => {
     const port = Number(process.env.SMTP_PORT || 587);
     const transporter = nodemailer.createTransport({ host: process.env.SMTP_HOST || 'smtp.gmail.com', port, secure: port === 465, auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS } });
     const info = await transporter.sendMail({
-      from: `Bhakti Sathi Notifications <${process.env.SMTP_USER}>`, to: process.env.NOTIFICATION_EMAIL || process.env.SMTP_USER, subject: `New Lead: ${safe.packageTitle || 'Travel Inquiry'}`,
+      from: `Holidays Hunt Notifications <${process.env.SMTP_USER}>`, to: process.env.NOTIFICATION_EMAIL || process.env.SMTP_USER, subject: `New Lead: ${safe.packageTitle || 'Travel Inquiry'}`,
       text: `New Inquiry Received!\n\nName: ${safe.travelerName}\nPhone: ${safe.phone}\nEmail: ${safe.email || 'N/A'}\nTravel Date: ${safe.travelDate}\nAdults: ${safe.adults}\nChildren: ${safe.children}\nBudget: ₹${safe.estimatedTotal}\nSpecial Requests: ${safe.specialRequests}`,
       html: `<h2>New Inquiry Received!</h2><p><strong>Name:</strong> ${escapeHtml(safe.travelerName)}</p><p><strong>Phone:</strong> ${escapeHtml(safe.phone)}</p><p><strong>Email:</strong> ${escapeHtml(safe.email || 'N/A')}</p><p><strong>Travel Date:</strong> ${escapeHtml(safe.travelDate)}</p><p><strong>Travelers:</strong> ${escapeHtml(safe.adults)} Adults, ${escapeHtml(safe.children)} Children</p><p><strong>Budget:</strong> ₹${escapeHtml(safe.estimatedTotal)}</p><p><strong>Special Requests:</strong> ${escapeHtml(safe.specialRequests)}</p>`,
     });

@@ -741,11 +741,11 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
           return {
             ...DEFAULT_CLOUD_SETTINGS,
             ...parsed,
-            r2PublicDomain: (!parsed.r2PublicDomain || parsed.r2PublicDomain.includes('holidayshunt')) ? 'https://media.holidayshunt.com' : parsed.r2PublicDomain,
-            r2BucketName: (!parsed.r2BucketName || parsed.r2BucketName === 'holidayshunt-media-r2') ? 'bhakti-sathi' : parsed.r2BucketName,
-            d1BucketName: (!parsed.d1BucketName || parsed.d1BucketName === 'holidayshunt-media-r2') ? 'bhakti-sathi' : parsed.d1BucketName,
-            d1DatabaseId: (!parsed.d1DatabaseId || parsed.d1DatabaseId === 'holidayshunt-d1-db' || parsed.d1DatabaseId === 'bhakti-sathi-db') ? '165b7b99-72e3-443e-aee9-8bf0f8c6c26b' : parsed.d1DatabaseId,
-            d1DatabaseName: (!parsed.d1DatabaseName || parsed.d1DatabaseName === 'holidayshunt-d1-db') ? 'bhakti-sathi-db' : parsed.d1DatabaseName,
+            r2PublicDomain: (!parsed.r2PublicDomain || parsed.r2PublicDomain.includes('bhakti')) ? 'https://media.holidayshunt.com' : parsed.r2PublicDomain,
+            r2BucketName: (!parsed.r2BucketName || parsed.r2BucketName === 'holidays-hunt') ? 'bhakti-sathi' : parsed.r2BucketName,
+            d1BucketName: (!parsed.d1BucketName || parsed.d1BucketName === 'holidays-hunt') ? 'bhakti-sathi' : parsed.d1BucketName,
+            d1DatabaseId: (!parsed.d1DatabaseId) ? '165b7b99-72e3-443e-aee9-8bf0f8c6c26b' : parsed.d1DatabaseId,
+            d1DatabaseName: (!parsed.d1DatabaseName || parsed.d1DatabaseName === 'holidays-hunt-db') ? 'bhakti-sathi-db' : parsed.d1DatabaseName,
           };
         }
       }
@@ -776,6 +776,37 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const saved = localStorage.getItem(STORAGE_KEYS.SETTINGS);
       if (saved) {
         const parsed = JSON.parse(saved);
+        // Cleanse and replace any remaining Bhakti Sathi references
+        if (!parsed.agencyName || parsed.agencyName.toLowerCase().includes('bhakti')) {
+          parsed.agencyName = DEFAULT_AGENCY_SETTINGS.agencyName;
+        }
+        if (!parsed.tagline || parsed.tagline.toLowerCase().includes('bhakti') || parsed.tagline.toLowerCase().includes('darshan facilitation')) {
+          parsed.tagline = DEFAULT_AGENCY_SETTINGS.tagline;
+        }
+        if (!parsed.email || parsed.email.toLowerCase().includes('bhakti')) {
+          parsed.email = DEFAULT_AGENCY_SETTINGS.email;
+        }
+        if (!parsed.phone || parsed.phone.includes('0000')) {
+          parsed.phone = DEFAULT_AGENCY_SETTINGS.phone;
+        }
+        if (!parsed.whatsapp || parsed.whatsapp.includes('0000')) {
+          parsed.whatsapp = DEFAULT_AGENCY_SETTINGS.whatsapp;
+        }
+        if (!parsed.address || parsed.address.toLowerCase().includes('bhakti')) {
+          parsed.address = DEFAULT_AGENCY_SETTINGS.address;
+        }
+        if (!parsed.accountName || parsed.accountName.toLowerCase().includes('bhakti')) {
+          parsed.accountName = DEFAULT_AGENCY_SETTINGS.accountName;
+        }
+        if (!parsed.upiId || parsed.upiId.toLowerCase().includes('bhakti')) {
+          parsed.upiId = DEFAULT_AGENCY_SETTINGS.upiId;
+        }
+        if (!parsed.invoicePrefix || parsed.invoicePrefix.includes('BS-')) {
+          parsed.invoicePrefix = DEFAULT_AGENCY_SETTINGS.invoicePrefix;
+        }
+        if (!parsed.voucherPrefix || parsed.voucherPrefix.includes('VOU-BS-')) {
+          parsed.voucherPrefix = DEFAULT_AGENCY_SETTINGS.voucherPrefix;
+        }
         if (parsed.sacredMantra === 'ॐ ऐं ह्रीं श्रीं वैष्णव्यै नमः' || parsed.sacredMantra === 'साम्ब सदाशिव') {
           parsed.sacredMantra = '';
         }
@@ -1901,10 +1932,10 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     window.addEventListener('storage', handleStorageChange);
-    window.addEventListener('bhakti_content_synced', handleContentSynced);
+    window.addEventListener('holidayshunt_content_synced', handleContentSynced);
     return () => {
       window.removeEventListener('storage', handleStorageChange);
-      window.removeEventListener('bhakti_content_synced', handleContentSynced);
+      window.removeEventListener('holidayshunt_content_synced', handleContentSynced);
     };
   }, []);
 

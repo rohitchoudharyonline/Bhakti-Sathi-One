@@ -1,6 +1,6 @@
 import { MediaAsset } from '../types/cms';
 
-const DB_NAME = 'bhakti_sathi_media_db';
+const DB_NAME = 'holidays_hunt_media_db';
 const DB_VERSION = 1;
 const STORE_NAME = 'media_assets';
 

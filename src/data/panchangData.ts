@@ -1,4 +1,4 @@
-export const PANCHANG_CACHE_KEY = 'bhakti_sathi_panchang_cache_v2';
+export const PANCHANG_CACHE_KEY = 'holidays_hunt_panchang_cache_v2';
 export const CITY_OPTIONS = [
   { id: 'delhi', label: 'New Delhi', short: 'Delhi', lat: 28.6139, lng: 77.209, timezone: 'Asia/Kolkata' }, { id: 'varanasi', label: 'Varanasi', short: 'Varanasi', lat: 25.3176, lng: 82.9739, timezone: 'Asia/Kolkata' }, { id: 'jammu', label: 'Jammu', short: 'Jammu', lat: 32.7266, lng: 74.857, timezone: 'Asia/Kolkata' }, { id: 'haridwar', label: 'Haridwar', short: 'Haridwar', lat: 29.9457, lng: 78.1642, timezone: 'Asia/Kolkata' }, { id: 'mathura', label: 'Mathura', short: 'Mathura', lat: 27.4924, lng: 77.6737, timezone: 'Asia/Kolkata' }, { id: 'ayodhya', label: 'Ayodhya', short: 'Ayodhya', lat: 26.7922, lng: 82.1998, timezone: 'Asia/Kolkata' },
 ] as const;
