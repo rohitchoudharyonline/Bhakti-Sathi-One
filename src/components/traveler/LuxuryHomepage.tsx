@@ -882,12 +882,12 @@ export const LuxuryHomepage: React.FC = () => {
                 <div className="flex items-center gap-2 mb-1">
                   <span className="text-[10px] sm:text-xs font-extrabold uppercase tracking-widest text-[#FF4B00] bg-[#FF4B00]/10 px-2.5 py-0.5 rounded-full border border-[#FF4B00]/20 inline-flex items-center gap-1">
                     <Landmark className="w-3 h-3" />
-                    <span>Key Attractions</span>
+                    <span>Sightseeing</span>
                   </span>
-                  <span className="text-[11px] font-medium text-stone-400">Sightseeing & Shrines</span>
+                  <span className="text-[11px] font-medium text-stone-400">Must-Visit Landmarks</span>
                 </div>
                 <h2 className="text-2xl sm:text-3xl font-black text-stone-900 tracking-tight flex items-center gap-2">
-                  <span>Top Attractions & Shrines</span>
+                  <span>Top Attractions</span>
                   <span className="w-8 h-1 bg-[#FF4B00] rounded-full inline-block" />
                 </h2>
               </div>

@@ -46,8 +46,8 @@ export const SitemapPage: React.FC = () => {
 
   useEffect(() => {
     updatePageSeo({
-      title: 'HTML & XML Sitemap | Holidays Hunt Pilgrimage & Yatra Directory',
-      description: 'Explore the complete directory of sacred yatra packages, spiritual destinations, temple travel guides, and policy pages on Holidays Hunt.',
+      title: 'HTML & XML Sitemap | Holidays Hunt Tour & Destination Directory',
+      description: 'Explore the complete directory of family vacations, honeymoon packages, domestic & international holiday tours, and travel guides on Holidays Hunt.',
       canonicalPath: '/sitemap',
       schemaData: generateBreadcrumbSchema([
         { name: 'Home', url: origin },
@@ -60,11 +60,11 @@ export const SitemapPage: React.FC = () => {
   // Core Pages
   const corePages = useMemo(() => [
     { title: 'Home Storefront', path: '/', slug: 'home', category: 'Main' },
-    { title: 'All Sacred Yatra Packages', path: '/tours', slug: 'tours', category: 'Tours', action: navigateToAllTours },
+    { title: 'All Tour & Holiday Packages', path: '/tours', slug: 'tours', category: 'Tours', action: navigateToAllTours },
     { title: 'Explore Destinations & Circuits', path: '/destinations', slug: 'destinations', category: 'Destinations', action: navigateToDestinationsExplorer },
-    { title: 'Spiritual Guide & Yatra Hub', path: '/guide', slug: 'guide', category: 'Guides', action: navigateToGuideHub },
-    { title: 'Daily Panchang & Tithi Calendar', path: '/panchang', slug: 'panchang', category: 'Spiritual Utility' },
-    { title: 'Daily Rashifal (Horoscope)', path: '/rashifal', slug: 'rashifal', category: 'Spiritual Utility' },
+    { title: 'Travel Guides & Itinerary Hub', path: '/guide', slug: 'guide', category: 'Guides', action: navigateToGuideHub },
+    { title: 'Panchang & Cultural Calendar', path: '/panchang', slug: 'panchang', category: 'Travel Utility' },
+    { title: 'Daily Horoscope & Travel Vibes', path: '/rashifal', slug: 'rashifal', category: 'Travel Utility' },
     { title: 'Verified Traveller Reviews', path: '/reviews', slug: 'reviews', category: 'Company', action: () => navigateToInfoPage('reviews') },
     { title: 'About Holidays Hunt', path: '/info/about', slug: 'about', category: 'Company', action: () => navigateToInfoPage('about') },
     { title: 'Contact Us & Office Locations', path: '/info/locate_us', slug: 'locate_us', category: 'Company', action: () => navigateToInfoPage('locate_us') },
