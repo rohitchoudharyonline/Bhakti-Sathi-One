@@ -90,7 +90,7 @@ const MainAppContent: React.FC = () => {
       <TravelerAuthSessionSync />
       {showSplash && <SplashScreen onFinish={() => setShowSplash(false)} />}
       <div className="w-full min-h-screen bg-stone-50 text-stone-900 flex flex-col selection:bg-stone-900 selection:text-white">
-        <ErrorBoundary fallbackTitle="Sacred Journey View Loading" fallbackMessage="There was a temporary issue loading this pilgrimage view. Please reload to refresh the live darshan and yatra details.">
+        <ErrorBoundary fallbackTitle="Travel Experience Loading" fallbackMessage="There was a temporary issue loading this Holidays Hunt travel experience. Please reload to refresh the latest destinations and tour details.">
           <Suspense fallback={<RouteFallback />}>
             {showCms ? <EnhancedERP /> : showTravelerGoogleAuth ? <TravelerGoogleAuthPage /> : isSitemapOpen ? <SitemapPage /> : isPanchangOpen ? <PanchangCalendarPageV3 /> : isHoroscopeOpen ? <HoroscopePage /> : isJapCounterOpen ? <JapCounterPageV2 /> : isTravelerProfileOpen ? <TravelerProfilePage /> : activeGuideSlug ? <GuideDetailView slug={activeGuideSlug} /> : isGuidesHubOpen ? <PublicGuidesHub /> : activeBlogSlug ? <BlogPostDetailView slug={activeBlogSlug} /> : isBlogHubOpen ? <TravelBlogHub /> : isToursDirectoryOpen ? <AllToursDirectory initialDestinationSlug={selectedToursDestination || undefined} /> : activeCustomPageSlug ? <CustomPageDetailView slug={activeCustomPageSlug} /> : activeInfoPage ? <InfoPageView pageSlug={activeInfoPage} onBack={() => setActiveInfoPage(null)} /> : selectedPackageId ? <EnhancedTourExperience /> : selectedDestinationSlug ? <DestinationPage /> : isDestinationsExplorerOpen ? <AllDestinationsExplorer /> : <LuxuryHomepage />}
           </Suspense>
