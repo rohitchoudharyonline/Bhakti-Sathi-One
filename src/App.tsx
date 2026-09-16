@@ -23,6 +23,7 @@ const CustomPageDetailView = lazy(() => import('./components/traveler/CustomPage
 const InfoPageView = lazy(() => import('./components/traveler/InfoPageView').then((m) => ({ default: m.InfoPageView })));
 const TravelerProfilePage = lazy(() => import('./components/traveler/TravelerProfilePage').then((m) => ({ default: m.TravelerProfilePage })));
 import { TravelerAuthModal } from './components/traveler/TravelerAuthModal';
+import { AdminFloatingBar } from './components/cms/AdminFloatingBar';
 const TravelerGoogleAuthPage = lazy(() => import('./components/traveler/TravelerGoogleAuthPage').then((m) => ({ default: m.TravelerGoogleAuthPage })));
 const JapCounterPageV2 = lazy(() => import('./components/traveler/JapCounterPageV2').then((m) => ({ default: m.JapCounterPageV2 })));
 const PanchangCalendarPageV3 = lazy(() => import('./components/traveler/PanchangCalendarPageV3').then((m) => ({ default: m.PanchangCalendarPageV3 })));
@@ -32,13 +33,52 @@ const GuideDetailView = lazy(() => import('./components/traveler/GuideDetailView
 const SitemapPage = lazy(() => import('./components/traveler/SitemapPage').then((m) => ({ default: m.SitemapPage })));
 
 const CMS_ENTRY_PATH = '/admin-rudra-0712';
-const isCmsEntryPath = (path: string) => path === CMS_ENTRY_PATH || path === `${CMS_ENTRY_PATH}/`;
+const isCmsEntryPath = (path: string) => {
+  if (!path) return false;
+  const norm = path.toLowerCase().split('?')[0].replace(/\/+$/, '');
+  return norm === CMS_ENTRY_PATH;
+};
 
 const RouteFallback = () => (
   <div className="min-h-[40vh] flex items-center justify-center" aria-label="Loading">
     <div className="w-7 h-7 rounded-full border-2 border-stone-300 border-t-[#FF4B00] animate-spin" />
   </div>
 );
+
+const shouldShowInitialSplash = (): boolean => {
+  if (typeof window === 'undefined') return false;
+  try {
+    // 1. If it's a browser reload/refresh, NEVER show splash
+    const navEntries = window.performance?.getEntriesByType?.('navigation');
+    if (navEntries && navEntries.length > 0) {
+      const nav = navEntries[0] as PerformanceNavigationTiming;
+      if (nav.type === 'reload') return false;
+    }
+    // Legacy fallback check for reload
+    if ((window.performance as any)?.navigation?.type === 1) {
+      return false;
+    }
+
+    // 2. If already seen in this session or device, NEVER show splash
+    if (sessionStorage.getItem('hh_splash_seen') === '1' || localStorage.getItem('hh_splash_seen') === '1') {
+      return false;
+    }
+
+    const path = window.location.pathname.toLowerCase().replace(/\/+$/, '') || '/';
+    // 3. Never show on admin or ANY sub-page (tours, destinations, blogs, guides, panchang, etc.)
+    if (path !== '/') {
+      sessionStorage.setItem('hh_splash_seen', '1');
+      return false;
+    }
+
+    // Mark as seen immediately so any rapid refresh won't show it again
+    sessionStorage.setItem('hh_splash_seen', '1');
+    localStorage.setItem('hh_splash_seen', '1');
+    return true;
+  } catch {
+    return false;
+  }
+};
 
 const MainAppContent: React.FC = () => {
   const {
@@ -60,13 +100,33 @@ const MainAppContent: React.FC = () => {
     travelerUser,
     setActiveView,
   } = useTours();
-  const [showSplash, setShowSplash] = useState(true);
-  const [pathname, setPathname] = useState(() => typeof window !== 'undefined' ? window.location.pathname : '/');
+  const [showSplash, setShowSplash] = useState(() => shouldShowInitialSplash());
+  const [pathname, setPathname] = useState(() => (typeof window !== 'undefined' ? window.location.pathname : '/'));
 
   useEffect(() => {
+    // Intercept pushState & replaceState so local URL changes react immediately in App
+    const originalPush = window.history.pushState;
+    const originalReplace = window.history.replaceState;
+
+    window.history.pushState = function (...args) {
+      const res = originalPush.apply(this, args);
+      setPathname(window.location.pathname);
+      return res;
+    };
+
+    window.history.replaceState = function (...args) {
+      const res = originalReplace.apply(this, args);
+      setPathname(window.location.pathname);
+      return res;
+    };
+
     const syncPath = () => setPathname(window.location.pathname);
     window.addEventListener('popstate', syncPath);
-    return () => window.removeEventListener('popstate', syncPath);
+    return () => {
+      window.history.pushState = originalPush;
+      window.history.replaceState = originalReplace;
+      window.removeEventListener('popstate', syncPath);
+    };
   }, []);
 
   const cmsEntry = isCmsEntryPath(pathname);
@@ -83,7 +143,7 @@ const MainAppContent: React.FC = () => {
   const isHoroscopeOpen = pathname === '/rashifal' || pathname === '/rashifal/';
   const isSitemapOpen = pathname === '/sitemap' || pathname === '/sitemap/' || pathname === '/sitemap.html' || pathname === '/info/sitemap' || pathname === '/info/sitemap/' || activeInfoPage === 'sitemap';
   const showTravelerGoogleAuth = activeView === 'traveler' && isTravelerProfileOpen && !travelerUser;
-  const showCms = cmsEntry && activeView === 'cms';
+  const showCms = cmsEntry || activeView === 'cms';
 
   return (
     <>
@@ -98,6 +158,7 @@ const MainAppContent: React.FC = () => {
         {activeView === 'traveler' && !showTravelerGoogleAuth && !isSitemapOpen && !isPanchangOpen && !isHoroscopeOpen && <MobileBottomNav />}
         {activeView === 'traveler' && !showTravelerGoogleAuth && !isSitemapOpen && !isPanchangOpen && !isHoroscopeOpen && <FloatingSupportWidget />}
         {!showTravelerGoogleAuth && <TravelerAuthModal />}
+        <AdminFloatingBar />
         <PWAInstallButton />
       </div>
     </>

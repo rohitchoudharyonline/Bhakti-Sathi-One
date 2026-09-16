@@ -1798,6 +1798,7 @@ app.get('/robots.txt', (_req, res) => {
 Allow: /
 Disallow: /cms
 Disallow: /admin
+Disallow: /admin-rudra-0712
 Disallow: /api/
 
 Sitemap: https://holidayshunt.com/sitemap.xml

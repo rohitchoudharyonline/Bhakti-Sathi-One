@@ -7,21 +7,35 @@ interface SplashScreenProps {
   duration?: number;
 }
 
-export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish, duration = 4000 }) => {
+export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish, duration = 1400 }) => {
   const [isVisible, setIsVisible] = useState(true);
+
+  const finish = React.useCallback(() => {
+    try {
+      sessionStorage.setItem('hh_splash_seen', '1');
+      localStorage.setItem('hh_splash_seen', '1');
+    } catch {}
+    setIsVisible(false);
+    setTimeout(() => onFinish?.(), 250);
+  }, [onFinish]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      setIsVisible(false);
-      setTimeout(() => onFinish?.(), 700);
+      finish();
     }, duration);
-    return () => clearTimeout(timer);
-  }, [duration, onFinish]);
 
-  const finish = () => {
-    setIsVisible(false);
-    setTimeout(() => onFinish?.(), 300);
-  };
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' || e.key === 'Enter' || e.key === ' ') {
+        finish();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [duration, finish]);
 
   return (
     <AnimatePresence>
@@ -29,9 +43,10 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish, duration =
         <motion.div
           key="holidays-hunt-splash"
           initial={{ opacity: 1 }}
-          exit={{ opacity: 0, scale: 0.99, filter: 'blur(12px)' }}
-          transition={{ duration: 0.8, ease: [0.25, 1, 0.5, 1] }}
-          className="fixed inset-0 z-[9999] bg-white flex flex-col items-center justify-center p-6 select-none overflow-hidden"
+          exit={{ opacity: 0, scale: 0.99, filter: 'blur(8px)' }}
+          transition={{ duration: 0.35, ease: [0.25, 1, 0.5, 1] }}
+          onClick={finish}
+          className="fixed inset-0 z-[9999] bg-white flex flex-col items-center justify-center p-6 select-none overflow-hidden cursor-pointer"
         >
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,75,0,0.04)_0%,transparent_75%)] pointer-events-none" />
 

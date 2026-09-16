@@ -131,7 +131,30 @@ export const CMSDashboard: React.FC = () => {
     | 'bottom-menus'
     | 'hotels'
     | 'post-editor'
-  >('dashboard');
+  >(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const qTab = urlParams.get('tab');
+        if (qTab) return qTab as any;
+        const saved = localStorage.getItem('hh_admin_active_tab');
+        if (saved) return saved as any;
+      } catch {}
+    }
+    return 'dashboard';
+  });
+
+  // Keep URL tab param & local storage in sync across browser refreshes
+  useEffect(() => {
+    try {
+      localStorage.setItem('hh_admin_active_tab', activeCmsTab);
+      if (typeof window !== 'undefined' && window.history.replaceState && window.location.pathname.startsWith('/admin-rudra-0712')) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('tab', activeCmsTab);
+        window.history.replaceState({}, '', url.toString());
+      }
+    } catch {}
+  }, [activeCmsTab]);
 
   const [editingPackage, setEditingPackage] = useState<TourPackage | null>(null);
   const [editingBlogPost, setEditingBlogPost] = useState<BlogPost | null>(null);
@@ -323,7 +346,13 @@ export const CMSDashboard: React.FC = () => {
 
               <button
                 type="button"
-                onClick={() => setActiveView('traveler')}
+                onClick={() => {
+                  if (typeof window !== 'undefined' && window.history.pushState) {
+                    window.history.pushState({}, '', '/');
+                    window.dispatchEvent(new PopStateEvent('popstate'));
+                  }
+                  setActiveView('traveler');
+                }}
                 className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-[#1A1A1A] text-[11px] sm:text-xs font-bold border border-stone-200 transition cursor-pointer"
                 title="Switch to Storefront"
               >

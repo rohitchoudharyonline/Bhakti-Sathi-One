@@ -309,14 +309,6 @@ export const TravelerPortal: React.FC = () => {
               <MessageCircle className="w-4 h-4 text-white" />
               <span>WhatsApp Yatra Helpline</span>
             </a>
-
-            <button
-              onClick={() => setActiveView('cms')}
-              className="px-6 py-3.5 rounded-2xl bg-stone-800 hover:bg-stone-700 text-white text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition border border-stone-700 cursor-pointer"
-            >
-              <span>Agency CMS Portal</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
           </div>
         </div>
       </section>

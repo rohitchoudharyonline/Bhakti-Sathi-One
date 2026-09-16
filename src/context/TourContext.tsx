@@ -108,6 +108,7 @@ interface TourContextType {
   navigateToBlogPost: (slug: string) => void;
   navigateToGuideHub: () => void;
   navigateToGuideDetail: (slug: string) => void;
+  navigateToAdmin: () => void;
   navigateToCustomPage: (slug: string) => void;
   navigateToDestinationsExplorer: () => void;
   
@@ -957,7 +958,15 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
   });
 
   // 9. Navigation / Routing States
-  const [activeView, setActiveView] = useState<'traveler' | 'cms'>('traveler');
+  const [activeView, setActiveView] = useState<'traveler' | 'cms'>(() => {
+    if (typeof window !== 'undefined') {
+      const p = window.location.pathname.toLowerCase();
+      if (p === '/admin-rudra-0712' || p.startsWith('/admin-rudra-0712/') || p.startsWith('/admin-rudra-0712?')) {
+        return 'cms';
+      }
+    }
+    return 'traveler';
+  });
   const [selectedPackageId, _setSelectedPackageId] = useState<string | null>(null);
   const [selectedDestinationSlug, _setSelectedDestinationSlug] = useState<string | null>(null);
 
@@ -967,7 +976,9 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } else {
       _setSelectedPackageId(null);
       if (typeof window !== 'undefined' && window.history.pushState) {
-        window.history.pushState({}, '', '/');
+        if (window.location.pathname.startsWith('/tours/') || window.location.pathname.includes('/package/')) {
+          window.history.pushState({}, '', '/tours');
+        }
       }
     }
   };
@@ -978,7 +989,9 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } else {
       _setSelectedDestinationSlug(null);
       if (typeof window !== 'undefined' && window.history.pushState) {
-        window.history.pushState({}, '', '/');
+        if (window.location.pathname.startsWith('/destinations/') || window.location.pathname.startsWith('/destination/')) {
+          window.history.pushState({}, '', '/destinations');
+        }
       }
     }
   };
@@ -1513,28 +1526,33 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (typeof window === 'undefined') return;
       const path = window.location.pathname.toLowerCase();
 
-      // Reset all modals/views
-      if (path === '/admin' || path === '/cms' || path === '/login' || path === '/admin-login' || path === '/cms-login' || path.startsWith('/admin/') || path.startsWith('/cms/')) {
-        if (!path.startsWith('/admin-rudra-0712')) {
-          window.history.replaceState({}, '', '/admin-rudra-0712');
+      // 1. Single Exclusive Admin Entry Point: /admin-rudra-0712
+      if (path === '/admin-rudra-0712' || path.startsWith('/admin-rudra-0712/') || path.startsWith('/admin-rudra-0712?')) {
+        setActiveView('cms');
+        setIsDestinationsExplorerOpen(false);
+        setIsToursDirectoryOpen(false);
+        setIsBlogHubOpen(false);
+        setActiveBlogSlug(null);
+        setActiveCustomPageSlug(null);
+        _setSelectedPackageId(null);
+        _setSelectedDestinationSlug(null);
+        return;
+      }
+
+      // 2. Hide / delete any other admin entry points: redirect decoy paths to homepage without revealing secret admin URL
+      if (path === '/admin' || path === '/cms' || path === '/login' || path === '/admin-login' || path === '/cms-login' || (path.startsWith('/admin/') && !path.startsWith('/admin-rudra-0712')) || path.startsWith('/cms/')) {
+        if (typeof window !== 'undefined' && window.history.replaceState) {
+          window.history.replaceState({}, '', '/');
         }
-        setActiveView('cms');
+        setActiveView('traveler');
+        _setSelectedPackageId(null);
+        _setSelectedDestinationSlug(null);
         setIsDestinationsExplorerOpen(false);
         setIsToursDirectoryOpen(false);
         setIsBlogHubOpen(false);
         setActiveBlogSlug(null);
         setActiveCustomPageSlug(null);
-        setSelectedPackageId(null);
-        setSelectedDestinationSlug(null);
-      } else if (path.startsWith('/admin-rudra-0712')) {
-        setActiveView('cms');
-        setIsDestinationsExplorerOpen(false);
-        setIsToursDirectoryOpen(false);
-        setIsBlogHubOpen(false);
-        setActiveBlogSlug(null);
-        setActiveCustomPageSlug(null);
-        setSelectedPackageId(null);
-        setSelectedDestinationSlug(null);
+        return;
       } else if (path === '/jap-counter' || path === '/mala' || path === '/japa-counter') {
         setActiveView('traveler');
         setIsJapCounterOpen(true);
@@ -2239,6 +2257,25 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsTravelerProfileOpen(false);
     if (typeof window !== 'undefined' && window.history.pushState) {
       window.history.pushState({}, '', '/destinations');
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const navigateToAdmin = () => {
+    setActiveView('cms');
+    setIsDestinationsExplorerOpen(false);
+    setIsToursDirectoryOpen(false);
+    setIsBlogHubOpen(false);
+    setActiveBlogSlug(null);
+    setIsGuidesHubOpen(false);
+    setActiveGuideSlug(null);
+    setActiveCustomPageSlug(null);
+    _setSelectedPackageId(null);
+    _setSelectedDestinationSlug(null);
+    setIsTravelerProfileOpen(false);
+    if (typeof window !== 'undefined' && window.history.pushState) {
+      window.history.pushState({}, '', '/admin-rudra-0712');
+      window.dispatchEvent(new PopStateEvent('popstate'));
     }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -3316,6 +3353,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
         navigateToBlogPost,
         navigateToGuideHub,
         navigateToGuideDetail,
+        navigateToAdmin,
         isGuidesHubOpen,
         setIsGuidesHubOpen,
         activeGuideSlug,

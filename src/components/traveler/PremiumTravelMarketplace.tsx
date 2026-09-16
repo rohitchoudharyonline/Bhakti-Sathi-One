@@ -71,9 +71,6 @@ export const PremiumTravelMarketplace: React.FC = () => {
             </a>
           </nav>
           <div className="flex items-center gap-2">
-            <button onClick={() => setActiveView('cms')} className="px-3 py-1.5 rounded-xl border border-stone-300 text-xs font-bold hover:bg-stone-50 transition">
-              ERP / CMS
-            </button>
             <button onClick={() => setShowInquiry(true)} className="px-3.5 py-1.5 rounded-xl bg-stone-900 text-white text-xs font-bold hover:bg-stone-800 transition">
               Enquire
             </button>
