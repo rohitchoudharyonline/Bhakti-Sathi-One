@@ -7,6 +7,7 @@ import { PILGRIMAGE_FAQS_REGISTRY } from '../../data/pilgrimageFaqsData';
 import { jkFaqsDestinations } from '../../data/jkFaqsData';
 import { himachalFaqsDestinations } from '../../data/himachalFaqsData';
 import { SitemapPage } from './SitemapPage';
+import { FAQ_CATEGORY_TABS, ALL_GENERAL_FAQS } from '../../data/holidaysFaqsData';
 import {
   Building2,
   Phone,
@@ -315,62 +316,54 @@ export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, on
 
             {/* 3. FAQ */}
             {pageSlug === 'faq' && (() => {
-              const availableDestinations = selectedRegion === 'All Regions'
-                ? PILGRIMAGE_FAQS_REGISTRY
-                : PILGRIMAGE_FAQS_REGISTRY.filter(d => d.region === selectedRegion);
+              const activeCategory = FAQ_CATEGORY_TABS.find(t => t.id === selectedRegion) || FAQ_CATEGORY_TABS[0];
 
-              const currentDest = PILGRIMAGE_FAQS_REGISTRY.find(d => d.id === activeFaqCity) || availableDestinations[0] || PILGRIMAGE_FAQS_REGISTRY[0];
+              const categoryFaqs = activeCategory.id === 'all'
+                ? ALL_GENERAL_FAQS
+                : ALL_GENERAL_FAQS.filter(f => f.category === activeCategory.id);
 
-              const filteredFaqs = currentDest.faqs.filter(f => 
+              const filteredFaqs = categoryFaqs.filter(f => 
                 faqSearch === '' || 
                 f.question.toLowerCase().includes(faqSearch.toLowerCase()) || 
                 f.answer.toLowerCase().includes(faqSearch.toLowerCase())
               );
 
-              const regions = ['All Regions', 'North India', 'Central & UP', 'West & East', 'South India'];
-
               return (
                 <div className="space-y-6">
                   <div>
                     <h3 className="text-xl font-black text-stone-900 tracking-tight mb-1">
-                      Sacred Pilgrimage & Yatra FAQ Hub
+                      Holidays Hunt Help & FAQ Hub
                     </h3>
                     <p className="text-xs sm:text-sm text-stone-600 font-medium">
-                      Find expert guidance on Temple Darshan rules, Senior Citizen care, Hotel Dining, Helicopter passes, and Yatra planning across 15+ Sacred Shrines of India.
+                      Find expert guidance on Family Vacations, Honeymoon Specials, Sacred Pilgrimages, and Booking Policies.
                     </p>
                   </div>
 
-                  {/* STEP 1: SACRED REGION TABS */}
+                  {/* STEP 1: CATEGORY TABS */}
                   <div className="flex flex-wrap gap-2 pb-2 border-b border-stone-200">
-                    {regions.map((reg) => {
-                      const count = reg === 'All Regions'
-                        ? PILGRIMAGE_FAQS_REGISTRY.length
-                        : PILGRIMAGE_FAQS_REGISTRY.filter(d => d.region === reg).length;
-                      const isSelected = selectedRegion === reg;
+                    {FAQ_CATEGORY_TABS.map((tab) => {
+                      const isSelected = selectedRegion === tab.id;
+                      const count = tab.id === 'all' 
+                        ? ALL_GENERAL_FAQS.length 
+                        : ALL_GENERAL_FAQS.filter(f => f.category === tab.id).length;
 
                       return (
                         <button
-                          key={reg}
+                          key={tab.id}
                           onClick={() => {
-                            setSelectedRegion(reg);
-                            const nextDests = reg === 'All Regions'
-                              ? PILGRIMAGE_FAQS_REGISTRY
-                              : PILGRIMAGE_FAQS_REGISTRY.filter(d => d.region === reg);
-                            if (nextDests.length > 0) {
-                              setActiveFaqCity(nextDests[0].id);
-                            }
+                            setSelectedRegion(tab.id);
                             setOpenFaqIndices({ 0: true });
                             setFaqSearch('');
                           }}
                           className={`px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition cursor-pointer flex items-center gap-2 ${
                             isSelected
-                              ? 'bg-amber-700 text-white shadow-sm ring-2 ring-amber-800/30'
+                              ? 'bg-[#FF4B00] text-white shadow-sm ring-2 ring-orange-500/30'
                               : 'bg-stone-100 hover:bg-stone-200 text-stone-700'
                           }`}
                         >
-                          <span>{reg}</span>
-                          <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${isSelected ? 'bg-amber-900 text-amber-100' : 'bg-stone-200 text-stone-700'}`}>
-                            {count} Shrines
+                          <span>{tab.label}</span>
+                          <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${isSelected ? 'bg-orange-900 text-orange-100' : 'bg-stone-200 text-stone-700'}`}>
+                            {count}
                           </span>
                         </button>
                       );
@@ -382,88 +375,53 @@ export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, on
                     <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400" />
                     <input
                       type="text"
-                      placeholder={`Search Yatra FAQs in ${currentDest.name} (e.g. Darshan Timings, Helicopter, Hotel Stays, Palki)...`}
+                      placeholder={`Search ${activeCategory.label} FAQs (e.g. Booking, Helicopter, Meals)...`}
                       value={faqSearch}
                       onChange={(e) => setFaqSearch(e.target.value)}
-                      className="w-full pl-10 pr-4 py-3 rounded-xl bg-stone-50 border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-600 transition"
+                      className="w-full pl-10 pr-4 py-3 rounded-xl bg-stone-50 border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/30 focus:border-orange-500 transition"
                     />
                   </div>
 
-                  {/* Destination Post Cards Grid for Selected Region */}
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5">
-                    {availableDestinations.map((dest) => {
-                      const isActive = dest.id === activeFaqCity;
-                      return (
-                        <button
-                          key={dest.id}
-                          onClick={() => {
-                            setActiveFaqCity(dest.id);
-                            setOpenFaqIndices({ 0: true });
-                            setFaqSearch('');
-                          }}
-                          className={`p-3 rounded-xl border text-left transition flex flex-col justify-between cursor-pointer ${
-                            isActive
-                              ? 'bg-amber-950 text-white border-amber-900 shadow-md ring-2 ring-amber-800/40'
-                              : 'bg-stone-50 hover:bg-stone-100 text-stone-900 border-stone-200'
-                          }`}
-                        >
-                          <div className="flex items-center justify-between mb-1.5">
-                            <span className={`w-5 h-5 rounded-full font-black text-[10px] flex items-center justify-center ${isActive ? 'bg-amber-500 text-stone-950' : 'bg-stone-200 text-stone-800'}`}>
-                              ॐ
-                            </span>
-                            <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full ${isActive ? 'bg-amber-800 text-amber-100' : 'bg-stone-200 text-stone-700'}`}>
-                              {dest.faqs.length} FAQs
-                            </span>
-                          </div>
-                          <div>
-                            <h4 className="font-extrabold text-xs line-clamp-1">{dest.name}</h4>
-                            <p className={`text-[10px] line-clamp-1 mt-0.5 ${isActive ? 'text-amber-200/80' : 'text-stone-500'}`}>{dest.tagline}</p>
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-
-                  {/* Active City Header & FAQs Accordion List */}
-                  <div className="p-5 sm:p-6 rounded-2xl bg-amber-50/40 border border-amber-200/80 space-y-4">
-                    <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-amber-200/60">
+                  {/* Active Category Header & FAQs Accordion List */}
+                  <div className="p-5 sm:p-6 rounded-2xl bg-orange-50/40 border border-orange-200/80 space-y-4">
+                    <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-orange-200/60">
                       <div>
                         <div className="flex items-center gap-2">
-                          <Sparkles className="w-4 h-4 text-amber-700" />
-                          <h3 className="text-base sm:text-lg font-black text-stone-900">{currentDest.name} Yatra FAQs</h3>
+                          <Sparkles className="w-4 h-4 text-[#FF4B00]" />
+                          <h3 className="text-base sm:text-lg font-black text-stone-900">{activeCategory.label} FAQs</h3>
                         </div>
-                        <p className="text-xs text-stone-600 mt-0.5 font-medium">{currentDest.tagline} • {currentDest.faqs.length} Verified Answers</p>
+                        <p className="text-xs text-stone-600 mt-0.5 font-medium">{filteredFaqs.length} Verified Answers</p>
                       </div>
                       <button
                         onClick={() => {
-                          const allOpen = Object.keys(openFaqIndices).length === currentDest.faqs.length;
+                          const allOpen = Object.keys(openFaqIndices).length === categoryFaqs.length;
                           if (allOpen) {
                             setOpenFaqIndices({});
                           } else {
                             const map: Record<number, boolean> = {};
-                            currentDest.faqs.forEach((_, idx) => { map[idx] = true; });
+                            categoryFaqs.forEach((_, idx) => { map[idx] = true; });
                             setOpenFaqIndices(map);
                           }
                         }}
-                        className="text-xs font-bold text-amber-900 hover:underline bg-amber-100/80 px-3 py-1.5 rounded-xl border border-amber-300 cursor-pointer"
+                        className="text-xs font-bold text-[#FF4B00] hover:underline bg-orange-100/80 px-3 py-1.5 rounded-xl border border-orange-300 cursor-pointer"
                       >
-                        {Object.keys(openFaqIndices).length === currentDest.faqs.length ? 'Collapse All' : 'Expand All'}
+                        {Object.keys(openFaqIndices).length === categoryFaqs.length ? 'Collapse All' : 'Expand All'}
                       </button>
                     </div>
 
                     <div className="space-y-2.5">
                       {filteredFaqs.length === 0 ? (
                         <div className="text-center py-8 text-stone-500 text-sm">
-                          No FAQs matched &quot;{faqSearch}&quot; in {currentDest.name}. Try searching another query or clear filter.
+                          No FAQs matched &quot;{faqSearch}&quot; in {activeCategory.label}. Try searching another query or clear filter.
                         </div>
                       ) : (
                         filteredFaqs.map((faq, idx) => {
                           const isOpen = !!openFaqIndices[idx];
                           return (
                             <div
-                              key={idx}
+                              key={faq.id || idx}
                               className={`rounded-xl border transition overflow-hidden ${
-                                isOpen ? 'bg-white border-amber-300/80 shadow-xs ring-1 ring-amber-400/20' : 'bg-white/80 hover:bg-white border-stone-200'
+                                isOpen ? 'bg-white border-orange-300/80 shadow-xs ring-1 ring-orange-400/20' : 'bg-white/80 hover:bg-white border-stone-200'
                               }`}
                             >
                               <button
@@ -475,12 +433,12 @@ export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, on
                                 <span className="font-extrabold text-xs sm:text-sm text-stone-900 leading-snug">
                                   {faq.question}
                                 </span>
-                                <span className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 transition ${isOpen ? 'bg-amber-900 text-white rotate-180' : 'bg-stone-100 text-stone-600'}`}>
+                                <span className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 transition ${isOpen ? 'bg-[#FF4B00] text-white rotate-180' : 'bg-stone-100 text-stone-600'}`}>
                                   <ChevronDown className="w-3.5 h-3.5" />
                                 </span>
                               </button>
                               {isOpen && (
-                                <div className="px-3.5 pb-4 pt-1 text-xs sm:text-sm text-stone-700 leading-relaxed border-t border-stone-100 bg-amber-50/20 whitespace-pre-line font-medium">
+                                <div className="px-3.5 pb-4 pt-1 text-xs sm:text-sm text-stone-700 leading-relaxed border-t border-stone-100 bg-orange-50/20 whitespace-pre-line font-medium">
                                   {faq.answer}
                                 </div>
                               )}
