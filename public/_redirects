@@ -31,5 +31,4 @@
 /category/*             /tours                301
 /tag/*                  /tours                301
 
-# 6. React Single Page App Fallback (Catch-All)
-/*                      /index.html           200
+# SPA fallback is configured in wrangler.jsonc using assets.not_found_handling = single-page-application.
