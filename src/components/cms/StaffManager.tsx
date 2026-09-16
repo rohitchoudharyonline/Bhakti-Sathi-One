@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useTours } from '../../context/TourContext';
 import { StaffMember, StaffPermissions, StaffRole } from '../../types/tour';
+import { resolveDisplayImage, handleImageError } from '../../utils/imageResolver';
 import {
   Shield,
   ShieldCheck,
@@ -17,7 +18,7 @@ import {
 } from 'lucide-react';
 
 export const StaffManager: React.FC = () => {
-  const { staff, currentStaffUser, addStaffMember, updateStaffMember, deleteStaffMember } = useTours();
+  const { staff, currentStaffUser, addStaffMember, updateStaffMember, deleteStaffMember, mediaAssets } = useTours();
   const [editingStaff, setEditingStaff] = useState<StaffMember | null>(null);
   const [isCreating, setIsCreating] = useState(false);
   const [activeTab, setActiveTab] = useState<'all' | 'super_admin' | 'operations' | 'sales' | 'finance'>('all');
@@ -264,8 +265,9 @@ export const StaffManager: React.FC = () => {
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-center gap-3">
                     <img
-                      src={member.avatar}
+                      src={resolveDisplayImage(member.avatar, mediaAssets) || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80'}
                       alt={member.name}
+                      onError={(e) => handleImageError(e, member.avatar, mediaAssets, 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80')}
                       className="w-12 h-12 rounded-xl object-cover ring-2 ring-slate-100 dark:ring-slate-800 shadow-sm"
                     />
                     <div>

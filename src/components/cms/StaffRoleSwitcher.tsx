@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useTours } from '../../context/TourContext';
 import { StaffMember } from '../../types/tour';
+import { resolveDisplayImage, handleImageError } from '../../utils/imageResolver';
 import { ShieldCheck, ChevronDown, Check, KeyRound, Sparkles } from 'lucide-react';
 
 /**
@@ -8,7 +9,7 @@ import { ShieldCheck, ChevronDown, Check, KeyRound, Sparkles } from 'lucide-reac
  * controlled by the server-side Google allowlist/session gate.
  */
 export const StaffRoleSwitcher: React.FC = () => {
-  const { staff, currentStaffUser, setCurrentStaffUser } = useTours();
+  const { staff, currentStaffUser, setCurrentStaffUser, mediaAssets } = useTours();
   const [isOpen, setIsOpen] = useState(false);
 
   if (import.meta.env.PROD) return null;
@@ -38,7 +39,12 @@ export const StaffRoleSwitcher: React.FC = () => {
   return (
     <div className="relative inline-block text-left" id="staff-role-switcher-container">
       <button type="button" onClick={() => setIsOpen(!isOpen)} className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-white shadow-sm hover:border-slate-300 transition-all text-xs font-medium text-slate-700" id="role-switcher-btn">
-        <img src={currentStaffUser.avatar || '/logo-holidays-hunt-v3.png'} alt="Development staff preview" className="w-6 h-6 rounded-full object-cover ring-1 ring-slate-200" />
+        <img
+          src={resolveDisplayImage(currentStaffUser.avatar, mediaAssets) || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80'}
+          alt="Development staff preview"
+          onError={(e) => handleImageError(e, currentStaffUser.avatar, mediaAssets, 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80')}
+          className="w-6 h-6 rounded-full object-cover ring-1 ring-slate-200"
+        />
         <div className="text-left hidden sm:block">
           <p className="font-semibold text-slate-800 leading-tight flex items-center gap-1">{currentStaffUser.name}<ShieldCheck className="w-3.5 h-3.5 text-red-600" /></p>
           <p className="text-[10px] text-slate-500">Development preview</p>
@@ -63,7 +69,12 @@ export const StaffRoleSwitcher: React.FC = () => {
                 const isSelected = member.id === currentStaffUser.id;
                 return (
                   <button key={member.id} type="button" onClick={() => { setCurrentStaffUser(member); setIsOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg flex items-center gap-3 transition-colors ${isSelected ? 'bg-red-50 text-red-900 font-medium' : 'hover:bg-slate-50 text-slate-700'}`}>
-                    <img src={member.avatar || '/logo-holidays-hunt-v3.png'} alt="Development staff preview" className="w-8 h-8 rounded-full object-cover ring-1 ring-slate-200" />
+                    <img
+                      src={resolveDisplayImage(member.avatar, mediaAssets) || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80'}
+                      alt="Development staff preview"
+                      onError={(e) => handleImageError(e, member.avatar, mediaAssets, 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80')}
+                      className="w-8 h-8 rounded-full object-cover ring-1 ring-slate-200"
+                    />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between"><span className="text-xs font-semibold truncate text-slate-900">{member.name}</span>{isSelected && <Check className="w-4 h-4 text-red-600 shrink-0" />}</div>
                       <p className="text-[11px] text-slate-500 truncate">{formatRoleName(member.role)}</p>

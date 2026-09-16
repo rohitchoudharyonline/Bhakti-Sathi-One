@@ -4,6 +4,7 @@ import { TourPackage } from '../../types/tour';
 import { useTours } from '../../context/TourContext';
 import { getPackageReviews } from '../../data/tourReviewsData';
 import { TourReviewsAndGalleryModal } from './TourReviewsAndGalleryModal';
+import { TravelerReviewsSection } from './TravelerReviewsSection';
 
 interface Props {
   pkg: TourPackage;
@@ -71,6 +72,10 @@ export const TourReviewsSection: React.FC<Props> = ({ pkg }) => {
       </div>
 
       <div className="max-w-6xl mx-auto relative z-10">
+        <div className="mb-8">
+          <TravelerReviewsSection />
+        </div>
+
         {/* Section Header */}
         <div className="text-center mb-8 sm:mb-10">
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight">

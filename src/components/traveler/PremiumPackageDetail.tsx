@@ -374,7 +374,7 @@ export const PremiumPackageDetail: React.FC<Props> = ({ pkg, onBack }) => {
               onClick={() => setShowEnquiry(true)}
               className="px-3.5 sm:px-5 py-1.5 sm:py-2 rounded-xl bg-[#FF4B00] hover:bg-[#E04200] text-white font-black text-xs sm:text-sm transition shadow-sm cursor-pointer shrink-0"
             >
-              Dates & Availability
+              Send Inquiry
             </button>
           </div>
         </div>
@@ -535,7 +535,7 @@ export const PremiumPackageDetail: React.FC<Props> = ({ pkg, onBack }) => {
               className="w-full py-3 rounded-xl bg-[#FF4B00] hover:bg-[#E04200] text-white font-black text-xs sm:text-sm tracking-wider transition shadow-xs cursor-pointer flex items-center justify-center gap-2 uppercase"
             >
               <CalendarDays className="w-4 h-4 shrink-0" />
-              <span>Dates & Availability</span>
+              <span>Send Inquiry</span>
             </button>
           </div>
 
@@ -697,7 +697,7 @@ export const PremiumPackageDetail: React.FC<Props> = ({ pkg, onBack }) => {
                   onClick={() => setShowEnquiry(true)}
                   className="w-full py-3 rounded-xl bg-[#FF4B00] hover:bg-[#E04200] text-white font-black text-xs sm:text-sm shadow-sm transition cursor-pointer"
                 >
-                  Dates & Availability →
+                  Send Inquiry →
                 </button>
 
                 <button
@@ -921,7 +921,7 @@ export const PremiumPackageDetail: React.FC<Props> = ({ pkg, onBack }) => {
                 <div className="flex items-center justify-between pb-3 border-b border-stone-100">
                   <div>
                     <span className="text-[10px] font-black uppercase tracking-wider text-[#FF4B00] bg-[#FFF0EB] px-2 py-0.5 rounded border border-[#FF4B00]/30">
-                      Check Dates & Availability
+                      Send Inquiry
                     </span>
                     <h3 className="text-base font-black text-stone-900 mt-1">{pkg.title}</h3>
                   </div>
@@ -1055,7 +1055,7 @@ export const PremiumPackageDetail: React.FC<Props> = ({ pkg, onBack }) => {
           onClick={() => setShowEnquiry(true)}
           className="px-5 py-2.5 rounded-xl bg-[#FF4B00] hover:bg-[#E04200] text-white font-black text-xs sm:text-sm shadow-md cursor-pointer transition shrink-0"
         >
-          Dates & Availability
+          Send Inquiry
         </button>
       </div>
 

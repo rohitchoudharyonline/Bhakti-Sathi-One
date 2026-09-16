@@ -63,6 +63,7 @@ import { generateAgencyReviewSchema } from '../../utils/seoEngine';
 import { resolveDisplayImage, handleImageError } from '../../utils/imageResolver';
 import { isValidEmail } from '../../utils/validation';
 import { EmailVerificationInput } from '../common/EmailVerificationInput';
+import { TravelerReviewsSection } from './TravelerReviewsSection';
 import { JapCounterIcon } from './JapCounterIcon';
 import { PencilTempleIllustration } from './PencilTempleIllustration';
 import { HandpickedYatraPackagesSection, CategoryToursCarouselSection } from './HandpickedYatraPackagesSection';
@@ -1004,6 +1005,9 @@ export const LuxuryHomepage: React.FC = () => {
             PILGRIMAGE TOURS (SACRED YATRAS & DARSHANS)
             ======================================================== */}
         <HandpickedYatraPackagesSection />
+
+        {/* Google Verified Reviews Section */}
+        <TravelerReviewsSection />
 
         {/* ========================================================
             WHY HOLIDAYS HUNT? (CAROUSEL)
