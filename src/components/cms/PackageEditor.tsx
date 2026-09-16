@@ -429,7 +429,7 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
       endLocation: endLocation.trim(),
       groupSizeLimit: groupSizeLimit.trim(),
       bestTimeToVisit: bestTimeToVisit.trim(),
-      tourType: isGroupTour ? 'Group Tour' : tourType,
+      tourType: ['Family', 'Honeymoon', 'Pilgrimage'].includes(tourType || '') ? tourType : 'Family',
       isGroupTour,
       templeIds: selectedTempleIds,
       temples: selectedTempleIds.map((id) => {

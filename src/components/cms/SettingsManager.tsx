@@ -113,11 +113,11 @@ export const SettingsManager: React.FC<{ initialTab?: 'branding' | 'faqs' | 'foo
       },
       {
         id: 'fm-yatras',
-        title: 'SACRED YATRAS',
+        title: 'POPULAR DESTINATIONS',
         items: [
-          { id: 'fmi-vd', label: 'Vaishno Devi Yatra', url: 'pilgrimage' },
-          { id: 'fmi-hd', label: 'Himachal Devi Darshan', url: 'pilgrimage' },
-          { id: 'fmi-fam', label: 'Family Devotional Tours', url: 'family' }
+          { id: 'fmi-vd', label: 'Vaishno Devi & Katra', url: 'pilgrimage' },
+          { id: 'fmi-hd', label: 'Himachal & Kashmir', url: 'family' },
+          { id: 'fmi-fam', label: 'Family & Honeymoon Tours', url: 'family' }
         ]
       },
       {

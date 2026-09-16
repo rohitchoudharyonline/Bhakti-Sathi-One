@@ -147,15 +147,15 @@ export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, on
                         <Phone className="w-5 h-5" />
                       </div>
                       <div>
-                        <h3 className="text-xs font-black uppercase tracking-wider text-stone-500">Call or Whatsapp</h3>
+                        <h3 className="text-xs font-black uppercase tracking-wider text-stone-500">Call or Whatsapp Hotline</h3>
                         <a 
-                          href="https://wa.me/919419915255" 
+                          href="https://wa.me/919816001234" 
                           target="_blank" 
                           rel="noreferrer" 
                           className="text-2xl font-black text-stone-900 hover:text-[#FF4B00] transition flex items-center gap-2"
                         >
-                          9419915255
-                          <span className="text-[10px] font-black bg-emerald-500 text-white px-2 py-0.5 rounded-full uppercase tracking-wider">Online</span>
+                          +91 9816001234
+                          <span className="text-[10px] font-black bg-emerald-500 text-white px-2 py-0.5 rounded-full uppercase tracking-wider">24x7 Support</span>
                         </a>
                       </div>
                     </div>
@@ -168,10 +168,13 @@ export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, on
                         <Mail className="w-5 h-5" />
                       </div>
                       <div className="space-y-1">
-                        <h3 className="text-xs font-black uppercase tracking-wider text-stone-500">Email Address</h3>
+                        <h3 className="text-xs font-black uppercase tracking-wider text-stone-500">Email Addresses</h3>
                         <div className="flex flex-col gap-1">
-                          <a href="mailto:care@holidayshunt.com" className="text-base font-bold text-stone-900 hover:text-[#FF4B00] transition">
-                            care@holidayshunt.com
+                          <a href="mailto:holidayshunt@gmail.com" className="text-base font-bold text-stone-900 hover:text-[#FF4B00] transition">
+                            holidayshunt@gmail.com
+                          </a>
+                          <a href="mailto:info@holidayshunt.com" className="text-sm font-medium text-stone-600 hover:text-[#FF4B00] transition">
+                            info@holidayshunt.com
                           </a>
                         </div>
                       </div>
@@ -609,7 +612,7 @@ export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, on
                   <p className="text-xs text-stone-500 font-bold">Data Control Officer Contact:</p>
                   <p className="text-xs text-stone-700">
                     Should you have any questions about data deletion or our privacy practices, contact our officer directly at{" "}
-                    <a href="mailto:care@holidayshunt.com" className="text-[#FF4B00] font-bold hover:underline">care@holidayshunt.com</a>{" "}
+                    <a href="mailto:holidayshunt@gmail.com" className="text-[#FF4B00] font-bold hover:underline">holidayshunt@gmail.com</a>{" "}
                     or reach us via our helpline at <span className="font-bold text-stone-900">+91 94199 15255</span>.
                   </p>
                 </div>
@@ -647,7 +650,7 @@ export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, on
 
                 <div className="p-5 rounded-2xl bg-stone-100 border border-stone-200 text-center space-y-2">
                   <h3 className="text-sm font-bold text-stone-900">Want to share your experience?</h3>
-                  <p className="text-xs text-stone-600">Send your review or feedback directly to our support team at care@holidayshunt.com or call +91 94199 15255.</p>
+                  <p className="text-xs text-stone-600">Send your review or feedback directly to our support team at holidayshunt@gmail.com or call +91 94199 15255.</p>
                 </div>
               </div>
             )}
@@ -722,7 +725,7 @@ export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, on
                   </div>
                   <div className="pt-2 border-t border-stone-200/60 max-w-md mx-auto">
                     <p className="text-[11px] text-stone-500 leading-normal">
-                      We are always looking for outstanding minds! Proactively send your CV or profile to <a href="mailto:care@holidayshunt.com" className="font-bold text-[#FF4B00] hover:underline">care@holidayshunt.com</a>. We will store it securely and reach out to you first when a matching slot opens.
+                      We are always looking for outstanding minds! Proactively send your CV or profile to <a href="mailto:holidayshunt@gmail.com" className="font-bold text-[#FF4B00] hover:underline">holidayshunt@gmail.com</a>. We will store it securely and reach out to you first when a matching slot opens.
                     </p>
                   </div>
                 </div>
@@ -970,7 +973,7 @@ export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, on
                   <div className="p-5 rounded-2xl bg-stone-100 border border-stone-200 flex flex-col sm:flex-row items-center justify-between gap-3">
                     <div>
                       <p className="font-bold text-stone-900">24x7 Helpline: +91 94199 15255</p>
-                      <p className="text-xs text-stone-600">Email: care@holidayshunt.com</p>
+                      <p className="text-xs text-stone-600">Email: holidayshunt@gmail.com</p>
                     </div>
                     <a
                       href="tel:+919419915255"

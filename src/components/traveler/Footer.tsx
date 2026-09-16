@@ -237,10 +237,10 @@ export const Footer: React.FC<FooterProps> = ({ onSelectDestination, onSelectDha
             <div>
               <p className="text-sm font-medium text-stone-800">For Feedback & Enquiries</p>
               <a
-                href="mailto:care@holidayshunt.com"
+                href="mailto:holidayshunt@gmail.com"
                 className="text-sm font-bold text-stone-900 underline underline-offset-4 hover:text-stone-600 transition"
               >
-                care@holidayshunt.com
+                holidayshunt@gmail.com
               </a>
             </div>
           </div>

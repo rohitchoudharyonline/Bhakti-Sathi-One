@@ -84,7 +84,7 @@ export const PWAInstallButton: React.FC = () => {
                 Add Holidays Hunt to Home Screen
               </h3>
               <p className="text-[11px] text-stone-500 mt-1 font-medium leading-normal">
-                Access sacred darshans, tours, & Jap counter instantly in full-screen. Updates automatically!
+                Access tour itineraries, booking vouchers & travel assistance instantly in full-screen. Updates automatically!
               </p>
             </div>
           </div>

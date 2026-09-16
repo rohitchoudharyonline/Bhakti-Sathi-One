@@ -49,10 +49,20 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish, duration =
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.35, duration: 0.8 }}
-              className="mt-3 text-sm sm:text-base font-bold tracking-wide text-stone-700"
+              className="mt-3 text-xs sm:text-sm font-bold tracking-wide text-stone-700 max-w-sm"
             >
-              Your Travel partner
+              Your Gateway to Family, Honeymoon, Pilgrimage & Leisure Vacations
             </motion.p>
+
+            {/* Clean Progress Bar */}
+            <motion.div
+              initial={{ opacity: 0, width: 0 }}
+              animate={{ opacity: 1, width: '100%' }}
+              transition={{ delay: 0.4, duration: 2.5, ease: 'easeInOut' }}
+              className="w-48 h-1 bg-stone-100 rounded-full overflow-hidden mt-6"
+            >
+              <div className="h-full bg-gradient-to-r from-amber-500 to-[#FF4B00] animate-pulse" />
+            </motion.div>
 
             <motion.div
               initial={{ opacity: 0, y: 18, scale: 0.94 }}

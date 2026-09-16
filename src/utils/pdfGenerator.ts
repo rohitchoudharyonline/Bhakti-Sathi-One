@@ -84,7 +84,7 @@ function header(d:jsPDF,a:AgencySettings,label:string,p:number,logoData?:any){
   d.setFontSize(8.5);
   d.setTextColor(...MUTED);
   d.text(clean(a.agencyName||'Holidays Hunt'), 28, h-12);
-  const contactStr = [a.phone, 'care@holidayshunt.com', 'holidayshunt.com'].filter(Boolean).map(clean).join('  |  ');
+  const contactStr = [a.phone, 'holidayshunt@gmail.com', 'holidayshunt.com'].filter(Boolean).map(clean).join('  |  ');
   if (contactStr) {
     d.text(contactStr, w/2, h-12, {align:'center'});
   }
@@ -696,7 +696,7 @@ export async function generateInvoicePDF(inv:Invoice,a:AgencySettings):Promise<v
   d.setFont('helvetica', 'normal');
   d.setFontSize(7);
   d.setTextColor(...MUTED);
-  const footContact = `Phone: ${a.phone||''}  |  Email: care@holidayshunt.com  |  Website: holidayshunt.com`;
+  const footContact = `Phone: ${a.phone||''}  |  Email: holidayshunt@gmail.com  |  Website: holidayshunt.com`;
   d.text(footContact, margin, h - 12);
   d.text(`Generated: ${new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}`, w - margin, h - 12, { align: 'right' });
 
@@ -967,7 +967,7 @@ export async function generateVendorVoucherPDF(pay:VendorPayment,vendor:Vendor|u
   d.setFont('helvetica', 'normal');
   d.setFontSize(7);
   d.setTextColor(...MUTED);
-  const footContact = `Phone: ${a.phone||''}  |  Email: care@holidayshunt.com  |  Website: holidayshunt.com`;
+  const footContact = `Phone: ${a.phone||''}  |  Email: holidayshunt@gmail.com  |  Website: holidayshunt.com`;
   d.text(footContact, margin, h - 12);
   d.text(`Generated: ${new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}`, w - margin, h - 12, { align: 'right' });
 
@@ -1569,7 +1569,7 @@ export async function generateTourPDF(pkg:TourPackage,a:AgencySettings,onProgres
   d.setFont('helvetica', 'normal');
   d.setFontSize(9);
   d.setTextColor(...MUTED);
-  d.text(`Phone: ${clean(a.phone || '+91 94199 15255')}  |  Email: ${clean(a.email || 'care@holidayshunt.com')}`, w / 2, totalHeight - 26, { align: 'center' });
+  d.text(`Phone: ${clean(a.phone || '+91 94199 15255')}  |  Email: ${clean(a.email || 'holidayshunt@gmail.com')}`, w / 2, totalHeight - 26, { align: 'center' });
 
   const safeFilename = `HolidaysHunt_MobileBrochure_${clean(pkg.title).replace(/[^a-zA-Z0-9_-]/g, '')}.pdf`;
   d.save(safeFilename);

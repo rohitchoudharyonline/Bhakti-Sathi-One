@@ -278,18 +278,18 @@ export const LuxuryHomepage: React.FC = () => {
       type: 'domestic' as const,
       destinationType: d.destinationType || 'regular',
       name: d.displayName || d.name,
-      subtitle: d.tagline || `${d.name} Sacred Circuit`,
-      badge: (d as any).badge || `${(d as any).packagesCount || 6}+ YATRA PACKAGES`,
-      toursCount: (d as any).badge || `${(d as any).packagesCount || 6}+ YATRA PACKAGES`,
+      subtitle: d.tagline || `${d.name} Holiday Destinations`,
+      badge: (d as any).badge || `${(d as any).packagesCount || 6}+ TOUR PACKAGES`,
+      toursCount: (d as any).badge || `${(d as any).packagesCount || 6}+ TOUR PACKAGES`,
       country: d.state || 'India',
       tagline: d.tagline || '',
-      highlights: d.keyHighlights || (d.popularCities && d.popularCities.length > 0 ? d.popularCities.slice(0, 3) : ['Priority Darshan', 'Verified Stays', 'Private Chauffeur']),
-      keyPills: d.keyHighlights || (d.popularCities && d.popularCities.length > 0 ? d.popularCities.slice(0, 3) : ['Priority Darshan', 'Verified Stays', 'Private Chauffeur']),
-      featureTag: d.state || 'Sacred Pilgrimage',
-      featureDetail: 'Verified Stays • Priority Darshan Support',
+      highlights: d.keyHighlights || (d.popularCities && d.popularCities.length > 0 ? d.popularCities.slice(0, 3) : ['Verified Stays', 'Private Transfers', 'Sightseeing']),
+      keyPills: d.keyHighlights || (d.popularCities && d.popularCities.length > 0 ? d.popularCities.slice(0, 3) : ['Verified Stays', 'Private Transfers', 'Sightseeing']),
+      featureTag: d.state || 'Top Destination',
+      featureDetail: 'Verified Stays • Private Transfers',
       startingPrice: d.startingPrice || 6499,
       duration: d.guide?.idealDuration?.split('(')[0]?.trim() || '4 - 8 Days',
-      coverImage: d.heroImage || 'https://images.unsplash.com/photo-1598091383021-15ddea10925d?auto=format&fit=crop&w=1200&q=80',
+      coverImage: d.heroImage || '',
       filterKey: d.slug || d.id,
     }));
   }, [destinations]);
@@ -751,17 +751,12 @@ export const LuxuryHomepage: React.FC = () => {
           <div>
             <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-5 gap-2">
               <div>
-                <div className="flex items-center gap-2 mb-1.5">
-                  <span className="text-[10px] sm:text-xs font-extrabold uppercase tracking-widest text-[#FF4B00] bg-[#FF4B00]/10 px-2.5 py-0.5 rounded-full border border-[#FF4B00]/20">
-                    Sacred Pilgrimages
-                  </span>
-                </div>
                 <h2 className="text-2xl sm:text-3xl font-black text-stone-900 tracking-tight flex items-center gap-2">
-                  <span>Pavitra Teerth Sthal</span>
+                  <span>Destinations</span>
                   <span className="w-8 h-1 bg-[#FF4B00] rounded-full inline-block" />
                 </h2>
                 <p className="text-xs sm:text-sm text-stone-600 font-medium mt-1 leading-relaxed max-w-2xl">
-                  Divine darshans, revered Shaktipeeths & blessed yatra circuits with verified comfortable stays and priority assistance.
+                  Explore family holidays, honeymoon escapes, pilgrimage journeys and leisure tours across India and worldwide.
                 </p>
               </div>
             </div>
@@ -938,12 +933,12 @@ export const LuxuryHomepage: React.FC = () => {
                 <div className="flex items-center gap-2 mb-1">
                   <span className="text-[10px] sm:text-xs font-extrabold uppercase tracking-widest text-[#FF4B00] bg-[#FF4B00]/10 px-2.5 py-0.5 rounded-full border border-[#FF4B00]/20 inline-flex items-center gap-1">
                     <Landmark className="w-3 h-3" />
-                    <span>Holy Shrine & Temple</span>
+                    <span>Key Attractions</span>
                   </span>
-                  <span className="text-[11px] font-medium text-stone-400">Sacred Temples & Shrines</span>
+                  <span className="text-[11px] font-medium text-stone-400">Sightseeing & Shrines</span>
                 </div>
                 <h2 className="text-2xl sm:text-3xl font-black text-stone-900 tracking-tight flex items-center gap-2">
-                  <span>Pavitra Mandir & Dham</span>
+                  <span>Top Attractions & Shrines</span>
                   <span className="w-8 h-1 bg-[#FF4B00] rounded-full inline-block" />
                 </h2>
               </div>

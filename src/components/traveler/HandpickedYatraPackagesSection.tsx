@@ -522,14 +522,14 @@ export const HandpickedYatraPackagesSection: React.FC = () => {
   return (
     <CategoryToursCarouselSection
       id="pilgrimage-tours-section"
-      badgeLabel="Sacred & Divine Pilgrimages"
+      badgeLabel="Spiritual & Pilgrimage Journeys"
       heading="Pilgrimage Tours"
-      description="Curated sacred journeys with verified comfortable hotel stays, priority darshan guidance, and dedicated private transfers."
+      description="Curated pilgrimage journeys with verified comfortable hotel stays, darshan assistance, and dedicated private transfers."
       categoryFilter="Pilgrimage"
       viewAllCategoryName="Pilgrimage"
-      bgColor="bg-[#FAF2EA]"
-      borderColor="border-[#EADBCC]"
-      showGarland={true}
+      bgColor="bg-amber-50/40"
+      borderColor="border-amber-100"
+      showGarland={false}
     />
   );
 };

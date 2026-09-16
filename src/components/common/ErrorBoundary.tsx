@@ -57,7 +57,7 @@ export class ErrorBoundary extends React.Component<Props, State> {
               </h2>
               <p className="text-xs text-stone-600 mt-1.5 leading-relaxed">
                 {this.props.fallbackMessage ||
-                  'A temporary display issue occurred while rendering this page. You can reload or return to the main sacred pilgrimage portal.'}
+                  'A temporary display issue occurred while rendering this page. You can reload or return to the main portal.'}
               </p>
             </div>
             <div className="flex items-center justify-center gap-2.5 pt-2">

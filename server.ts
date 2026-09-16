@@ -1387,21 +1387,81 @@ function generateFallbackGuideSeo(title: string, destination: string, _category:
 }
 
 app.post('/api/generate-seo', publicApiRateLimit, requireCmsSession, async (req, res) => {
-  const title = cleanText(req.body?.title, 160);
-  const destination = cleanText(req.body?.destination, 120);
+  const title = cleanText(req.body?.title || req.body?.itemName, 160);
+  const destination = cleanText(req.body?.destination || title, 120);
   const tagline = cleanText(req.body?.tagline, 500);
   const overview = cleanText(req.body?.overview, 1500);
-  if (!title || !destination) return res.status(400).json({ error: 'Title and destination are required.' });
+  const entityType = cleanText(req.body?.type || 'tour', 50);
+
+  if (!title) return res.status(400).json({ error: 'Title is required for SEO generation.' });
+
+  const cleanSlug = title
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+
   try {
     if (process.env.GEMINI_API_KEY) {
       const ai = getAi();
-      const prompt = `Generate SEO metadata for this travel package. Do not invent facts.\nTitle: ${title}\nDestination: ${destination}\nTagline: ${tagline || 'N/A'}\nOverview: ${overview || 'N/A'}\nReturn JSON only. SEO title must be <=60 characters. Meta description must be <=160 characters.`;
-      const response = await ai.models.generateContent({ model: process.env.GEMINI_MODEL || 'gemini-3.8-flash', contents: prompt, config: { responseMimeType: 'application/json', responseSchema: { type: Type.OBJECT, properties: { seoTitle: { type: Type.STRING }, metaDescription: { type: Type.STRING } }, required: ['seoTitle', 'metaDescription'] } } });
+      const prompt = `Generate comprehensive SEO metadata for this travel ${entityType} page on Holidays Hunt portal. Do not invent fake facts.
+Title/Item Name: ${title}
+Destination: ${destination}
+Tagline: ${tagline || 'N/A'}
+Overview: ${overview || 'N/A'}
+
+Return JSON only with:
+- seoTitle (max 60 chars)
+- metaDescription (120-160 chars)
+- keywords (comma separated string)
+- slug (clean lowercase hyphenated)
+- ogTitle (OpenGraph title)
+- ogDescription (OpenGraph description)`;
+
+      const response = await ai.models.generateContent({
+        model: process.env.GEMINI_MODEL || 'gemini-3.8-flash',
+        contents: prompt,
+        config: {
+          responseMimeType: 'application/json',
+          responseSchema: {
+            type: Type.OBJECT,
+            properties: {
+              seoTitle: { type: Type.STRING },
+              metaDescription: { type: Type.STRING },
+              keywords: { type: Type.STRING },
+              slug: { type: Type.STRING },
+              ogTitle: { type: Type.STRING },
+              ogDescription: { type: Type.STRING },
+            },
+            required: ['seoTitle', 'metaDescription', 'keywords', 'slug', 'ogTitle', 'ogDescription'],
+          },
+        },
+      });
+
       const data = JSON.parse(response?.text || '{}');
-      if (typeof data.seoTitle === 'string' && typeof data.metaDescription === 'string') return res.json({ seoTitle: cleanText(data.seoTitle, 60), metaDescription: cleanText(data.metaDescription, 160) });
+      if (typeof data.seoTitle === 'string' && typeof data.metaDescription === 'string') {
+        return res.json({
+          seoTitle: cleanText(data.seoTitle, 60),
+          metaDescription: cleanText(data.metaDescription, 160),
+          keywords: cleanText(data.keywords || `${title}, holidays hunt, travel packages`, 300),
+          slug: (data.slug || cleanSlug).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''),
+          ogTitle: cleanText(data.ogTitle || data.seoTitle, 80),
+          ogDescription: cleanText(data.ogDescription || data.metaDescription, 200),
+        });
+      }
     }
-  } catch (error) { console.warn('SEO generation unavailable; using deterministic fallback:', error); }
-  return res.json(generateSmartFallbackSeo(title, destination, tagline, overview));
+  } catch (error) {
+    console.warn('Gemini SEO generation unavailable; using deterministic fallback:', error);
+  }
+
+  const fallback = generateFallbackGuideSeo(title, destination, entityType);
+  return res.json({
+    seoTitle: fallback.seoTitle,
+    metaDescription: fallback.metaDescription,
+    keywords: [fallback.primaryKeyword, ...fallback.secondaryKeywords, 'Holidays Hunt'].join(', '),
+    slug: fallback.suggestedSlug || cleanSlug,
+    ogTitle: fallback.seoTitle,
+    ogDescription: fallback.metaDescription,
+  });
 });
 
 app.post('/api/generate-guide-article', publicApiRateLimit, requireCmsSession, async (req, res) => {

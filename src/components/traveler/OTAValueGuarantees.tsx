@@ -29,9 +29,9 @@ export const OTAValueGuarantees: React.FC = () => {
     },
     {
       icon: Users,
-      title: 'Dedicated Yatra Pandit & Guide',
-      description: 'Experienced priests to guide you through sacred temple rituals, 22 teertham snan, and abhishek.',
-      badge: 'Ritual Assistance',
+      title: 'Local Tour Specialists & Concierge',
+      description: 'Experienced local guides to assist with sightseeing, itineraries, and seamless regional travel.',
+      badge: 'Tour Assistance',
     },
     {
       icon: ShieldCheck,

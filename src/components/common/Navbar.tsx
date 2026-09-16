@@ -283,7 +283,7 @@ export const Navbar: React.FC = () => {
               }}
               className="w-full text-left block py-2.5 px-3 rounded-lg text-xs font-bold text-amber-900 bg-amber-50 border border-amber-300"
             >
-              📿 Sacred 108 Jap Counter
+              📿 Daily Meditation & Jap Counter
             </button>
 
             <a
