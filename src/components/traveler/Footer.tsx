@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useTours } from '../../context/TourContext';
 import {
   Building2,
@@ -13,6 +13,7 @@ import {
   Youtube,
   Instagram,
   Linkedin,
+  Lock,
 } from 'lucide-react';
 
 const FacebookIcon: React.FC<{ className?: string }> = ({ className = "w-4 h-4" }) => (
@@ -66,7 +67,43 @@ export const Footer: React.FC<FooterProps> = ({ onSelectDestination, onSelectDha
     navigateToCustomPage,
     navigateToBlogHub,
     navigateToJapCounter,
+    submitInquiry,
   } = useTours();
+
+  const [newsletterEmail, setNewsletterEmail] = useState('');
+  const [newsletterName, setNewsletterName] = useState('');
+  const [newsletterPhone, setNewsletterPhone] = useState('');
+  const [showNewsletterModal, setShowNewsletterModal] = useState(false);
+  const [newsletterStatus, setNewsletterStatus] = useState<'idle' | 'loading' | 'success'>('idle');
+  const [cautionExpanded, setCautionExpanded] = useState(false);
+
+  const handleSubscribe = (e?: React.FormEvent) => {
+    e?.preventDefault();
+    if (!newsletterEmail || !newsletterName || !newsletterPhone) return;
+    setNewsletterStatus('loading');
+    setTimeout(() => {
+      submitInquiry({
+        packageId: 'newsletter-subscription',
+        packageTitle: 'Newsletter Subscription',
+        travelerName: newsletterName,
+        email: newsletterEmail,
+        phone: newsletterPhone,
+        travelDate: new Date().toISOString().split('T')[0],
+        adults: 1,
+        children: 0,
+        specialRequests: 'Subscribed to newsletter',
+        estimatedTotal: 0
+      });
+      setNewsletterStatus('success');
+      setTimeout(() => {
+        setNewsletterStatus('idle');
+        setShowNewsletterModal(false);
+        setNewsletterEmail('');
+        setNewsletterName('');
+        setNewsletterPhone('');
+      }, 2000);
+    }, 500);
+  };
 
   const handleShare = async () => {
     if (navigator.share) {
@@ -488,13 +525,128 @@ export const Footer: React.FC<FooterProps> = ({ onSelectDestination, onSelectDha
             )}
           </div>
 
+          <div className="pt-8 border-t border-slate-800">
+            {/* Subscription Section */}
+            <div className="flex flex-col items-center justify-center text-center pb-6">
+              <h4 className="text-slate-300 text-[13px] sm:text-sm mb-4">Subscribe for handpicked itineraries & travel inspiration.</h4>
+              <button 
+                onClick={() => setShowNewsletterModal(true)}
+                className="bg-[#FF4B00] hover:bg-[#E04200] text-white px-8 py-3 rounded-xl font-bold text-sm transition shrink-0"
+              >
+                Subscribe
+              </button>
+            </div>
+
+            <div className="w-full max-w-5xl mx-auto border-t border-slate-800/50 mb-6"></div>
+
+            {/* Recognised By Section */}
+            <div className="pb-8 w-full max-w-5xl mx-auto">
+              <div className="bg-[#1A222C] border border-slate-700/50 rounded-xl px-5 py-2.5 flex items-center justify-center gap-3 shadow-sm w-full">
+                <span className="text-slate-400 text-xs sm:text-sm font-medium whitespace-nowrap">Recognised By</span>
+                <div className="bg-white px-3 py-1.5 rounded-lg flex items-center justify-center">
+                   <img src="https://media.holidayshunt.com/uploads/2026/09/257811.webp" alt="Recognised by Ministry of Tourism" className="h-7 sm:h-9 w-auto object-contain" />
+                </div>
+              </div>
+            </div>
+
+            {/* Caution Section */}
+            <div className="bg-[#1A222C] w-full max-w-5xl mx-auto border border-slate-700/50 rounded-xl p-4 sm:p-5 mb-6 text-xs leading-relaxed text-slate-400">
+              <span className="text-slate-300 font-bold">*Caution: Beware of Fake Promotions or Offers </span> 
+              *Please do not believe or engage with any promotional emails, SMS or Web-link which ask you to click on a link and fill in your details. 
+              {!cautionExpanded ? (
+                <>
+                  <button onClick={() => setCautionExpanded(true)} className="text-white font-semibold underline hover:text-brand ml-1">Read more</button>
+                </>
+              ) : (
+                <>
+                  {" "}All Holidays Hunt authorized email communications are delivered from the domain @holidayshunt.com, our official Gmail holidayshunt@gmail.com, or WhatsApp/Call from 9419915255. Holidays Hunt bears no liability or responsibility whatsoever for any communication which is fraudulent or misleading in nature and not received from the above-mentioned channels.
+                  <button onClick={() => setCautionExpanded(false)} className="text-white font-semibold underline hover:text-brand block mt-2">Read less</button>
+                </>
+              )}
+            </div>
+          </div>
+
           {/* Bottom Copyright Strip */}
-          <div className="pt-6 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-slate-400">
-            <p>© 2026 Holidays Hunt, a brand name of Holidays Hunt Travel and Hospitality Pvt Ltd. All Rights Reserved.</p>
+          <div className="pt-4 pb-4 border-t border-slate-800 flex flex-col items-center justify-center text-center">
+            <div className="space-y-1.5 text-[10px] sm:text-[11px] text-slate-500">
+              <p>Corporate Identification no (CIN): U55101JK2022PTC013409</p>
+              <p>© 2013 - 26 Holidays Hunt Travel and Hospitality Pvt Ltd. All Rights Reserved</p>
+              <p className="flex items-center justify-center gap-1.5 mt-2">
+                <Lock className="w-3 h-3" /> Payments on website are secure
+              </p>
+            </div>
           </div>
 
         </div>
       </div>
+
+      {/* Newsletter Modal */}
+      {showNewsletterModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-white rounded-3xl w-full max-w-md shadow-2xl relative overflow-hidden flex flex-col max-h-[90vh]">
+            <div className="p-6 border-b border-gray-100 flex items-center justify-between sticky top-0 bg-white z-10">
+              <h3 className="text-xl font-bold text-gray-900">Subscribe to our Newsletter</h3>
+              <button 
+                onClick={() => setShowNewsletterModal(false)}
+                className="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-50 transition"
+              >
+                <XIcon className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="p-6 overflow-y-auto">
+              <form onSubmit={handleSubscribe} className="space-y-6">
+                <div>
+                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Full Name *</label>
+                  <input 
+                    type="text" 
+                    required
+                    value={newsletterName}
+                    onChange={(e) => setNewsletterName(e.target.value)}
+                    className="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand"
+                    placeholder="Enter your full name"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Email ID *</label>
+                  <input 
+                    type="email" 
+                    required
+                    value={newsletterEmail}
+                    onChange={(e) => setNewsletterEmail(e.target.value)}
+                    className="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand"
+                    placeholder="Enter your email address"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Mobile No. *</label>
+                  <div className="flex">
+                    <div className="border border-gray-300 border-r-0 rounded-l-xl px-3 py-3 bg-gray-50 flex items-center gap-1.5 shrink-0">
+                      <span className="text-lg leading-none">🇮🇳</span>
+                      <span className="text-sm font-medium text-gray-600">+91</span>
+                    </div>
+                    <input 
+                      type="tel" 
+                      required
+                      value={newsletterPhone}
+                      onChange={(e) => setNewsletterPhone(e.target.value)}
+                      className="flex-1 border border-gray-300 rounded-r-xl px-4 py-3 text-sm focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand"
+                      placeholder="Enter mobile number"
+                    />
+                  </div>
+                </div>
+                
+                <button 
+                  type="submit"
+                  disabled={newsletterStatus !== 'idle'}
+                  className="w-full bg-[#FF4B00] hover:bg-[#E04200] text-white py-3.5 rounded-xl font-bold text-sm transition disabled:opacity-70 mt-2 shadow-lg shadow-brand/20"
+                >
+                  {newsletterStatus === 'loading' ? 'Subscribing...' : newsletterStatus === 'success' ? 'Subscribed!' : 'Subscribe'}
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
     </footer>
   );
 };
