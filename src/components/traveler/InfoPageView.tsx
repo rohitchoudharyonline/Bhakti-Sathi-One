@@ -149,12 +149,12 @@ export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, on
                       <div>
                         <h3 className="text-xs font-black uppercase tracking-wider text-stone-500">Call or Whatsapp Hotline</h3>
                         <a 
-                          href="https://wa.me/919816001234" 
+                          href="https://wa.me/919419915255" 
                           target="_blank" 
                           rel="noreferrer" 
                           className="text-2xl font-black text-stone-900 hover:text-[#FF4B00] transition flex items-center gap-2"
                         >
-                          +91 9816001234
+                          +91 9419915255
                           <span className="text-[10px] font-black bg-emerald-500 text-white px-2 py-0.5 rounded-full uppercase tracking-wider">24x7 Support</span>
                         </a>
                       </div>

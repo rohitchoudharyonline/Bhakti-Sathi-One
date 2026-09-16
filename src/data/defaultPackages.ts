@@ -9,7 +9,7 @@ export const DEFAULT_BOTTOM_NAV_ITEMS: MobileBottomNavItem[] = [
 
 export const DEFAULT_AGENCY_SETTINGS: AgencySettings = {
   agencyName: 'Holidays Hunt',
-  tagline: "India's Premier Family, Honeymoon, Pilgrimage & International Tour Facilitator",
+  tagline: "Experts in Kashmir & Himachal Tours",
   email: 'info@holidayshunt.com',
   phone: '+91 94199 15255',
   whatsapp: '+919419915255',

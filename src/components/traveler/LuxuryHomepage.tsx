@@ -449,7 +449,7 @@ export const LuxuryHomepage: React.FC = () => {
               <div className="inline-flex items-center gap-2 p-1 rounded-xl bg-[#FFF0EB]/95 backdrop-blur-xs border border-[#FF4B00]/30 text-xs font-bold shrink-0 self-start md:self-auto shadow-2xs">
                 <span className="px-3 py-1.5 rounded-lg bg-[#FF4B00] text-white font-black inline-flex items-center gap-1.5 shadow-xs">
                   <ShieldCheck className="w-4 h-4 text-white" />
-                  India&apos;s Trusted Holiday &amp; Tour Facilitator
+                  Experts in Kashmir &amp; Himachal Tours
                 </span>
               </div>
             </div>
@@ -852,65 +852,13 @@ export const LuxuryHomepage: React.FC = () => {
                       {/* Brand Color Hover Overlay */}
                       <div className="absolute inset-0 bg-[#FF4B00]/0 group-hover:bg-[#FF4B00]/10 transition-colors duration-500 pointer-events-none z-10 mix-blend-overlay" />
 
-                      {/* Top Right High-CTR Interactive Icon & Optional Badge */}
-                      <div className="relative z-10 flex justify-between items-start pointer-events-none">
-                        <div className="flex flex-wrap gap-1.5 items-center">
-                          {loc.destinationType === 'temple' && (
-                            <span className="inline-flex items-center gap-1.5 bg-[#FF4B00]/90 backdrop-blur-md text-white px-3 py-1 rounded-full text-xs font-bold tracking-wide shadow-md border border-white/20">
-                              <Landmark className="w-3.5 h-3.5" />
-                              Temple Destination
-                            </span>
-                          )}
-                          <span className="text-[10px] font-bold text-amber-300 bg-black/60 px-2.5 py-1 rounded-full backdrop-blur-xs border border-white/10">
-                            {loc.duration}
-                          </span>
-                        </div>
-                        <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white group-hover:bg-[#FF4B00] group-hover:scale-110 transition-all duration-300 shadow-md">
-                          <Compass className="w-5 h-5 group-hover:rotate-45 transition-transform duration-500" />
-                        </div>
-                      </div>
-
-                      {/* Bottom Destination Name, Top Activities, & CTA Button */}
-                      <div className="relative z-10 text-white pointer-events-none flex flex-col justify-end gap-2">
-                        {/* Desktop Hover Revealed Top Activities & CTA */}
-                        <div className="hidden sm:flex flex-col gap-2 max-h-0 opacity-0 group-hover:max-h-48 group-hover:opacity-100 transition-all duration-300 overflow-hidden ease-out">
-                          {loc.tagline && (
-                            <p className="text-xs text-stone-200 line-clamp-2 leading-relaxed font-medium">
-                              {loc.tagline}
-                            </p>
-                          )}
-                          
-                          {/* Top Activities Chips */}
-                          <div className="flex flex-wrap gap-1.5 pt-0.5">
-                            {(loc.highlights || []).slice(0, 3).map((act, i) => (
-                              <span
-                                key={i}
-                                className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-200 bg-white/15 backdrop-blur-md px-2 py-0.5 rounded-md border border-white/20"
-                              >
-                                <Sparkles className="w-2.5 h-2.5 text-amber-300" />
-                                <span>{act}</span>
-                              </span>
-                            ))}
-                          </div>
-
-                          {/* Explore Details CTA Bar */}
-                          <div className="mt-1 inline-flex items-center justify-between w-full bg-[#FF4B00] text-white px-3.5 py-1.5 rounded-xl text-xs font-black shadow-md transition-colors">
-                            <span>Explore Details & Packages</span>
-                            <ArrowRight className="w-3.5 h-3.5" />
-                          </div>
-                        </div>
-
-                        {/* Default Footer Bar */}
-                        <div className="flex items-end justify-between gap-3 pt-1 border-t border-white/15 group-hover:border-transparent transition-colors">
-                          <div>
-                            <h3 className="text-xl sm:text-2xl font-black text-white group-hover:text-amber-200 transition-colors drop-shadow-md leading-tight tracking-tight">
-                              {loc.name}
-                            </h3>
-                            <p className="text-[11px] text-stone-300 group-hover:text-white font-medium transition-colors">
-                              {loc.country} • {loc.badge}
-                            </p>
-                          </div>
-                          <div className="w-9 h-9 rounded-full bg-stone-900/80 backdrop-blur-md border border-white/20 flex items-center justify-center text-amber-300 group-hover:translate-x-1 group-hover:bg-[#FF4B00] group-hover:text-white transition-all shrink-0 shadow-lg">
+                      {/* Bottom Destination Name & Brand-colored Arrow */}
+                      <div className="relative z-10 text-white pointer-events-none mt-auto">
+                        <div className="flex items-center justify-between gap-3 pt-2">
+                          <h3 className="text-xl sm:text-2xl font-black text-white group-hover:text-orange-200 transition-colors drop-shadow-md leading-tight tracking-tight">
+                            {loc.name}
+                          </h3>
+                          <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-[#FF4B00] group-hover:scale-110 transition-transform duration-300 shadow-md shrink-0">
                             <ArrowRight className="w-4 h-4" />
                           </div>
                         </div>

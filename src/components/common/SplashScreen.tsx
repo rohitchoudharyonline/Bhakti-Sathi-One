@@ -45,14 +45,14 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish, duration =
               <BrandLogo size="xl" />
             </motion.div>
 
-            <motion.p
+            <motion.h2
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.35, duration: 0.8 }}
-              className="mt-3 text-xs sm:text-sm font-bold tracking-wide text-stone-700 max-w-sm"
+              className="mt-4 text-lg sm:text-xl font-bold italic tracking-wide text-[#FF4B00] font-serif"
             >
-              Your Gateway to Family, Honeymoon, Pilgrimage & Leisure Vacations
-            </motion.p>
+              Curating Premium Holidays
+            </motion.h2>
 
             {/* Clean Progress Bar */}
             <motion.div
