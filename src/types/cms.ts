@@ -167,3 +167,14 @@ export interface PageSeoConfig {
   noFollow?: boolean;
   updatedAt: string;
 }
+
+export interface RedirectRule {
+  id: string;
+  fromPath: string;
+  toPath: string;
+  statusCode: 301 | 302;
+  hits: number;
+  lastAccessed?: string;
+  notes?: string;
+  createdAt: string;
+}

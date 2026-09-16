@@ -677,6 +677,24 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return DEFAULT_CUSTOM_PAGES.filter(p => !deletedIds.includes(p.id));
   });
 
+  // Helper to migrate legacy domain to holidayshunt.com
+  const sanitizePageSeoConfigs = (input: Record<string, PageSeoConfig>): Record<string, PageSeoConfig> => {
+    if (!input || typeof input !== 'object') return DEFAULT_PAGE_SEO_CONFIGS;
+    const result: Record<string, PageSeoConfig> = {};
+    for (const [k, v] of Object.entries(input)) {
+      if (!v) continue;
+      result[k] = {
+        ...v,
+        canonicalUrl: (v.canonicalUrl || '').replace(/https?:\/\/([^/]*\.)?mybhaktisathi\.com/gi, 'https://holidayshunt.com'),
+        metaTitle: (v.metaTitle || '').replace(/Bhakti\s*Sathi/gi, 'Holidays Hunt'),
+        metaDescription: (v.metaDescription || '').replace(/Bhakti\s*Sathi/gi, 'Holidays Hunt'),
+        ogTitle: (v.ogTitle || '').replace(/Bhakti\s*Sathi/gi, 'Holidays Hunt'),
+        ogDescription: (v.ogDescription || '').replace(/Bhakti\s*Sathi/gi, 'Holidays Hunt'),
+      };
+    }
+    return { ...DEFAULT_PAGE_SEO_CONFIGS, ...result };
+  };
+
   // 4.1. Website Pages SEO State (All Core Pages: Home, Tours, Destinations, Blog, FAQ, etc.)
   const [pageSeoConfigs, setPageSeoConfigs] = useState<Record<string, PageSeoConfig>>(() => {
     try {
@@ -684,7 +702,11 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (saved) {
         const parsed = JSON.parse(saved);
         if (parsed && typeof parsed === 'object') {
-          return { ...DEFAULT_PAGE_SEO_CONFIGS, ...parsed };
+          const sanitized = sanitizePageSeoConfigs(parsed);
+          try {
+            localStorage.setItem(STORAGE_KEYS.PAGE_SEO_CONFIGS, JSON.stringify(sanitized));
+          } catch {}
+          return sanitized;
         }
       }
     } catch {}
@@ -1863,7 +1885,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
           if (Array.isArray(parsed)) setCustomPages(parsed.filter((p: CustomPage) => !deletedPageIds.includes(p.id)));
         } else if (e.key === STORAGE_KEYS.PAGE_SEO_CONFIGS && e.newValue) {
           const parsed = JSON.parse(e.newValue);
-          if (parsed && typeof parsed === 'object') setPageSeoConfigs(parsed);
+          if (parsed && typeof parsed === 'object') setPageSeoConfigs(sanitizePageSeoConfigs(parsed));
         }
       } catch (err) {
         console.warn('Error syncing storage event:', err);
@@ -1924,7 +1946,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const s = localStorage.getItem(STORAGE_KEYS.PAGE_SEO_CONFIGS);
         if (s) {
           const parsed = JSON.parse(s);
-          if (parsed && typeof parsed === 'object') setPageSeoConfigs(parsed);
+          if (parsed && typeof parsed === 'object') setPageSeoConfigs(sanitizePageSeoConfigs(parsed));
         }
       } catch (err) {
         console.warn('Error applying synced content to state:', err);

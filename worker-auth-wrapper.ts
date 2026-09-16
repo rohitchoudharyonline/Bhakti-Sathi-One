@@ -146,9 +146,10 @@ async function googleLogin(request: Request, env: any) {
     const requestOrigin = new URL(request.url).origin;
     const allowedOrigins = new Set([
       requestOrigin,
+      'https://holidayshunt.com',
+      'https://www.holidayshunt.com',
       'https://mybhaktisathi.com',
       'https://www.mybhaktisathi.com',
-      'https://bhakti-sathi-one.mybhaktisathi.workers.dev',
     ]);
     if (!allowedOrigins.has(origin)) return json({ error: 'Invalid authentication origin.' }, 403, privateHeaders());
   }

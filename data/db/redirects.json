@@ -1,0 +1,156 @@
+[
+  {
+    "id": "redir-1",
+    "fromPath": "/vaishno-devi-helicopter-booking",
+    "toPath": "/tours/mata-vaishno-devi-darshan-helicopter",
+    "statusCode": 301,
+    "hits": 15,
+    "notes": "Preserve high-ranking Vaishno Devi helicopter booking queries",
+    "createdAt": "2026-09-15T00:00:00Z",
+    "lastAccessed": "2026-09-16T11:43:46.229Z"
+  },
+  {
+    "id": "redir-2",
+    "fromPath": "/vaishno-devi-helicopter.html",
+    "toPath": "/tours/mata-vaishno-devi-darshan-helicopter",
+    "statusCode": 301,
+    "hits": 28,
+    "notes": "Legacy HTML extension redirect for Vaishno Devi helicopter package",
+    "createdAt": "2026-09-15T00:00:00Z"
+  },
+  {
+    "id": "redir-3",
+    "fromPath": "/himachal-devi-darshan-tour",
+    "toPath": "/tours/himachal-devi-darshan-luxury",
+    "statusCode": 301,
+    "hits": 9,
+    "notes": "Transfer PageRank for Himachal 9 Devi Darshan search keywords",
+    "createdAt": "2026-09-15T00:00:00Z"
+  },
+  {
+    "id": "redir-4",
+    "fromPath": "/himachal-devi-darshan.html",
+    "toPath": "/tours/himachal-devi-darshan-luxury",
+    "statusCode": 301,
+    "hits": 19,
+    "notes": "Legacy HTML URL for Himachal Devi Darshan",
+    "createdAt": "2026-09-15T00:00:00Z"
+  },
+  {
+    "id": "redir-5",
+    "fromPath": "/kashmir-holiday-package",
+    "toPath": "/tours/kashmir-paradise-luxury-houseboat",
+    "statusCode": 301,
+    "hits": 33,
+    "notes": "Transfer high-traffic Kashmir family & honeymoon tour backlinks",
+    "createdAt": "2026-09-15T00:00:00Z"
+  },
+  {
+    "id": "redir-6",
+    "fromPath": "/kashmir-tour.html",
+    "toPath": "/tours/kashmir-paradise-luxury-houseboat",
+    "statusCode": 301,
+    "hits": 12,
+    "notes": "Legacy HTML URL for Kashmir tour",
+    "createdAt": "2026-09-15T00:00:00Z"
+  },
+  {
+    "id": "redir-7",
+    "fromPath": "/packages",
+    "toPath": "/tours",
+    "statusCode": 301,
+    "hits": 84,
+    "notes": "Direct legacy /packages directory to canonical /tours listing",
+    "createdAt": "2026-09-15T00:00:00Z"
+  },
+  {
+    "id": "redir-8",
+    "fromPath": "/package",
+    "toPath": "/tours",
+    "statusCode": 301,
+    "hits": 22,
+    "notes": "Redirect singular /package to canonical /tours",
+    "createdAt": "2026-09-15T00:00:00Z"
+  },
+  {
+    "id": "redir-9",
+    "fromPath": "/tour-packages",
+    "toPath": "/tours",
+    "statusCode": 301,
+    "hits": 45,
+    "notes": "Old WordPress taxonomy redirect to /tours",
+    "createdAt": "2026-09-15T00:00:00Z"
+  },
+  {
+    "id": "redir-10",
+    "fromPath": "/places",
+    "toPath": "/destinations",
+    "statusCode": 301,
+    "hits": 31,
+    "notes": "Map old places index to destinations explorer",
+    "createdAt": "2026-09-15T00:00:00Z"
+  },
+  {
+    "id": "redir-11",
+    "fromPath": "/destinations/jammu-kashmir",
+    "toPath": "/destination/jammu-kashmir",
+    "statusCode": 301,
+    "hits": 17,
+    "notes": "Plural to singular destination path normalization",
+    "createdAt": "2026-09-15T00:00:00Z"
+  },
+  {
+    "id": "redir-12",
+    "fromPath": "/destinations/himachal-devi-darshan",
+    "toPath": "/destination/himachal-devi-darshan",
+    "statusCode": 301,
+    "hits": 14,
+    "notes": "Plural to singular destination path normalization",
+    "createdAt": "2026-09-15T00:00:00Z"
+  },
+  {
+    "id": "redir-13",
+    "fromPath": "/blog",
+    "toPath": "/travel-blog",
+    "statusCode": 301,
+    "hits": 52,
+    "notes": "Redirect legacy /blog to Holidays Hunt travel blog",
+    "createdAt": "2026-09-15T00:00:00Z"
+  },
+  {
+    "id": "redir-14",
+    "fromPath": "/blogs",
+    "toPath": "/travel-blog",
+    "statusCode": 301,
+    "hits": 18,
+    "notes": "Redirect legacy /blogs to travel blog",
+    "createdAt": "2026-09-15T00:00:00Z"
+  },
+  {
+    "id": "redir-15",
+    "fromPath": "/contact",
+    "toPath": "/info/locate_us",
+    "statusCode": 301,
+    "hits": 26,
+    "notes": "Old contact URL to Locate Us & Support Desk",
+    "createdAt": "2026-09-15T00:00:00Z"
+  },
+  {
+    "id": "redir-16",
+    "fromPath": "/about",
+    "toPath": "/page/about-us",
+    "statusCode": 301,
+    "hits": 30,
+    "notes": "Old about page to Holidays Hunt About Us",
+    "createdAt": "2026-09-15T00:00:00Z"
+  },
+  {
+    "id": "redir-17",
+    "fromPath": "/faq",
+    "toPath": "/info/faq",
+    "statusCode": 301,
+    "hits": 15,
+    "notes": "Old FAQ link to canonical Help Center",
+    "createdAt": "2026-09-15T00:00:00Z"
+  }
+]

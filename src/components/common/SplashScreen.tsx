@@ -35,40 +35,44 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish, duration =
         >
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,75,0,0.04)_0%,transparent_75%)] pointer-events-none" />
 
-          <div className="relative z-10 flex flex-col items-center justify-center w-full max-w-md text-center">
+          <div 
+            onClick={finish}
+            className="relative z-10 flex flex-col items-center justify-center w-full max-w-md text-center cursor-pointer"
+          >
             <motion.div
-              initial={{ opacity: 0, scale: 0.86, y: -12 }}
+              initial={{ opacity: 0, scale: 0.9, y: -10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              transition={{ duration: 1.1, ease: [0.16, 1, 0.3, 1] }}
+              transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
               className="flex items-center justify-center"
             >
               <BrandLogo size="xl" />
             </motion.div>
 
             <motion.h2
-              initial={{ opacity: 0, y: 8 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.35, duration: 0.8 }}
-              className="mt-4 text-lg sm:text-xl font-bold italic tracking-wide text-[#FF4B00] font-serif"
+              transition={{ delay: 0.3, duration: 0.8 }}
+              className="mt-5 text-xl sm:text-2xl font-serif italic font-semibold text-[#FF4B00] tracking-wide"
             >
               Curating Premium Holidays
             </motion.h2>
 
-            {/* Clean Progress Bar */}
+            {/* Clean Progress Indicator Bar */}
             <motion.div
               initial={{ opacity: 0, width: 0 }}
               animate={{ opacity: 1, width: '100%' }}
-              transition={{ delay: 0.4, duration: 2.5, ease: 'easeInOut' }}
-              className="w-48 h-1 bg-stone-100 rounded-full overflow-hidden mt-6"
+              transition={{ delay: 0.35, duration: 2.2, ease: 'easeInOut' }}
+              className="w-40 h-0.5 bg-stone-100 rounded-full overflow-hidden mt-5"
             >
               <div className="h-full bg-gradient-to-r from-amber-500 to-[#FF4B00] animate-pulse" />
             </motion.div>
 
+            {/* Shikara Illustration */}
             <motion.div
-              initial={{ opacity: 0, y: 18, scale: 0.94 }}
+              initial={{ opacity: 0, y: 16, scale: 0.96 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              transition={{ delay: 0.55, duration: 1.1, ease: [0.16, 1, 0.3, 1] }}
-              className="relative mt-8 w-72 sm:w-80 h-44 sm:h-52"
+              transition={{ delay: 0.5, duration: 1.0, ease: [0.16, 1, 0.3, 1] }}
+              className="relative mt-6 w-72 sm:w-80 h-40 sm:h-48"
             >
               <svg viewBox="0 0 400 240" className="w-full h-full" fill="none" strokeLinecap="round" strokeLinejoin="round" aria-label="Kashmir Shikara ride on Dal Lake">
                 <path d="M28 142 L92 78 L148 132 L205 62 L264 132 L320 82 L372 142" stroke="#D4D4D8" strokeWidth="2" />
@@ -88,17 +92,6 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish, duration =
                 <path d="M351 190 Q344 195 349 202 Q357 205 357 196 Z" fill="#FF4B00" stroke="#FF4B00" strokeWidth="1.5" />
               </svg>
             </motion.div>
-
-            <motion.button
-              type="button"
-              onClick={finish}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1.3, duration: 0.8 }}
-              className="mt-4 text-[10px] font-extrabold text-stone-400 uppercase tracking-[0.3em] hover:text-stone-700 transition-colors"
-            >
-              Tap to enter
-            </motion.button>
           </div>
         </motion.div>
       )}

@@ -1,32 +1,47 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useTours } from '../../context/TourContext';
 import {
   Search,
-  Save,
-  Edit3,
-  X,
   Globe,
   Tag,
   CheckCircle2,
   AlertTriangle,
-  XCircle,
-  Share2,
   Sparkles,
-  FileText,
-  Layers,
-  Layout,
   ExternalLink,
-  Shield,
+  ShieldCheck,
   Eye,
   Check,
-  Image as ImageIcon,
+  Compass,
+  Shuffle,
+  RefreshCw,
+  FolderTree,
+  Filter,
+  CheckCheck,
 } from 'lucide-react';
-import { UniversalImageUploader } from './UniversalImageUploader';
+import { TourPackage } from '../../types/tour';
+import { DestinationMeta } from '../../data/destinationsData';
 import { GuideArticle } from '../../types/guide';
 import { CustomPage, PageSeoConfig } from '../../types/cms';
+import { UnifiedSEOModal, UnifiedSeoItem } from './UnifiedSEOModal';
+import { RedirectsManager } from './RedirectsManager';
+
+type ContentSection =
+  | 'all'
+  | 'tours'
+  | 'site-pages'
+  | 'destinations'
+  | 'guides'
+  | 'custom-pages'
+  | 'redirects';
+
+type TourTypeFilter = 'all' | 'Family' | 'Honeymoon' | 'Pilgrimage' | 'Group' | 'Other';
 
 export const SEOManager: React.FC = () => {
   const {
+    packages,
+    updatePackage,
+    destinations,
+    updateDestination,
     guides,
     updateGuide,
     customPages,
@@ -35,1528 +50,706 @@ export const SEOManager: React.FC = () => {
     updatePageSeoConfig,
   } = useTours();
 
+  const [activeSection, setActiveSection] = useState<ContentSection>('all');
+  const [tourTypeFilter, setTourTypeFilter] = useState<TourTypeFilter>('all');
   const [searchTerm, setSearchTerm] = useState('');
-  const [contentType, setContentType] = useState<'all' | 'site-pages' | 'custom-pages' | 'posts'>('all');
-  const [saveSuccessNotice, setSaveSuccessNotice] = useState<string | null>(null);
+  const [scoreFilter, setScoreFilter] = useState<'all' | 'needs-work' | 'good' | 'optimal'>('all');
+  const [notice, setNotice] = useState<string | null>(null);
 
-  const [editingSitePage, setEditingSitePage] = useState<PageSeoConfig | null>(null);
-  const [editingGuide, setEditingGuide] = useState<GuideArticle | null>(null);
-  const [editingCustomPage, setEditingCustomPage] = useState<CustomPage | null>(null);
+  // Unified modal state
+  const [selectedItem, setSelectedItem] = useState<UnifiedSeoItem | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const sitePageList: PageSeoConfig[] = Object.values(pageSeoConfigs || {});
+  // Normalized list of site pages
+  const sitePageList: PageSeoConfig[] = useMemo(() => {
+    return Object.values(pageSeoConfigs || {}).map((sp) => ({
+      ...sp,
+      canonicalUrl: (sp.canonicalUrl || '').replace(
+        /https?:\/\/([^/]*\.)?mybhaktisathi\.com/gi,
+        'https://holidayshunt.com'
+      ),
+      metaTitle: (sp.metaTitle || '').replace(/Bhakti\s*Sathi/gi, 'Holidays Hunt'),
+      metaDescription: (sp.metaDescription || '').replace(/Bhakti\s*Sathi/gi, 'Holidays Hunt'),
+    }));
+  }, [pageSeoConfigs]);
 
-  // Filter items
-  const filteredSitePages = sitePageList.filter(
-    (sp) =>
-      sp.pageName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      sp.path.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      sp.focusKeyword?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      sp.metaTitle?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Normalized list of destinations
+  const destinationList = useMemo(() => {
+    return Object.entries(destinations || {}).map(([slug, meta]) => ({
+      slug,
+      meta,
+    }));
+  }, [destinations]);
 
-  const filteredGuides = guides.filter(
-    (g) =>
-      g.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      g.slug.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      g.seo?.primaryKeyword?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Convert everything into a unified array for instant searching & auditing
+  const allUnifiedItems: UnifiedSeoItem[] = useMemo(() => {
+    const items: UnifiedSeoItem[] = [];
 
-  const filteredCustomPages = customPages.filter(
-    (p) =>
-      p.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      p.slug.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      p.seo?.focusKeyword?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+    // 1. Tour Packages
+    packages.forEach((pkg) => {
+      const canonical = `https://holidayshunt.com/tours/${pkg.slug || pkg.id}`;
+      items.push({
+        id: pkg.id,
+        itemType: 'tour',
+        name: pkg.title,
+        slug: pkg.slug || pkg.id,
+        path: `/tours/${pkg.slug || pkg.id}`,
+        canonicalUrl: canonical,
+        focusKeyword: pkg.seoKeywords?.split(',')[0]?.trim() || `${pkg.title.toLowerCase()} tour`,
+        metaTitle: pkg.seoMetaTitle || pkg.seoTitle || `${pkg.title} | Holidays Hunt`,
+        metaDescription:
+          pkg.seoMetaDescription ||
+          pkg.metaDescription ||
+          pkg.tagline ||
+          `Book ${pkg.title} with Holidays Hunt. Premium stays, private transfers, and curated itineraries.`,
+        tourType: pkg.tourType || pkg.category || 'Family',
+        destination: pkg.destination,
+        tagline: pkg.tagline,
+        overview: pkg.overview,
+      });
+    });
 
-  // SEO Score & Audit helper for Rank Math
-  const calculateSeoAudit = (
-    title: string,
-    seoTitle?: string,
-    metaDescription?: string,
-    primaryKeyword?: string
-  ) => {
-    const activeTitle = seoTitle || title || '';
-    const activeDesc = metaDescription || '';
-    const kw = (primaryKeyword || '').toLowerCase().trim();
+    // 2. Core Site Pages
+    sitePageList.forEach((sp) => {
+      items.push({
+        id: sp.id,
+        itemType: 'page',
+        name: sp.pageName,
+        path: sp.path,
+        canonicalUrl: sp.canonicalUrl || `https://holidayshunt.com${sp.path}`,
+        focusKeyword: sp.focusKeyword || '',
+        metaTitle: sp.metaTitle || `${sp.pageName} | Holidays Hunt`,
+        metaDescription: sp.metaDescription || '',
+        ogTitle: sp.ogTitle,
+        ogDescription: sp.ogDescription,
+        ogImage: sp.ogImage,
+        noIndex: sp.noIndex,
+        noFollow: sp.noFollow,
+      });
+    });
 
-    const checks = [
-      {
-        id: 'title_len',
-        label: 'SEO Title Length (40 - 65 chars)',
-        status: activeTitle.length >= 35 && activeTitle.length <= 65 ? 'pass' : activeTitle.length > 0 ? 'warn' : 'fail',
-        message: activeTitle ? `${activeTitle.length} characters` : 'Title is missing',
-      },
-      {
-        id: 'desc_len',
-        label: 'Meta Description Length (110 - 165 chars)',
-        status: activeDesc.length >= 110 && activeDesc.length <= 165 ? 'pass' : activeDesc.length > 0 ? 'warn' : 'fail',
-        message: activeDesc ? `${activeDesc.length} characters` : 'Description is missing',
-      },
-      {
-        id: 'kw_present',
-        label: 'Focus Keyword Defined',
-        status: kw.length > 0 ? 'pass' : 'fail',
-        message: kw ? `"${kw}"` : 'No focus keyword set',
-      },
-      {
-        id: 'kw_in_title',
-        label: 'Focus Keyword in SEO Title',
-        status: kw && activeTitle.toLowerCase().includes(kw) ? 'pass' : kw ? 'fail' : 'warn',
-        message: kw && activeTitle.toLowerCase().includes(kw) ? 'Keyword found in title' : 'Keyword not found in title',
-      },
-      {
-        id: 'kw_in_desc',
-        label: 'Focus Keyword in Meta Description',
-        status: kw && activeDesc.toLowerCase().includes(kw) ? 'pass' : kw ? 'fail' : 'warn',
-        message: kw && activeDesc.toLowerCase().includes(kw) ? 'Keyword found in meta description' : 'Keyword missing from meta description',
-      },
-    ];
+    // 3. Destinations
+    destinationList.forEach(({ slug, meta }) => {
+      const canonical = `https://holidayshunt.com/destination/${slug}`;
+      items.push({
+        id: slug,
+        itemType: 'destination',
+        name: meta.name || slug,
+        slug,
+        path: `/destination/${slug}`,
+        canonicalUrl: canonical,
+        focusKeyword: meta.seoKeywords?.split(',')[0]?.trim() || `${meta.name || slug} tourism`,
+        metaTitle: meta.seoMetaTitle || `${meta.name || slug} Tour Packages & Travel Guide | Holidays Hunt`,
+        metaDescription:
+          meta.seoMetaDescription ||
+          meta.tagline ||
+          `Explore ${meta.name || slug} with customized holiday packages by Holidays Hunt. Best hotels, cabs, and sightseeing.`,
+        destination: meta.name || slug,
+        tagline: meta.tagline,
+        overview: meta.guide?.overview || meta.tagline,
+      });
+    });
 
-    const passCount = checks.filter((c) => c.status === 'pass').length;
-    const score = Math.round((passCount / checks.length) * 100);
+    // 4. Guides & Blog Posts
+    guides.forEach((g) => {
+      const canonical = `https://holidayshunt.com/guide/${g.slug || g.id}`;
+      items.push({
+        id: g.id,
+        itemType: 'guide',
+        name: g.title,
+        slug: g.slug || g.id,
+        path: `/guide/${g.slug || g.id}`,
+        canonicalUrl: canonical,
+        focusKeyword: g.seo?.primaryKeyword || g.destination,
+        metaTitle: g.seo?.metaTitle || `${g.title} | Holidays Hunt Guide`,
+        metaDescription: g.seo?.metaDescription || g.excerpt || '',
+        destination: g.destination,
+        overview: g.excerpt,
+      });
+    });
 
-    return { score, checks };
+    // 5. Custom CMS Pages
+    customPages.forEach((cp) => {
+      const canonical = `https://holidayshunt.com/page/${cp.slug || cp.id}`;
+      items.push({
+        id: cp.id,
+        itemType: 'custom-page',
+        name: cp.title,
+        slug: cp.slug || cp.id,
+        path: `/page/${cp.slug || cp.id}`,
+        canonicalUrl: canonical,
+        focusKeyword: cp.seo?.focusKeyword || cp.title.toLowerCase(),
+        metaTitle: cp.seo?.metaTitle || `${cp.title} | Holidays Hunt`,
+        metaDescription: cp.seo?.metaDescription || cp.subtitle || '',
+        overview: cp.subtitle,
+      });
+    });
+
+    return items;
+  }, [packages, sitePageList, destinationList, guides, customPages]);
+
+  // Calculate SEO Health Score helper
+  const getItemScore = (item: UnifiedSeoItem) => {
+    let score = 0;
+    const title = item.metaTitle || '';
+    const desc = item.metaDescription || '';
+    const kw = item.focusKeyword || '';
+
+    if (title.length >= 35 && title.length <= 65) score += 35;
+    else if (title.length > 0) score += 15;
+
+    if (desc.length >= 110 && desc.length <= 165) score += 35;
+    else if (desc.length > 0) score += 15;
+
+    if (kw.trim().length > 0) score += 15;
+    if (kw.trim().length > 0 && title.toLowerCase().includes(kw.toLowerCase())) score += 15;
+
+    return Math.min(100, score);
   };
 
-  const handleSaveSitePageSeo = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (editingSitePage) {
-      updatePageSeoConfig(editingSitePage);
-      setSaveSuccessNotice(`SEO settings for "${editingSitePage.pageName}" saved successfully!`);
-      setTimeout(() => setSaveSuccessNotice(null), 4000);
-      setEditingSitePage(null);
+  // Filter items by Section, Search, Tour Type, and Score
+  const filteredItems = useMemo(() => {
+    return allUnifiedItems.filter((item) => {
+      // Section Filter
+      if (activeSection === 'tours' && item.itemType !== 'tour') return false;
+      if (activeSection === 'site-pages' && item.itemType !== 'page') return false;
+      if (activeSection === 'destinations' && item.itemType !== 'destination') return false;
+      if (activeSection === 'guides' && item.itemType !== 'guide') return false;
+      if (activeSection === 'custom-pages' && item.itemType !== 'custom-page') return false;
+
+      // Tour Type Filter (applies to tours or when viewing all)
+      if (tourTypeFilter !== 'all') {
+        if (item.itemType === 'tour') {
+          const tType = (item.tourType || '').toLowerCase();
+          if (tourTypeFilter === 'Other') {
+            if (['family', 'honeymoon', 'pilgrimage', 'group'].includes(tType)) return false;
+          } else if (!tType.includes(tourTypeFilter.toLowerCase())) {
+            return false;
+          }
+        } else if (activeSection === 'tours') {
+          return false;
+        }
+      }
+
+      // Search Filter
+      if (searchTerm.trim()) {
+        const query = searchTerm.toLowerCase();
+        const matches =
+          item.name.toLowerCase().includes(query) ||
+          item.path?.toLowerCase().includes(query) ||
+          item.canonicalUrl?.toLowerCase().includes(query) ||
+          item.focusKeyword?.toLowerCase().includes(query) ||
+          item.tourType?.toLowerCase().includes(query) ||
+          item.destination?.toLowerCase().includes(query);
+        if (!matches) return false;
+      }
+
+      // Score Filter
+      const score = getItemScore(item);
+      if (scoreFilter === 'needs-work' && score >= 60) return false;
+      if (scoreFilter === 'good' && (score < 60 || score >= 80)) return false;
+      if (scoreFilter === 'optimal' && score < 80) return false;
+
+      return true;
+    });
+  }, [allUnifiedItems, activeSection, tourTypeFilter, searchTerm, scoreFilter]);
+
+  // 1-Click Normalize all domains to holidayshunt.com
+  const handleNormalizeAllDomains = () => {
+    let count = 0;
+
+    // 1. Normalize pageSeoConfigs
+    const updatedSeo: Record<string, PageSeoConfig> = {};
+    Object.entries(pageSeoConfigs || {}).forEach(([k, sp]) => {
+      const fixedCanonical = (sp.canonicalUrl || `https://holidayshunt.com${sp.path}`).replace(
+        /https?:\/\/([^/]*\.)?mybhaktisathi\.com/gi,
+        'https://holidayshunt.com'
+      );
+      const fixedTitle = (sp.metaTitle || '').replace(/Bhakti\s*Sathi/gi, 'Holidays Hunt');
+      const fixedDesc = (sp.metaDescription || '').replace(/Bhakti\s*Sathi/gi, 'Holidays Hunt');
+      updatedSeo[k] = {
+        ...sp,
+        canonicalUrl: fixedCanonical,
+        metaTitle: fixedTitle,
+        metaDescription: fixedDesc,
+      };
+      updatePageSeoConfig(updatedSeo[k]);
+      count++;
+    });
+
+    setNotice(
+      `✓ Successfully audited and normalized ${count} pages to canonical domain https://holidayshunt.com!`
+    );
+    setTimeout(() => setNotice(null), 5000);
+  };
+
+  // Handle Save from UnifiedSEOModal
+  const handleSaveItem = (updated: UnifiedSeoItem) => {
+    if (updated.itemType === 'tour') {
+      const existing = packages.find((p) => p.id === updated.id);
+      if (existing) {
+        updatePackage({
+          ...existing,
+          title: updated.name,
+          tourType: updated.tourType as any,
+          category: (updated.tourType as any) || existing.category,
+          seoMetaTitle: updated.metaTitle,
+          seoMetaDescription: updated.metaDescription,
+          seoKeywords: updated.focusKeyword,
+          seoTitle: updated.metaTitle,
+          metaDescription: updated.metaDescription,
+        });
+      }
+    } else if (updated.itemType === 'page') {
+      const existing = pageSeoConfigs[updated.id];
+      if (existing) {
+        updatePageSeoConfig({
+          ...existing,
+          metaTitle: updated.metaTitle || existing.metaTitle,
+          metaDescription: updated.metaDescription || existing.metaDescription,
+          focusKeyword: updated.focusKeyword || existing.focusKeyword,
+          canonicalUrl: updated.canonicalUrl || existing.canonicalUrl,
+          ogTitle: updated.ogTitle,
+          ogDescription: updated.ogDescription,
+          ogImage: updated.ogImage,
+          noIndex: updated.noIndex,
+          noFollow: updated.noFollow,
+          updatedAt: new Date().toISOString(),
+        });
+      }
+    } else if (updated.itemType === 'destination') {
+      const existing = destinations[updated.id];
+      if (existing) {
+        updateDestination({
+          ...existing,
+          seoMetaTitle: updated.metaTitle,
+          seoMetaDescription: updated.metaDescription,
+          seoKeywords: updated.focusKeyword,
+        });
+      }
+    } else if (updated.itemType === 'guide') {
+      const existing = guides.find((g) => g.id === updated.id);
+      if (existing) {
+        updateGuide({
+          ...existing,
+          seo: {
+            ...existing.seo,
+            metaTitle: updated.metaTitle || '',
+            metaDescription: updated.metaDescription || '',
+            primaryKeyword: updated.focusKeyword || '',
+          },
+        });
+      }
+    } else if (updated.itemType === 'custom-page') {
+      const existing = customPages.find((p) => p.id === updated.id);
+      if (existing) {
+        updateCustomPage({
+          ...existing,
+          seo: {
+            focusKeyword: updated.focusKeyword || '',
+            metaTitle: updated.metaTitle || '',
+            metaDescription: updated.metaDescription || '',
+            ogImage: existing.seo?.ogImage,
+          },
+        });
+      }
     }
+
+    setNotice(`✓ Saved SEO metadata for "${updated.name}"`);
+    setTimeout(() => setNotice(null), 4000);
   };
 
-  const handleSaveGuideSeo = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (editingGuide) {
-      updateGuide(editingGuide);
-      setSaveSuccessNotice(`SEO settings for post "${editingGuide.title}" saved successfully!`);
-      setTimeout(() => setSaveSuccessNotice(null), 4000);
-      setEditingGuide(null);
-    }
-  };
-
-  const handleSaveCustomPageSeo = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (editingCustomPage) {
-      updateCustomPage(editingCustomPage);
-      setSaveSuccessNotice(`SEO settings for page "${editingCustomPage.title}" saved successfully!`);
-      setTimeout(() => setSaveSuccessNotice(null), 4000);
-      setEditingCustomPage(null);
-    }
-  };
-
-  // 1. EDITING A WEBSITE CORE PAGE SEO (Homepage, Tours, Destinations, Blog, FAQ, etc.)
-  if (editingSitePage) {
-    const audit = calculateSeoAudit(
-      editingSitePage.pageName,
-      editingSitePage.metaTitle,
-      editingSitePage.metaDescription,
-      editingSitePage.focusKeyword
-    );
-
-    const displaySlug = editingSitePage.path === '/' ? '' : editingSitePage.path.replace(/^\//, '');
-
-    return (
-      <div className="space-y-6">
-        <div className="flex items-center justify-between border-b border-stone-200 pb-4 gap-4">
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="p-1.5 bg-[#FF4B00]/10 text-[#FF4B00] rounded-lg">
-                <Globe className="w-5 h-5" />
-              </span>
-              <h2 className="text-xl sm:text-2xl font-black text-stone-900">Rank Math SEO Editor</h2>
-            </div>
-            <p className="text-stone-500 text-xs sm:text-sm mt-1 flex items-center gap-2 flex-wrap">
-              Editing: <span className="font-bold text-stone-900">{editingSitePage.pageName}</span>
-              <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] font-bold">
-                Core Website Page
-              </span>
-              <span className="text-stone-400 font-mono text-xs">{editingSitePage.canonicalUrl}</span>
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={() => setEditingSitePage(null)}
-            className="p-2 text-stone-400 hover:text-stone-900 transition rounded-xl hover:bg-stone-100 cursor-pointer"
-          >
-            <X className="w-6 h-6" />
-          </button>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Main Form Fields */}
-          <form onSubmit={handleSaveSitePageSeo} className="lg:col-span-2 bg-white rounded-2xl border border-stone-200 p-4 sm:p-6 space-y-6 shadow-2xs">
-            {/* Previews: Google Search & Social Share */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Google Search Result Preview */}
-              <div>
-                <h3 className="text-xs sm:text-sm font-bold text-stone-900 mb-2 flex items-center gap-2">
-                  <Globe className="w-4 h-4 text-emerald-600" />
-                  Google Search Snippet Preview
-                </h3>
-                <div className="p-3.5 bg-stone-50 rounded-xl border border-stone-200 font-sans space-y-1 h-[140px] flex flex-col justify-center overflow-hidden">
-                  <div className="text-[11px] text-stone-500 flex flex-wrap items-center gap-1 break-all">
-                    <span className="font-semibold text-stone-700">https://holidayshunt.com</span>
-                    {displaySlug && (
-                      <>
-                        <span>›</span>
-                        <span className="font-semibold text-stone-600">{displaySlug}</span>
-                      </>
-                    )}
-                  </div>
-                  <div className="text-[#1a0dab] text-sm sm:text-base font-medium cursor-pointer hover:underline line-clamp-2 leading-tight">
-                    {editingSitePage.metaTitle || editingSitePage.pageName}
-                  </div>
-                  <div className="text-[#4d5156] text-xs line-clamp-2 leading-relaxed">
-                    {editingSitePage.metaDescription || 'No meta description set. Search engines will automatically extract a snippet from your page body.'}
-                  </div>
-                </div>
-              </div>
-
-              {/* Social Share Card Preview (WhatsApp, Facebook, Twitter) */}
-              <div>
-                <h3 className="text-xs sm:text-sm font-bold text-stone-900 mb-2 flex items-center gap-2">
-                  <Share2 className="w-4 h-4 text-sky-600" />
-                  WhatsApp & Social Share Preview
-                </h3>
-                <div className="bg-stone-50 rounded-xl border border-stone-200 overflow-hidden font-sans flex h-[140px]">
-                  <div className="w-36 bg-stone-200 shrink-0 relative overflow-hidden flex items-center justify-center">
-                    {editingSitePage.ogImage ? (
-                      <img
-                        src={editingSitePage.ogImage}
-                        alt="OG Preview"
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="p-2 text-center text-stone-400">
-                        <ImageIcon className="w-6 h-6 mx-auto mb-1 opacity-50" />
-                        <span className="text-[9px] block font-semibold leading-tight">No Pic Uploaded</span>
-                      </div>
-                    )}
-                  </div>
-                  <div className="p-2.5 bg-white flex-1 flex flex-col justify-between overflow-hidden border-l border-stone-200">
-                    <div>
-                      <div className="text-[9px] font-bold uppercase tracking-wider text-stone-400">HOLIDAYSHUNT.COM</div>
-                      <div className="text-xs font-bold text-stone-900 line-clamp-2 leading-tight mt-0.5">
-                        {editingSitePage.metaTitle || editingSitePage.pageName}
-                      </div>
-                      <div className="text-[10px] text-stone-500 line-clamp-2 leading-tight mt-1">
-                        {editingSitePage.metaDescription || 'Holidays Hunt spiritual pilgrimage tours.'}
-                      </div>
-                    </div>
-                    <div className="text-[9px] text-emerald-600 font-medium flex items-center gap-1">
-                      <CheckCircle2 className="w-3 h-3" />
-                      <span>OG Metadata Active</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Inputs */}
-            <div className="space-y-4">
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1">
-                  Focus Keyword (Primary Ranking Keyword)
-                </label>
-                <input
-                  type="text"
-                  value={editingSitePage.focusKeyword || ''}
-                  onChange={(e) =>
-                    setEditingSitePage({
-                      ...editingSitePage,
-                      focusKeyword: e.target.value,
-                    })
-                  }
-                  className="w-full px-3.5 py-2.5 border border-stone-200 rounded-xl text-sm outline-none focus:border-[#FF4B00]"
-                  placeholder="e.g. Pilgrimage & Yatra Packages, Katra Vaishno Devi Tour..."
-                />
-                <p className="text-[11px] text-stone-400 mt-1">
-                  The primary search term you want this page to rank for on Google, Bing, and search engines.
-                </p>
-              </div>
-
-              <div>
-                <div className="flex justify-between items-center mb-1">
-                  <label className="block text-xs font-bold uppercase tracking-wider text-stone-700">
-                    SEO Meta Title
-                  </label>
-                  <span className={`text-xs font-bold ${editingSitePage.metaTitle.length > 65 ? 'text-amber-600' : 'text-stone-400'}`}>
-                    {editingSitePage.metaTitle.length} / 65
-                  </span>
-                </div>
-                <input
-                  type="text"
-                  value={editingSitePage.metaTitle || ''}
-                  onChange={(e) =>
-                    setEditingSitePage({
-                      ...editingSitePage,
-                      metaTitle: e.target.value,
-                    })
-                  }
-                  className="w-full px-3.5 py-2.5 border border-stone-200 rounded-xl text-sm outline-none focus:border-[#FF4B00]"
-                  placeholder="Page title displayed in search engine results..."
-                />
-                <p className="text-[11px] text-stone-400 mt-1">
-                  Recommended: 40-60 characters. Keep it under 65 to avoid truncation on mobile screens.
-                </p>
-              </div>
-
-              <div>
-                <div className="flex justify-between items-center mb-1">
-                  <label className="block text-xs font-bold uppercase tracking-wider text-stone-700">
-                    Meta Description
-                  </label>
-                  <span className={`text-xs font-bold ${editingSitePage.metaDescription.length > 165 ? 'text-amber-600' : 'text-stone-400'}`}>
-                    {editingSitePage.metaDescription.length} / 165
-                  </span>
-                </div>
-                <textarea
-                  rows={3}
-                  value={editingSitePage.metaDescription || ''}
-                  onChange={(e) =>
-                    setEditingSitePage({
-                      ...editingSitePage,
-                      metaDescription: e.target.value,
-                    })
-                  }
-                  className="w-full px-3.5 py-2.5 border border-stone-200 rounded-xl text-sm outline-none focus:border-[#FF4B00] resize-none"
-                  placeholder="A clear, compelling summary encouraging searchers to click..."
-                />
-                <p className="text-[11px] text-stone-400 mt-1">
-                  Recommended: 120-160 characters. Clearly state what travelers will find on this page.
-                </p>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1">
-                  Canonical URL
-                </label>
-                <input
-                  type="url"
-                  value={editingSitePage.canonicalUrl || ''}
-                  onChange={(e) =>
-                    setEditingSitePage({
-                      ...editingSitePage,
-                      canonicalUrl: e.target.value,
-                    })
-                  }
-                  className="w-full px-3.5 py-2.5 border border-stone-200 rounded-xl text-sm font-mono outline-none focus:border-[#FF4B00]"
-                  placeholder="https://holidayshunt.com/..."
-                />
-                <p className="text-[11px] text-stone-400 mt-1">
-                  Canonical link helps prevent duplicate content penalties across different protocols or domains.
-                </p>
-              </div>
-
-              <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <label className="block text-xs font-bold uppercase tracking-wider text-stone-700">
-                    Social Sharing / Open Graph Image (og:image)
-                  </label>
-                  <span className="text-[10px] text-stone-400 font-medium">
-                    1200 × 630px Recommended
-                  </span>
-                </div>
-
-                <UniversalImageUploader
-                  label="Upload Social Share Image (OG:IMAGE)"
-                  description="Auto-compress & upload directly to Cloudflare R2 bucket. Choose output dimension & format (WebP, PNG, JPG). Displayed when shared on WhatsApp, Facebook, X/Twitter, and LinkedIn."
-                  folder="seo-og"
-                  defaultWidth={1200}
-                  defaultFormat="webp"
-                  currentUrl={editingSitePage.ogImage || ''}
-                  onImageSelected={(url, asset) => {
-                    const finalImg = url || asset?.url || asset?.storagePath || asset?.dataUrl || '';
-                    setEditingSitePage({
-                      ...editingSitePage,
-                      ogImage: finalImg,
-                    });
-                  }}
-                  showR2LibraryPicker={true}
-                />
-
-                <div className="mt-2.5 flex items-center gap-2">
-                  <input
-                    type="url"
-                    value={editingSitePage.ogImage || ''}
-                    onChange={(e) =>
-                      setEditingSitePage({
-                        ...editingSitePage,
-                        ogImage: e.target.value,
-                      })
-                    }
-                    className="flex-1 px-3.5 py-2 border border-stone-200 rounded-xl text-xs font-mono outline-none focus:border-[#FF4B00] text-stone-700 bg-stone-50/70"
-                    placeholder="Or paste direct image URL (e.g. https://images.unsplash.com/...)"
-                  />
-                  {editingSitePage.ogImage && (
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setEditingSitePage({
-                          ...editingSitePage,
-                          ogImage: '',
-                        })
-                      }
-                      className="px-3 py-2 text-xs text-rose-600 hover:bg-rose-50 rounded-xl border border-rose-200 font-semibold transition cursor-pointer shrink-0"
-                    >
-                      Remove
-                    </button>
-                  )}
-                </div>
-                <p className="text-[11px] text-stone-400 mt-1">
-                  The image preview shown when this link is shared on WhatsApp, Facebook, or Twitter.
-                </p>
-              </div>
-
-              {/* Robots Directives */}
-              <div className="pt-3 border-t border-stone-100 flex flex-wrap items-center gap-6">
-                <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-stone-700">
-                  <input
-                    type="checkbox"
-                    checked={editingSitePage.noIndex || false}
-                    onChange={(e) =>
-                      setEditingSitePage({
-                        ...editingSitePage,
-                        noIndex: e.target.checked,
-                      })
-                    }
-                    className="w-4 h-4 rounded text-[#FF4B00] focus:ring-[#FF4B00]"
-                  />
-                  <span>No-Index (Hide from Search Engines)</span>
-                </label>
-                <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-stone-700">
-                  <input
-                    type="checkbox"
-                    checked={editingSitePage.noFollow || false}
-                    onChange={(e) =>
-                      setEditingSitePage({
-                        ...editingSitePage,
-                        noFollow: e.target.checked,
-                      })
-                    }
-                    className="w-4 h-4 rounded text-[#FF4B00] focus:ring-[#FF4B00]"
-                  />
-                  <span>No-Follow (Do not follow links)</span>
-                </label>
-              </div>
-            </div>
-
-            <div className="pt-4 border-t border-stone-100 flex flex-col sm:flex-row justify-end gap-2">
-              <button
-                type="button"
-                onClick={() => setEditingSitePage(null)}
-                className="w-full sm:w-auto px-4 py-2.5 rounded-xl text-sm font-bold text-stone-600 hover:bg-stone-100 transition cursor-pointer"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="w-full sm:w-auto px-6 py-2.5 rounded-xl text-sm font-bold text-white bg-[#FF4B00] hover:bg-[#e04200] shadow-xs transition flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <Save className="w-4 h-4" />
-                Save SEO Settings
-              </button>
-            </div>
-          </form>
-
-          {/* Rank Math Audit Sidebar */}
-          <div className="space-y-6">
-            <div className="bg-white rounded-2xl border border-stone-200 p-5 shadow-2xs">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="font-black text-stone-900 text-xs uppercase tracking-wider flex items-center gap-1.5">
-                  <Sparkles className="w-4 h-4 text-[#FF4B00]" />
-                  Rank Math Audit Score
-                </h3>
-                <span className={`text-xl font-black ${audit.score >= 80 ? 'text-emerald-600' : audit.score >= 50 ? 'text-amber-600' : 'text-red-600'}`}>
-                  {audit.score}/100
-                </span>
-              </div>
-
-              <div className="w-full h-2.5 bg-stone-100 rounded-full overflow-hidden mb-6">
-                <div
-                  className={`h-full transition-all duration-300 ${
-                    audit.score >= 80 ? 'bg-emerald-500' : audit.score >= 50 ? 'bg-amber-500' : 'bg-red-500'
-                  }`}
-                  style={{ width: `${audit.score}%` }}
-                />
-              </div>
-
-              <div className="space-y-3">
-                {audit.checks.map((chk) => (
-                  <div key={chk.id} className="flex items-start gap-2.5 text-xs">
-                    {chk.status === 'pass' && <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />}
-                    {chk.status === 'warn' && <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />}
-                    {chk.status === 'fail' && <XCircle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />}
-                    <div>
-                      <div className="font-bold text-stone-800">{chk.label}</div>
-                      <div className="text-stone-500">{chk.message}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="bg-stone-50 rounded-2xl border border-stone-200 p-4 text-xs text-stone-600 space-y-2">
-              <div className="font-bold text-stone-800 flex items-center gap-1.5">
-                <Shield className="w-4 h-4 text-emerald-600" />
-                Live Search Engine Sync
-              </div>
-              <p>
-                When you click Save, your custom title, meta description, and canonical tags update dynamically across the entire website and are verified for search engine crawlers.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // 2. EDITING A GUIDE POST SEO
-  if (editingGuide) {
-    const seoData = editingGuide.seo || {
-      metaTitle: editingGuide.title,
-      metaDescription: editingGuide.excerpt || '',
-      primaryKeyword: '',
-      secondaryKeywords: [],
-      canonicalUrl: `https://holidayshunt.com/guides/${editingGuide.slug}`,
-    };
-
-    const audit = calculateSeoAudit(
-      editingGuide.title,
-      seoData.metaTitle,
-      seoData.metaDescription,
-      seoData.primaryKeyword
-    );
-
-    return (
-      <div className="space-y-6">
-        <div className="flex items-center justify-between border-b border-stone-200 pb-4 gap-4">
-          <div>
-            <div className="flex items-center gap-2">
-              <Globe className="w-6 h-6 text-[#FF4B00]" />
-              <h2 className="text-xl sm:text-2xl font-black text-stone-900">Rank Math SEO Editor</h2>
-            </div>
-            <p className="text-stone-500 text-xs sm:text-sm mt-1">
-              Post: <span className="font-bold text-stone-900">{editingGuide.title}</span>
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={() => setEditingGuide(null)}
-            className="p-2 text-stone-400 hover:text-stone-900 transition rounded-xl hover:bg-stone-100 cursor-pointer"
-          >
-            <X className="w-6 h-6" />
-          </button>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Main Form Fields */}
-          <form onSubmit={handleSaveGuideSeo} className="lg:col-span-2 bg-white rounded-2xl border border-stone-200 p-4 sm:p-6 space-y-6 shadow-2xs">
-            {/* Search Result Snippet Card */}
-            <div>
-              <h3 className="text-xs sm:text-sm font-bold text-stone-900 mb-2 flex items-center gap-2">
-                <Globe className="w-4 h-4 text-emerald-600" />
-                Google Search Result Preview
-              </h3>
-              <div className="p-4 bg-stone-50 rounded-xl border border-stone-200 font-sans space-y-1">
-                <div className="text-[11px] text-stone-500 flex flex-wrap items-center gap-1 break-all">
-                  <span>https://holidayshunt.com</span>
-                  <span>›</span>
-                  <span>guides</span>
-                  <span>›</span>
-                  <span className="font-semibold">{editingGuide.slug}</span>
-                </div>
-                <div className="text-[#1a0dab] text-base sm:text-lg font-medium cursor-pointer hover:underline line-clamp-2">
-                  {seoData.metaTitle || editingGuide.title} | Holidays Hunt
-                </div>
-                <div className="text-[#4d5156] text-xs line-clamp-2">
-                  {seoData.metaDescription || 'No description set. Google will display a snippet from your body text.'}
-                </div>
-              </div>
-            </div>
-
-            {/* Inputs */}
-            <div className="space-y-4">
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1">
-                  Focus Keyword (Primary Keyword)
-                </label>
-                <input
-                  type="text"
-                  value={seoData.primaryKeyword || ''}
-                  onChange={(e) =>
-                    setEditingGuide({
-                      ...editingGuide,
-                      seo: { ...seoData, primaryKeyword: e.target.value },
-                    })
-                  }
-                  className="w-full px-3.5 py-2.5 border border-stone-200 rounded-xl text-sm outline-none focus:border-[#FF4B00]"
-                  placeholder="e.g. kedarnath yatra guide 2026"
-                />
-              </div>
-
-              <div>
-                <div className="flex justify-between items-center mb-1">
-                  <label className="block text-xs font-bold uppercase tracking-wider text-stone-700">
-                    SEO Meta Title
-                  </label>
-                  <span className={`text-xs font-bold ${(seoData.metaTitle?.length || 0) > 60 ? 'text-amber-600' : 'text-stone-400'}`}>
-                    {seoData.metaTitle?.length || 0} / 60
-                  </span>
-                </div>
-                <input
-                  type="text"
-                  value={seoData.metaTitle || ''}
-                  onChange={(e) =>
-                    setEditingGuide({
-                      ...editingGuide,
-                      seo: { ...seoData, metaTitle: e.target.value },
-                    })
-                  }
-                  className="w-full px-3.5 py-2.5 border border-stone-200 rounded-xl text-sm outline-none focus:border-[#FF4B00]"
-                  placeholder="Meta title for Google search..."
-                />
-              </div>
-
-              <div>
-                <div className="flex justify-between items-center mb-1">
-                  <label className="block text-xs font-bold uppercase tracking-wider text-stone-700">
-                    Meta Description
-                  </label>
-                  <span className={`text-xs font-bold ${(seoData.metaDescription?.length || 0) > 160 ? 'text-amber-600' : 'text-stone-400'}`}>
-                    {seoData.metaDescription?.length || 0} / 160
-                  </span>
-                </div>
-                <textarea
-                  rows={3}
-                  value={seoData.metaDescription || ''}
-                  onChange={(e) =>
-                    setEditingGuide({
-                      ...editingGuide,
-                      seo: { ...seoData, metaDescription: e.target.value },
-                    })
-                  }
-                  className="w-full px-3.5 py-2.5 border border-stone-200 rounded-xl text-sm outline-none focus:border-[#FF4B00] resize-none"
-                  placeholder="A compelling summary that increases search clicks..."
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1">
-                  Canonical URL
-                </label>
-                <input
-                  type="url"
-                  value={seoData.canonicalUrl || ''}
-                  onChange={(e) =>
-                    setEditingGuide({
-                      ...editingGuide,
-                      seo: { ...seoData, canonicalUrl: e.target.value },
-                    })
-                  }
-                  className="w-full px-3.5 py-2.5 border border-stone-200 rounded-xl text-sm font-mono outline-none focus:border-[#FF4B00]"
-                  placeholder="https://holidayshunt.com/guides/your-post-slug"
-                />
-              </div>
-
-              <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <label className="block text-xs font-bold uppercase tracking-wider text-stone-700">
-                    Social Sharing / Open Graph Image (og:image)
-                  </label>
-                  <span className="text-[10px] text-stone-400 font-medium">
-                    1200 × 630px Recommended
-                  </span>
-                </div>
-
-                <UniversalImageUploader
-                  label="Upload Post Social Image (OG:IMAGE)"
-                  description="Auto-compress & upload directly to Cloudflare R2 bucket. If blank, the post's featured cover photo will be used."
-                  folder="seo-og"
-                  defaultWidth={1200}
-                  defaultFormat="webp"
-                  currentUrl={seoData.ogImage || editingGuide.featuredImage || ''}
-                  onImageSelected={(url) =>
-                    setEditingGuide({
-                      ...editingGuide,
-                      seo: { ...seoData, ogImage: url },
-                    })
-                  }
-                  showR2LibraryPicker={true}
-                />
-
-                <div className="mt-2.5 flex items-center gap-2">
-                  <input
-                    type="url"
-                    value={seoData.ogImage || ''}
-                    onChange={(e) =>
-                      setEditingGuide({
-                        ...editingGuide,
-                        seo: { ...seoData, ogImage: e.target.value },
-                      })
-                    }
-                    className="flex-1 px-3.5 py-2 border border-stone-200 rounded-xl text-xs font-mono outline-none focus:border-[#FF4B00] text-stone-700 bg-stone-50/70"
-                    placeholder="Or paste direct image URL (e.g. https://images.unsplash.com/...)"
-                  />
-                  {seoData.ogImage && (
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setEditingGuide({
-                          ...editingGuide,
-                          seo: { ...seoData, ogImage: '' },
-                        })
-                      }
-                      className="px-3 py-2 text-xs text-rose-600 hover:bg-rose-50 rounded-xl border border-rose-200 font-semibold transition cursor-pointer shrink-0"
-                    >
-                      Clear
-                    </button>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            <div className="pt-4 border-t border-stone-100 flex flex-col sm:flex-row justify-end gap-2">
-              <button
-                type="button"
-                onClick={() => setEditingGuide(null)}
-                className="w-full sm:w-auto px-4 py-2.5 rounded-xl text-sm font-bold text-stone-600 hover:bg-stone-100 transition cursor-pointer"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="w-full sm:w-auto px-6 py-2.5 rounded-xl text-sm font-bold text-white bg-[#FF4B00] hover:bg-[#e04200] shadow-xs transition flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <Save className="w-4 h-4" />
-                Save Meta Fields
-              </button>
-            </div>
-          </form>
-
-          {/* Audit Sidebar */}
-          <div className="space-y-6">
-            <div className="bg-white rounded-2xl border border-stone-200 p-5 shadow-2xs">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="font-black text-stone-900 text-xs uppercase tracking-wider flex items-center gap-1.5">
-                  <Sparkles className="w-4 h-4 text-[#FF4B00]" />
-                  Rank Math Audit Score
-                </h3>
-                <span className={`text-xl font-black ${audit.score >= 80 ? 'text-emerald-600' : audit.score >= 50 ? 'text-amber-600' : 'text-red-600'}`}>
-                  {audit.score}/100
-                </span>
-              </div>
-
-              <div className="w-full h-2.5 bg-stone-100 rounded-full overflow-hidden mb-6">
-                <div
-                  className={`h-full transition-all duration-300 ${
-                    audit.score >= 80 ? 'bg-emerald-500' : audit.score >= 50 ? 'bg-amber-500' : 'bg-red-500'
-                  }`}
-                  style={{ width: `${audit.score}%` }}
-                />
-              </div>
-
-              <div className="space-y-3">
-                {audit.checks.map((chk) => (
-                  <div key={chk.id} className="flex items-start gap-2.5 text-xs">
-                    {chk.status === 'pass' && <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />}
-                    {chk.status === 'warn' && <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />}
-                    {chk.status === 'fail' && <XCircle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />}
-                    <div>
-                      <div className="font-bold text-stone-800">{chk.label}</div>
-                      <div className="text-stone-500">{chk.message}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // 3. EDITING A CUSTOM PAGE SEO
-  if (editingCustomPage) {
-    const pageSeo = editingCustomPage.seo || {
-      focusKeyword: '',
-      metaTitle: editingCustomPage.title,
-      metaDescription: '',
-    };
-
-    const audit = calculateSeoAudit(
-      editingCustomPage.title,
-      pageSeo.metaTitle,
-      pageSeo.metaDescription,
-      pageSeo.focusKeyword
-    );
-
-    return (
-      <div className="space-y-6">
-        <div className="flex items-center justify-between border-b border-stone-200 pb-4 gap-4">
-          <div>
-            <div className="flex items-center gap-2">
-              <Globe className="w-6 h-6 text-[#FF4B00]" />
-              <h2 className="text-xl sm:text-2xl font-black text-stone-900">Custom Page SEO Editor</h2>
-            </div>
-            <p className="text-stone-500 text-xs sm:text-sm mt-1">Page: <span className="font-bold text-stone-900">{editingCustomPage.title}</span></p>
-          </div>
-          <button
-            type="button"
-            onClick={() => setEditingCustomPage(null)}
-            className="p-2 text-stone-400 hover:text-stone-900 transition rounded-xl hover:bg-stone-100 cursor-pointer"
-          >
-            <X className="w-6 h-6" />
-          </button>
-        </div>
-
-        <form onSubmit={handleSaveCustomPageSeo} className="max-w-2xl bg-white rounded-2xl border border-stone-200 p-4 sm:p-6 space-y-6 shadow-2xs">
-          <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1">
-              Focus Keyword
-            </label>
-            <input
-              type="text"
-              value={pageSeo.focusKeyword || ''}
-              onChange={(e) =>
-                setEditingCustomPage({
-                  ...editingCustomPage,
-                  seo: { ...pageSeo, focusKeyword: e.target.value },
-                })
-              }
-              className="w-full px-3.5 py-2.5 border border-stone-200 rounded-xl text-sm outline-none focus:border-[#FF4B00]"
-              placeholder="Primary keyword..."
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1">
-              SEO Title
-            </label>
-            <input
-              type="text"
-              value={pageSeo.metaTitle || ''}
-              onChange={(e) =>
-                setEditingCustomPage({
-                  ...editingCustomPage,
-                  seo: { ...pageSeo, metaTitle: e.target.value },
-                })
-              }
-              className="w-full px-3.5 py-2.5 border border-stone-200 rounded-xl text-sm outline-none focus:border-[#FF4B00]"
-              placeholder="SEO Page Title..."
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1">
-              Meta Description
-            </label>
-            <textarea
-              rows={3}
-              value={pageSeo.metaDescription || ''}
-              onChange={(e) =>
-                setEditingCustomPage({
-                  ...editingCustomPage,
-                  seo: { ...pageSeo, metaDescription: e.target.value },
-                })
-              }
-              className="w-full px-3.5 py-2.5 border border-stone-200 rounded-xl text-sm outline-none focus:border-[#FF4B00] resize-none"
-              placeholder="Meta Description..."
-            />
-          </div>
-
-          <div>
-            <div className="flex items-center justify-between mb-1.5">
-              <label className="block text-xs font-bold uppercase tracking-wider text-stone-700">
-                Social Sharing / Open Graph Image (og:image)
-              </label>
-              <span className="text-[10px] text-stone-400 font-medium">
-                1200 × 630px Recommended
-              </span>
-            </div>
-
-            <UniversalImageUploader
-              label="Upload Custom Page Social Image (OG:IMAGE)"
-              description="Auto-compress & upload directly to Cloudflare R2 bucket. Displayed when this custom page is shared on WhatsApp, Facebook, or Twitter."
-              folder="seo-og"
-              defaultWidth={1200}
-              defaultFormat="webp"
-              currentUrl={pageSeo.ogImage || editingCustomPage.heroImage || ''}
-              onImageSelected={(url, asset) => {
-                const finalImg = url || asset?.url || asset?.storagePath || asset?.dataUrl || '';
-                setEditingCustomPage({
-                  ...editingCustomPage,
-                  heroImage: finalImg,
-                  seo: { ...pageSeo, ogImage: finalImg },
-                });
-              }}
-              showR2LibraryPicker={true}
-            />
-
-            <div className="mt-2.5 flex items-center gap-2">
-              <input
-                type="url"
-                value={pageSeo.ogImage || ''}
-                onChange={(e) =>
-                  setEditingCustomPage({
-                    ...editingCustomPage,
-                    seo: { ...pageSeo, ogImage: e.target.value },
-                  })
-                }
-                className="flex-1 px-3.5 py-2 border border-stone-200 rounded-xl text-xs font-mono outline-none focus:border-[#FF4B00] text-stone-700 bg-stone-50/70"
-                placeholder="Or paste direct image URL (e.g. https://images.unsplash.com/...)"
-              />
-              {pageSeo.ogImage && (
-                <button
-                  type="button"
-                  onClick={() =>
-                    setEditingCustomPage({
-                      ...editingCustomPage,
-                      seo: { ...pageSeo, ogImage: '' },
-                    })
-                  }
-                  className="px-3 py-2 text-xs text-rose-600 hover:bg-rose-50 rounded-xl border border-rose-200 font-semibold transition cursor-pointer shrink-0"
-                >
-                  Clear
-                </button>
-              )}
-            </div>
-          </div>
-
-          <div className="pt-4 border-t border-stone-100 flex flex-col sm:flex-row justify-end gap-2">
-            <button
-              type="button"
-              onClick={() => setEditingCustomPage(null)}
-              className="w-full sm:w-auto px-4 py-2.5 rounded-xl text-sm font-bold text-stone-600 hover:bg-stone-100 transition cursor-pointer"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="w-full sm:w-auto px-6 py-2.5 rounded-xl text-sm font-bold text-white bg-[#FF4B00] hover:bg-[#e04200] shadow-xs transition flex items-center justify-center gap-2 cursor-pointer"
-            >
-              <Save className="w-4 h-4" />
-              Save Page SEO
-            </button>
-          </div>
-        </form>
-      </div>
-    );
-  }
-
-  // 4. MAIN SEO OVERVIEW TABLE & MOBILE CARDS
   return (
     <div className="space-y-6">
-      {/* Toast notification */}
-      {saveSuccessNotice && (
-        <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-3 rounded-xl text-sm font-bold flex items-center gap-2 shadow-xs transition">
+      {/* Toast Notice */}
+      {notice && (
+        <div className="bg-emerald-50 border border-emerald-200 text-emerald-900 px-4 py-3 rounded-2xl text-xs sm:text-sm font-bold flex items-center gap-2 shadow-xs animate-in fade-in duration-200">
           <Check className="w-4 h-4 text-emerald-600 shrink-0" />
-          <span>{saveSuccessNotice}</span>
+          <span>{notice}</span>
         </div>
       )}
 
-      {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <Globe className="w-6 h-6 text-[#FF4B00]" />
-            <h2 className="text-2xl font-black text-stone-900">Rank Math SEO Interface</h2>
+      {/* Top Header Card */}
+      <div className="bg-white border border-stone-200 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <span className="px-2.5 py-0.5 rounded-full bg-[#FF4B00]/10 text-[#FF4B00] border border-[#FF4B00]/20 text-[10px] font-black uppercase tracking-wider">
+                Holidays Hunt CMS
+              </span>
+              <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                Canonical: https://holidayshunt.com
+              </span>
+            </div>
+            <h2 className="text-xl sm:text-2xl font-black text-stone-900 tracking-tight">
+              SEO &amp; Traffic Control Center
+            </h2>
+            <p className="text-stone-500 text-xs sm:text-sm leading-relaxed max-w-3xl">
+              Configure search engine metadata, tour type classifications, canonical URLs, and 301 permanent redirects to preserve Google PageRank and backlink traffic.
+            </p>
           </div>
-          <p className="text-stone-500 text-sm mt-1">
-            Configure focus keywords, meta titles, descriptions, and canonical URLs for every page of your website.
-          </p>
-        </div>
 
-        {/* Search Bar */}
-        <div className="w-full md:w-72">
-          <div className="relative">
-            <Search className="w-4 h-4 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search pages or keywords..."
-              className="w-full pl-9 pr-4 py-2 text-sm bg-white border border-stone-200 rounded-xl outline-none focus:border-[#FF4B00]"
-            />
+          <div className="flex flex-wrap items-center gap-2.5 shrink-0 pt-2 lg:pt-0">
+            <button
+              type="button"
+              onClick={handleNormalizeAllDomains}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-stone-900 text-white text-xs font-bold hover:bg-stone-800 transition cursor-pointer shadow-2xs"
+            >
+              <RefreshCw className="w-3.5 h-3.5 text-[#FF4B00]" />
+              Normalize All Canonical URLs
+            </button>
+            <a
+              href="/sitemap.xml"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-stone-100 border border-stone-200 text-stone-700 text-xs font-bold hover:bg-stone-200 transition cursor-pointer"
+            >
+              <ExternalLink className="w-3.5 h-3.5" />
+              Sitemap.xml
+            </a>
           </div>
         </div>
-      </div>
 
-      {/* Tabs */}
-      <div className="flex flex-wrap items-center gap-2 border-b border-stone-200 pb-2">
-        <button
-          type="button"
-          onClick={() => setContentType('all')}
-          className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${
-            contentType === 'all'
-              ? 'bg-[#FF4B00] text-white shadow-xs'
-              : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
-          }`}
-        >
-          All Content ({sitePageList.length + customPages.length + guides.length})
-        </button>
+        {/* Primary Section Navigation Tabs */}
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 pt-2 border-t border-stone-100 scrollbar-none">
+          <button
+            type="button"
+            onClick={() => setActiveSection('all')}
+            className={`px-3.5 py-2 rounded-xl text-xs font-black transition whitespace-nowrap cursor-pointer flex items-center gap-1.5 ${
+              activeSection === 'all'
+                ? 'bg-stone-900 text-white shadow-xs'
+                : 'bg-stone-100 text-stone-600 hover:bg-stone-200/80'
+            }`}
+          >
+            All Content
+            <span
+              className={`px-1.5 py-0.2 rounded-md text-[10px] ${
+                activeSection === 'all' ? 'bg-stone-800 text-stone-300' : 'bg-stone-200 text-stone-600'
+              }`}
+            >
+              {allUnifiedItems.length}
+            </span>
+          </button>
 
-        <button
-          type="button"
-          onClick={() => setContentType('site-pages')}
-          className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer flex items-center gap-1.5 ${
-            contentType === 'site-pages'
-              ? 'bg-[#FF4B00] text-white shadow-xs'
-              : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
-          }`}
-        >
-          <Layout className="w-3.5 h-3.5 text-emerald-600" />
-          Website Pages ({sitePageList.length})
-        </button>
+          <button
+            type="button"
+            onClick={() => setActiveSection('tours')}
+            className={`px-3.5 py-2 rounded-xl text-xs font-black transition whitespace-nowrap cursor-pointer flex items-center gap-1.5 ${
+              activeSection === 'tours'
+                ? 'bg-[#FF4B00] text-white shadow-xs'
+                : 'bg-stone-100 text-stone-600 hover:bg-stone-200/80'
+            }`}
+          >
+            <Compass className="w-3.5 h-3.5" />
+            Tour Packages
+            <span
+              className={`px-1.5 py-0.2 rounded-md text-[10px] ${
+                activeSection === 'tours' ? 'bg-white/20 text-white' : 'bg-stone-200 text-stone-600'
+              }`}
+            >
+              {packages.length}
+            </span>
+          </button>
 
-        <button
-          type="button"
-          onClick={() => setContentType('custom-pages')}
-          className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer flex items-center gap-1.5 ${
-            contentType === 'custom-pages'
-              ? 'bg-[#FF4B00] text-white shadow-xs'
-              : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
-          }`}
-        >
-          <Layers className="w-3.5 h-3.5 text-indigo-600" />
-          Custom Pages ({customPages.length})
-        </button>
+          <button
+            type="button"
+            onClick={() => setActiveSection('site-pages')}
+            className={`px-3.5 py-2 rounded-xl text-xs font-black transition whitespace-nowrap cursor-pointer flex items-center gap-1.5 ${
+              activeSection === 'site-pages'
+                ? 'bg-stone-900 text-white shadow-xs'
+                : 'bg-stone-100 text-stone-600 hover:bg-stone-200/80'
+            }`}
+          >
+            Website Pages
+            <span
+              className={`px-1.5 py-0.2 rounded-md text-[10px] ${
+                activeSection === 'site-pages' ? 'bg-stone-800 text-stone-300' : 'bg-stone-200 text-stone-600'
+              }`}
+            >
+              {sitePageList.length}
+            </span>
+          </button>
 
-        <button
-          type="button"
-          onClick={() => setContentType('posts')}
-          className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer flex items-center gap-1.5 ${
-            contentType === 'posts'
-              ? 'bg-[#FF4B00] text-white shadow-xs'
-              : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
-          }`}
-        >
-          <FileText className="w-3.5 h-3.5 text-amber-600" />
-          Guides & Posts ({guides.length})
-        </button>
-      </div>
+          <button
+            type="button"
+            onClick={() => setActiveSection('destinations')}
+            className={`px-3.5 py-2 rounded-xl text-xs font-black transition whitespace-nowrap cursor-pointer flex items-center gap-1.5 ${
+              activeSection === 'destinations'
+                ? 'bg-stone-900 text-white shadow-xs'
+                : 'bg-stone-100 text-stone-600 hover:bg-stone-200/80'
+            }`}
+          >
+            Destinations
+            <span
+              className={`px-1.5 py-0.2 rounded-md text-[10px] ${
+                activeSection === 'destinations' ? 'bg-stone-800 text-stone-300' : 'bg-stone-200 text-stone-600'
+              }`}
+            >
+              {destinationList.length}
+            </span>
+          </button>
 
-      {/* 1. MOBILE CARD VIEW */}
-      <div className="grid grid-cols-1 gap-4 md:hidden">
-        {/* Core Website Pages */}
-        {(contentType === 'all' || contentType === 'site-pages') &&
-          filteredSitePages.map((sitePage) => {
-            const audit = calculateSeoAudit(
-              sitePage.pageName,
-              sitePage.metaTitle,
-              sitePage.metaDescription,
-              sitePage.focusKeyword
-            );
+          <button
+            type="button"
+            onClick={() => setActiveSection('guides')}
+            className={`px-3.5 py-2 rounded-xl text-xs font-black transition whitespace-nowrap cursor-pointer flex items-center gap-1.5 ${
+              activeSection === 'guides'
+                ? 'bg-stone-900 text-white shadow-xs'
+                : 'bg-stone-100 text-stone-600 hover:bg-stone-200/80'
+            }`}
+          >
+            Guides &amp; Blogs
+            <span
+              className={`px-1.5 py-0.2 rounded-md text-[10px] ${
+                activeSection === 'guides' ? 'bg-stone-800 text-stone-300' : 'bg-stone-200 text-stone-600'
+              }`}
+            >
+              {guides.length}
+            </span>
+          </button>
 
-            return (
-              <div
-                key={`mobile-site-page-${sitePage.id}`}
-                className="bg-white border border-stone-200 rounded-2xl p-4 space-y-3 shadow-2xs"
-              >
-                <div className="flex items-center justify-between gap-2">
-                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] font-bold">
-                    <Layout className="w-3 h-3" />
-                    Website Page
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => setEditingSitePage(sitePage)}
-                    className="inline-flex items-center gap-1 px-3 py-1.5 min-h-[36px] bg-[#FF4B00] text-white text-xs font-bold rounded-xl active:bg-[#e04200] transition cursor-pointer shadow-2xs"
-                  >
-                    <Edit3 className="w-3.5 h-3.5" />
-                    Edit SEO
-                  </button>
-                </div>
+          <button
+            type="button"
+            onClick={() => setActiveSection('custom-pages')}
+            className={`px-3.5 py-2 rounded-xl text-xs font-black transition whitespace-nowrap cursor-pointer flex items-center gap-1.5 ${
+              activeSection === 'custom-pages'
+                ? 'bg-stone-900 text-white shadow-xs'
+                : 'bg-stone-100 text-stone-600 hover:bg-stone-200/80'
+            }`}
+          >
+            Custom Pages
+            <span
+              className={`px-1.5 py-0.2 rounded-md text-[10px] ${
+                activeSection === 'custom-pages' ? 'bg-stone-800 text-stone-300' : 'bg-stone-200 text-stone-600'
+              }`}
+            >
+              {customPages.length}
+            </span>
+          </button>
 
-                <div>
-                  <h4 className="font-bold text-stone-900 text-base leading-snug">{sitePage.pageName}</h4>
-                  <div className="text-xs font-mono text-stone-500 mt-1">{sitePage.canonicalUrl}</div>
-                </div>
-
-                <div className="pt-2 border-t border-stone-100 flex flex-wrap items-center justify-between gap-2">
-                  <div>
-                    <div className="text-[10px] font-bold uppercase tracking-wider text-stone-400 mb-1">
-                      Focus Keyword
-                    </div>
-                    {sitePage.focusKeyword ? (
-                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-stone-100 text-stone-800 text-xs font-bold border border-stone-200">
-                        <Tag className="w-3 h-3 text-[#FF4B00]" />
-                        {sitePage.focusKeyword}
-                      </span>
-                    ) : (
-                      <span className="text-xs text-stone-400 italic">No keyword set</span>
-                    )}
-                  </div>
-
-                  <div>
-                    <div className="text-[10px] font-bold uppercase tracking-wider text-stone-400 mb-1">
-                      SEO Score
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-16 h-2 rounded-full bg-stone-100 overflow-hidden">
-                        <div
-                          className={`h-full ${
-                            audit.score >= 80 ? 'bg-emerald-500' : audit.score >= 50 ? 'bg-amber-500' : 'bg-red-500'
-                          }`}
-                          style={{ width: `${audit.score}%` }}
-                        />
-                      </div>
-                      <span
-                        className={`text-xs font-bold ${
-                          audit.score >= 80
-                            ? 'text-emerald-600'
-                            : audit.score >= 50
-                            ? 'text-amber-600'
-                            : 'text-red-600'
-                        }`}
-                      >
-                        {audit.score}/100
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-
-        {/* Custom Pages */}
-        {(contentType === 'all' || contentType === 'custom-pages') &&
-          filteredCustomPages.map((page) => {
-            const pageKw = page.seo?.focusKeyword || '';
-            const audit = calculateSeoAudit(page.title, page.seo?.metaTitle, page.seo?.metaDescription, pageKw);
-
-            return (
-              <div
-                key={`mobile-seo-page-${page.id}`}
-                className="bg-white border border-stone-200 rounded-2xl p-4 space-y-3 shadow-2xs"
-              >
-                <div className="flex items-center justify-between gap-2">
-                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200 text-[11px] font-bold">
-                    <Layers className="w-3 h-3" />
-                    Custom Page
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => setEditingCustomPage(page)}
-                    className="inline-flex items-center gap-1 px-3 py-1.5 min-h-[36px] bg-indigo-600 text-white text-xs font-bold rounded-xl active:bg-indigo-700 transition cursor-pointer shadow-2xs"
-                  >
-                    <Edit3 className="w-3.5 h-3.5" />
-                    Edit SEO
-                  </button>
-                </div>
-
-                <div>
-                  <h4 className="font-bold text-stone-900 text-base leading-snug">{page.title}</h4>
-                  <div className="text-xs font-mono text-stone-500 mt-1">/page/{page.slug}</div>
-                </div>
-
-                <div className="pt-2 border-t border-stone-100 flex flex-wrap items-center justify-between gap-2">
-                  <div>
-                    <div className="text-[10px] font-bold uppercase tracking-wider text-stone-400 mb-1">
-                      Focus Keyword
-                    </div>
-                    {pageKw ? (
-                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-stone-100 text-stone-800 text-xs font-bold border border-stone-200">
-                        <Tag className="w-3 h-3 text-indigo-600" />
-                        {pageKw}
-                      </span>
-                    ) : (
-                      <span className="text-xs text-stone-400 italic">No keyword set</span>
-                    )}
-                  </div>
-
-                  <div>
-                    <div className="text-[10px] font-bold uppercase tracking-wider text-stone-400 mb-1">
-                      SEO Score
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-16 h-2 rounded-full bg-stone-100 overflow-hidden">
-                        <div
-                          className={`h-full ${
-                            audit.score >= 80 ? 'bg-emerald-500' : audit.score >= 50 ? 'bg-amber-500' : 'bg-red-500'
-                          }`}
-                          style={{ width: `${audit.score}%` }}
-                        />
-                      </div>
-                      <span
-                        className={`text-xs font-bold ${
-                          audit.score >= 80 ? 'text-emerald-600' : audit.score >= 50 ? 'text-amber-600' : 'text-red-600'
-                        }`}
-                      >
-                        {audit.score}/100
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-
-        {/* Guides / Posts */}
-        {(contentType === 'all' || contentType === 'posts') &&
-          filteredGuides.map((guide) => {
-            const audit = calculateSeoAudit(
-              guide.title,
-              guide.seo?.metaTitle,
-              guide.seo?.metaDescription,
-              guide.seo?.primaryKeyword
-            );
-
-            return (
-              <div
-                key={`mobile-seo-guide-${guide.id}`}
-                className="bg-white border border-stone-200 rounded-2xl p-4 space-y-3 shadow-2xs"
-              >
-                <div className="flex items-center justify-between gap-2">
-                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 text-[11px] font-bold">
-                    <FileText className="w-3 h-3" />
-                    Post
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => setEditingGuide(guide)}
-                    className="inline-flex items-center gap-1 px-3 py-1.5 min-h-[36px] bg-[#FF4B00] text-white text-xs font-bold rounded-xl active:bg-[#e04200] transition cursor-pointer shadow-2xs"
-                  >
-                    <Edit3 className="w-3.5 h-3.5" />
-                    Edit SEO
-                  </button>
-                </div>
-
-                <div>
-                  <h4 className="font-bold text-stone-900 text-base leading-snug">{guide.title}</h4>
-                  <div className="text-xs font-mono text-stone-500 mt-1">/guides/{guide.slug}</div>
-                </div>
-
-                <div className="pt-2 border-t border-stone-100 flex flex-wrap items-center justify-between gap-2">
-                  <div>
-                    <div className="text-[10px] font-bold uppercase tracking-wider text-stone-400 mb-1">
-                      Focus Keyword
-                    </div>
-                    {guide.seo?.primaryKeyword ? (
-                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-stone-100 text-stone-800 text-xs font-bold border border-stone-200">
-                        <Tag className="w-3 h-3 text-[#FF4B00]" />
-                        {guide.seo.primaryKeyword}
-                      </span>
-                    ) : (
-                      <span className="text-xs text-stone-400 italic">No keyword set</span>
-                    )}
-                  </div>
-
-                  <div>
-                    <div className="text-[10px] font-bold uppercase tracking-wider text-stone-400 mb-1">
-                      SEO Score
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-16 h-2 rounded-full bg-stone-100 overflow-hidden">
-                        <div
-                          className={`h-full ${
-                            audit.score >= 80 ? 'bg-emerald-500' : audit.score >= 50 ? 'bg-amber-500' : 'bg-red-500'
-                          }`}
-                          style={{ width: `${audit.score}%` }}
-                        />
-                      </div>
-                      <span
-                        className={`text-xs font-bold ${
-                          audit.score >= 80
-                            ? 'text-emerald-600'
-                            : audit.score >= 50
-                            ? 'text-amber-600'
-                            : 'text-red-600'
-                        }`}
-                      >
-                        {audit.score}/100
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-      </div>
-
-      {/* 2. DESKTOP TABLE VIEW */}
-      <div className="hidden md:block bg-white border border-stone-200 rounded-2xl overflow-hidden shadow-2xs">
-        <div className="overflow-x-auto w-full">
-          <table className="w-full text-left border-collapse min-w-[750px]">
-            <thead>
-              <tr className="bg-stone-50 border-b border-stone-200 text-stone-500 text-xs font-bold uppercase tracking-wider">
-                <th className="p-4">Type</th>
-                <th className="p-4">Page Title & URL</th>
-                <th className="p-4">Focus Keyword</th>
-                <th className="p-4">SEO Score</th>
-                <th className="p-4 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-stone-100">
-              {/* Render Core Website Pages */}
-              {(contentType === 'all' || contentType === 'site-pages') &&
-                filteredSitePages.map((sitePage) => {
-                  const audit = calculateSeoAudit(
-                    sitePage.pageName,
-                    sitePage.metaTitle,
-                    sitePage.metaDescription,
-                    sitePage.focusKeyword
-                  );
-
-                  return (
-                    <tr key={`desktop-site-page-${sitePage.id}`} className="hover:bg-stone-50/80 transition-colors">
-                      <td className="p-4 whitespace-nowrap">
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] font-bold">
-                          <Layout className="w-3 h-3" />
-                          Website Page
-                        </span>
-                      </td>
-                      <td className="p-4 max-w-sm">
-                        <div className="flex items-center gap-3">
-                          {sitePage.ogImage ? (
-                            <img
-                              src={sitePage.ogImage}
-                              alt="Social OG"
-                              className="w-11 h-8 rounded-lg object-cover border border-stone-200 shrink-0 shadow-2xs"
-                              onError={(e) => {
-                                (e.target as HTMLElement).style.display = 'none';
-                              }}
-                            />
-                          ) : (
-                            <div className="w-11 h-8 rounded-lg bg-stone-100 border border-stone-200 flex items-center justify-center text-stone-300 shrink-0" title="No social share image">
-                              <ImageIcon className="w-4 h-4" />
-                            </div>
-                          )}
-                          <div className="min-w-0">
-                            <div className="font-bold text-stone-900 flex items-center gap-1.5 truncate">
-                              <span>{sitePage.pageName}</span>
-                              {sitePage.id === 'home' && (
-                                <span className="px-1.5 py-0.5 bg-amber-100 text-amber-800 text-[10px] font-bold rounded shrink-0">
-                                  Main Storefront
-                                </span>
-                              )}
-                            </div>
-                            <div className="text-xs font-mono text-stone-400 mt-0.5 truncate">
-                              {sitePage.canonicalUrl}
-                            </div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="p-4">
-                        {sitePage.focusKeyword ? (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-stone-100 text-stone-800 text-xs font-bold border border-stone-200">
-                            <Tag className="w-3 h-3 text-[#FF4B00]" />
-                            {sitePage.focusKeyword}
-                          </span>
-                        ) : (
-                          <span className="text-xs text-stone-400 italic">No keyword set</span>
-                        )}
-                      </td>
-                      <td className="p-4 whitespace-nowrap">
-                        <div className="flex items-center gap-2">
-                          <div className="w-16 h-2 rounded-full bg-stone-100 overflow-hidden">
-                            <div
-                              className={`h-full ${
-                                audit.score >= 80 ? 'bg-emerald-500' : audit.score >= 50 ? 'bg-amber-500' : 'bg-red-500'
-                              }`}
-                              style={{ width: `${audit.score}%` }}
-                            />
-                          </div>
-                          <span
-                            className={`text-xs font-bold ${
-                              audit.score >= 80
-                                ? 'text-emerald-600'
-                                : audit.score >= 50
-                                ? 'text-amber-600'
-                                : 'text-red-600'
-                            }`}
-                          >
-                            {audit.score}/100
-                          </span>
-                        </div>
-                      </td>
-                      <td className="p-4 text-right whitespace-nowrap">
-                        <button
-                          type="button"
-                          onClick={() => setEditingSitePage(sitePage)}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-[#FF4B00] bg-[#FF4B00]/10 hover:bg-[#FF4B00]/20 rounded-xl transition cursor-pointer"
-                        >
-                          <Edit3 className="w-3.5 h-3.5" />
-                          Edit SEO
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
-
-              {/* Render Custom Pages */}
-              {(contentType === 'all' || contentType === 'custom-pages') &&
-                filteredCustomPages.map((page) => {
-                  const pageKw = page.seo?.focusKeyword || '';
-                  const audit = calculateSeoAudit(page.title, page.seo?.metaTitle, page.seo?.metaDescription, pageKw);
-
-                  return (
-                    <tr key={`desktop-page-${page.id}`} className="hover:bg-stone-50/80 transition-colors">
-                      <td className="p-4 whitespace-nowrap">
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200 text-[11px] font-bold">
-                          <Layers className="w-3 h-3" />
-                          Custom Page
-                        </span>
-                      </td>
-                      <td className="p-4 max-w-sm">
-                        <div className="flex items-center gap-3">
-                          {(page.seo?.ogImage || page.heroImage) ? (
-                            <img
-                              src={page.seo?.ogImage || page.heroImage}
-                              alt="Social OG"
-                              className="w-11 h-8 rounded-lg object-cover border border-stone-200 shrink-0 shadow-2xs"
-                              onError={(e) => {
-                                (e.target as HTMLElement).style.display = 'none';
-                              }}
-                            />
-                          ) : (
-                            <div className="w-11 h-8 rounded-lg bg-stone-100 border border-stone-200 flex items-center justify-center text-stone-300 shrink-0" title="No social share image">
-                              <ImageIcon className="w-4 h-4" />
-                            </div>
-                          )}
-                          <div className="min-w-0">
-                            <div className="font-bold text-stone-900 line-clamp-1">{page.title}</div>
-                            <div className="text-xs font-mono text-stone-400 mt-0.5 truncate">/page/{page.slug}</div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="p-4">
-                        {pageKw ? (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-stone-100 text-stone-800 text-xs font-bold border border-stone-200">
-                            <Tag className="w-3 h-3 text-indigo-600" />
-                            {pageKw}
-                          </span>
-                        ) : (
-                          <span className="text-xs text-stone-400 italic">No keyword set</span>
-                        )}
-                      </td>
-                      <td className="p-4 whitespace-nowrap">
-                        <div className="flex items-center gap-2">
-                          <div className="w-16 h-2 rounded-full bg-stone-100 overflow-hidden">
-                            <div
-                              className={`h-full ${
-                                audit.score >= 80 ? 'bg-emerald-500' : audit.score >= 50 ? 'bg-amber-500' : 'bg-red-500'
-                              }`}
-                              style={{ width: `${audit.score}%` }}
-                            />
-                          </div>
-                          <span
-                            className={`text-xs font-bold ${
-                              audit.score >= 80 ? 'text-emerald-600' : audit.score >= 50 ? 'text-amber-600' : 'text-red-600'
-                            }`}
-                          >
-                            {audit.score}/100
-                          </span>
-                        </div>
-                      </td>
-                      <td className="p-4 text-right whitespace-nowrap">
-                        <button
-                          type="button"
-                          onClick={() => setEditingCustomPage(page)}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-xl transition cursor-pointer"
-                        >
-                          <Edit3 className="w-3.5 h-3.5" />
-                          Edit SEO
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
-
-              {/* Render Posts (Guides) */}
-              {(contentType === 'all' || contentType === 'posts') &&
-                filteredGuides.map((guide) => {
-                  const audit = calculateSeoAudit(
-                    guide.title,
-                    guide.seo?.metaTitle,
-                    guide.seo?.metaDescription,
-                    guide.seo?.primaryKeyword
-                  );
-
-                  return (
-                    <tr key={`desktop-guide-${guide.id}`} className="hover:bg-stone-50/80 transition-colors">
-                      <td className="p-4 whitespace-nowrap">
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 text-[11px] font-bold">
-                          <FileText className="w-3 h-3" />
-                          Post
-                        </span>
-                      </td>
-                      <td className="p-4 max-w-sm">
-                        <div className="flex items-center gap-3">
-                          {(guide.seo?.ogImage || guide.featuredImage) ? (
-                            <img
-                              src={guide.seo?.ogImage || guide.featuredImage}
-                              alt="Social OG"
-                              className="w-11 h-8 rounded-lg object-cover border border-stone-200 shrink-0 shadow-2xs"
-                              onError={(e) => {
-                                (e.target as HTMLElement).style.display = 'none';
-                              }}
-                            />
-                          ) : (
-                            <div className="w-11 h-8 rounded-lg bg-stone-100 border border-stone-200 flex items-center justify-center text-stone-300 shrink-0" title="No social share image">
-                              <ImageIcon className="w-4 h-4" />
-                            </div>
-                          )}
-                          <div className="min-w-0">
-                            <div className="font-bold text-stone-900 line-clamp-1">{guide.title}</div>
-                            <div className="text-xs font-mono text-stone-400 mt-0.5 truncate">/guides/{guide.slug}</div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="p-4">
-                        {guide.seo?.primaryKeyword ? (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-stone-100 text-stone-800 text-xs font-bold border border-stone-200">
-                            <Tag className="w-3 h-3 text-[#FF4B00]" />
-                            {guide.seo.primaryKeyword}
-                          </span>
-                        ) : (
-                          <span className="text-xs text-stone-400 italic">No keyword set</span>
-                        )}
-                      </td>
-                      <td className="p-4 whitespace-nowrap">
-                        <div className="flex items-center gap-2">
-                          <div className="w-16 h-2 rounded-full bg-stone-100 overflow-hidden">
-                            <div
-                              className={`h-full ${
-                                audit.score >= 80 ? 'bg-emerald-500' : audit.score >= 50 ? 'bg-amber-500' : 'bg-red-500'
-                              }`}
-                              style={{ width: `${audit.score}%` }}
-                            />
-                          </div>
-                          <span
-                            className={`text-xs font-bold ${
-                              audit.score >= 80
-                                ? 'text-emerald-600'
-                                : audit.score >= 50
-                                ? 'text-amber-600'
-                                : 'text-red-600'
-                            }`}
-                          >
-                            {audit.score}/100
-                          </span>
-                        </div>
-                      </td>
-                      <td className="p-4 text-right whitespace-nowrap">
-                        <button
-                          type="button"
-                          onClick={() => setEditingGuide(guide)}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-[#FF4B00] bg-[#FF4B00]/10 hover:bg-[#FF4B00]/20 rounded-xl transition cursor-pointer"
-                        >
-                          <Edit3 className="w-3.5 h-3.5" />
-                          Edit SEO
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
-            </tbody>
-          </table>
+          <button
+            type="button"
+            onClick={() => setActiveSection('redirects')}
+            className={`px-3.5 py-2 rounded-xl text-xs font-black transition whitespace-nowrap cursor-pointer flex items-center gap-1.5 ${
+              activeSection === 'redirects'
+                ? 'bg-[#FF4B00] text-white shadow-xs'
+                : 'bg-orange-50 text-[#FF4B00] border border-orange-200 hover:bg-orange-100'
+            }`}
+          >
+            <Shuffle className="w-3.5 h-3.5" />
+            301 Redirects &amp; Migration
+          </button>
         </div>
       </div>
+
+      {/* When 301 Redirects tab is selected, render RedirectsManager */}
+      {activeSection === 'redirects' ? (
+        <RedirectsManager />
+      ) : (
+        <>
+          {/* Sub-Filters: Search Bar + Tour Type Pills + Score */}
+          <div className="bg-white border border-stone-200 rounded-2xl p-4 shadow-xs space-y-3">
+            <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
+              {/* Search Bar */}
+              <div className="relative flex-1">
+                <Search className="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Search pages, tour packages, destinations, keywords, or URLs..."
+                  className="w-full pl-9 pr-4 py-2 text-xs bg-stone-50 border border-stone-200 rounded-xl outline-none focus:border-[#FF4B00] font-medium"
+                />
+              </div>
+
+              {/* SEO Score Selector */}
+              <div className="flex items-center gap-2">
+                <Filter className="w-3.5 h-3.5 text-stone-400 shrink-0" />
+                <select
+                  value={scoreFilter}
+                  onChange={(e) => setScoreFilter(e.target.value as any)}
+                  className="px-3 py-2 text-xs bg-stone-50 border border-stone-200 rounded-xl outline-none focus:border-[#FF4B00] font-bold text-stone-700"
+                >
+                  <option value="all">All SEO Scores</option>
+                  <option value="needs-work">Needs Work (&lt; 60)</option>
+                  <option value="good">Good (60 - 79)</option>
+                  <option value="optimal">Optimal (80 - 100)</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Tour Type Filter Row (Shows whenever viewing All or Tour Packages) */}
+            {(activeSection === 'all' || activeSection === 'tours') && (
+              <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-stone-100">
+                <span className="text-[11px] font-black text-stone-500 uppercase tracking-wider mr-1 flex items-center gap-1">
+                  <Compass className="w-3.5 h-3.5 text-[#FF4B00]" />
+                  Tour Type:
+                </span>
+
+                {(['all', 'Family', 'Honeymoon', 'Pilgrimage', 'Group', 'Other'] as TourTypeFilter[]).map(
+                  (type) => {
+                    const isSelected = tourTypeFilter === type;
+                    return (
+                      <button
+                        key={type}
+                        type="button"
+                        onClick={() => setTourTypeFilter(type)}
+                        className={`px-3 py-1 rounded-lg text-xs font-bold transition cursor-pointer ${
+                          isSelected
+                            ? 'bg-[#FF4B00] text-white shadow-2xs'
+                            : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+                        }`}
+                      >
+                        {type === 'all' ? 'All Types' : `${type} Tours`}
+                      </button>
+                    );
+                  }
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Content Listing - Clean, Uncluttered Cards */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between text-xs text-stone-500 px-1 font-bold">
+              <span>Showing {filteredItems.length} indexed items</span>
+              <span>All links verified with https://holidayshunt.com</span>
+            </div>
+
+            {filteredItems.length === 0 ? (
+              <div className="bg-white border border-stone-200 rounded-3xl p-12 text-center space-y-2 shadow-xs">
+                <Search className="w-8 h-8 text-stone-300 mx-auto" />
+                <h4 className="text-base font-bold text-stone-800">No content items found</h4>
+                <p className="text-xs text-stone-500 max-w-sm mx-auto">
+                  Try adjusting your search query, section tab, or Tour Type filter.
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 gap-3">
+                {filteredItems.map((item) => {
+                  const score = getItemScore(item);
+                  return (
+                    <div
+                      key={`${item.itemType}-${item.id}`}
+                      className="bg-white border border-stone-200 hover:border-stone-300 rounded-2xl p-4 sm:p-5 shadow-xs transition hover:shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4"
+                    >
+                      {/* Left: Item Type, Tour Type, Title & Canonical URL */}
+                      <div className="space-y-1.5 flex-1 min-w-0">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="px-2 py-0.5 rounded-md bg-stone-100 text-stone-600 text-[10px] font-black uppercase tracking-wider">
+                            {item.itemType.replace('-', ' ')}
+                          </span>
+
+                          {item.itemType === 'tour' && (
+                            <span
+                              className={`px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider ${
+                                (item.tourType || '').toLowerCase().includes('honeymoon')
+                                  ? 'bg-rose-50 text-rose-700 border border-rose-200'
+                                  : (item.tourType || '').toLowerCase().includes('pilgrimage')
+                                  ? 'bg-amber-50 text-amber-800 border border-amber-200'
+                                  : (item.tourType || '').toLowerCase().includes('family')
+                                  ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                                  : 'bg-sky-50 text-sky-800 border border-sky-200'
+                              }`}
+                            >
+                              {item.tourType || 'Family'} Tour
+                            </span>
+                          )}
+
+                          {item.destination && (
+                            <span className="text-[11px] font-medium text-stone-400">
+                              • {item.destination}
+                            </span>
+                          )}
+                        </div>
+
+                        <h3 className="text-sm sm:text-base font-black text-stone-900 truncate">
+                          {item.name}
+                        </h3>
+
+                        <div className="flex items-center gap-1.5 font-mono text-[11px] text-stone-500 truncate">
+                          <Globe className="w-3 h-3 text-[#FF4B00] shrink-0" />
+                          <span className="text-stone-700 font-semibold truncate">
+                            {item.canonicalUrl}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Middle: Focus Keyword & Snippet Status */}
+                      <div className="hidden lg:flex flex-col gap-1 w-64 shrink-0">
+                        <div className="flex items-center gap-1 text-[11px] text-stone-600">
+                          <Tag className="w-3 h-3 text-stone-400 shrink-0" />
+                          <span className="font-bold text-stone-700 truncate">
+                            {item.focusKeyword || 'No keyword set'}
+                          </span>
+                        </div>
+
+                        <div className="flex items-center gap-2 text-[10px]">
+                          <span
+                            className={
+                              item.metaTitle && item.metaTitle.length <= 60
+                                ? 'text-emerald-700 font-bold'
+                                : 'text-amber-600 font-bold'
+                            }
+                          >
+                            Title: {item.metaTitle?.length || 0}c
+                          </span>
+                          <span className="text-stone-300">•</span>
+                          <span
+                            className={
+                              item.metaDescription && item.metaDescription.length <= 160
+                                ? 'text-emerald-700 font-bold'
+                                : 'text-amber-600 font-bold'
+                            }
+                          >
+                            Desc: {item.metaDescription?.length || 0}c
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Right: Score Meter & Quick Edit Action */}
+                      <div className="flex items-center justify-between md:justify-end gap-3 shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-stone-100">
+                        <div className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-stone-50 border border-stone-200">
+                          <div
+                            className={`w-2.5 h-2.5 rounded-full ${
+                              score >= 80 ? 'bg-emerald-500' : score >= 50 ? 'bg-amber-500' : 'bg-red-500'
+                            }`}
+                          />
+                          <span className="text-xs font-black text-stone-800">{score}/100</span>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedItem(item);
+                            setIsModalOpen(true);
+                          }}
+                          className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#FF4B00] text-white text-xs font-extrabold rounded-xl hover:bg-[#e04200] transition cursor-pointer shadow-2xs active:scale-98"
+                        >
+                          <Sparkles className="w-3.5 h-3.5" />
+                          Edit SEO {item.itemType === 'tour' ? '& Tour Type' : ''}
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </>
+      )}
+
+      {/* Unified SEO Modal */}
+      <UnifiedSEOModal
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          setSelectedItem(null);
+        }}
+        item={selectedItem}
+        onSave={handleSaveItem}
+      />
     </div>
   );
 };

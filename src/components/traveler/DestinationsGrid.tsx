@@ -119,51 +119,19 @@ export const DestinationsGrid: React.FC<DestinationsGridProps> = ({
                 />
 
                 {/* Scrim Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/40 to-black/10 group-hover:from-stone-950/95 group-hover:via-stone-950/70 transition-all duration-300 pointer-events-none" />
+                <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/30 to-transparent group-hover:from-stone-950/90 transition-all duration-300 pointer-events-none" />
 
-                {/* Top Badge */}
-                <div className="relative z-10 flex items-center justify-between pointer-events-none">
-                  <span className="text-[10px] sm:text-xs font-black tracking-wider text-white bg-stone-900/90 backdrop-blur-md px-3 py-1 rounded-full uppercase border border-white/20 shadow-xs">
-                    {dest.badge}
-                  </span>
-                  <span className="text-[10px] font-bold text-amber-300 bg-black/60 px-2.5 py-1 rounded-full backdrop-blur-xs border border-white/10">
-                    ★ {dest.rating} • {dest.bestTime}
-                  </span>
-                </div>
+                {/* Brand Color Subtle Hover Overlay */}
+                <div className="absolute inset-0 bg-[#FF4B00]/0 group-hover:bg-[#FF4B00]/10 transition-colors duration-300 pointer-events-none" />
 
-                {/* Bottom Content with Desktop Hover Overlay */}
-                <div className="relative z-10 text-white pointer-events-none flex flex-col gap-2">
-                  {/* Desktop Hover Revealed Top Activities & CTA */}
-                  <div className="hidden sm:flex flex-col gap-2 max-h-0 opacity-0 group-hover:max-h-48 group-hover:opacity-100 transition-all duration-300 overflow-hidden ease-out">
-                    <p className="text-xs text-stone-200 line-clamp-2 leading-relaxed font-medium">
-                      {dest.tagline}
-                    </p>
-                    
-                    <div className="flex items-center gap-1.5 text-[10px] font-bold text-amber-200 bg-white/15 backdrop-blur-md px-2.5 py-1 rounded-md border border-white/20">
-                      <Sparkles className="w-3 h-3 text-amber-300 shrink-0" />
-                      <span className="truncate">{dest.popularHighlight}</span>
-                    </div>
-
-                    <div className="mt-1 inline-flex items-center justify-between w-full bg-[#FF4B00] text-white px-3.5 py-1.5 rounded-xl text-xs font-black shadow-md transition-colors">
-                      <span>Explore Details & Yatras</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </div>
-                  </div>
-
-                  {/* Base Title & Package Count */}
-                  <div className="flex flex-col gap-1">
-                    <h3 className="text-xl sm:text-2xl font-black text-white group-hover:text-amber-200 transition-colors drop-shadow-md leading-tight tracking-tight">
+                {/* Bottom Destination Name & Brand-colored Arrow Only */}
+                <div className="relative z-10 text-white pointer-events-none mt-auto">
+                  <div className="flex items-center justify-between gap-3 pt-2">
+                    <h3 className="text-lg sm:text-xl font-black text-white group-hover:text-orange-200 transition-colors drop-shadow-md leading-tight tracking-tight">
                       {dest.name}
                     </h3>
-
-                    <div className="flex items-center justify-between pt-2 border-t border-white/20 mt-1">
-                      <span className="text-xs font-bold text-stone-200">
-                        {dest.packagesCount} Verified Packages
-                      </span>
-                      <div className="flex items-center gap-1.5 text-xs font-black text-amber-300 group-hover:text-amber-200 group-hover:translate-x-1 transition-all shrink-0">
-                        <span>Explore</span>
-                        <ArrowRight className="w-3.5 h-3.5" />
-                      </div>
+                    <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-[#FF4B00] group-hover:bg-[#FF4B00] group-hover:text-white group-hover:scale-110 transition-all duration-300 shadow-md shrink-0">
+                      <ArrowRight className="w-4 h-4" />
                     </div>
                   </div>
                 </div>

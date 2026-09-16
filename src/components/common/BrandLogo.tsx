@@ -14,7 +14,7 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
   className = '',
   imageClassName = '',
   showTagline = false,
-  taglineText = 'FAMILY • HONEYMOON • PILGRIMAGE • INTERNATIONAL',
+  taglineText = 'Expert in Kashmir & Himachal Tours',
 }) => {
   const [imgError, setImgError] = useState(false);
 

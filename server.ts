@@ -24,6 +24,21 @@ try {
 
 const CONTENTS_FILE = path.join(DB_DIR, 'contents.json');
 const DESTINATIONS_FILE = path.join(DB_DIR, 'destinations.json');
+const REDIRECTS_FILE = path.join(DB_DIR, 'redirects.json');
+
+interface RedirectRule {
+  id: string;
+  fromPath: string;
+  toPath: string;
+  statusCode?: number;
+  hits: number;
+  lastAccessed?: string;
+  notes?: string;
+  createdAt: string;
+}
+
+let redirectRulesCache: RedirectRule[] = [];
+
 
 function saveJsonSafely(filePath: string, data: any) {
   try {
@@ -45,6 +60,12 @@ function loadJsonSafely<T>(filePath: string, fallback: T): T {
     console.warn(`Failed to read JSON from ${filePath}:`, err);
   }
   return fallback;
+}
+
+redirectRulesCache = loadJsonSafely<RedirectRule[]>(REDIRECTS_FILE, []);
+function saveRedirectRules(rules: RedirectRule[]) {
+  redirectRulesCache = rules;
+  saveJsonSafely(REDIRECTS_FILE, rules);
 }
 
 const MIME_TYPES: Record<string, string> = {
@@ -77,6 +98,56 @@ app.use((_req, res, next) => {
   if (isProduction) res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
   next();
 });
+
+// 301 Permanent Redirect & Domain Migration Middleware (Protects SEO Traffic & PageRank)
+app.use((req, res, next) => {
+  // 1. Domain-level 301 Migration: If visitor or bot hits old domain (e.g. mybhaktisathi.com), 301 redirect to holidayshunt.com
+  const host = (req.headers.host || '').toLowerCase();
+  if (host.includes('mybhaktisathi.com')) {
+    const targetUrl = `https://holidayshunt.com${req.originalUrl}`;
+    return res.redirect(301, targetUrl);
+  }
+
+  // Skip internal, assets, Vite HMR, and API requests from URL redirects
+  if (
+    req.path.startsWith('/api/') ||
+    req.path.startsWith('/@') ||
+    req.path.startsWith('/src/') ||
+    req.path.startsWith('/node_modules/') ||
+    req.path.startsWith('/assets/')
+  ) {
+    return next();
+  }
+
+  // 2. 301 URL Redirect Mapping Rules
+  const rawPath = req.path;
+  const normalizedPath = rawPath.endsWith('/') && rawPath.length > 1 ? rawPath.slice(0, -1) : rawPath;
+  const pathLower = normalizedPath.toLowerCase();
+
+  const rule = redirectRulesCache.find((r) => {
+    const fromNorm = r.fromPath.endsWith('/') && r.fromPath.length > 1 ? r.fromPath.slice(0, -1) : r.fromPath;
+    return fromNorm.toLowerCase() === pathLower;
+  });
+
+  if (rule) {
+    rule.hits = (rule.hits || 0) + 1;
+    rule.lastAccessed = new Date().toISOString();
+    saveRedirectRules(redirectRulesCache);
+    const queryString = req.url.slice(req.path.length);
+    const destination = rule.toPath.startsWith('http') ? rule.toPath : `${rule.toPath}${queryString}`;
+    return res.redirect(rule.statusCode || 301, destination);
+  }
+
+  // 3. Strip legacy .html, .php, .aspx extensions for clean canonical URLs
+  if (/\.(html|php|aspx)$/i.test(rawPath)) {
+    const cleanPath = rawPath.replace(/\.(html|php|aspx)$/i, '');
+    const queryString = req.url.slice(req.path.length);
+    return res.redirect(301, `${cleanPath}${queryString}`);
+  }
+
+  next();
+});
+
 
 interface RateState { count: number; resetAt: number }
 function rateLimit(scope: string, limit: number, windowMs: number) {
@@ -913,7 +984,7 @@ function persistDestinations() {
 }
 
 // Dedicated Files Delivery Route - Serves uploaded media with full caching & fallback
-app.get(['/api/files/*', '/api/files'], async (req, res) => {
+app.get(['/api/files/{*splat}', '/api/files'], async (req, res) => {
   const rawPath = req.path.replace(/^\/api\/files\/?/, '');
   if (!rawPath) {
     res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
@@ -1672,8 +1743,7 @@ app.get('/sitemap.xml', (_req, res) => {
     { loc: '/tours', changefreq: 'daily', priority: '0.9' },
     { loc: '/destinations', changefreq: 'daily', priority: '0.9' },
     { loc: '/guide', changefreq: 'daily', priority: '0.9' },
-    { loc: '/panchang', changefreq: 'daily', priority: '0.8' },
-    { loc: '/rashifal', changefreq: 'daily', priority: '0.8' },
+    { loc: '/travel-blog', changefreq: 'daily', priority: '0.9' },
     { loc: '/reviews', changefreq: 'weekly', priority: '0.8' },
     { loc: '/info/about', changefreq: 'monthly', priority: '0.7' },
     { loc: '/info/locate_us', changefreq: 'monthly', priority: '0.7' },
@@ -1683,23 +1753,23 @@ app.get('/sitemap.xml', (_req, res) => {
     { loc: '/info/cancellation', changefreq: 'monthly', priority: '0.5' },
     { loc: '/info/privacy', changefreq: 'monthly', priority: '0.5' },
     { loc: '/info/security', changefreq: 'monthly', priority: '0.6' },
-    { loc: '/destination/vaishno-devi', changefreq: 'weekly', priority: '0.8' },
-    { loc: '/destination/himachal-devi-darshan', changefreq: 'weekly', priority: '0.8' },
-    { loc: '/destination/kashmir', changefreq: 'weekly', priority: '0.8' },
-    { loc: '/destination/kashi-varanasi', changefreq: 'weekly', priority: '0.8' },
-    { loc: '/destination/ayodhya', changefreq: 'weekly', priority: '0.8' },
-    { loc: '/destination/char-dham', changefreq: 'weekly', priority: '0.8' },
-    { loc: '/destination/mathura-vrindavan', changefreq: 'weekly', priority: '0.8' },
+    { loc: '/destination/kashmir', changefreq: 'weekly', priority: '0.9' },
+    { loc: '/destination/himachal-devi-darshan', changefreq: 'weekly', priority: '0.9' },
+    { loc: '/destination/jammu-kashmir', changefreq: 'weekly', priority: '0.9' },
+    { loc: '/destination/vaishno-devi', changefreq: 'weekly', priority: '0.9' },
+    { loc: '/destination/ladakh', changefreq: 'weekly', priority: '0.8' },
     { loc: '/destination/amritsar', changefreq: 'weekly', priority: '0.8' },
-    { loc: '/destination/tirupati-balaji', changefreq: 'weekly', priority: '0.8' },
-    { loc: '/destination/dwarka-somnath', changefreq: 'weekly', priority: '0.8' },
-    { loc: '/destination/puri-jagannath', changefreq: 'weekly', priority: '0.8' },
+    { loc: '/destination/goa', changefreq: 'weekly', priority: '0.8' },
+    { loc: '/destination/kerala', changefreq: 'weekly', priority: '0.8' },
+    { loc: '/destination/thailand', changefreq: 'weekly', priority: '0.8' },
+    { loc: '/destination/vietnam', changefreq: 'weekly', priority: '0.8' },
+    { loc: '/destination/bali', changefreq: 'weekly', priority: '0.8' },
+    { loc: '/destination/japan', changefreq: 'weekly', priority: '0.8' },
     { loc: '/guide/himachal-pradesh-devi-darshan-guide', changefreq: 'weekly', priority: '0.8' },
     { loc: '/guide/himachal-9-devi-yatra-guide', changefreq: 'weekly', priority: '0.8' },
     { loc: '/guide/jwala-ji-temple-guide', changefreq: 'weekly', priority: '0.8' },
     { loc: '/guide/chintpurni-temple-guide', changefreq: 'weekly', priority: '0.8' },
     { loc: '/guide/naina-devi-temple-guide', changefreq: 'weekly', priority: '0.8' },
-    { loc: '/guide/himachal-devi-darshan-from-delhi', changefreq: 'weekly', priority: '0.8' },
   ];
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -1720,6 +1790,151 @@ ${staticRoutes
   res.setHeader('Cache-Control', 'public, max-age=3600');
   return res.send(xml);
 });
+
+// Robots.txt to guide search engines and declare sitemap
+app.get('/robots.txt', (_req, res) => {
+  res.type('text/plain');
+  res.send(`User-agent: *
+Allow: /
+Disallow: /cms
+Disallow: /admin
+Disallow: /api/
+
+Sitemap: https://holidayshunt.com/sitemap.xml
+`);
+});
+
+// 301 Permanent Redirects & Traffic Protection Management APIs
+app.get('/api/redirects', (_req, res) => {
+  res.json({
+    rules: redirectRulesCache,
+    domainMigration: {
+      fromDomain: 'mybhaktisathi.com',
+      toDomain: 'holidayshunt.com',
+      status: 'active',
+      equityPassThrough: '100% (HTTP 301 Permanent)',
+    },
+    totalHits: redirectRulesCache.reduce((sum, r) => sum + (r.hits || 0), 0),
+  });
+});
+
+app.post('/api/redirects', (req, res) => {
+  const { fromPath, toPath, notes, statusCode } = req.body || {};
+  if (!fromPath || !toPath) {
+    return res.status(400).json({ error: 'fromPath and toPath are required' });
+  }
+  const cleanFrom = fromPath.trim().startsWith('/') || fromPath.startsWith('http') ? fromPath.trim() : `/${fromPath.trim()}`;
+  const cleanTo = toPath.trim().startsWith('/') || toPath.startsWith('http') ? toPath.trim() : `/${toPath.trim()}`;
+
+  const newRule: RedirectRule = {
+    id: `redir-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+    fromPath: cleanFrom,
+    toPath: cleanTo,
+    statusCode: Number(statusCode) === 302 ? 302 : 301,
+    hits: 0,
+    notes: cleanText(notes || '', 200),
+    createdAt: new Date().toISOString(),
+  };
+
+  redirectRulesCache.unshift(newRule);
+  saveRedirectRules(redirectRulesCache);
+  res.json({ success: true, rule: newRule });
+});
+
+app.put('/api/redirects/:id', (req, res) => {
+  const { id } = req.params;
+  const { fromPath, toPath, notes, statusCode } = req.body || {};
+  const idx = redirectRulesCache.findIndex((r) => r.id === id);
+  if (idx === -1) return res.status(404).json({ error: 'Rule not found' });
+
+  redirectRulesCache[idx] = {
+    ...redirectRulesCache[idx],
+    fromPath: fromPath ? (fromPath.trim().startsWith('/') || fromPath.startsWith('http') ? fromPath.trim() : `/${fromPath.trim()}`) : redirectRulesCache[idx].fromPath,
+    toPath: toPath ? (toPath.trim().startsWith('/') || toPath.startsWith('http') ? toPath.trim() : `/${toPath.trim()}`) : redirectRulesCache[idx].toPath,
+    notes: notes !== undefined ? cleanText(notes, 200) : redirectRulesCache[idx].notes,
+    statusCode: Number(statusCode) === 302 ? 302 : 301,
+  };
+  saveRedirectRules(redirectRulesCache);
+  res.json({ success: true, rule: redirectRulesCache[idx] });
+});
+
+app.delete('/api/redirects/:id', (req, res) => {
+  const { id } = req.params;
+  const initialLen = redirectRulesCache.length;
+  redirectRulesCache = redirectRulesCache.filter((r) => r.id !== id);
+  if (redirectRulesCache.length === initialLen) return res.status(404).json({ error: 'Rule not found' });
+  saveRedirectRules(redirectRulesCache);
+  res.json({ success: true });
+});
+
+app.post('/api/redirects/bulk', (req, res) => {
+  const { items } = req.body || {};
+  if (!Array.isArray(items)) return res.status(400).json({ error: 'items must be an array' });
+  let added = 0;
+  for (const item of items) {
+    if (item.fromPath && item.toPath) {
+      redirectRulesCache.unshift({
+        id: `redir-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        fromPath: item.fromPath.trim().startsWith('/') || item.fromPath.startsWith('http') ? item.fromPath.trim() : `/${item.fromPath.trim()}`,
+        toPath: item.toPath.trim().startsWith('/') || item.toPath.startsWith('http') ? item.toPath.trim() : `/${item.toPath.trim()}`,
+        statusCode: 301,
+        hits: 0,
+        notes: cleanText(item.notes || 'Bulk migration rule', 200),
+        createdAt: new Date().toISOString(),
+      });
+      added++;
+    }
+  }
+  saveRedirectRules(redirectRulesCache);
+  res.json({ success: true, added });
+});
+
+app.post('/api/redirects/test', (req, res) => {
+  const { url } = req.body || {};
+  if (!url) return res.status(400).json({ error: 'url is required' });
+  let testPath = url.trim();
+  try {
+    if (testPath.startsWith('http')) {
+      const u = new URL(testPath);
+      testPath = u.pathname;
+    }
+  } catch {}
+  const normalizedPath = testPath.endsWith('/') && testPath.length > 1 ? testPath.slice(0, -1) : testPath;
+  const pathLower = normalizedPath.toLowerCase();
+
+  const rule = redirectRulesCache.find((r) => {
+    const fromNorm = r.fromPath.endsWith('/') && r.fromPath.length > 1 ? r.fromPath.slice(0, -1) : r.fromPath;
+    return fromNorm.toLowerCase() === pathLower;
+  });
+
+  if (rule) {
+    return res.json({
+      matches: true,
+      statusCode: rule.statusCode || 301,
+      targetUrl: rule.toPath,
+      rule,
+      message: `Matches active 301 permanent redirect to ${rule.toPath}. Search engine PageRank is safely transferred.`,
+    });
+  }
+
+  if (/\.(html|php|aspx)$/i.test(testPath)) {
+    const clean = testPath.replace(/\.(html|php|aspx)$/i, '');
+    return res.json({
+      matches: true,
+      statusCode: 301,
+      targetUrl: clean,
+      message: `Automatically strips legacy file extension to ${clean}.`,
+    });
+  }
+
+  return res.json({
+    matches: false,
+    statusCode: 200,
+    targetUrl: testPath,
+    message: 'No redirect rule configured for this URL path.',
+  });
+});
+
 
 app.post('/api/fetch-hotel-details', publicApiRateLimit, requireCmsSession, async (req, res) => {
   const url = cleanText(req.body?.url, 500);

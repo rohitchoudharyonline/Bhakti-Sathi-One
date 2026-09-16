@@ -64,6 +64,7 @@ function publicHeaders(env: any, request: Request) {
     || origin.endsWith('.run.app')
     || origin.endsWith('.workers.dev')
     || origin.endsWith('.pages.dev')
+    || origin.includes('holidayshunt.com')
     || origin.includes('mybhaktisathi.com')
     || origin.includes('localhost')
     || origin.includes('127.0.0.1');
