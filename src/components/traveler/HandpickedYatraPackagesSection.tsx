@@ -529,7 +529,8 @@ export const HandpickedYatraPackagesSection: React.FC = () => {
       viewAllCategoryName="Pilgrimage"
       bgColor="bg-amber-50/40"
       borderColor="border-amber-100"
-      showGarland={false}
+      showGarland={true}
     />
   );
 };
+

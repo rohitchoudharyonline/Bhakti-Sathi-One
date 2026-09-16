@@ -268,7 +268,7 @@ export const LuxuryHomepage: React.FC = () => {
 
     return [
       ...dynamicDestOptions,
-      { id: 'all', name: 'All Sacred Yatras & Temples', region: 'Explore', desc: 'Browse all spiritual yatra & temple packages', type: 'dest' as const },
+      { id: 'all', name: 'All Destinations & Packages', region: 'Explore', desc: 'Browse all tour and holiday packages', type: 'dest' as const },
     ];
   }, [destinations]);
 

@@ -13,14 +13,14 @@ interface HeroSectionProps {
 }
 
 const PILGRIMAGE_CATEGORIES: { id: string; label: string; icon: string }[] = [
-  { id: 'All', label: 'All Sacred Yatras', icon: '✨' },
+  { id: 'All', label: 'All Destinations', icon: '✨' },
   { id: 'Devi & Shaktipeeth', label: 'Mata Vaishno Devi', icon: '✨' },
-  { id: 'Himachal Devi', label: 'Himachal Devi Darshan', icon: '🏔️' },
+  { id: 'Himachal Devi', label: 'Himachal Tour', icon: '🏔️' },
   { id: 'Ramayana Tour', label: 'Ayodhya & Kashi', icon: '🚩' },
-  { id: 'Jyotirlinga Darshan', label: '12 Jyotirlingas', icon: '🔱' },
-  { id: 'South India Temples', label: 'Rameshwaram & Tirupati', icon: '🛕' },
-  { id: 'Spiritual & Ganga Ghats', label: 'Jagannath Puri Dham', icon: '🌊' },
-  { id: 'Helicopter Yatra', label: 'Helicopter Yatras', icon: '🚁' },
+  { id: 'Jyotirlinga Darshan', label: 'Major Shrines', icon: '🔱' },
+  { id: 'South India Temples', label: 'South India Tours', icon: '🛕' },
+  { id: 'Spiritual & Ganga Ghats', label: 'Ganga Ghats & Tours', icon: '🌊' },
+  { id: 'Helicopter Yatra', label: 'Special Packages', icon: '🚁' },
 ];
 
 const POPULAR_DHAMS = [
@@ -83,7 +83,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             {/* Sacred Destination Input */}
             <div className="md:col-span-5 relative">
               <label className="text-[11px] font-extrabold text-stone-600 uppercase tracking-wider block mb-1.5">
-                Sacred Dham / Destination
+                Destination / Tour Name
               </label>
               <div className="flex items-center bg-stone-50 rounded-xl border border-stone-200 px-3.5 py-2.5 focus-within:border-stone-900 focus-within:ring-2 focus-within:ring-stone-900/20 focus-within:bg-white transition-all">
                 <MapPin className="w-4 h-4 text-stone-900 mr-2.5 shrink-0" />
