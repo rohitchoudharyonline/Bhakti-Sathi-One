@@ -9,7 +9,6 @@ import { MobileBottomNav } from './components/common/MobileBottomNav';
 import { FloatingSupportWidget } from './components/common/FloatingSupportWidget';
 import { SplashScreen } from './components/common/SplashScreen';
 import { TravelerAuthSessionSync } from './components/auth/TravelerAuthSessionSync';
-import { PWAInstallButton } from './components/common/PWAInstallButton';
 import { ErrorBoundary } from './components/common/ErrorBoundary';
 
 const EnhancedERP = lazy(() => import('./components/cms/EnhancedERP').then((m) => ({ default: m.EnhancedERP })));
@@ -159,7 +158,6 @@ const MainAppContent: React.FC = () => {
         {activeView === 'traveler' && !showTravelerGoogleAuth && !isSitemapOpen && !isPanchangOpen && !isHoroscopeOpen && <FloatingSupportWidget />}
         {!showTravelerGoogleAuth && <TravelerAuthModal />}
         <AdminFloatingBar />
-        <PWAInstallButton />
       </div>
     </>
   );

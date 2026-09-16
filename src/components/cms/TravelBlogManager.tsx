@@ -187,6 +187,7 @@ export const TravelBlogManager: React.FC<TravelBlogManagerProps> = ({
   const [newCatName, setNewCatName] = useState('');
   const [newCatSlug, setNewCatSlug] = useState('');
   const [newCatDesc, setNewCatDesc] = useState('');
+  const [newCatParentId, setNewCatParentId] = useState('');
   const [editingCategory, setEditingCategory] = useState<BlogCategory | null>(null);
 
   // --- Handlers for Post Management ---
@@ -523,6 +524,7 @@ Bring thermal layers in winter, comfortable walking boots, and modest attire for
         name: newCatName.trim(),
         slug,
         description: newCatDesc.trim(),
+        parentId: newCatParentId || undefined,
       });
       setEditingCategory(null);
     } else {
@@ -530,6 +532,7 @@ Bring thermal layers in winter, comfortable walking boots, and modest attire for
         name: newCatName.trim(),
         slug,
         description: newCatDesc.trim(),
+        parentId: newCatParentId || undefined,
         icon: 'Compass',
       });
     }
@@ -537,6 +540,7 @@ Bring thermal layers in winter, comfortable walking boots, and modest attire for
     setNewCatName('');
     setNewCatSlug('');
     setNewCatDesc('');
+    setNewCatParentId('');
   };
 
   const handleToggleTag = (tag: string) => {
@@ -1315,6 +1319,24 @@ Bring thermal layers in winter, comfortable walking boots, and modest attire for
             </div>
 
             <div>
+              <label className="block text-xs font-bold text-stone-700 mb-1">Parent Category (Optional Subcategory)</label>
+              <select
+                value={newCatParentId}
+                onChange={(e) => setNewCatParentId(e.target.value)}
+                className="w-full p-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-bold focus:bg-white focus:outline-none cursor-pointer"
+              >
+                <option value="">None (Top-Level Category)</option>
+                {blogCategories
+                  .filter((c) => !editingCategory || c.id !== editingCategory.id)
+                  .map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name}
+                    </option>
+                  ))}
+              </select>
+            </div>
+
+            <div>
               <label className="block text-xs font-bold text-stone-700 mb-1">Description</label>
               <textarea
                 rows={3}
@@ -1334,6 +1356,7 @@ Bring thermal layers in winter, comfortable walking boots, and modest attire for
                     setNewCatName('');
                     setNewCatSlug('');
                     setNewCatDesc('');
+                    setNewCatParentId('');
                   }}
                   className="px-4 py-2 bg-stone-100 hover:bg-stone-200 text-stone-800 rounded-xl text-xs font-bold"
                 >
@@ -1424,6 +1447,7 @@ Bring thermal layers in winter, comfortable walking boots, and modest attire for
                             setNewCatName(cat.name);
                             setNewCatSlug(cat.slug);
                             setNewCatDesc(cat.description || '');
+                            setNewCatParentId(cat.parentId || '');
                           }}
                           className="p-1.5 text-stone-500 hover:text-black hover:bg-stone-100 rounded-lg transition"
                           title="Edit Category"

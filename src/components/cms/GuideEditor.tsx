@@ -349,7 +349,7 @@ export const GuideEditor: React.FC<GuideEditorProps> = ({
         metaDescription: metaDescription.trim() || excerpt.trim(),
         primaryKeyword: primaryKeyword.trim(),
         secondaryKeywords,
-        canonicalUrl: `https://holidayshunt.com/guide/${cleanSlug}`,
+        canonicalUrl: `https://holidayshunt.com/guides/${cleanSlug}`,
       },
       faqs,
       createdAt: initialGuide?.createdAt || new Date().toISOString(),

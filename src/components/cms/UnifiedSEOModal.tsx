@@ -90,7 +90,7 @@ export const UnifiedSEOModal: React.FC<UnifiedSEOModalProps> = ({
       } else if (item.itemType === 'destination') {
         url = `https://holidayshunt.com/destination/${item.slug || item.id}`;
       } else if (item.itemType === 'guide') {
-        url = `https://holidayshunt.com/guide/${item.slug || item.id}`;
+        url = `https://holidayshunt.com/guides/${item.slug || item.id}`;
       } else if (item.itemType === 'custom-page') {
         url = `https://holidayshunt.com/page/${item.slug || item.id}`;
       } else {
@@ -133,7 +133,7 @@ export const UnifiedSEOModal: React.FC<UnifiedSEOModalProps> = ({
         if (item.itemType === 'page') url = `https://holidayshunt.com${item.path || ''}`;
         else if (item.itemType === 'tour') url = `https://holidayshunt.com/tours/${item.slug || item.id}`;
         else if (item.itemType === 'destination') url = `https://holidayshunt.com/destination/${item.slug || item.id}`;
-        else if (item.itemType === 'guide') url = `https://holidayshunt.com/guide/${item.slug || item.id}`;
+        else if (item.itemType === 'guide') url = `https://holidayshunt.com/guides/${item.slug || item.id}`;
         else if (item.itemType === 'custom-page') url = `https://holidayshunt.com/page/${item.slug || item.id}`;
         else url = `https://holidayshunt.com/${item.slug || ''}`;
       }

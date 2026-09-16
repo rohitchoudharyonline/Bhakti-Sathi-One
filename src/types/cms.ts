@@ -3,6 +3,7 @@ export interface BlogCategory {
   name: string;
   slug: string;
   description: string;
+  parentId?: string;
   icon?: string;
   postCount?: number;
 }

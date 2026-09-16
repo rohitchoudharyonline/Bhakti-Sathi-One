@@ -161,13 +161,13 @@ export const SEOManager: React.FC = () => {
 
     // 4. Guides & Blog Posts
     guides.forEach((g) => {
-      const canonical = `https://holidayshunt.com/guide/${g.slug || g.id}`;
+      const canonical = `https://holidayshunt.com/guides/${g.slug || g.id}`;
       items.push({
         id: g.id,
         itemType: 'guide',
         name: g.title,
         slug: g.slug || g.id,
-        path: `/guide/${g.slug || g.id}`,
+        path: `/guides/${g.slug || g.id}`,
         canonicalUrl: canonical,
         focusKeyword: g.seo?.primaryKeyword || g.destination,
         metaTitle: g.seo?.metaTitle || `${g.title} | Holidays Hunt Guide`,
