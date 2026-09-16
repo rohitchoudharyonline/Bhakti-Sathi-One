@@ -59,7 +59,7 @@ export const PWAInstallButton: React.FC = () => {
             {/* Logo / App Icon representation */}
             <div className="w-12 h-12 rounded-xl bg-orange-50 border border-orange-200/60 flex items-center justify-center shrink-0">
               <img 
-                src="/icon.png" 
+                src="/icon-holidays-hunt.png?v=2" 
                 alt="Holidays Hunt Logo" 
                 className="w-9 h-9 object-contain"
                 referrerPolicy="no-referrer"
