@@ -50,6 +50,7 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
     navigateToHome,
     navigateToPackage,
     navigateToDestination,
+    navigateToSearch,
     setSelectedPackageId,
     pageSeoConfigs,
   } = useTours();
@@ -122,27 +123,43 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
     const origin = typeof window !== 'undefined' ? window.location.origin : 'https://holidayshunt.com';
     const isTempleSpecific = selectedTempleId !== 'all' && selectedTempleMeta;
     const isDestSpecific = selectedDestSlug !== 'all' && currentDestMeta;
+    const isCategorySpecific = selectedCategory !== 'all' && selectedCategory;
+
+    const categorySeoKey = isCategorySpecific ? `tour-type-${selectedCategory.toLowerCase()}` : '';
+    const categorySeo = categorySeoKey ? pageSeoConfigs?.[categorySeoKey] : null;
     const toursSeo = pageSeoConfigs?.['tours'];
 
-    const pageTitle = isTempleSpecific
+    const pageTitle = isCategorySpecific
+      ? categorySeo?.metaTitle || `${selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1)} Tour Packages 2026 | Holidays Hunt`
+      : isTempleSpecific
       ? `${selectedTempleMeta?.name} Pilgrimage & Darshan Tour Packages 2026 | Holidays Hunt`
       : isDestSpecific
       ? `${currentDestMeta?.name} Tour Packages 2026 | Holidays Hunt`
-      : toursSeo?.metaTitle || 'Book Sacred Yatra & Spiritual Pilgrimage Packages | Holidays Hunt';
+      : toursSeo?.metaTitle || 'Book Family, Honeymoon & Pilgrimage Tour Packages | Holidays Hunt';
 
-    const pageDescription = isTempleSpecific
+    const pageDescription = isCategorySpecific
+      ? categorySeo?.metaDescription || `Explore verified ${selectedCategory} tour packages across India and top international destinations.`
+      : isTempleSpecific
       ? `Book customized pilgrimage itineraries and guided tour packages for ${selectedTempleMeta?.name}. Verified stays, private transfers, and experienced yatra guides.`
       : isDestSpecific
       ? `Explore all verified ${currentDestMeta?.name} holiday packages. Dedicated private cabs, inspected 3-star/4-star hotels, and 24/7 mountain support.`
-      : toursSeo?.metaDescription || 'Book premium spiritual and devotional tour packages. Unbeatable local prices, private cabs, premium stays, and 24/7 mountain assistance.';
+      : toursSeo?.metaDescription || 'Explore and book verified Family, Honeymoon, and Pilgrimage tour packages across India and International destinations.';
 
-    const canonicalPath = isTempleSpecific
+    const canonicalPath = isCategorySpecific
+      ? `/tour-type/${selectedCategory.toLowerCase()}`
+      : isTempleSpecific
       ? `/tours?temple=${selectedTempleMeta?.slug || selectedTempleMeta?.id}`
       : isDestSpecific
       ? `/tours/${selectedDestSlug}`
       : '/tours';
 
-    const breadcrumbs = isTempleSpecific
+    const breadcrumbs = isCategorySpecific
+      ? generateBreadcrumbSchema([
+          { name: 'Home', url: origin },
+          { name: 'Tour Types', url: `${origin}/tours` },
+          { name: `${selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1)} Tours`, url: `${origin}/tour-type/${selectedCategory.toLowerCase()}` },
+        ])
+      : isTempleSpecific
       ? generateBreadcrumbSchema([
           { name: 'Home', url: origin },
           { name: 'All Tours', url: `${origin}/tours` },
@@ -162,15 +179,15 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
     updatePageSeo({
       title: pageTitle,
       description: pageDescription,
-      canonicalUrl: !isDestSpecific && !isTempleSpecific && toursSeo?.canonicalUrl ? toursSeo.canonicalUrl : undefined,
+      canonicalUrl: isCategorySpecific && categorySeo?.canonicalUrl ? categorySeo.canonicalUrl : !isDestSpecific && !isTempleSpecific && toursSeo?.canonicalUrl ? toursSeo.canonicalUrl : undefined,
       canonicalPath,
       schemaData: breadcrumbs,
-      noIndex: toursSeo?.noIndex,
-      noFollow: toursSeo?.noFollow,
+      noIndex: categorySeo?.noIndex || toursSeo?.noIndex,
+      noFollow: categorySeo?.noFollow || toursSeo?.noFollow,
     });
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [selectedDestSlug, currentDestMeta, selectedTempleId, selectedTempleMeta, pageSeoConfigs]);
+  }, [selectedDestSlug, currentDestMeta, selectedTempleId, selectedTempleMeta, selectedCategory, pageSeoConfigs]);
 
   // Filtering & Sorting
   const filteredPackages = (packages || []).filter((pkg) => {
@@ -540,18 +557,34 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
             <div className="max-w-7xl mx-auto flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
               <div className="space-y-3 max-w-2xl">
                 <h1 className="text-2xl sm:text-3xl font-black text-stone-900 tracking-tight">
-                  {currentDestMeta && selectedDestSlug !== 'all'
-                    ? `${currentDestMeta.name} Tour Packages`
-                    : 'Pilgrimage Tours'}
+                  {selectedCategory && selectedCategory !== 'all' ? (
+                    selectedCategory === 'pilgrimage' ? 'Pilgrimage Tours' :
+                    selectedCategory === 'family' ? 'Family Tours' :
+                    selectedCategory === 'honeymoon' ? 'Honeymoon Tours' :
+                    selectedCategory === 'luxury' ? 'Luxury & Premium Tours' :
+                    selectedCategory === 'group' ? 'Group Departures' :
+                    `${selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1)} Tours`
+                  ) : currentDestMeta && selectedDestSlug !== 'all' ? (
+                    `${currentDestMeta.name} Tour Packages`
+                  ) : (
+                    'All Tour Packages Directory'
+                  )}
                 </h1>
                 <p className="text-stone-600 text-xs sm:text-sm font-medium leading-relaxed">
-                  {currentDestMeta && selectedDestSlug !== 'all' ? (
+                  {selectedCategory && selectedCategory !== 'all' ? (
+                    selectedCategory === 'pilgrimage' ? 'Book custom-tailored sacred yatras and holiday packages across Jammu Katra, Kashmir, Himachal Pradesh, Amritsar, and sacred Himalayan shrines.' :
+                    selectedCategory === 'family' ? 'Handcrafted family holiday packages with spacious private cabs, kid & elder friendly hotel stays, and relaxed sightseeing itineraries.' :
+                    selectedCategory === 'honeymoon' ? 'Romantic couples retreats with private chauffeur transfers, candle-light dinners, scenic mountain view resorts, and flower bed decorations.' :
+                    selectedCategory === 'luxury' ? 'Ultra-premium holiday packages featuring 5-star royal palace stays, private luxury transfers, and exclusive VIP experiences.' :
+                    selectedCategory === 'group' ? 'Join curated group tour departures across India and International circuits with experienced trip captains.' :
+                    `Explore our handpicked ${selectedCategory} tour packages.`
+                  ) : currentDestMeta && selectedDestSlug !== 'all' ? (
                     <>
                       Explore premium, fully customizable {currentDestMeta.name} Tour Packages with direct-operator pricing, handpicked stays, private chauffeur transfers, and 24/7 travel desk support.
                     </>
                   ) : (
                     <>
-                      Book custom-tailored sacred yatras and holiday packages across Jammu Katra, Kashmir, Himachal Pradesh, Amritsar, and sacred Himalayan shrines.
+                      Explore our entire handpicked collection of Pilgrimage, Family, Honeymoon, and Group tour packages across top domestic and international destinations with transparent pricing and 24/7 travel support.
                     </>
                   )}
                 </p>
@@ -626,13 +659,23 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
 
               <select
                 value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setSelectedCategory(val);
+                  navigateToSearch({
+                    category: val,
+                    destinationSlug: selectedDestSlug,
+                    templeId: selectedTempleId !== 'all' ? selectedTempleId : undefined,
+                    searchQuery: searchQuery || undefined,
+                  });
+                }}
                 className="p-2 bg-stone-100 border border-stone-200 rounded-xl text-xs font-semibold text-stone-800 focus:outline-none focus:ring-2 focus:ring-[#FF4B00]/20"
               >
                 <option value="all">All Tour Types</option>
                 <option value="pilgrimage">Pilgrimage Tours</option>
-                <option value="honeymoon">Honeymoon Tours</option>
                 <option value="family">Family Tours</option>
+                <option value="honeymoon">Honeymoon Tours</option>
+                <option value="group">Group Tours</option>
                 <option value="luxury">Luxury & Premium</option>
               </select>
 
@@ -731,7 +774,13 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-bold text-black flex items-center gap-2">
               <Compass className="w-5 h-5 text-stone-600" />
-              Available Pilgrimage Packages ({sortedPackages.length})
+              {selectedCategory && selectedCategory !== 'all'
+                ? `Available ${selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1)} Packages (${sortedPackages.length})`
+                : selectedTempleId !== 'all' && selectedTempleMeta
+                ? `Available ${selectedTempleMeta.name} Packages (${sortedPackages.length})`
+                : selectedDestSlug !== 'all' && currentDestMeta
+                ? `Available ${currentDestMeta.name} Tour Packages (${sortedPackages.length})`
+                : `Available Tour Packages (${sortedPackages.length})`}
             </h2>
           </div>
 

@@ -195,6 +195,7 @@ interface TourContextType {
   // Website Pages SEO (All Core Site Pages)
   pageSeoConfigs: Record<string, PageSeoConfig>;
   updatePageSeoConfig: (config: PageSeoConfig) => void;
+  deletePageSeoConfig: (id: string) => void;
   getPageSeoConfig: (idOrPath: string) => PageSeoConfig | undefined;
 
   // Media Library & Cloudflare R2 / D1 Storage
@@ -727,6 +728,19 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
         localStorage.setItem(STORAGE_KEYS.PAGE_SEO_CONFIGS, JSON.stringify(updated));
       } catch (err) {
         console.error('Failed to save page SEO config:', err);
+      }
+      return updated;
+    });
+  };
+
+  const deletePageSeoConfig = (id: string) => {
+    setPageSeoConfigs(prev => {
+      const updated = { ...prev };
+      delete updated[id];
+      try {
+        localStorage.setItem(STORAGE_KEYS.PAGE_SEO_CONFIGS, JSON.stringify(updated));
+      } catch (err) {
+        console.error('Failed to delete page SEO config:', err);
       }
       return updated;
     });
@@ -1597,6 +1611,23 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setIsGuidesHubOpen(true);
           setActiveGuideSlug(null);
         }
+      } else if (path.startsWith('/tour-type/') || path.startsWith('/tour-types/')) {
+        setActiveView('traveler');
+        setIsBlogHubOpen(false);
+        setActiveBlogSlug(null);
+        setIsDestinationsExplorerOpen(false);
+        setActiveCustomPageSlug(null);
+        _setSelectedPackageId(null);
+        _setSelectedDestinationSlug(null);
+        setIsToursDirectoryOpen(true);
+        const categorySegment = path
+          .replace('/tour-type/', '')
+          .replace('/tour-types/', '')
+          .replace(/^\/+/, '')
+          .split('/')[0]
+          .toLowerCase();
+        setSelectedToursDestination(null);
+        setSystemSearchParams({ category: categorySegment || 'all' });
       } else if (path.startsWith('/tours')) {
         setActiveView('traveler');
         setIsBlogHubOpen(false);
@@ -1605,7 +1636,15 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setActiveCustomPageSlug(null);
         const subParts = path.replace('/tours', '').replace(/^\/+/, '').split('/');
         const segment = subParts[0] ? subParts[0].toLowerCase() : '';
-        if (segment && segment.length > 0) {
+        const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+        const queryCategory = searchParams ? searchParams.get('category') || searchParams.get('tourType') : null;
+
+        if (segment && ['pilgrimage', 'family', 'honeymoon', 'group', 'luxury'].includes(segment)) {
+          _setSelectedPackageId(null);
+          setSelectedToursDestination(null);
+          setIsToursDirectoryOpen(true);
+          setSystemSearchParams({ category: segment });
+        } else if (segment && segment.length > 0) {
           // Check if segment matches a package id or slug or title slug
           const matchedPkg = packages.find(p => p.id.toLowerCase() === segment || p.slug.toLowerCase() === segment || p.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') === segment);
           if (matchedPkg) {
@@ -1616,11 +1655,17 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
             _setSelectedPackageId(null);
             setSelectedToursDestination(segment);
             setIsToursDirectoryOpen(true);
+            if (queryCategory) {
+              setSystemSearchParams({ destinationSlug: segment, category: queryCategory });
+            }
           }
         } else {
           _setSelectedPackageId(null);
           setSelectedToursDestination(null);
           setIsToursDirectoryOpen(true);
+          if (queryCategory) {
+            setSystemSearchParams({ category: queryCategory });
+          }
         }
       } else if (path.startsWith('/destinations')) {
         setActiveView('traveler');
@@ -2128,12 +2173,17 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsJapCounterOpen(false);
     setIsTravelerProfileOpen(false);
     if (typeof window !== 'undefined' && window.history.pushState) {
-      const destPart =
-        params?.destinationSlug && params.destinationSlug !== 'all'
-          ? `/${params.destinationSlug}`
-          : '';
-      const queryPart = params?.searchQuery ? `?q=${encodeURIComponent(params.searchQuery)}` : '';
-      window.history.pushState({}, '', `/tours${destPart}${queryPart}`);
+      if (params?.category && (!params.destinationSlug || params.destinationSlug === 'all') && !params.searchQuery) {
+        window.history.pushState({}, '', `/tour-type/${params.category.toLowerCase()}`);
+      } else {
+        const destPart =
+          params?.destinationSlug && params.destinationSlug !== 'all'
+            ? `/${params.destinationSlug}`
+            : '';
+        const queryPart = params?.searchQuery ? `?q=${encodeURIComponent(params.searchQuery)}` : '';
+        const catPart = params?.category && params.category !== 'all' ? `${queryPart ? '&' : '?'}category=${params.category.toLowerCase()}` : '';
+        window.history.pushState({}, '', `/tours${destPart}${queryPart}${catPart}`);
+      }
     }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -3412,6 +3462,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
         deleteCustomPage,
         pageSeoConfigs,
         updatePageSeoConfig,
+        deletePageSeoConfig,
         getPageSeoConfig,
         mediaAssets,
         cloudStorageSettings,

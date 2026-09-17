@@ -18,6 +18,8 @@ import {
   Filter,
   CheckCheck,
   Image as ImageIcon,
+  Plus,
+  Trash2,
 } from 'lucide-react';
 import { TourPackage } from '../../types/tour';
 import { DestinationMeta } from '../../data/destinationsData';
@@ -30,6 +32,7 @@ import { resolveDisplayImage, handleImageError } from '../../utils/imageResolver
 type ContentSection =
   | 'all'
   | 'tours'
+  | 'tour-types'
   | 'site-pages'
   | 'destinations'
   | 'guides'
@@ -50,6 +53,7 @@ export const SEOManager: React.FC = () => {
     updateCustomPage,
     pageSeoConfigs,
     updatePageSeoConfig,
+    deletePageSeoConfig,
     mediaAssets,
   } = useTours();
 
@@ -228,7 +232,8 @@ export const SEOManager: React.FC = () => {
     return allUnifiedItems.filter((item) => {
       // Section Filter
       if (activeSection === 'tours' && item.itemType !== 'tour') return false;
-      if (activeSection === 'site-pages' && item.itemType !== 'page') return false;
+      if (activeSection === 'tour-types' && !(item.path?.startsWith('/tour-type/') || item.id.startsWith('tour-type-'))) return false;
+      if (activeSection === 'site-pages' && (item.itemType !== 'page' || item.path?.startsWith('/tour-type/') || item.id.startsWith('tour-type-'))) return false;
       if (activeSection === 'destinations' && item.itemType !== 'destination') return false;
       if (activeSection === 'guides' && item.itemType !== 'guide') return false;
       if (activeSection === 'custom-pages' && item.itemType !== 'custom-page') return false;
@@ -322,21 +327,22 @@ export const SEOManager: React.FC = () => {
       }
     } else if (updated.itemType === 'page') {
       const existing = pageSeoConfigs[updated.id];
-      if (existing) {
-        updatePageSeoConfig({
-          ...existing,
-          metaTitle: updated.metaTitle || existing.metaTitle,
-          metaDescription: updated.metaDescription || existing.metaDescription,
-          focusKeyword: updated.focusKeyword || existing.focusKeyword,
-          canonicalUrl: updated.canonicalUrl || existing.canonicalUrl,
-          ogTitle: updated.ogTitle,
-          ogDescription: updated.ogDescription,
-          ogImage: updated.ogImage,
-          noIndex: updated.noIndex,
-          noFollow: updated.noFollow,
-          updatedAt: new Date().toISOString(),
-        });
-      }
+      updatePageSeoConfig({
+        ...(existing || {}),
+        id: updated.id,
+        pageName: updated.name || (existing ? existing.pageName : 'Tour Type Page'),
+        path: updated.path || (existing ? existing.path : `/tour-type/${updated.id.replace('tour-type-', '')}`),
+        metaTitle: updated.metaTitle || (existing ? existing.metaTitle : updated.name),
+        metaDescription: updated.metaDescription || (existing ? existing.metaDescription : ''),
+        focusKeyword: updated.focusKeyword || (existing ? existing.focusKeyword : ''),
+        canonicalUrl: updated.canonicalUrl || (existing ? existing.canonicalUrl : `https://holidayshunt.com${updated.path || ''}`),
+        ogTitle: updated.ogTitle,
+        ogDescription: updated.ogDescription,
+        ogImage: updated.ogImage,
+        noIndex: updated.noIndex || false,
+        noFollow: updated.noFollow || false,
+        updatedAt: new Date().toISOString(),
+      });
     } else if (updated.itemType === 'destination') {
       const existing = destinations[updated.id];
       if (existing) {
@@ -387,6 +393,39 @@ export const SEOManager: React.FC = () => {
     setTimeout(() => setNotice(null), 4000);
   };
 
+  const handleAddNewPageSeo = () => {
+    const rawSlug = window.prompt('Enter category/page slug (e.g. "corporate", "adventure", "cultural", "spiritual"):');
+    if (!rawSlug || !rawSlug.trim()) return;
+    const cleanSlug = rawSlug.toLowerCase().trim().replace(/[^a-z0-9-]/g, '-');
+    const newId = `tour-type-${cleanSlug}`;
+    const newPath = `/tour-type/${cleanSlug}`;
+    const pageTitleName = cleanSlug.charAt(0).toUpperCase() + cleanSlug.slice(1);
+
+    const newItem: UnifiedSeoItem = {
+      id: newId,
+      itemType: 'page',
+      name: `${pageTitleName} Tours`,
+      path: newPath,
+      canonicalUrl: `https://holidayshunt.com${newPath}`,
+      focusKeyword: `${cleanSlug} tour packages`,
+      metaTitle: `${pageTitleName} Tour Packages & Trips 2026 | Holidays Hunt`,
+      metaDescription: `Book verified ${cleanSlug} tour packages with private chauffeur transfers, handpicked hotel stays, and 24/7 travel assistance.`,
+      ogImage: '',
+      noIndex: false,
+      noFollow: false,
+    };
+    setSelectedItem(newItem);
+    setIsModalOpen(true);
+  };
+
+  const handleDeletePageSeo = (id: string, name: string) => {
+    if (window.confirm(`Are you sure you want to delete the SEO entry for "${name}"?`)) {
+      deletePageSeoConfig(id);
+      setNotice(`✓ Deleted SEO entry for "${name}"`);
+      setTimeout(() => setNotice(null), 4000);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Toast Notice */}
@@ -419,6 +458,14 @@ export const SEOManager: React.FC = () => {
           </div>
 
           <div className="flex flex-wrap items-center gap-2.5 shrink-0 pt-2 lg:pt-0">
+            <button
+              type="button"
+              onClick={handleAddNewPageSeo}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#FF4B00] text-white text-xs font-bold hover:bg-[#e04200] transition cursor-pointer shadow-2xs active:scale-95"
+            >
+              <Plus className="w-3.5 h-3.5 text-white" />
+              Add Tour Type / Page SEO
+            </button>
             <button
               type="button"
               onClick={handleNormalizeAllDomains}
@@ -462,10 +509,30 @@ export const SEOManager: React.FC = () => {
 
           <button
             type="button"
+            onClick={() => setActiveSection('tour-types')}
+            className={`px-3.5 py-2 rounded-xl text-xs font-black transition whitespace-nowrap cursor-pointer flex items-center gap-1.5 ${
+              activeSection === 'tour-types'
+                ? 'bg-[#FF4B00] text-white shadow-xs'
+                : 'bg-stone-100 text-stone-600 hover:bg-stone-200/80'
+            }`}
+          >
+            <Tag className="w-3.5 h-3.5" />
+            Tour Type Pages
+            <span
+              className={`px-1.5 py-0.2 rounded-md text-[10px] ${
+                activeSection === 'tour-types' ? 'bg-white/20 text-white' : 'bg-stone-200 text-stone-600'
+              }`}
+            >
+              {sitePageList.filter((sp) => sp.path?.startsWith('/tour-type/') || sp.id.startsWith('tour-type-')).length}
+            </span>
+          </button>
+
+          <button
+            type="button"
             onClick={() => setActiveSection('tours')}
             className={`px-3.5 py-2 rounded-xl text-xs font-black transition whitespace-nowrap cursor-pointer flex items-center gap-1.5 ${
               activeSection === 'tours'
-                ? 'bg-[#FF4B00] text-white shadow-xs'
+                ? 'bg-stone-900 text-white shadow-xs'
                 : 'bg-stone-100 text-stone-600 hover:bg-stone-200/80'
             }`}
           >
@@ -473,7 +540,7 @@ export const SEOManager: React.FC = () => {
             Tour Packages
             <span
               className={`px-1.5 py-0.2 rounded-md text-[10px] ${
-                activeSection === 'tours' ? 'bg-white/20 text-white' : 'bg-stone-200 text-stone-600'
+                activeSection === 'tours' ? 'bg-stone-800 text-stone-300' : 'bg-stone-200 text-stone-600'
               }`}
             >
               {packages.length}
@@ -774,6 +841,17 @@ export const SEOManager: React.FC = () => {
                           />
                           <span className="text-xs font-black text-stone-800">{score}/100</span>
                         </div>
+
+                        {item.itemType === 'page' && (
+                          <button
+                            type="button"
+                            onClick={() => handleDeletePageSeo(item.id, item.name)}
+                            className="inline-flex items-center gap-1.5 px-3 py-2 bg-red-50 text-red-700 hover:bg-red-100 border border-red-200 text-xs font-extrabold rounded-xl transition cursor-pointer active:scale-95"
+                            title="Delete SEO Entry"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        )}
 
                         <button
                           type="button"
