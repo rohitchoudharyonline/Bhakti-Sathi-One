@@ -197,22 +197,17 @@ export const CategoryToursCarouselSection: React.FC<GenericToursSectionProps> = 
     const targetType = categoryFilter.toLowerCase();
 
     const filtered = published.filter((pkg) => {
-      // Direct tourType match
-      if (pkg.tourType && pkg.tourType.toLowerCase() === targetType) return true;
-      // Category match
+      // Strict Tour Type match
+      if (pkg.tourType && pkg.tourType.toLowerCase() === targetType) {
+        return true;
+      }
+      
+      // Fallback: Check category string (legacy support)
       const cat = String(pkg.category || '').toLowerCase();
-      if (cat.includes(targetType)) return true;
-      // Title match or tags match
-      const title = String(pkg.title || '').toLowerCase();
-      if (targetType === 'honeymoon' && (title.includes('honeymoon') || title.includes('romantic') || cat.includes('honeymoon'))) {
+      if (cat === targetType || cat.includes(targetType)) {
         return true;
       }
-      if (targetType === 'family' && (title.includes('family') || cat.includes('family') || cat.includes('holiday') || cat.includes('leisure'))) {
-        return true;
-      }
-      if (targetType === 'pilgrimage' && (title.includes('yatra') || title.includes('darshan') || title.includes('temple') || cat.includes('pilgrimage') || cat.includes('spiritual') || cat.includes('yatra'))) {
-        return true;
-      }
+
       return false;
     });
 

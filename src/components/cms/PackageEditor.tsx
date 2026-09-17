@@ -939,19 +939,19 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
                   />
                 </div>
 
-                {/* SACRED TEMPLES & HOLY PLACES SELECTION */}
+                {/* TOP ATTRACTIONS & SIGHTSEEING SELECTION */}
                 <div className="md:col-span-2 pt-4 border-t border-slate-100 space-y-3">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                     <div>
                       <label className="text-xs font-black text-slate-900 flex items-center gap-1.5">
                         <span className="w-2 h-2 rounded-full bg-[#FF4B00]" />
-                        <span>Sacred Temples & Holy Places Visited on this Tour</span>
+                        <span>Top Attractions & Must-Visit Landmarks Visited on this Tour</span>
                         <span className="px-2 py-0.5 rounded-full bg-orange-100 text-[#FF4B00] text-[10px] font-black">
                           {selectedTempleIds.length} Selected
                         </span>
                       </label>
                       <p className="text-[11px] text-slate-500">
-                        Tag temples and holy places to enable travelers to filter and discover this package by shrine name on the homepage and directory.
+                        Tag top attractions and key landmarks to enable travelers to filter and discover this package by specific locations on the homepage and directory.
                       </p>
                     </div>
 
@@ -968,13 +968,13 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
                     </div>
                   </div>
 
-                  {/* Search and Category Filter for Temples */}
+                  {/* Search and Category Filter for Temples/Attractions */}
                   <div className="flex flex-col sm:flex-row items-center gap-2">
                     <input
                       type="text"
                       value={templeSearchQuery}
                       onChange={(e) => setTempleSearchQuery(e.target.value)}
-                      placeholder="Search temples by name, deity, or city..."
+                      placeholder="Search attractions by name, location, or keyword..."
                       className="w-full sm:w-64 text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 focus:bg-white focus:border-[#FF4B00] focus:outline-hidden"
                     />
 

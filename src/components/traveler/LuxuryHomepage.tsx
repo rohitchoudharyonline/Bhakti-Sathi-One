@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { motion } from 'motion/react';
 import {
   ArrowRight,
@@ -198,6 +198,50 @@ const WHY_HOLIDAYS_HUNT = [
 ];
 
 // ==========================================
+// LAZY IMAGE COMPONENT
+// ==========================================
+const LazyImage = ({ src, alt, className, onError, onLoad, ...props }: any) => {
+  const [isIntersecting, setIsIntersecting] = useState(false);
+  const imgRef = useRef<HTMLImageElement>(null);
+
+  useEffect(() => {
+    if (!imgRef.current) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setIsIntersecting(true);
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { rootMargin: '200px' } // Load images 200px before they enter viewport
+    );
+
+    observer.observe(imgRef.current);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
+
+  const placeholder = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1"%3E%3C/svg%3E';
+
+  return (
+    <img
+      ref={imgRef}
+      src={isIntersecting && src ? src : placeholder}
+      alt={alt}
+      className={className}
+      onError={onError}
+      onLoad={onLoad}
+      {...props}
+    />
+  );
+};
+
+// ==========================================
 // MAIN CLEAN PORTAL HOMEPAGE (MMT / CLEARTRIP STYLE)
 // ==========================================
 
@@ -247,47 +291,6 @@ export const LuxuryHomepage: React.FC = () => {
   const [isSearching, setIsSearching] = useState(false);
   const [loadedImages, setLoadedImages] = useState<Record<string, boolean>>({});
   const [pulsingTempleId, setPulsingTempleId] = useState<string | null>(null);
-
-  // Newsletter States
-  const [newsletterEmail, setNewsletterEmail] = useState('');
-  const [newsletterName, setNewsletterName] = useState('');
-  const [newsletterPhone, setNewsletterPhone] = useState('');
-  const [showNewsletterModal, setShowNewsletterModal] = useState(false);
-  const [newsletterStatus, setNewsletterStatus] = useState<'idle' | 'loading' | 'success'>('idle');
-
-  const handleInitialSubscribe = (e?: React.FormEvent) => {
-    e?.preventDefault();
-    if (!newsletterEmail) return;
-    setShowNewsletterModal(true);
-  };
-
-  const handleFinalSubscribe = (e?: React.FormEvent) => {
-    e?.preventDefault();
-    if (!newsletterEmail || !newsletterName || !newsletterPhone) return;
-    setNewsletterStatus('loading');
-    setTimeout(() => {
-      submitInquiry({
-        packageId: 'newsletter-subscription',
-        packageTitle: 'Newsletter Subscription (Homepage)',
-        travelerName: newsletterName,
-        email: newsletterEmail,
-        phone: newsletterPhone,
-        travelDate: new Date().toISOString().split('T')[0],
-        adults: 1,
-        children: 0,
-        specialRequests: 'Subscribed to newsletter from homepage',
-        estimatedTotal: 0
-      });
-      setNewsletterStatus('success');
-      setTimeout(() => {
-        setNewsletterStatus('idle');
-        setShowNewsletterModal(false);
-        setNewsletterEmail('');
-        setNewsletterName('');
-        setNewsletterPhone('');
-      }, 2000);
-    }, 500);
-  };
 
   const handleTempleClick = (temple: (typeof temples)[number]) => {
     setPulsingTempleId(temple.id);
@@ -874,10 +877,10 @@ export const LuxuryHomepage: React.FC = () => {
                       )}
 
                       {/* Background Cover Image */}
-                      <img
+                      <LazyImage
                         src={resolveDisplayImage(loc.coverImage, mediaAssets)}
                         alt={loc.name}
-                        onError={(e) => {
+                        onError={(e: any) => {
                           handleImageError(e, loc.coverImage, mediaAssets);
                           setLoadedImages((prev) => ({ ...prev, [loc.id]: true }));
                         }}
@@ -987,10 +990,10 @@ export const LuxuryHomepage: React.FC = () => {
                   className="group relative shrink-0 w-[210px] sm:w-[240px] md:w-[260px] aspect-[3/4] rounded-2xl sm:rounded-3xl overflow-hidden cursor-pointer border border-stone-200/90 hover:border-[#FF4B00] shadow-2xs hover:shadow-xl flex flex-col justify-end p-4 sm:p-5 snap-start select-none transition-[border-color,box-shadow] duration-300"
                 >
                   {/* Temple Image */}
-                  <img
+                  <LazyImage
                     src={resolveDisplayImage(temple.image, mediaAssets)}
                     alt={temple.name}
-                    onError={(e) => handleImageError(e, temple.image, mediaAssets)}
+                    onError={(e: any) => handleImageError(e, temple.image, mediaAssets)}
                     className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
                     loading="lazy"
                   />
@@ -1366,39 +1369,6 @@ export const LuxuryHomepage: React.FC = () => {
           </div>
         </section>
 
-        {/* Newsletter Subscription Section */}
-        <section className="py-12 bg-white relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#FF4B00]/5 to-transparent pointer-events-none" />
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
-            <div className="bg-[#1A222C] rounded-3xl p-8 sm:p-12 text-center max-w-4xl mx-auto shadow-2xl relative overflow-hidden">
-              <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
-                <svg width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
-              </div>
-              <h3 className="text-2xl sm:text-3xl font-black text-white mb-4">Get Exclusive Travel Deals</h3>
-              <p className="text-slate-300 text-sm sm:text-base mb-8 max-w-xl mx-auto">
-                Subscribe to our newsletter for handpicked itineraries, secret discounts, and travel inspiration delivered straight to your inbox.
-              </p>
-              
-              <form onSubmit={handleInitialSubscribe} className="flex flex-col sm:flex-row gap-3 max-w-xl mx-auto">
-                <input 
-                  type="email" 
-                  required
-                  value={newsletterEmail}
-                  onChange={(e) => setNewsletterEmail(e.target.value)}
-                  placeholder="Enter your email address"
-                  className="flex-1 bg-white/10 border border-white/20 text-white placeholder-slate-400 px-5 py-3.5 rounded-xl focus:outline-none focus:border-[#FF4B00] focus:ring-1 focus:ring-[#FF4B00] text-sm"
-                />
-                <button 
-                  type="submit"
-                  className="bg-[#FF4B00] hover:bg-[#E04200] text-white px-8 py-3.5 rounded-xl font-bold text-sm transition shadow-lg shadow-[#FF4B00]/25 whitespace-nowrap"
-                >
-                  Subscribe
-                </button>
-              </form>
-            </div>
-          </div>
-        </section>
-
         {/* Frequently Asked Questions (FAQ) Section */}
         <FaqSection />
         </PullToRefresh>
@@ -1406,66 +1376,6 @@ export const LuxuryHomepage: React.FC = () => {
 
       {/* Footer */}
       <Footer />
-
-      {/* Newsletter Modal */}
-      {showNewsletterModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="bg-white rounded-3xl w-full max-w-md shadow-2xl relative overflow-hidden flex flex-col max-h-[90vh]">
-            <div className="p-6 border-b border-gray-100 flex items-center justify-between sticky top-0 bg-white z-10">
-              <h3 className="text-xl font-bold text-gray-900">Complete Subscription</h3>
-              <button 
-                onClick={() => setShowNewsletterModal(false)}
-                className="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-50 transition"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-            <div className="p-6 overflow-y-auto">
-              <p className="text-sm text-gray-500 mb-6">
-                You're subscribing with <strong>{newsletterEmail}</strong>. Please provide a few more details to help us personalize your offers.
-              </p>
-              <form onSubmit={handleFinalSubscribe} className="space-y-6">
-                <div>
-                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Full Name *</label>
-                  <input 
-                    type="text" 
-                    required
-                    value={newsletterName}
-                    onChange={(e) => setNewsletterName(e.target.value)}
-                    className="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#FF4B00] focus:ring-1 focus:ring-[#FF4B00]"
-                    placeholder="Enter your full name"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Mobile No. *</label>
-                  <div className="flex">
-                    <div className="border border-gray-300 border-r-0 rounded-l-xl px-3 py-3 bg-gray-50 flex items-center gap-1.5 shrink-0">
-                      <span className="text-lg leading-none">🇮🇳</span>
-                      <span className="text-sm font-medium text-gray-600">+91</span>
-                    </div>
-                    <input 
-                      type="tel" 
-                      required
-                      value={newsletterPhone}
-                      onChange={(e) => setNewsletterPhone(e.target.value)}
-                      className="flex-1 border border-gray-300 rounded-r-xl px-4 py-3 text-sm focus:outline-none focus:border-[#FF4B00] focus:ring-1 focus:ring-[#FF4B00]"
-                      placeholder="Enter mobile number"
-                    />
-                  </div>
-                </div>
-                
-                <button 
-                  type="submit"
-                  disabled={newsletterStatus !== 'idle'}
-                  className="w-full bg-[#FF4B00] hover:bg-[#E04200] text-white py-3.5 rounded-xl font-bold text-sm transition disabled:opacity-70 mt-2 shadow-lg shadow-[#FF4B00]/20"
-                >
-                  {newsletterStatus === 'loading' ? 'Subscribing...' : newsletterStatus === 'success' ? 'Subscribed!' : 'Complete Subscription'}
-                </button>
-              </form>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

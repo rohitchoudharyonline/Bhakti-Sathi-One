@@ -232,7 +232,13 @@ export const CMSDashboard: React.FC = () => {
 
   const filteredPackages = packages.filter((pkg) => {
     if (statusFilter !== 'All' && pkg.status !== statusFilter) return false;
-    if (categoryFilter !== 'All' && pkg.category !== categoryFilter) return false;
+    
+    if (categoryFilter !== 'All') {
+      const matchTourType = pkg.tourType?.toLowerCase() === categoryFilter.toLowerCase();
+      const matchCategory = pkg.category?.toLowerCase() === categoryFilter.toLowerCase();
+      if (!matchTourType && !matchCategory) return false;
+    }
+
     if (searchTerm.trim()) {
       const q = searchTerm.toLowerCase();
       return (
@@ -1008,7 +1014,7 @@ export const CMSDashboard: React.FC = () => {
                   onChange={(e) => setCategoryFilter(e.target.value)}
                   className="w-full sm:w-auto text-xs font-bold bg-stone-50 border border-stone-300 rounded-xl px-2.5 py-2.5 text-stone-800 focus:outline-hidden truncate"
                 >
-                  <option value="All">All Categories</option>
+                  <option value="All">All Tour Types</option>
                   <option value="Family">Family</option>
                   <option value="Honeymoon">Honeymoon</option>
                   <option value="Pilgrimage">Pilgrimage</option>
