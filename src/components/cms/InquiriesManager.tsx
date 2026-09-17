@@ -96,8 +96,22 @@ export const InquiriesManager: React.FC<{
   const canManage =
     currentStaffUser.role === 'super_admin' || currentStaffUser.permissions.canManageInquiries;
 
+  const isNewsletterInquiry = (inq: BookingInquiry) => {
+    if (!inq) return false;
+    const pkgId = (inq.packageId || '').toLowerCase();
+    const pkgTitle = (inq.packageTitle || '').toLowerCase();
+    const req = (inq.specialRequests || '').toLowerCase();
+    return (
+      pkgId.includes('newsletter') ||
+      pkgId.includes('subscribe') ||
+      pkgTitle.includes('newsletter') ||
+      pkgTitle.includes('subscriber') ||
+      req.includes('subscribed to newsletter')
+    );
+  };
+
   const filteredInquiries = inquiries.filter((inq) => {
-    const isNewsletter = inq.packageId === 'newsletter-signup';
+    const isNewsletter = isNewsletterInquiry(inq);
     if (leadTypeFilter === 'tours' && isNewsletter) return false;
     if (leadTypeFilter === 'newsletter' && !isNewsletter) return false;
 
@@ -304,7 +318,7 @@ export const InquiriesManager: React.FC<{
         >
           <span>✈️ Yatra Bookings</span>
           <span className="bg-stone-200/80 px-1.5 py-0.5 rounded-md text-[10px] font-mono">
-            {inquiries.filter(i => i.packageId !== 'newsletter-signup').length}
+            {inquiries.filter(i => !isNewsletterInquiry(i)).length}
           </span>
         </button>
         <button
@@ -316,7 +330,7 @@ export const InquiriesManager: React.FC<{
         >
           <span>📬 Newsletter Signups</span>
           <span className="bg-stone-200/80 px-1.5 py-0.5 rounded-md text-[10px] font-mono">
-            {inquiries.filter(i => i.packageId === 'newsletter-signup').length}
+            {inquiries.filter(i => isNewsletterInquiry(i)).length}
           </span>
         </button>
       </div>
@@ -404,7 +418,7 @@ export const InquiriesManager: React.FC<{
           filteredInquiries.map((inq) => {
             const assignedStaff = staff.find((s) => s.id === inq.assignedStaffId);
 
-            const isNewsletter = inq.packageId === 'newsletter-signup';
+            const isNewsletter = isNewsletterInquiry(inq);
             if (isNewsletter) {
               return (
                 <div

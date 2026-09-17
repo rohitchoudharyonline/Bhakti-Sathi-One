@@ -33,6 +33,7 @@ export const SYNCED_REGISTRIES: SyncedRegistryDef[] = [
   { id: 'registry-page-seo', storageKey: 'hh_page_seo_configs_v1', title: 'Page SEO Configs Registry', contentType: 'shared_local_state' },
   { id: 'registry-media-assets-v2', storageKey: 'hh_media_assets_v2', title: 'Media Assets Registry', contentType: 'shared_local_state' },
   { id: 'registry-media-assets', storageKey: 'hh_media_assets_v1', title: 'Legacy Media Assets Registry', contentType: 'shared_local_state' },
+  { id: 'registry-inquiries-v2', storageKey: 'hh_booking_inquiries_v2', title: 'Booking Inquiries & Newsletter Registry', contentType: 'shared_local_state' },
   { id: 'registry-settings-v2', storageKey: 'hh_agency_settings_v2', title: 'Agency Settings Registry', contentType: 'shared_local_state' },
   { id: 'registry-settings', storageKey: 'hh_system_settings_v1', title: 'Legacy Agency Settings Registry', contentType: 'shared_local_state' },
 ];

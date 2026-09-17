@@ -197,22 +197,18 @@ export const CategoryToursCarouselSection: React.FC<GenericToursSectionProps> = 
     const targetType = categoryFilter.toLowerCase();
 
     const filtered = published.filter((pkg) => {
-      // Strict Tour Type match
-      if (pkg.tourType && pkg.tourType.toLowerCase() === targetType) {
-        return true;
+      // If pkg.tourType is defined, check strict match against targetType
+      if (pkg.tourType) {
+        return pkg.tourType.toLowerCase() === targetType;
       }
       
-      // Fallback: Check category string (legacy support)
+      // Fallback for legacy packages: Check category string
       const cat = String(pkg.category || '').toLowerCase();
-      if (cat === targetType || cat.includes(targetType)) {
-        return true;
-      }
-
-      return false;
+      return cat === targetType || cat.includes(targetType);
     });
 
-    // If fewer than 2 match directly, fallback to general published packages
-    const source = filtered.length >= 2 ? filtered : published;
+    // Use strictly matching packages only (no fallback to published packages)
+    const source = filtered;
 
     return [...source]
       .sort(

@@ -83,7 +83,7 @@ export const Footer: React.FC<FooterProps> = ({ onSelectDestination, onSelectDha
     setNewsletterStatus('loading');
     setTimeout(() => {
       submitInquiry({
-        packageId: 'newsletter-subscription',
+        packageId: 'newsletter-signup',
         packageTitle: 'Newsletter Subscription',
         travelerName: newsletterName,
         email: newsletterEmail,

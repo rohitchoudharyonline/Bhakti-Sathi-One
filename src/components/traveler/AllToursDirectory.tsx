@@ -242,39 +242,42 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
     // Category / Tour Type (Pilgrimage, Honeymoon, Family)
     if (selectedCategory !== 'all') {
       const cat = selectedCategory.toLowerCase();
-      const pkgCat = (pkg.category || '').toLowerCase();
       const pkgTourType = ((pkg as any).tourType || '').toLowerCase();
+      const pkgCat = (pkg.category || '').toLowerCase();
       const pkgTitle = (pkg.title || '').toLowerCase();
       const pkgDesc = ((pkg as any).description || pkg.tagline || pkg.overview || '').toLowerCase();
 
-      if (cat === 'family') {
-        const isFamily =
-          pkgCat.includes('family') ||
-          pkgTourType.includes('family') ||
-          pkgTitle.includes('family') ||
-          pkgTitle.includes('vacation') ||
-          pkgDesc.includes('family') ||
-          (pkg as any).tags?.includes('family');
-        if (!isFamily) return false;
-      } else if (cat === 'honeymoon') {
-        const isHoneymoon =
-          pkgCat.includes('honeymoon') ||
-          pkgTourType.includes('honeymoon') ||
-          pkgTitle.includes('honeymoon') ||
-          pkgTitle.includes('romantic') ||
-          pkgDesc.includes('honeymoon') ||
-          pkgDesc.includes('romantic');
-        if (!isHoneymoon) return false;
-      } else if (cat === 'pilgrimage') {
-        const isPilgrimage =
-          pkgCat.includes('pilgrimage') ||
-          pkgTourType.includes('pilgrimage') ||
-          pkgCat.includes('yatra') ||
-          pkgTitle.includes('yatra') ||
-          pkgTitle.includes('vaishno') ||
-          pkgTitle.includes('amritsar') ||
-          (pkg.destination || '').toLowerCase() === 'jammu';
-        if (!isPilgrimage) return false;
+      if (['family', 'honeymoon', 'pilgrimage'].includes(cat)) {
+        if (pkgTourType) {
+          if (pkgTourType !== cat && !pkgTourType.includes(cat)) return false;
+        } else {
+          if (cat === 'family') {
+            const isFamily =
+              pkgCat.includes('family') ||
+              pkgTitle.includes('family') ||
+              pkgTitle.includes('vacation') ||
+              pkgDesc.includes('family') ||
+              (pkg as any).tags?.includes('family');
+            if (!isFamily) return false;
+          } else if (cat === 'honeymoon') {
+            const isHoneymoon =
+              pkgCat.includes('honeymoon') ||
+              pkgTitle.includes('honeymoon') ||
+              pkgTitle.includes('romantic') ||
+              pkgDesc.includes('honeymoon') ||
+              pkgDesc.includes('romantic');
+            if (!isHoneymoon) return false;
+          } else if (cat === 'pilgrimage') {
+            const isPilgrimage =
+              pkgCat.includes('pilgrimage') ||
+              pkgCat.includes('yatra') ||
+              pkgTitle.includes('yatra') ||
+              pkgTitle.includes('vaishno') ||
+              pkgTitle.includes('amritsar') ||
+              (pkg.destination || '').toLowerCase() === 'jammu';
+            if (!isPilgrimage) return false;
+          }
+        }
       } else if (cat === 'luxury') {
         const isLuxury =
           pkgCat.includes('luxury') ||
