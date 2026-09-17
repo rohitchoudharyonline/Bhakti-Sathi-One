@@ -526,22 +526,27 @@ export const Footer: React.FC<FooterProps> = ({ onSelectDestination, onSelectDha
           </div>
 
           <div className="pt-8 border-t border-slate-800">
-            {/* Subscription Section */}
-            <div className="flex flex-col items-center justify-center text-center pb-6">
-              <h4 className="text-slate-300 text-[13px] sm:text-sm mb-4">Subscribe for handpicked itineraries & travel inspiration.</h4>
-              <button 
-                onClick={() => setShowNewsletterModal(true)}
-                className="bg-[#FF4B00] hover:bg-[#E04200] text-white px-8 py-3 rounded-xl font-bold text-sm transition shrink-0"
-              >
-                Subscribe
-              </button>
-            </div>
+            <div className="w-full max-w-5xl mx-auto mb-8 flex flex-col md:flex-row items-center justify-between gap-6 bg-[#1A222C] border border-slate-700/50 rounded-2xl p-6 shadow-sm">
+              
+              {/* Subscription Section */}
+              <div className="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
+                <h4 className="text-slate-300 text-[14px] sm:text-base font-medium">Subscribe for handpicked itineraries & travel inspiration.</h4>
+                <button 
+                  onClick={() => setShowNewsletterModal(true)}
+                  className="bg-[#FF4B00] hover:bg-[#E04200] text-white px-8 py-3 rounded-xl font-bold text-sm transition shrink-0 shadow-lg shadow-[#FF4B00]/20"
+                >
+                  Subscribe
+                </button>
+              </div>
 
-            <div className="w-full max-w-5xl mx-auto border-t border-slate-800/50 mb-6"></div>
+              {/* Vertical Divider for Desktop */}
+              <div className="hidden md:block w-px h-12 bg-slate-700/50"></div>
+              
+              {/* Horizontal Divider for Mobile */}
+              <div className="block md:hidden w-full h-px bg-slate-700/50"></div>
 
-            {/* Recognised By Section */}
-            <div className="pb-8 w-full max-w-5xl mx-auto">
-              <div className="bg-[#1A222C] border border-slate-700/50 rounded-xl px-5 py-2.5 flex items-center justify-center gap-3 shadow-sm w-full">
+              {/* Recognised By Section */}
+              <div className="flex items-center gap-4">
                 <span className="text-slate-400 text-xs sm:text-sm font-medium whitespace-nowrap">Recognised By</span>
                 <div className="bg-white px-3 py-1.5 rounded-lg flex items-center justify-center">
                    <img src="https://media.holidayshunt.com/uploads/2026/09/257811.webp" alt="Recognised by Ministry of Tourism" className="h-7 sm:h-9 w-auto object-contain" />

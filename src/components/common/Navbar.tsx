@@ -79,7 +79,7 @@ export const Navbar: React.FC = () => {
                 e.stopPropagation();
                 setMobileMenuOpen(!mobileMenuOpen);
               }}
-              className="lg:hidden p-1 bg-transparent border-none text-[#1A1A1A] hover:text-[#FF4B00] transition cursor-pointer shrink-0"
+              className="md:hidden p-1 bg-transparent border-none text-[#1A1A1A] hover:text-[#FF4B00] transition cursor-pointer shrink-0"
               aria-label="Toggle mobile menu"
             >
               {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
@@ -90,7 +90,7 @@ export const Navbar: React.FC = () => {
           </div>
 
           {/* Center Navigation Links (Traveler Mode Desktop) */}
-          <nav className="hidden lg:flex items-center gap-6 text-sm font-bold text-[#1A1A1A]">
+          <nav className="hidden md:flex items-center gap-8 text-sm font-bold text-[#1A1A1A]">
             <button
               type="button"
               onClick={navigateToHome}
@@ -100,22 +100,7 @@ export const Navbar: React.FC = () => {
                   : 'text-[#1A1A1A]/80 hover:text-[#1A1A1A]'
               }`}
             >
-              Explore
-            </button>
-
-            <button
-              type="button"
-              onClick={navigateToAllTours}
-              className={`transition cursor-pointer flex items-center gap-1.5 py-1 ${
-                isToursDirectoryOpen
-                  ? 'text-[#FF4B00] font-black border-b-2 border-[#FF4B00]'
-                  : 'text-[#1A1A1A]/80 hover:text-[#1A1A1A]'
-              }`}
-            >
-              <span>All Tours</span>
-              <span className="px-1.5 py-0.5 text-[10px] font-extrabold rounded-full bg-stone-100 text-[#1A1A1A] border border-stone-200">
-                {publishedPackagesCount}
-              </span>
+              Home
             </button>
 
             <button
@@ -127,48 +112,20 @@ export const Navbar: React.FC = () => {
                   : 'text-[#1A1A1A]/80 hover:text-[#1A1A1A]'
               }`}
             >
-              Destinations
+              Destination
             </button>
 
             <button
               type="button"
-              onClick={navigateToGuideHub}
+              onClick={navigateToAllTours}
               className={`transition cursor-pointer py-1 ${
-                isGuidesHubOpen || isBlogHubOpen
+                isToursDirectoryOpen
                   ? 'text-[#FF4B00] font-black border-b-2 border-[#FF4B00]'
                   : 'text-[#1A1A1A]/80 hover:text-[#1A1A1A]'
               }`}
             >
-              Guide
+              Tour Type
             </button>
-
-            <button
-              type="button"
-              onClick={navigateToJapCounter}
-              className={`transition cursor-pointer py-1 flex items-center gap-1 ${
-                isJapCounterOpen
-                  ? 'text-[#FF4B00] font-black border-b-2 border-[#FF4B00]'
-                  : 'text-[#1A1A1A]/80 hover:text-[#FF4B00]'
-              }`}
-            >
-              <Sparkles className="w-3.5 h-3.5 text-[#FF4B00]" />
-              <span>Jap Counter</span>
-            </button>
-
-            <a
-              href="#custom-planner-section"
-              className="hover:text-[#FF4B00] transition flex items-center gap-1 text-[#1A1A1A] font-bold py-1"
-              onClick={(e) => {
-                if (activeView !== 'traveler') {
-                  e.preventDefault();
-                  setActiveView('traveler');
-                }
-                setSelectedPackageId(null);
-              }}
-            >
-              <Sparkles className="w-3.5 h-3.5 text-[#FF4B00]" />
-              <span>Plan Custom Trip</span>
-            </a>
           </nav>
 
           {/* Right Action Icons & Mobile / Desktop Controls */}
@@ -226,7 +183,7 @@ export const Navbar: React.FC = () => {
 
         {/* Mobile Dropdown Drawer */}
         {mobileMenuOpen && (
-          <div className="lg:hidden bg-white border-t border-stone-200 px-4 py-4 space-y-2.5 animate-in slide-in-from-top-2 duration-200 shadow-lg">
+          <div className="md:hidden bg-white border-t border-stone-200 px-4 py-4 space-y-2.5 animate-in slide-in-from-top-2 duration-200 shadow-lg">
             <button
               type="button"
               onClick={() => {
