@@ -64,7 +64,6 @@ import { resolveDisplayImage, handleImageError } from '../../utils/imageResolver
 import { isValidEmail } from '../../utils/validation';
 import { EmailVerificationInput } from '../common/EmailVerificationInput';
 import { TravelerReviewsSection } from './TravelerReviewsSection';
-import { JapCounterIcon } from './JapCounterIcon';
 import { PencilTempleIllustration } from './PencilTempleIllustration';
 import { HandpickedYatraPackagesSection, CategoryToursCarouselSection } from './HandpickedYatraPackagesSection';
 import { PullToRefresh } from '../common/PullToRefresh';
@@ -736,9 +735,6 @@ export const LuxuryHomepage: React.FC = () => {
                 </div>
               </form>
             </div>
-
-            {/* Sacred 108 Japa Mala Counter Small Quick Icon (No text, pure icon) */}
-            <JapCounterIcon />
           </div>
         </section>
 

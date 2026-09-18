@@ -232,17 +232,6 @@ export const Navbar: React.FC = () => {
               📖 Guide
             </button>
 
-            <button
-              type="button"
-              onClick={() => {
-                navigateToJapCounter();
-                setMobileMenuOpen(false);
-              }}
-              className="w-full text-left block py-2.5 px-3 rounded-lg text-xs font-bold text-amber-900 bg-amber-50 border border-amber-300"
-            >
-              📿 Daily Meditation & Jap Counter
-            </button>
-
             <a
               href="#custom-planner-section"
               onClick={() => setMobileMenuOpen(false)}
