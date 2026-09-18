@@ -26,7 +26,7 @@ import {
 export const InteractiveTripPlanner: React.FC = () => {
   const { agencySettings, submitInquiry } = useTours();
 
-  const [destination, setDestination] = useState('Kashmir Valley, Gulmarg & Pahalgam');
+  const [destination, setDestination] = useState('Jammu & Kashmir');
   const [durationDays, setDurationDays] = useState(6);
   const [hotelTier, setHotelTier] = useState('3-Star Deluxe & Verified Stays');
   const [vehicleType, setVehicleType] = useState('Private Mountain Innova Crysta / Sedan');
@@ -45,14 +45,8 @@ export const InteractiveTripPlanner: React.FC = () => {
   const [submitted, setSubmitted] = useState(false);
 
   const HOLIDAY_DESTINATIONS = [
-    { label: 'Kashmir Valley, Gulmarg & Pahalgam' },
-    { label: 'Himachal Complete Tour (Shimla, Manali & Dharamshala)' },
-    { label: 'Ladakh High Altitude Circuit (Leh, Nubra, Pangong)' },
-    { label: 'Amritsar Golden Temple & Wagah Border' },
-    { label: 'Mata Vaishno Devi Ji & Katra Yatra' },
-    { label: 'Thailand (Bangkok, Pattaya & Coral Island)' },
-    { label: 'Vietnam (Hanoi, Ha Long Bay & Da Nang)' },
-    { label: 'Bali Tropical Villa & Nusa Penida Island' },
+    { label: 'Jammu & Kashmir' },
+    { label: 'Himachal Pradesh' },
   ];
 
   const HOTEL_TIERS = [

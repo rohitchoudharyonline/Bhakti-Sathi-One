@@ -482,215 +482,11 @@ export const DESTINATIONS_REGISTRY: Record<string, DestinationMeta> = {
       ],
     },
   },
-
-  'amritsar': {
-    id: 'amritsar',
-    slug: 'amritsar',
-    name: 'Amritsar',
-    displayName: 'AMRITSAR',
-    state: 'Punjab',
-    destinationType: 'regular',
-    tagline: 'Sri Harmandir Sahib, Wagah Border Parade & Durgiana Tirath',
-    heroImage: 'https://images.unsplash.com/photo-1595815771614-ade9d652a65d?auto=format&fit=crop&w=1600&q=85',
-    guideTitle: 'Amritsar Sacred Heritage & Border Yatra Guide',
-    weatherInfo: '14°C - 32°C (Warm Plains & Breezy Evenings)',
-    bestSeason: 'October to March (Pleasant Weather & Festive Gurpurab Celebrations)',
-    startingPrice: 4999,
-    keyHighlights: [
-      'The Golden Temple',
-      'Wagah Border Ceremony',
-      'Guru Ka Langar',
-      'Durgiana Tirath',
-    ],
-    popularCities: [
-      'Golden Temple (Harmandir Sahib)',
-      'Attari-Wagah Border',
-      'Durgiana Tirath',
-      'Jallianwala Bagh',
-      'Sri Ram Tirath Ashram',
-      'Gobindgarh Fort',
-      'Akal Takht Sahib',
-      'Heritage Street',
-    ],
-    categoryFilters: [
-      { id: 'all', label: 'All Packages', iconName: 'Compass' },
-      { id: 'pilgrimage', label: 'Spiritual Yatra', iconName: 'Sparkles' },
-      { id: 'heritage', label: 'Heritage & Border', iconName: 'Compass' },
-      { id: 'family', label: 'Family Vacation', iconName: 'Users' },
-      { id: 'weekend', label: 'Short Break (2-3D)', iconName: 'Clock' },
-      { id: 'senior', label: 'Senior Friendly', iconName: 'Hotel' },
-    ],
-    guide: {
-      overview:
-        'Home to the glorious Sri Harmandir Sahib (The Golden Temple), Amritsar is the sacred spiritual and cultural heart of Punjab. Experience 24-hour soul-elevating Gurbani kirtan, the worlds largest free community kitchen (Guru Ka Langar), the historic Durgiana Silver Temple, the birthplace of Luv & Kush at Sri Ram Tirath, the solemn national memorial of Jallianwala Bagh, and the high-voltage patriotic retreat ceremony at the Attari-Wagah Border.',
-      bestTimeToVisit:
-        'October to March is the ideal season with crisp, pleasant weather perfect for exploring Heritage Street, Wagah Border, and the Golden Temple complex. Celebrations like Prakash Purab, Baisakhi (April), and Diwali witness breathtaking illumination and fireworks across the Amrit Sarovar.',
-      idealDuration: '2 to 3 Days for Amritsar City & Border; 4 to 6 Days when combined with Katra or Himachal',
-      nearestAirport: 'Sri Guru Ram Dass Jee International Airport (ATQ) - 11 KM from Golden Temple',
-      nearestRailway: 'Amritsar Junction Railway Station (ASR) with Vande Bharat, Shatabdi, and Superfast express trains',
-      topAttractions: [
-        {
-          name: 'Golden Temple',
-          description:
-            'The holiest shrine of Sikhism adorned in pure 24-karat gold foil, standing serenely in the center of the holy Amrit Sarovar with continuous divine Gurbani kirtan broadcast live 24 hours a day.',
-        },
-        {
-          name: 'Guru Ka Langar',
-          description:
-            'A legendary, humbling community dining hall that serves over 100,000 wholesome, free vegetarian meals daily to all visitors without any distinction of religion, caste, nationality, or social status.',
-        },
-        {
-          name: 'Attari-Wagah Border',
-          description:
-            'The world-famous daily military parade ceremony at the Indo-Pak international border, showcasing synchronized high-kicks, ceremonial drills, roaring patriotic chants, and lowering of the national flags at sunset.',
-        },
-        {
-          name: 'Durgiana Mandir',
-          description:
-            'An ancient architectural marvel situated in the middle of a sacred lake, featuring intricately carved embossed silver doors and dedicated to Goddess Durga, Lord Krishna, and Lord Vishnu.',
-        },
-        {
-          name: 'Jallianwala Bagh',
-          description:
-            'A sacred national historic garden honoring the innocent martyrs of the 1919 massacre, preserving the historic Martyr Well, bullet-pocked brick walls, and an Eternal Flame of remembrance.',
-        },
-        {
-          name: 'Sri Ram Tirath',
-          description:
-            'Ancient sanctified ashram believed to be Maharishi Valmikis hermitage where Mata Sita took refuge and gave birth to Luv and Kush. Features the ancient sacred Baoli tank and Valmiki temple.',
-        },
-        {
-          name: 'Sri Akal Takht Sahib',
-          description:
-            'The supreme seat of earthly authority for the Sikh community established by Guru Hargobind Ji in 1606, housing historical weapons, sacred relics, and an extensive gallery of Sikh heritage art.',
-        },
-        {
-          name: 'Gobindgarh Fort',
-          description:
-            'Historic military fortress built by Maharaja Ranjit Singh featuring artillery museums, live Punjabi folk bhangra performances, and the immersive Whispering Walls sound and laser show.',
-        },
-        {
-          name: 'Partition Museum',
-          description:
-            'An emotional, comprehensive museum preserving genuine audio-visual oral histories, personal refugee artifacts, photographs, and letters documenting the momentous 1947 partition of the subcontinent.',
-        },
-        {
-          name: 'Gurudwara Shaheedan Sahib',
-          description:
-            'Revered holy shrine commemorating the unparalleled bravery and supreme sacrifice of Baba Deep Singh Ji, where hundreds of thousands of devotees congregate for prayer and ardas.',
-        },
-        {
-          name: 'Mata Lal Devi Mandir',
-          description:
-            'A vibrant multi-tiered sacred shrine in Rani Ka Bagh dedicated to female saint Lal Devi. Devotees traverse water channels and walk through a replicated Vaishno Devi cave and glittering mirror mosaics.',
-        },
-        {
-          name: 'Gurudwara Chheharta Sahib',
-          description:
-            'Located in Amritsar, built on the site where Guru Arjan Dev Ji dug a large well with six Persian water-lifting wheels (Chheharta) after the birth of his son Guru Hargobind Ji.',
-        },
-        {
-          name: 'Gurudwara Guru Ka Mahal',
-          description:
-            'Historic sanctified shrine in the heart of Old Amritsar founded by Guru Ram Das Ji as his residence. It is the sacred birthplace of Ninth Sikh Guru Sri Guru Tegh Bahadur Ji.',
-        },
-        {
-          name: 'Bada Hanuman Mandir',
-          description:
-            'Ancient temple adjoining Durgiana Sarovar where according to belief Luv and Kush tied Lord Rams Ashwamedha sacrificial horse and seated Lord Hanuman in devotion.',
-        },
-        {
-          name: 'Shivala Bhaagtanwala',
-          description:
-            'Historic Shiva temple known for its ancient lingam, elaborate stone architecture, and sacred temple courtyard in Amritsar.',
-        },
-        {
-          name: 'Heritage Street',
-          description:
-            'Magnificent pedestrian promenade lined with Rajput and Mughal-inspired pink stone facades leading to the Golden Temple, world-famous for authentic crispy Amritsari Kulcha, creamy lassi, and Phulkari juttis.',
-        },
-      ],
-      thingsToDo: [
-        'Take part in the deeply moving Palki Sahib night or early morning procession at Golden Temple',
-        'Experience selfless volunteering (Seva) at Guru Ka Langar or washing utensils for fellow pilgrims',
-        'Witness the heart-pumping patriotic energy of the Attari-Wagah Border Beating Retreat ceremony',
-        'Explore the sacred silver sanctum and lake parikrama of Durgiana Tirath',
-        'Pay homage at Jallianwala Bagh and explore the thought-provoking Partition Museum',
-        'Savor world-famous authentic Amritsari Kulcha with Chole and a tall glass of malai lassi at heritage dhabas',
-        'Shop for authentic Amritsari Papad, Wariyan, pure desi ghee Pinni, and hand-embroidered Phulkari suits',
-      ],
-      localCuisine: [
-        { dish: 'Amritsari Chur-Chur Kulcha with Chole', description: 'Crispy, multi-layered tandoori flatbread stuffed with spiced potatoes and paneer, crushed with pure desi ghee and served with tangy chickpeas and pickled onions.' },
-        { dish: 'Guru Ka Langar Mah Di Dal & Kheer', description: 'World-renowned black gram lentils simmered overnight in copper cauldrons, served with hot rotis, kheer, and fresh salad.' },
-        { dish: 'Amritsari Malai Lassi & Peda Lassi', description: 'Thick, creamy churned sweet yogurt topped with a dollop of fresh clotted cream (malai) and saffron.' },
-        { dish: 'Kesar Da Dhaba Dal Makhani & Phirni', description: 'Legendary slow-cooked creamy black lentils infused with desi ghee, served in earthen clay pots with chilled saffron phirni.' },
-      ],
-      travelTips: [
-        'Heads must be covered at all times inside the Golden Temple complex. Headscarves (rumals) are freely available at the entrance, or you can carry your own clean scarf.',
-        'Shoes, socks, tobacco, and cigarettes must be deposited at the free 24/7 footwear counters before entering through the holy foot-washing pool.',
-        'Reach the Attari-Wagah Border by 3:00 PM (winter) or 4:00 PM (summer) for comfortable grandstand seating as entry is on a first-come, first-served basis.',
-        'Photography of the sanctum exterior and Sarovar is permitted, but photography of the sanctum interior is strictly forbidden to preserve devotion.',
-      ],
-      faqs: [
-        {
-          question: '1. What are the opening hours and dress code for Sri Harmandir Sahib (Golden Temple)?',
-          answer:
-            'The Golden Temple is open 24 hours a day, 365 days a year to all human beings without exception. Visitors must dress modestly (shoulders and knees covered), remove all footwear at the free counters, wash feet in the shallow channel at the entrance, and keep their head covered with a scarf or rumal inside the entire complex.',
-        },
-        {
-          question: '2. What is the Palki Sahib Ceremony at the Golden Temple and when can we attend?',
-          answer:
-            'The Palki Sahib ceremony is one of the most sublime spiritual rituals. Around 9:30 PM (Sukhasan in winter) / 10:00 PM (summer), the holy Guru Granth Sahib is carried in a golden palanquin from the sanctum to the Akal Takht for the night. In the morning around 4:30 AM (Prakash), it is ceremoniously carried back to Harmandir Sahib amid chanting and rose petals.',
-        },
-        {
-          question: '3. Are tickets required for the Attari-Wagah Border Beating Retreat Ceremony?',
-          answer:
-            'No, entry to the Wagah Border parade is completely free of charge. There are no tickets. Seating is on a first-come, first-served basis. We provide private AC round-trip hotel cab transfers and ensure you reach early (around 3:00 PM) for prime stadium seats.',
-        },
-        {
-          question: '4. How far is the Wagah Border from Amritsar city center?',
-          answer:
-            'The Attari-Wagah Border is located 32 KM (~45 to 50 minutes drive) from the Golden Temple and city center. Private cab transfers take you directly to the border parking plaza.',
-        },
-        {
-          question: '5. Are wheelchair and elderly assistance facilities available at Golden Temple?',
-          answer:
-            'Yes, complimentary wheelchairs and dedicated smooth ramp pathways are available at all four entrance plazas of the Golden Temple. Volunteer sewadars and golf carts are also available around the Heritage Street area to assist senior citizens.',
-        },
-        {
-          question: '6. Can we eat at Guru Ka Langar and what are the timings?',
-          answer:
-            'Guru Ka Langar is open 24 hours a day and serves anyone who sits in the pangat (lines on the floor) with open arms. The meal is 100% vegetarian, wholesome, and prepared with immense love and hygiene. You can also volunteer (seva) by rolling chapatis or serving water.',
-        },
-        {
-          question: '7. How far is Durgiana Temple and Jallianwala Bagh from Golden Temple?',
-          answer:
-            'Jallianwala Bagh is located directly opposite the Golden Temple entrance plaza (2 minutes walk along Heritage Street). Durgiana Temple (Silver Temple) is only 2.5 KM (10 minutes by auto or cab) away, making it easy to cover in a half-day tour.',
-        },
-        {
-          question: '8. What are the best places in Amritsar to eat authentic Amritsari Kulcha?',
-          answer:
-            'Renowned authentic eateries include Bhai Kulwant Singh Kulchian Wale, Kesar Da Dhaba, Kulcha Land, Pehalwan Kulcha, and Kanha Sweets. All are located in and around the Heritage Street and Hall Bazaar areas.',
-        },
-        {
-          question: '9. Can we combine Amritsar with Katra (Vaishno Devi) in one trip?',
-          answer:
-            'Yes! Amritsar to Katra is only 260 KM (~4.5 to 5 hours via the new expressway), or a quick ride on the direct Vande Bharat Express. A 4 to 5-day combined Amritsar + Vaishno Devi Katra tour is one of North Indias most popular spiritual circuits.',
-        },
-        {
-          question: '10. Which railway station and airport connect Amritsar?',
-          answer:
-            'Sri Guru Ram Dass Jee International Airport (ATQ) is located 11 KM from the city with daily direct flights from Delhi, Mumbai, Bengaluru, Dubai, London, and Singapore. Amritsar Junction Railway Station (ASR) is just 2.5 KM from the Golden Temple.',
-        },
-      ],
-    },
-  },
 };
 
 export const POPULAR_DESTINATION_SLUGS = [
   'jammu-kashmir',
   'himachal',
-  'amritsar',
 ];
 
 export function getDestinationBySlug(slug?: string | null): DestinationMeta | undefined {
@@ -707,6 +503,10 @@ export function getDestinationBySlug(slug?: string | null): DestinationMeta | un
     clean === 'jammu-and-kashmir' ||
     clean === 'jammu_kashmir' ||
     clean === 'katra' ||
+    clean === 'srinagar' ||
+    clean === 'gulmarg' ||
+    clean === 'pahalgam' ||
+    clean === 'sonmarg' ||
     clean === 'vaishno-devi'
   ) {
     return DESTINATIONS_REGISTRY['jammu-kashmir'];
@@ -716,13 +516,15 @@ export function getDestinationBySlug(slug?: string | null): DestinationMeta | un
     clean === 'himachal_pradesh' ||
     clean === 'himachal_devi' ||
     clean === 'himachal-devi' ||
+    clean === 'shimla' ||
+    clean === 'manali' ||
+    clean === 'dharamshala' ||
+    clean === 'dalhousie' ||
+    clean === 'spiti' ||
     clean === 'devi-darshan' ||
     clean === 'kangra'
   ) {
     return DESTINATIONS_REGISTRY['himachal'];
-  }
-  if (clean === 'golden-temple' || clean === 'punjab') {
-    return DESTINATIONS_REGISTRY['amritsar'];
   }
 
   // Fuzzy match

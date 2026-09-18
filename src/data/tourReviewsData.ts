@@ -37,7 +37,7 @@ export const DESTINATION_GUEST_PHOTOS: Record<string, GalleryItem[]> = {
     {
       id: 'k-6',
       url: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1200&q=80',
-      caption: 'Snow clad peaks of Sonmarg Thajiwas Glacier',
+      caption: 'Snow clad peaks of Sonamarg Thajiwas Glacier',
     },
   ],
   himachal: [
@@ -62,71 +62,20 @@ export const DESTINATION_GUEST_PHOTOS: Record<string, GalleryItem[]> = {
       caption: 'River crossing and cedar woods in Old Manali',
     },
   ],
-  rajasthan: [
-    {
-      id: 'r-1',
-      url: 'https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&w=1200&q=80',
-      caption: 'Grand City Palace and Lake Pichola boat ride, Udaipur',
-    },
-    {
-      id: 'r-2',
-      url: 'https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&w=1200&q=80',
-      caption: 'Hawa Mahal Palace of Winds architecture, Jaipur',
-    },
-    {
-      id: 'r-3',
-      url: 'https://images.unsplash.com/photo-1578328819058-b69f3a3b0f6b?auto=format&fit=crop&w=1200&q=80',
-      caption: 'Sam Sand Dunes desert camping and camel safari, Jaisalmer',
-    },
-    {
-      id: 'r-4',
-      url: 'https://images.unsplash.com/photo-1587474260584-136574528ed5?auto=format&fit=crop&w=1200&q=80',
-      caption: 'Mehrangarh Fort majestic sunset panorama, Jodhpur',
-    },
-  ],
-  ladakh: [
-    {
-      id: 'l-1',
-      url: 'https://images.unsplash.com/photo-1581793745862-99fde7fa73d2?auto=format&fit=crop&w=1200&q=80',
-      caption: 'Deep azure Pangong Tso Lake and mountain reflection',
-    },
-    {
-      id: 'l-2',
-      url: 'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=1200&q=80',
-      caption: 'Nubra Valley double-humped camel safari at Hunder Dunes',
-    },
-    {
-      id: 'l-3',
-      url: 'https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=1200&q=80',
-      caption: 'Khardung La Pass top world motorable road milestone',
-    },
-  ],
-  kerala: [
-    {
-      id: 'kl-1',
-      url: 'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=1200&q=80',
-      caption: 'Alleppey backwaters luxury houseboat cruise with traditional meals',
-    },
-    {
-      id: 'kl-2',
-      url: 'https://images.unsplash.com/photo-1593693397690-362cb9666fc2?auto=format&fit=crop&w=1200&q=80',
-      caption: 'Munnar sprawling tea plantation rolling hills',
-    },
-  ],
   default: [
     {
       id: 'd-1',
       url: 'https://images.unsplash.com/photo-1595815771614-ade9d652a65d?auto=format&fit=crop&w=1200&q=80',
-      caption: 'Scenic holiday tour destination overview',
+      caption: 'Scenic Kashmir & Himachal tour destination overview',
     },
     {
       id: 'd-2',
       url: 'https://images.unsplash.com/photo-1598091383021-15ddea10925d?auto=format&fit=crop&w=1200&q=80',
-      caption: 'Comfortable hotel stay and sightseeing points',
+      caption: 'Comfortable mountain hotel stay and sightseeing points',
     },
     {
       id: 'd-3',
-      url: 'https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&w=1200&q=80',
+      url: 'https://images.unsplash.com/photo-1566837945700-30057527ade0?auto=format&fit=crop&w=1200&q=80',
       caption: 'Group traveler photo with dedicated trip manager',
     },
   ],
@@ -143,7 +92,7 @@ export const SAMPLE_TOUR_REVIEWS: TourReviewExtended[] = [
     photoThumbnail: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=300&q=80',
     location: 'Mumbai, Maharashtra',
     verified: true,
-    text: 'It was a great vacation planned by Holidays Hunt. The team was constantly in touch with us from Day 1. The tour managers and our dedicated cab chauffeur were extremely polite and ensured this tour was a grand success. Every sightseeing spot listed was covered on time with generous leisure intervals. The hotels were 4-star verified and reflected authentic local culture. Highly recommend Holidays Hunt!',
+    text: 'It was a great Kashmir vacation planned by Holidays Hunt. The team was constantly in touch with us from Day 1. The tour managers and our dedicated cab chauffeur were extremely polite and ensured this tour was a grand success. Every sightseeing spot listed was covered on time with generous leisure intervals. The hotels were 4-star verified and reflected authentic local culture. Highly recommend Holidays Hunt!',
   },
   {
     id: 'rev-02',
@@ -155,7 +104,7 @@ export const SAMPLE_TOUR_REVIEWS: TourReviewExtended[] = [
     photoThumbnail: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&q=80',
     location: 'Pune, Maharashtra',
     verified: true,
-    text: 'Unforgettable holiday experience with Holidays Hunt! We completed our trip smoothly and memorably. The hotel stays, delicious meals, and comfortable private vehicle were exceptional. Our tour coordinator and chauffeur took wonderful care of our family. Heartfelt thanks to the Holidays Hunt team!',
+    text: 'Unforgettable holiday experience with Holidays Hunt in Manali and Shimla! We completed our trip smoothly and memorably. The hotel stays, delicious meals, and comfortable private vehicle were exceptional. Our tour coordinator and chauffeur took wonderful care of our family. Heartfelt thanks to the Holidays Hunt team!',
   },
   {
     id: 'rev-03',
@@ -179,7 +128,7 @@ export const SAMPLE_TOUR_REVIEWS: TourReviewExtended[] = [
     photoThumbnail: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=300&q=80',
     location: 'Nagpur, Maharashtra',
     verified: true,
-    text: 'Our college reunion trip was organized to perfection. Adventure sports, campfire dinner, local shopping recommendations, and smooth airport transfers. Special thanks to the 24x7 WhatsApp coordination desk who assisted us anytime we needed.',
+    text: 'Our college reunion trip to Kashmir was organized to perfection. Adventure sports in Gulmarg, campfire dinner in Pahalgam, local handicraft shopping recommendations, and smooth airport transfers. Special thanks to the 24x7 WhatsApp coordination desk who assisted us anytime we needed.',
   },
   {
     id: 'rev-05',
@@ -191,7 +140,7 @@ export const SAMPLE_TOUR_REVIEWS: TourReviewExtended[] = [
     photoThumbnail: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=300&q=80',
     location: 'Jaipur, Rajasthan',
     verified: true,
-    text: 'We were traveling with senior citizen parents and were concerned about high altitudes and cold weather. The team provided oxygen backup, heated hotel rooms, and adjusted the pace gently. Punctual, courteous, and trustworthy agency.',
+    text: 'We were traveling with senior citizen parents for Mata Vaishno Devi and Kashmir. The team provided oxygen backup, heated hotel rooms, and adjusted the pace gently. Punctual, courteous, and trustworthy agency.',
   },
 ];
 
@@ -207,16 +156,10 @@ export function getPackageGalleryPhotos(
 
   const destLower = (destination || '').toLowerCase();
   let baseList: GalleryItem[] = DESTINATION_GUEST_PHOTOS.kashmir;
-  if (destLower.includes('kashmir') || destLower.includes('srinagar') || destLower.includes('gulmarg') || destLower.includes('pahalgam')) {
-    baseList = DESTINATION_GUEST_PHOTOS.kashmir;
-  } else if (destLower.includes('himachal') || destLower.includes('manali') || destLower.includes('shimla') || destLower.includes('dharamshala')) {
+  if (destLower.includes('himachal') || destLower.includes('manali') || destLower.includes('shimla') || destLower.includes('dharamshala') || destLower.includes('dalhousie') || destLower.includes('spiti')) {
     baseList = DESTINATION_GUEST_PHOTOS.himachal;
-  } else if (destLower.includes('rajasthan') || destLower.includes('jaipur') || destLower.includes('udaipur') || destLower.includes('jaisalmer')) {
-    baseList = DESTINATION_GUEST_PHOTOS.rajasthan;
-  } else if (destLower.includes('ladakh') || destLower.includes('leh') || destLower.includes('pangong')) {
-    baseList = DESTINATION_GUEST_PHOTOS.ladakh;
-  } else if (destLower.includes('kerala') || destLower.includes('munnar') || destLower.includes('alleppey')) {
-    baseList = DESTINATION_GUEST_PHOTOS.kerala;
+  } else {
+    baseList = DESTINATION_GUEST_PHOTOS.kashmir;
   }
 
   baseList.forEach((g) => {

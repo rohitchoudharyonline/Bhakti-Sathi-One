@@ -7,12 +7,10 @@ import { isValidEmail } from '../../utils/validation';
 import { EmailVerificationInput } from '../common/EmailVerificationInput';
 
 const destinations = [
-  { name: 'Kashmir', sub: 'Srinagar · Gulmarg · Pahalgam', image: 'https://images.unsplash.com/photo-1595815771614-ade9d652a65d?auto=format&fit=crop&w=800&q=80' },
-  { name: 'Himachal Pradesh', sub: 'Manali · Shimla · Dharamshala', image: 'https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?auto=format&fit=crop&w=800&q=80' },
-  { name: 'Mata Vaishno Devi', sub: 'Katra · Bhawan · Shivkhori', image: 'https://images.unsplash.com/photo-1598091383021-15ddea10925d?auto=format&fit=crop&w=800&q=80' },
-  { name: 'Kerala Backwaters', sub: 'Munnar · Alleppey · Thekkady', image: 'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=800&q=80' },
+  { name: 'Jammu & Kashmir', sub: 'Scenic Mountain Valleys & Sacred Shrines', image: 'https://images.unsplash.com/photo-1595815771614-ade9d652a65d?auto=format&fit=crop&w=800&q=80' },
+  { name: 'Himachal Pradesh', sub: 'Alpine Passes, Pine Forests & Serene Hill Escapes', image: 'https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?auto=format&fit=crop&w=800&q=80' },
 ];
-const filters = ['All', 'Kashmir', 'Himachal', 'Vaishno Devi', 'Kerala', 'Rajasthan', 'Goa'];
+const filters = ['All', 'Jammu & Kashmir', 'Himachal Pradesh'];
 
 export const PremiumTravelMarketplace: React.FC = () => {
   const { packages, selectedPackageId, setSelectedPackageId, setActiveView, toggleWishlist, isWishlisted, submitInquiry, agencySettings, travelerUser } = useTours();

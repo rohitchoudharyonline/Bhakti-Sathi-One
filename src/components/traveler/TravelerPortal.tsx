@@ -63,9 +63,15 @@ export const TravelerPortal: React.FC = () => {
         if (!matchesTitle && !matchesDest && !matchesCategory && !matchesTagline) return false;
       }
 
-      // Category matching
-      if (selectedCategory !== 'All' && pkg.category !== selectedCategory) {
-        return false;
+      // Category / State matching
+      if (selectedCategory !== 'All') {
+        const catLower = selectedCategory.toLowerCase();
+        const matchesCat = pkg.category.toLowerCase() === catLower;
+        const matchesDest = pkg.destination.toLowerCase().includes(catLower) || (catLower.includes('kashmir') && pkg.destination.toLowerCase().includes('kashmir')) || (catLower.includes('himachal') && pkg.destination.toLowerCase().includes('himachal'));
+        const matchesState = ((pkg as any).state as string | undefined)?.toLowerCase().includes(catLower);
+        if (!matchesCat && !matchesDest && !matchesState) {
+          return false;
+        }
       }
 
       // Duration matching
@@ -110,12 +116,8 @@ export const TravelerPortal: React.FC = () => {
 
   const pilgrimageCategories = [
     'All',
-    'Devi & Shaktipeeth',
-    'Himachal Devi Darshan',
-    'Jyotirlingas',
-    'Ramayana Tour',
-    'South India Teertham',
-    'Helicopter Yatra',
+    'Jammu & Kashmir',
+    'Himachal Pradesh',
   ];
 
   return (

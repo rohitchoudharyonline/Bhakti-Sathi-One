@@ -22,8 +22,8 @@ export const AllDestinationsExplorer: React.FC = () => {
   useEffect(() => {
     const destinationsSeo = pageSeoConfigs?.['destinations'];
     updatePageSeo({
-      title: destinationsSeo?.metaTitle || "Sacred Destinations & Temple Circuits in India | Holidays Hunt",
-      description: destinationsSeo?.metaDescription || "Explore India’s most revered holy destinations including Katra Vaishno Devi, Varanasi, Ayodhya Ram Mandir, Mathura Vrindavan, and Himachal Devi Temples.",
+      title: destinationsSeo?.metaTitle || "Jammu Kashmir & Himachal Pradesh Holiday Destinations | Holidays Hunt",
+      description: destinationsSeo?.metaDescription || "Explore scenic mountain destinations across Jammu & Kashmir and Himachal Pradesh.",
       canonicalUrl: destinationsSeo?.canonicalUrl || "https://holidayshunt.com/destinations",
       canonicalPath: "/destinations",
       noIndex: destinationsSeo?.noIndex,
@@ -32,7 +32,7 @@ export const AllDestinationsExplorer: React.FC = () => {
         "@context": "https://schema.org",
         "@type": "ItemList",
         "name": "Holiday Destinations",
-        "description": "Comprehensive list of pilgrimage travel packages available on Holidays Hunt.",
+        "description": "Comprehensive list of Jammu & Kashmir and Himachal Pradesh travel packages available on Holidays Hunt.",
         "itemListElement": destinationsList.map((dest, index) => ({
           "@type": "ListItem",
           "position": index + 1,
@@ -53,7 +53,6 @@ export const AllDestinationsExplorer: React.FC = () => {
         dest.name.toLowerCase().includes(q) ||
         dest.displayName?.toLowerCase().includes(q) ||
         dest.state?.toLowerCase().includes(q) ||
-        dest.popularCities?.some((c) => c.toLowerCase().includes(q)) ||
         dest.tagline?.toLowerCase().includes(q);
 
       const matchesFilter =
@@ -95,10 +94,10 @@ export const AllDestinationsExplorer: React.FC = () => {
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-stone-100 pb-5">
             <div>
               <h1 className="text-2xl sm:text-3xl font-black text-[#1D1C1C] tracking-tight">
-                Jammu Kashmir, Himachal Pradesh & Amritsar Tour Packages
+                Jammu & Kashmir and Himachal Pradesh Tour Packages
               </h1>
               <p className="text-stone-600 text-xs sm:text-sm font-medium mt-1.5 leading-relaxed max-w-3xl">
-                Plan your perfect holiday with our highly-rated, customized tour packages. Experience the scenic valleys of Kashmir, high-altitude passes of Ladakh, serene landscapes of Himachal Pradesh, and the holy vibes of Jammu Katra & Amritsar with premium stays, private chauffeur cars, and 24/7 local travel desk support.
+                Plan your perfect holiday with our customized tour packages across Jammu & Kashmir and Himachal Pradesh, backed by premium stays, private chauffeur cars, and 24/7 local travel desk support.
               </p>
             </div>
 
@@ -109,7 +108,7 @@ export const AllDestinationsExplorer: React.FC = () => {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search destination..."
+                placeholder="Search state or circuit..."
                 className="w-full pl-10 pr-9 py-2.5 rounded-xl bg-stone-50 text-stone-900 placeholder-stone-400 text-xs sm:text-sm border border-stone-200 focus:outline-none focus:ring-4 focus:ring-[#FF4B00]/10 focus:border-[#FF4B00] transition shadow-2xs"
               />
               {searchQuery && (
@@ -163,7 +162,7 @@ export const AllDestinationsExplorer: React.FC = () => {
             <div className="text-center py-16 bg-white rounded-3xl border border-dashed border-stone-300 p-8">
               <MapPin className="w-10 h-10 text-stone-300 mx-auto mb-3" />
               <h3 className="text-base font-bold text-stone-800">No destinations match "{searchQuery}"</h3>
-              <p className="text-xs text-stone-500 mt-1">Try searching for Kashmir, Gulmarg, Katra, Patnitop, or Manali</p>
+              <p className="text-xs text-stone-500 mt-1">Try searching for Jammu & Kashmir or Himachal Pradesh</p>
               <button
                 onClick={() => {
                   setSearchQuery('');

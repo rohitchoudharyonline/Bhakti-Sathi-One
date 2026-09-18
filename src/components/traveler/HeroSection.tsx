@@ -13,23 +13,14 @@ interface HeroSectionProps {
 }
 
 const PILGRIMAGE_CATEGORIES: { id: string; label: string; icon: string }[] = [
-  { id: 'All', label: 'All Destinations', icon: '✨' },
-  { id: 'Devi & Shaktipeeth', label: 'Mata Vaishno Devi', icon: '✨' },
-  { id: 'Himachal Devi', label: 'Himachal Tour', icon: '🏔️' },
-  { id: 'Ramayana Tour', label: 'Ayodhya & Kashi', icon: '🚩' },
-  { id: 'Jyotirlinga Darshan', label: 'Major Shrines', icon: '🔱' },
-  { id: 'South India Temples', label: 'South India Tours', icon: '🛕' },
-  { id: 'Spiritual & Ganga Ghats', label: 'Ganga Ghats & Tours', icon: '🌊' },
-  { id: 'Helicopter Yatra', label: 'Special Packages', icon: '🚁' },
+  { id: 'All', label: 'All Packages', icon: '✨' },
+  { id: 'Jammu & Kashmir', label: 'Jammu & Kashmir', icon: '🏔️' },
+  { id: 'Himachal Pradesh', label: 'Himachal Pradesh', icon: '⛰️' },
 ];
 
 const POPULAR_DHAMS = [
-  'Vaishno Devi Katra',
-  'Himachal Devi Darshan',
-  'Kashi Vishwanath & Ayodhya',
-  '12 Jyotirlinga Tour',
-  'Rameshwaram & Tirupati',
-  'Jagannath Puri',
+  'Jammu & Kashmir',
+  'Himachal Pradesh',
 ];
 
 export const HeroSection: React.FC<HeroSectionProps> = ({

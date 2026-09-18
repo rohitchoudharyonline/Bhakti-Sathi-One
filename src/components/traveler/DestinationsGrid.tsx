@@ -30,10 +30,10 @@ const PILGRIMAGE_DESTINATIONS: DestinationCardData[] = [
     packagesCount: 12,
     rating: 4.99,
     bestTime: 'Year Round',
-    tagline: 'Vaishno Devi, Shankaracharya Temple, Shiv Khori, Srinagar & Gulmarg',
+    tagline: 'Scenic Mountain Valleys, Houseboats & Sacred Shrines',
     image: 'https://images.unsplash.com/photo-1598091383021-15ddea10925d?auto=format&fit=crop&w=800&q=80',
-    badge: 'Vaishno Devi & Kashmir',
-    popularHighlight: 'Helicopter Yatra, Cave Darshan & Dal Lake Shikara',
+    badge: 'Jammu & Kashmir',
+    popularHighlight: 'Alpine Meadows, Houseboats & Mountain Shrines',
   },
   {
     id: 'himachal',
@@ -42,22 +42,10 @@ const PILGRIMAGE_DESTINATIONS: DestinationCardData[] = [
     packagesCount: 8,
     rating: 4.98,
     bestTime: 'Year Round',
-    tagline: 'Sacred 5 Devi Darshan (Jwala Ji, Chintpurni, Chamunda, Kangra, Naina Devi)',
+    tagline: 'Himalayan Passes, Pine Valleys & Serene Hill Escapes',
     image: 'https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?auto=format&fit=crop&w=800&q=80',
-    badge: 'Devi Darshan Circuit',
-    popularHighlight: '9 Holy Flames, Ropeway & Dhauladhar Hills',
-  },
-  {
-    id: 'amritsar',
-    name: 'Amritsar',
-    region: 'Punjab',
-    packagesCount: 6,
-    rating: 4.99,
-    bestTime: 'Oct - Mar',
-    tagline: 'Golden Temple (Sri Harmandir Sahib), Wagah Border & Durgiana Tirath',
-    image: 'https://images.unsplash.com/photo-1595815771614-ade9d652a65d?auto=format&fit=crop&w=800&q=80',
-    badge: 'Golden Temple & Border',
-    popularHighlight: '24-Hour Gurbani Kirtan & Guru Ka Langar',
+    badge: 'Himachal Pradesh',
+    popularHighlight: 'Alpine Passes, Pine Forests & Hill Escapes',
   },
 ];
 
@@ -75,20 +63,20 @@ export const DestinationsGrid: React.FC<DestinationsGridProps> = ({
           <div>
             <div className="flex items-center gap-2 text-stone-900 text-xs font-black uppercase tracking-wider mb-2">
               <Sparkles className="w-3.5 h-3.5" />
-              <span>Sacred Dhams & Holy Yatras</span>
+              <span>Premier Mountain & Sacred Circuits</span>
             </div>
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-stone-900 tracking-tight">
-              Top Pilgrimage Destinations Across India
+              Explore Jammu & Kashmir and Himachal Pradesh
             </h2>
           </div>
 
           <span className="text-xs font-bold text-stone-900 bg-stone-100 px-3.5 py-1.5 rounded-full border border-stone-200 self-start md:self-auto">
-            Direct Yatra Specialist
+            Himalayan Tour Specialists
           </span>
         </div>
 
         {/* Responsive Destination Cards Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-4xl mx-auto">
           {PILGRIMAGE_DESTINATIONS.map((dest, index) => {
             const isSelected = selectedDestination.toLowerCase().includes(dest.id.toLowerCase());
             const destState = destinations ? (destinations as Record<string, any>)[dest.id] : null;
