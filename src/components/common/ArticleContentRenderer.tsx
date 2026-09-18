@@ -26,6 +26,8 @@ export const ArticleContentRenderer: React.FC<ArticleContentRendererProps> = ({
 
   // Helper to parse inline formatting like **bold**, *italic*, and [link](url)
   const renderFormattedText = (text: string) => {
+    if (!text) return null;
+
     // If text contains an inline image, render it as an image
     const inlineImgMatch = text.match(/!\[([^\]]*)\]\(([^)]+)\)(?:\s*\*Caption:\s*([^*]+)\*)?/i);
     if (inlineImgMatch) {
@@ -55,10 +57,13 @@ export const ArticleContentRenderer: React.FC<ArticleContentRendererProps> = ({
       );
     }
 
-    // Split by links [text](url) avoiding leading !
-    const parts = text.split(/(?<!\!)(\[[^\]]+\]\([^)]+\)|\*\*[^*]+\*\*|\*[^*]+\*)/g);
+    // Tokenize string for links, bold (**...** / __...__), inline code (`...`), and italic (*...* / _..._)
+    const tokenRegex = /(\[[^\]]+\]\([^)]+\)|\*\*[^*]+\*\*|__[^_]+__|`[^`]+`|\*[^*]+\*|_[^_]+_)/g;
+    const parts = text.split(tokenRegex);
 
     return parts.map((part, i) => {
+      if (!part) return null;
+
       // Link [Text](URL)
       const linkMatch = part.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
       if (linkMatch) {
@@ -75,19 +80,27 @@ export const ArticleContentRenderer: React.FC<ArticleContentRendererProps> = ({
         );
       }
 
-      // Bold **text**
-      const boldMatch = part.match(/^\*\*([^*]+)\*\*$/);
+      // Bold **text** or __text__
+      const boldMatch = part.match(/^(\*\*|__)([\s\S]+?)\1$/);
       if (boldMatch) {
-        return <strong key={i} className="font-bold text-stone-900">{boldMatch[1]}</strong>;
+        return <strong key={i} className="font-bold text-stone-900">{boldMatch[2]}</strong>;
       }
 
-      // Italic *text*
-      const italicMatch = part.match(/^\*([^*]+)\*$/);
+      // Inline code `text`
+      const codeMatch = part.match(/^`([^`]+)`$/);
+      if (codeMatch) {
+        return <code key={i} className="px-1.5 py-0.5 bg-stone-100 rounded text-amber-900 text-xs font-mono">{codeMatch[1]}</code>;
+      }
+
+      // Italic *text* or _text_
+      const italicMatch = part.match(/^(\*|_)([\s\S]+?)\1$/);
       if (italicMatch) {
-        return <em key={i} className="italic">{italicMatch[1]}</em>;
+        return <em key={i} className="italic">{italicMatch[2]}</em>;
       }
 
-      return part;
+      // Clean any stray dangling double asterisks or unclosed markdown markers from plain text
+      const cleanedPart = part.replace(/\*\*/g, '').replace(/```/g, '');
+      return cleanedPart;
     });
   };
 
@@ -235,10 +248,16 @@ export const ArticleContentRenderer: React.FC<ArticleContentRendererProps> = ({
 
         // 5. Blockquote / Tip Callout
         if (trimmed.startsWith('> ')) {
-          const isTip = trimmed.includes('💡') || trimmed.toLowerCase().includes('tip:');
-          const cleanText = trimmed.replace(/^>\s*/gm, '');
+          const isTip = trimmed.includes('💡') || /💡?\s*Tip\s*\d*:/i.test(trimmed);
+          const cleanText = trimmed.replace(/^>\s*/gm, '').trim();
 
           if (isTip) {
+            // Remove leading lightbulb or tip prefix cleanly without stripping markdown bold markers
+            const sanitizedTipText = cleanText
+              .replace(/^💡\s*/, '')
+              .replace(/^(Tip\s*\d*:\s*)/i, '')
+              .trim();
+
             return (
               <div
                 key={idx}
@@ -248,8 +267,8 @@ export const ArticleContentRenderer: React.FC<ArticleContentRendererProps> = ({
                   <Lightbulb className="w-4 h-4 text-amber-600 fill-amber-300" />
                   <span>Pro Traveler Tip</span>
                 </div>
-                <div className="text-sm text-stone-800 font-medium">
-                  {renderFormattedText(cleanText.replace(/^[💡\s*Tip:\s*]+/i, ''))}
+                <div className="text-sm text-stone-800 font-medium leading-relaxed">
+                  {renderFormattedText(sanitizedTipText)}
                 </div>
               </div>
             );
@@ -344,8 +363,13 @@ export const ArticleContentRenderer: React.FC<ArticleContentRendererProps> = ({
           }
         }
 
-        // 10. Raw HTML snippet support (<figure...>, <img...>)
-        if (trimmed.startsWith('<figure') || trimmed.startsWith('<img')) {
+        // 10. Raw HTML snippet support (<figure...>, <img...>, <div...>, <section...>)
+        if (
+          trimmed.startsWith('<figure') ||
+          trimmed.startsWith('<img') ||
+          trimmed.startsWith('<div') ||
+          trimmed.startsWith('<section')
+        ) {
           // Process any embedded src="..." URLs to ensure R2 URLs resolve to dataUrl
           const processedHtml = trimmed.replace(
             /src=["']([^"']+)["']/gi,

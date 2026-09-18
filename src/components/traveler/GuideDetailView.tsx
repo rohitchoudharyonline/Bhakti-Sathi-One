@@ -477,15 +477,11 @@ export const GuideDetailView: React.FC<GuideDetailViewProps> = ({ slug }) => {
 
                   <div className="p-4 pt-0 border-t border-stone-100 flex items-center justify-between mt-2">
                     <div>
-                      <span className="text-[10px] text-stone-400 block">
-                        {pkg.priceOnRequest || (!pkg.price && !pkg.discountedPrice) || ((pkg.price || 0) <= 0 && (!pkg.discountedPrice || pkg.discountedPrice <= 0))
-                          ? 'Quotation'
-                          : 'Starting from'}
+                      <span className="text-[10px] text-stone-400 block font-medium">
+                        Custom Plan
                       </span>
-                      <span className="text-sm font-extrabold text-stone-900">
-                        {pkg.priceOnRequest || (!pkg.price && !pkg.discountedPrice) || ((pkg.price || 0) <= 0 && (!pkg.discountedPrice || pkg.discountedPrice <= 0))
-                          ? 'Price on Request'
-                          : `₹${(pkg.discountedPrice || pkg.price).toLocaleString('en-IN')}`}
+                      <span className="text-xs font-bold text-amber-800">
+                        Tailored Itinerary
                       </span>
                     </div>
 
@@ -495,7 +491,7 @@ export const GuideDetailView: React.FC<GuideDetailViewProps> = ({ slug }) => {
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-1 px-3 py-1.5 bg-amber-700 hover:bg-amber-800 text-white rounded-xl text-xs font-bold transition shadow-xs"
                     >
-                      <span>Inquire</span>
+                      <span>Inquire Now</span>
                       <ArrowRight className="w-3 h-3" />
                     </a>
                   </div>
