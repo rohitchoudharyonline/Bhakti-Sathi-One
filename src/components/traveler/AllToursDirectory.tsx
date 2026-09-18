@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTours } from '../../context/TourContext';
 import { TourPackage } from '../../types/tour';
-import { DestinationMeta } from '../../data/destinationsData';
+import { DestinationMeta, getDestinationBySlug, matchPackageToDestination } from '../../data/destinationsData';
 import { updatePageSeo } from '../../utils/seo';
 import { generateBreadcrumbSchema } from '../../utils/seoEngine';
 import { resolveDisplayImage, handleImageError } from '../../utils/imageResolver';
@@ -196,12 +196,7 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
 
     // Destination
     if (selectedDestSlug !== 'all') {
-      const slug = selectedDestSlug.toLowerCase();
-      const match =
-        (pkg.destination || '').toLowerCase().includes(slug) ||
-        (pkg.destinationTag || '').toLowerCase() === slug ||
-        (pkg.category || '').toLowerCase().includes(slug) ||
-        (pkg.title || '').toLowerCase().includes(slug);
+      const match = matchPackageToDestination(pkg, selectedDestSlug);
       if (!match) return false;
     }
 
