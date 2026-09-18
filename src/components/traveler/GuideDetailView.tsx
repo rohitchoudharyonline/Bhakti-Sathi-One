@@ -351,6 +351,42 @@ export const GuideDetailView: React.FC<GuideDetailViewProps> = ({ slug }) => {
           <ArticleContentRenderer content={guide.content} />
         </div>
 
+        {/* Dedicated Destination Showcase Card (e.g. Jammu & Kashmir) */}
+        {((guide.destinationSlug === 'jammu-kashmir') || (guide.destination || '').toLowerCase().includes('kashmir')) && (
+          <section className="bg-gradient-to-br from-stone-900 via-stone-800 to-amber-950 text-white rounded-3xl p-6 sm:p-8 border border-amber-500/30 shadow-xl overflow-hidden relative group mt-10">
+            <div className="absolute -right-10 -bottom-10 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+            <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+              <div className="space-y-3 max-w-xl text-center md:text-left">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-500/20 text-amber-300 rounded-full text-xs font-bold uppercase tracking-wider border border-amber-500/30">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                  <span>Featured Destination Packages</span>
+                </div>
+                <h3 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
+                  Jammu & Kashmir Holiday & Yatra Packages
+                </h3>
+                <p className="text-stone-300 text-xs sm:text-sm leading-relaxed">
+                  Plan your dream trip with direct-operator pricing, private heated cabs, verified Dal Lake luxury houseboats, Gulmarg Gondola transfers, Pahalgam valley tours, and 24/7 mountain support.
+                </p>
+                <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 text-xs font-medium text-amber-200/90 pt-1">
+                  <span>✓ Direct Operator Pricing</span>
+                  <span>✓ Bengali Friendly Meal Options</span>
+                  <span>✓ 100% Verified Cabs & Drivers</span>
+                </div>
+              </div>
+              <div className="shrink-0 flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+                <button
+                  type="button"
+                  onClick={() => navigateToDestination('jammu-kashmir')}
+                  className="px-6 py-3.5 bg-[#FF4B00] hover:bg-[#E04300] text-white rounded-2xl text-xs sm:text-sm font-bold shadow-lg shadow-amber-950/50 transition cursor-pointer flex items-center justify-center gap-2 group-hover:scale-105"
+                >
+                  <span>Check Kashmir Packages</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          </section>
+        )}
+
         {/* FAQs Accordion Section */}
         {guide.faqs && guide.faqs.length > 0 && (
           <section className="bg-white rounded-3xl p-6 sm:p-8 border border-stone-200/90 shadow-xs space-y-5 mt-10">
