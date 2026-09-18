@@ -32,7 +32,7 @@ import { DEFAULT_PAGE_SEO_CONFIGS } from '../data/defaultPageSeoData';
 import { DEFAULT_PUSH_NOTIFICATIONS, DEFAULT_PUSH_SUBSCRIBERS, DEFAULT_PUSH_SETTINGS } from '../data/defaultPushData';
 import { DEFAULT_TEMPLES_DATA, TemplePlace } from '../data/templesData';
 import { initMediaStorage, saveMediaAssetToDb, saveAllMediaAssetsToDb, deleteMediaAssetFromDb } from '../utils/mediaStorage';
-import { fetchDestinationsFromServer, saveDestinationToServer, deleteDestinationFromServer, loadAuthoritativeServerContent } from '../services/contentSyncService';
+import { fetchDestinationsFromServer, saveDestinationToServer, deleteDestinationFromServer, loadAuthoritativeServerContent, syncRegistryToServer } from '../services/contentSyncService';
 
 export interface SystemSearchParams {
   destinationSlug?: string;
@@ -2366,6 +2366,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
       try {
         localStorage.setItem(STORAGE_KEYS.PACKAGES, JSON.stringify(next));
       } catch {}
+      void syncRegistryToServer(STORAGE_KEYS.PACKAGES, JSON.stringify(next));
       return next;
     });
     return id;
@@ -2378,6 +2379,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
       try {
         localStorage.setItem(STORAGE_KEYS.PACKAGES, JSON.stringify(next));
       } catch {}
+      void syncRegistryToServer(STORAGE_KEYS.PACKAGES, JSON.stringify(next));
       return next;
     });
   };
@@ -2389,6 +2391,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
       try {
         localStorage.setItem(STORAGE_KEYS.PACKAGES, JSON.stringify(next));
       } catch {}
+      void syncRegistryToServer(STORAGE_KEYS.PACKAGES, JSON.stringify(next));
       return next;
     });
   };
@@ -2402,7 +2405,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
       id: newId,
       title: `${original.title} (Copy)`,
       slug: `${original.slug}-copy`,
-      status: 'draft',
+      status: original.status || 'published',
       featured: false,
       createdAt: new Date().toISOString(),
     };
@@ -2412,6 +2415,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
       try {
         localStorage.setItem(STORAGE_KEYS.PACKAGES, JSON.stringify(next));
       } catch {}
+      void syncRegistryToServer(STORAGE_KEYS.PACKAGES, JSON.stringify(next));
       return next;
     });
   };
@@ -2426,6 +2430,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
       try {
         localStorage.setItem(STORAGE_KEYS.PACKAGES, JSON.stringify(next));
       } catch {}
+      void syncRegistryToServer(STORAGE_KEYS.PACKAGES, JSON.stringify(next));
       return next;
     });
   };
