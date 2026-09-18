@@ -129,10 +129,10 @@ const REVIEWS = [
     id: 'rev-3',
     name: 'Rohit & Sneha Patel',
     city: 'Ahmedabad',
-    trip: 'Vietnam Ha Long Cruise & Da Nang (4-Star Luxury)',
+    trip: 'Vaishno Devi & Kashmir Circuit (4-Star Luxury)',
     rating: 5,
     comment:
-      'The 5-star Ha Long Bay overnight cruise and Ba Na Hills Golden Hands Bridge tour were magical! Everything was hassle-free with zero language barrier.',
+      'The helicopter darshan at Vaishno Devi and houseboat stay on Dal Lake were seamless. Our chauffeur was courteous and the 24/7 local support was prompt and reassuring.',
     verified: true,
   },
 ];
@@ -267,8 +267,8 @@ export const LuxuryHomepage: React.FC = () => {
     const homeSeo = pageSeoConfigs?.['home'];
     
     updatePageSeo({
-      title: homeSeo?.metaTitle || "Holidays Hunt — All India Sacred Pilgrimage & Yatra Packages",
-      description: homeSeo?.metaDescription || "Book customized sacred pilgrimage and yatra tour packages across India with verified hotel stays, priority darshan support, 1,300+ 5-star traveler reviews, and dedicated private transfers.",
+      title: homeSeo?.metaTitle || "Holidays Hunt — Jammu & Kashmir and Himachal Pradesh Tour Packages",
+      description: homeSeo?.metaDescription || "Book customized Jammu & Kashmir and Himachal Pradesh tour packages with Holidays Hunt. Discover verified stays, Dal Lake houseboats, private cabs, and 24x7 local ground support.",
       canonicalUrl: homeSeo?.canonicalUrl || "https://holidayshunt.com",
       canonicalPath: "/",
       schemaData: agencySchema,
@@ -485,7 +485,7 @@ export const LuxuryHomepage: React.FC = () => {
                   Where would you like to travel next?
                 </h1>
                 <p className="text-xs sm:text-sm text-stone-600 font-semibold mt-1">
-                  Curating <b className="text-stone-900 font-extrabold">Family Vacations, Honeymoons &amp; Sacred Tours</b> across Domestic &amp; International destinations.
+                  Curating <b className="text-stone-900 font-extrabold">Family Vacations, Honeymoons &amp; Sacred Tours</b> across Jammu &amp; Kashmir and Himachal Pradesh.
                 </p>
               </div>
 
@@ -1308,7 +1308,7 @@ export const LuxuryHomepage: React.FC = () => {
                       type="text"
                       value={leadYatra}
                       onChange={(e) => setLeadYatra(e.target.value)}
-                      placeholder="e.g. Kashmir Family Holiday, Manali Honeymoon, Vaishno Devi, Char Dham, Thailand..."
+                      placeholder="e.g. Kashmir Family Holiday, Manali Honeymoon, Vaishno Devi, Spiti Valley..."
                       className="w-full px-3 py-2 rounded-xl bg-stone-50/80 border border-stone-200 text-xs font-semibold focus:bg-white focus:outline-none focus:border-[#FF4B00] focus:ring-2 focus:ring-[#FF4B00]/20 transition"
                     />
                   </div>
