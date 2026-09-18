@@ -255,45 +255,23 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
     // Category / Tour Type (Pilgrimage, Honeymoon, Family)
     if (selectedCategory !== 'all') {
       const cat = selectedCategory.toLowerCase();
-      const pkgTourType = ((pkg as any).tourType || '').toLowerCase();
-      const pkgCat = (pkg.category || '').toLowerCase();
-      const pkgTitle = (pkg.title || '').toLowerCase();
-      const pkgDesc = ((pkg as any).description || pkg.tagline || pkg.overview || '').toLowerCase();
+      const pkgTourType = String((pkg as any).tourType || '').toLowerCase();
+      const pkgCat = String(pkg.category || '').toLowerCase();
 
       if (['family', 'honeymoon', 'pilgrimage'].includes(cat)) {
-        const hasTourTypeMatch = pkgTourType === cat || pkgTourType.includes(cat);
-        const hasCategoryMatch = pkgCat === cat || pkgCat.includes(cat);
-        
-        let hasKeywordMatch = false;
-        if (cat === 'family') {
-          hasKeywordMatch =
-            pkgTitle.includes('family') ||
-            pkgTitle.includes('vacation') ||
-            pkgDesc.includes('family') ||
-            (pkg as any).tags?.includes('family');
-        } else if (cat === 'honeymoon') {
-          hasKeywordMatch =
-            pkgTitle.includes('honeymoon') ||
-            pkgTitle.includes('romantic') ||
-            pkgDesc.includes('honeymoon') ||
-            pkgDesc.includes('romantic');
-        } else if (cat === 'pilgrimage') {
-          hasKeywordMatch =
-            pkgCat.includes('yatra') ||
-            pkgTitle.includes('yatra') ||
-            pkgTitle.includes('vaishno') ||
-            pkgTitle.includes('amritsar') ||
-            (pkg.destination || '').toLowerCase() === 'jammu';
-        }
-
-        if (!hasTourTypeMatch && !hasCategoryMatch && !hasKeywordMatch) {
+        const matchesCategory =
+          pkgTourType === cat ||
+          pkgTourType.includes(cat) ||
+          pkgCat === cat ||
+          pkgCat.includes(cat);
+        if (!matchesCategory) {
           return false;
         }
       } else if (cat === 'luxury') {
         const isLuxury =
           pkgCat.includes('luxury') ||
-          pkgTitle.includes('luxury') ||
-          pkgTitle.includes('premium') ||
+          pkgTourType.includes('luxury') ||
+          (pkg.title || '').toLowerCase().includes('luxury') ||
           (pkg.price || 0) >= 25000;
         if (!isLuxury) return false;
       }

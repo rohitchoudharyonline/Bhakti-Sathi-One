@@ -424,7 +424,11 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
       destination: destination.trim(),
       destinationTag: destinationTag || destination.toLowerCase(),
       country: country.trim() || destination.trim(),
-      category,
+      category: (['Family', 'Honeymoon', 'Pilgrimage'].includes(category as any)
+        ? category
+        : ['Family', 'Honeymoon', 'Pilgrimage'].includes(tourType as any)
+        ? (tourType as any)
+        : 'Family') as PackageCategory,
       badge: badge ? (badge as PackageBadge) : undefined,
       durationDays: Number(durationDays),
       durationNights: Number(durationNights),
@@ -442,7 +446,11 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
       endLocation: endLocation.trim(),
       groupSizeLimit: groupSizeLimit.trim(),
       bestTimeToVisit: bestTimeToVisit.trim(),
-      tourType: ['Family', 'Honeymoon', 'Pilgrimage'].includes(tourType || '') ? tourType : 'Family',
+      tourType: (['Family', 'Honeymoon', 'Pilgrimage'].includes(category as any)
+        ? category
+        : ['Family', 'Honeymoon', 'Pilgrimage'].includes(tourType as any)
+        ? (tourType as any)
+        : 'Family') as TourPackage['tourType'],
       isGroupTour,
       templeIds: selectedTempleIds,
       temples: selectedTempleIds.map((id) => {
@@ -891,46 +899,26 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
                   />
                 </div>
 
-                <div>
+                <div className="md:col-span-2">
                   <label className="text-xs font-bold text-slate-700 block mb-1">
-                    Tour Type *
+                    Tour Category *
                   </label>
                   <select
-                    value={tourType || 'Family'}
-                    onChange={(e) => {
-                      const val = e.target.value as TourPackage['tourType'];
-                      setTourType(val);
-                      if (val === 'Family' || val === 'Honeymoon' || val === 'Pilgrimage') {
-                        setCategory(val as PackageCategory);
-                      }
-                    }}
-                    className="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 focus:bg-white focus:border-brand focus:outline-hidden font-bold text-slate-800"
-                  >
-                    <option value="Pilgrimage">Pilgrimage</option>
-                    <option value="Honeymoon">Honeymoon</option>
-                    <option value="Family">Family</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="text-xs font-bold text-slate-700 block mb-1">
-                    Category Classification
-                  </label>
-                  <select
-                    value={category}
+                    value={category || tourType || 'Family'}
                     onChange={(e) => {
                       const val = e.target.value as PackageCategory;
                       setCategory(val);
-                      if (val === 'Family' || val === 'Honeymoon' || val === 'Pilgrimage') {
-                        setTourType(val as any);
-                      }
+                      setTourType(val as TourPackage['tourType']);
                     }}
-                    className="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 focus:bg-white focus:border-brand focus:outline-hidden font-medium"
+                    className="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 focus:bg-white focus:border-brand focus:outline-hidden font-bold text-slate-800"
                   >
-                    <option value="Family">Family</option>
-                    <option value="Honeymoon">Honeymoon</option>
-                    <option value="Pilgrimage">Pilgrimage</option>
+                    <option value="Family">Family Tour</option>
+                    <option value="Honeymoon">Honeymoon Tour</option>
+                    <option value="Pilgrimage">Pilgrimage / Yatra Tour</option>
                   </select>
+                  <p className="text-[10px] text-slate-500 mt-1">
+                    Determines which section on the homepage and directory this tour appears in.
+                  </p>
                 </div>
 
                 <div>

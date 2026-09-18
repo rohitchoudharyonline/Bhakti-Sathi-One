@@ -490,11 +490,21 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch {}
   };
 
+  const DISALLOWED_DUMMY_PKG_IDS = new Set([
+    'pkg-kashmir-01',
+    'pkg-kashmir-02',
+    'pkg-kashmir-03',
+    'pkg-kashmir-04',
+    'pkg-jammu-01',
+    'pkg-jammu-02',
+    'pkg-ladakh-01',
+  ]);
+
   // Helper to normalize category to one of the 3 clean categories
-  const normalizePackageCategory = (cat: string): string => {
+  const normalizePackageCategory = (cat: string | undefined): 'Family' | 'Honeymoon' | 'Pilgrimage' => {
     const c = (cat || '').toLowerCase().trim();
-    if (c.includes('honeymoon') || c.includes('romantic')) return 'Honeymoon';
-    if (c.includes('pilgrimage') || c.includes('darshan') || c.includes('yatra') || c.includes('temple') || c.includes('sacred') || c.includes('devi') || c.includes('shaktipeeth')) return 'Pilgrimage';
+    if (c === 'honeymoon' || c.includes('honeymoon') || c.includes('romantic')) return 'Honeymoon';
+    if (c === 'pilgrimage' || c.includes('pilgrimage') || c.includes('darshan') || c.includes('yatra') || c.includes('temple') || c.includes('sacred') || c.includes('devi') || c.includes('shaktipeeth')) return 'Pilgrimage';
     return 'Family'; // Default fallback is Family
   };
 
@@ -507,29 +517,52 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          const defaultMap = new Map(DEFAULT_PACKAGES.map((d) => [d.id, d]));
-          return parsed
-            .filter((pkg) => !deletedIds.includes(pkg.id))
+          const cleaned = parsed
+            .filter((pkg) => !deletedIds.includes(pkg.id) && !DISALLOWED_DUMMY_PKG_IDS.has(pkg.id))
             .map((pkg) => {
-              const def = defaultMap.get(pkg.id);
+              const cat = normalizePackageCategory(pkg.category || pkg.tourType);
               return {
                 ...pkg,
-                category: normalizePackageCategory(pkg.category) as any,
-                isGroupTour: pkg.isGroupTour !== undefined ? pkg.isGroupTour : (def?.isGroupTour || false),
-                groupTourDetails: pkg.groupTourDetails || def?.groupTourDetails,
+                category: cat,
+                tourType: cat,
               };
             });
+          if (cleaned.length > 0) {
+            try {
+              localStorage.setItem(STORAGE_KEYS.PACKAGES, JSON.stringify(cleaned));
+            } catch {}
+            return cleaned;
+          }
         }
       }
     } catch {}
     
     return DEFAULT_PACKAGES
-      .filter((pkg) => !deletedIds.includes(pkg.id))
-      .map(pkg => ({
-        ...pkg,
-        category: normalizePackageCategory(pkg.category) as any
-      }));
+      .filter((pkg) => !deletedIds.includes(pkg.id) && !DISALLOWED_DUMMY_PKG_IDS.has(pkg.id))
+      .map((pkg) => {
+        const cat = normalizePackageCategory(pkg.category || pkg.tourType);
+        return {
+          ...pkg,
+          category: cat,
+          tourType: cat,
+        };
+      });
   });
+
+  const DISALLOWED_DUMMY_DEST_SLUGS = new Set([
+    'ladakh',
+    'jammu',
+    'kashmir',
+    'goa',
+    'kerala',
+    'rajasthan',
+    'uttarakhand',
+    'andaman',
+    'dubai',
+    'thailand',
+    'bali',
+    'singapore',
+  ]);
 
   // 2. Destinations Registry State (Strictly Jammu & Kashmir, Himachal Pradesh, Amritsar)
   const [destinations, setDestinations] = useState<Record<string, DestinationMeta>>(() => {
@@ -542,7 +575,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
           const result: Record<string, DestinationMeta> = {};
           for (const [slug, rawItem] of Object.entries(parsed)) {
-            if (!deletedSlugs.includes(slug) && rawItem) {
+            if (!deletedSlugs.includes(slug) && !DISALLOWED_DUMMY_DEST_SLUGS.has(slug) && rawItem) {
               const defaultDest: any = DESTINATIONS_REGISTRY[slug] || {};
               const item: any = rawItem;
               result[slug] = {
@@ -564,14 +597,19 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
               };
             }
           }
-          return result;
+          if (Object.keys(result).length > 0) {
+            try {
+              localStorage.setItem(STORAGE_KEYS.DESTINATIONS, JSON.stringify(result));
+            } catch {}
+            return result;
+          }
         }
       }
     } catch {}
 
     const initial: Record<string, DestinationMeta> = {};
     for (const [slug, dest] of Object.entries(DESTINATIONS_REGISTRY)) {
-      if (!deletedSlugs.includes(slug)) {
+      if (!deletedSlugs.includes(slug) && !DISALLOWED_DUMMY_DEST_SLUGS.has(slug)) {
         initial[slug] = dest;
       }
     }
@@ -1970,7 +2008,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
           if (parsed && typeof parsed === 'object') {
             const clean: Record<string, DestinationMeta> = {};
             for (const [k, v] of Object.entries(parsed)) {
-              if (!deletedDestSlugs.includes(k) && v) {
+              if (!deletedDestSlugs.includes(k) && !DISALLOWED_DUMMY_DEST_SLUGS.has(k) && v) {
                 clean[k] = v as DestinationMeta;
               }
             }
@@ -1988,7 +2026,17 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (p) {
           const parsed = JSON.parse(p);
           if (Array.isArray(parsed)) {
-            setPackages(parsed.filter((item: TourPackage) => !deletedPkgIds.includes(item.id)));
+            const cleaned = parsed
+              .filter((item: TourPackage) => !deletedPkgIds.includes(item.id) && !DISALLOWED_DUMMY_PKG_IDS.has(item.id))
+              .map((item: TourPackage) => {
+                const cat = normalizePackageCategory(item.category || item.tourType);
+                return {
+                  ...item,
+                  category: cat,
+                  tourType: cat,
+                };
+              });
+            setPackages(cleaned);
           }
         }
         const b = localStorage.getItem(STORAGE_KEYS.BLOG_POSTS);
@@ -2355,14 +2403,17 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Packages Operations
   const addPackage = (newPkg: Omit<TourPackage, 'id' | 'createdAt'>): string => {
     const id = `pkg-${Date.now()}`;
+    const cleanCat = normalizePackageCategory(newPkg.category || newPkg.tourType);
     const pkgWithId: TourPackage = {
       ...newPkg,
       id,
+      category: cleanCat,
+      tourType: cleanCat,
       createdAt: new Date().toISOString(),
     };
     unmarkItemDeleted('hh_deleted_package_ids', id);
     setPackages((prev) => {
-      const next = [pkgWithId, ...prev];
+      const next = [pkgWithId, ...prev.filter(p => p.id !== id && !DISALLOWED_DUMMY_PKG_IDS.has(p.id))];
       try {
         localStorage.setItem(STORAGE_KEYS.PACKAGES, JSON.stringify(next));
       } catch {}
@@ -2374,8 +2425,16 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const updatePackage = (updatedPkg: TourPackage) => {
     unmarkItemDeleted('hh_deleted_package_ids', updatedPkg.id);
+    const cleanCat = normalizePackageCategory(updatedPkg.category || updatedPkg.tourType);
+    const sanitizedPkg: TourPackage = {
+      ...updatedPkg,
+      category: cleanCat,
+      tourType: cleanCat,
+    };
     setPackages((prev) => {
-      const next = prev.map((pkg) => (pkg.id === updatedPkg.id ? updatedPkg : pkg));
+      const next = prev
+        .filter(p => !DISALLOWED_DUMMY_PKG_IDS.has(p.id))
+        .map((pkg) => (pkg.id === sanitizedPkg.id ? sanitizedPkg : pkg));
       try {
         localStorage.setItem(STORAGE_KEYS.PACKAGES, JSON.stringify(next));
       } catch {}
@@ -2400,18 +2459,21 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const original = packages.find((p) => p.id === id);
     if (!original) return;
     const newId = `pkg-${Date.now()}`;
+    const cleanCat = normalizePackageCategory(original.category || original.tourType);
     const duplicated: TourPackage = {
       ...original,
       id: newId,
       title: `${original.title} (Copy)`,
       slug: `${original.slug}-copy`,
       status: original.status || 'published',
+      category: cleanCat,
+      tourType: cleanCat,
       featured: false,
       createdAt: new Date().toISOString(),
     };
     unmarkItemDeleted('hh_deleted_package_ids', newId);
     setPackages((prev) => {
-      const next = [duplicated, ...prev];
+      const next = [duplicated, ...prev.filter(p => p.id !== newId && !DISALLOWED_DUMMY_PKG_IDS.has(p.id))];
       try {
         localStorage.setItem(STORAGE_KEYS.PACKAGES, JSON.stringify(next));
       } catch {}

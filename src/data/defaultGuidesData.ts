@@ -154,7 +154,7 @@ A balanced 4 to 5-day journey from Chandigarh or Delhi allows unhurried darshans
         answer: 'Yes, Maa Naina Devi features a convenient cable car ropeway system for elderly pilgrims and families.',
       },
     ],
-    relatedPackageIds: ['pkg-himachal-01', 'pkg-himachal-02'],
+    relatedPackageIds: ['pkg-himachal-02'],
     relatedGuideSlugs: ['himachal-9-devi-yatra-guide', 'jwala-ji-temple-guide', 'chintpurni-temple-guide'],
   },
   {
@@ -228,7 +228,7 @@ Thousands of families undertake this journey every year, especially during the a
         answer: '6 to 7 days provide a comfortable pace, allowing sufficient time for the Katra Vaishno Devi hill trek.',
       },
     ],
-    relatedPackageIds: ['pkg-himachal-01'],
+    relatedPackageIds: ['pkg-himachal-02'],
     relatedGuideSlugs: ['himachal-pradesh-devi-darshan-guide', 'jwala-ji-temple-guide'],
   },
   {
@@ -292,7 +292,7 @@ Within the sanctum sanctorum, nine flames are worshipped, representing Maa Mahak
         answer: 'It is situated in the Jwalamukhi town of Kangra district in Himachal Pradesh, approximately 55 km from Dharamshala.',
       },
     ],
-    relatedPackageIds: ['pkg-himachal-01'],
+    relatedPackageIds: ['pkg-himachal-02'],
     relatedGuideSlugs: ['himachal-pradesh-devi-darshan-guide', 'chintpurni-temple-guide'],
   },
   {
@@ -343,7 +343,7 @@ Legend attributes the discovery of this holy site to Mai Das, an ardent devotee 
         answer: 'Una Himachal (UHL) and Amb Andaura (AAD) are the nearest railway stations, well-connected to Delhi.',
       },
     ],
-    relatedPackageIds: ['pkg-himachal-01'],
+    relatedPackageIds: ['pkg-himachal-02'],
     relatedGuideSlugs: ['himachal-pradesh-devi-darshan-guide', 'jwala-ji-temple-guide'],
   },
   {
@@ -399,7 +399,7 @@ Pilgrims can reach the temple summit either by climbing traditional stepped path
         answer: 'Yes, a cable car ropeway is operational at the base and takes pilgrims directly to the hilltop entrance.',
       },
     ],
-    relatedPackageIds: ['pkg-himachal-01'],
+    relatedPackageIds: ['pkg-himachal-02'],
     relatedGuideSlugs: ['himachal-pradesh-devi-darshan-guide', 'chintpurni-temple-guide'],
   },
   {
@@ -466,7 +466,7 @@ The New Delhi - Amb Andaura Vande Bharat Express (Train No. 22447) reaches Una H
         answer: 'Driving via NH44 and NH503 usually takes around 7.5 to 8.5 hours depending on traffic and rest stops.',
       },
     ],
-    relatedPackageIds: ['pkg-himachal-01'],
+    relatedPackageIds: ['pkg-himachal-02'],
     relatedGuideSlugs: ['himachal-pradesh-devi-darshan-guide', 'himachal-9-devi-yatra-guide'],
   },
   {
@@ -504,7 +504,7 @@ The temple is dedicated to the fierce aspect of Devi Durga who manifested to van
       canonicalUrl: 'https://holidayshunt.com/guide/chamunda-devi-temple-guide',
     },
     faqs: [],
-    relatedPackageIds: ['pkg-himachal-01'],
+    relatedPackageIds: ['pkg-himachal-02'],
     relatedGuideSlugs: ['himachal-pradesh-devi-darshan-guide'],
   },
   {
@@ -594,7 +594,7 @@ Autumn is favored by photographers and honeymooners:
         answer: 'The Indira Gandhi Memorial Tulip Garden typically opens around mid-to-late March and stays open through late April depending on spring bloom conditions.',
       },
     ],
-    relatedPackageIds: ['pkg-kashmir-01', 'pkg-kashmir-02'],
+    relatedPackageIds: ['pkg-kashmir-honeymoon-01'],
     relatedGuideSlugs: ['himachal-pradesh-devi-darshan-guide', 'vaishno-devi-yatra-guide'],
   },
   {
@@ -664,7 +664,7 @@ Every year, millions of devotees embark on the sacred pilgrimage to Shri Mata Va
         answer: 'Yes, all pilgrims regardless of age must possess an active RFID card issued before beginning the trek at Ban Ganga or boarding the helicopter at Katra helipad.',
       },
     ],
-    relatedPackageIds: ['pkg-jammu-01', 'pkg-jammu-02'],
+    relatedPackageIds: ['pkg-amritsar-01'],
     relatedGuideSlugs: ['vaishno-devi-yatra-guide', 'himachal-pradesh-devi-darshan-guide'],
   },
   {
@@ -731,7 +731,7 @@ When booking with Holidays Hunt, your quote always includes:
         answer: 'Yes, all toll taxes, interstate border permits, and driver charges are all-inclusive with zero surprise surcharges.',
       },
     ],
-    relatedPackageIds: ['pkg-himachal-01', 'pkg-himachal-02'],
+    relatedPackageIds: ['pkg-himachal-02'],
     relatedGuideSlugs: ['himachal-pradesh-devi-darshan-guide'],
   },
 ];

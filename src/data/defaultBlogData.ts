@@ -118,7 +118,7 @@ Book your customized Kashmir holiday with **Holidays Hunt** for verified 3★ to
       schemaType: 'BlogPosting',
     },
     relatedDestinationSlug: 'kashmir',
-    relatedTourIds: ['pkg-kashmir-01', 'pkg-kashmir-02'],
+    relatedTourIds: ['pkg-kashmir-honeymoon-01'],
   },
   {
     id: 'post-vaishno-devi-helicopter-guide',
@@ -177,8 +177,8 @@ Book complete Katra + Vaishno Devi packages with dedicated cabs and verified del
       metaDescription: 'Step-by-step official guide on SMVDSB Katra to Sanjichhat helicopter tickets portal, RFID yatra pass, battery cars, and Bhairon Ghati ropeway.',
       schemaType: 'BlogPosting',
     },
-    relatedDestinationSlug: 'jammu',
-    relatedTourIds: ['pkg-jammu-01', 'pkg-jammu-02'],
+    relatedDestinationSlug: 'amritsar',
+    relatedTourIds: ['pkg-amritsar-01'],
   },
   {
     id: 'post-himachal-manali-shimla-cab-rates',
@@ -240,6 +240,6 @@ Enjoy guaranteed clean cars, polite hill-experienced drivers, and on-time pickup
       schemaType: 'BlogPosting',
     },
     relatedDestinationSlug: 'himachal',
-    relatedTourIds: ['pkg-himachal-01', 'pkg-himachal-02'],
+    relatedTourIds: ['pkg-himachal-02'],
   },
 ];
