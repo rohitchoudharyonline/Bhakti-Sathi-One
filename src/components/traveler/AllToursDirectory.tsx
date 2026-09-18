@@ -261,35 +261,33 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
       const pkgDesc = ((pkg as any).description || pkg.tagline || pkg.overview || '').toLowerCase();
 
       if (['family', 'honeymoon', 'pilgrimage'].includes(cat)) {
-        if (pkgTourType) {
-          if (pkgTourType !== cat && !pkgTourType.includes(cat)) return false;
-        } else {
-          if (cat === 'family') {
-            const isFamily =
-              pkgCat.includes('family') ||
-              pkgTitle.includes('family') ||
-              pkgTitle.includes('vacation') ||
-              pkgDesc.includes('family') ||
-              (pkg as any).tags?.includes('family');
-            if (!isFamily) return false;
-          } else if (cat === 'honeymoon') {
-            const isHoneymoon =
-              pkgCat.includes('honeymoon') ||
-              pkgTitle.includes('honeymoon') ||
-              pkgTitle.includes('romantic') ||
-              pkgDesc.includes('honeymoon') ||
-              pkgDesc.includes('romantic');
-            if (!isHoneymoon) return false;
-          } else if (cat === 'pilgrimage') {
-            const isPilgrimage =
-              pkgCat.includes('pilgrimage') ||
-              pkgCat.includes('yatra') ||
-              pkgTitle.includes('yatra') ||
-              pkgTitle.includes('vaishno') ||
-              pkgTitle.includes('amritsar') ||
-              (pkg.destination || '').toLowerCase() === 'jammu';
-            if (!isPilgrimage) return false;
-          }
+        const hasTourTypeMatch = pkgTourType === cat || pkgTourType.includes(cat);
+        const hasCategoryMatch = pkgCat === cat || pkgCat.includes(cat);
+        
+        let hasKeywordMatch = false;
+        if (cat === 'family') {
+          hasKeywordMatch =
+            pkgTitle.includes('family') ||
+            pkgTitle.includes('vacation') ||
+            pkgDesc.includes('family') ||
+            (pkg as any).tags?.includes('family');
+        } else if (cat === 'honeymoon') {
+          hasKeywordMatch =
+            pkgTitle.includes('honeymoon') ||
+            pkgTitle.includes('romantic') ||
+            pkgDesc.includes('honeymoon') ||
+            pkgDesc.includes('romantic');
+        } else if (cat === 'pilgrimage') {
+          hasKeywordMatch =
+            pkgCat.includes('yatra') ||
+            pkgTitle.includes('yatra') ||
+            pkgTitle.includes('vaishno') ||
+            pkgTitle.includes('amritsar') ||
+            (pkg.destination || '').toLowerCase() === 'jammu';
+        }
+
+        if (!hasTourTypeMatch && !hasCategoryMatch && !hasKeywordMatch) {
+          return false;
         }
       } else if (cat === 'luxury') {
         const isLuxury =
