@@ -1225,16 +1225,23 @@ export const CMSDashboard: React.FC = () => {
                   >
                     <div className="relative aspect-[16/10] bg-stone-100">
                       <img src={pkg.coverImage} alt="" className="w-full h-full object-cover" />
-                      <div className="absolute top-2 left-2 flex items-center gap-1">
-                        <span
-                          className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                      <div className="absolute top-2 left-2 flex items-center gap-1 z-10">
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            togglePublishStatus(pkg.id);
+                          }}
+                          className={`text-[10px] font-extrabold px-2.5 py-1 rounded-full cursor-pointer transition-all duration-250 shadow-sm hover:scale-105 active:scale-95 flex items-center gap-1.5 border ${
                             pkg.status === 'published'
-                              ? 'bg-emerald-600 text-white'
-                              : 'bg-stone-800 text-white'
+                              ? 'bg-emerald-600 hover:bg-emerald-700 text-white border-emerald-500'
+                              : 'bg-stone-800 hover:bg-stone-950 text-white border-stone-700'
                           }`}
+                          title={pkg.status === 'published' ? 'Click to Set as Draft' : 'Click to Publish Live'}
                         >
-                          {pkg.status}
-                        </span>
+                          <span className={`w-1.5 h-1.5 rounded-full bg-white ${pkg.status === 'published' ? 'animate-pulse' : 'opacity-80'}`} />
+                          <span className="capitalize">{pkg.status}</span>
+                        </button>
                       </div>
                     </div>
 
