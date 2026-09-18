@@ -123,10 +123,10 @@ export const GuideManager: React.FC<GuideManagerProps> = ({ onEditGuide, onCreat
             <span>Content & SEO Studio</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-bold text-stone-900">
-            Pilgrimage & Travel Guides
+            Posts & Travel Guides
           </h1>
           <p className="text-sm text-stone-600 mt-1">
-            Manage comprehensive temple guides, yatra routes, and AI-optimized SEO articles for devotees.
+            Manage published articles, promotional drafts, yatra routes, temple guides, and AI-optimized SEO content.
           </p>
         </div>
 
@@ -146,7 +146,7 @@ export const GuideManager: React.FC<GuideManagerProps> = ({ onEditGuide, onCreat
             className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-stone-900 hover:bg-black text-white text-xs font-bold shadow-md shadow-stone-900/15 transition cursor-pointer"
           >
             <Plus className="w-4 h-4 text-amber-400" />
-            <span>Create New Guide</span>
+            <span>Write New Post</span>
           </button>
         </div>
       </div>
@@ -155,11 +155,11 @@ export const GuideManager: React.FC<GuideManagerProps> = ({ onEditGuide, onCreat
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white p-4 rounded-xl border border-stone-200 shadow-xs">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-stone-500">Total Guides</span>
+            <span className="text-xs font-medium text-stone-500">Total Posts</span>
             <BookOpen className="w-4 h-4 text-stone-400" />
           </div>
           <p className="text-2xl font-bold text-stone-900 mt-2">{stats.total}</p>
-          <span className="text-[11px] text-stone-400">All registered articles</span>
+          <span className="text-[11px] text-stone-400">All registered articles & guides</span>
         </div>
 
         <div className="bg-white p-4 rounded-xl border border-emerald-100 bg-emerald-50/20 shadow-xs">
@@ -186,7 +186,7 @@ export const GuideManager: React.FC<GuideManagerProps> = ({ onEditGuide, onCreat
             <FileText className="w-4 h-4 text-amber-600" />
           </div>
           <p className="text-2xl font-bold text-amber-950 mt-2">{stats.draft}</p>
-          <span className="text-[11px] text-amber-700">In progress / hidden</span>
+          <span className="text-[11px] text-amber-700 font-semibold">{stats.draft} draft articles ready to review</span>
         </div>
       </div>
 
@@ -203,7 +203,7 @@ export const GuideManager: React.FC<GuideManagerProps> = ({ onEditGuide, onCreat
                   : 'text-stone-600 hover:text-stone-900'
               }`}
             >
-              All Guides ({stats.total})
+              All Posts ({stats.total})
             </button>
             <button
               onClick={() => setActiveTab('published')}

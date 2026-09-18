@@ -19,6 +19,7 @@ import { PushNotificationsManager } from './PushNotificationsManager';
 import { UsersManager } from './UsersManager';
 import { GroupToursManager } from './GroupToursManager';
 import { GuideManager } from './GuideManager';
+import { TravelBlogManager } from './TravelBlogManager';
 import { CategoriesManager } from "./CategoriesManager";
 import { TagsManager } from "./TagsManager";
 import { SEOManager } from "./SEOManager";
@@ -93,6 +94,8 @@ export const CMSDashboard: React.FC = () => {
     registeredUsers,
     guides,
     guideCategories,
+    blogPosts,
+    blogCategories,
     customPages,
     mediaAssets,
     temples,
@@ -111,6 +114,7 @@ export const CMSDashboard: React.FC = () => {
     | 'packages'
     | 'group-tours'
     | 'guides'
+    | 'blogs'
     | 'categories'
     | 'tags'
     | 'seo'
@@ -186,6 +190,8 @@ export const CMSDashboard: React.FC = () => {
       case 'dashboard':
         return true;
       case 'guides':
+      case 'blogs':
+      case 'post-editor':
       case 'categories':
       case 'tags':
       case 'seo':
@@ -291,8 +297,9 @@ export const CMSDashboard: React.FC = () => {
     { id: 'dashboard', label: 'Operations Hub', icon: LayoutDashboard, count: null, show: canAccess('dashboard') },
     
     // Core WordPress-style Content Management Tabs
-    { id: 'guides', label: 'All Posts', icon: BookOpen, count: guides.length, show: false },
-    { id: 'categories', label: 'Category', icon: Folder, count: guideCategories.length, show: false },
+    { id: 'guides', label: 'All Posts', icon: BookOpen, count: guides.length, show: canAccess('guides') },
+    { id: 'blogs', label: 'Blog Stories', icon: Newspaper, count: blogPosts?.length || 0, show: canAccess('blogs') },
+    { id: 'categories', label: 'Categories', icon: Folder, count: (guideCategories?.length || 0) + (blogCategories?.length || 0), show: canAccess('categories') },
     { id: 'tags', label: 'Tags', icon: Tag, count: null, show: canAccess('tags') },
     { id: 'media', label: 'Image Library', icon: ImagePlus, count: mediaAssets.length, show: canAccess('media') },
     { id: 'pages', label: 'Pages', icon: FileEdit, count: customPages.length, show: canAccess('pages') },
@@ -365,6 +372,29 @@ export const CMSDashboard: React.FC = () => {
                 <Globe className="w-3.5 h-3.5 text-[#FF4B00]" />
                 <span className="hidden md:inline">Storefront</span>
                 <span className="md:hidden">Web</span>
+              </button>
+
+              <button
+                type="button"
+                id="cms-header-posts-btn"
+                onClick={() => {
+                  setGuidesSubView('list');
+                  setActiveCmsTab('guides');
+                }}
+                className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-[11px] sm:text-xs font-bold border transition cursor-pointer ${
+                  activeCmsTab === 'guides'
+                    ? 'bg-amber-500 text-white border-amber-600 shadow-xs'
+                    : 'bg-amber-50 hover:bg-amber-100 text-amber-900 border-amber-200'
+                }`}
+                title="View All Posts & Drafts"
+              >
+                <BookOpen className="w-3.5 h-3.5" />
+                <span>Posts</span>
+                <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-black ${
+                  activeCmsTab === 'guides' ? 'bg-white text-amber-800' : 'bg-amber-200/80 text-amber-950'
+                }`}>
+                  {guides.length}
+                </span>
               </button>
 
               {canAccess('packages') && (
@@ -611,21 +641,42 @@ export const CMSDashboard: React.FC = () => {
                     </div>
                   </button>
                 )}
-                {canAccess("post-editor") && (
+                {canAccess("guides") && (
                   <button
                     type="button"
                     onClick={() => {
-                      setEditingBlogPost(null);
-                      setActiveCmsTab("post-editor");
+                      setGuidesSubView('list');
+                      setActiveCmsTab('guides');
                     }}
                     className="flex items-center sm:flex-col sm:items-start p-3 sm:p-4 rounded-xl bg-stone-50 hover:bg-white border border-stone-200 hover:border-amber-500 hover:shadow-md text-left transition-all cursor-pointer group"
                   >
                     <div className="p-2 sm:p-0 bg-white sm:bg-transparent rounded-lg border sm:border-none border-stone-200 mr-3 sm:mr-0 sm:mb-3 shrink-0">
-                      <FileEdit className="w-5 h-5 sm:w-6 sm:h-6 text-amber-600 group-hover:scale-110 transition-transform" />
+                      <BookOpen className="w-5 h-5 sm:w-6 sm:h-6 text-amber-600 group-hover:scale-110 transition-transform" />
                     </div>
                     <div>
-                      <p className="text-sm font-black text-stone-900 group-hover:text-amber-600 transition-colors">Post Editor</p>
-                      <p className="text-[11px] text-stone-500 font-medium line-clamp-1">Guides & R2 media</p>
+                      <p className="text-sm font-black text-stone-900 group-hover:text-amber-600 transition-colors">
+                        All Posts ({guides.length})
+                      </p>
+                      <p className="text-[11px] text-stone-500 font-medium line-clamp-1">Review drafts & live guides</p>
+                    </div>
+                  </button>
+                )}
+                {canAccess("guides") && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditingGuide(null);
+                      setGuidesSubView('editor');
+                      setActiveCmsTab('guides');
+                    }}
+                    className="flex items-center sm:flex-col sm:items-start p-3 sm:p-4 rounded-xl bg-stone-50 hover:bg-white border border-stone-200 hover:border-emerald-500 hover:shadow-md text-left transition-all cursor-pointer group"
+                  >
+                    <div className="p-2 sm:p-0 bg-white sm:bg-transparent rounded-lg border sm:border-none border-stone-200 mr-3 sm:mr-0 sm:mb-3 shrink-0">
+                      <FileEdit className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-600 group-hover:scale-110 transition-transform" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-black text-stone-900 group-hover:text-emerald-600 transition-colors">Write Post</p>
+                      <p className="text-[11px] text-stone-500 font-medium line-clamp-1">Create draft or publish</p>
                     </div>
                   </button>
                 )}
@@ -812,6 +863,16 @@ export const CMSDashboard: React.FC = () => {
               }}
             />
           )
+        )}
+
+        {/* TAB 2.6: BLOG STORIES & EDITORIAL CMS */}
+        {activeCmsTab === 'blogs' && canAccess('blogs') && !isTabLoading && (
+          <TravelBlogManager />
+        )}
+
+        {/* TAB: POST EDITOR FALLBACK */}
+        {activeCmsTab === 'post-editor' && canAccess('post-editor') && !isTabLoading && (
+          <TravelBlogManager initialSubTab="editor" />
         )}
 
         {/* TAB 3: DESTINATIONS & TRAVEL GUIDES CMS */}
