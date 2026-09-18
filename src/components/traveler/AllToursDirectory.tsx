@@ -192,6 +192,7 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
   // Filtering & Sorting
   const filteredPackages = (packages || []).filter((pkg) => {
     if (!pkg) return false;
+    if (pkg.status !== 'published') return false;
 
     // Destination
     if (selectedDestSlug !== 'all') {

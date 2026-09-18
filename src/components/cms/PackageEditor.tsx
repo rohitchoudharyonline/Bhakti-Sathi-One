@@ -158,7 +158,11 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
   const [country, setCountry] = useState(initialPackage?.country || '');
   const [category, setCategory] = useState<PackageCategory>(initialPackage?.category || 'Family');
   const [badge, setBadge] = useState<PackageBadge | ''>(initialPackage?.badge || 'Best Seller');
-  const [tourType, setTourType] = useState<TourPackage['tourType']>(initialPackage?.tourType || 'Family');
+  const [tourType, setTourType] = useState<TourPackage['tourType']>(
+    initialPackage?.tourType || 
+    (initialPackage?.category && ['Family', 'Honeymoon', 'Pilgrimage'].includes(initialPackage.category) ? initialPackage.category : undefined) || 
+    'Family'
+  );
   const [groupSizeLimit, setGroupSizeLimit] = useState(initialPackage?.groupSizeLimit || 'Max 12 People (Private Available)');
   const [bestTimeToVisit, setBestTimeToVisit] = useState(initialPackage?.bestTimeToVisit || 'Year Round');
   const [startLocation, setStartLocation] = useState(initialPackage?.startLocation || 'International Airport');

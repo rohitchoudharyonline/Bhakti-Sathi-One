@@ -9,6 +9,8 @@ import {
   Car,
   Clock,
   Check,
+  FileText,
+  ShieldAlert,
 } from 'lucide-react';
 
 interface TourDetailsSectionProps {
@@ -53,7 +55,7 @@ export const TourDetailsSection: React.FC<TourDetailsSectionProps> = ({
   pkg,
   className = '',
 }) => {
-  const [activeTab, setActiveTab] = useState<'hotels' | 'reporting'>('hotels');
+  const [activeTab, setActiveTab] = useState<'hotels' | 'reporting' | 'policies'>('hotels');
 
   // Build clean accommodation list from pkg.hotels or itinerary fallback
   const accommodationList = useMemo(() => {
@@ -177,8 +179,8 @@ export const TourDetailsSection: React.FC<TourDetailsSectionProps> = ({
         </p>
       </div>
 
-      {/* 2 Main Tabs: Hotels | Reporting & Dropping */}
-      <div className="grid grid-cols-2 border-b border-stone-200 bg-stone-50 p-1.5 sm:p-2 gap-1.5 sm:gap-2">
+      {/* 3 Main Tabs: Hotels | Reporting & Dropping | Policies */}
+      <div className="grid grid-cols-3 border-b border-stone-200 bg-stone-50 p-1.5 sm:p-2 gap-1.5 sm:gap-2">
         <button
           type="button"
           onClick={() => setActiveTab('hotels')}
@@ -202,7 +204,20 @@ export const TourDetailsSection: React.FC<TourDetailsSectionProps> = ({
           }`}
         >
           <Car className="w-3.5 h-3.5 shrink-0 hidden xs:inline" />
-          <span className="truncate">Reporting & Dropping</span>
+          <span className="truncate">Reporting</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveTab('policies')}
+          className={`py-2.5 px-2 sm:px-4 rounded-xl text-xs sm:text-sm font-black transition-all flex items-center justify-center gap-1.5 cursor-pointer text-center ${
+            activeTab === 'policies'
+              ? 'bg-[#FF4B00] text-white shadow-xs'
+              : 'bg-white text-stone-700 border border-stone-200 hover:bg-stone-100'
+          }`}
+        >
+          <FileText className="w-3.5 h-3.5 shrink-0 hidden xs:inline" />
+          <span className="truncate">Policies</span>
         </button>
       </div>
 
@@ -395,6 +410,70 @@ export const TourDetailsSection: React.FC<TourDetailsSectionProps> = ({
                   A 24x7 dedicated Holidays Hunt Operations Manager will remain on standby to assist with any itinerary coordination.
                 </li>
               </ul>
+            </div>
+          </div>
+        )}
+
+        {/* ============================================================ */}
+        {/* TAB 3: POLICIES */}
+        {/* ============================================================ */}
+        {activeTab === 'policies' && (
+          <div className="space-y-4">
+            {/* Cancellation Policy */}
+            <div className="border border-stone-200 rounded-xl overflow-hidden bg-white">
+              <div className="bg-stone-100/90 border-b border-stone-200 p-3 text-xs font-black text-stone-800 uppercase tracking-wider flex items-center gap-2">
+                <ShieldAlert className="w-3.5 h-3.5 text-rose-600" />
+                <span>Cancellation & Refund Policy</span>
+              </div>
+              <div className="p-4">
+                {pkg.policies?.cancellationPolicy && pkg.policies.cancellationPolicy.length > 0 ? (
+                  <ul className="space-y-2 text-xs text-stone-700 list-disc list-outside pl-4 leading-relaxed">
+                    {pkg.policies.cancellationPolicy.map((line, i) => (
+                      <li key={i}>{line}</li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-xs text-stone-500 italic">No cancellation policies specified.</p>
+                )}
+              </div>
+            </div>
+
+            {/* Payment Policy */}
+            <div className="border border-stone-200 rounded-xl overflow-hidden bg-white">
+              <div className="bg-stone-100/90 border-b border-stone-200 p-3 text-xs font-black text-stone-800 uppercase tracking-wider flex items-center gap-2">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                <span>Payment & Booking Terms</span>
+              </div>
+              <div className="p-4">
+                {pkg.policies?.paymentPolicy && pkg.policies.paymentPolicy.length > 0 ? (
+                  <ul className="space-y-2 text-xs text-stone-700 list-disc list-outside pl-4 leading-relaxed">
+                    {pkg.policies.paymentPolicy.map((line, i) => (
+                      <li key={i}>{line}</li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-xs text-stone-500 italic">No payment policies specified.</p>
+                )}
+              </div>
+            </div>
+
+            {/* Terms and Conditions */}
+            <div className="border border-stone-200 rounded-xl overflow-hidden bg-white">
+              <div className="bg-stone-100/90 border-b border-stone-200 p-3 text-xs font-black text-stone-800 uppercase tracking-wider flex items-center gap-2">
+                <FileText className="w-3.5 h-3.5 text-stone-700" />
+                <span>Terms & Conditions</span>
+              </div>
+              <div className="p-4">
+                {pkg.policies?.termsAndConditions && pkg.policies.termsAndConditions.length > 0 ? (
+                  <ul className="space-y-2 text-xs text-stone-700 list-disc list-outside pl-4 leading-relaxed">
+                    {pkg.policies.termsAndConditions.map((line, i) => (
+                      <li key={i}>{line}</li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-xs text-stone-500 italic">No terms or conditions specified.</p>
+                )}
+              </div>
             </div>
           </div>
         )}
