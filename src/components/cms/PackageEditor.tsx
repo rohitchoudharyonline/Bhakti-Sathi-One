@@ -130,6 +130,7 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
 
   // Form states
   const [title, setTitle] = useState(initialPackage?.title || '');
+  const [slug, setSlug] = useState(initialPackage?.slug || '');
   const [tagline, setTagline] = useState(initialPackage?.tagline || '');
   const [destination, setDestination] = useState(initialPackage?.destination || '');
   const [destinationTag, setDestinationTag] = useState<string>(() => {
@@ -383,7 +384,7 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
     }
   };
 
-  const handleSave = (e?: React.FormEvent) => {
+  const handleSave = (statusOverride?: 'published' | 'draft', e?: React.FormEvent) => {
     if (e) e.preventDefault();
 
     if (!title.trim()) {
@@ -404,8 +405,16 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
 
     setValidationError('');
 
+    const finalStatus = statusOverride || status;
+    const finalSlug = (slug || '')
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9-]+/g, '-')
+      .replace(/(^-|-$)/g, '') || 
+      title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+
     const packageData = {
-      slug: title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
+      slug: finalSlug,
       title: title.trim(),
       tagline: tagline.trim() || `Explore the best of ${destination}`,
       destination: destination.trim(),
@@ -470,7 +479,7 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
         paymentPolicy,
       },
       importantNotes,
-      status,
+      status: finalStatus,
       featured,
       seoTitle: seoTitle.trim(),
       seoMetaTitle: seoTitle.trim(),
@@ -656,11 +665,18 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
             </div>
 
             <button
-              onClick={() => handleSave()}
-              className="px-4 sm:px-5 py-2 rounded-xl bg-brand hover:bg-brand-dark text-white text-xs sm:text-sm font-bold shadow-md transition flex items-center gap-2 cursor-pointer"
+              onClick={() => handleSave('draft')}
+              className="px-3 sm:px-4 py-2 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-xs sm:text-sm font-bold shadow-xs transition cursor-pointer"
+            >
+              Save as Draft
+            </button>
+
+            <button
+              onClick={() => handleSave('published')}
+              className="px-4 sm:px-5 py-2 rounded-xl bg-[#FF4B00] hover:bg-[#E03A00] text-white text-xs sm:text-sm font-bold shadow-md transition flex items-center gap-2 cursor-pointer"
             >
               <Save className="w-4 h-4" />
-              <span>Save & Publish</span>
+              <span>Save & Publish Live</span>
             </button>
           </div>
         </div>
@@ -2224,6 +2240,7 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
           <CMSSEOEditor
             type="package"
             itemName={title}
+            slug={slug}
             extraData={{
               city: destination,
               price: price,
@@ -2232,11 +2249,13 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
             seoMetaDescription={metaDescription}
             seoKeywords={seoKeywords}
             onChange={(field, val) => {
+              if (field === 'slug') setSlug(val);
               if (field === 'seoMetaTitle') setSeoTitle(val);
               if (field === 'seoMetaDescription') setMetaDescription(val);
               if (field === 'seoKeywords') setSeoKeywords(val);
             }}
             onApplyAll={(data) => {
+              if (data.slug) setSlug(data.slug);
               setSeoTitle(data.seoMetaTitle);
               setMetaDescription(data.seoMetaDescription);
               setSeoKeywords(data.seoKeywords);

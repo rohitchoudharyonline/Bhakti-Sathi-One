@@ -291,8 +291,8 @@ export const CMSDashboard: React.FC = () => {
     { id: 'dashboard', label: 'Operations Hub', icon: LayoutDashboard, count: null, show: canAccess('dashboard') },
     
     // Core WordPress-style Content Management Tabs
-    { id: 'guides', label: 'All Posts', icon: BookOpen, count: guides.length, show: canAccess('guides') },
-    { id: 'categories', label: 'Category', icon: Folder, count: guideCategories.length, show: canAccess('guides') },
+    { id: 'guides', label: 'All Posts', icon: BookOpen, count: guides.length, show: false },
+    { id: 'categories', label: 'Category', icon: Folder, count: guideCategories.length, show: false },
     { id: 'tags', label: 'Tags', icon: Tag, count: null, show: canAccess('tags') },
     { id: 'media', label: 'Image Library', icon: ImagePlus, count: mediaAssets.length, show: canAccess('media') },
     { id: 'pages', label: 'Pages', icon: FileEdit, count: customPages.length, show: canAccess('pages') },

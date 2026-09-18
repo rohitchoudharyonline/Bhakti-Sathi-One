@@ -221,17 +221,6 @@ export const Navbar: React.FC = () => {
               Top Destinations Directory
             </button>
 
-            <button
-              type="button"
-              onClick={() => {
-                navigateToGuideHub();
-                setMobileMenuOpen(false);
-              }}
-              className="w-full text-left block py-2.5 px-3 rounded-lg text-xs font-bold text-[#FF4B00] bg-[#FFF0EB] border border-[#FF4B00]/30"
-            >
-              📖 Guide
-            </button>
-
             <a
               href="#custom-planner-section"
               onClick={() => setMobileMenuOpen(false)}

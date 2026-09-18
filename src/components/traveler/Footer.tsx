@@ -428,11 +428,6 @@ export const Footer: React.FC<FooterProps> = ({ onSelectDestination, onSelectDha
                       </button>
                     </li>
                     <li>
-                      <button onClick={navigateToGuideHub} className="hover:text-white transition cursor-pointer text-left">
-                        • Guide
-                      </button>
-                    </li>
-                    <li>
                       <button onClick={() => openInfo('sitemap')} className="hover:text-white transition cursor-pointer text-left">
                         • Sitemap
                       </button>
