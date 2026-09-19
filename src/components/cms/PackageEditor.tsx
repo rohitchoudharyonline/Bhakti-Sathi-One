@@ -165,8 +165,8 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
   );
   const [groupSizeLimit, setGroupSizeLimit] = useState(initialPackage?.groupSizeLimit || 'Max 12 People (Private Available)');
   const [bestTimeToVisit, setBestTimeToVisit] = useState(initialPackage?.bestTimeToVisit || 'Year Round');
-  const [startLocation, setStartLocation] = useState(initialPackage?.startLocation || 'International Airport');
-  const [endLocation, setEndLocation] = useState(initialPackage?.endLocation || 'International Airport');
+  const [startLocation, setStartLocation] = useState(initialPackage?.startLocation || 'Srinagar / Jammu / Chandigarh');
+  const [endLocation, setEndLocation] = useState(initialPackage?.endLocation || 'Srinagar / Jammu / Chandigarh');
   const [overview, setOverview] = useState(initialPackage?.overview || '');
   const [coverImage, setCoverImage] = useState(
     initialPackage?.coverImage || SAMPLE_COVERS[0].url
@@ -894,7 +894,7 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
                     required
                     value={country}
                     onChange={(e) => setCountry(e.target.value)}
-                    placeholder="e.g. India / Indonesia / Thailand / Vietnam"
+                    placeholder="e.g. India"
                     className="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 focus:bg-white focus:border-brand focus:outline-hidden transition"
                   />
                 </div>

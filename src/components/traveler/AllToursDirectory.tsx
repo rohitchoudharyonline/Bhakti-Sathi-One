@@ -138,12 +138,12 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
       : toursSeo?.metaTitle || 'Book Family, Honeymoon & Pilgrimage Tour Packages | Holidays Hunt';
 
     const pageDescription = isCategorySpecific
-      ? categorySeo?.metaDescription || `Explore verified ${selectedCategory} tour packages across India and top international destinations.`
+      ? categorySeo?.metaDescription || `Explore verified ${selectedCategory} tour packages across Jammu & Kashmir and Himachal Pradesh.`
       : isTempleSpecific
       ? `Book customized pilgrimage itineraries and guided tour packages for ${selectedTempleMeta?.name}. Verified stays, private transfers, and experienced yatra guides.`
       : isDestSpecific
       ? `Explore all verified ${currentDestMeta?.name} holiday packages. Dedicated private cabs, inspected 3-star/4-star hotels, and 24/7 mountain support.`
-      : toursSeo?.metaDescription || 'Explore and book verified Family, Honeymoon, and Pilgrimage tour packages across India and International destinations.';
+      : toursSeo?.metaDescription || 'Explore and book verified Family, Honeymoon, and Pilgrimage tour packages across Jammu & Kashmir and Himachal Pradesh.';
 
     const canonicalPath = isCategorySpecific
       ? `/tour-type/${selectedCategory.toLowerCase()}`
@@ -548,7 +548,7 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
                     selectedCategory === 'family' ? 'Handcrafted family holiday packages with spacious private cabs, kid & elder friendly hotel stays, and relaxed sightseeing itineraries.' :
                     selectedCategory === 'honeymoon' ? 'Romantic couples retreats with private chauffeur transfers, candle-light dinners, scenic mountain view resorts, and flower bed decorations.' :
                     selectedCategory === 'luxury' ? 'Ultra-premium holiday packages featuring 5-star royal palace stays, private luxury transfers, and exclusive VIP experiences.' :
-                    selectedCategory === 'group' ? 'Join curated group tour departures across India and International circuits with experienced trip captains.' :
+                    selectedCategory === 'group' ? 'Join curated group tour departures across Jammu & Kashmir and Himachal Pradesh circuits with experienced trip captains.' :
                     `Explore our handpicked ${selectedCategory} tour packages.`
                   ) : currentDestMeta && selectedDestSlug !== 'all' ? (
                     <>

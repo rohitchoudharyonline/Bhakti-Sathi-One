@@ -278,7 +278,6 @@ export const LuxuryHomepage: React.FC = () => {
   }, [agencySettings, pageSeoConfigs]);
 
   // Filter States
-  const [destinationScope, setDestinationScope] = useState<'all' | 'domestic' | 'international'>('domestic');
   const [activeSpecificDest, setActiveSpecificDest] = useState<string>('all');
   const [selectedTourType, setSelectedTourType] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');

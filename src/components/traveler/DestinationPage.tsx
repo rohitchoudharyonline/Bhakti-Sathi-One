@@ -245,14 +245,8 @@ export const DestinationPage: React.FC = () => {
                 <h1 className="text-xl sm:text-2xl font-black text-stone-900 tracking-tight">
                   {destinationMeta.name} Tour Packages
                 </h1>
-                <span
-                  className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-md ${
-                    destinationMeta.state === 'International'
-                      ? 'bg-stone-100 text-stone-800 border border-stone-200'
-                      : 'bg-stone-100 text-stone-900 border border-stone-200'
-                  }`}
-                >
-                  {destinationMeta.state === 'International' ? 'International' : 'Domestic'}
+                <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-md bg-stone-100 text-stone-900 border border-stone-200">
+                  {destinationMeta.state || 'Himalayan Circuit'}
                 </span>
               </div>
               <p className="text-xs text-stone-600 font-medium mb-4">

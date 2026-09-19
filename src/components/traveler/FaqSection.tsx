@@ -12,7 +12,7 @@ export const FaqSection: React.FC = () => {
     {
       id: 'faq-1',
       question: 'What types of tour packages does Holidays Hunt specialize in?',
-      answer: 'Holidays Hunt specializes in customized Family Vacations, Romantic Honeymoon Getaways, Sacred Pilgrimages, and Leisure Holidays across top Domestic destinations (Jammu & Kashmir, Himachal Pradesh, Ladakh, Amritsar, Char Dham, Goa, Kerala) and International hotspots (Thailand, Vietnam, Bali Indonesia, South Korea, Japan, and more).'
+      answer: 'Holidays Hunt specializes in customized Family Vacations, Romantic Honeymoon Getaways, Sacred Pilgrimages, and Leisure Holidays across Jammu & Kashmir and Himachal Pradesh with handpicked verified stays, private mountain chauffeurs, and 24/7 on-trip concierge support.'
     },
     {
       id: 'faq-2',
@@ -26,8 +26,8 @@ export const FaqSection: React.FC = () => {
     },
     {
       id: 'faq-4',
-      question: 'How does Holidays Hunt handle sacred pilgrimages like Mata Vaishno Devi or Char Dham?',
-      answer: 'For sacred yatras, Holidays Hunt provides end-to-end facilitation including handpicked hotels near shrines, assistance with priority darshan guidance/helicopter updates, dedicated comfortable transfers, and respectful local coordination for senior citizens.'
+      question: 'How does Holidays Hunt handle sacred pilgrimages like Mata Vaishno Devi?',
+      answer: 'For sacred yatras, Holidays Hunt provides end-to-end facilitation including handpicked hotels near shrines, assistance with priority darshan guidance, dedicated comfortable transfers, and respectful local coordination for senior citizens.'
     },
     {
       id: 'faq-5',
@@ -41,8 +41,8 @@ export const FaqSection: React.FC = () => {
     },
     {
       id: 'faq-7',
-      question: 'Does Holidays Hunt provide International tour packages like Thailand, Vietnam, and Bali?',
-      answer: 'Yes! Holidays Hunt organizes bespoke international holidays to Thailand (Phuket, Krabi, Bangkok), Vietnam (Hanoi, Da Nang, Halong Bay), Indonesia (Bali), South Korea, Japan, Dubai, and the Maldives with visa assistance, luxury resort stays, and guided city excursions.'
+      question: 'Which destinations are covered in Jammu & Kashmir and Himachal Pradesh packages?',
+      answer: 'Our packages cover all major circuits including Srinagar, Gulmarg, Pahalgam, Sonamarg, and Mata Vaishno Devi Katra in Jammu & Kashmir, and Shimla, Manali, Solang Valley, Rohtang Pass, Dharamshala, and Dalhousie in Himachal Pradesh.'
     },
     {
       id: 'faq-8',

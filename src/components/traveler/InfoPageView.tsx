@@ -136,26 +136,28 @@ export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, on
                 <div className={contactImgError ? 'max-w-3xl mx-auto w-full space-y-6' : 'lg:col-span-7 space-y-6'}>
                   <div>
                     <p className="text-sm text-stone-600 leading-relaxed font-semibold">
-                      Contact <span className="text-[#FF4B00] font-black">Holidays Hunt (a brand name of Holidays Hunt Travel and Hospitality Pvt Ltd)</span>, your premier travel partner for Family, Pilgrimage, and Honeymoon tours. We specialize in handcrafted holiday packages featuring verified hotel & resort stays, private dedicated chauffeur transfers, and 24/7 on-trip concierge assistance across Jammu & Kashmir, Himachal Pradesh, Ladakh, Amritsar, as well as top Domestic & International destinations including Thailand, Vietnam, Indonesia, South Korea, Japan, and beyond. Reach out to our travel specialists today!
+                      Contact <span className="text-[#FF4B00] font-black">Holidays Hunt (a brand name of Holidays Hunt Travel and Hospitality Pvt Ltd)</span>, your premier travel partner for Family, Pilgrimage, and Honeymoon tours. We specialize in handcrafted holiday packages featuring verified hotel & resort stays, private dedicated chauffeur transfers, and 24/7 on-trip concierge assistance across Jammu & Kashmir and Himachal Pradesh. Reach out to our travel specialists today!
                     </p>
                   </div>
 
                   {/* Call & WhatsApp Card */}
-                  <div className="p-6 rounded-2xl bg-[#FF4B00]/5 border border-[#FF4B00]/20 space-y-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-[#FF4B00] text-white flex items-center justify-center font-bold">
+                  <div className="p-5 sm:p-6 rounded-2xl bg-[#FF4B00]/5 border border-[#FF4B00]/20">
+                    <div className="flex items-center gap-3 sm:gap-4">
+                      <div className="w-11 h-11 rounded-full bg-[#FF4B00] text-white flex items-center justify-center font-bold shrink-0 shadow-xs">
                         <Phone className="w-5 h-5" />
                       </div>
-                      <div>
-                        <h3 className="text-xs font-black uppercase tracking-wider text-stone-500">Call or Whatsapp Hotline</h3>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <h3 className="text-[11px] sm:text-xs font-black uppercase tracking-wider text-stone-500">Call or WhatsApp Hotline</h3>
+                          <span className="text-[9.5px] sm:text-[10px] font-black bg-emerald-500 text-white px-2 py-0.5 rounded-full uppercase tracking-wider whitespace-nowrap">24x7 Support</span>
+                        </div>
                         <a 
                           href="https://wa.me/919419915255" 
                           target="_blank" 
                           rel="noreferrer" 
-                          className="text-2xl font-black text-stone-900 hover:text-[#FF4B00] transition flex items-center gap-2"
+                          className="text-lg sm:text-2xl font-black text-stone-900 hover:text-[#FF4B00] transition block whitespace-nowrap mt-0.5 tracking-tight"
                         >
-                          +91 9419915255
-                          <span className="text-[10px] font-black bg-emerald-500 text-white px-2 py-0.5 rounded-full uppercase tracking-wider">24x7 Support</span>
+                          +91 94199 15255
                         </a>
                       </div>
                     </div>
@@ -279,7 +281,7 @@ export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, on
             {/* 2. ABOUT US */}
             {pageSlug === 'about' && (
               <div className="space-y-6 text-xs sm:text-sm text-stone-700 leading-relaxed">
-                <p className="text-sm text-stone-600 font-semibold mb-4">Your trusted travel partner for 100% customized Family, Pilgrimage, and Honeymoon tour packages across India and International destinations.</p>
+                <p className="text-sm text-stone-600 font-semibold mb-4">Your trusted travel partner for 100% customized Family, Pilgrimage, and Honeymoon tour packages across Jammu & Kashmir and Himachal Pradesh.</p>
 
                 <p>
                   Founded with a passion for authentic mountain hospitality and world-class leisure travel, <strong>Holidays Hunt</strong> is a premier tour operator. We specialize in handcrafted holiday packages featuring verified 3-star to 5-star deluxe and luxury stays, private dedicated chauffeur cabs, customized daily itineraries, and 24x7 expert concierge support.
@@ -305,14 +307,14 @@ export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, on
                   <ul className="list-disc pl-5 space-y-1.5 text-stone-600 font-medium">
                     <li><strong>Family Vacations:</strong> Relaxed, family-friendly itineraries with comfortable transfers and top sightseeing spots.</li>
                     <li><strong>Honeymoon & Romantic Getaways:</strong> Candlelight dinners, private shikara rides, scenic mountain resorts, and special room setups.</li>
-                    <li><strong>Spiritual & Pilgrimage Yatras:</strong> Seamless darshans and guided yatras to Mata Vaishno Devi, Golden Temple Amritsar, and sacred Himalayan shrines.</li>
-                    <li><strong>Domestic Destinations:</strong> Jammu & Kashmir (Srinagar, Gulmarg, Pahalgam), Himachal Pradesh (Shimla, Manali, Dharamshala), Ladakh, and Punjab (Amritsar).</li>
-                    <li><strong>International Holidays:</strong> Seamless packages to Thailand, Vietnam, Indonesia (Bali), South Korea, Japan, and more.</li>
+                    <li><strong>Spiritual & Pilgrimage Yatras:</strong> Seamless darshans and guided yatras to Mata Vaishno Devi and sacred Himalayan shrines.</li>
+                    <li><strong>Jammu & Kashmir Packages:</strong> Srinagar Dal Lake houseboats, Gulmarg Gondola snow peaks, Pahalgam Lidder Valley, Sonamarg, and Doodhpathri.</li>
+                    <li><strong>Himachal Pradesh Packages:</strong> Shimla Mall Road, Manali Solang & Atal Tunnel excursions, Dharamshala, and Dalhousie pine retreats.</li>
                   </ul>
                 </div>
 
                 <p>
-                  Whether you wish to glide over the snowy slopes of Gulmarg, cruise on a traditional Dal Lake houseboat in Srinagar, seek divine blessings at Mata Vaishno Devi Katra, explore ancient temples in Bali, or wander under the cherry blossoms in Japan, Holidays Hunt guarantees an unforgettable, worry-free vacation.
+                  Whether you wish to glide over the snowy slopes of Gulmarg, cruise on a traditional Dal Lake houseboat in Srinagar, seek divine blessings at Mata Vaishno Devi Katra, or explore scenic pine valleys in Manali and Shimla, Holidays Hunt guarantees an unforgettable, worry-free vacation.
                 </p>
               </div>
             )}
@@ -965,7 +967,7 @@ export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, on
               pageSlug !== 'pilgrimage' && (
                 <div className="space-y-4 text-xs sm:text-sm text-stone-700 leading-relaxed pt-2">
                   <p>
-                    Welcome to the official information portal of <strong>Holidays Hunt</strong>. We are committed to providing transparent, world-class travel services across Jammu & Kashmir, Himachal Pradesh, and top national & international destinations.
+                    Welcome to the official information portal of <strong>Holidays Hunt</strong>. We are committed to providing transparent, world-class travel services across Jammu & Kashmir and Himachal Pradesh.
                   </p>
                   <p>
                     For any custom itineraries, group bookings, corporate tours, or immediate assistance regarding {pageSlug.replace(/_/g, ' ')}, please connect with our 24x7 support desk:

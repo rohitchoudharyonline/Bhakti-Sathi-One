@@ -576,7 +576,7 @@ export const VendorsManager: React.FC<{
           value={formData.state}
           onChange={(e) => setFormData({ ...formData, state: e.target.value })}
           className="w-full px-3.5 py-2 rounded-xl border border-stone-200 bg-white dark:bg-stone-950 text-sm"
-          placeholder="e.g. Kashmir / Bali"
+          placeholder="e.g. Jammu & Kashmir / Himachal Pradesh"
          />
         </div>
 

@@ -122,12 +122,10 @@ export const Footer: React.FC<FooterProps> = ({ onSelectDestination, onSelectDha
     }
   };
 
-  const handleNavCategory = (type: 'explore' | 'india' | 'international') => {
+  const handleNavCategory = (type: 'explore' | 'destinations') => {
     if (type === 'explore') {
       navigateToHome();
-    } else if (type === 'india') {
-      openDestinationsExplorer();
-    } else if (type === 'international') {
+    } else {
       openDestinationsExplorer();
     }
   };
@@ -261,7 +259,7 @@ export const Footer: React.FC<FooterProps> = ({ onSelectDestination, onSelectDha
               <p className="text-sm font-medium text-stone-800">Request a Quote & Helpline</p>
               <a
                 href="tel:+919419915255"
-                className="text-sm sm:text-base font-black text-stone-950 underline underline-offset-4 hover:text-stone-600 transition"
+                className="text-sm sm:text-base font-black text-stone-950 underline underline-offset-4 hover:text-stone-600 transition inline-block whitespace-nowrap"
               >
                 +91 94199 15255
               </a>

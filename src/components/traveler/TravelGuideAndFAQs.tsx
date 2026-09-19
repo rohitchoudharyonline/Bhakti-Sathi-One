@@ -9,18 +9,18 @@ export const TravelGuideAndFAQs: React.FC = () => {
   const faqs = [
     {
       q: 'What types of tour packages does Holidays Hunt specialize in?',
-      a: 'Holidays Hunt specializes in customized Family Vacations, Romantic Honeymoon Getaways, Sacred Pilgrimages, and Leisure Holidays across top Domestic destinations (Jammu & Kashmir, Himachal Pradesh, Ladakh, Char Dham, Goa, Kerala) and International hotspots (Thailand, Vietnam, Bali Indonesia, South Korea, Japan, and more).',
+      a: 'Holidays Hunt specializes in customized Family Vacations, Romantic Honeymoon Getaways, Sacred Pilgrimages, and Leisure Holidays across Jammu & Kashmir and Himachal Pradesh with handpicked stays, private chauffeurs, and 24/7 concierge support.',
     },
     {
       q: 'How does Holidays Hunt ensure a smooth and personalized holiday experience?',
-      a: 'Holidays Hunt pairs you with verified local hotel partners, experienced chauffeurs, and dedicated 24x7 tour managers. We customize every itinerary according to your travel pace, family preferences, hotel category choices, and sightseeing interests.',
+      a: 'Holidays Hunt pairs you with verified local hotel partners, experienced mountain chauffeurs, and dedicated 24x7 tour managers. We customize every itinerary according to your travel pace, family preferences, hotel category choices, and sightseeing interests.',
     },
     {
       q: 'Can Holidays Hunt customize a private tour itinerary for families or couples?',
       a: 'Absolutely! Every itinerary at Holidays Hunt is 100% customizable. Whether you are traveling as a honeymoon couple seeking private candlelight dinners and scenic retreats, or a multi-generational family requiring spacious vehicles and child/elderly-friendly hotels, our team tailors every detail.',
     },
     {
-      q: 'How does Holidays Hunt handle sacred pilgrimages like Mata Vaishno Devi or Char Dham?',
+      q: 'How does Holidays Hunt handle sacred pilgrimages like Mata Vaishno Devi?',
       a: 'For sacred yatras, Holidays Hunt provides end-to-end facilitation including handpicked hotels near shrines, assistance with priority darshan guidance, dedicated comfortable transfers, and respectful local coordination for senior citizens. (Note: We do NOT sell helicopter tickets directly).',
     },
     {
@@ -28,8 +28,8 @@ export const TravelGuideAndFAQs: React.FC = () => {
       a: 'To secure your hotel reservations and private cab bookings, Holidays Hunt requires a standard advance deposit. The remaining balance can be settled as per the agreed payment schedule before or upon arrival. We accept UPI, Net Banking, credit/debit cards, and bank transfers with complete GST invoicing.',
     },
     {
-      q: 'Does Holidays Hunt provide International tour packages like Thailand, Vietnam, and Bali?',
-      a: 'Yes! Holidays Hunt organizes bespoke international holidays to Thailand, Vietnam, Indonesia (Bali), South Korea, Japan, Dubai, and the Maldives with visa assistance, luxury resort stays, and guided city excursions.',
+      q: 'Which destinations are covered in Jammu & Kashmir and Himachal Pradesh tours?',
+      a: 'Our tours cover Srinagar (Dal Lake houseboats & Mughal Gardens), Gulmarg, Pahalgam, Sonamarg, Doodhpathri, and Mata Vaishno Devi Katra in Jammu & Kashmir, as well as Shimla, Manali, Solang Valley, Atal Tunnel, Rohtang, Dharamshala, and Dalhousie in Himachal Pradesh.',
     },
   ];
 

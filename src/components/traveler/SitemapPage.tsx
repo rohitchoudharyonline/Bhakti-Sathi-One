@@ -47,7 +47,7 @@ export const SitemapPage: React.FC = () => {
   useEffect(() => {
     updatePageSeo({
       title: 'HTML & XML Sitemap | Holidays Hunt Tour & Destination Directory',
-      description: 'Explore the complete directory of family vacations, honeymoon packages, domestic & international holiday tours, and travel guides on Holidays Hunt.',
+      description: 'Explore the complete directory of family vacations, honeymoon packages, Jammu & Kashmir and Himachal Pradesh holiday tours, and travel guides on Holidays Hunt.',
       canonicalPath: '/sitemap',
       schemaData: generateBreadcrumbSchema([
         { name: 'Home', url: origin },
