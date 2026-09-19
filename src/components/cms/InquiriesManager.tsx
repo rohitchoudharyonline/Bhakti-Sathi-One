@@ -76,22 +76,84 @@ export const InquiriesManager: React.FC<{
   });
 
   // Quotation form state
-  const [quotePrice, setQuotePrice] = useState<number>(1500);
-  const [quoteDiscount, setQuoteDiscount] = useState<number>(100);
+  const [quotePackageId, setQuotePackageId] = useState<string>('');
+  const [quotePackageTitle, setQuotePackageTitle] = useState<string>('Custom Tour Proposal');
+  const [quoteDestination, setQuoteDestination] = useState<string>('Jammu & Kashmir');
+  const [quoteDuration, setQuoteDuration] = useState<string>('6 Days / 5 Nights');
+  const [quotePrice, setQuotePrice] = useState<number>(15000);
+  const [quoteDiscount, setQuoteDiscount] = useState<number>(0);
   const [quoteValidity, setQuoteValidity] = useState<string>(
     new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0]
   );
-  const [quoteHotels, setQuoteHotels] = useState<string>('4-Star Luxury Deluxe / Heritage Resort');
-  const [quoteCab, setQuoteCab] = useState<string>('Private AC Innova Crysta for all transfers and sightseeing');
+  const [quoteHotels, setQuoteHotels] = useState<string>('4-Star Luxury Deluxe Hotel + 1 Night Luxury Houseboat');
+  const [quoteCab, setQuoteCab] = useState<string>('Dedicated Private AC Sedan / Innova with Chauffeur');
   const [quoteInclusions, setQuoteInclusions] = useState<string>(
-    'Daily Breakfast & Dinner, Airport pickup & drop, Shikara ride, Gondola Phase-1 passes'
+    'Daily Breakfast & Dinner\nAirport Pickup & Drop\nPrivate Chauffeur Vehicle for Sightseeing\nTolls, Parking & Driver Allowance'
   );
   const [quoteExclusions, setQuoteExclusions] = useState<string>(
-    'Airfare, Personal expenses, Horse riding, Monument entry fees'
+    'Airfare / Train Tickets\nPersonal Expenses & Tips\nMonument Entry Fees & Activities'
   );
   const [quoteNotes, setQuoteNotes] = useState<string>(
-    'Special 10% seasonal discount applied. Rates valid for booking confirmation within 7 days.'
+    'Customized tailored proposal prepared with verified stays and 24/7 on-trip concierge assistance.'
   );
+
+  const formatPackageHotels = (pkg?: any): string => {
+    if (!pkg) return 'Handpicked Deluxe Hotels with Mountain View + Luxury Houseboat';
+    if (pkg.hotels && Array.isArray(pkg.hotels) && pkg.hotels.length > 0) {
+      return pkg.hotels
+        .map((h: any) => {
+          const loc = h.location || h.city || '';
+          const alt = h.alternativeHotel ? ` / ${h.alternativeHotel}` : '';
+          const star = h.starRating ? ` (${h.starRating}-Star)` : '';
+          return `${loc ? loc + ': ' : ''}${h.name}${alt}${star}`;
+        })
+        .join(', ');
+    }
+    if (pkg.pricingTiers) {
+      const tier = pkg.pricingTiers.deluxe || pkg.pricingTiers.standard || pkg.pricingTiers.luxury;
+      if (tier?.hotels?.length) {
+        return tier.hotels.join(', ');
+      }
+    }
+    return '3-Star / 4-Star Handpicked Deluxe Stays with Mountain View + 1 Night Luxury Houseboat';
+  };
+
+  const formatCabType = (inq: Partial<BookingInquiry>, pkg?: any): string => {
+    if (pkg?.transportation) return pkg.transportation;
+    const totalPax = ((inq.adults as number) || 0) + ((inq.children as number) || 0);
+    if (totalPax > 6) return '12 Seater Dedicated AC Tempo Traveller for all transfers & sightseeing';
+    if (totalPax > 3) return 'Dedicated AC Innova Crysta for all transfers and sightseeing';
+    return 'Dedicated Private AC Sedan (Dzire / Etios) with Professional Chauffeur';
+  };
+
+  const handleAutoFillFromPackage = (pkgId: string) => {
+    const pkg = packages.find((p) => p.id === pkgId);
+    if (!pkg) return;
+    setQuotePackageId(pkg.id);
+    setQuotePackageTitle(pkg.title);
+    setQuoteDestination(pkg.destination || 'Jammu & Kashmir');
+    setQuoteDuration(`${pkg.durationDays} Days / ${pkg.durationNights} Nights`);
+    const pax = selectedInquiryForQuote ? (selectedInquiryForQuote.adults || 2) : 2;
+    const calculatedPrice = (pkg.discountedPrice || pkg.price || 15000) * pax;
+    setQuotePrice(calculatedPrice);
+    setQuoteHotels(formatPackageHotels(pkg));
+    setQuoteCab(formatCabType(selectedInquiryForQuote || {}, pkg));
+    setQuoteInclusions(
+      pkg.inclusions && pkg.inclusions.length > 0
+        ? pkg.inclusions.join('\n')
+        : 'Exclusive Private Chauffeur vehicle for all transfers and sightseeing\nAll toll taxes, parking fees, driver allowance, and fuel\nDaily Buffet Breakfast and Dinners\nFree Travel Insurance & 24x7 Yatra Concierge'
+    );
+    setQuoteExclusions(
+      pkg.exclusions && pkg.exclusions.length > 0
+        ? pkg.exclusions.join('\n')
+        : 'Airfare / Train tickets\nPersonal expenses, laundry, and mini-bar\nCamera / Video fees and monument entry charges\nTips and gratuities for driver and local guides'
+    );
+    setQuoteNotes(
+      pkg.importantNotes?.length
+        ? pkg.importantNotes.join('; ')
+        : 'Customized tailored proposal prepared with verified stays and 24/7 on-trip concierge assistance.'
+    );
+  };
 
   const canManage =
     currentStaffUser.role === 'super_admin' || currentStaffUser.permissions.canManageInquiries;
@@ -185,39 +247,77 @@ export const InquiriesManager: React.FC<{
 
   const handleOpenQuoteModal = (inq: BookingInquiry) => {
     setSelectedInquiryForQuote(inq);
-    const matchedPkg = packages.find((p) => p.id === inq.packageId);
-    const baseP = matchedPkg ? matchedPkg.price * (inq.adults || 2) : 1500;
-    setQuotePrice(baseP);
-    setQuoteDiscount(0);
-    setQuoteValidity(new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0]);
-    setQuoteHotels('4-Star Deluxe Hotel with Valley View + 1 Night Luxury Houseboat');
-    setQuoteCab('Dedicated Private AC Innova / Crysta with Professional Chauffeur');
-    setQuoteInclusions(
-      matchedPkg?.inclusions.join(', ') ||
-        'Welcome drinks, Daily Buffet Breakfast & Dinner, Airport Transfers, Sightseeing, Tolls & Parking'
-    );
-    setQuoteExclusions(
-      matchedPkg?.exclusions.join(', ') ||
-        'Airfare / Train tickets, Personal expenses, Monument entry tickets'
-    );
-    setQuoteNotes('Customized tailored proposal prepared with complimentary honeymoon amenities.');
+    const matchedPkg = packages.find((p) => p.id === inq.packageId || p.title.toLowerCase() === (inq.packageTitle || '').toLowerCase()) || packages[0];
+    
+    if (inq.quotation) {
+      const q = inq.quotation;
+      setQuotePackageId(q.packageId || matchedPkg?.id || '');
+      setQuotePackageTitle(q.packageTitle || inq.packageTitle || matchedPkg?.title || 'Custom Tour Proposal');
+      setQuoteDestination(q.destination || matchedPkg?.destination || 'Jammu & Kashmir');
+      setQuoteDuration(q.duration || (matchedPkg ? `${matchedPkg.durationDays} Days / ${matchedPkg.durationNights} Nights` : '6 Days / 5 Nights'));
+      setQuotePrice(q.basePrice || q.finalPrice || (matchedPkg ? (matchedPkg.discountedPrice || matchedPkg.price) * (inq.adults || 2) : 15000));
+      setQuoteDiscount(q.discount || 0);
+      setQuoteValidity(q.validUntil || new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0]);
+      setQuoteHotels(q.hotels || formatPackageHotels(matchedPkg));
+      setQuoteCab(q.cabType || formatCabType(inq, matchedPkg));
+      setQuoteInclusions(Array.isArray(q.inclusions) ? q.inclusions.join('\n') : (q.inclusions || ''));
+      setQuoteExclusions(Array.isArray(q.exclusions) ? q.exclusions.join('\n') : (q.exclusions || ''));
+      setQuoteNotes(q.notes || (matchedPkg?.importantNotes?.length ? matchedPkg.importantNotes.join('; ') : 'Customized tailored proposal prepared with verified stays and 24/7 on-trip concierge assistance.'));
+    } else {
+      setQuotePackageId(matchedPkg?.id || '');
+      setQuotePackageTitle(matchedPkg?.title || inq.packageTitle || 'Custom Tour Proposal');
+      setQuoteDestination(matchedPkg?.destination || 'Jammu & Kashmir');
+      setQuoteDuration(matchedPkg ? `${matchedPkg.durationDays} Days / ${matchedPkg.durationNights} Nights` : '6 Days / 5 Nights');
+      const baseP = matchedPkg ? (matchedPkg.discountedPrice || matchedPkg.price) * (inq.adults || 2) : 15000;
+      setQuotePrice(baseP);
+      setQuoteDiscount(0);
+      setQuoteValidity(new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0]);
+      setQuoteHotels(formatPackageHotels(matchedPkg));
+      setQuoteCab(formatCabType(inq, matchedPkg));
+      setQuoteInclusions(
+        matchedPkg?.inclusions && matchedPkg.inclusions.length > 0
+          ? matchedPkg.inclusions.join('\n')
+          : 'Exclusive Private Chauffeur vehicle for all transfers and sightseeing\nAll toll taxes, parking fees, driver allowance, and fuel\nDaily Buffet Breakfast and Dinners\nFree Travel Insurance & 24x7 Yatra Concierge'
+      );
+      setQuoteExclusions(
+        matchedPkg?.exclusions && matchedPkg.exclusions.length > 0
+          ? matchedPkg.exclusions.join('\n')
+          : 'Airfare / Train tickets\nPersonal expenses, laundry, and mini-bar\nCamera / Video fees and monument entry charges\nTips and gratuities for driver and local guides'
+      );
+      setQuoteNotes(
+        matchedPkg?.importantNotes?.length
+          ? matchedPkg.importantNotes.join('; ')
+          : 'Customized tailored proposal prepared with verified stays and 24/7 on-trip concierge assistance.'
+      );
+    }
   };
 
   const handleSaveQuotation = (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedInquiryForQuote) return;
 
-    const matchedPkg = packages.find((p) => p.id === selectedInquiryForQuote.packageId);
+    const matchedPkg = packages.find((p) => p.id === quotePackageId) || packages.find((p) => p.id === selectedInquiryForQuote.packageId);
+
+    const parseList = (str: string) =>
+      str
+        .split(/\r?\n/)
+        .map((s) => s.trim().replace(/^[-•*]\s*/, ''))
+        .filter(Boolean);
+
     const quotation: InquiryQuotation = {
-      id: `quote-${Date.now().toString(36)}`,
+      id: selectedInquiryForQuote.quotation?.id || `quote-${Date.now().toString(36)}`,
+      packageId: quotePackageId,
+      packageTitle: quotePackageTitle,
+      destination: quoteDestination,
+      duration: quoteDuration,
       basePrice: quotePrice,
       discount: quoteDiscount,
       finalPrice: Math.max(0, quotePrice - quoteDiscount),
       validUntil: quoteValidity,
       hotels: quoteHotels,
       cabType: quoteCab,
-      inclusions: quoteInclusions.split(',').map((s) => s.trim()).filter(Boolean),
-      exclusions: quoteExclusions.split(',').map((s) => s.trim()).filter(Boolean),
+      inclusions: parseList(quoteInclusions),
+      exclusions: parseList(quoteExclusions),
       notes: quoteNotes,
       createdAt: new Date().toISOString(),
     };
@@ -228,23 +328,32 @@ export const InquiriesManager: React.FC<{
   };
 
   const handleDownloadQuotationPDF = (inq: BookingInquiry) => {
-    const matchedPkg = packages.find((p) => p.id === inq.packageId);
-    const quotation = inq.quotation || {
+    const matchedPkg = packages.find((p) => p.id === inq.packageId) || packages.find((p) => p.id === inq.quotation?.packageId) || packages[0];
+    const quotation: InquiryQuotation = inq.quotation || {
       id: `quote-std-${inq.id}`,
-      basePrice: 1599,
-      discount: 100,
-      finalPrice: 1499,
+      packageId: matchedPkg?.id,
+      packageTitle: matchedPkg?.title || inq.packageTitle || 'Custom Holiday Proposal',
+      destination: matchedPkg?.destination || 'Jammu & Kashmir',
+      duration: matchedPkg ? `${matchedPkg.durationDays} Days / ${matchedPkg.durationNights} Nights` : '6 Days / 5 Nights',
+      basePrice: matchedPkg ? (matchedPkg.discountedPrice || matchedPkg.price) * (inq.adults || 2) : 15000,
+      discount: 0,
+      finalPrice: matchedPkg ? (matchedPkg.discountedPrice || matchedPkg.price) * (inq.adults || 2) : 15000,
       validUntil: new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0],
-      hotelTier: '4-Star Premium Hotel & Luxury Houseboat',
-      cabType: 'Dedicated AC Innova Crysta for all transfers and tours',
-      inclusions: [
-        'Daily Breakfast & Dinner',
-        'Private airport transfers',
-        'Sightseeing with tolls & parking',
-        'Dedicated tour coordinator',
+      hotels: formatPackageHotels(matchedPkg),
+      cabType: formatCabType(inq, matchedPkg),
+      inclusions: matchedPkg?.inclusions && matchedPkg.inclusions.length > 0 ? matchedPkg.inclusions : [
+        'Exclusive Private Chauffeur vehicle for all transfers and sightseeing',
+        'All toll taxes, parking fees, driver allowance, and fuel',
+        'Daily Buffet Breakfast and Dinners',
+        'Free Travel Insurance & 24x7 Yatra Concierge',
       ],
-      exclusions: ['Airfare', 'Personal tips & laundry', 'Gondola cable car ride tickets'],
-      notes: 'Special promo package quote. Valid for 7 days.',
+      exclusions: matchedPkg?.exclusions && matchedPkg.exclusions.length > 0 ? matchedPkg.exclusions : [
+        'Airfare / Train tickets',
+        'Personal expenses, laundry, and mini-bar',
+        'Camera / Video fees and monument entry charges',
+        'Tips and gratuities for driver and local guides',
+      ],
+      notes: matchedPkg?.importantNotes?.length ? matchedPkg.importantNotes.join('; ') : 'Customized tailored proposal prepared with verified stays and 24/7 on-trip concierge assistance.',
       createdAt: new Date().toISOString(),
     };
     generateQuotationPDF(inq, matchedPkg, quotation, agencySettings);
@@ -721,13 +830,20 @@ export const InquiriesManager: React.FC<{
       {/* Proposal / Custom Quotation Modal */}
       {selectedInquiryForQuote && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/60 backdrop-blur-sm overflow-y-auto">
-          <div className="bg-white dark:bg-stone-900 rounded-2xl max-w-2xl w-full border border-stone-200  shadow-2xl overflow-hidden my-8">
-            <div className="p-6 border-b border-stone-100  flex items-center justify-between bg-stone-50/50 dark:bg-stone-950/50">
-              <div className="flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-purple-600" />
-                <h3 className="text-lg font-bold text-stone-900 dark:text-white">
-                  Generate Holiday Proposal: {selectedInquiryForQuote.travelerName}
-                </h3>
+          <div className="bg-white dark:bg-stone-900 rounded-2xl max-w-3xl w-full border border-stone-200 shadow-2xl overflow-hidden my-8">
+            <div className="p-5 sm:p-6 border-b border-stone-100 flex items-center justify-between bg-stone-50/70 dark:bg-stone-950/50">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center font-bold">
+                  <Sparkles className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base sm:text-lg font-bold text-stone-900 dark:text-white">
+                    Generate Holiday Proposal: {selectedInquiryForQuote.travelerName}
+                  </h3>
+                  <p className="text-xs text-stone-500">
+                    Auto-populates all tour details (hotels, transport, inclusions, exclusions) with full edit control.
+                  </p>
+                </div>
               </div>
               <button
                 type="button"
@@ -738,10 +854,102 @@ export const InquiriesManager: React.FC<{
               </button>
             </div>
 
-            <form onSubmit={handleSaveQuotation} className="p-6 space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <form onSubmit={handleSaveQuotation} className="p-5 sm:p-6 space-y-4 max-h-[78vh] overflow-y-auto">
+              {/* Tour Package Template Selector */}
+              <div className="bg-purple-50/60 border border-purple-100 p-3.5 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <div className="flex-1 w-full">
+                  <label className="block text-[11px] font-bold text-purple-900 uppercase tracking-wider mb-1">
+                    Select Tour Package Template
+                  </label>
+                  <select
+                    value={quotePackageId}
+                    onChange={(e) => {
+                      setQuotePackageId(e.target.value);
+                      handleAutoFillFromPackage(e.target.value);
+                    }}
+                    className="w-full px-3 py-1.5 rounded-lg border border-purple-200 bg-white text-xs font-semibold text-stone-800"
+                  >
+                    <option value="">-- Choose Package to Auto-populate --</option>
+                    {packages.map((pkg) => (
+                      <option key={pkg.id} value={pkg.id}>
+                        {pkg.title} ({pkg.durationDays}D/{pkg.durationNights}N) - ₹{pkg.discountedPrice || pkg.price}/pax
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleAutoFillFromPackage(quotePackageId || packages[0]?.id)}
+                  className="px-3.5 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-xs font-bold transition flex items-center gap-1.5 self-end sm:self-auto cursor-pointer shadow-xs whitespace-nowrap"
+                >
+                  <Sparkles className="w-3.5 h-3.5" />
+                  Auto-fill Package Details
+                </button>
+              </div>
+
+              {/* Title & Destination */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-stone-700  uppercase tracking-wider mb-1">
+                  <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1">
+                    Tour Package Title *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={quotePackageTitle}
+                    onChange={(e) => setQuotePackageTitle(e.target.value)}
+                    className="w-full px-3.5 py-2 rounded-xl border border-stone-200 bg-white text-xs font-semibold"
+                    placeholder="e.g. Kashmir Tour Package - 5 Nights / 6 Days"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1">
+                    Destination / Region *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={quoteDestination}
+                    onChange={(e) => setQuoteDestination(e.target.value)}
+                    className="w-full px-3.5 py-2 rounded-xl border border-stone-200 bg-white text-xs font-semibold"
+                    placeholder="e.g. Srinagar, Gulmarg, Pahalgam, Sonamarg"
+                  />
+                </div>
+              </div>
+
+              {/* Duration & Validity */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1">
+                    Duration (Days / Nights) *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={quoteDuration}
+                    onChange={(e) => setQuoteDuration(e.target.value)}
+                    className="w-full px-3.5 py-2 rounded-xl border border-stone-200 bg-white text-xs font-semibold"
+                    placeholder="e.g. 6 Days / 5 Nights"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1">
+                    Proposal Valid Until *
+                  </label>
+                  <input
+                    type="date"
+                    required
+                    value={quoteValidity}
+                    onChange={(e) => setQuoteValidity(e.target.value)}
+                    className="w-full px-3.5 py-2 rounded-xl border border-stone-200 bg-white text-xs"
+                  />
+                </div>
+              </div>
+
+              {/* Commercial Pricing (3 Columns) */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3.5 bg-stone-50 rounded-xl border border-stone-200">
+                <div>
+                  <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1">
                     Base Quotation (₹) *
                   </label>
                   <input
@@ -750,12 +958,12 @@ export const InquiriesManager: React.FC<{
                     min={1}
                     value={quotePrice}
                     onChange={(e) => setQuotePrice(Number(e.target.value))}
-                    className="w-full px-3.5 py-2 rounded-xl border border-stone-200  bg-white dark:bg-stone-950 text-sm font-bold"
+                    className="w-full px-3.5 py-2 rounded-xl border border-stone-200 bg-white text-sm font-bold"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-stone-700  uppercase tracking-wider mb-1">
+                  <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1">
                     Special Discount (₹)
                   </label>
                   <input
@@ -763,84 +971,105 @@ export const InquiriesManager: React.FC<{
                     min={0}
                     value={quoteDiscount}
                     onChange={(e) => setQuoteDiscount(Number(e.target.value))}
-                    className="w-full px-3.5 py-2 rounded-xl border border-stone-200  bg-white dark:bg-stone-950 text-sm"
+                    className="w-full px-3.5 py-2 rounded-xl border border-stone-200 bg-white text-sm font-bold text-red-600"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-stone-700  uppercase tracking-wider mb-1">
-                    Proposal Valid Until
+                  <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1">
+                    Net Final Price (₹)
                   </label>
-                  <input
-                    type="date"
-                    value={quoteValidity}
-                    onChange={(e) => setQuoteValidity(e.target.value)}
-                    className="w-full px-3.5 py-2 rounded-xl border border-stone-200  bg-white dark:bg-stone-950 text-sm"
-                  />
+                  <div className="w-full px-3.5 py-2 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-800 text-sm font-black flex items-center">
+                    ₹{Math.max(0, quotePrice - quoteDiscount).toLocaleString('en-IN')}
+                  </div>
                 </div>
               </div>
 
+              {/* Hotels & Stays */}
               <div>
-                <label className="block text-xs font-bold text-stone-700  uppercase tracking-wider mb-1">
-                  Proposed Hotel Tier / Properties
+                <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1">
+                  Proposed Hotels & Accommodation (Included in Snapshot)
                 </label>
-                <input
-                  type="text"
+                <textarea
+                  rows={2}
                   value={quoteHotels}
                   onChange={(e) => setQuoteHotels(e.target.value)}
-                  className="w-full px-3.5 py-2 rounded-xl border border-stone-200  bg-white dark:bg-stone-950 text-xs"
+                  className="w-full px-3.5 py-2 rounded-xl border border-stone-200 bg-white text-xs font-medium"
+                  placeholder="e.g. Srinagar Hotel: Blanco / The Azara / Similar, Pahalgam: White Water Resort / Similar, Houseboat: Shiekh Palace"
                 />
+                <p className="text-[11px] text-stone-500 mt-0.5">
+                  Enter specific hotel names or tiers. Will dynamically wrap without cut-off in the PDF snapshot.
+                </p>
               </div>
 
+              {/* Vehicle & Transportation */}
               <div>
-                <label className="block text-xs font-bold text-stone-700  uppercase tracking-wider mb-1">
-                  Transportation / Cab Type
+                <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1">
+                  Transportation / Dedicated Chauffeur Vehicle
                 </label>
                 <input
                   type="text"
                   value={quoteCab}
                   onChange={(e) => setQuoteCab(e.target.value)}
-                  className="w-full px-3.5 py-2 rounded-xl border border-stone-200  bg-white dark:bg-stone-950 text-xs"
+                  className="w-full px-3.5 py-2 rounded-xl border border-stone-200 bg-white text-xs font-medium"
+                  placeholder="e.g. Dedicated AC Innova Crysta for all transfers and sightseeing"
                 />
               </div>
 
-              <div>
-                <label className="block text-xs font-bold text-stone-700  uppercase tracking-wider mb-1">
-                  Custom Inclusions (comma-separated)
-                </label>
-                <textarea
-                  rows={2}
-                  value={quoteInclusions}
-                  onChange={(e) => setQuoteInclusions(e.target.value)}
-                  className="w-full px-3.5 py-2 rounded-xl border border-stone-200  bg-white dark:bg-stone-950 text-xs"
-                />
+              {/* Inclusions & Exclusions (2 Columns) */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider">
+                      Tour Inclusions (One per line)
+                    </label>
+                    <span className="text-[10px] text-stone-400 font-mono">
+                      {quoteInclusions.split(/\r?\n/).filter((s) => s.trim()).length} items
+                    </span>
+                  </div>
+                  <textarea
+                    rows={4}
+                    value={quoteInclusions}
+                    onChange={(e) => setQuoteInclusions(e.target.value)}
+                    className="w-full px-3.5 py-2 rounded-xl border border-stone-200 bg-white text-xs font-medium leading-relaxed"
+                    placeholder="Exclusive Private Chauffeur vehicle&#10;Daily Buffet Breakfast & Dinners&#10;All tolls, parking & fuel&#10;Free Travel Insurance"
+                  />
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider">
+                      Tour Exclusions (One per line)
+                    </label>
+                    <span className="text-[10px] text-stone-400 font-mono">
+                      {quoteExclusions.split(/\r?\n/).filter((s) => s.trim()).length} items
+                    </span>
+                  </div>
+                  <textarea
+                    rows={4}
+                    value={quoteExclusions}
+                    onChange={(e) => setQuoteExclusions(e.target.value)}
+                    className="w-full px-3.5 py-2 rounded-xl border border-stone-200 bg-white text-xs font-medium leading-relaxed"
+                    placeholder="Airfare / Train tickets&#10;Personal expenses & laundry&#10;Monument entry & activity charges&#10;Tips for driver & guide"
+                  />
+                </div>
               </div>
 
+              {/* Proposal Notes / Greetings */}
               <div>
-                <label className="block text-xs font-bold text-stone-700  uppercase tracking-wider mb-1">
-                  Exclusions (comma-separated)
-                </label>
-                <textarea
-                  rows={2}
-                  value={quoteExclusions}
-                  onChange={(e) => setQuoteExclusions(e.target.value)}
-                  className="w-full px-3.5 py-2 rounded-xl border border-stone-200  bg-white dark:bg-stone-950 text-xs"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-stone-700  uppercase tracking-wider mb-1">
-                  Proposal Notes / Greetings
+                <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1">
+                  Proposal Notes / Important Message
                 </label>
                 <input
                   type="text"
                   value={quoteNotes}
                   onChange={(e) => setQuoteNotes(e.target.value)}
-                  className="w-full px-3.5 py-2 rounded-xl border border-stone-200  bg-white dark:bg-stone-950 text-xs"
+                  className="w-full px-3.5 py-2 rounded-xl border border-stone-200 bg-white text-xs"
+                  placeholder="e.g. Customized tailored proposal prepared with verified stays and 24/7 on-trip concierge assistance."
                 />
               </div>
 
-              <div className="flex items-center justify-end gap-3 pt-3 border-t border-stone-100 ">
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-stone-100">
                 <button
                   type="button"
                   onClick={() => setSelectedInquiryForQuote(null)}
@@ -850,9 +1079,9 @@ export const InquiriesManager: React.FC<{
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-semibold shadow-sm transition-all flex items-center gap-1.5"
+                  className="px-5 py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-bold shadow-sm transition-all flex items-center gap-1.5 cursor-pointer"
                 >
-                  <Download className="w-3.5 h-3.5" />
+                  <Download className="w-4 h-4" />
                   Save & Download Official Proposal PDF
                 </button>
               </div>

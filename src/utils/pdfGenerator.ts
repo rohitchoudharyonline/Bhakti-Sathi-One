@@ -81,12 +81,13 @@ function header(d:jsPDF,a:AgencySettings,label:string,p:number,logoData?:any){
   d.setDrawColor(...LINE);
   d.setLineWidth(0.5);
   d.line(28, h-26, w-28, h-26);
-  d.setFontSize(8.5);
+  d.setFontSize(7.5);
+  d.setFont('helvetica', 'normal');
   d.setTextColor(...MUTED);
-  d.text(clean(a.agencyName||'Holidays Hunt'), 28, h-12);
+  d.text('Holidays Hunt Travel and Hospitality Pvt Ltd', 28, h-12);
   const contactStr = [a.phone, 'holidayshunt@gmail.com', 'holidayshunt.com'].filter(Boolean).map(clean).join('  |  ');
   if (contactStr) {
-    d.text(contactStr, w/2, h-12, {align:'center'});
+    d.text(contactStr, w/2 + 25, h-12, {align:'center'});
   }
   d.text(`Page ${p}`, w-28, h-12, {align:'right'});
 }
@@ -221,27 +222,71 @@ export async function generateQuotationPDF(inq:BookingInquiry,pkg:TourPackage|un
   d.text(`Travel date: ${clean(inq.travelDate)}`, 320, y+56);
   y+=110; // proper space
   
-  // Snapshot Card
-  y=drawSecHeader(d, 'Journey snapshot', y);
-  drawCard(d, margin, y, contentWidth, 46);
-  const snapshotItems = [
-    ['DESTINATION', pkg?.destination || inq.packageTitle],
-    ['DURATION', pkg ? `${pkg.durationDays} Days / ${pkg.durationNights} Nights` : 'As proposed'],
-    ['HOTELS', q.hotels || 'As selected'],
-    ['TRANSPORT', q.cabType || 'As selected']
-  ];
-  snapshotItems.forEach((s, i) => {
-    const sx = margin + 10 + i * 132;
-    d.setFont('helvetica', 'bold');
-    d.setFontSize(7);
-    d.setTextColor(...MUTED);
-    d.text(s[0], sx, y + 16);
-    d.setFont('helvetica', 'bold');
-    d.setFontSize(9);
-    d.setTextColor(...INK);
-    d.text(d.splitTextToSize(clean(s[1]), 125)[0] || '', sx, y + 28);
-  });
-  y+=76; // proper space
+  // Snapshot Card with Dynamic Height & Full Multi-line Text Wrapping
+  const destVal = q.destination || pkg?.destination || inq.packageTitle || 'Jammu & Kashmir';
+  const durVal = q.duration || (pkg ? `${pkg.durationDays} Days / ${pkg.durationNights} Nights` : 'Customized Itinerary');
+  const hotelVal = q.hotels || (pkg?.hotels?.length ? pkg.hotels.map(h => `${h.location ? h.location + ': ' : ''}${h.name}${h.alternativeHotel ? '/' + h.alternativeHotel : ''}`).join(', ') : 'Handpicked Deluxe Hotels + Luxury Houseboat');
+  const transVal = q.cabType || (pkg?.transportation || 'Dedicated Private AC Chauffeur Vehicle');
+
+  const halfWidth = (contentWidth - 28) / 2; // ~255.5pt
+  
+  d.setFont('helvetica', 'bold');
+  d.setFontSize(9);
+  const destLines = d.splitTextToSize(clean(destVal), halfWidth);
+  const durLines = d.splitTextToSize(clean(durVal), halfWidth);
+
+  d.setFont('helvetica', 'normal');
+  d.setFontSize(8.5);
+  const hotelLines = d.splitTextToSize(clean(hotelVal), halfWidth);
+  const transLines = d.splitTextToSize(clean(transVal), halfWidth);
+
+  const row1TextH = Math.max(destLines.length, durLines.length) * 11.5;
+  const row2TextH = Math.max(hotelLines.length, transLines.length) * 11.5;
+  const snapH = 14 + 12 + row1TextH + 10 + 12 + row2TextH + 14;
+
+  if (y + snapH > maxPageHeight) { p++; y = next(d, a, 'Travel Proposal', p, logoData, SOFT); }
+  y = drawSecHeader(d, 'Journey snapshot', y);
+  drawCard(d, margin, y, contentWidth, snapH);
+
+  // Row 1: Destination & Duration
+  let curSnapY = y + 14;
+  d.setFont('helvetica', 'bold');
+  d.setFontSize(7);
+  d.setTextColor(...MUTED);
+  d.text('DESTINATION', margin + 12, curSnapY);
+  d.text('DURATION', margin + 12 + halfWidth + 14, curSnapY);
+
+  curSnapY += 11;
+  d.setFont('helvetica', 'bold');
+  d.setFontSize(9);
+  d.setTextColor(...INK);
+  d.text(destLines, margin + 12, curSnapY, { lineHeightFactor: 1.25 });
+  d.text(durLines, margin + 12 + halfWidth + 14, curSnapY, { lineHeightFactor: 1.25 });
+
+  curSnapY += row1TextH + 6;
+
+  // Divider Line
+  d.setDrawColor(...LINE);
+  d.setLineWidth(0.4);
+  d.line(margin + 12, curSnapY, margin + contentWidth - 12, curSnapY);
+
+  curSnapY += 8;
+
+  // Row 2: Hotels & Transport
+  d.setFont('helvetica', 'bold');
+  d.setFontSize(7);
+  d.setTextColor(...MUTED);
+  d.text('HOTELS & ACCOMMODATION', margin + 12, curSnapY);
+  d.text('TRANSPORT & TRANSFERS', margin + 12 + halfWidth + 14, curSnapY);
+
+  curSnapY += 11;
+  d.setFont('helvetica', 'normal');
+  d.setFontSize(8.5);
+  d.setTextColor(...BODY);
+  d.text(hotelLines, margin + 12, curSnapY, { lineHeightFactor: 1.3 });
+  d.text(transLines, margin + 12 + halfWidth + 14, curSnapY, { lineHeightFactor: 1.3 });
+
+  y += snapH + 24;
   
   // Commercial Proposal Card
   if (y + 86 > maxPageHeight) { p++; y = next(d, a, 'Travel Proposal', p, logoData, SOFT); }
@@ -269,13 +314,18 @@ export async function generateQuotationPDF(inq:BookingInquiry,pkg:TourPackage|un
   // Inclusions & Exclusions Stacked (Dynamic Heights)
   const cleanList = (list: string[]) => {
     const res: string[] = [];
-    for (const item of list) {
-      const t = item.trim();
-      if (!t) continue;
-      if (res.length > 0 && (t.match(/^[a-z]/) || t.match(/^[0-9]+$/) || t.match(/^[0-9]+\)/) || t.match(/^(or|and)\s/i))) {
-        res[res.length - 1] += ' ' + t;
-      } else {
-        res.push(t);
+    for (const item of list || []) {
+      if (!item) continue;
+      const str = String(item);
+      const subLines = str.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+      for (const line of subLines) {
+        const cleaned = line.replace(/^[-•*●\d+.)]\s*/, '').trim();
+        if (!cleaned) continue;
+        if (res.length > 0 && (cleaned.match(/^[a-z]/) || cleaned.match(/^[0-9]+$/) || cleaned.match(/^[0-9]+\)/) || cleaned.match(/^(or|and)\s/i))) {
+          res[res.length - 1] += ' ' + cleaned;
+        } else {
+          res.push(cleaned);
+        }
       }
     }
     return res;
@@ -691,7 +741,7 @@ export async function generateInvoicePDF(inv:Invoice,a:AgencySettings):Promise<v
   d.setFont('helvetica', 'bold');
   d.setFontSize(8);
   d.setTextColor(...INK);
-  d.text('Holidays Hunt', margin, h - 22);
+  d.text('Holidays Hunt Travel and Hospitality Pvt Ltd', margin, h - 22);
   
   d.setFont('helvetica', 'normal');
   d.setFontSize(7);
@@ -962,7 +1012,7 @@ export async function generateVendorVoucherPDF(pay:VendorPayment,vendor:Vendor|u
   d.setFont('helvetica', 'bold');
   d.setFontSize(8);
   d.setTextColor(...INK);
-  d.text('Holidays Hunt', margin, h - 22);
+  d.text('Holidays Hunt Travel and Hospitality Pvt Ltd', margin, h - 22);
   
   d.setFont('helvetica', 'normal');
   d.setFontSize(7);
@@ -1565,7 +1615,7 @@ export async function generateTourPDF(pkg:TourPackage,a:AgencySettings,onProgres
   d.setFont('helvetica', 'bold');
   d.setFontSize(9.5);
   d.setTextColor(...INK);
-  d.text('Holidays Hunt', w / 2, totalHeight - 40, { align: 'center' });
+  d.text('Holidays Hunt Travel and Hospitality Pvt Ltd', w / 2, totalHeight - 40, { align: 'center' });
   d.setFont('helvetica', 'normal');
   d.setFontSize(9);
   d.setTextColor(...MUTED);

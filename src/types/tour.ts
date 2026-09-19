@@ -400,6 +400,10 @@ export interface Invoice {
 
 export interface InquiryQuotation {
   id?: string;
+  packageId?: string;
+  packageTitle?: string;
+  destination?: string;
+  duration?: string;
   basePrice?: number;
   customPrice?: number;
   discount: number;
