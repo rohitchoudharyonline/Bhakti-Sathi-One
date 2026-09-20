@@ -100,11 +100,11 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ onClose,
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-3xl border border-stone-200 shadow-xs">
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-orange-100 text-orange-800 uppercase tracking-wider">
+          <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+            <span className="px-3 py-1 rounded-full text-[11px] font-black bg-orange-100 text-orange-800 uppercase tracking-wider">
               Tour Operations & Booking CRM
             </span>
-            <span className="text-xs text-stone-500 font-medium">• Jammu, Kashmir & Himachal Pilgrimage & Holiday Packages</span>
+            <span className="text-xs text-stone-500 font-medium">Jammu, Kashmir & Himachal Packages</span>
           </div>
           <h1 className="text-xl sm:text-2xl font-black text-stone-900 tracking-tight">
             Tour Package Demand & Conversion Analytics
@@ -118,7 +118,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ onClose,
                 key={t}
                 type="button"
                 onClick={() => setTimeframe(t)}
-                className={`px-3 py-1.5 rounded-lg transition uppercase cursor-pointer ${
+                className={`px-3.5 py-1.5 rounded-lg transition uppercase cursor-pointer ${
                   timeframe === t ? 'bg-white text-stone-900 shadow-xs' : 'text-stone-500 hover:text-stone-900'
                 }`}
               >
@@ -131,7 +131,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ onClose,
             <button
               type="button"
               onClick={onClose}
-              className="p-2 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 transition cursor-pointer"
+              className="p-2.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 transition cursor-pointer"
               title="Close Analytics"
             >
               <X className="w-5 h-5" />
@@ -142,94 +142,102 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ onClose,
 
       {/* KPI Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white p-5 rounded-3xl border border-stone-200 shadow-xs flex flex-col justify-between">
-          <div className="flex items-center justify-between mb-2">
+        <div className="bg-white p-6 rounded-3xl border border-stone-200 shadow-xs flex flex-col justify-between space-y-3">
+          <div className="flex items-center justify-between">
             <span className="text-stone-500 text-xs font-bold uppercase tracking-wider">Tour Searches</span>
-            <div className="p-2 rounded-xl bg-blue-50 text-blue-600">
+            <div className="p-2.5 rounded-2xl bg-blue-50 text-blue-600">
               <Compass className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl sm:text-3xl font-black text-stone-900">10,470</div>
-          <div className="flex items-center gap-1.5 text-xs text-emerald-600 font-bold mt-2">
-            <TrendingUp className="w-3.5 h-3.5" />
-            <span>+24.6% vs last period</span>
+          <div>
+            <div className="text-2xl sm:text-3xl font-black text-stone-900">10,470</div>
+            <div className="flex items-center gap-1.5 text-xs text-emerald-600 font-bold mt-1.5">
+              <TrendingUp className="w-3.5 h-3.5" />
+              <span>+24.6% vs last period</span>
+            </div>
           </div>
-          <div className="text-[11px] text-stone-400 mt-1">Pilgrimage & holiday itinerary searches</div>
+          <div className="text-[11px] text-stone-400 pt-1 border-t border-stone-100">Pilgrimage & holiday itinerary searches</div>
         </div>
 
-        <div className="bg-white p-5 rounded-3xl border border-stone-200 shadow-xs flex flex-col justify-between">
-          <div className="flex items-center justify-between mb-2">
+        <div className="bg-white p-6 rounded-3xl border border-stone-200 shadow-xs flex flex-col justify-between space-y-3">
+          <div className="flex items-center justify-between">
             <span className="text-stone-500 text-xs font-bold uppercase tracking-wider">Active Inquiries</span>
-            <div className="p-2 rounded-xl bg-orange-50 text-[#FF4B00]">
+            <div className="p-2.5 rounded-2xl bg-orange-50 text-[#FF4B00]">
               <Users className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl sm:text-3xl font-black text-stone-900">2,280</div>
-          <div className="flex items-center gap-1.5 text-xs text-emerald-600 font-bold mt-2">
-            <TrendingUp className="w-3.5 h-3.5" />
-            <span>+18.2% inquiry volume</span>
-          </div>
-          <div className="text-[11px] text-stone-400 mt-1">Travelers requesting quotes</div>
-        </div>
-
-        <div className="bg-white p-5 rounded-3xl border border-stone-200 shadow-xs flex flex-col justify-between">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-stone-500 text-xs font-bold uppercase tracking-wider">Conversion Rate</span>
-            <div className="p-2 rounded-xl bg-amber-50 text-amber-600">
-              <span className="font-black text-xs">%</span>
+          <div>
+            <div className="text-2xl sm:text-3xl font-black text-stone-900">2,280</div>
+            <div className="flex items-center gap-1.5 text-xs text-emerald-600 font-bold mt-1.5">
+              <TrendingUp className="w-3.5 h-3.5" />
+              <span>+18.2% inquiry volume</span>
             </div>
           </div>
-          <div className="text-2xl sm:text-3xl font-black text-stone-900">17.0%</div>
-          <div className="flex items-center gap-1.5 text-xs text-emerald-600 font-bold mt-2">
-            <TrendingUp className="w-3.5 h-3.5" />
-            <span>+2.4% booking conversion</span>
-          </div>
-          <div className="text-[11px] text-stone-400 mt-1">Searches → Confirmed Tour Bookings</div>
+          <div className="text-[11px] text-stone-400 pt-1 border-t border-stone-100">Travelers requesting quotes</div>
         </div>
 
-        <div className="bg-white p-5 rounded-3xl border border-stone-200 shadow-xs flex flex-col justify-between">
-          <div className="flex items-center justify-between mb-2">
+        <div className="bg-white p-6 rounded-3xl border border-stone-200 shadow-xs flex flex-col justify-between space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-stone-500 text-xs font-bold uppercase tracking-wider">Conversion Rate</span>
+            <div className="p-2.5 rounded-2xl bg-amber-50 text-amber-600 font-black text-xs">
+              %
+            </div>
+          </div>
+          <div>
+            <div className="text-2xl sm:text-3xl font-black text-stone-900">17.0%</div>
+            <div className="flex items-center gap-1.5 text-xs text-emerald-600 font-bold mt-1.5">
+              <TrendingUp className="w-3.5 h-3.5" />
+              <span>+2.4% booking conversion</span>
+            </div>
+          </div>
+          <div className="text-[11px] text-stone-400 pt-1 border-t border-stone-100">Searches → Confirmed Tour Bookings</div>
+        </div>
+
+        <div className="bg-white p-6 rounded-3xl border border-stone-200 shadow-xs flex flex-col justify-between space-y-3">
+          <div className="flex items-center justify-between">
             <span className="text-stone-500 text-xs font-bold uppercase tracking-wider">Gross Tour Revenue</span>
-            <div className="p-2 rounded-xl bg-emerald-50 text-emerald-600">
+            <div className="p-2.5 rounded-2xl bg-emerald-50 text-emerald-600">
               <ArrowUpRight className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl sm:text-3xl font-black text-stone-900">₹4.36M</div>
-          <div className="text-[11px] text-stone-600 font-bold mt-2">Avg Package: ₹24,500 / booking</div>
-          <div className="text-[11px] text-stone-400 mt-1">Multi-day guided tours & hotel stays</div>
+          <div>
+            <div className="text-2xl sm:text-3xl font-black text-stone-900">₹4.36M</div>
+            <div className="text-xs text-stone-600 font-bold mt-1.5">Avg Package: ₹24,500 / booking</div>
+          </div>
+          <div className="text-[11px] text-stone-400 pt-1 border-t border-stone-100">Multi-day guided tours & hotel stays</div>
         </div>
       </div>
 
       {/* Real-Time Tour Booking Demand & Velocity Area Chart */}
-      <div className="bg-white p-6 rounded-3xl border border-stone-200 shadow-xs space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+      <div className="bg-white p-6 sm:p-8 rounded-3xl border border-stone-200 shadow-xs space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h3 className="text-base font-black text-stone-900">Real-Time Tour Demand & Booking Velocity</h3>
+            <h3 className="text-lg font-black text-stone-900">Real-Time Tour Demand & Booking Velocity</h3>
             <p className="text-xs text-stone-500 font-medium">
               Comparison between tour itinerary searches, traveler inquiries submitted, and confirmed tour bookings
             </p>
           </div>
-          <span className="px-3 py-1 bg-stone-100 rounded-xl text-xs font-bold text-stone-600 self-start sm:self-auto">
+          <span className="px-3.5 py-1.5 bg-stone-100 rounded-xl text-xs font-bold text-stone-700 self-start sm:self-auto">
             Recharts Area Graph
           </span>
         </div>
 
-        <div className="flex items-center gap-6 text-xs font-bold text-stone-700 pt-2 pb-1">
+        <div className="flex flex-wrap items-center gap-6 text-xs font-bold text-stone-700 pt-2 pb-1">
           <div className="flex items-center gap-2">
-            <span className="w-3 h-3 rounded-full bg-blue-600 inline-block"></span>
+            <span className="w-3.5 h-3.5 rounded-full bg-blue-600 inline-block"></span>
             <span>Itinerary Searches</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="w-3 h-3 rounded-full bg-[#FF4B00] inline-block"></span>
+            <span className="w-3.5 h-3.5 rounded-full bg-[#FF4B00] inline-block"></span>
             <span>Traveler Inquiries</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="w-3 h-3 rounded-full bg-emerald-600 inline-block"></span>
+            <span className="w-3.5 h-3.5 rounded-full bg-emerald-600 inline-block"></span>
             <span>Confirmed Bookings</span>
           </div>
         </div>
 
-        <div className="h-72 w-full">
+        <div className="h-72 w-full pt-2">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={tourVelocityData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
               <defs>
@@ -261,10 +269,10 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ onClose,
       {/* Grid: Top Tour Packages & Category Demand */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Top Tour Packages Table */}
-        <div className="lg:col-span-8 bg-white p-6 rounded-3xl border border-stone-200 shadow-xs space-y-4">
+        <div className="lg:col-span-8 bg-white p-6 sm:p-8 rounded-3xl border border-stone-200 shadow-xs space-y-5">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <h3 className="text-base font-black text-stone-900">Top Tour Packages & Itineraries</h3>
+              <h3 className="text-lg font-black text-stone-900">Top Tour Packages & Itineraries</h3>
               <p className="text-xs text-stone-500 font-medium">Most requested pilgrim yatras, holiday packages & honeymoon specials</p>
             </div>
             <div className="flex items-center gap-2">
@@ -273,7 +281,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ onClose,
                 value={categoryFilter}
                 onChange={(e) => setCategoryFilter(e.target.value)}
                 aria-label="Filter Tour Categories"
-                className="bg-stone-100 border border-stone-200 text-stone-800 text-xs font-bold rounded-xl px-3 py-1.5 focus:outline-hidden"
+                className="bg-stone-100 border border-stone-200 text-stone-800 text-xs font-bold rounded-xl px-3.5 py-2 focus:outline-hidden"
               >
                 <option>All Categories</option>
                 <option>Pilgrimage</option>
@@ -285,33 +293,33 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ onClose,
           </div>
 
           <div className="overflow-x-auto pt-2">
-            <table className="w-full text-left text-xs">
+            <table className="w-full text-left text-xs min-w-[650px] whitespace-nowrap">
               <thead>
                 <tr className="border-b border-stone-200 text-stone-400 uppercase font-black tracking-wider">
-                  <th className="pb-3">Tour Package Name</th>
-                  <th className="pb-3 text-right">Searches</th>
-                  <th className="pb-3 text-right">Bookings</th>
-                  <th className="pb-3 text-right">Avg Price</th>
-                  <th className="pb-3 text-right">Conversion</th>
+                  <th className="pb-3 pr-4">Tour Package Name</th>
+                  <th className="pb-3 px-4 text-right">Searches</th>
+                  <th className="pb-3 px-4 text-right">Bookings</th>
+                  <th className="pb-3 px-4 text-right">Avg Price</th>
+                  <th className="pb-3 pl-4 text-right">Conversion</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-stone-100">
                 {topTourPackagesData.map((tour, i) => (
                   <tr key={i} className="hover:bg-stone-50 transition">
-                    <td className="py-3 font-bold text-stone-900 flex items-center gap-2">
-                      <div className="p-1.5 rounded-lg bg-orange-50 text-[#FF4B00] shrink-0">
-                        <Compass className="w-3.5 h-3.5" />
+                    <td className="py-3.5 pr-4 font-bold text-stone-900 flex items-center gap-3">
+                      <div className="p-2 rounded-xl bg-orange-50 text-[#FF4B00] shrink-0">
+                        <Compass className="w-4 h-4" />
                       </div>
                       <div>
-                        <div className="font-black text-stone-900">{tour.name}</div>
-                        <span className="text-[10px] text-stone-500 font-medium">{tour.category}</span>
+                        <div className="font-black text-stone-900 text-xs sm:text-sm">{tour.name}</div>
+                        <span className="text-[11px] text-stone-500 font-medium">{tour.category}</span>
                       </div>
                     </td>
-                    <td className="py-3 text-right font-semibold text-stone-700">{tour.searches.toLocaleString()}</td>
-                    <td className="py-3 text-right font-black text-[#FF4B00]">{tour.bookings}</td>
-                    <td className="py-3 text-right font-bold text-stone-900">{tour.avgPrice}</td>
-                    <td className="py-3 text-right">
-                      <span className="px-2 py-1 rounded-lg bg-emerald-50 text-emerald-700 font-black">
+                    <td className="py-3.5 px-4 text-right font-semibold text-stone-700">{tour.searches.toLocaleString()}</td>
+                    <td className="py-3.5 px-4 text-right font-black text-[#FF4B00]">{tour.bookings}</td>
+                    <td className="py-3.5 px-4 text-right font-bold text-stone-900">{tour.avgPrice}</td>
+                    <td className="py-3.5 pl-4 text-right">
+                      <span className="px-2.5 py-1 rounded-xl bg-emerald-50 text-emerald-700 font-black">
                         {tour.conversion}
                       </span>
                     </td>
@@ -323,16 +331,16 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ onClose,
         </div>
 
         {/* Tour Category Demand Donut Chart */}
-        <div className="lg:col-span-4 bg-white p-6 rounded-3xl border border-stone-200 shadow-xs flex flex-col justify-between">
+        <div className="lg:col-span-4 bg-white p-6 sm:p-8 rounded-3xl border border-stone-200 shadow-xs flex flex-col justify-between space-y-4">
           <div>
             <div className="flex items-center justify-between mb-1">
-              <h3 className="text-base font-black text-stone-900">Tour Category Demand</h3>
+              <h3 className="text-lg font-black text-stone-900">Tour Category Demand</h3>
               <Mountain className="w-4 h-4 text-[#FF4B00]" />
             </div>
             <p className="text-xs text-stone-500 font-medium">Share of traveler bookings</p>
           </div>
 
-          <div className="h-52 w-full my-4 flex items-center justify-center">
+          <div className="h-52 w-full my-2 flex items-center justify-center">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
@@ -353,11 +361,11 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ onClose,
             </ResponsiveContainer>
           </div>
 
-          <div className="space-y-2 pt-2 border-t border-stone-100">
+          <div className="space-y-2.5 pt-2 border-t border-stone-100">
             {tourCategoryDemandData.map((c, i) => (
               <div key={i} className="flex items-center justify-between text-xs">
                 <div className="flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: c.color }}></span>
+                  <span className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: c.color }}></span>
                   <span className="font-bold text-stone-800">{c.name}</span>
                 </div>
                 <div className="flex items-center gap-3">
@@ -368,9 +376,9 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ onClose,
             ))}
           </div>
 
-          <div className="mt-4 p-3.5 bg-amber-50/70 border border-amber-200 rounded-2xl">
-            <div className="text-[11px] font-bold text-amber-900 mb-0.5">Tour Insight:</div>
-            <p className="text-[11px] text-amber-800 leading-relaxed font-medium">
+          <div className="mt-4 p-4 bg-amber-50/70 border border-amber-200 rounded-2xl">
+            <div className="text-xs font-bold text-amber-900 mb-1">Tour Insight:</div>
+            <p className="text-xs text-amber-800 leading-relaxed font-medium">
               Pilgrimage Yatras & Kashmir honeymoon specials drive highest revenue yield per booking across Northern circuits.
             </p>
           </div>
@@ -380,35 +388,35 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ onClose,
       {/* Grid: End-to-End Tour Booking Funnel & Inflow Channels */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* End-to-End Tour Booking Conversion Funnel */}
-        <div className="lg:col-span-7 bg-white p-6 rounded-3xl border border-stone-200 shadow-xs space-y-4">
-          <div className="flex items-center justify-between">
+        <div className="lg:col-span-7 bg-white p-6 sm:p-8 rounded-3xl border border-stone-200 shadow-xs space-y-5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div>
-              <h3 className="text-base font-black text-stone-900">End-to-End Tour Booking Funnel</h3>
+              <h3 className="text-lg font-black text-stone-900">End-to-End Tour Booking Funnel</h3>
               <p className="text-xs text-stone-500 font-medium">Step-by-step conversion drop-off analysis from catalog browse to confirmed tour deposit</p>
             </div>
-            <span className="px-3 py-1 bg-emerald-50 text-emerald-800 rounded-xl text-xs font-black">
+            <span className="px-3.5 py-1.5 bg-emerald-50 text-emerald-800 rounded-xl text-xs font-black self-start sm:self-auto">
               Overall Efficiency: 17.0%
             </span>
           </div>
 
-          <div className="space-y-3 pt-2">
+          <div className="space-y-3.5 pt-2">
             {conversionFunnelSteps.map((step, i) => (
-              <div key={i} className="p-4 rounded-2xl bg-stone-50 border border-stone-200/80 space-y-2">
+              <div key={i} className="p-4 sm:p-5 rounded-2xl bg-stone-50 border border-stone-200/80 space-y-2.5">
                 <div className="flex items-center justify-between text-xs">
-                  <div className="flex items-center gap-2">
-                    <span className="px-2 py-0.5 rounded-md bg-stone-200 text-stone-800 font-black text-[10px]">{step.step}</span>
-                    <span className="font-black text-stone-900">{step.title}</span>
+                  <div className="flex items-center gap-2.5">
+                    <span className="px-2.5 py-1 rounded-lg bg-stone-200 text-stone-800 font-black text-[10px]">{step.step}</span>
+                    <span className="font-black text-stone-900 text-sm">{step.title}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="font-black text-[#FF4B00]">{step.count}</span>
+                    <span className="font-black text-[#FF4B00] text-sm">{step.count}</span>
                     <span className="text-stone-400 font-medium">({step.percent})</span>
                   </div>
                 </div>
-                <div className="text-[11px] text-stone-500 font-medium">{step.subtitle}</div>
-                <div className="w-full bg-stone-200 h-2 rounded-full overflow-hidden">
+                <div className="text-xs text-stone-500 font-medium">{step.subtitle}</div>
+                <div className="w-full bg-stone-200 h-2.5 rounded-full overflow-hidden">
                   <div className="bg-[#FF4B00] h-full rounded-full" style={{ width: step.width }}></div>
                 </div>
-                <div className="flex justify-end text-[10px] font-bold text-red-600">{step.drop}</div>
+                <div className="flex justify-end text-xs font-bold text-red-600">{step.drop}</div>
               </div>
             ))}
           </div>
@@ -416,25 +424,27 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ onClose,
 
         {/* Inflow Channels */}
         <div className="lg:col-span-5 space-y-6">
-          <div className="bg-white p-6 rounded-3xl border border-stone-200 shadow-xs space-y-4">
+          <div className="bg-white p-6 sm:p-8 rounded-3xl border border-stone-200 shadow-xs space-y-5">
             <div className="flex items-center justify-between">
-              <h3 className="text-base font-black text-stone-900">Tour Inflow Channels</h3>
+              <h3 className="text-lg font-black text-stone-900">Tour Inflow Channels</h3>
               <span className="text-xs text-stone-400 font-bold uppercase tracking-wider">Attribution</span>
             </div>
 
-            <div className="space-y-4 pt-2">
+            <div className="space-y-5 pt-2">
               {inflowChannelsData.map((ch, i) => {
                 const IconComponent = ch.icon;
                 return (
-                  <div key={i} className="space-y-1.5">
+                  <div key={i} className="space-y-2">
                     <div className="flex items-center justify-between text-xs">
-                      <div className="flex items-center gap-2 font-bold text-stone-800">
-                        <IconComponent className="w-3.5 h-3.5 text-[#FF4B00]" />
+                      <div className="flex items-center gap-2.5 font-bold text-stone-800">
+                        <div className="p-1.5 rounded-lg bg-stone-100 text-[#FF4B00]">
+                          <IconComponent className="w-4 h-4" />
+                        </div>
                         <span>{ch.channel}</span>
                       </div>
-                      <span className="font-black text-stone-900">{ch.share}%</span>
+                      <span className="font-black text-stone-900 text-sm">{ch.share}%</span>
                     </div>
-                    <div className="w-full bg-stone-100 h-2.5 rounded-full overflow-hidden">
+                    <div className="w-full bg-stone-100 h-3 rounded-full overflow-hidden">
                       <div className={`h-full rounded-full ${ch.color}`} style={{ width: `${ch.share}%` }}></div>
                     </div>
                   </div>
@@ -442,7 +452,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ onClose,
               })}
             </div>
 
-            <div className="mt-4 p-4 bg-orange-50/70 border border-orange-200/80 rounded-2xl">
+            <div className="mt-4 p-4.5 bg-orange-50/70 border border-orange-200/80 rounded-2xl">
               <div className="text-xs font-bold text-orange-900 mb-1">Booking Takeaway:</div>
               <p className="text-xs text-orange-800 leading-relaxed font-medium">
                 WhatsApp tour desks convert 32% faster for custom multi-city holiday packages, while standard pilgrimage yatras are predominantly booked via instant web checkout.
@@ -453,45 +463,45 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ onClose,
       </div>
 
       {/* Live Tour Booking Stream */}
-      <div className="bg-white p-6 rounded-3xl border border-stone-200 shadow-xs space-y-4">
+      <div className="bg-white p-6 sm:p-8 rounded-3xl border border-stone-200 shadow-xs space-y-5">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></div>
+          <div className="flex items-center gap-3">
+            <div className="w-3.5 h-3.5 rounded-full bg-emerald-500 animate-pulse"></div>
             <div>
-              <h3 className="text-base font-black text-stone-900">Live Tour Booking Stream</h3>
+              <h3 className="text-lg font-black text-stone-900">Live Tour Booking Stream</h3>
               <p className="text-xs text-stone-500 font-medium">Real-time telemetry of confirmed tour bookings and traveler inquiries</p>
             </div>
           </div>
-          <span className="px-3 py-1 bg-stone-100 text-stone-700 font-bold text-xs rounded-xl">
+          <span className="px-3.5 py-1.5 bg-stone-100 text-stone-700 font-bold text-xs rounded-xl">
             Live Feed
           </span>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 pt-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-2">
           {liveTourStream.map((item, i) => {
             const ItemIcon = item.icon;
             return (
-              <div key={i} className="p-4 rounded-2xl border border-stone-200 bg-stone-50 hover:bg-white transition space-y-3">
-                <div className="flex items-start justify-between gap-2">
-                  <div className="flex items-center gap-2.5">
-                    <div className={`p-2 rounded-xl ${item.bg}`}>
+              <div key={i} className="p-5 rounded-2xl border border-stone-200 bg-stone-50 hover:bg-white transition space-y-3.5 shadow-xs">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-start gap-3">
+                    <div className={`p-2.5 rounded-2xl shrink-0 ${item.bg}`}>
                       <ItemIcon className="w-4 h-4" />
                     </div>
                     <div>
-                      <div className="text-xs font-black text-stone-900">{item.title}</div>
-                      <div className="text-[11px] text-stone-500 font-medium">{item.duration} • {item.category}</div>
+                      <div className="text-xs sm:text-sm font-black text-stone-900 leading-tight">{item.title}</div>
+                      <div className="text-[11px] text-stone-500 font-medium mt-1">{item.duration} • {item.category}</div>
                     </div>
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between pt-2 border-t border-stone-200/60 text-xs">
+                <div className="flex items-center justify-between pt-3 border-t border-stone-200/60 text-xs">
                   <div className="flex items-center gap-2">
-                    <span className="px-2 py-0.5 bg-emerald-50 text-emerald-700 font-black text-[10px] rounded-md">
+                    <span className="px-2.5 py-1 bg-emerald-50 text-emerald-700 font-black text-[10px] rounded-lg">
                       {item.status}
                     </span>
-                    <span className="text-stone-400 text-[10px]">{item.time}</span>
+                    <span className="text-stone-400 text-[11px]">{item.time}</span>
                   </div>
-                  <span className="font-black text-stone-900 text-sm">{item.amount}</span>
+                  <span className="font-black text-stone-900 text-sm sm:text-base">{item.amount}</span>
                 </div>
               </div>
             );
