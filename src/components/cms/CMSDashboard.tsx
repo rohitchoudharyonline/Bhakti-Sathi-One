@@ -23,6 +23,7 @@ import { TravelBlogManager } from './TravelBlogManager';
 import { CategoriesManager } from "./CategoriesManager";
 import { TagsManager } from "./TagsManager";
 import { SEOManager } from "./SEOManager";
+import { AnalyticsDashboard } from "./AnalyticsDashboard";
 import { GuideEditor } from './GuideEditor';
 import { GuideArticle } from '../../types/guide';
 import { PDFBrochureModal } from '../traveler/PDFBrochureModal';
@@ -77,6 +78,7 @@ import {
   HelpCircle,
   LogOut,
   Menu,
+  BarChart3,
 } from 'lucide-react';
 
 export const CMSDashboard: React.FC = () => {
@@ -118,6 +120,7 @@ export const CMSDashboard: React.FC = () => {
     | 'categories'
     | 'tags'
     | 'seo'
+    | 'analytics-dashboard'
     | 'editor'
     | 'destinations'
     | 'temples'
@@ -304,6 +307,7 @@ export const CMSDashboard: React.FC = () => {
     { id: 'media', label: 'Image Library', icon: ImagePlus, count: mediaAssets.length, show: canAccess('media') },
     { id: 'pages', label: 'Pages', icon: FileEdit, count: customPages.length, show: canAccess('pages') },
     { id: 'seo', label: 'SEO Meta', icon: Globe, count: null, show: canAccess('seo') },
+    { id: 'analytics-dashboard', label: 'Analytics Recharts', icon: BarChart3, count: null, show: true },
 
     { id: 'packages', label: 'Tour Packages', icon: Compass, count: packages.length, show: canAccess('packages') },
     {
@@ -823,8 +827,11 @@ export const CMSDashboard: React.FC = () => {
           </div>
         )}
 
-                {/* WORDPRESS STYLE: RANK MATH SEO */}
+                {/* RANK MATH SEO */}
         {activeCmsTab === 'seo' && canAccess('seo') && !isTabLoading && <SEOManager />}
+
+        {/* ANALYTICS DASHBOARD RECHARTS */}
+        {activeCmsTab === 'analytics-dashboard' && !isTabLoading && <AnalyticsDashboard />}
 
         {/* WORDPRESS STYLE: CATEGORIES */}
         {activeCmsTab === 'categories' && canAccess('guides') && !isTabLoading && <CategoriesManager />}
