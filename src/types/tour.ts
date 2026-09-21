@@ -439,7 +439,7 @@ export interface BookingInquiry {
   children: number;
   specialRequests?: string;
   estimatedTotal: number;
-  status: 'New' | 'Contacted' | 'Quotation Sent' | 'Confirmed' | 'In Progress' | 'Completed' | 'Cancelled';
+  status: 'New' | 'Contacted' | 'Booked' | 'Closed' | 'Quotation Sent' | 'Confirmed' | 'In Progress' | 'Completed' | 'Cancelled';
   assignedStaffId?: string;
   assignedStaffName?: string;
   quotation?: InquiryQuotation;

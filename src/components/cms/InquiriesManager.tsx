@@ -177,7 +177,15 @@ export const InquiriesManager: React.FC<{
     if (leadTypeFilter === 'tours' && isNewsletter) return false;
     if (leadTypeFilter === 'newsletter' && !isNewsletter) return false;
 
-    if (statusFilter !== 'All' && inq.status !== statusFilter) return false;
+    if (statusFilter !== 'All') {
+      if (statusFilter === 'Booked') {
+        if (inq.status !== 'Booked' && inq.status !== 'Confirmed') return false;
+      } else if (statusFilter === 'Closed') {
+        if (inq.status !== 'Closed' && inq.status !== 'Completed') return false;
+      } else {
+        if (inq.status !== statusFilter) return false;
+      }
+    }
     if (searchTerm.trim()) {
       const q = searchTerm.toLowerCase();
       const formattedNum = formatBookingNumber(inq.id).toLowerCase();
@@ -234,10 +242,14 @@ export const InquiriesManager: React.FC<{
         return 'bg-red-500/10 text-red-700  border-red-200 ';
       case 'Contacted':
         return 'bg-blue-100 dark:bg-blue-950/40 text-blue-800  border-blue-200 ';
-      case 'Quotation Sent':
-        return 'bg-purple-100 dark:bg-purple-950/40 text-purple-800  border-purple-200 ';
+      case 'Booked':
       case 'Confirmed':
         return 'bg-emerald-100 dark:bg-emerald-950/40 text-emerald-800  border-emerald-200 ';
+      case 'Closed':
+      case 'Completed':
+        return 'bg-slate-100 dark:bg-slate-800 text-slate-800  border-slate-200 ';
+      case 'Quotation Sent':
+        return 'bg-purple-100 dark:bg-purple-950/40 text-purple-800  border-purple-200 ';
       case 'Cancelled':
         return 'bg-rose-100 dark:bg-rose-950/40 text-rose-800  border-rose-200 ';
       default:
@@ -376,30 +388,44 @@ export const InquiriesManager: React.FC<{
   return (
     <div className="space-y-6" id="inquiries-manager">
       {/* Top Metrics Banner */}
-      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-        <div className="bg-white dark:bg-stone-900 p-5 rounded-2xl border border-stone-200  shadow-sm">
+      <div className="grid grid-cols-2 sm:grid-cols-6 gap-3">
+        <div className="bg-white dark:bg-stone-900 p-4 rounded-2xl border border-stone-200 shadow-sm">
           <div className="text-stone-500 text-xs font-bold uppercase tracking-wider">Total Leads</div>
-          <div className="text-2xl font-black text-stone-900 dark:text-white mt-1">{inquiries.length}</div>
+          <div className="text-xl sm:text-2xl font-black text-stone-900 dark:text-white mt-1">{inquiries.length}</div>
         </div>
 
-        <div className="bg-white dark:bg-stone-900 p-5 rounded-2xl border border-stone-200  shadow-sm">
-          <div className="text-red-600 text-xs font-bold uppercase tracking-wider">New Inquiries</div>
-          <div className="text-2xl font-black text-red-600 mt-1">
+        <div className="bg-white dark:bg-stone-900 p-4 rounded-2xl border border-stone-200 shadow-sm">
+          <div className="text-red-600 text-xs font-bold uppercase tracking-wider">New</div>
+          <div className="text-xl sm:text-2xl font-black text-red-600 mt-1">
             {inquiries.filter((i) => i.status === 'New').length}
           </div>
         </div>
 
-        <div className="bg-white dark:bg-stone-900 p-5 rounded-2xl border border-stone-200  shadow-sm">
-          <div className="text-purple-600 text-xs font-bold uppercase tracking-wider">Proposals Sent</div>
-          <div className="text-2xl font-black text-purple-600 mt-1">
-            {inquiries.filter((i) => i.status === 'Quotation Sent').length}
+        <div className="bg-white dark:bg-stone-900 p-4 rounded-2xl border border-stone-200 shadow-sm">
+          <div className="text-blue-600 text-xs font-bold uppercase tracking-wider">Contacted</div>
+          <div className="text-xl sm:text-2xl font-black text-blue-600 mt-1">
+            {inquiries.filter((i) => i.status === 'Contacted').length}
           </div>
         </div>
 
-        <div className="bg-white dark:bg-stone-900 p-5 rounded-2xl border border-stone-200  shadow-sm">
-          <div className="text-emerald-600 text-xs font-bold uppercase tracking-wider">Confirmed Bookings</div>
-          <div className="text-2xl font-black text-emerald-600 mt-1">
-            {inquiries.filter((i) => i.status === 'Confirmed').length}
+        <div className="bg-white dark:bg-stone-900 p-4 rounded-2xl border border-stone-200 shadow-sm">
+          <div className="text-emerald-600 text-xs font-bold uppercase tracking-wider">Booked</div>
+          <div className="text-xl sm:text-2xl font-black text-emerald-600 mt-1">
+            {inquiries.filter((i) => i.status === 'Booked' || i.status === 'Confirmed').length}
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-stone-900 p-4 rounded-2xl border border-stone-200 shadow-sm">
+          <div className="text-slate-600 text-xs font-bold uppercase tracking-wider">Closed</div>
+          <div className="text-xl sm:text-2xl font-black text-slate-700 mt-1">
+            {inquiries.filter((i) => i.status === 'Closed' || i.status === 'Completed').length}
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-stone-900 p-4 rounded-2xl border border-stone-200 shadow-sm">
+          <div className="text-purple-600 text-xs font-bold uppercase tracking-wider">Proposals Sent</div>
+          <div className="text-xl sm:text-2xl font-black text-purple-600 mt-1">
+            {inquiries.filter((i) => i.status === 'Quotation Sent').length}
           </div>
         </div>
       </div>
@@ -460,7 +486,7 @@ export const InquiriesManager: React.FC<{
 
           <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
             <div className="flex flex-wrap items-center gap-1.5">
-              {['All', 'New', 'Contacted', 'Quotation Sent', 'Confirmed', 'Cancelled'].map((st) => (
+              {['All', 'New', 'Contacted', 'Booked', 'Closed', 'Quotation Sent', 'Confirmed', 'Cancelled'].map((st) => (
                 <button
                   key={st}
                   onClick={() => setStatusFilter(st)}
@@ -688,8 +714,11 @@ export const InquiriesManager: React.FC<{
                   >
                     <option value="New">New</option>
                     <option value="Contacted">Contacted</option>
+                    <option value="Booked">Booked</option>
+                    <option value="Closed">Closed</option>
                     <option value="Quotation Sent">Quotation Sent</option>
                     <option value="Confirmed">Confirmed</option>
+                    <option value="Completed">Completed</option>
                     <option value="Cancelled">Cancelled</option>
                   </select>
 

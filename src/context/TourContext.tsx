@@ -830,19 +830,29 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // 6. Inquiries State
   const [inquiries, setInquiries] = useState<BookingInquiry[]>(() => {
+    const deletedIds = getDeletedItems('hh_deleted_inquiry_ids');
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.INQUIRIES);
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed)) {
-          // Ensure seed inquiries for test emails (vip.traveler, holidayshunt) are always available
-          const existingIds = new Set(parsed.map((p: BookingInquiry) => p.id));
-          const missing = DEFAULT_SEED_INQUIRIES.filter((s) => !existingIds.has(s.id));
-          return [...parsed, ...missing];
+          const filtered = parsed.filter((p: BookingInquiry) => !deletedIds.includes(p.id));
+          // Ensure seed inquiries for test emails are always available unless deleted
+          const existingIds = new Set(filtered.map((p: BookingInquiry) => p.id));
+          const missing = DEFAULT_SEED_INQUIRIES.filter((s) => !existingIds.has(s.id) && !deletedIds.includes(s.id));
+          const finalInquiries = [...filtered, ...missing];
+          try {
+            localStorage.setItem(STORAGE_KEYS.INQUIRIES, JSON.stringify(finalInquiries));
+          } catch {}
+          return finalInquiries;
         }
       }
     } catch {}
-    return DEFAULT_SEED_INQUIRIES;
+    const initial = DEFAULT_SEED_INQUIRIES.filter((s) => !deletedIds.includes(s.id));
+    try {
+      localStorage.setItem(STORAGE_KEYS.INQUIRIES, JSON.stringify(initial));
+    } catch {}
+    return initial;
   });
 
   // 7. Agency Settings
@@ -950,11 +960,25 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // 8. ERP Staff, Vendors, Payments, Invoices
   const [staff, setStaff] = useState<StaffMember[]>(() => {
+    const deletedIds = getDeletedItems('hh_deleted_staff_ids');
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.STAFF);
-      if (saved) return JSON.parse(saved);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          const filtered = parsed.filter((s: StaffMember) => !deletedIds.includes(s.id));
+          try {
+            localStorage.setItem(STORAGE_KEYS.STAFF, JSON.stringify(filtered));
+          } catch {}
+          return filtered;
+        }
+      }
     } catch {}
-    return DEFAULT_STAFF;
+    const initial = DEFAULT_STAFF.filter((s) => !deletedIds.includes(s.id));
+    try {
+      localStorage.setItem(STORAGE_KEYS.STAFF, JSON.stringify(initial));
+    } catch {}
+    return initial;
   });
 
   const [currentStaffUser, setCurrentStaffUser] = useState<StaffMember>(() => {
@@ -966,47 +990,110 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
   });
 
   const [hotels, setHotels] = useState<HotelEntity[]>(() => {
+    const deletedIds = getDeletedItems('hh_deleted_hotel_ids');
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.HOTELS);
-      if (saved) return JSON.parse(saved);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          const filtered = parsed.filter((h: HotelEntity) => !deletedIds.includes(h.id));
+          try {
+            localStorage.setItem(STORAGE_KEYS.HOTELS, JSON.stringify(filtered));
+          } catch {}
+          return filtered;
+        }
+      }
     } catch {}
     return [];
   });
 
   const [vendors, setVendors] = useState<Vendor[]>(() => {
+    const deletedIds = getDeletedItems('hh_deleted_vendor_ids');
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.VENDORS);
-      if (saved) return JSON.parse(saved);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          const filtered = parsed.filter((v: Vendor) => !deletedIds.includes(v.id));
+          try {
+            localStorage.setItem(STORAGE_KEYS.VENDORS, JSON.stringify(filtered));
+          } catch {}
+          return filtered;
+        }
+      }
     } catch {}
-    return DEFAULT_VENDORS;
+    const initial = DEFAULT_VENDORS.filter((v) => !deletedIds.includes(v.id));
+    try {
+      localStorage.setItem(STORAGE_KEYS.VENDORS, JSON.stringify(initial));
+    } catch {}
+    return initial;
   });
 
   const [vendorPayments, setVendorPayments] = useState<VendorPayment[]>(() => {
+    const deletedIds = getDeletedItems('hh_deleted_vendor_payment_ids');
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.VENDOR_PAYMENTS);
-      if (saved) return JSON.parse(saved);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          const filtered = parsed.filter((p: VendorPayment) => !deletedIds.includes(p.id));
+          try {
+            localStorage.setItem(STORAGE_KEYS.VENDOR_PAYMENTS, JSON.stringify(filtered));
+          } catch {}
+          return filtered;
+        }
+      }
     } catch {}
-    return DEFAULT_VENDOR_PAYMENTS;
+    const initial = DEFAULT_VENDOR_PAYMENTS.filter((p) => !deletedIds.includes(p.id));
+    try {
+      localStorage.setItem(STORAGE_KEYS.VENDOR_PAYMENTS, JSON.stringify(initial));
+    } catch {}
+    return initial;
   });
 
   const [invoices, setInvoices] = useState<Invoice[]>(() => {
+    const deletedIds = getDeletedItems('hh_deleted_invoice_ids');
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.INVOICES);
-      if (saved) return JSON.parse(saved);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          const filtered = parsed.filter((inv: Invoice) => !deletedIds.includes(inv.id));
+          try {
+            localStorage.setItem(STORAGE_KEYS.INVOICES, JSON.stringify(filtered));
+          } catch {}
+          return filtered;
+        }
+      }
     } catch {}
-    return DEFAULT_INVOICES;
+    const initial = DEFAULT_INVOICES.filter((inv) => !deletedIds.includes(inv.id));
+    try {
+      localStorage.setItem(STORAGE_KEYS.INVOICES, JSON.stringify(initial));
+    } catch {}
+    return initial;
   });
 
   // Registered Traveler Users State
   const [registeredUsers, setRegisteredUsers] = useState<RegisteredTravelerUser[]>(() => {
+    const deletedIds = getDeletedItems('hh_deleted_registered_user_ids');
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.REGISTERED_USERS);
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) return parsed;
+        if (Array.isArray(parsed)) {
+          const filtered = parsed.filter((u: RegisteredTravelerUser) => !deletedIds.includes(u.id));
+          try {
+            localStorage.setItem(STORAGE_KEYS.REGISTERED_USERS, JSON.stringify(filtered));
+          } catch {}
+          return filtered;
+        }
       }
     } catch {}
-    return DEFAULT_REGISTERED_USERS;
+    const initial = DEFAULT_REGISTERED_USERS.filter((u) => !deletedIds.includes(u.id));
+    try {
+      localStorage.setItem(STORAGE_KEYS.REGISTERED_USERS, JSON.stringify(initial));
+    } catch {}
+    return initial;
   });
 
   // 9. Navigation / Routing States
@@ -1555,7 +1642,14 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const deletePushNotification = (id: string) => {
-    setPushNotifications((prev) => prev.filter((p) => p.id !== id));
+    markItemDeleted('hh_deleted_push_notification_ids', id);
+    setPushNotifications((prev) => {
+      const next = prev.filter((p) => p.id !== id);
+      try {
+        localStorage.setItem(STORAGE_KEYS.PUSH_NOTIFICATIONS, JSON.stringify(next));
+      } catch {}
+      return next;
+    });
   };
 
   const markNotificationAsRead = (id: string) => {
@@ -3161,7 +3255,14 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const deleteInquiry = (id: string) => {
-    setInquiries((prev) => prev.filter((i) => i.id !== id));
+    markItemDeleted('hh_deleted_inquiry_ids', id);
+    setInquiries((prev) => {
+      const next = prev.filter((i) => i.id !== id);
+      try {
+        localStorage.setItem(STORAGE_KEYS.INQUIRIES, JSON.stringify(next));
+      } catch {}
+      return next;
+    });
   };
 
   const updateInquiryEmail = (inquiryId: string, email: string) => {
@@ -3251,7 +3352,14 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const deleteHotel = (id: string) => {
-    setHotels((prev) => prev.filter((h) => h.id !== id));
+    markItemDeleted('hh_deleted_hotel_ids', id);
+    setHotels((prev) => {
+      const next = prev.filter((h) => h.id !== id);
+      try {
+        localStorage.setItem(STORAGE_KEYS.HOTELS, JSON.stringify(next));
+      } catch {}
+      return next;
+    });
   };
 
   const addStaffMember = (newStaff: Omit<StaffMember, 'id' | 'joinedAt'>): string => {
@@ -3269,7 +3377,14 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const deleteStaffMember = (id: string) => {
-    setStaff((prev) => prev.filter((s) => s.id !== id));
+    markItemDeleted('hh_deleted_staff_ids', id);
+    setStaff((prev) => {
+      const next = prev.filter((s) => s.id !== id);
+      try {
+        localStorage.setItem(STORAGE_KEYS.STAFF, JSON.stringify(next));
+      } catch {}
+      return next;
+    });
   };
 
   const addVendor = (newVendor: Omit<Vendor, 'id' | 'createdAt'>): string => {
@@ -3284,7 +3399,14 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const deleteVendor = (id: string) => {
-    setVendors((prev) => prev.filter((v) => v.id !== id));
+    markItemDeleted('hh_deleted_vendor_ids', id);
+    setVendors((prev) => {
+      const next = prev.filter((v) => v.id !== id);
+      try {
+        localStorage.setItem(STORAGE_KEYS.VENDORS, JSON.stringify(next));
+      } catch {}
+      return next;
+    });
   };
 
   const addVendorPayment = (
@@ -3309,7 +3431,14 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const deleteVendorPayment = (id: string) => {
-    setVendorPayments((prev) => prev.filter((p) => p.id !== id));
+    markItemDeleted('hh_deleted_vendor_payment_ids', id);
+    setVendorPayments((prev) => {
+      const next = prev.filter((p) => p.id !== id);
+      try {
+        localStorage.setItem(STORAGE_KEYS.VENDOR_PAYMENTS, JSON.stringify(next));
+      } catch {}
+      return next;
+    });
   };
 
   const recordVendorPaymentTransaction = (
@@ -3365,7 +3494,14 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const deleteInvoice = (id: string) => {
-    setInvoices((prev) => prev.filter((inv) => inv.id !== id));
+    markItemDeleted('hh_deleted_invoice_ids', id);
+    setInvoices((prev) => {
+      const next = prev.filter((inv) => inv.id !== id);
+      try {
+        localStorage.setItem(STORAGE_KEYS.INVOICES, JSON.stringify(next));
+      } catch {}
+      return next;
+    });
   };
 
   const recordInvoicePayment = (
@@ -3587,21 +3723,46 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
             signupDate: new Date().toISOString().slice(0, 10),
             lastLogin: 'Just now',
           };
-          setRegisteredUsers((prev) => [newUser, ...prev]);
+          unmarkItemDeleted('hh_deleted_registered_user_ids', id);
+          setRegisteredUsers((prev) => {
+            const next = [newUser, ...prev];
+            try {
+              localStorage.setItem(STORAGE_KEYS.REGISTERED_USERS, JSON.stringify(next));
+            } catch {}
+            return next;
+          });
           return id;
         },
         updateRegisteredUser: (user: RegisteredTravelerUser) => {
-          setRegisteredUsers((prev) => prev.map((u) => (u.id === user.id ? user : u)));
+          unmarkItemDeleted('hh_deleted_registered_user_ids', user.id);
+          setRegisteredUsers((prev) => {
+            const next = prev.map((u) => (u.id === user.id ? user : u));
+            try {
+              localStorage.setItem(STORAGE_KEYS.REGISTERED_USERS, JSON.stringify(next));
+            } catch {}
+            return next;
+          });
         },
         toggleBlockUser: (id: string) => {
-          setRegisteredUsers((prev) =>
-            prev.map((u) =>
-              u.id === id ? { ...u, status: u.status === 'active' ? 'blocked' : 'active' } : u
-            )
-          );
+          setRegisteredUsers((prev) => {
+            const next = prev.map((u) =>
+              u.id === id ? { ...u, status: (u.status === 'active' ? 'blocked' : 'active') as 'active' | 'blocked' } : u
+            );
+            try {
+              localStorage.setItem(STORAGE_KEYS.REGISTERED_USERS, JSON.stringify(next));
+            } catch {}
+            return next;
+          });
         },
         deleteRegisteredUser: (id: string) => {
-          setRegisteredUsers((prev) => prev.filter((u) => u.id !== id));
+          markItemDeleted('hh_deleted_registered_user_ids', id);
+          setRegisteredUsers((prev) => {
+            const next = prev.filter((u) => u.id !== id);
+            try {
+              localStorage.setItem(STORAGE_KEYS.REGISTERED_USERS, JSON.stringify(next));
+            } catch {}
+            return next;
+          });
         },
         travelerUser,
         googleToken,
