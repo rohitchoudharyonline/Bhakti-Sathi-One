@@ -239,21 +239,21 @@ export const InquiriesManager: React.FC<{
   const getStatusBadge = (status: BookingInquiry['status']) => {
     switch (status) {
       case 'New':
-        return 'bg-red-500/10 text-red-700  border-red-200 ';
+        return 'bg-stone-100 text-stone-700 border-stone-200 dark:bg-stone-800 dark:text-stone-300';
       case 'Contacted':
-        return 'bg-blue-100 dark:bg-blue-950/40 text-blue-800  border-blue-200 ';
+        return 'bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300';
       case 'Booked':
       case 'Confirmed':
-        return 'bg-emerald-100 dark:bg-emerald-950/40 text-emerald-800  border-emerald-200 ';
+        return 'bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300';
       case 'Closed':
       case 'Completed':
-        return 'bg-slate-100 dark:bg-slate-800 text-slate-800  border-slate-200 ';
+        return 'bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-800 dark:text-slate-300';
       case 'Quotation Sent':
-        return 'bg-purple-100 dark:bg-purple-950/40 text-purple-800  border-purple-200 ';
+        return 'bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-950/40 dark:text-purple-300';
       case 'Cancelled':
-        return 'bg-rose-100 dark:bg-rose-950/40 text-rose-800  border-rose-200 ';
+        return 'bg-rose-100 text-rose-800 border-rose-200 dark:bg-rose-950/40 dark:text-rose-300';
       default:
-        return 'bg-stone-100 text-stone-700';
+        return 'bg-stone-100 text-stone-700 border-stone-200';
     }
   };
 

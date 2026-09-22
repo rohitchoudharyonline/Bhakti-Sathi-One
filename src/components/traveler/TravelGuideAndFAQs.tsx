@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useTours } from '../../context/TourContext';
 import { HelpCircle, ChevronDown, ChevronUp, Phone, MessageCircle } from 'lucide-react';
+import { Helmet } from 'react-helmet-async';
 
 export const TravelGuideAndFAQs: React.FC = () => {
   const { agencySettings } = useTours();
@@ -33,8 +34,26 @@ export const TravelGuideAndFAQs: React.FC = () => {
     },
   ];
 
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": faqs.map((faq) => ({
+      "@type": "Question",
+      "name": faq.q,
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": faq.a
+      }
+    }))
+  };
+
   return (
     <section id="faqs-section" className="py-16 bg-white border-t border-stone-200">
+      <Helmet>
+        <script type="application/ld+json">
+          {JSON.stringify(faqSchema)}
+        </script>
+      </Helmet>
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-10">

@@ -263,6 +263,21 @@ export const LuxuryHomepage: React.FC = () => {
   } = useTours();
 
   useEffect(() => {
+    const websiteSchema = {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": agencySettings?.agencyName || "Holidays Hunt",
+      "url": window.location.origin,
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": `${window.location.origin}/?search={search_term_string}`
+        },
+        "query-input": "required name=search_term_string"
+      }
+    };
+
     const agencySchema = generateAgencyReviewSchema(agencySettings);
     const homeSeo = pageSeoConfigs?.['home'];
     
@@ -271,7 +286,7 @@ export const LuxuryHomepage: React.FC = () => {
       description: homeSeo?.metaDescription || "Book customized Jammu & Kashmir and Himachal Pradesh tour packages with Holidays Hunt. Discover verified stays, Dal Lake houseboats, private cabs, and 24x7 local ground support.",
       canonicalUrl: homeSeo?.canonicalUrl || "https://holidayshunt.com",
       canonicalPath: "/",
-      schemaData: agencySchema,
+      schemaData: [websiteSchema, agencySchema],
       noIndex: homeSeo?.noIndex,
       noFollow: homeSeo?.noFollow,
     });
@@ -313,6 +328,22 @@ export const LuxuryHomepage: React.FC = () => {
       { id: 'all', name: 'All Destinations & Packages', region: 'Explore', desc: 'Browse all tour and holiday packages', type: 'dest' as const },
     ];
   }, [destinations]);
+
+  const queryLower = searchQuery.trim().toLowerCase();
+  const matchedPackages = useMemo(() => {
+    if (!queryLower) return [];
+    return (packages || []).filter(p => p.title.toLowerCase().includes(queryLower) || p.destination.toLowerCase().includes(queryLower) || (p.tagline && p.tagline.toLowerCase().includes(queryLower))).slice(0, 4);
+  }, [packages, queryLower]);
+
+  const matchedDestinations = useMemo(() => {
+    if (!queryLower) return [];
+    return destinationSearchOptions.filter(d => d.id !== 'all' && (d.name.toLowerCase().includes(queryLower) || d.desc.toLowerCase().includes(queryLower) || d.region.toLowerCase().includes(queryLower))).slice(0, 3);
+  }, [destinationSearchOptions, queryLower]);
+
+  const matchedTemples = useMemo(() => {
+    if (!queryLower) return [];
+    return (temples || []).filter(t => t.name.toLowerCase().includes(queryLower) || t.city.toLowerCase().includes(queryLower) || t.state.toLowerCase().includes(queryLower) || (t.deity && t.deity.toLowerCase().includes(queryLower))).slice(0, 3);
+  }, [temples, queryLower]);
 
   const filteredDestinations = useMemo(() => {
     const list = Object.values(destinations || {}) as DestinationMeta[];
@@ -500,73 +531,212 @@ export const LuxuryHomepage: React.FC = () => {
             {/* MASTER SEARCH WIDGET (CLEAN, DEDICATED SEARCH) */}
             <div id="search-widget-container" className="relative z-20 bg-white rounded-2xl border-2 border-stone-200/90 shadow-lg p-4 sm:p-5">
               <form onSubmit={handleHeroSearch} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 relative">
-                {/* Column 1: Destination / Shrine Selector */}
+                {/* Column 1: Live Search & Destination Selector */}
                 <div className="lg:col-span-4 relative hero-search-dropdown-container">
-                  <button
-                    type="button"
-                    onClick={() => setOpenDropdown(openDropdown === 'dest' ? null : 'dest')}
-                    className={`w-full text-left p-2.5 sm:p-3 rounded-xl bg-stone-50 border transition cursor-pointer flex flex-col justify-between min-h-[52px] sm:min-h-[56px] ${
-                      openDropdown === 'dest'
-                        ? 'border-stone-900 ring-2 ring-stone-100 bg-white'
-                        : 'border-stone-200 hover:border-stone-300'
-                    }`}
-                  >
+                  <div className={`w-full text-left p-2.5 sm:p-3 rounded-xl bg-stone-50 border transition flex flex-col justify-between min-h-[52px] sm:min-h-[56px] ${
+                    openDropdown === 'dest'
+                      ? 'border-stone-900 ring-2 ring-stone-100 bg-white'
+                      : 'border-stone-200 hover:border-stone-300'
+                  }`}>
                     <span className="block text-[10px] font-black uppercase tracking-wider text-stone-400">
-                      Destination / Tour Circuit
+                      Search Packages, Destinations &amp; Temples
                     </span>
                     <div className="flex items-center justify-between gap-2 mt-0.5 sm:mt-1">
-                      <div className="flex items-center gap-2 min-w-0">
-                        <MapPin className="w-4 h-4 text-[#FF4B00] shrink-0" />
-                        <span className="text-xs sm:text-sm font-bold text-stone-900 truncate">
-                          {destinationSearchOptions.find((d) => d.id === activeSpecificDest)?.name || 'All Destinations & Circuits'}
-                        </span>
+                      <div className="flex items-center gap-2 min-w-0 flex-1">
+                        <Search className="w-4 h-4 text-[#FF4B00] shrink-0" />
+                        <input
+                          type="text"
+                          value={searchQuery}
+                          onFocus={() => setOpenDropdown('dest')}
+                          onChange={(e) => {
+                            setSearchQuery(e.target.value);
+                            setOpenDropdown('dest');
+                          }}
+                          placeholder={destinationSearchOptions.find((d) => d.id === activeSpecificDest)?.name || 'Search Kashmir, Manali, Vaishno Devi...'}
+                          className="w-full text-xs sm:text-sm font-bold text-stone-900 bg-transparent focus:outline-none placeholder:text-stone-400 placeholder:font-normal truncate"
+                        />
                       </div>
-                      <ChevronDown
-                        className={`w-4 h-4 text-stone-400 shrink-0 transition-transform duration-200 ${
-                          openDropdown === 'dest' ? 'rotate-180 text-stone-900' : ''
-                        }`}
-                      />
+                      {searchQuery ? (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSearchQuery('');
+                          }}
+                          className="p-1 text-stone-400 hover:text-stone-700 cursor-pointer"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      ) : (
+                        <ChevronDown
+                          className={`w-4 h-4 text-stone-400 shrink-0 transition-transform duration-200 ${
+                            openDropdown === 'dest' ? 'rotate-180 text-stone-900' : ''
+                          }`}
+                        />
+                      )}
                     </div>
-                  </button>
+                  </div>
 
-                  {/* Destination Dropdown Popover */}
+                  {/* Live Search & Destination Dropdown Popover */}
                   {openDropdown === 'dest' && (
-                    <div className="absolute top-full left-0 right-0 sm:min-w-[320px] mt-2 bg-white rounded-2xl border border-stone-200 shadow-2xl z-50 p-2 space-y-1 max-h-[320px] overflow-y-auto">
-                      <div className="px-2 py-1 text-[10px] font-extrabold uppercase tracking-wider text-stone-400">
-                        Select Destination
-                      </div>
-                      {destinationSearchOptions.map((dest) => {
-                        const isSelected = activeSpecificDest === dest.id;
-                        return (
-                          <button
-                            key={dest.id}
-                            type="button"
-                            onClick={() => {
-                              setActiveSpecificDest(dest.id);
-                              setSearchQuery('');
-                              setOpenDropdown(null);
-                            }}
-                            className={`w-full text-left p-2.5 rounded-xl transition flex items-center justify-between gap-3 cursor-pointer ${
-                              isSelected
-                                ? 'bg-[#FFF0EB] text-[#FF4B00] font-bold border border-[#FF4B00]/20'
-                                : 'hover:bg-stone-50 text-stone-800'
-                            }`}
-                          >
-                            <div className="min-w-0">
-                              <div className="flex items-center gap-2">
-                                <span className="text-xs sm:text-sm font-bold">{dest.name}</span>
-                                <span className="text-[10px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-stone-100 text-stone-600">
-                                  {dest.region}
-                                </span>
-                              </div>
-                              <span className="text-[11px] text-stone-500 block truncate mt-0.5 font-normal">
-                                {dest.desc}
-                              </span>
+                    <div className="absolute top-full left-0 right-0 sm:min-w-[360px] mt-2 bg-white rounded-2xl border border-stone-200 shadow-2xl z-50 p-3 space-y-3 max-h-[380px] overflow-y-auto">
+                      {queryLower ? (
+                        <div className="space-y-3">
+                          <div className="flex items-center justify-between px-1">
+                            <span className="text-[10px] font-extrabold uppercase tracking-wider text-stone-400">
+                              Live Search Results for &ldquo;{searchQuery}&rdquo;
+                            </span>
+                            <span className="text-[10px] font-bold text-[#FF4B00]">
+                              {matchedPackages.length + matchedDestinations.length + matchedTemples.length} found
+                            </span>
+                          </div>
+
+                          {matchedPackages.length === 0 && matchedDestinations.length === 0 && matchedTemples.length === 0 ? (
+                            <div className="py-6 text-center text-stone-500 text-xs">
+                              No matching packages, destinations, or temples found. Try searching for &ldquo;Kashmir&rdquo;, &ldquo;Vaishno Devi&rdquo;, or &ldquo;Manali&rdquo;.
                             </div>
-                            {isSelected && <Check className="w-4 h-4 text-[#FF4B00] shrink-0" />}
-                          </button>
-                        );
-                      })}
+                          ) : (
+                            <>
+                              {/* Matching Packages */}
+                              {matchedPackages.length > 0 && (
+                                <div className="space-y-1">
+                                  <div className="text-[10px] font-extrabold uppercase tracking-wider text-stone-400 px-1">
+                                    Matching Tour Packages ({matchedPackages.length})
+                                  </div>
+                                  {matchedPackages.map((pkg) => (
+                                    <button
+                                      key={pkg.id}
+                                      type="button"
+                                      onClick={() => {
+                                        setSelectedPackageId(pkg.id);
+                                        setOpenDropdown(null);
+                                      }}
+                                      className="w-full text-left p-2.5 rounded-xl hover:bg-stone-50 transition flex items-center justify-between gap-2 cursor-pointer group"
+                                    >
+                                      <div>
+                                        <div className="text-xs sm:text-sm font-bold text-stone-900 group-hover:text-[#FF4B00] transition-colors">
+                                          {pkg.title}
+                                        </div>
+                                        <div className="text-[10px] text-stone-500 flex items-center gap-2 mt-0.5">
+                                          <span>{pkg.destination}</span>
+                                          <span>•</span>
+                                          <span>{pkg.durationDays}D / {pkg.durationNights}N</span>
+                                        </div>
+                                      </div>
+                                      <div className="text-right shrink-0">
+                                        <div className="text-xs font-black text-stone-900">
+                                          ₹{pkg.price?.toLocaleString('en-IN')}
+                                        </div>
+                                      </div>
+                                    </button>
+                                  ))}
+                                </div>
+                              )}
+
+                              {/* Matching Destinations */}
+                              {matchedDestinations.length > 0 && (
+                                <div className="space-y-1 pt-1 border-t border-stone-100">
+                                  <div className="text-[10px] font-extrabold uppercase tracking-wider text-stone-400 px-1">
+                                    Destinations ({matchedDestinations.length})
+                                  </div>
+                                  {matchedDestinations.map((dest) => (
+                                    <button
+                                      key={dest.id}
+                                      type="button"
+                                      onClick={() => {
+                                        setActiveSpecificDest(dest.id);
+                                        setSearchQuery('');
+                                        setOpenDropdown(null);
+                                      }}
+                                      className="w-full text-left p-2.5 rounded-xl hover:bg-stone-50 transition flex items-center justify-between gap-2 cursor-pointer group"
+                                    >
+                                      <div>
+                                        <div className="text-xs sm:text-sm font-bold text-stone-900 group-hover:text-[#FF4B00] transition-colors">
+                                          {dest.name}
+                                        </div>
+                                        <div className="text-[10px] text-stone-500">
+                                          {dest.desc}
+                                        </div>
+                                      </div>
+                                      <span className="text-[10px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-stone-100 text-stone-600 shrink-0">
+                                        {dest.region}
+                                      </span>
+                                    </button>
+                                  ))}
+                                </div>
+                              )}
+
+                              {/* Matching Temples */}
+                              {matchedTemples.length > 0 && (
+                                <div className="space-y-1 pt-1 border-t border-stone-100">
+                                  <div className="text-[10px] font-extrabold uppercase tracking-wider text-stone-400 px-1">
+                                    Temples &amp; Shrines ({matchedTemples.length})
+                                  </div>
+                                  {matchedTemples.map((temple) => (
+                                    <button
+                                      key={temple.id}
+                                      type="button"
+                                      onClick={() => {
+                                        handleTempleClick(temple);
+                                        setSearchQuery('');
+                                        setOpenDropdown(null);
+                                      }}
+                                      className="w-full text-left p-2.5 rounded-xl hover:bg-stone-50 transition flex items-center justify-between gap-2 cursor-pointer group"
+                                    >
+                                      <div>
+                                        <div className="text-xs sm:text-sm font-bold text-stone-900 group-hover:text-[#FF4B00] transition-colors">
+                                          {temple.name}
+                                        </div>
+                                        <div className="text-[10px] text-stone-500">
+                                          {temple.city}, {temple.state} {temple.deity ? `• ${temple.deity}` : ''}
+                                        </div>
+                                      </div>
+                                    </button>
+                                  ))}
+                                </div>
+                              )}
+                            </>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="space-y-1">
+                          <div className="px-2 py-1 text-[10px] font-extrabold uppercase tracking-wider text-stone-400">
+                            Select Destination or Circuit
+                          </div>
+                          {destinationSearchOptions.map((dest) => {
+                            const isSelected = activeSpecificDest === dest.id;
+                            return (
+                              <button
+                                key={dest.id}
+                                type="button"
+                                onClick={() => {
+                                  setActiveSpecificDest(dest.id);
+                                  setSearchQuery('');
+                                  setOpenDropdown(null);
+                                }}
+                                className={`w-full text-left p-2.5 rounded-xl transition flex items-center justify-between gap-3 cursor-pointer ${
+                                  isSelected
+                                    ? 'bg-[#FFF0EB] text-[#FF4B00] font-bold border border-[#FF4B00]/20'
+                                    : 'hover:bg-stone-50 text-stone-800'
+                                }`}
+                              >
+                                <div className="min-w-0">
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-xs sm:text-sm font-bold">{dest.name}</span>
+                                    <span className="text-[10px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-stone-100 text-stone-600">
+                                      {dest.region}
+                                    </span>
+                                  </div>
+                                  <span className="text-[11px] text-stone-500 block truncate mt-0.5 font-normal">
+                                    {dest.desc}
+                                  </span>
+                                </div>
+                                {isSelected && <Check className="w-4 h-4 text-[#FF4B00] shrink-0" />}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
@@ -1102,10 +1272,13 @@ export const LuxuryHomepage: React.FC = () => {
               const IconComp = item.icon;
 
               return (
-                <div
+                <motion.div
                   key={item.id}
-                  style={{ animationDelay: `${idx * 100}ms` }}
-                  className="w-[84vw] sm:w-[360px] md:w-[380px] shrink-0 snap-start bg-white rounded-2xl p-5 sm:p-6 border border-stone-200/90 shadow-2xs hover:border-black hover:shadow-md transition-all duration-200 flex flex-col justify-between group active:scale-[0.97] cursor-grab active:cursor-grabbing select-none animate-fade-in-up opacity-0 [animation-fill-mode:forwards]"
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-50px" }}
+                  transition={{ duration: 0.5, delay: idx * 0.1 }}
+                  className="w-[84vw] sm:w-[360px] md:w-[380px] shrink-0 snap-start bg-white rounded-2xl p-5 sm:p-6 border border-stone-200/90 shadow-2xs hover:border-black hover:shadow-md transition-all duration-200 flex flex-col justify-between group active:scale-[0.97] cursor-grab active:cursor-grabbing select-none"
                 >
                   <div>
                     {/* Monochrome Icon Badge & Subtitle Pill */}
@@ -1128,7 +1301,7 @@ export const LuxuryHomepage: React.FC = () => {
                       {item.description}
                     </p>
                   </div>
-                </div>
+                </motion.div>
               );
             })}
           </div>
