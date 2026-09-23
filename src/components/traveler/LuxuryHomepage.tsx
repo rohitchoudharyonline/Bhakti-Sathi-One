@@ -331,32 +331,15 @@ export const LuxuryHomepage: React.FC = () => {
   }, [destinations]);
 
   const queryLower = searchQuery.trim().toLowerCase();
-  const matchedPackages = useMemo(() => {
-    if (!queryLower) return [];
-    return (packages || []).filter(p => p.title.toLowerCase().includes(queryLower) || p.destination.toLowerCase().includes(queryLower) || (p.tagline && p.tagline.toLowerCase().includes(queryLower))).slice(0, 4);
-  }, [packages, queryLower]);
-
   const matchedDestinations = useMemo(() => {
-    if (!queryLower) return [];
-    return destinationSearchOptions.filter(d => d.id !== 'all' && (d.name.toLowerCase().includes(queryLower) || d.desc.toLowerCase().includes(queryLower) || d.region.toLowerCase().includes(queryLower))).slice(0, 3);
+    const list = destinationSearchOptions;
+    if (!queryLower) return list;
+    return list.filter(d => d.name.toLowerCase().includes(queryLower) || d.desc.toLowerCase().includes(queryLower) || d.region.toLowerCase().includes(queryLower));
   }, [destinationSearchOptions, queryLower]);
 
-  const matchedTemples = useMemo(() => {
-    if (!queryLower) return [];
-    return (temples || []).filter(t => t.name.toLowerCase().includes(queryLower) || t.city.toLowerCase().includes(queryLower) || t.state.toLowerCase().includes(queryLower) || (t.deity && t.deity.toLowerCase().includes(queryLower))).slice(0, 3);
-  }, [temples, queryLower]);
-
   const flatDropdownItems = useMemo(() => {
-    if (queryLower) {
-      const items: Array<{ type: 'package' | 'destination' | 'temple'; data: any }> = [];
-      matchedPackages.forEach(p => items.push({ type: 'package', data: p }));
-      matchedDestinations.forEach(d => items.push({ type: 'destination', data: d }));
-      matchedTemples.forEach(t => items.push({ type: 'temple', data: t }));
-      return items;
-    } else {
-      return destinationSearchOptions.map(d => ({ type: 'destination' as const, data: d }));
-    }
-  }, [queryLower, matchedPackages, matchedDestinations, matchedTemples, destinationSearchOptions]);
+    return matchedDestinations.map(d => ({ type: 'destination' as const, data: d }));
+  }, [matchedDestinations]);
 
   const [selectedIndex, setSelectedIndex] = useState(0);
 
@@ -377,19 +360,10 @@ export const LuxuryHomepage: React.FC = () => {
     } else if (e.key === 'Enter') {
       e.preventDefault();
       const item = flatDropdownItems[selectedIndex];
-      if (item) {
-        if (item.type === 'package') {
-          setSelectedPackageId(item.data.id);
-          setOpenDropdown(null);
-        } else if (item.type === 'destination') {
-          setActiveSpecificDest(item.data.id);
-          setSearchQuery('');
-          setOpenDropdown(null);
-        } else if (item.type === 'temple') {
-          handleTempleClick(item.data);
-          setSearchQuery('');
-          setOpenDropdown(null);
-        }
+      if (item && item.type === 'destination') {
+        setActiveSpecificDest(item.data.id);
+        setSearchQuery('');
+        setOpenDropdown(null);
       }
     }
   };
@@ -587,7 +561,7 @@ export const LuxuryHomepage: React.FC = () => {
               className="relative z-20 bg-white rounded-2xl border-2 border-stone-200/90 shadow-lg p-4 sm:p-5 cursor-pointer"
             >
               <form onSubmit={handleHeroSearch} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 relative">
-                {/* Column 1: Live Search & Destination Selector */}
+                {/* Column 1: Destination Selector Only */}
                 <div 
                   onClick={(e) => {
                     e.stopPropagation();
@@ -602,11 +576,11 @@ export const LuxuryHomepage: React.FC = () => {
                       : 'border-stone-200 hover:border-stone-300'
                   }`}>
                     <span className="block text-[10px] font-black uppercase tracking-wider text-stone-400">
-                      Search Packages, Destinations &amp; Temples
+                      Destination / Circuit
                     </span>
                     <div className="flex items-center justify-between gap-2 mt-0.5 sm:mt-1">
                       <div className="flex items-center gap-2 min-w-0 flex-1">
-                        <Search className="w-4 h-4 text-[#FF4B00] shrink-0" />
+                        <MapPin className="w-4 h-4 text-[#FF4B00] shrink-0" />
                         <input
                           ref={searchQueryInputRef}
                           type="text"
@@ -617,7 +591,7 @@ export const LuxuryHomepage: React.FC = () => {
                             setSearchQuery(e.target.value);
                             setOpenDropdown('dest');
                           }}
-                          placeholder={destinationSearchOptions.find((d) => d.id === activeSpecificDest)?.name || 'Search Kashmir, Manali, Vaishno Devi...'}
+                          placeholder={destinationSearchOptions.find((d) => d.id === activeSpecificDest)?.name || 'Search Kashmir, Manali, Shimla...'}
                           className="w-full text-xs sm:text-sm font-bold text-stone-900 bg-transparent focus:outline-none placeholder:text-stone-400 placeholder:font-normal truncate cursor-text"
                         />
                       </div>
@@ -642,7 +616,7 @@ export const LuxuryHomepage: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Live Search & Destination Dropdown Popover with Fade Animation */}
+                  {/* Destination Dropdown Popover with Fade Animation */}
                   <AnimatePresence>
                     {openDropdown === 'dest' && (
                       <motion.div
@@ -650,157 +624,23 @@ export const LuxuryHomepage: React.FC = () => {
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: -8, scale: 0.98 }}
                         transition={{ duration: 0.18, ease: 'easeOut' }}
-                        className="absolute top-full left-0 right-0 sm:min-w-[360px] mt-2 bg-white rounded-2xl border border-stone-200 shadow-2xl z-50 p-3 space-y-3 max-h-[380px] overflow-y-auto"
+                        className="absolute top-full left-0 right-0 sm:min-w-[360px] mt-2 bg-white rounded-2xl border border-stone-200 shadow-2xl z-50 p-3 space-y-1 max-h-[380px] overflow-y-auto"
                       >
-                      {queryLower ? (
-                        <div className="space-y-3">
-                          {(() => {
-                            let itemIndex = 0;
-                            return (
-                              <>
-                                <div className="flex items-center justify-between px-1">
-                                  <span className="text-[10px] font-extrabold uppercase tracking-wider text-stone-400">
-                                    Live Search Results for &ldquo;{searchQuery}&rdquo;
-                                  </span>
-                                  <span className="text-[10px] font-bold text-[#FF4B00]">
-                                    {matchedPackages.length + matchedDestinations.length + matchedTemples.length} found
-                                  </span>
-                                </div>
-
-                                {matchedPackages.length === 0 && matchedDestinations.length === 0 && matchedTemples.length === 0 ? (
-                                  <div className="py-6 text-center text-stone-500 text-xs">
-                                    No matching packages, destinations, or temples found. Try searching for &ldquo;Kashmir&rdquo;, &ldquo;Vaishno Devi&rdquo;, or &ldquo;Manali&rdquo;.
-                                  </div>
-                                ) : (
-                                  <>
-                                    {/* Matching Packages */}
-                                    {matchedPackages.length > 0 && (
-                                      <div className="space-y-1">
-                                        <div className="text-[10px] font-extrabold uppercase tracking-wider text-stone-400 px-1">
-                                          Matching Tour Packages ({matchedPackages.length})
-                                        </div>
-                                        {matchedPackages.map((pkg) => {
-                                          const curIndex = itemIndex++;
-                                          const isHighlighted = selectedIndex === curIndex;
-                                          return (
-                                            <button
-                                              key={pkg.id}
-                                              type="button"
-                                              onClick={() => {
-                                                setSelectedPackageId(pkg.id);
-                                                setOpenDropdown(null);
-                                              }}
-                                              className={`w-full text-left p-2.5 rounded-xl transition flex items-center justify-between gap-2 cursor-pointer group ${
-                                                isHighlighted ? 'bg-[#FFF0EB] text-[#FF4B00] font-bold border border-[#FF4B00]/20' : 'hover:bg-stone-50 text-stone-800'
-                                              }`}
-                                            >
-                                              <div>
-                                                <div className="text-xs sm:text-sm font-bold text-stone-900 group-hover:text-[#FF4B00] transition-colors">
-                                                  {pkg.title}
-                                                </div>
-                                                <div className="text-[10px] text-stone-500 flex items-center gap-2 mt-0.5">
-                                                  <span>{pkg.destination}</span>
-                                                  <span>•</span>
-                                                  <span>{pkg.durationDays}D / {pkg.durationNights}N</span>
-                                                </div>
-                                              </div>
-                                              <div className="text-right shrink-0">
-                                                <div className="text-xs font-black text-stone-900">
-                                                  ₹{pkg.price?.toLocaleString('en-IN')}
-                                                </div>
-                                              </div>
-                                            </button>
-                                          );
-                                        })}
-                                      </div>
-                                    )}
-
-                                    {/* Matching Destinations */}
-                                    {matchedDestinations.length > 0 && (
-                                      <div className="space-y-1 pt-1 border-t border-stone-100">
-                                        <div className="text-[10px] font-extrabold uppercase tracking-wider text-stone-400 px-1">
-                                          Destinations ({matchedDestinations.length})
-                                        </div>
-                                        {matchedDestinations.map((dest) => {
-                                          const curIndex = itemIndex++;
-                                          const isHighlighted = selectedIndex === curIndex;
-                                          return (
-                                            <button
-                                              key={dest.id}
-                                              type="button"
-                                              onClick={() => {
-                                                setActiveSpecificDest(dest.id);
-                                                setSearchQuery('');
-                                                setOpenDropdown(null);
-                                              }}
-                                              className={`w-full text-left p-2.5 rounded-xl transition flex items-center justify-between gap-2 cursor-pointer group ${
-                                                isHighlighted ? 'bg-[#FFF0EB] text-[#FF4B00] font-bold border border-[#FF4B00]/20' : 'hover:bg-stone-50 text-stone-800'
-                                              }`}
-                                            >
-                                              <div>
-                                                <div className="text-xs sm:text-sm font-bold text-stone-900 group-hover:text-[#FF4B00] transition-colors">
-                                                  {dest.name}
-                                                </div>
-                                                <div className="text-[10px] text-stone-500">
-                                                  {dest.desc}
-                                                </div>
-                                              </div>
-                                              <span className="text-[10px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-stone-100 text-stone-600 shrink-0">
-                                                {dest.region}
-                                              </span>
-                                            </button>
-                                          );
-                                        })}
-                                      </div>
-                                    )}
-
-                                    {/* Matching Temples */}
-                                    {matchedTemples.length > 0 && (
-                                      <div className="space-y-1 pt-1 border-t border-stone-100">
-                                        <div className="text-[10px] font-extrabold uppercase tracking-wider text-stone-400 px-1">
-                                          Temples &amp; Shrines ({matchedTemples.length})
-                                        </div>
-                                        {matchedTemples.map((temple) => {
-                                          const curIndex = itemIndex++;
-                                          const isHighlighted = selectedIndex === curIndex;
-                                          return (
-                                            <button
-                                              key={temple.id}
-                                              type="button"
-                                              onClick={() => {
-                                                handleTempleClick(temple);
-                                                setSearchQuery('');
-                                                setOpenDropdown(null);
-                                              }}
-                                              className={`w-full text-left p-2.5 rounded-xl transition flex items-center justify-between gap-2 cursor-pointer group ${
-                                                isHighlighted ? 'bg-[#FFF0EB] text-[#FF4B00] font-bold border border-[#FF4B00]/20' : 'hover:bg-stone-50 text-stone-800'
-                                              }`}
-                                            >
-                                              <div>
-                                                <div className="text-xs sm:text-sm font-bold text-stone-900 group-hover:text-[#FF4B00] transition-colors">
-                                                  {temple.name}
-                                                </div>
-                                                <div className="text-[10px] text-stone-500">
-                                                  {temple.city}, {temple.state} {temple.deity ? `• ${temple.deity}` : ''}
-                                                </div>
-                                              </div>
-                                            </button>
-                                          );
-                                        })}
-                                      </div>
-                                    )}
-                                  </>
-                                )}
-                              </>
-                            );
-                          })()}
-                        </div>
-                      ) : (
-                        <div className="space-y-1">
-                          <div className="px-2 py-1 text-[10px] font-extrabold uppercase tracking-wider text-stone-400">
+                        <div className="flex items-center justify-between px-2 py-1">
+                          <span className="text-[10px] font-extrabold uppercase tracking-wider text-stone-400">
                             Select Destination or Circuit
+                          </span>
+                          <span className="text-[10px] font-bold text-[#FF4B00]">
+                            {matchedDestinations.length} available
+                          </span>
+                        </div>
+
+                        {matchedDestinations.length === 0 ? (
+                          <div className="py-6 text-center text-stone-500 text-xs">
+                            No destinations found matching &ldquo;{searchQuery}&rdquo;.
                           </div>
-                          {destinationSearchOptions.map((dest, idx) => {
+                        ) : (
+                          matchedDestinations.map((dest, idx) => {
                             const isHighlighted = selectedIndex === idx;
                             const isSelected = activeSpecificDest === dest.id;
                             return (
@@ -818,23 +658,27 @@ export const LuxuryHomepage: React.FC = () => {
                                     : 'hover:bg-stone-50 text-stone-800'
                                 }`}
                               >
-                                <div className="min-w-0">
-                                  <div className="flex items-center gap-2">
-                                    <span className="text-xs sm:text-sm font-bold">{dest.name}</span>
-                                    <span className="text-[10px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-stone-100 text-stone-600">
-                                      {dest.region}
+                                <div className="flex items-center gap-2.5 min-w-0">
+                                  <div className={`p-1.5 rounded-lg shrink-0 ${isHighlighted || isSelected ? 'bg-[#FF4B00]/10 text-[#FF4B00]' : 'bg-stone-100 text-stone-500'}`}>
+                                    <MapPin className="w-3.5 h-3.5" />
+                                  </div>
+                                  <div className="min-w-0">
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-xs sm:text-sm font-bold">{dest.name}</span>
+                                      <span className="text-[10px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-stone-100 text-stone-600">
+                                        {dest.region}
+                                      </span>
+                                    </div>
+                                    <span className="text-[11px] text-stone-500 block truncate mt-0.5 font-normal">
+                                      {dest.desc}
                                     </span>
                                   </div>
-                                  <span className="text-[11px] text-stone-500 block truncate mt-0.5 font-normal">
-                                    {dest.desc}
-                                  </span>
                                 </div>
                                 {isSelected && <Check className="w-4 h-4 text-[#FF4B00] shrink-0" />}
                               </button>
                             );
-                          })}
-                        </div>
-                      )}
+                          })
+                        )}
                       </motion.div>
                     )}
                   </AnimatePresence>
