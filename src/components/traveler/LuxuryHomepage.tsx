@@ -685,10 +685,19 @@ export const LuxuryHomepage: React.FC = () => {
                 </div>
 
                 {/* Column 2: Tour Type Selector (Pilgrimage, Honeymoon, Family) */}
-                <div className="lg:col-span-3 relative hero-search-dropdown-container">
+                <div 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setOpenDropdown(openDropdown === 'type' ? null : 'type');
+                  }}
+                  className="lg:col-span-3 relative hero-search-dropdown-container cursor-pointer"
+                >
                   <button
                     type="button"
-                    onClick={() => setOpenDropdown(openDropdown === 'type' ? null : 'type')}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setOpenDropdown(openDropdown === 'type' ? null : 'type');
+                    }}
                     className={`w-full text-left p-2.5 sm:p-3 rounded-xl bg-stone-50 border transition cursor-pointer flex flex-col justify-between min-h-[52px] sm:min-h-[56px] ${
                       openDropdown === 'type'
                         ? 'border-stone-900 ring-2 ring-stone-100 bg-white'
@@ -761,10 +770,19 @@ export const LuxuryHomepage: React.FC = () => {
                 </div>
 
                 {/* Column 3: Travel Month / Yatra Season */}
-                <div className="lg:col-span-3 relative hero-search-dropdown-container">
+                <div 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setOpenDropdown(openDropdown === 'month' ? null : 'month');
+                  }}
+                  className="lg:col-span-3 relative hero-search-dropdown-container cursor-pointer"
+                >
                   <button
                     type="button"
-                    onClick={() => setOpenDropdown(openDropdown === 'month' ? null : 'month')}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setOpenDropdown(openDropdown === 'month' ? null : 'month');
+                    }}
                     className={`w-full text-left p-2.5 sm:p-3 rounded-xl bg-stone-50 border transition cursor-pointer flex flex-col justify-between min-h-[52px] sm:min-h-[56px] ${
                       openDropdown === 'month'
                         ? 'border-stone-900 ring-2 ring-stone-100 bg-white'
