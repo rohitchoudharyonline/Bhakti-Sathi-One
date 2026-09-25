@@ -206,6 +206,20 @@ export async function loadAuthoritativeServerContent(): Promise<boolean> {
         continue;
       }
 
+      // The registry's canonical ID is authoritative when legacy duplicate
+      // rows exist. A newer random/legacy row must not replace it.
+      const canonicalId = REGISTRY_BY_KEY.get(decoded.storageKey)?.id;
+      const existingIsCanonical = existing.id === canonicalId;
+      const decodedIsCanonical = decoded.id === canonicalId;
+
+      if (decodedIsCanonical && !existingIsCanonical) {
+        serverItemsByKey.set(decoded.storageKey, decoded);
+        continue;
+      }
+      if (existingIsCanonical && !decodedIsCanonical) {
+        continue;
+      }
+
       const existingTime = existing.updatedAt ? new Date(existing.updatedAt).getTime() : 0;
       const decodedTime = decoded.updatedAt ? new Date(decoded.updatedAt).getTime() : 0;
       if (decodedTime >= existingTime) {
