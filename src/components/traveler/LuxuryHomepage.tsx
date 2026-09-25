@@ -282,8 +282,8 @@ export const LuxuryHomepage: React.FC = () => {
     const homeSeo = pageSeoConfigs?.['home'];
     
     updatePageSeo({
-      title: homeSeo?.metaTitle || "Holidays Hunt — Jammu & Kashmir Tour Packages",
-      description: homeSeo?.metaDescription || "Book customized Jammu & Kashmir tour packages with Holidays Hunt. Discover verified stays, Dal Lake houseboats, private cabs, and 24x7 local ground support.",
+      title: homeSeo?.metaTitle || "Holidays Hunt — Jammu & Kashmir and Himachal Pradesh Tour Packages",
+      description: homeSeo?.metaDescription || "Book customized Jammu & Kashmir and Himachal Pradesh tour packages with Holidays Hunt. Discover verified stays, Dal Lake houseboats, private cabs, and 24x7 local ground support.",
       canonicalUrl: homeSeo?.canonicalUrl || "https://holidayshunt.com",
       canonicalPath: "/",
       schemaData: [websiteSchema, agencySchema],
