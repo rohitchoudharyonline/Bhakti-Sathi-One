@@ -564,7 +564,7 @@ export const LuxuryHomepage: React.FC = () => {
                   Where would you like to travel next?
                 </h1>
                 <p className="text-xs sm:text-sm text-stone-600 font-semibold mt-1">
-                  Curating <b className="text-stone-900 font-extrabold">Family Vacations, Honeymoons &amp; Sacred Tours</b> across Jammu &amp; Kashmir and Himachal Pradesh.
+                  Curating <b className="text-stone-900 font-extrabold">Family Vacations, Honeymoons &amp; Sacred Tours</b> across Jammu &amp; Kashmir.
                 </p>
               </div>
 
@@ -572,7 +572,7 @@ export const LuxuryHomepage: React.FC = () => {
               <div className="inline-flex items-center gap-2 p-1 rounded-xl bg-[#FFF0EB]/95 backdrop-blur-xs border border-[#FF4B00]/30 text-xs font-bold shrink-0 self-start md:self-auto shadow-2xs">
                 <span className="px-3 py-1.5 rounded-lg bg-[#FF4B00] text-white font-black inline-flex items-center gap-1.5 shadow-xs">
                   <ShieldCheck className="w-4 h-4 text-white" />
-                  Experts in Kashmir &amp; Himachal Tours
+                  Jammu &amp; Kashmir Tour Experts
                 </span>
               </div>
             </div>
