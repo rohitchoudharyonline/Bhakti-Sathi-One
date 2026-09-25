@@ -62,7 +62,15 @@
     </script>
   </head>
   <body class="bg-stone-50 text-stone-900 font-['Plus_Jakarta_Sans',sans-serif] antialiased">
-    <div id="root"></div>
+    <div id="root">
+      <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#fafaf9;font-family:Arial,sans-serif;">
+        <div style="text-align:center;color:#9b0000;">
+          <div style="width:28px;height:28px;margin:0 auto 12px;border:3px solid #e7e5e4;border-top-color:#9b0000;border-radius:50%;animation:hh-spin .8s linear infinite;"></div>
+          <div style="font-size:16px;font-weight:700;letter-spacing:.2px;">Holidays Hunt</div>
+        </div>
+      </div>
+    </div>
+    <style>@keyframes hh-spin{to{transform:rotate(360deg)}}</style>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
