@@ -119,10 +119,10 @@ const REVIEWS = [
     id: 'rev-2',
     name: 'Amit & Pooja Sharma',
     city: 'Chandigarh',
-    trip: 'Shimla Manali Deluxe Holiday (3-Star Deluxe)',
+    trip: 'Kashmir Family Holiday (3-Star Deluxe)',
     rating: 5,
     comment:
-      'From Atal Tunnel snow excursions to Shimla Mall Road, everything was seamlessly organized. Hotels had reliable room heating, delicious buffets, and prompt customer support.',
+      'From Gulmarg snow excursions to Pahalgam sightseeing, everything was seamlessly organized. Hotels were comfortable, the itinerary was smooth, and customer support was prompt.',
     verified: true,
   },
   {
@@ -282,8 +282,8 @@ export const LuxuryHomepage: React.FC = () => {
     const homeSeo = pageSeoConfigs?.['home'];
     
     updatePageSeo({
-      title: homeSeo?.metaTitle || "Holidays Hunt — Jammu & Kashmir and Himachal Pradesh Tour Packages",
-      description: homeSeo?.metaDescription || "Book customized Jammu & Kashmir and Himachal Pradesh tour packages with Holidays Hunt. Discover verified stays, Dal Lake houseboats, private cabs, and 24x7 local ground support.",
+      title: homeSeo?.metaTitle || "Holidays Hunt — Jammu & Kashmir Tour Packages",
+      description: homeSeo?.metaDescription || "Book customized Jammu & Kashmir tour packages with Holidays Hunt. Discover verified stays, Dal Lake houseboats, private cabs, and 24x7 local ground support.",
       canonicalUrl: homeSeo?.canonicalUrl || "https://holidayshunt.com",
       canonicalPath: "/",
       schemaData: [websiteSchema, agencySchema],
@@ -617,7 +617,7 @@ export const LuxuryHomepage: React.FC = () => {
                             setSearchQuery(e.target.value);
                             setOpenDropdown('dest');
                           }}
-                          placeholder={destinationSearchOptions.find((d) => d.id === activeSpecificDest)?.name || 'Search Kashmir, Manali, Vaishno Devi...'}
+                          placeholder={destinationSearchOptions.find((d) => d.id === activeSpecificDest)?.name || 'Search Srinagar, Gulmarg, Vaishno Devi...'}
                           className="w-full text-xs sm:text-sm font-bold text-stone-900 bg-transparent focus:outline-none placeholder:text-stone-400 placeholder:font-normal truncate cursor-text"
                         />
                       </div>
@@ -669,7 +669,7 @@ export const LuxuryHomepage: React.FC = () => {
 
                                 {matchedPackages.length === 0 && matchedDestinations.length === 0 && matchedTemples.length === 0 ? (
                                   <div className="py-6 text-center text-stone-500 text-xs">
-                                    No matching packages, destinations, or temples found. Try searching for &ldquo;Kashmir&rdquo;, &ldquo;Vaishno Devi&rdquo;, or &ldquo;Manali&rdquo;.
+                                    No matching packages, destinations, or temples found. Try searching for &ldquo;Kashmir&rdquo;, &ldquo;Vaishno Devi&rdquo;, or &ldquo;Doodhpathri&rdquo;.
                                   </div>
                                 ) : (
                                   <>
@@ -1077,7 +1077,7 @@ export const LuxuryHomepage: React.FC = () => {
                   <span className="w-8 h-1 bg-[#FF4B00] rounded-full inline-block" />
                 </h2>
                 <p className="text-xs sm:text-sm text-stone-600 font-medium mt-1 leading-relaxed max-w-2xl">
-                  Explore family holidays, honeymoon escapes, pilgrimage journeys and leisure tours across India and worldwide.
+                  Explore family holidays, honeymoon escapes, pilgrimage journeys and leisure tours across Jammu & Kashmir.
                 </p>
               </div>
             </div>
@@ -1494,7 +1494,7 @@ export const LuxuryHomepage: React.FC = () => {
                       type="text"
                       value={leadYatra}
                       onChange={(e) => setLeadYatra(e.target.value)}
-                      placeholder="e.g. Kashmir Family Holiday, Manali Honeymoon, Vaishno Devi, Spiti Valley..."
+                      placeholder="e.g. Kashmir Family Holiday, Kashmir Honeymoon, Vaishno Devi, Gurez Valley..."
                       className="w-full px-3 py-2 rounded-xl bg-stone-50/80 border border-stone-200 text-xs font-semibold focus:bg-white focus:outline-none focus:border-[#FF4B00] focus:ring-2 focus:ring-[#FF4B00]/20 transition"
                     />
                   </div>
