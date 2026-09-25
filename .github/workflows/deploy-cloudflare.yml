@@ -50,6 +50,10 @@ jobs:
       - name: Diagnose current D1 tour registry
         run: |
           bunx wrangler d1 execute DB --remote --command "SELECT json_extract(value,'$.id') AS id, json_extract(value,'$.title') AS title, json_extract(value,'$.slug') AS slug, json_extract(value,'$.coverImage') AS cover_image FROM contents, json_each(json_extract(structured_content,'$.value')) WHERE contents.id='registry-packages';"
+          echo "=== holidayshunt.com live API ==="
+          curl -sS --max-time 20 "https://holidayshunt.com/api/contents?type=shared_local_state&_nocache=$(date +%s)" | python3 -c 'import json,sys; d=json.load(sys.stdin); rows=d.get("data",[]); r=next((x for x in rows if x.get("id")=="registry-packages"),None); print(json.dumps(r,ensure_ascii=False)[:12000] if r else "registry-packages not returned")'
+          echo "=== workers.dev live API ==="
+          curl -sS --max-time 20 "https://bhakti-sathi-one.mybhaktisathi.workers.dev/api/contents?type=shared_local_state&_nocache=$(date +%s)" | python3 -c 'import json,sys; d=json.load(sys.stdin); rows=d.get("data",[]); r=next((x for x in rows if x.get("id")=="registry-packages"),None); print(json.dumps(r,ensure_ascii=False)[:12000] if r else "registry-packages not returned")'
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
