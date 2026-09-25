@@ -56,6 +56,13 @@ jobs:
           printf 'y\n' | bunx wrangler d1 time-travel restore DB --bookmark="000009db-ffffffff-000050f1-1c643165635b68a0e2e3934e1d9b65a9" --json
 
       - name: Verify restored tour data
+      - name: Inspect all tour registries
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          bunx wrangler d1 execute DB --remote --command "SELECT id, title, slug, updated_at, substr(structured_content,1,500) AS sample FROM contents WHERE id LIKE '%package%' OR slug LIKE '%tour%' OR title LIKE '%Tour%';"
+
         run: |
           curl -sS --max-time 20 "https://holidayshunt.com/api/contents?type=shared_local_state&_nocache=$(date +%s)" | python3 -c 'import json,sys; d=json.load(sys.stdin); rows=d.get("data",[]); r=next((x for x in rows if x.get("id")=="registry-packages"),None); v=((r or {}).get("structured_content") or {}).get("value","") if isinstance((r or {}).get("structured_content"),dict) else ""; a=json.loads(v) if v else []; print("TOUR COUNT:",len(a)); [print(x.get("id"),"|",x.get("title"),"| price=",x.get("price"),"| discounted=",x.get("discountedPrice")) for x in a]'
 
