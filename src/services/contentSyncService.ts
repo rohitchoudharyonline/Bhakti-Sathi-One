@@ -17,7 +17,6 @@ export interface SyncedRegistryDef {
 }
 
 export const SYNCED_REGISTRIES: SyncedRegistryDef[] = [
-  { id: 'registry-packages', storageKey: 'hh_tour_packages_v2', title: 'Tour Packages Registry', contentType: 'shared_local_state' },
   { id: 'registry-deleted-packages', storageKey: 'hh_deleted_package_ids', title: 'Deleted Package IDs', contentType: 'shared_local_state' },
   { id: 'registry-destinations', storageKey: 'hh_destinations_registry_v2', title: 'Destinations Registry', contentType: 'shared_local_state' },
   { id: 'registry-temples', storageKey: 'hh_temples_places_v1', title: 'Temples and Sacred Places', contentType: 'shared_local_state' },
