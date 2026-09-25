@@ -490,22 +490,12 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch {}
   };
 
-  const DISALLOWED_DUMMY_PKG_IDS = new Set([
-    'pkg-kashmir-01',
-    'pkg-kashmir-02',
-    'pkg-kashmir-03',
-    'pkg-kashmir-04',
-    'pkg-jammu-01',
-    'pkg-jammu-02',
-    'pkg-ladakh-01',
-  ]);
-
   // Helper to normalize category to one of the 3 clean categories
   const normalizePackageCategory = (cat: string | undefined): 'Family' | 'Honeymoon' | 'Pilgrimage' => {
     const c = (cat || '').toLowerCase().trim();
     if (c === 'honeymoon' || c.includes('honeymoon') || c.includes('romantic')) return 'Honeymoon';
-    if (c === 'pilgrimage' || c.includes('pilgrimage') || c.includes('darshan') || c.includes('yatra') || c.includes('temple') || c.includes('sacred') || c.includes('devi') || c.includes('shaktipeeth')) return 'Pilgrimage';
-    return 'Family'; // Default fallback is Family
+    if (c === 'pilgrimage' || c.includes('pilgrimage' ) || c.includes('darshan') || c.includes('yatra') || c.includes('temple') || c.includes('sacred') || c.includes('devi') || c.includes('shaktipeeth')) return 'Pilgrimage';
+    return 'Family';
   };
 
   // 1. Packages State
@@ -518,7 +508,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) {
           const cleaned = parsed
-            .filter((pkg) => !deletedIds.includes(pkg.id) && !DISALLOWED_DUMMY_PKG_IDS.has(pkg.id))
+            .filter((pkg) => !deletedIds.includes(pkg.id))
             .map((pkg) => {
               const cat = normalizePackageCategory(pkg.category || pkg.tourType);
               return {
@@ -538,7 +528,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch {}
     
     return DEFAULT_PACKAGES
-      .filter((pkg) => !deletedIds.includes(pkg.id) && !DISALLOWED_DUMMY_PKG_IDS.has(pkg.id))
+      .filter((pkg) => !deletedIds.includes(pkg.id))
       .map((pkg) => {
         const cat = normalizePackageCategory(pkg.category || pkg.tourType);
         return {
@@ -549,22 +539,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
   });
 
-  const DISALLOWED_DUMMY_DEST_SLUGS = new Set([
-    'ladakh',
-    'jammu',
-    'kashmir',
-    'goa',
-    'kerala',
-    'rajasthan',
-    'uttarakhand',
-    'andaman',
-    'dubai',
-    'thailand',
-    'bali',
-    'singapore',
-  ]);
-
-  // 2. Destinations Registry State (Strictly Jammu & Kashmir, Himachal Pradesh, Amritsar)
+  // 2. Destinations Registry State
   const [destinations, setDestinations] = useState<Record<string, DestinationMeta>>(() => {
     const deletedSlugs = getDeletedItems('hh_deleted_destination_slugs');
 
@@ -575,7 +550,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
           const result: Record<string, DestinationMeta> = {};
           for (const [slug, rawItem] of Object.entries(parsed)) {
-            if (!deletedSlugs.includes(slug) && !DISALLOWED_DUMMY_DEST_SLUGS.has(slug) && rawItem) {
+            if (!deletedSlugs.includes(slug) && rawItem) {
               const defaultDest: any = DESTINATIONS_REGISTRY[slug] || {};
               const item: any = rawItem;
               result[slug] = {
@@ -609,7 +584,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const initial: Record<string, DestinationMeta> = {};
     for (const [slug, dest] of Object.entries(DESTINATIONS_REGISTRY)) {
-      if (!deletedSlugs.includes(slug) && !DISALLOWED_DUMMY_DEST_SLUGS.has(slug)) {
+      if (!deletedSlugs.includes(slug)) {
         initial[slug] = dest;
       }
     }
@@ -2102,7 +2077,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
           if (parsed && typeof parsed === 'object') {
             const clean: Record<string, DestinationMeta> = {};
             for (const [k, v] of Object.entries(parsed)) {
-              if (!deletedDestSlugs.includes(k) && !DISALLOWED_DUMMY_DEST_SLUGS.has(k) && v) {
+              if (!deletedDestSlugs.includes(k) && v) {
                 clean[k] = v as DestinationMeta;
               }
             }
@@ -2121,7 +2096,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
           const parsed = JSON.parse(p);
           if (Array.isArray(parsed)) {
             const cleaned = parsed
-              .filter((item: TourPackage) => !deletedPkgIds.includes(item.id) && !DISALLOWED_DUMMY_PKG_IDS.has(item.id))
+              .filter((item: TourPackage) => !deletedPkgIds.includes(item.id))
               .map((item: TourPackage) => {
                 const cat = normalizePackageCategory(item.category || item.tourType);
                 return {
@@ -2507,7 +2482,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
     unmarkItemDeleted('hh_deleted_package_ids', id);
     setPackages((prev) => {
-      const next = [pkgWithId, ...prev.filter(p => p.id !== id && !DISALLOWED_DUMMY_PKG_IDS.has(p.id))];
+      const next = [pkgWithId, ...prev.filter(p => p.id !== id)];
       try {
         localStorage.setItem(STORAGE_KEYS.PACKAGES, JSON.stringify(next));
       } catch {}
@@ -2527,7 +2502,6 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
     setPackages((prev) => {
       const next = prev
-        .filter(p => !DISALLOWED_DUMMY_PKG_IDS.has(p.id))
         .map((pkg) => (pkg.id === sanitizedPkg.id ? sanitizedPkg : pkg));
       try {
         localStorage.setItem(STORAGE_KEYS.PACKAGES, JSON.stringify(next));
@@ -2567,7 +2541,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
     unmarkItemDeleted('hh_deleted_package_ids', newId);
     setPackages((prev) => {
-      const next = [duplicated, ...prev.filter(p => p.id !== newId && !DISALLOWED_DUMMY_PKG_IDS.has(p.id))];
+      const next = [duplicated, ...prev.filter(p => p.id !== newId)];
       try {
         localStorage.setItem(STORAGE_KEYS.PACKAGES, JSON.stringify(next));
       } catch {}
