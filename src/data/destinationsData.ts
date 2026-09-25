@@ -327,7 +327,7 @@ export function matchPackageToDestination(pkg: any, destSlug: string): boolean {
   const locStr = (pkg.location || '').toLowerCase();
   const tagStr = (pkg.destinationTag || '').toLowerCase();
 
-  // Combined Jammu & Kashmir
+  // Holidays Hunt currently operates only in Jammu & Kashmir.
   if (
     target === 'jammu-kashmir' ||
     target === 'jammu' ||
@@ -365,63 +365,5 @@ export function matchPackageToDestination(pkg: any, destSlug: string): boolean {
     );
   }
 
-  // Himachal Pradesh (Devi Darshan & Hills)
-  if (
-    target === 'himachal' ||
-    target === 'himachal-pradesh' ||
-    target === 'himachal_pradesh' ||
-    target === 'himachal_devi' ||
-    target === 'himachal-devi'
-  ) {
-    return (
-      destStr.includes('himachal') ||
-      destStr.includes('shimla') ||
-      destStr.includes('manali') ||
-      destStr.includes('dharamshala') ||
-      destStr.includes('kangra') ||
-      destStr.includes('jwala') ||
-      destStr.includes('chintpurni') ||
-      destStr.includes('chamunda') ||
-      destStr.includes('naina devi') ||
-      destStr.includes('devi darshan') ||
-      destStr.includes('dalhousie') ||
-      destStr.includes('kullu') ||
-      destStr.includes('solang') ||
-      titleStr.includes('himachal') ||
-      titleStr.includes('devi darshan') ||
-      titleStr.includes('manali') ||
-      titleStr.includes('shimla') ||
-      titleStr.includes('kangra') ||
-      slugStr.includes('himachal') ||
-      locStr.includes('himachal') ||
-      locStr.includes('manali') ||
-      locStr.includes('shimla') ||
-      locStr.includes('kangra') ||
-      tagStr.includes('himachal')
-    );
-  }
-
-  // Amritsar (Golden Temple & Heritage)
-  if (target === 'amritsar' || target === 'punjab') {
-    return (
-      destStr.includes('amritsar') ||
-      destStr.includes('punjab') ||
-      destStr.includes('wagah') ||
-      destStr.includes('golden temple') ||
-      titleStr.includes('amritsar') ||
-      titleStr.includes('golden temple') ||
-      titleStr.includes('wagah') ||
-      slugStr.includes('amritsar') ||
-      locStr.includes('amritsar') ||
-      tagStr.includes('amritsar')
-    );
-  }
-
-  return (
-    destStr.includes(target) ||
-    titleStr.includes(target) ||
-    slugStr.includes(target) ||
-    locStr.includes(target) ||
-    tagStr.includes(target)
-  );
+  return false;
 }
