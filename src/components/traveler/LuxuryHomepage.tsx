@@ -686,7 +686,8 @@ export const LuxuryHomepage: React.FC = () => {
                                             <button
                                               key={pkg.id}
                                               type="button"
-                                              onClick={() => {
+                                              onClick={(e) => {
+                                                e.stopPropagation();
                                                 setSelectedPackageId(pkg.id);
                                                 setOpenDropdown(null);
                                               }}
@@ -728,7 +729,8 @@ export const LuxuryHomepage: React.FC = () => {
                                             <button
                                               key={dest.id}
                                               type="button"
-                                              onClick={() => {
+                                              onClick={(e) => {
+                                                e.stopPropagation();
                                                 setActiveSpecificDest(dest.id);
                                                 setSearchQuery('');
                                                 setOpenDropdown(null);
@@ -767,7 +769,8 @@ export const LuxuryHomepage: React.FC = () => {
                                             <button
                                               key={temple.id}
                                               type="button"
-                                              onClick={() => {
+                                              onClick={(e) => {
+                                                e.stopPropagation();
                                                 handleTempleClick(temple);
                                                 setSearchQuery('');
                                                 setOpenDropdown(null);
@@ -807,7 +810,8 @@ export const LuxuryHomepage: React.FC = () => {
                               <button
                                 key={dest.id}
                                 type="button"
-                                onClick={() => {
+                                onClick={(e) => {
+                                  e.stopPropagation();
                                   setActiveSpecificDest(dest.id);
                                   setSearchQuery('');
                                   setOpenDropdown(null);
@@ -844,7 +848,10 @@ export const LuxuryHomepage: React.FC = () => {
                 <div className="lg:col-span-3 relative hero-search-dropdown-container">
                   <button
                     type="button"
-                    onClick={() => setOpenDropdown(openDropdown === 'type' ? null : 'type')}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setOpenDropdown(openDropdown === 'type' ? null : 'type');
+                    }}
                     className={`w-full text-left p-2.5 sm:p-3 rounded-xl bg-stone-50 border transition cursor-pointer flex flex-col justify-between min-h-[52px] sm:min-h-[56px] ${
                       openDropdown === 'type'
                         ? 'border-stone-900 ring-2 ring-stone-100 bg-white'
@@ -894,7 +901,8 @@ export const LuxuryHomepage: React.FC = () => {
                           <button
                             key={t.id}
                             type="button"
-                            onClick={() => {
+                            onClick={(e) => {
+                              e.stopPropagation();
                               setSelectedTourType(t.id);
                               setOpenDropdown(null);
                             }}
@@ -920,7 +928,10 @@ export const LuxuryHomepage: React.FC = () => {
                 <div className="lg:col-span-3 relative hero-search-dropdown-container">
                   <button
                     type="button"
-                    onClick={() => setOpenDropdown(openDropdown === 'month' ? null : 'month')}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setOpenDropdown(openDropdown === 'month' ? null : 'month');
+                    }}
                     className={`w-full text-left p-2.5 sm:p-3 rounded-xl bg-stone-50 border transition cursor-pointer flex flex-col justify-between min-h-[52px] sm:min-h-[56px] ${
                       openDropdown === 'month'
                         ? 'border-stone-900 ring-2 ring-stone-100 bg-white'
@@ -957,7 +968,8 @@ export const LuxuryHomepage: React.FC = () => {
                           <button
                             key={m.id}
                             type="button"
-                            onClick={() => {
+                            onClick={(e) => {
+                              e.stopPropagation();
                               setSelectedMonth(m.id);
                               setOpenDropdown(null);
                             }}
