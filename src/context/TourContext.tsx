@@ -509,45 +509,9 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   // 1. Packages State
-  const [packages, setPackages] = useState<TourPackage[]>(() => {
-    const deletedIds = getDeletedItems('hh_deleted_package_ids');
-
-    try {
-      const saved = localStorage.getItem(STORAGE_KEYS.PACKAGES);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          const cleaned = parsed
-            .filter((pkg) => !deletedIds.includes(pkg.id) && !DISALLOWED_DUMMY_PKG_IDS.has(pkg.id))
-            .map((pkg) => {
-              const cat = normalizePackageCategory(pkg.category || pkg.tourType);
-              return {
-                ...pkg,
-                category: cat,
-                tourType: cat,
-              };
-            });
-          if (cleaned.length > 0) {
-            try {
-              localStorage.setItem(STORAGE_KEYS.PACKAGES, JSON.stringify(cleaned));
-            } catch {}
-            return cleaned;
-          }
-        }
-      }
-    } catch {}
-    
-    return DEFAULT_PACKAGES
-      .filter((pkg) => !deletedIds.includes(pkg.id) && !DISALLOWED_DUMMY_PKG_IDS.has(pkg.id))
-      .map((pkg) => {
-        const cat = normalizePackageCategory(pkg.category || pkg.tourType);
-        return {
-          ...pkg,
-          category: cat,
-          tourType: cat,
-        };
-      });
-  });
+  // Public tours are server-authoritative. Start empty so legacy/default dummy
+  // packages never flash while D1 content is being hydrated.
+  const [packages, setPackages] = useState<TourPackage[]>([]);
 
   const DISALLOWED_DUMMY_DEST_SLUGS = new Set([
     'ladakh',
