@@ -4,7 +4,7 @@ import { HelmetProvider } from 'react-helmet-async';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import App from './App.tsx';
 import './index.css';
-import { loadAuthoritativeServerContent, installContentSyncBridge } from './services/contentSyncService';
+import { loadAuthoritativeServerContent, installContentSyncBridge, clearSharedRegistryCache } from './services/contentSyncService';
 
 const mountApp = () => {
   const clientId = (import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined)?.trim()
@@ -21,13 +21,10 @@ const mountApp = () => {
   );
 };
 
-// Load authoritative server content before the React tree mounts.
- // This prevents stale localStorage images/tours from flashing before D1 data arrives.
-const startApp = async () => {
-  installContentSyncBridge();
-  await loadAuthoritativeServerContent();
-  mountApp();
-};
-
-void startApp();
+// Mount immediately for a fast first paint. Purge stale shared browser data first,
+// then hydrate the React state from the authoritative D1 content in the background.
+installContentSyncBridge();
+clearSharedRegistryCache();
+mountApp();
+void loadAuthoritativeServerContent();
 
