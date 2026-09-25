@@ -109,8 +109,8 @@ export const Footer: React.FC<FooterProps> = ({ onSelectDestination, onSelectDha
     if (navigator.share) {
       try {
         await navigator.share({
-          title: 'Holidays Hunt — All India Sacred Pilgrimage & Yatra Tours',
-          text: 'Book customized pilgrimage packages for Mata Vaishno Devi, Himachal Devi Darshan, Kashi Vishwanath Varanasi, Ayodhya Ram Mandir, Char Dham, Mathura Vrindavan, Dwarka Somnath, Kali Mata Kolkata, Amritsar & Tirupati Balaji with Holidays Hunt.',
+          title: 'Holidays Hunt — Jammu & Kashmir Pilgrimage & Yatra Tours',
+          text: 'Book customized Jammu & Kashmir pilgrimage packages for Mata Vaishno Devi, Shiv Khori, Baba Dhansar, Raghunath Temple and other sacred sites with Holidays Hunt.',
           url: window.location.href,
         });
       } catch {
