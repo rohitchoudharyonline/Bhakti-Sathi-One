@@ -21,8 +21,13 @@ const mountApp = () => {
   );
 };
 
-// Install synchronization bridge and load authoritative content asynchronously without blocking mount
-installContentSyncBridge();
-mountApp();
-void loadAuthoritativeServerContent();
+// Load authoritative server content before the React tree mounts.
+ // This prevents stale localStorage images/tours from flashing before D1 data arrives.
+const startApp = async () => {
+  installContentSyncBridge();
+  await loadAuthoritativeServerContent();
+  mountApp();
+};
+
+void startApp();
 
