@@ -22,8 +22,8 @@ export const AllDestinationsExplorer: React.FC = () => {
   useEffect(() => {
     const destinationsSeo = pageSeoConfigs?.['destinations'];
     updatePageSeo({
-      title: destinationsSeo?.metaTitle || "Jammu Kashmir & Himachal Pradesh Holiday Destinations | Holidays Hunt",
-      description: destinationsSeo?.metaDescription || "Explore scenic mountain destinations across Jammu & Kashmir and Himachal Pradesh.",
+      title: destinationsSeo?.metaTitle || "Jammu & Kashmir Holiday Destinations | Holidays Hunt",
+      description: destinationsSeo?.metaDescription || "Explore scenic mountain destinations across Jammu & Kashmir.",
       canonicalUrl: destinationsSeo?.canonicalUrl || "https://holidayshunt.com/destinations",
       canonicalPath: "/destinations",
       noIndex: destinationsSeo?.noIndex,
@@ -32,7 +32,7 @@ export const AllDestinationsExplorer: React.FC = () => {
         "@context": "https://schema.org",
         "@type": "ItemList",
         "name": "Holiday Destinations",
-        "description": "Comprehensive list of Jammu & Kashmir and Himachal Pradesh travel packages available on Holidays Hunt.",
+        "description": "Jammu & Kashmir travel packages and destinations available on Holidays Hunt.",
         "itemListElement": destinationsList.map((dest, index) => ({
           "@type": "ListItem",
           "position": index + 1,
