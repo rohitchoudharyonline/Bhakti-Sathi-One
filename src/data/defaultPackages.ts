@@ -34,11 +34,11 @@ export const DEFAULT_AGENCY_SETTINGS: AgencySettings = {
     {
       id: 'faq-1',
       question: 'What types of tour packages does Holidays Hunt specialize in?',
-      answer: 'Holidays Hunt specializes exclusively in customized Jammu & Kashmir tour packages. From romantic Kashmir honeymoon houseboats and alpine Gondola tours in Gulmarg to family vacations in Shimla, Manali, and sacred Mata Vaishno Devi yatras in Katra.'
+      answer: 'Holidays Hunt specializes exclusively in customized Jammu & Kashmir tour packages. From romantic Kashmir honeymoon houseboats and alpine Gondola tours in Gulmarg to family vacations in Srinagar, Pahalgam, Sonamarg, and sacred Mata Vaishno Devi yatras in Katra.'
     },
     {
       id: 'faq-2',
-      question: 'How does Holidays Hunt ensure a smooth and personalized holiday experience in Kashmir & Himachal?',
+      question: 'How does Holidays Hunt ensure a smooth and personalized holiday experience in Jammu & Kashmir?',
       answer: 'Holidays Hunt pairs you with verified local hotel partners, experienced mountain chauffeurs, and dedicated 24x7 tour managers across Srinagar, Gulmarg, Pahalgam, Sonamarg, Doodhpathri, and Katra. We customize every itinerary according to your travel pace, family preferences, hotel category choices, and sightseeing interests.'
     },
     {
@@ -110,9 +110,7 @@ export const DEFAULT_AGENCY_SETTINGS: AgencySettings = {
       title: 'TOP DESTINATIONS',
       items: [
         { id: 'fmi-t-kashmir', label: 'Kashmir Paradise', url: 'kashmir' },
-        { id: 'fmi-t-himachal', label: 'Himachal Hills', url: 'himachal' },
         { id: 'fmi-t-vaishno', label: 'Mata Vaishno Devi', url: 'jammu' },
-        { id: 'fmi-t-manali', label: 'Shimla & Manali', url: 'himachal' }
       ]
     },
     {
