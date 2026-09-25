@@ -684,69 +684,71 @@ export const LuxuryHomepage: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Destination Dropdown Popover with Fade Animation */}
+                  {/* Destination Dropdown Popover with Smooth Height-Expanding Animation */}
                   <AnimatePresence>
                     {openDropdown === 'dest' && (
                       <motion.div
-                        initial={{ opacity: 0, y: -8, scale: 0.98 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: -8, scale: 0.98 }}
-                        transition={{ duration: 0.18, ease: 'easeOut' }}
-                        className="absolute top-full left-0 right-0 sm:min-w-[360px] mt-2 bg-white rounded-2xl border border-stone-200 shadow-2xl z-50 p-3 space-y-1 max-h-[380px] overflow-y-auto"
+                        initial={{ opacity: 0, height: 0, y: -6 }}
+                        animate={{ opacity: 1, height: 'auto', y: 0 }}
+                        exit={{ opacity: 0, height: 0, y: -6 }}
+                        transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+                        className="absolute top-full left-0 right-0 sm:min-w-[360px] mt-2 bg-white rounded-2xl border border-stone-200 shadow-2xl z-50 overflow-hidden"
                       >
-                        <div className="flex items-center justify-between px-2 py-1">
-                          <span className="text-[10px] font-extrabold uppercase tracking-wider text-stone-400">
-                            Select Destination or Circuit
-                          </span>
-                          <span className="text-[10px] font-bold text-[#FF4B00]">
-                            {matchedDestinations.length} available
-                          </span>
-                        </div>
-
-                        {matchedDestinations.length === 0 ? (
-                          <div className="py-6 text-center text-stone-500 text-xs">
-                            No destinations found matching &ldquo;{searchQuery}&rdquo;.
+                        <div className="p-3 space-y-1 max-h-[380px] overflow-y-auto">
+                          <div className="flex items-center justify-between px-2 py-1">
+                            <span className="text-[10px] font-extrabold uppercase tracking-wider text-stone-400">
+                              Select Destination or Circuit
+                            </span>
+                            <span className="text-[10px] font-bold text-[#FF4B00]">
+                              {matchedDestinations.length} available
+                            </span>
                           </div>
-                        ) : (
-                          matchedDestinations.map((dest, idx) => {
-                            const isHighlighted = selectedIndex === idx;
-                            const isSelected = activeSpecificDest === dest.id;
-                            return (
-                              <button
-                                key={dest.id}
-                                type="button"
-                                onClick={() => {
-                                  setActiveSpecificDest(dest.id);
-                                  setSearchQuery('');
-                                  setOpenDropdown(null);
-                                }}
-                                className={`w-full text-left p-2.5 rounded-xl transition flex items-center justify-between gap-3 cursor-pointer ${
-                                  isHighlighted || isSelected
-                                    ? 'bg-[#FFF0EB] text-[#FF4B00] font-bold border border-[#FF4B00]/20'
-                                    : 'hover:bg-stone-50 text-stone-800'
-                                }`}
-                              >
-                                <div className="flex items-center gap-2.5 min-w-0">
-                                  <div className={`p-1.5 rounded-lg shrink-0 ${isHighlighted || isSelected ? 'bg-[#FF4B00]/10 text-[#FF4B00]' : 'bg-stone-100 text-stone-500'}`}>
-                                    <MapPin className="w-3.5 h-3.5" />
-                                  </div>
-                                  <div className="min-w-0">
-                                    <div className="flex items-center gap-2">
-                                      <span className="text-xs sm:text-sm font-bold">{dest.name}</span>
-                                      <span className="text-[10px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-stone-100 text-stone-600">
-                                        {dest.region}
+
+                          {matchedDestinations.length === 0 ? (
+                            <div className="py-6 text-center text-stone-500 text-xs">
+                              No destinations found matching &ldquo;{searchQuery}&rdquo;.
+                            </div>
+                          ) : (
+                            matchedDestinations.map((dest, idx) => {
+                              const isHighlighted = selectedIndex === idx;
+                              const isSelected = activeSpecificDest === dest.id;
+                              return (
+                                <button
+                                  key={dest.id}
+                                  type="button"
+                                  onClick={() => {
+                                    setActiveSpecificDest(dest.id);
+                                    setSearchQuery('');
+                                    setOpenDropdown(null);
+                                  }}
+                                  className={`w-full text-left p-2.5 rounded-xl transition flex items-center justify-between gap-3 cursor-pointer ${
+                                    isHighlighted || isSelected
+                                      ? 'bg-[#FFF0EB] text-[#FF4B00] font-bold border border-[#FF4B00]/20'
+                                      : 'hover:bg-stone-50 text-stone-800'
+                                  }`}
+                                >
+                                  <div className="flex items-center gap-2.5 min-w-0">
+                                    <div className={`p-1.5 rounded-lg shrink-0 ${isHighlighted || isSelected ? 'bg-[#FF4B00]/10 text-[#FF4B00]' : 'bg-stone-100 text-stone-500'}`}>
+                                      <MapPin className="w-3.5 h-3.5" />
+                                    </div>
+                                    <div className="min-w-0">
+                                      <div className="flex items-center gap-2">
+                                        <span className="text-xs sm:text-sm font-bold">{dest.name}</span>
+                                        <span className="text-[10px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-stone-100 text-stone-600">
+                                          {dest.region}
+                                        </span>
+                                      </div>
+                                      <span className="text-[11px] text-stone-500 block truncate mt-0.5 font-normal">
+                                        {dest.desc}
                                       </span>
                                     </div>
-                                    <span className="text-[11px] text-stone-500 block truncate mt-0.5 font-normal">
-                                      {dest.desc}
-                                    </span>
                                   </div>
-                                </div>
-                                {isSelected && <Check className="w-4 h-4 text-[#FF4B00] shrink-0" />}
-                              </button>
-                            );
-                          })
-                        )}
+                                  {isSelected && <Check className="w-4 h-4 text-[#FF4B00] shrink-0" />}
+                                </button>
+                              );
+                            })
+                          )}
+                        </div>
                       </motion.div>
                     )}
                   </AnimatePresence>
