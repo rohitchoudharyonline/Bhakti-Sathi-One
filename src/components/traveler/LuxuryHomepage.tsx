@@ -52,6 +52,8 @@ import {
   User,
   FileText,
   Landmark,
+  Mic,
+  MicOff,
 } from 'lucide-react';
 import { useTours } from '../../context/TourContext';
 import { Navbar } from '../common/Navbar';
@@ -304,7 +306,56 @@ export const LuxuryHomepage: React.FC = () => {
   const [isSearching, setIsSearching] = useState(false);
   const [loadedImages, setLoadedImages] = useState<Record<string, boolean>>({});
   const [pulsingTempleId, setPulsingTempleId] = useState<string | null>(null);
+  const [isListening, setIsListening] = useState(false);
   const searchQueryInputRef = useRef<HTMLInputElement>(null);
+
+  const toggleVoiceSearch = () => {
+    const SpeechRecognitionAPI = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognitionAPI) {
+      alert("Voice search is not supported in this browser. Please try Chrome, Edge, or Safari.");
+      return;
+    }
+
+    if (isListening) {
+      setIsListening(false);
+      return;
+    }
+
+    try {
+      const recognition = new SpeechRecognitionAPI();
+      recognition.continuous = false;
+      recognition.interimResults = false;
+      recognition.lang = 'en-IN';
+
+      recognition.onstart = () => {
+        setIsListening(true);
+      };
+
+      recognition.onresult = (event: any) => {
+        const transcript = event.results[0][0].transcript;
+        if (transcript) {
+          setSearchQuery(transcript);
+          setOpenDropdown('dest');
+          searchQueryInputRef.current?.focus();
+        }
+        setIsListening(false);
+      };
+
+      recognition.onerror = (event: any) => {
+        console.error('Speech recognition error', event.error);
+        setIsListening(false);
+      };
+
+      recognition.onend = () => {
+        setIsListening(false);
+      };
+
+      recognition.start();
+    } catch (err) {
+      console.error(err);
+      setIsListening(false);
+    }
+  };
 
   const handleTempleClick = (temple: (typeof temples)[number]) => {
     setPulsingTempleId(temple.id);
@@ -595,24 +646,41 @@ export const LuxuryHomepage: React.FC = () => {
                           className="w-full text-xs sm:text-sm font-bold text-stone-900 bg-transparent focus:outline-none placeholder:text-stone-400 placeholder:font-normal truncate cursor-text"
                         />
                       </div>
-                      {searchQuery ? (
+                      <div className="flex items-center gap-1.5 shrink-0">
                         <button
                           type="button"
                           onClick={(e) => {
                             e.stopPropagation();
-                            setSearchQuery('');
+                            toggleVoiceSearch();
                           }}
-                          className="p-1 text-stone-400 hover:text-stone-700 cursor-pointer"
-                        >
-                          <X className="w-3.5 h-3.5" />
-                        </button>
-                      ) : (
-                        <ChevronDown
-                          className={`w-4 h-4 text-stone-400 shrink-0 transition-transform duration-200 ${
-                            openDropdown === 'dest' ? 'rotate-180 text-stone-900' : ''
+                          title={isListening ? "Listening... Click to stop" : "Search by voice"}
+                          className={`p-1.5 rounded-full transition-colors cursor-pointer ${
+                            isListening 
+                              ? 'bg-red-500 text-white animate-pulse' 
+                              : 'text-stone-400 hover:text-[#FF4B00] hover:bg-stone-100'
                           }`}
-                        />
-                      )}
+                        >
+                          <Mic className={`w-3.5 h-3.5 ${isListening ? 'animate-bounce' : ''}`} />
+                        </button>
+                        {searchQuery ? (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSearchQuery('');
+                            }}
+                            className="p-1 text-stone-400 hover:text-stone-700 cursor-pointer"
+                          >
+                            <X className="w-3.5 h-3.5" />
+                          </button>
+                        ) : (
+                          <ChevronDown
+                            className={`w-4 h-4 text-stone-400 shrink-0 transition-transform duration-200 ${
+                              openDropdown === 'dest' ? 'rotate-180 text-stone-900' : ''
+                            }`}
+                          />
+                        )}
+                      </div>
                     </div>
                   </div>
 

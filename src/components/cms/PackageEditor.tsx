@@ -48,10 +48,28 @@ import {
   Users,
   Bus,
   Clock,
+  GripVertical,
 } from 'lucide-react';
 import { UniversalImageUploader } from './UniversalImageUploader';
 import { CMSSEOEditor } from './CMSSEOEditor';
 import { resolveDisplayImage, handleImageError } from '../../utils/imageResolver';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 interface PackageEditorProps {
   initialPackage?: TourPackage | null;
@@ -548,6 +566,57 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
     setDurationNights(Math.max(1, renumbered.length - 1));
   };
 
+  const handleMoveDayUp = (index: number) => {
+    if (index <= 0) return;
+    const newItinerary = [...itinerary];
+    const temp = newItinerary[index];
+    newItinerary[index] = newItinerary[index - 1];
+    newItinerary[index - 1] = temp;
+    const renumbered = newItinerary.map((d, idx) => ({
+      ...d,
+      dayNumber: idx + 1,
+    }));
+    setItinerary(renumbered);
+  };
+
+  const handleMoveDayDown = (index: number) => {
+    if (index >= itinerary.length - 1) return;
+    const newItinerary = [...itinerary];
+    const temp = newItinerary[index];
+    newItinerary[index] = newItinerary[index + 1];
+    newItinerary[index + 1] = temp;
+    const renumbered = newItinerary.map((d, idx) => ({
+      ...d,
+      dayNumber: idx + 1,
+    }));
+    setItinerary(renumbered);
+  };
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      const oldIndex = itinerary.findIndex((d) => d.id === active.id);
+      const newIndex = itinerary.findIndex((d) => d.id === over.id);
+      if (oldIndex !== -1 && newIndex !== -1) {
+        const newItinerary = arrayMove(itinerary, oldIndex, newIndex);
+        const renumbered = newItinerary.map((d, idx) => ({
+          ...d,
+          dayNumber: idx + 1,
+        }));
+        setItinerary(renumbered);
+        setDurationDays(renumbered.length);
+        setDurationNights(Math.max(1, renumbered.length - 1));
+      }
+    }
+  };
+
   const handleToggleMeal = (dayId: string, meal: MealType) => {
     setItinerary((prev) =>
       prev.map((d) => {
@@ -631,7 +700,7 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
     <div className="bg-white min-h-screen pb-20">
       {/* Top Header Bar */}
       <div className="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-2xs">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between gap-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-col lg:flex-row lg:items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <button
               onClick={onCancel}
@@ -649,7 +718,7 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3 w-full lg:w-auto justify-end">
             {/* Status Selector */}
             <div className="flex items-center bg-slate-100 rounded-xl p-1 border border-slate-200 text-xs font-bold">
               <button
@@ -1484,113 +1553,26 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
                 </button>
               </div>
 
-              {/* Day Editor Cards */}
-              <div className="space-y-6">
-                {itinerary.map((day) => (
-                  <div
-                    key={day.id}
-                    className="bg-slate-50 rounded-2xl p-4 sm:p-6 border border-slate-200 hover:border-brand/40 transition space-y-4"
-                  >
-                    {/* Day Header */}
-                    <div className="flex items-center justify-between gap-3">
-                      <span className="text-xs font-extrabold uppercase px-3 py-1 rounded-lg bg-brand text-white">
-                        Day {day.dayNumber}
-                      </span>
-
-                      <button
-                        type="button"
-                        onClick={() => handleDeleteDay(day.id)}
-                        disabled={itinerary.length <= 1}
-                        className="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 transition cursor-pointer disabled:opacity-30"
-                        title="Delete Day"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
-                      <div className="sm:col-span-8">
-                        <label className="text-[11px] font-bold text-slate-700 block mb-1">
-                          Day Title *
-                        </label>
-                        <input
-                          type="text"
-                          value={day.title}
-                          onChange={(e) => handleUpdateDay(day.id, { title: e.target.value })}
-                          placeholder="e.g. Arrival & Sunset Shikara Cruise on Dal Lake"
-                          className="w-full text-xs font-semibold bg-white border border-slate-200 rounded-xl px-3 py-2 focus:border-brand focus:outline-hidden"
-                        />
-                      </div>
-
-                      <div className="sm:col-span-4">
-                        <label className="text-[11px] font-bold text-slate-700 block mb-1">
-                          Location
-                        </label>
-                        <input
-                          type="text"
-                          value={day.location}
-                          onChange={(e) => handleUpdateDay(day.id, { location: e.target.value })}
-                          placeholder="e.g. Srinagar / Gulmarg"
-                          className="w-full text-xs bg-white border border-slate-200 rounded-xl px-3 py-2 focus:border-brand focus:outline-hidden"
-                        />
-                      </div>
-
-                      <div className="sm:col-span-12">
-                        <label className="text-[11px] font-bold text-slate-700 block mb-1">
-                          Day Description & Schedule *
-                        </label>
-                        <textarea
-                          rows={2}
-                          value={day.description}
-                          onChange={(e) => handleUpdateDay(day.id, { description: e.target.value })}
-                          placeholder="Describe the full day sightseeing, drives, photo points and evening activities..."
-                          className="w-full text-xs bg-white border border-slate-200 rounded-xl px-3 py-2 focus:border-brand focus:outline-hidden"
-                        />
-                      </div>
-
-                      {/* Stay Hotel */}
-                      <div className="sm:col-span-6">
-                        <label className="text-[11px] font-bold text-slate-700 block mb-1">
-                          Overnight Stay Hotel / Resort
-                        </label>
-                        <input
-                          type="text"
-                          value={day.stayHotel || ''}
-                          onChange={(e) => handleUpdateDay(day.id, { stayHotel: e.target.value })}
-                          placeholder="e.g. Royal Heritage Luxury Houseboat"
-                          className="w-full text-xs bg-white border border-slate-200 rounded-xl px-3 py-2 focus:border-brand focus:outline-hidden"
-                        />
-                      </div>
-
-                      {/* Meals toggles */}
-                      <div className="sm:col-span-6">
-                        <label className="text-[11px] font-bold text-slate-700 block mb-1">
-                          Included Meals on Day {day.dayNumber}
-                        </label>
-                        <div className="flex flex-wrap gap-2">
-                          {(['Breakfast', 'Lunch', 'Dinner', 'Hi-Tea'] as MealType[]).map((m) => {
-                            const isSelected = day.meals.includes(m);
-                            return (
-                              <button
-                                key={m}
-                                type="button"
-                                onClick={() => handleToggleMeal(day.id, m)}
-                                className={`px-2.5 py-1 rounded-lg text-xs font-bold transition cursor-pointer border ${
-                                  isSelected
-                                    ? 'bg-brand text-white border-brand shadow-2xs'
-                                    : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
-                                }`}
-                              >
-                                {isSelected ? `✓ ${m}` : m}
-                              </button>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    </div>
+              {/* Day Editor Cards with Drag & Drop Sortable Context */}
+              <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                <SortableContext items={itinerary.map((d) => d.id)} strategy={verticalListSortingStrategy}>
+                  <div className="space-y-6">
+                    {itinerary.map((day, index) => (
+                      <SortableDayCard
+                        key={day.id}
+                        day={day}
+                        index={index}
+                        itineraryLength={itinerary.length}
+                        handleUpdateDay={handleUpdateDay}
+                        handleDeleteDay={handleDeleteDay}
+                        handleToggleMeal={handleToggleMeal}
+                        handleMoveDayUp={handleMoveDayUp}
+                        handleMoveDayDown={handleMoveDayDown}
+                      />
+                    ))}
                   </div>
-                ))}
-              </div>
+                </SortableContext>
+              </DndContext>
             </div>
           </div>
         )}
@@ -2566,3 +2548,176 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
     </div>
   );
 };
+
+function SortableDayCard({
+  day,
+  index,
+  itineraryLength,
+  handleUpdateDay,
+  handleDeleteDay,
+  handleToggleMeal,
+  handleMoveDayUp,
+  handleMoveDayDown,
+}: {
+  day: ItineraryDay;
+  index: number;
+  itineraryLength: number;
+  handleUpdateDay: (id: string, updates: Partial<ItineraryDay>) => void;
+  handleDeleteDay: (id: string) => void;
+  handleToggleMeal: (id: string, meal: MealType) => void;
+  handleMoveDayUp: (index: number) => void;
+  handleMoveDayDown: (index: number) => void;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: day.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    zIndex: isDragging ? 50 : 1,
+    opacity: isDragging ? 0.6 : 1,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className="bg-slate-50 rounded-2xl p-4 sm:p-6 border border-slate-200 hover:border-brand/40 transition space-y-4"
+    >
+      {/* Day Header */}
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2.5">
+          {/* Drag Handle */}
+          <button
+            type="button"
+            {...attributes}
+            {...listeners}
+            className="p-1.5 text-slate-400 hover:text-slate-700 cursor-grab active:cursor-grabbing rounded-lg hover:bg-slate-200/60 transition"
+            title="Drag to reorder day"
+          >
+            <GripVertical className="w-4 h-4" />
+          </button>
+
+          <span className="text-xs font-extrabold uppercase px-3 py-1 rounded-lg bg-brand text-white">
+            Day {day.dayNumber}
+          </span>
+
+          {/* Move Up / Move Down buttons for shuffling/reordering */}
+          <div className="flex items-center bg-white border border-slate-200 rounded-lg overflow-hidden shadow-2xs">
+            <button
+              type="button"
+              onClick={() => handleMoveDayUp(index)}
+              disabled={index === 0}
+              className="px-2 py-1 text-slate-600 hover:bg-slate-100 disabled:opacity-30 transition cursor-pointer flex items-center gap-0.5 text-[10px] font-bold"
+              title="Move Day Up"
+            >
+              <ChevronUp className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Up</span>
+            </button>
+            <div className="w-[1px] bg-slate-200 h-4" />
+            <button
+              type="button"
+              onClick={() => handleMoveDayDown(index)}
+              disabled={index === itineraryLength - 1}
+              className="px-2 py-1 text-slate-600 hover:bg-slate-100 disabled:opacity-30 transition cursor-pointer flex items-center gap-0.5 text-[10px] font-bold"
+              title="Move Day Down"
+            >
+              <ChevronDown className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Down</span>
+            </button>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => handleDeleteDay(day.id)}
+          disabled={itineraryLength <= 1}
+          className="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 transition cursor-pointer disabled:opacity-30"
+          title="Delete Day"
+        >
+          <Trash2 className="w-4 h-4" />
+        </button>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
+        <div className="sm:col-span-8">
+          <label className="text-[11px] font-bold text-slate-700 block mb-1">
+            Day Title *
+          </label>
+          <input
+            type="text"
+            value={day.title}
+            onChange={(e) => handleUpdateDay(day.id, { title: e.target.value })}
+            placeholder="e.g. Arrival & Sunset Shikara Cruise on Dal Lake"
+            className="w-full text-xs font-semibold bg-white border border-slate-200 rounded-xl px-3 py-2 focus:border-brand focus:outline-hidden"
+          />
+        </div>
+
+        <div className="sm:col-span-4">
+          <label className="text-[11px] font-bold text-slate-700 block mb-1">
+            Location
+          </label>
+          <input
+            type="text"
+            value={day.location}
+            onChange={(e) => handleUpdateDay(day.id, { location: e.target.value })}
+            placeholder="e.g. Srinagar / Gulmarg"
+            className="w-full text-xs bg-white border border-slate-200 rounded-xl px-3 py-2 focus:border-brand focus:outline-hidden"
+          />
+        </div>
+
+        <div className="sm:col-span-12">
+          <label className="text-[11px] font-bold text-slate-700 block mb-1">
+            Day Description & Schedule *
+          </label>
+          <textarea
+            rows={2}
+            value={day.description}
+            onChange={(e) => handleUpdateDay(day.id, { description: e.target.value })}
+            placeholder="Describe the full day sightseeing, drives, photo points and evening activities..."
+            className="w-full text-xs bg-white border border-slate-200 rounded-xl px-3 py-2 focus:border-brand focus:outline-hidden"
+          />
+        </div>
+
+        {/* Stay Hotel */}
+        <div className="sm:col-span-6">
+          <label className="text-[11px] font-bold text-slate-700 block mb-1">
+            Overnight Stay Hotel / Resort
+          </label>
+          <input
+            type="text"
+            value={day.stayHotel || ''}
+            onChange={(e) => handleUpdateDay(day.id, { stayHotel: e.target.value })}
+            placeholder="e.g. Royal Heritage Luxury Houseboat"
+            className="w-full text-xs bg-white border border-slate-200 rounded-xl px-3 py-2 focus:border-brand focus:outline-hidden"
+          />
+        </div>
+
+        {/* Meals toggles */}
+        <div className="sm:col-span-6">
+          <label className="text-[11px] font-bold text-slate-700 block mb-1">
+            Included Meals on Day {day.dayNumber}
+          </label>
+          <div className="flex flex-wrap gap-2">
+            {(['Breakfast', 'Lunch', 'Dinner', 'Hi-Tea'] as MealType[]).map((m) => {
+              const isSelected = day.meals.includes(m);
+              return (
+                <button
+                  key={m}
+                  type="button"
+                  onClick={() => handleToggleMeal(day.id, m)}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-bold transition cursor-pointer border ${
+                    isSelected
+                      ? 'bg-brand text-white border-brand shadow-2xs'
+                      : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                  }`}
+                >
+                  {isSelected ? `✓ ${m}` : m}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
