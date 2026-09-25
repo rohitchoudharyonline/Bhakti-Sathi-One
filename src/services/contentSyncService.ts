@@ -181,29 +181,6 @@ export async function loadAuthoritativeServerContent(): Promise<boolean> {
     try {
       for (const [key, item] of serverItemsByKey) {
         try {
-          if (key === 'hh_tour_packages_v2') {
-            try {
-              const parsed = JSON.parse(item.value);
-              if (Array.isArray(parsed)) {
-                const DISALLOWED = new Set([
-                  'pkg-kashmir-01',
-                  'pkg-kashmir-02',
-                  'pkg-kashmir-03',
-                  'pkg-kashmir-04',
-                  'pkg-jammu-01',
-                  'pkg-jammu-02',
-                  'pkg-ladakh-01',
-                  'pkg-himachal-01',
-                  'pkg-himachal-02',
-                  'pkg-amritsar-01',
-                ]);
-                const cleaned = parsed.filter((p: any) => p && !DISALLOWED.has(p.id));
-                if (cleaned.length > 0) {
-                  item.value = JSON.stringify(cleaned);
-                }
-              }
-            } catch {}
-          }
           // Server is authoritative source of truth: write server confirmed data
           window.localStorage.setItem(key, item.value);
           const timestamp = item.updatedAt ? new Date(item.updatedAt).getTime() : Date.now();
@@ -252,6 +229,166 @@ export async function loadAuthoritativeServerContent(): Promise<boolean> {
     return false;
   } finally {
     isInitialized = true;
+  }
+}
+
+/**
+ * Forces a complete re-fetch and synchronization of personal tour packages,
+ * destinations, and media assets from private database storage, completely
+ * overwriting any dummy or pre-loaded data in browser storage and state.
+ */
+export async function forceReFetchAllPersonalData(): Promise<{
+  success: boolean;
+  packagesCount: number;
+  destinationsCount: number;
+  mediaCount: number;
+  message: string;
+  packages: any[];
+  destinations: Record<string, DestinationMeta>;
+  mediaAssets: any[];
+}> {
+  if (typeof window === 'undefined') {
+    return {
+      success: false,
+      packagesCount: 0,
+      destinationsCount: 0,
+      mediaCount: 0,
+      message: 'Window is undefined.',
+      packages: [],
+      destinations: {},
+      mediaAssets: [],
+    };
+  }
+
+  try {
+    isHydrating = true;
+    const now = Date.now();
+
+    // 1. Fetch all shared state records from authoritative server database
+    const contentsPromise = fetch(`/api/contents?type=shared_local_state&_force=1&_nocache=${now}`, {
+      credentials: 'include',
+      cache: 'no-store',
+      headers: {
+        'Accept': 'application/json',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+      },
+    }).then(async (res) => (res.ok ? res.json().catch(() => null) : null)).catch(() => null);
+
+    // 2. Fetch all direct destinations records from private destinations table
+    const destinationsPromise = fetch(`/api/destinations?_force=1&_nocache=${now}`, {
+      credentials: 'include',
+      cache: 'no-store',
+      headers: {
+        'Accept': 'application/json',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+      },
+    }).then(async (res) => (res.ok ? res.json().catch(() => null) : null)).catch(() => null);
+
+    const [contentsPayload, destinationsPayload] = await Promise.all([contentsPromise, destinationsPromise]);
+
+    const rows = extractRowsFromPayload(contentsPayload);
+    const serverItemsByKey = new Map<string, DecodedRegistryItem>();
+    for (const row of rows) {
+      const decoded = decodeServerRow(row);
+      if (decoded && !serverItemsByKey.has(decoded.storageKey)) {
+        serverItemsByKey.set(decoded.storageKey, decoded);
+      }
+    }
+
+    let extractedPackages: any[] = [];
+    let extractedDestinations: Record<string, DestinationMeta> = {};
+    let extractedMediaAssets: any[] = [];
+
+    // Parse destinations from direct /api/destinations response
+    if (destinationsPayload && destinationsPayload.success && Array.isArray(destinationsPayload.data)) {
+      for (const d of destinationsPayload.data) {
+        if (d && d.slug) {
+          extractedDestinations[d.slug] = d;
+        }
+      }
+    }
+
+    // Apply all server records to localStorage, overriding local cache
+    for (const [key, item] of serverItemsByKey) {
+      try {
+        window.localStorage.setItem(key, item.value);
+        const timestamp = item.updatedAt ? new Date(item.updatedAt).getTime() : now;
+        lastSyncedTimestamps.set(key, timestamp);
+        window.localStorage.setItem(`_sync_time_${key}`, String(timestamp));
+
+        if (key === 'hh_tour_packages_v2') {
+          try {
+            const parsed = JSON.parse(item.value);
+            if (Array.isArray(parsed)) extractedPackages = parsed;
+          } catch {}
+        } else if (key === 'hh_destinations_registry_v2') {
+          try {
+            const parsed = JSON.parse(item.value);
+            if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+              extractedDestinations = { ...extractedDestinations, ...parsed };
+            }
+          } catch {}
+        } else if (key === 'hh_media_assets_v2' || key === 'hh_media_assets_v1') {
+          try {
+            const parsed = JSON.parse(item.value);
+            if (Array.isArray(parsed)) {
+              extractedMediaAssets = parsed;
+              void saveAllMediaAssetsToDb(parsed);
+            }
+          } catch {}
+        }
+      } catch (e) {
+        console.error(`[ContentSync] Error writing forced server state for ${key}:`, e);
+      }
+    }
+
+    // If destinations were fetched directly from /api/destinations, also persist to local storage key
+    if (Object.keys(extractedDestinations).length > 0) {
+      try {
+        window.localStorage.setItem('hh_destinations_registry_v2', JSON.stringify(extractedDestinations));
+      } catch {}
+    }
+
+    isHydrating = false;
+
+    // Broadcast synchronization to all in-memory React contexts with force flag
+    try {
+      window.dispatchEvent(
+        new CustomEvent('holidayshunt_content_synced', {
+          detail: {
+            keys: Array.from(serverItemsByKey.keys()),
+            forceOverwrite: true,
+            packages: extractedPackages,
+            destinations: extractedDestinations,
+            mediaAssets: extractedMediaAssets,
+          },
+        })
+      );
+    } catch {}
+
+    return {
+      success: true,
+      packagesCount: extractedPackages.length,
+      destinationsCount: Object.keys(extractedDestinations).length,
+      mediaCount: extractedMediaAssets.length,
+      message: `Successfully re-fetched and synchronized ${extractedPackages.length} tour package(s), ${Object.keys(extractedDestinations).length} destination(s), and ${extractedMediaAssets.length} media asset(s) from your private database.`,
+      packages: extractedPackages,
+      destinations: extractedDestinations,
+      mediaAssets: extractedMediaAssets,
+    };
+  } catch (err) {
+    isHydrating = false;
+    console.error('[ContentSync] Force re-fetch from database error:', err);
+    return {
+      success: false,
+      packagesCount: 0,
+      destinationsCount: 0,
+      mediaCount: 0,
+      message: err instanceof Error ? err.message : 'Failed to re-fetch from database.',
+      packages: [],
+      destinations: {},
+      mediaAssets: [],
+    };
   }
 }
 

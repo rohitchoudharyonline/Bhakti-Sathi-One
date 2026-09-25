@@ -28,6 +28,7 @@ import { GuideEditor } from './GuideEditor';
 import { GuideArticle } from '../../types/guide';
 import { PDFBrochureModal } from '../traveler/PDFBrochureModal';
 import { TourContentStudio } from './TourContentStudio';
+import { TourUploadModal } from './TourUploadModal';
 import { ErrorBoundary } from '../common/ErrorBoundary';
 import {
   LayoutDashboard,
@@ -42,6 +43,7 @@ import {
   Search,
   Plus,
   ImagePlus,
+  UploadCloud,
   Eye,
   Edit,
   Copy,
@@ -79,6 +81,7 @@ import {
   LogOut,
   Menu,
   BarChart3,
+  RefreshCw,
 } from 'lucide-react';
 
 export const CMSDashboard: React.FC = () => {
@@ -107,9 +110,34 @@ export const CMSDashboard: React.FC = () => {
     duplicatePackage,
     togglePublishStatus,
     toggleFeatured,
+    exportTourPackagesJson,
+    clearAllPackages,
+    forceRefetchAndSyncPrivateData,
     setSelectedPackageId,
     setActiveView,
   } = useTours();
+
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const [isSyncingDb, setIsSyncingDb] = useState(false);
+  const [syncFeedback, setSyncFeedback] = useState<string | null>(null);
+
+  const handleForceSyncDb = async () => {
+    setIsSyncingDb(true);
+    setSyncFeedback(null);
+    try {
+      const res = await forceRefetchAndSyncPrivateData();
+      if (res.success) {
+        setSyncFeedback(res.message);
+      } else {
+        setSyncFeedback(res.message || 'Sync failed.');
+      }
+    } catch (e) {
+      setSyncFeedback('Failed to sync from database.');
+    } finally {
+      setIsSyncingDb(false);
+      setTimeout(() => setSyncFeedback(null), 6000);
+    }
+  };
 
     const [activeCmsTab, setActiveCmsTab] = useState<
     | 'dashboard'
@@ -1042,7 +1070,41 @@ export const CMSDashboard: React.FC = () => {
                 <h2 className="text-base font-black text-stone-900">Tour Packages Catalog</h2>
                 <p className="text-xs text-stone-500">Manage itineraries, pricing, photo galleries & traveler reviews</p>
               </div>
-              <div className="flex items-center gap-2 shrink-0">
+              <div className="flex flex-wrap items-center gap-2 shrink-0">
+                <button
+                  type="button"
+                  onClick={handleForceSyncDb}
+                  disabled={isSyncingDb}
+                  className="px-3.5 py-2 rounded-xl border border-indigo-200 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-black flex items-center gap-1.5 shadow-2xs transition cursor-pointer disabled:opacity-50"
+                  title="Force a complete re-fetch of your personal tour packages, destinations, and media from private database storage, overwriting all dummy data"
+                >
+                  <RefreshCw className={`w-4 h-4 ${isSyncingDb ? 'animate-spin' : ''}`} />
+                  <span>{isSyncingDb ? 'Syncing...' : '⚡ Re-Fetch Private DB'}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsUploadModalOpen(true)}
+                  className="px-3.5 py-2 rounded-xl border border-orange-200 bg-orange-50 hover:bg-orange-100 text-[#FF4B00] text-xs font-black flex items-center gap-1.5 shadow-2xs transition cursor-pointer"
+                  title="Upload JSON File, Paste Tour Data, or Build Custom Tour"
+                >
+                  <UploadCloud className="w-4 h-4" />
+                  <span>📥 Upload / Import My Tours</span>
+                </button>
+                {packages.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (window.confirm('Clear all tours to start clean with only your custom uploaded tours?')) {
+                        clearAllPackages();
+                      }
+                    }}
+                    className="px-3 py-2 rounded-xl border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold flex items-center gap-1.5 shadow-2xs transition cursor-pointer"
+                    title="Remove all placeholder packages so only your custom tours remain"
+                  >
+                    <Trash2 className="w-3.5 h-3.5 text-rose-500" />
+                    <span>Clear All Tours</span>
+                  </button>
+                )}
                 <button
                   type="button"
                   onClick={() => setContentStudioPackageId(packages[0]?.id || '')}
@@ -1050,7 +1112,7 @@ export const CMSDashboard: React.FC = () => {
                   title="Manage Tour Photos & Verified Reviews"
                 >
                   <ImagePlus className="w-4 h-4 text-amber-500" />
-                  <span>Photos & Reviews Studio</span>
+                  <span>Photos & Reviews</span>
                 </button>
                 <button
                   type="button"
@@ -1060,6 +1122,29 @@ export const CMSDashboard: React.FC = () => {
                   <Plus className="w-4 h-4" />
                   <span>+ Create Tour Package</span>
                 </button>
+              </div>
+            </div>
+
+            {/* Information Banner */}
+            {syncFeedback && (
+              <div className="p-3.5 sm:p-4 bg-emerald-50 border border-emerald-300 rounded-2xl flex items-center gap-2.5 text-xs text-emerald-900 font-bold animate-in fade-in">
+                <CheckCircle className="w-5 h-5 text-emerald-600 shrink-0" />
+                <p>{syncFeedback}</p>
+              </div>
+            )}
+            <div className="p-3.5 sm:p-4 bg-gradient-to-r from-amber-50 to-orange-50 border border-orange-200/80 rounded-2xl flex items-start justify-between gap-3 text-xs">
+              <div className="flex items-start gap-2.5">
+                <div className="w-7 h-7 rounded-xl bg-[#FF4B00]/10 text-[#FF4B00] flex items-center justify-center shrink-0 mt-0.5 font-bold">
+                  <Compass className="w-4 h-4" />
+                </div>
+                <div>
+                  <p className="font-black text-stone-900">
+                    Live Tours Management & Custom Tour Uploads ({packages.length} Active Packages)
+                  </p>
+                  <p className="text-[11px] text-stone-600 mt-0.5 font-medium">
+                    All tours created or uploaded here are saved directly to database storage and served to your website visitors in real time. Click <span className="font-bold text-[#FF4B00]">Upload / Import My Tours</span> to upload your JSON file or build tours.
+                  </p>
+                </div>
               </div>
             </div>
 
@@ -1403,6 +1488,14 @@ export const CMSDashboard: React.FC = () => {
         <TourContentStudio
           initialPackageId={contentStudioPackageId || undefined}
           onClose={() => setContentStudioPackageId(null)}
+        />
+      )}
+
+      {/* Tour Upload & Import Modal */}
+      {isUploadModalOpen && (
+        <TourUploadModal
+          isOpen={isUploadModalOpen}
+          onClose={() => setIsUploadModalOpen(false)}
         />
       )}
     </div>

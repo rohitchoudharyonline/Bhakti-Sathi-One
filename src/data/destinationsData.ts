@@ -94,96 +94,99 @@ export const DESTINATIONS_REGISTRY: Record<string, DestinationMeta> = {
       topAttractions: [
         {
           name: 'Shri Mata Vaishno Devi',
+          image: 'https://images.unsplash.com/photo-1626014303757-6564477577f1?auto=format&fit=crop&w=800&q=80',
+          badge: 'Holy Cave Shrine',
           description:
             'Holistic cave sanctum nestled at 5,200 ft in Trikuta Hills where Maha Kali, Maha Lakshmi, and Maha Saraswati reside as self-manifested Pindies. Reachable by a paved 12 KM trek, electric eco-battery cars, ponies, palkis, or helicopter to Sanjichhat.',
         },
         {
           name: 'Shankaracharya Temple',
+          image: 'https://images.unsplash.com/photo-1598091383021-15ddea10925d?auto=format&fit=crop&w=800&q=80',
+          badge: 'Ancient Shiva Sanctum',
           description:
             'Historic Shiva temple situated atop Gopadari Hill at 1,100 ft above Srinagar city level, blessed by Adi Shankaracharya in the 9th century and offering breathtaking 360-degree panoramas of Dal Lake and the Zabarwan mountain range.',
         },
         {
           name: 'Shiv Khori',
+          image: 'https://images.unsplash.com/photo-1621252179027-94459d278660?auto=format&fit=crop&w=800&q=80',
+          badge: 'Limestone Cave',
           description:
             'A 200-meter-long natural limestone cave housing a 4-foot self-formed (Svayambhu) Shivling with continuous natural mineral water dripping from the ceiling. A sanctified pilgrimage just 75 km from Katra.',
         },
         {
           name: 'Bhairon Ghati',
+          image: 'https://images.unsplash.com/photo-1626014303757-6564477577f1?auto=format&fit=crop&w=800&q=80',
+          badge: 'Aerial Ropeway Peak',
           description:
             'Perched at 6,600 ft above Bhawan, the completion of Mata Vaishno Devi darshan requires paying homage to Baba Bhaironath. Accessible within 3 minutes via the modern high-capacity aerial passenger ropeway.',
         },
         {
-          name: 'Dal Lake',
+          name: 'Dal Lake & Houseboats',
+          image: 'https://images.unsplash.com/photo-1595815771614-ade9d652a65d?auto=format&fit=crop&w=800&q=80',
+          badge: 'Jewel of Srinagar',
           description:
             'The crown jewel of Srinagar featuring heritage hand-carved cedar wood houseboats, colorful flower Shikara rides, floating vegetable markets, and the historic four chinar island overlooking the Mughal gardens.',
         },
         {
-          name: 'Gulmarg Gondola',
+          name: 'Gulmarg Gondola & Apharwat',
+          image: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80',
+          badge: 'World Highest Cable Car',
           description:
             'One of the worlds highest operating passenger cable cars, carrying travelers across dense pine forests to Phase 1 (Kongdoori) and Phase 2 (Apharwat Peak) for skiing, snowmobile adventures, and sweeping views of Nanga Parbat.',
         },
         {
           name: 'Pahalgam & Betaab Valley',
+          image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80',
+          badge: 'Valley of Shepherds',
           description:
             'A pristine mountain paradise on the banks of the rushing Lidder River, surrounded by cedar forests. It serves as the traditional starting base for the annual Amarnath Yatra and gateway to scenic Betaab and Aru valleys.',
         },
         {
-          name: 'Patnitop',
+          name: 'Patnitop & Sanasar',
+          image: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80',
+          badge: 'Scenic Pine Resort',
           description:
             'A tranquil hill resort perched at 6,640 ft enveloped by dense deodars, featuring the Skyview aerial ropeway from Sanget, ancient Nag Temple, and the high-altitude pine meadow and lake of Sanasar.',
         },
         {
-          name: 'Sonmarg',
+          name: 'Sonmarg & Thajiwas Glacier',
+          image: 'https://images.unsplash.com/photo-1598091383021-15ddea10925d?auto=format&fit=crop&w=800&q=80',
+          badge: 'Meadow of Gold',
           description:
             'Set against towering snow peaks on the Sindh River, Sonmarg is famous for pony treks to the eternal snowfields of Thajiwas Glacier, scenic alpine river walks, and acting as the fast-track gateway to Baltal for Amarnath Yatra.',
         },
         {
-          name: 'Raghunath Temple',
+          name: 'Raghunath Temple Jammu',
+          image: 'https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=800&q=80',
+          badge: 'Royal Heritage Temple',
           description:
             'One of Northern Indias largest historic temple complexes built by Maharaja Gulab Singh, housing seven inner shrines whose sanctum walls are adorned with gold sheets and rare Sanskrit manuscripts.',
         },
         {
           name: 'Maa Kheer Bhawani',
+          image: 'https://images.unsplash.com/photo-1621252179027-94459d278660?auto=format&fit=crop&w=800&q=80',
+          badge: 'Sacred Spring Shrine',
           description:
             'Revered Kashmiri Hindu temple dedicated to Goddess Ragnya Devi, built over a sacred natural spring whose waters are believed to change hues with regional spiritual portents.',
         },
         {
           name: 'Ardhkuwari Cave',
+          image: 'https://images.unsplash.com/photo-1626014303757-6564477577f1?auto=format&fit=crop&w=800&q=80',
+          badge: 'Garbhjoon Cave',
           description:
             'Sacred cave sanctuary located exactly midway on the Vaishno Devi trek at 4,800 ft where Goddess meditated for nine months in the Garbhjoon cave before reaching her permanent abode at Bhawan.',
         },
         {
           name: 'Baba Dhansar',
+          image: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80',
+          badge: 'Holy Water Springs',
           description:
             'A deeply tranquil holy natural spring and cave sanctuary located just 17 km from Katra. Cool mineral streams flow continuously over an ancient natural Shivling nestled in lush forest groves.',
         },
         {
-          name: 'Ranbireshwar Temple',
-          description:
-            'Northern Indias largest Shiva temple, built in 1883 by Maharaja Ranbir Singh. Houses a central 7.5-foot black stone Shivling, twelve crystal (sphatik) Jyotirlingas, and 1.25 lakh sacred Bana Lingas brought from Narmada.',
-        },
-        {
-          name: 'Bawe Wali Mata',
-          description:
-            'Overlooking the Tawi River from inside the historic 3,000-year-old Bahu Fort, this sanctified Mahakali shrine is the supreme spiritual guardian of Jammu, drawing millions during festive Navratris.',
-        },
-        {
-          name: 'Peer Kho Cave Temple',
-          description:
-            'Historic underground limestone cave on the banks of River Tawi where Sage Jamvant (the legendary bear king of Ramayana) meditated on Lord Shiva. Houses an ancient Svayambhu Shivling.',
-        },
-        {
-          name: 'Sharika Devi Temple',
-          description:
-            'Perched on the western slopes of Hari Parbat in Srinagar, this sacred shrine is dedicated to the 18-armed Goddess Sharika Bhagwati (an incarnation of Durga), the revered presiding deity of Kashmiri Pandits.',
-        },
-        {
-          name: 'Sudh Mahadev',
-          description:
-            'Ancient pilgrimage site preserving the sacred iron trident (Trishul) of Lord Shiva, paired with nearby Mantalai where Lord Shiva and Goddess Parvati were married according to Puranic lore.',
-        },
-        {
-          name: 'Amarnath Cave',
+          name: 'Amarnath Holy Cave',
+          image: 'https://images.unsplash.com/photo-1566837945700-30057527ade0?auto=format&fit=crop&w=800&q=80',
+          badge: 'Baba Barfani Abode',
           description:
             'Located at 12,756 ft in the Lidder Valley, the world-famous cave where Lord Shiva narrated the Amar Katha (secret of immortality) to Maa Parvati. Visited annually during Shravan via the Pahalgam or Baltal helicopter routes.',
         },
