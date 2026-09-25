@@ -195,7 +195,20 @@ export async function loadAuthoritativeServerContent(): Promise<boolean> {
     const serverItemsByKey = new Map<string, DecodedRegistryItem>();
     for (const row of rows) {
       const decoded = decodeServerRow(row);
-      if (decoded && !serverItemsByKey.has(decoded.storageKey)) {
+      if (!decoded) continue;
+
+      // A legacy migration or older deployment can leave duplicate D1 rows
+      // for the same shared registry key. Always prefer the newest server
+      // version so an older tour registry cannot replace the current one.
+      const existing = serverItemsByKey.get(decoded.storageKey);
+      if (!existing) {
+        serverItemsByKey.set(decoded.storageKey, decoded);
+        continue;
+      }
+
+      const existingTime = existing.updatedAt ? new Date(existing.updatedAt).getTime() : 0;
+      const decodedTime = decoded.updatedAt ? new Date(decoded.updatedAt).getTime() : 0;
+      if (decodedTime >= existingTime) {
         serverItemsByKey.set(decoded.storageKey, decoded);
       }
     }
