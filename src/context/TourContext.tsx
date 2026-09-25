@@ -531,7 +531,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
     'pkg-jammu-01',
   ]);
 
-  // 1. Packages State - Preserves only user created & uploaded tours
+  // 1. Packages State - Preserves user created & uploaded tours
   const [packages, setPackages] = useState<TourPackage[]>(() => {
     const deletedIds = getDeletedItems('hh_deleted_package_ids');
 
@@ -550,10 +550,12 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 tourType: cat,
               };
             });
-          try {
-            localStorage.setItem(STORAGE_KEYS.PACKAGES, JSON.stringify(cleaned));
-          } catch {}
-          return cleaned;
+          if (cleaned.length > 0) {
+            try {
+              localStorage.setItem(STORAGE_KEYS.PACKAGES, JSON.stringify(cleaned));
+            } catch {}
+            return cleaned;
+          }
         }
       }
     } catch {}

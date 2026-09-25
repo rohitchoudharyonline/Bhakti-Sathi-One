@@ -90,9 +90,9 @@ export interface HotelStay {
 export type HotelStarCategory = '3-star' | '4-star' | '5-star';
 
 export interface PricingTiers {
-  standard?: { price: number; hotels?: string[] };
-  deluxe?: { price: number; hotels?: string[] };
-  luxury?: { price: number; hotels?: string[] };
+  standard?: { price: number; hotels?: string[]; priceOnRequest?: boolean };
+  deluxe?: { price: number; hotels?: string[]; priceOnRequest?: boolean };
+  luxury?: { price: number; hotels?: string[]; priceOnRequest?: boolean };
   [key: string]: any;
 }
 
