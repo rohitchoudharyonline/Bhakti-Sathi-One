@@ -10,14 +10,6 @@ export const DEFAULT_BLOG_CATEGORIES: BlogCategory[] = [
     postCount: 3,
   },
   {
-    id: 'cat-himachal',
-    name: 'Himachal & Devi Darshan',
-    slug: 'himachal-and-devi-darshan',
-    description: 'Complete itineraries for Manali, Shimla, Dharamshala, and sacred 9 Devi Yatra temple tours.',
-    icon: 'Sparkles',
-    postCount: 2,
-  },
-  {
     id: 'cat-tips-rates',
     name: 'Cab Rates & Travel Tips',
     slug: 'cab-rates-and-travel-tips',
@@ -179,67 +171,5 @@ Book complete Katra + Vaishno Devi packages with dedicated cabs and verified del
     },
     relatedDestinationSlug: 'amritsar',
     relatedTourIds: ['pkg-amritsar-01'],
-  },
-  {
-    id: 'post-himachal-manali-shimla-cab-rates',
-    slug: 'himachal-taxi-rates-delhi-chandigarh-to-shimla-manali-guide',
-    title: 'Himachal Taxi Rates (2026): Delhi & Chandigarh to Shimla, Manali & Dharamshala',
-    excerpt: 'Transparent breakdown of private sedan, Ertiga, and Innova Crysta cab fares, driver allowances, toll taxes, and Rohtang Pass permits.',
-    content: `
-# Himachal Taxi Rates: Complete Pricing & Vehicle Guide
-
-Planning a road trip through Himachal Pradesh? Knowing standard cab fares and inclusions helps avoid surprises at hill checkpoints.
-
----
-
-## 1. Popular Route Cab Fares (Private Dedicated Vehicle)
-- **Chandigarh to Shimla (115 KM / 3.5 Hrs):** ₹2,800 - ₹3,500 (Sedan / Dzire) | ₹4,200 - ₹5,000 (Innova Crysta)
-- **Chandigarh to Manali (280 KM / 7-8 Hrs via new 4-lane expressway):** ₹4,800 - ₹6,000 (Sedan) | ₹7,500 - ₹9,500 (Innova Crysta)
-- **Delhi to Shimla - Manali - Chandigarh (6 Days Complete Package):** ₹21,000 - ₹26,000 (Sedan) | ₹32,000 - ₹38,000 (Innova Crysta)
-
----
-
-## 2. What Must Be Included in a Honest Tour Cab Quote?
-When booking with Holidays Hunt, your quote always includes:
-- Fuel (Diesel / Petrol)
-- Commercial state entry permits for Himachal Pradesh
-- Highway tolls & green cess taxes
-- Driver day & night allowances + driver accommodation
-- Local sightseeing in Shimla (Kufri, Mall Road) and Manali (Solang Valley, Hadimba Temple, Vashisht Hot Springs).
-
----
-
-## 3. Rohtang Pass & Atal Tunnel Permits
-- **Atal Tunnel (Rohtang):** Open year-round for all passenger vehicles connecting Manali to Sissu (Lahaul Valley).
-- **Rohtang Pass Snow Point:** Requires an official NGT eco-permit. Our operations team arranges valid permits well in advance.
-
-Enjoy guaranteed clean cars, polite hill-experienced drivers, and on-time pickups with Holidays Hunt.
-    `,
-    featuredImage: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=85',
-    featuredImageAlt: 'Mountain road trip with private cab in Himachal Pradesh',
-    category: 'Cab Rates & Travel Tips',
-    categorySlug: 'cab-rates-and-travel-tips',
-    tags: ['Himachal', 'Manali', 'Shimla', 'Taxi Rates', 'Cab Booking', 'Innova'],
-    author: {
-      name: 'Vikram Singh',
-      avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&q=80',
-      role: 'Fleet & Chauffeur Logistics Lead',
-      bio: 'Manages 60+ verified luxury cabs and hill chauffeurs across Delhi, Chandigarh, and Himachal.',
-    },
-    status: 'published',
-    publishedAt: '2026-08-01T12:00:00Z',
-    updatedAt: '2026-08-20T10:00:00Z',
-    readTimeMinutes: 4,
-    viewsCount: 1980,
-    likesCount: 142,
-    featured: false,
-    seo: {
-      focusKeyword: 'Himachal Taxi Rates',
-      metaTitle: 'Himachal Taxi Rates (2026) - Chandigarh to Shimla & Manali Cabs',
-      metaDescription: 'Complete price list for Delhi & Chandigarh to Shimla Manali cabs. Transparent Sedan and Innova Crysta rates with tolls included.',
-      schemaType: 'BlogPosting',
-    },
-    relatedDestinationSlug: 'himachal',
-    relatedTourIds: ['pkg-himachal-02'],
   },
 ];
