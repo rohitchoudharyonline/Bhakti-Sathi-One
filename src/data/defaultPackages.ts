@@ -9,7 +9,7 @@ export const DEFAULT_BOTTOM_NAV_ITEMS: MobileBottomNavItem[] = [
 
 export const DEFAULT_AGENCY_SETTINGS: AgencySettings = {
   agencyName: 'Holidays Hunt',
-  tagline: "Experts in Kashmir & Himachal Tours",
+  tagline: "Jammu & Kashmir Tour & Travel Specialist",
   email: 'info@holidayshunt.com',
   phone: '+91 94199 15255',
   whatsapp: '+919419915255',
@@ -34,17 +34,17 @@ export const DEFAULT_AGENCY_SETTINGS: AgencySettings = {
     {
       id: 'faq-1',
       question: 'What types of tour packages does Holidays Hunt specialize in?',
-      answer: 'Holidays Hunt specializes exclusively in customized Jammu & Kashmir and Himachal Pradesh tour packages. From romantic Kashmir honeymoon houseboats and alpine Gondola tours in Gulmarg to family vacations in Shimla, Manali, and sacred Mata Vaishno Devi yatras in Katra.'
+      answer: 'Holidays Hunt specializes exclusively in customized Jammu & Kashmir tour packages. From romantic Kashmir honeymoon houseboats and alpine Gondola tours in Gulmarg to family vacations in Shimla, Manali, and sacred Mata Vaishno Devi yatras in Katra.'
     },
     {
       id: 'faq-2',
       question: 'How does Holidays Hunt ensure a smooth and personalized holiday experience in Kashmir & Himachal?',
-      answer: 'Holidays Hunt pairs you with verified local hotel partners, experienced mountain chauffeurs, and dedicated 24x7 tour managers across Srinagar, Gulmarg, Pahalgam, Shimla, Manali, and Katra. We customize every itinerary according to your travel pace, family preferences, hotel category choices, and sightseeing interests.'
+      answer: 'Holidays Hunt pairs you with verified local hotel partners, experienced mountain chauffeurs, and dedicated 24x7 tour managers across Srinagar, Gulmarg, Pahalgam, Sonamarg, Doodhpathri, and Katra. We customize every itinerary according to your travel pace, family preferences, hotel category choices, and sightseeing interests.'
     },
     {
       id: 'faq-3',
       question: 'Can Holidays Hunt customize a private tour itinerary for families or couples?',
-      answer: 'Absolutely! Every Kashmir and Himachal itinerary at Holidays Hunt is 100% customizable. Whether you are traveling as a honeymoon couple seeking private candlelight dinners and scenic retreats, or a multi-generational family requiring spacious vehicles and child/elderly-friendly hotels, our team tailors every detail.'
+      answer: 'Absolutely! Every Jammu & Kashmir itinerary at Holidays Hunt is 100% customizable. Whether you are traveling as a honeymoon couple seeking private candlelight dinners and scenic retreats, or a multi-generational family requiring spacious vehicles and child/elderly-friendly hotels, our team tailors every detail.'
     },
     {
       id: 'faq-4',
@@ -54,7 +54,7 @@ export const DEFAULT_AGENCY_SETTINGS: AgencySettings = {
     {
       id: 'faq-5',
       question: 'What is Holidays Hunt\'s payment schedule and booking policy?',
-      answer: 'To secure your hotel reservations and private cab bookings in Kashmir or Himachal, Holidays Hunt requires a standard advance deposit. The remaining balance can be settled as per the agreed payment schedule before or upon arrival. We accept UPI, Net Banking, credit/debit cards, and bank transfers with complete GST invoicing.'
+      answer: 'To secure your hotel reservations and private cab bookings in Jammu & Kashmir, Holidays Hunt requires a standard advance deposit. The remaining balance can be settled as per the agreed payment schedule before or upon arrival. We accept UPI, Net Banking, credit/debit cards, and bank transfers with complete GST invoicing.'
     },
     {
       id: 'faq-6',
@@ -63,8 +63,8 @@ export const DEFAULT_AGENCY_SETTINGS: AgencySettings = {
     },
     {
       id: 'faq-7',
-      question: 'What destinations in Jammu & Kashmir and Himachal Pradesh are covered?',
-      answer: 'We cover all premier circuits: Srinagar, Dal Lake, Gulmarg, Pahalgam, Sonamarg, Doodhpathri, Katra Vaishno Devi, Patnitop, Shimla, Kufri, Manali, Solang Valley, Atal Tunnel, Rohtang Pass, Dharamshala, McLeod Ganj, Dalhousie, and Spiti Valley.'
+      question: 'What destinations in Jammu & Kashmir are covered?',
+      answer: 'We cover Jammu & Kashmir destinations including Srinagar, Dal Lake, Gulmarg, Pahalgam, Sonamarg, Doodhpathri, Katra, Mata Vaishno Devi, Shiv Khori, Patnitop, Bhaderwah and other local attractions.'
     },
     {
       id: 'faq-8',
@@ -79,7 +79,7 @@ export const DEFAULT_AGENCY_SETTINGS: AgencySettings = {
     {
       id: 'faq-10',
       question: 'What sets Holidays Hunt apart from conventional travel operators?',
-      answer: 'Holidays Hunt delivers genuine on-ground concierge support, 100% transparent pricing with no hidden charges, verified hotel stays, and personalized itineraries designed for unforgettable Family, Honeymoon, and Pilgrimage memories in Jammu & Kashmir and Himachal Pradesh.'
+      answer: 'Holidays Hunt delivers genuine on-ground concierge support, 100% transparent pricing with no hidden charges, verified hotel stays, and personalized itineraries designed for unforgettable Family, Honeymoon, and Pilgrimage memories in Jammu & Kashmir.'
     }
   ],
   footerMenus: [
