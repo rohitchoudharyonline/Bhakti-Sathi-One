@@ -2120,14 +2120,17 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (p) {
           const parsed = JSON.parse(p);
           if (Array.isArray(parsed)) {
+            // Server content is authoritative: if a tour exists in D1, restore it
+            // even if an old browser tombstone still contains its package ID.
             const cleaned = parsed
-              .filter((item: TourPackage) => !deletedPkgIds.includes(item.id) && !DISALLOWED_DUMMY_PKG_IDS.has(item.id))
+              .filter((item: TourPackage) => !DISALLOWED_DUMMY_PKG_IDS.has(item.id))
               .map((item: TourPackage) => {
                 const cat = normalizePackageCategory(item.category || item.tourType);
                 return {
                   ...item,
                   category: cat,
                   tourType: cat,
+                  status: String(item.status || '').toLowerCase() === 'published' ? 'published' : item.status,
                 };
               });
             setPackages(cleaned);
