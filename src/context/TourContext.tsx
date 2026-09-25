@@ -2064,7 +2064,8 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setDestinations(clean);
           }
         } else if (e.key === STORAGE_KEYS.PACKAGES && e.newValue) {
-            const parsed = JSON.parse(e.newValue);
+          const deletedPkgIds = getDeletedItems('hh_deleted_package_ids');
+          const parsed = JSON.parse(e.newValue);
           if (Array.isArray(parsed)) setPackages(parsed.filter((p: TourPackage) => !deletedPkgIds.includes(p.id)));
         } else if (e.key === STORAGE_KEYS.BLOG_POSTS && e.newValue) {
           const deletedBlogIds = getDeletedItems('hh_deleted_blog_post_ids');
