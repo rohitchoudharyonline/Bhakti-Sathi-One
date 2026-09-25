@@ -7,6 +7,7 @@ import { createServer as createViteServer } from 'vite';
 import { GoogleGenAI, Type } from '@google/genai';
 import dotenv from 'dotenv';
 import { S3Client, PutObjectCommand, DeleteObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
+import { DEFAULT_PACKAGES } from './src/data/defaultPackages';
 
 dotenv.config();
 
@@ -985,6 +986,56 @@ for (const [k, v] of Object.entries(initialContents)) {
   serverContentsStore.set(k, v);
 }
 
+// Purge any disallowed dummy packages from serverContentsStore and contents.json
+const DISALLOWED_SERVER_PKG_IDS = new Set([
+  'pkg-kashmir-01',
+  'pkg-kashmir-02',
+  'pkg-kashmir-03',
+  'pkg-kashmir-04',
+  'pkg-jammu-01',
+  'pkg-jammu-02',
+  'pkg-ladakh-01',
+  'pkg-himachal-01',
+  'pkg-himachal-02',
+  'pkg-amritsar-01',
+]);
+
+const existingPkgRow = serverContentsStore.get('registry-packages');
+let currentServerPackages: any[] = [];
+if (existingPkgRow?.structured_content?.value) {
+  try {
+    const rawVal = existingPkgRow.structured_content.value;
+    const parsed = typeof rawVal === 'string' ? JSON.parse(rawVal) : rawVal;
+    if (Array.isArray(parsed)) {
+      currentServerPackages = parsed.filter((p: any) => p && !DISALLOWED_SERVER_PKG_IDS.has(p.id));
+    }
+  } catch {}
+}
+
+// Guarantee that the 5 user uploaded packages from DEFAULT_PACKAGES are always present
+const existingIds = new Set(currentServerPackages.map((p: any) => p.id));
+const missingDefaults = DEFAULT_PACKAGES.filter((p) => !existingIds.has(p.id) && !DISALLOWED_SERVER_PKG_IDS.has(p.id));
+const finalServerPackages = [...currentServerPackages, ...missingDefaults];
+
+const now = new Date().toISOString();
+serverContentsStore.set('registry-packages', {
+  id: 'registry-packages',
+  content_type: 'shared_local_state',
+  title: 'Tour Packages Registry',
+  slug: 'hh_tour_packages_v2',
+  status: 'published',
+  structured_content: {
+    storageKey: 'hh_tour_packages_v2',
+    value: JSON.stringify(finalServerPackages),
+    updatedAt: now,
+  },
+  created_at: existingPkgRow?.created_at || now,
+  updated_at: now,
+});
+const obj: Record<string, ContentRow> = {};
+for (const [k, v] of serverContentsStore.entries()) obj[k] = v;
+saveJsonSafely(CONTENTS_FILE, obj);
+
 const serverDestinationsStore = new Map<string, any>();
 const initialDestinations = loadJsonSafely<Record<string, any>>(DESTINATIONS_FILE, {});
 for (const [k, v] of Object.entries(initialDestinations)) {
@@ -1307,6 +1358,17 @@ app.post('/api/contents', async (req, res) => {
   if (!title) return res.status(400).json({ error: 'Title required.' });
   const slug = cleanText(b.slug || title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''), 200);
   const now = new Date().toISOString();
+  let structuredContent = b.structured_content;
+  if (id === 'registry-packages' && structuredContent?.value) {
+    try {
+      const parsedVal = typeof structuredContent.value === 'string' ? JSON.parse(structuredContent.value) : structuredContent.value;
+      if (Array.isArray(parsedVal)) {
+        const cleaned = parsedVal.filter((p: any) => p && !DISALLOWED_SERVER_PKG_IDS.has(p.id));
+        structuredContent = { ...structuredContent, value: JSON.stringify(cleaned) };
+      }
+    } catch {}
+  }
+
   const row: ContentRow = {
     id,
     content_type: cleanText(b.content_type || 'tour', 80),
@@ -1315,7 +1377,7 @@ app.post('/api/contents', async (req, res) => {
     subtitle: cleanText(b.subtitle, 500),
     summary: cleanText(b.summary, 3000),
     body: cleanText(b.body, 50000),
-    structured_content: b.structured_content,
+    structured_content: structuredContent,
     seo_title: cleanText(b.seo_title, 200),
     seo_description: cleanText(b.seo_description, 500),
     seo_keywords: cleanText(b.seo_keywords, 500),
@@ -1335,6 +1397,18 @@ app.put('/api/contents/:id', async (req, res) => {
   const title = cleanText(b.title || id, 300);
   const slug = cleanText(b.slug || title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''), 200);
   const now = new Date().toISOString();
+
+  let structuredContent = b.structured_content;
+  if (id === 'registry-packages' && structuredContent?.value) {
+    try {
+      const parsedVal = typeof structuredContent.value === 'string' ? JSON.parse(structuredContent.value) : structuredContent.value;
+      if (Array.isArray(parsedVal)) {
+        const cleaned = parsedVal.filter((p: any) => p && !DISALLOWED_SERVER_PKG_IDS.has(p.id));
+        structuredContent = { ...structuredContent, value: JSON.stringify(cleaned) };
+      }
+    } catch {}
+  }
+
   const row: ContentRow = {
     id,
     content_type: cleanText(b.content_type || 'tour', 80),
@@ -1343,7 +1417,7 @@ app.put('/api/contents/:id', async (req, res) => {
     subtitle: cleanText(b.subtitle, 500),
     summary: cleanText(b.summary, 3000),
     body: cleanText(b.body, 50000),
-    structured_content: b.structured_content,
+    structured_content: structuredContent,
     seo_title: cleanText(b.seo_title, 200),
     seo_description: cleanText(b.seo_description, 500),
     seo_keywords: cleanText(b.seo_keywords, 500),

@@ -181,6 +181,29 @@ export async function loadAuthoritativeServerContent(): Promise<boolean> {
     try {
       for (const [key, item] of serverItemsByKey) {
         try {
+          if (key === 'hh_tour_packages_v2') {
+            try {
+              const parsed = JSON.parse(item.value);
+              if (Array.isArray(parsed)) {
+                const DISALLOWED = new Set([
+                  'pkg-kashmir-01',
+                  'pkg-kashmir-02',
+                  'pkg-kashmir-03',
+                  'pkg-kashmir-04',
+                  'pkg-jammu-01',
+                  'pkg-jammu-02',
+                  'pkg-ladakh-01',
+                  'pkg-himachal-01',
+                  'pkg-himachal-02',
+                  'pkg-amritsar-01',
+                ]);
+                const cleaned = parsed.filter((p: any) => p && !DISALLOWED.has(p.id));
+                if (cleaned.length > 0) {
+                  item.value = JSON.stringify(cleaned);
+                }
+              }
+            } catch {}
+          }
           // Server is authoritative source of truth: write server confirmed data
           window.localStorage.setItem(key, item.value);
           const timestamp = item.updatedAt ? new Date(item.updatedAt).getTime() : Date.now();
