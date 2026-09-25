@@ -47,6 +47,11 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
+      - name: Verify live tour registry
+        run: |
+          bunx wrangler d1 execute DB --remote --command "SELECT id, updated_at, length(json_extract(structured_content, '$.value')) AS value_length FROM contents WHERE id='registry-packages';"
+          curl -sS --max-time 20 "https://holidayshunt.com/api/contents?type=shared_local_state&_nocache=$(date +%s)" | python3 -c 'import json,sys; d=json.load(sys.stdin); rows=d.get("data",[]); r=next((x for x in rows if x.get("id")=="registry-packages"),None); v=((r or {}).get("structured_content") or {}).get("value","") if isinstance((r or {}).get("structured_content"),dict) else ""; a=json.loads(v) if v else []; print("LIVE TOUR COUNT:", len(a)); print("\n".join(str(x.get("title","")) for x in a))'
+
       - name: Deploy Worker and Static Assets
         run: bunx wrangler deploy
         env:
