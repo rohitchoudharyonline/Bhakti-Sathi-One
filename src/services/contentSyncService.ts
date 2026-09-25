@@ -147,7 +147,7 @@ function decodeServerRow(row: ServerContentRow): DecodedRegistryItem | null {
  * Removes browser-local copies of shared registries before server hydration.
  * The server database is the only source of truth for shared public/CMS content.
  */
-function clearSharedRegistryCache() {
+export function clearSharedRegistryCache() {
   const wasHydrating = isHydrating;
   isHydrating = true;
   try {
