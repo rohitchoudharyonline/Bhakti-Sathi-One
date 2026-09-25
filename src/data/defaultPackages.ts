@@ -127,7 +127,7 @@ export const DEFAULT_AGENCY_SETTINGS: AgencySettings = {
   bottomNavItems: DEFAULT_BOTTOM_NAV_ITEMS
 };
 
-export const DEFAULT_PACKAGES: TourPackage[] = [
+const DEFAULT_PACKAGES_BASE: TourPackage[] = [
   {
     id: 'pkg-kashmir-honeymoon-01',
     slug: '6-days-kashmir-honeymoon-package-srinagar-gulmarg-pahalgam',
@@ -588,4 +588,31 @@ export const DEFAULT_PACKAGES: TourPackage[] = [
       paymentPolicy: ['25% Advance deposit to confirm booking.'],
     },
   },
+];
+
+const FAMILY_PACKAGE: TourPackage = {
+  ...DEFAULT_PACKAGES_BASE[0],
+  id: 'pkg-kashmir-family-01',
+  slug: 'kashmir-tour-package-5-nights-6-days',
+  title: 'Kashmir Tour Package – 5 Nights / 6 Days',
+  tagline: 'A comfortable private Kashmir holiday covering Srinagar, Gulmarg, Pahalgam and Sonmarg for families and couples.',
+  category: 'Family',
+  tourType: 'Family',
+  badge: 'Family Favourite',
+  featured: false,
+  overview: 'Explore Kashmir at a relaxed pace with comfortable hotel stays, private transfers and sightseeing across Srinagar, Gulmarg, Pahalgam and Sonmarg. This 5-night, 6-day itinerary is designed for families and couples looking for a well-planned private Kashmir holiday.',
+};
+
+const PILGRIMAGE_PACKAGE: TourPackage = {
+  ...DEFAULT_PACKAGES_BASE[1],
+  slug: 'kashmir-pilgrimage-tour-package',
+  title: 'Kashmir Pilgrimage Tour Package',
+  badge: 'Pilgrimage Special',
+  featured: false,
+};
+
+export const DEFAULT_PACKAGES: TourPackage[] = [
+  DEFAULT_PACKAGES_BASE[0],
+  FAMILY_PACKAGE,
+  PILGRIMAGE_PACKAGE,
 ];
