@@ -509,34 +509,10 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   // 1. Packages State
+  // RESTORE LOCK: the restored GitHub version owns the tour catalogue.
+  // Do not hydrate stale localStorage/D1 package data, which may contain AI-generated dummy tours.
   const [packages, setPackages] = useState<TourPackage[]>(() => {
     const deletedIds = getDeletedItems('hh_deleted_package_ids');
-
-    try {
-      const saved = localStorage.getItem(STORAGE_KEYS.PACKAGES);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          const cleaned = parsed
-            .filter((pkg) => !deletedIds.includes(pkg.id) && !DISALLOWED_DUMMY_PKG_IDS.has(pkg.id))
-            .map((pkg) => {
-              const cat = normalizePackageCategory(pkg.category || pkg.tourType);
-              return {
-                ...pkg,
-                category: cat,
-                tourType: cat,
-              };
-            });
-          if (cleaned.length > 0) {
-            try {
-              localStorage.setItem(STORAGE_KEYS.PACKAGES, JSON.stringify(cleaned));
-            } catch {}
-            return cleaned;
-          }
-        }
-      }
-    } catch {}
-    
     return DEFAULT_PACKAGES
       .filter((pkg) => !deletedIds.includes(pkg.id) && !DISALLOWED_DUMMY_PKG_IDS.has(pkg.id))
       .map((pkg) => {
