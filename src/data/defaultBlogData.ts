@@ -21,7 +21,7 @@ export const DEFAULT_BLOG_CATEGORIES: BlogCategory[] = [
     id: 'cat-spiritual',
     name: 'Pilgrimage & Yatra',
     slug: 'pilgrimage-and-yatra',
-    description: 'Vaishno Devi SMVDSB official portal guidelines, Shivkhori cave routes, and Char Dham sacred travel advisories.',
+    description: 'Vaishno Devi SMVDSB official portal guidelines, Shiv Khori cave routes, and Jammu & Kashmir pilgrimage travel advisories.',
     icon: 'Compass',
     postCount: 2,
   },
