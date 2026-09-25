@@ -516,7 +516,22 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return 'Family'; // Default fallback is Family
   };
 
-  // 1. Packages State - Preserves all user created & default tours
+  const DEVELOPER_DUMMY_PKG_IDS = new Set([
+    'pkg-kashmir-honeymoon-01',
+    'pkg-himachal-02',
+    'pkg-kashmir-vaishno-01',
+    'pkg-amritsar-01',
+    'pkg-kashmir-01',
+    'pkg-kashmir-02',
+    'pkg-kashmir-03',
+    'pkg-kashmir-04',
+    'pkg-ladakh-01',
+    'pkg-gurez-01',
+    'pkg-himachal-01',
+    'pkg-jammu-01',
+  ]);
+
+  // 1. Packages State - Preserves only user created & uploaded tours
   const [packages, setPackages] = useState<TourPackage[]>(() => {
     const deletedIds = getDeletedItems('hh_deleted_package_ids');
 
@@ -526,7 +541,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) {
           const cleaned = parsed
-            .filter((pkg) => !deletedIds.includes(pkg.id))
+            .filter((pkg) => !deletedIds.includes(pkg.id) && !DEVELOPER_DUMMY_PKG_IDS.has(pkg.id))
             .map((pkg) => {
               const cat = normalizePackageCategory(pkg.category || pkg.tourType);
               return {
@@ -535,26 +550,15 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 tourType: cat,
               };
             });
-          if (cleaned.length > 0) {
-            try {
-              localStorage.setItem(STORAGE_KEYS.PACKAGES, JSON.stringify(cleaned));
-            } catch {}
-            return cleaned;
-          }
+          try {
+            localStorage.setItem(STORAGE_KEYS.PACKAGES, JSON.stringify(cleaned));
+          } catch {}
+          return cleaned;
         }
       }
     } catch {}
     
-    return DEFAULT_PACKAGES
-      .filter((pkg) => !deletedIds.includes(pkg.id))
-      .map((pkg) => {
-        const cat = normalizePackageCategory(pkg.category || pkg.tourType);
-        return {
-          ...pkg,
-          category: cat,
-          tourType: cat,
-        };
-      });
+    return [];
   });
 
   // 2. Destinations Registry State
@@ -2092,7 +2096,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         if (detail?.forceOverwrite && detail?.packages && Array.isArray(detail.packages)) {
           const cleaned = detail.packages
-            .filter((item: TourPackage) => !deletedPkgIds.includes(item.id))
+            .filter((item: TourPackage) => !deletedPkgIds.includes(item.id) && !DEVELOPER_DUMMY_PKG_IDS.has(item.id))
             .map((item: TourPackage) => {
               const cat = normalizePackageCategory(item.category || item.tourType);
               return { ...item, category: cat, tourType: cat };
@@ -2104,7 +2108,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
             const parsed = JSON.parse(p);
             if (Array.isArray(parsed)) {
               const cleaned = parsed
-                .filter((item: TourPackage) => !deletedPkgIds.includes(item.id))
+                .filter((item: TourPackage) => !deletedPkgIds.includes(item.id) && !DEVELOPER_DUMMY_PKG_IDS.has(item.id))
                 .map((item: TourPackage) => {
                   const cat = normalizePackageCategory(item.category || item.tourType);
                   return {
@@ -2685,11 +2689,11 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const deletedPkgIds = getDeletedItems('hh_deleted_package_ids');
       const deletedDestSlugs = getDeletedItems('hh_deleted_destination_slugs');
 
-      // 2. Hydrate and overwrite packages strictly from database
+      // 2. Hydrate and overwrite packages strictly from database (filtering out any dummy packages)
       let updatedPkgs: TourPackage[] = [];
       if (res.packages && Array.isArray(res.packages)) {
         updatedPkgs = res.packages
-          .filter((pkg) => !deletedPkgIds.includes(pkg.id))
+          .filter((pkg) => !deletedPkgIds.includes(pkg.id) && !DEVELOPER_DUMMY_PKG_IDS.has(pkg.id))
           .map((pkg) => {
             const cat = normalizePackageCategory(pkg.category || pkg.tourType);
             return {
@@ -2705,7 +2709,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
             const parsed = JSON.parse(saved);
             if (Array.isArray(parsed)) {
               updatedPkgs = parsed
-                .filter((pkg) => !deletedPkgIds.includes(pkg.id))
+                .filter((pkg) => !deletedPkgIds.includes(pkg.id) && !DEVELOPER_DUMMY_PKG_IDS.has(pkg.id))
                 .map((pkg) => {
                   const cat = normalizePackageCategory(pkg.category || pkg.tourType);
                   return { ...pkg, category: cat, tourType: cat };
