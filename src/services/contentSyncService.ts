@@ -142,10 +142,27 @@ function decodeServerRow(row: ServerContentRow): DecodedRegistryItem | null {
  * Loads all authoritative content from D1 before app renders.
  * Applies server data to localStorage and marks timestamps.
  */
+
+/**
+ * Removes browser-local copies of shared registries before server hydration.
+ * The server database is the only source of truth for shared public/CMS content.
+ */
+function clearSharedRegistryCache() {
+  for (const reg of SYNCED_REGISTRIES) {
+    try {
+      window.localStorage.removeItem(reg.storageKey);
+      window.localStorage.removeItem(`_sync_time_${reg.storageKey}`);
+    } catch {}
+  }
+}
+
 export async function loadAuthoritativeServerContent(): Promise<boolean> {
   if (typeof window === 'undefined') return false;
 
   try {
+    // Purge stale browser copies first so legacy/dummy content cannot flash or be pushed back.
+    clearSharedRegistryCache();
+
     const response = await fetch('/api/contents?type=shared_local_state&_nocache=' + Date.now(), {
       credentials: 'include',
       cache: 'no-store',
@@ -164,9 +181,9 @@ export async function loadAuthoritativeServerContent(): Promise<boolean> {
     const rows = extractRowsFromPayload(payload);
 
     if (rows.length === 0) {
-      // Empty server state; bootstrap local data if available
-      void bootstrapLocalDataToServer();
-      return true;
+      // Never repopulate the shared database from browser-local data.
+      // An empty/failed server registry must not resurrect stale or legacy content.
+      return false;
     }
 
     const serverItemsByKey = new Map<string, DecodedRegistryItem>();
@@ -491,18 +508,6 @@ export async function deleteRecordFromServer(id: string): Promise<boolean> {
     return res.ok;
   } catch {
     return false;
-  }
-}
-
-/**
- * Seeds local initial data to the server if the server has no records yet.
- */
-async function bootstrapLocalDataToServer() {
-  for (const reg of SYNCED_REGISTRIES) {
-    const local = window.localStorage.getItem(reg.storageKey);
-    if (local && local.trim().length > 2) {
-      await syncRegistryToServer(reg.storageKey, local);
-    }
   }
 }
 
