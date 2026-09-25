@@ -94,10 +94,10 @@ export const AllDestinationsExplorer: React.FC = () => {
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-stone-100 pb-5">
             <div>
               <h1 className="text-2xl sm:text-3xl font-black text-[#1D1C1C] tracking-tight">
-                Jammu & Kashmir and Himachal Pradesh Tour Packages
+                Jammu & Kashmir Tour Packages
               </h1>
               <p className="text-stone-600 text-xs sm:text-sm font-medium mt-1.5 leading-relaxed max-w-3xl">
-                Plan your perfect holiday with our customized tour packages across Jammu & Kashmir and Himachal Pradesh, backed by premium stays, private chauffeur cars, and 24/7 local travel desk support.
+                Plan your perfect holiday with our customized Jammu & Kashmir tour packages, backed by premium stays, private chauffeur cars, and 24/7 local travel desk support.
               </p>
             </div>
 
@@ -162,7 +162,7 @@ export const AllDestinationsExplorer: React.FC = () => {
             <div className="text-center py-16 bg-white rounded-3xl border border-dashed border-stone-300 p-8">
               <MapPin className="w-10 h-10 text-stone-300 mx-auto mb-3" />
               <h3 className="text-base font-bold text-stone-800">No destinations match "{searchQuery}"</h3>
-              <p className="text-xs text-stone-500 mt-1">Try searching for Jammu & Kashmir or Himachal Pradesh</p>
+              <p className="text-xs text-stone-500 mt-1">Try searching for Jammu & Kashmir</p>
               <button
                 onClick={() => {
                   setSearchQuery('');
