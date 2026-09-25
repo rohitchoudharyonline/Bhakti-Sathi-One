@@ -6,7 +6,9 @@ SET structured_content = json_set(
   '$.value',
   (SELECT json_group_array(json(value))
    FROM json_each(json_extract(structured_content, '$.value'))
-   WHERE json_extract(value, '$.destinationTag') = 'kashmir')
+   WHERE lower(COALESCE(json_extract(value, '$.destinationTag'), '')) = 'kashmir'
+      OR lower(COALESCE(json_extract(value, '$.destination'), '')) LIKE '%kashmir%'
+      OR lower(COALESCE(json_extract(value, '$.destination'), '')) LIKE '%jammu%')
 ),
 updated_at = datetime('now')
 WHERE id = 'registry-packages';
