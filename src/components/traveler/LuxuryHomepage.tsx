@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion } from 'motion/react';
 import {
   ArrowRight,
   Calendar,
@@ -52,8 +52,6 @@ import {
   User,
   FileText,
   Landmark,
-  Mic,
-  MicOff,
 } from 'lucide-react';
 import { useTours } from '../../context/TourContext';
 import { Navbar } from '../common/Navbar';
@@ -306,56 +304,6 @@ export const LuxuryHomepage: React.FC = () => {
   const [isSearching, setIsSearching] = useState(false);
   const [loadedImages, setLoadedImages] = useState<Record<string, boolean>>({});
   const [pulsingTempleId, setPulsingTempleId] = useState<string | null>(null);
-  const [isListening, setIsListening] = useState(false);
-  const searchQueryInputRef = useRef<HTMLInputElement>(null);
-
-  const toggleVoiceSearch = () => {
-    const SpeechRecognitionAPI = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SpeechRecognitionAPI) {
-      alert("Voice search is not supported in this browser. Please try Chrome, Edge, or Safari.");
-      return;
-    }
-
-    if (isListening) {
-      setIsListening(false);
-      return;
-    }
-
-    try {
-      const recognition = new SpeechRecognitionAPI();
-      recognition.continuous = false;
-      recognition.interimResults = false;
-      recognition.lang = 'en-IN';
-
-      recognition.onstart = () => {
-        setIsListening(true);
-      };
-
-      recognition.onresult = (event: any) => {
-        const transcript = event.results[0][0].transcript;
-        if (transcript) {
-          setSearchQuery(transcript);
-          setOpenDropdown('dest');
-          searchQueryInputRef.current?.focus();
-        }
-        setIsListening(false);
-      };
-
-      recognition.onerror = (event: any) => {
-        console.error('Speech recognition error', event.error);
-        setIsListening(false);
-      };
-
-      recognition.onend = () => {
-        setIsListening(false);
-      };
-
-      recognition.start();
-    } catch (err) {
-      console.error(err);
-      setIsListening(false);
-    }
-  };
 
   const handleTempleClick = (temple: (typeof temples)[number]) => {
     setPulsingTempleId(temple.id);
@@ -380,44 +328,6 @@ export const LuxuryHomepage: React.FC = () => {
       { id: 'all', name: 'All Destinations & Packages', region: 'Explore', desc: 'Browse all tour and holiday packages', type: 'dest' as const },
     ];
   }, [destinations]);
-
-  const queryLower = searchQuery.trim().toLowerCase();
-  const matchedDestinations = useMemo(() => {
-    const list = destinationSearchOptions;
-    if (!queryLower) return list;
-    return list.filter(d => d.name.toLowerCase().includes(queryLower) || d.desc.toLowerCase().includes(queryLower) || d.region.toLowerCase().includes(queryLower));
-  }, [destinationSearchOptions, queryLower]);
-
-  const flatDropdownItems = useMemo(() => {
-    return matchedDestinations.map(d => ({ type: 'destination' as const, data: d }));
-  }, [matchedDestinations]);
-
-  const [selectedIndex, setSelectedIndex] = useState(0);
-
-  useEffect(() => {
-    setSelectedIndex(0);
-  }, [searchQuery]);
-
-  const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (openDropdown !== 'dest') return;
-    if (flatDropdownItems.length === 0) return;
-
-    if (e.key === 'ArrowDown') {
-      e.preventDefault();
-      setSelectedIndex((prev) => (prev + 1) % flatDropdownItems.length);
-    } else if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      setSelectedIndex((prev) => (prev - 1 + flatDropdownItems.length) % flatDropdownItems.length);
-    } else if (e.key === 'Enter') {
-      e.preventDefault();
-      const item = flatDropdownItems[selectedIndex];
-      if (item && item.type === 'destination') {
-        setActiveSpecificDest(item.data.id);
-        setSearchQuery('');
-        setOpenDropdown(null);
-      }
-    }
-  };
 
   const filteredDestinations = useMemo(() => {
     const list = Object.values(destinations || {}) as DestinationMeta[];
@@ -603,171 +513,84 @@ export const LuxuryHomepage: React.FC = () => {
             </div>
 
             {/* MASTER SEARCH WIDGET (CLEAN, DEDICATED SEARCH) */}
-            <div 
-              id="search-widget-container" 
-              onClick={() => {
-                searchQueryInputRef.current?.focus();
-                setOpenDropdown('dest');
-              }}
-              className="relative z-20 bg-white rounded-2xl border-2 border-stone-200/90 shadow-lg p-4 sm:p-5 cursor-pointer"
-            >
+            <div id="search-widget-container" className="relative z-20 bg-white rounded-2xl border-2 border-stone-200/90 shadow-lg p-4 sm:p-5">
               <form onSubmit={handleHeroSearch} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 relative">
-                {/* Column 1: Destination Selector Only */}
-                <div 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    searchQueryInputRef.current?.focus();
-                    setOpenDropdown('dest');
-                  }}
-                  className="lg:col-span-4 relative hero-search-dropdown-container cursor-pointer"
-                >
-                  <div className={`w-full text-left p-2.5 sm:p-3 rounded-xl bg-stone-50 border transition flex flex-col justify-between min-h-[52px] sm:min-h-[56px] ${
-                    openDropdown === 'dest'
-                      ? 'border-stone-900 ring-2 ring-stone-100 bg-white'
-                      : 'border-stone-200 hover:border-stone-300'
-                  }`}>
+                {/* Column 1: Destination / Shrine Selector */}
+                <div className="lg:col-span-4 relative hero-search-dropdown-container">
+                  <button
+                    type="button"
+                    onClick={() => setOpenDropdown(openDropdown === 'dest' ? null : 'dest')}
+                    className={`w-full text-left p-2.5 sm:p-3 rounded-xl bg-stone-50 border transition cursor-pointer flex flex-col justify-between min-h-[52px] sm:min-h-[56px] ${
+                      openDropdown === 'dest'
+                        ? 'border-stone-900 ring-2 ring-stone-100 bg-white'
+                        : 'border-stone-200 hover:border-stone-300'
+                    }`}
+                  >
                     <span className="block text-[10px] font-black uppercase tracking-wider text-stone-400">
-                      Destination / Circuit
+                      Destination / Tour Circuit
                     </span>
                     <div className="flex items-center justify-between gap-2 mt-0.5 sm:mt-1">
-                      <div className="flex items-center gap-2 min-w-0 flex-1">
+                      <div className="flex items-center gap-2 min-w-0">
                         <MapPin className="w-4 h-4 text-[#FF4B00] shrink-0" />
-                        <input
-                          ref={searchQueryInputRef}
-                          type="text"
-                          value={searchQuery}
-                          onFocus={() => setOpenDropdown('dest')}
-                          onKeyDown={handleSearchKeyDown}
-                          onChange={(e) => {
-                            setSearchQuery(e.target.value);
-                            setOpenDropdown('dest');
-                          }}
-                          placeholder={destinationSearchOptions.find((d) => d.id === activeSpecificDest)?.name || 'Search Kashmir, Manali, Shimla...'}
-                          className="w-full text-xs sm:text-sm font-bold text-stone-900 bg-transparent focus:outline-none placeholder:text-stone-400 placeholder:font-normal truncate cursor-text"
-                        />
+                        <span className="text-xs sm:text-sm font-bold text-stone-900 truncate">
+                          {destinationSearchOptions.find((d) => d.id === activeSpecificDest)?.name || 'All Destinations & Circuits'}
+                        </span>
                       </div>
-                      <div className="flex items-center gap-1.5 shrink-0">
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            toggleVoiceSearch();
-                          }}
-                          title={isListening ? "Listening... Click to stop" : "Search by voice"}
-                          className={`p-1.5 rounded-full transition-colors cursor-pointer ${
-                            isListening 
-                              ? 'bg-red-500 text-white animate-pulse' 
-                              : 'text-stone-400 hover:text-[#FF4B00] hover:bg-stone-100'
-                          }`}
-                        >
-                          <Mic className={`w-3.5 h-3.5 ${isListening ? 'animate-bounce' : ''}`} />
-                        </button>
-                        {searchQuery ? (
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setSearchQuery('');
-                            }}
-                            className="p-1 text-stone-400 hover:text-stone-700 cursor-pointer"
-                          >
-                            <X className="w-3.5 h-3.5" />
-                          </button>
-                        ) : (
-                          <ChevronDown
-                            className={`w-4 h-4 text-stone-400 shrink-0 transition-transform duration-200 ${
-                              openDropdown === 'dest' ? 'rotate-180 text-stone-900' : ''
-                            }`}
-                          />
-                        )}
-                      </div>
+                      <ChevronDown
+                        className={`w-4 h-4 text-stone-400 shrink-0 transition-transform duration-200 ${
+                          openDropdown === 'dest' ? 'rotate-180 text-stone-900' : ''
+                        }`}
+                      />
                     </div>
-                  </div>
+                  </button>
 
-                  {/* Destination Dropdown Popover with Smooth Height-Expanding Animation */}
-                  <AnimatePresence>
-                    {openDropdown === 'dest' && (
-                      <motion.div
-                        initial={{ opacity: 0, height: 0, y: -6 }}
-                        animate={{ opacity: 1, height: 'auto', y: 0 }}
-                        exit={{ opacity: 0, height: 0, y: -6 }}
-                        transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
-                        className="absolute top-full left-0 right-0 sm:min-w-[360px] mt-2 bg-white rounded-2xl border border-stone-200 shadow-2xl z-50 overflow-hidden"
-                      >
-                        <div className="p-3 space-y-1 max-h-[380px] overflow-y-auto">
-                          <div className="flex items-center justify-between px-2 py-1">
-                            <span className="text-[10px] font-extrabold uppercase tracking-wider text-stone-400">
-                              Select Destination or Circuit
-                            </span>
-                            <span className="text-[10px] font-bold text-[#FF4B00]">
-                              {matchedDestinations.length} available
-                            </span>
-                          </div>
-
-                          {matchedDestinations.length === 0 ? (
-                            <div className="py-6 text-center text-stone-500 text-xs">
-                              No destinations found matching &ldquo;{searchQuery}&rdquo;.
+                  {/* Destination Dropdown Popover */}
+                  {openDropdown === 'dest' && (
+                    <div className="absolute top-full left-0 right-0 sm:min-w-[320px] mt-2 bg-white rounded-2xl border border-stone-200 shadow-2xl z-50 p-2 space-y-1 max-h-[320px] overflow-y-auto">
+                      <div className="px-2 py-1 text-[10px] font-extrabold uppercase tracking-wider text-stone-400">
+                        Select Destination
+                      </div>
+                      {destinationSearchOptions.map((dest) => {
+                        const isSelected = activeSpecificDest === dest.id;
+                        return (
+                          <button
+                            key={dest.id}
+                            type="button"
+                            onClick={() => {
+                              setActiveSpecificDest(dest.id);
+                              setSearchQuery('');
+                              setOpenDropdown(null);
+                            }}
+                            className={`w-full text-left p-2.5 rounded-xl transition flex items-center justify-between gap-3 cursor-pointer ${
+                              isSelected
+                                ? 'bg-[#FFF0EB] text-[#FF4B00] font-bold border border-[#FF4B00]/20'
+                                : 'hover:bg-stone-50 text-stone-800'
+                            }`}
+                          >
+                            <div className="min-w-0">
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs sm:text-sm font-bold">{dest.name}</span>
+                                <span className="text-[10px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-stone-100 text-stone-600">
+                                  {dest.region}
+                                </span>
+                              </div>
+                              <span className="text-[11px] text-stone-500 block truncate mt-0.5 font-normal">
+                                {dest.desc}
+                              </span>
                             </div>
-                          ) : (
-                            matchedDestinations.map((dest, idx) => {
-                              const isHighlighted = selectedIndex === idx;
-                              const isSelected = activeSpecificDest === dest.id;
-                              return (
-                                <button
-                                  key={dest.id}
-                                  type="button"
-                                  onClick={() => {
-                                    setActiveSpecificDest(dest.id);
-                                    setSearchQuery('');
-                                    setOpenDropdown(null);
-                                  }}
-                                  className={`w-full text-left p-2.5 rounded-xl transition flex items-center justify-between gap-3 cursor-pointer ${
-                                    isHighlighted || isSelected
-                                      ? 'bg-[#FFF0EB] text-[#FF4B00] font-bold border border-[#FF4B00]/20'
-                                      : 'hover:bg-stone-50 text-stone-800'
-                                  }`}
-                                >
-                                  <div className="flex items-center gap-2.5 min-w-0">
-                                    <div className={`p-1.5 rounded-lg shrink-0 ${isHighlighted || isSelected ? 'bg-[#FF4B00]/10 text-[#FF4B00]' : 'bg-stone-100 text-stone-500'}`}>
-                                      <MapPin className="w-3.5 h-3.5" />
-                                    </div>
-                                    <div className="min-w-0">
-                                      <div className="flex items-center gap-2">
-                                        <span className="text-xs sm:text-sm font-bold">{dest.name}</span>
-                                        <span className="text-[10px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-stone-100 text-stone-600">
-                                          {dest.region}
-                                        </span>
-                                      </div>
-                                      <span className="text-[11px] text-stone-500 block truncate mt-0.5 font-normal">
-                                        {dest.desc}
-                                      </span>
-                                    </div>
-                                  </div>
-                                  {isSelected && <Check className="w-4 h-4 text-[#FF4B00] shrink-0" />}
-                                </button>
-                              );
-                            })
-                          )}
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
+                            {isSelected && <Check className="w-4 h-4 text-[#FF4B00] shrink-0" />}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
 
                 {/* Column 2: Tour Type Selector (Pilgrimage, Honeymoon, Family) */}
-                <div 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setOpenDropdown(openDropdown === 'type' ? null : 'type');
-                  }}
-                  className="lg:col-span-3 relative hero-search-dropdown-container cursor-pointer"
-                >
+                <div className="lg:col-span-3 relative hero-search-dropdown-container">
                   <button
                     type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setOpenDropdown(openDropdown === 'type' ? null : 'type');
-                    }}
+                    onClick={() => setOpenDropdown(openDropdown === 'type' ? null : 'type')}
                     className={`w-full text-left p-2.5 sm:p-3 rounded-xl bg-stone-50 border transition cursor-pointer flex flex-col justify-between min-h-[52px] sm:min-h-[56px] ${
                       openDropdown === 'type'
                         ? 'border-stone-900 ring-2 ring-stone-100 bg-white'
@@ -840,19 +663,10 @@ export const LuxuryHomepage: React.FC = () => {
                 </div>
 
                 {/* Column 3: Travel Month / Yatra Season */}
-                <div 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setOpenDropdown(openDropdown === 'month' ? null : 'month');
-                  }}
-                  className="lg:col-span-3 relative hero-search-dropdown-container cursor-pointer"
-                >
+                <div className="lg:col-span-3 relative hero-search-dropdown-container">
                   <button
                     type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setOpenDropdown(openDropdown === 'month' ? null : 'month');
-                    }}
+                    onClick={() => setOpenDropdown(openDropdown === 'month' ? null : 'month')}
                     className={`w-full text-left p-2.5 sm:p-3 rounded-xl bg-stone-50 border transition cursor-pointer flex flex-col justify-between min-h-[52px] sm:min-h-[56px] ${
                       openDropdown === 'month'
                         ? 'border-stone-900 ring-2 ring-stone-100 bg-white'
@@ -1303,13 +1117,10 @@ export const LuxuryHomepage: React.FC = () => {
               const IconComp = item.icon;
 
               return (
-                <motion.div
+                <div
                   key={item.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-50px" }}
-                  transition={{ duration: 0.5, delay: idx * 0.1 }}
-                  className="w-[84vw] sm:w-[360px] md:w-[380px] shrink-0 snap-start bg-white rounded-2xl p-5 sm:p-6 border border-stone-200/90 shadow-2xs hover:border-black hover:shadow-md transition-all duration-200 flex flex-col justify-between group active:scale-[0.97] cursor-grab active:cursor-grabbing select-none"
+                  style={{ animationDelay: `${idx * 100}ms` }}
+                  className="w-[84vw] sm:w-[360px] md:w-[380px] shrink-0 snap-start bg-white rounded-2xl p-5 sm:p-6 border border-stone-200/90 shadow-2xs hover:border-black hover:shadow-md transition-all duration-200 flex flex-col justify-between group active:scale-[0.97] cursor-grab active:cursor-grabbing select-none animate-fade-in-up opacity-0 [animation-fill-mode:forwards]"
                 >
                   <div>
                     {/* Monochrome Icon Badge & Subtitle Pill */}
@@ -1332,7 +1143,7 @@ export const LuxuryHomepage: React.FC = () => {
                       {item.description}
                     </p>
                   </div>
-                </motion.div>
+                </div>
               );
             })}
           </div>

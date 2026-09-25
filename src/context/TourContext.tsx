@@ -32,7 +32,7 @@ import { DEFAULT_PAGE_SEO_CONFIGS } from '../data/defaultPageSeoData';
 import { DEFAULT_PUSH_NOTIFICATIONS, DEFAULT_PUSH_SUBSCRIBERS, DEFAULT_PUSH_SETTINGS } from '../data/defaultPushData';
 import { DEFAULT_TEMPLES_DATA, TemplePlace } from '../data/templesData';
 import { initMediaStorage, saveMediaAssetToDb, saveAllMediaAssetsToDb, deleteMediaAssetFromDb } from '../utils/mediaStorage';
-import { fetchDestinationsFromServer, saveDestinationToServer, deleteDestinationFromServer, loadAuthoritativeServerContent, syncRegistryToServer, forceReFetchAllPersonalData } from '../services/contentSyncService';
+import { fetchDestinationsFromServer, saveDestinationToServer, deleteDestinationFromServer, loadAuthoritativeServerContent, syncRegistryToServer } from '../services/contentSyncService';
 
 export interface SystemSearchParams {
   destinationSlug?: string;
@@ -147,24 +147,6 @@ interface TourContextType {
   duplicatePackage: (id: string) => void;
   togglePublishStatus: (id: string) => void;
   toggleFeatured: (id: string) => void;
-  importTourPackages: (newPkgs: TourPackage[], replaceAll?: boolean) => { success: boolean; count: number; message: string };
-  clearAllPackages: () => void;
-  exportTourPackagesJson: () => string;
-  forceRefetchAndSyncPrivateData: () => Promise<{
-    success: boolean;
-    packagesCount: number;
-    destinationsCount: number;
-    mediaCount: number;
-    message: string;
-    data?: {
-      packages: TourPackage[];
-      destinations: Record<string, DestinationMeta>;
-      mediaAssets: MediaAsset[];
-    };
-  }>;
-  forceDatabaseResync: () => Promise<{ success: boolean; message: string }>;
-  refetchAllPersonalData: () => Promise<{ success: boolean; message: string }>;
-  forceDatabaseSync: () => Promise<{ success: boolean; message: string }>;
 
   // Destinations Registry & CMS CRUD
   destinations: Record<string, DestinationMeta>;
@@ -508,6 +490,16 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch {}
   };
 
+  const DISALLOWED_DUMMY_PKG_IDS = new Set([
+    'pkg-kashmir-01',
+    'pkg-kashmir-02',
+    'pkg-kashmir-03',
+    'pkg-kashmir-04',
+    'pkg-jammu-01',
+    'pkg-jammu-02',
+    'pkg-ladakh-01',
+  ]);
+
   // Helper to normalize category to one of the 3 clean categories
   const normalizePackageCategory = (cat: string | undefined): 'Family' | 'Honeymoon' | 'Pilgrimage' => {
     const c = (cat || '').toLowerCase().trim();
@@ -516,22 +508,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return 'Family'; // Default fallback is Family
   };
 
-  const DEVELOPER_DUMMY_PKG_IDS = new Set([
-    'pkg-kashmir-honeymoon-01',
-    'pkg-himachal-02',
-    'pkg-kashmir-vaishno-01',
-    'pkg-amritsar-01',
-    'pkg-kashmir-01',
-    'pkg-kashmir-02',
-    'pkg-kashmir-03',
-    'pkg-kashmir-04',
-    'pkg-ladakh-01',
-    'pkg-gurez-01',
-    'pkg-himachal-01',
-    'pkg-jammu-01',
-  ]);
-
-  // 1. Packages State - Preserves user created & uploaded tours
+  // 1. Packages State
   const [packages, setPackages] = useState<TourPackage[]>(() => {
     const deletedIds = getDeletedItems('hh_deleted_package_ids');
 
@@ -541,7 +518,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) {
           const cleaned = parsed
-            .filter((pkg) => !deletedIds.includes(pkg.id) && !DEVELOPER_DUMMY_PKG_IDS.has(pkg.id))
+            .filter((pkg) => !deletedIds.includes(pkg.id) && !DISALLOWED_DUMMY_PKG_IDS.has(pkg.id))
             .map((pkg) => {
               const cat = normalizePackageCategory(pkg.category || pkg.tourType);
               return {
@@ -560,10 +537,34 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     } catch {}
     
-    return [];
+    return DEFAULT_PACKAGES
+      .filter((pkg) => !deletedIds.includes(pkg.id) && !DISALLOWED_DUMMY_PKG_IDS.has(pkg.id))
+      .map((pkg) => {
+        const cat = normalizePackageCategory(pkg.category || pkg.tourType);
+        return {
+          ...pkg,
+          category: cat,
+          tourType: cat,
+        };
+      });
   });
 
-  // 2. Destinations Registry State
+  const DISALLOWED_DUMMY_DEST_SLUGS = new Set([
+    'ladakh',
+    'jammu',
+    'kashmir',
+    'goa',
+    'kerala',
+    'rajasthan',
+    'uttarakhand',
+    'andaman',
+    'dubai',
+    'thailand',
+    'bali',
+    'singapore',
+  ]);
+
+  // 2. Destinations Registry State (Strictly Jammu & Kashmir, Himachal Pradesh, Amritsar)
   const [destinations, setDestinations] = useState<Record<string, DestinationMeta>>(() => {
     const deletedSlugs = getDeletedItems('hh_deleted_destination_slugs');
 
@@ -574,7 +575,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
           const result: Record<string, DestinationMeta> = {};
           for (const [slug, rawItem] of Object.entries(parsed)) {
-            if (!deletedSlugs.includes(slug) && rawItem) {
+            if (!deletedSlugs.includes(slug) && !DISALLOWED_DUMMY_DEST_SLUGS.has(slug) && rawItem) {
               const defaultDest: any = DESTINATIONS_REGISTRY[slug] || {};
               const item: any = rawItem;
               result[slug] = {
@@ -608,7 +609,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const initial: Record<string, DestinationMeta> = {};
     for (const [slug, dest] of Object.entries(DESTINATIONS_REGISTRY)) {
-      if (!deletedSlugs.includes(slug)) {
+      if (!deletedSlugs.includes(slug) && !DISALLOWED_DUMMY_DEST_SLUGS.has(slug)) {
         initial[slug] = dest;
       }
     }
@@ -2087,75 +2088,60 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     // When D1 server sync hydrates data into localStorage, update in-memory state
-    const handleContentSynced = (event?: Event) => {
+    const handleContentSynced = () => {
       try {
-        const detail = (event as CustomEvent)?.detail;
         const deletedDestSlugs = getDeletedItems('hh_deleted_destination_slugs');
         const deletedTempleIds = getDeletedItems('hh_deleted_temple_ids');
         const deletedPkgIds = getDeletedItems('hh_deleted_package_ids');
         const deletedBlogIds = getDeletedItems('hh_deleted_blog_post_ids');
         const deletedPageIds = getDeletedItems('hh_deleted_custom_page_ids');
 
-        if (detail?.forceOverwrite && detail?.packages && Array.isArray(detail.packages)) {
-          const cleaned = detail.packages
-            .filter((item: TourPackage) => !deletedPkgIds.includes(item.id) && !DEVELOPER_DUMMY_PKG_IDS.has(item.id))
-            .map((item: TourPackage) => {
-              const cat = normalizePackageCategory(item.category || item.tourType);
-              return { ...item, category: cat, tourType: cat };
-            });
-          setPackages(cleaned);
-        } else {
-          const p = localStorage.getItem(STORAGE_KEYS.PACKAGES);
-          if (p) {
-            const parsed = JSON.parse(p);
-            if (Array.isArray(parsed)) {
-              const cleaned = parsed
-                .filter((item: TourPackage) => !deletedPkgIds.includes(item.id) && !DEVELOPER_DUMMY_PKG_IDS.has(item.id))
-                .map((item: TourPackage) => {
-                  const cat = normalizePackageCategory(item.category || item.tourType);
-                  return {
-                    ...item,
-                    category: cat,
-                    tourType: cat,
-                  };
-                });
-              setPackages(cleaned);
-            }
-          }
-        }
-
-        if (detail?.forceOverwrite && detail?.destinations && typeof detail.destinations === 'object') {
-          const clean: Record<string, DestinationMeta> = {};
-          for (const [k, v] of Object.entries(detail.destinations)) {
-            if (!deletedDestSlugs.includes(k) && v) {
-              clean[k] = v as DestinationMeta;
-            }
-          }
-          setDestinations(clean);
-        } else {
-          const d = localStorage.getItem(STORAGE_KEYS.DESTINATIONS);
-          if (d) {
-            const parsed = JSON.parse(d);
-            if (parsed && typeof parsed === 'object') {
-              const clean: Record<string, DestinationMeta> = {};
-              for (const [k, v] of Object.entries(parsed)) {
-                if (!deletedDestSlugs.includes(k) && v) {
-                  clean[k] = v as DestinationMeta;
-                }
+        const d = localStorage.getItem(STORAGE_KEYS.DESTINATIONS);
+        if (d) {
+          const parsed = JSON.parse(d);
+          if (parsed && typeof parsed === 'object') {
+            const clean: Record<string, DestinationMeta> = {};
+            for (const [k, v] of Object.entries(parsed)) {
+              if (!deletedDestSlugs.includes(k) && !DISALLOWED_DUMMY_DEST_SLUGS.has(k) && v) {
+                clean[k] = v as DestinationMeta;
               }
-              setDestinations(clean);
             }
+            setDestinations(clean);
           }
         }
-
-        if (detail?.forceOverwrite && detail?.mediaAssets && Array.isArray(detail.mediaAssets)) {
-          setMediaAssets(detail.mediaAssets);
-        } else {
-          const m = localStorage.getItem(STORAGE_KEYS.MEDIA_ASSETS);
-          if (m) {
-            const parsed = JSON.parse(m);
-            if (Array.isArray(parsed)) setMediaAssets(parsed);
+        const t = localStorage.getItem(STORAGE_KEYS.TEMPLES_PLACES);
+        if (t) {
+          const parsed = JSON.parse(t);
+          if (Array.isArray(parsed)) {
+            setTemples(parsed.filter((item: TemplePlace) => !deletedTempleIds.includes(item.id) && !deletedTempleIds.includes(item.slug)));
           }
+        }
+        const p = localStorage.getItem(STORAGE_KEYS.PACKAGES);
+        if (p) {
+          const parsed = JSON.parse(p);
+          if (Array.isArray(parsed)) {
+            const cleaned = parsed
+              .filter((item: TourPackage) => !deletedPkgIds.includes(item.id) && !DISALLOWED_DUMMY_PKG_IDS.has(item.id))
+              .map((item: TourPackage) => {
+                const cat = normalizePackageCategory(item.category || item.tourType);
+                return {
+                  ...item,
+                  category: cat,
+                  tourType: cat,
+                };
+              });
+            setPackages(cleaned);
+          }
+        }
+        const b = localStorage.getItem(STORAGE_KEYS.BLOG_POSTS);
+        if (b) {
+          const parsed = JSON.parse(b);
+          if (Array.isArray(parsed)) setBlogPosts(parsed.filter((item: BlogPost) => !deletedBlogIds.includes(item.id)));
+        }
+        const m = localStorage.getItem(STORAGE_KEYS.MEDIA_ASSETS);
+        if (m) {
+          const parsed = JSON.parse(m);
+          if (Array.isArray(parsed)) setMediaAssets(parsed);
         }
         const cp = localStorage.getItem(STORAGE_KEYS.CUSTOM_PAGES);
         if (cp) {
@@ -2521,7 +2507,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
     unmarkItemDeleted('hh_deleted_package_ids', id);
     setPackages((prev) => {
-      const next = [pkgWithId, ...prev.filter(p => p.id !== id)];
+      const next = [pkgWithId, ...prev.filter(p => p.id !== id && !DISALLOWED_DUMMY_PKG_IDS.has(p.id))];
       try {
         localStorage.setItem(STORAGE_KEYS.PACKAGES, JSON.stringify(next));
       } catch {}
@@ -2540,7 +2526,9 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
       tourType: cleanCat,
     };
     setPackages((prev) => {
-      const next = prev.map((pkg) => (pkg.id === sanitizedPkg.id ? sanitizedPkg : pkg));
+      const next = prev
+        .filter(p => !DISALLOWED_DUMMY_PKG_IDS.has(p.id))
+        .map((pkg) => (pkg.id === sanitizedPkg.id ? sanitizedPkg : pkg));
       try {
         localStorage.setItem(STORAGE_KEYS.PACKAGES, JSON.stringify(next));
       } catch {}
@@ -2579,7 +2567,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
     unmarkItemDeleted('hh_deleted_package_ids', newId);
     setPackages((prev) => {
-      const next = [duplicated, ...prev.filter(p => p.id !== newId)];
+      const next = [duplicated, ...prev.filter(p => p.id !== newId && !DISALLOWED_DUMMY_PKG_IDS.has(p.id))];
       try {
         localStorage.setItem(STORAGE_KEYS.PACKAGES, JSON.stringify(next));
       } catch {}
@@ -2612,195 +2600,6 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return next;
     });
   };
-
-  const importTourPackages = (newPkgs: TourPackage[], replaceAll = false): { success: boolean; count: number; message: string } => {
-    if (!Array.isArray(newPkgs) || newPkgs.length === 0) {
-      return { success: false, count: 0, message: 'No valid packages supplied.' };
-    }
-
-    const sanitizedNew = newPkgs.map((pkg, idx) => {
-      const id = pkg.id || `pkg-${Date.now()}-${idx}`;
-      unmarkItemDeleted('hh_deleted_package_ids', id);
-      const cleanCat = normalizePackageCategory(pkg.category || pkg.tourType);
-      return {
-        ...pkg,
-        id,
-        category: cleanCat,
-        tourType: cleanCat,
-        status: pkg.status || 'published',
-        createdAt: pkg.createdAt || new Date().toISOString(),
-      };
-    });
-
-    setPackages((prev) => {
-      let finalPackages: TourPackage[];
-      if (replaceAll) {
-        finalPackages = sanitizedNew;
-      } else {
-        const newIds = new Set(sanitizedNew.map((p) => p.id));
-        finalPackages = [...sanitizedNew, ...prev.filter((p) => !newIds.has(p.id))];
-      }
-
-      try {
-        localStorage.setItem(STORAGE_KEYS.PACKAGES, JSON.stringify(finalPackages));
-      } catch {}
-      void syncRegistryToServer(STORAGE_KEYS.PACKAGES, JSON.stringify(finalPackages));
-      return finalPackages;
-    });
-
-    return {
-      success: true,
-      count: sanitizedNew.length,
-      message: `Successfully ${replaceAll ? 'replaced catalog with' : 'imported'} ${sanitizedNew.length} package(s).`,
-    };
-  };
-
-  const clearAllPackages = () => {
-    setPackages([]);
-    try {
-      localStorage.setItem(STORAGE_KEYS.PACKAGES, JSON.stringify([]));
-    } catch {}
-    void syncRegistryToServer(STORAGE_KEYS.PACKAGES, JSON.stringify([]));
-  };
-
-  const exportTourPackagesJson = (): string => {
-    return JSON.stringify(packages, null, 2);
-  };
-
-  /**
-   * Forces a complete re-fetch and synchronization of personal tour packages,
-   * destinations, and media assets from private database storage, completely
-   * overwriting any dummy or pre-loaded data.
-   */
-  const forceRefetchAndSyncPrivateData = async (): Promise<{
-    success: boolean;
-    packagesCount: number;
-    destinationsCount: number;
-    mediaCount: number;
-    message: string;
-    data?: {
-      packages: TourPackage[];
-      destinations: Record<string, DestinationMeta>;
-      mediaAssets: MediaAsset[];
-    };
-  }> => {
-    try {
-      // 1. Perform a live uncached fetch from the private backend / database
-      const res = await forceReFetchAllPersonalData();
-
-      const deletedPkgIds = getDeletedItems('hh_deleted_package_ids');
-      const deletedDestSlugs = getDeletedItems('hh_deleted_destination_slugs');
-
-      // 2. Hydrate and overwrite packages strictly from database (filtering out any dummy packages)
-      let updatedPkgs: TourPackage[] = [];
-      if (res.packages && Array.isArray(res.packages)) {
-        updatedPkgs = res.packages
-          .filter((pkg) => !deletedPkgIds.includes(pkg.id) && !DEVELOPER_DUMMY_PKG_IDS.has(pkg.id))
-          .map((pkg) => {
-            const cat = normalizePackageCategory(pkg.category || pkg.tourType);
-            return {
-              ...pkg,
-              category: cat,
-              tourType: cat,
-            };
-          });
-      } else {
-        const saved = localStorage.getItem(STORAGE_KEYS.PACKAGES);
-        if (saved) {
-          try {
-            const parsed = JSON.parse(saved);
-            if (Array.isArray(parsed)) {
-              updatedPkgs = parsed
-                .filter((pkg) => !deletedPkgIds.includes(pkg.id) && !DEVELOPER_DUMMY_PKG_IDS.has(pkg.id))
-                .map((pkg) => {
-                  const cat = normalizePackageCategory(pkg.category || pkg.tourType);
-                  return { ...pkg, category: cat, tourType: cat };
-                });
-            }
-          } catch {}
-        }
-      }
-      setPackages(updatedPkgs);
-      try {
-        localStorage.setItem(STORAGE_KEYS.PACKAGES, JSON.stringify(updatedPkgs));
-      } catch {}
-
-      // 3. Hydrate and overwrite destinations strictly from database
-      let updatedDests: Record<string, DestinationMeta> = {};
-      if (res.destinations && Object.keys(res.destinations).length > 0) {
-        for (const [k, v] of Object.entries(res.destinations)) {
-          if (!deletedDestSlugs.includes(k) && v) {
-            updatedDests[k] = v;
-          }
-        }
-      } else {
-        const directDests = await fetchDestinationsFromServer();
-        if (directDests && typeof directDests === 'object') {
-          for (const [k, v] of Object.entries(directDests)) {
-            if (!deletedDestSlugs.includes(k) && v) {
-              updatedDests[k] = v;
-            }
-          }
-        }
-      }
-      if (Object.keys(updatedDests).length > 0) {
-        setDestinations(updatedDests);
-        try {
-          localStorage.setItem(STORAGE_KEYS.DESTINATIONS, JSON.stringify(updatedDests));
-        } catch {}
-      }
-
-      // 4. Hydrate and overwrite media assets from database & IndexedDB
-      const dbMedia = await initMediaStorage();
-      let updatedMedia: MediaAsset[] = [];
-      if (res.mediaAssets && Array.isArray(res.mediaAssets) && res.mediaAssets.length > 0) {
-        updatedMedia = res.mediaAssets;
-      } else if (Array.isArray(dbMedia) && dbMedia.length > 0) {
-        updatedMedia = dbMedia;
-      } else {
-        const savedMedia = localStorage.getItem(STORAGE_KEYS.MEDIA_ASSETS);
-        if (savedMedia) {
-          try {
-            const parsed = JSON.parse(savedMedia);
-            if (Array.isArray(parsed)) updatedMedia = parsed;
-          } catch {}
-        }
-      }
-      if (updatedMedia.length > 0) {
-        setMediaAssets(updatedMedia);
-        void saveAllMediaAssetsToDb(updatedMedia);
-        try {
-          localStorage.setItem(STORAGE_KEYS.MEDIA_ASSETS, JSON.stringify(updatedMedia));
-        } catch {}
-      }
-
-      return {
-        success: true,
-        packagesCount: updatedPkgs.length,
-        destinationsCount: Object.keys(updatedDests).length,
-        mediaCount: updatedMedia.length,
-        message: `Successfully re-fetched and synchronized ${updatedPkgs.length} tour package(s), ${Object.keys(updatedDests).length} destination(s), and ${updatedMedia.length} media asset(s) from your private database, completely overwriting dummy data.`,
-        data: {
-          packages: updatedPkgs,
-          destinations: updatedDests,
-          mediaAssets: updatedMedia,
-        },
-      };
-    } catch (err) {
-      console.error('[TourContext] Force re-fetch from database error:', err);
-      return {
-        success: false,
-        packagesCount: packages.length,
-        destinationsCount: Object.keys(destinations).length,
-        mediaCount: mediaAssets.length,
-        message: err instanceof Error ? err.message : 'Error syncing from database.',
-      };
-    }
-  };
-
-  const forceDatabaseResync = async () => forceRefetchAndSyncPrivateData();
-  const refetchAllPersonalData = async () => forceRefetchAndSyncPrivateData();
-  const forceDatabaseSync = async () => forceRefetchAndSyncPrivateData();
 
   // Destinations Operations
   const addDestination = (newDest: Omit<DestinationMeta, 'id'>): string => {
@@ -3825,13 +3624,6 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
         duplicatePackage,
         togglePublishStatus,
         toggleFeatured,
-        importTourPackages,
-        clearAllPackages,
-        exportTourPackagesJson,
-        forceRefetchAndSyncPrivateData,
-        forceDatabaseResync,
-        refetchAllPersonalData,
-        forceDatabaseSync,
         destinations,
         addDestination,
         updateDestination,

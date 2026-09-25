@@ -760,24 +760,8 @@ export const DestinationsManager: React.FC = () => {
                       </div>
                     </div>
 
-                    {/* Attraction Photo Upload */}
-                    <div className="space-y-1 pt-1">
-                      <UniversalImageUploader
-                        label="Attraction Photo (Auto-compressed)"
-                        description="Upload or choose image for this attraction/sight."
-                        folder="attractions"
-                        defaultWidth={800}
-                        defaultFormat="webp"
-                        currentUrl={att.image || ''}
-                        onImageSelected={(url) => {
-                          const updated = [...(formData.guide?.topAttractions || [])];
-                          updated[idx].image = url;
-                          setFormData({ ...formData, guide: { ...formData.guide, topAttractions: updated } });
-                        }}
-                      />
-                    </div>
-
                     {/* Attraction Highlights */}
+
                     <div className="space-y-1">
                       <label className="text-[11px] font-bold text-stone-700 block">Highlights & Key Details</label>
                       <textarea
