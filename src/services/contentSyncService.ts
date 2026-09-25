@@ -236,15 +236,6 @@ export async function loadAuthoritativeServerContent(): Promise<boolean> {
       );
     } catch {}
 
-    // For any registry that does not exist on server yet, check if local has data to seed
-    for (const reg of SYNCED_REGISTRIES) {
-      if (!serverItemsByKey.has(reg.storageKey)) {
-        const localVal = window.localStorage.getItem(reg.storageKey);
-        if (localVal && localVal.trim().length > 2) {
-          void syncRegistryToServer(reg.storageKey, localVal);
-        }
-      }
-    }
 
     return true;
   } catch (err) {
