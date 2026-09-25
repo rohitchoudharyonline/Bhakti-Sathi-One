@@ -217,7 +217,7 @@ export const Footer: React.FC<FooterProps> = ({ onSelectDestination, onSelectDha
     }
 
     // Try destination or custom page
-    const commonDestinations = ['vaishno-devi', 'himachal-devi', 'varanasi-kashi', 'ayodhya-ram-mandir', 'char-dham', 'mathura-vrindavan', 'dwarka-somnath', 'amritsar-golden-temple', 'tirupati-balaji', 'shirdi-sai-baba', 'jagannath-puri', 'kamakhya-devi', 'kedarnath', 'badrinath', 'rishikesh-haridwar'];
+    const commonDestinations = ['vaishno-devi', 'shiv-khori', 'baba-dhansar', 'raghunath-temple-jammu', 'amarnath-cave'];
     if (commonDestinations.includes(normalized)) {
       handleDestinationClick(normalized);
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -446,7 +446,7 @@ export const Footer: React.FC<FooterProps> = ({ onSelectDestination, onSelectDha
                     </li>
                     <li>
                       <button onClick={() => openInfo('pilgrimage')} className="hover:text-white transition cursor-pointer text-left">
-                        • Himachal Devi Darshan
+                        • Jammu & Kashmir Pilgrimage
                       </button>
                     </li>
                     <li>
@@ -469,8 +469,8 @@ export const Footer: React.FC<FooterProps> = ({ onSelectDestination, onSelectDha
                       </button>
                     </li>
                     <li>
-                      <button onClick={() => handleDestinationClick('himachal')} className="hover:text-white transition cursor-pointer text-left">
-                        • Himachal Mountains
+                      <button onClick={() => handleDestinationClick('kashmir')} className="hover:text-white transition cursor-pointer text-left">
+                        • Kashmir Valley
                       </button>
                     </li>
                     <li>
@@ -479,8 +479,8 @@ export const Footer: React.FC<FooterProps> = ({ onSelectDestination, onSelectDha
                       </button>
                     </li>
                     <li>
-                      <button onClick={() => handleDestinationClick('himachal_devi')} className="hover:text-white transition cursor-pointer text-left">
-                        • Himachal Devi Darshan
+                      <button onClick={() => handleDestinationClick('jammu')} className="hover:text-white transition cursor-pointer text-left">
+                        • Jammu & Kashmir Pilgrimage
                       </button>
                     </li>
                   </ul>
