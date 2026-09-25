@@ -544,11 +544,11 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
                 </h1>
                 <p className="text-stone-600 text-xs sm:text-sm font-medium leading-relaxed">
                   {selectedCategory && selectedCategory !== 'all' ? (
-                    selectedCategory === 'pilgrimage' ? 'Book custom-tailored sacred yatras and holiday packages across Jammu & Kashmir and Himachal Pradesh.' :
+                    selectedCategory === 'pilgrimage' ? 'Book custom-tailored sacred yatras and holiday packages across Jammu & Kashmir.' :
                     selectedCategory === 'family' ? 'Handcrafted family holiday packages with spacious private cabs, kid & elder friendly hotel stays, and relaxed sightseeing itineraries.' :
                     selectedCategory === 'honeymoon' ? 'Romantic couples retreats with private chauffeur transfers, candle-light dinners, scenic mountain view resorts, and flower bed decorations.' :
                     selectedCategory === 'luxury' ? 'Ultra-premium holiday packages featuring 5-star royal palace stays, private luxury transfers, and exclusive VIP experiences.' :
-                    selectedCategory === 'group' ? 'Join curated group tour departures across Jammu & Kashmir and Himachal Pradesh circuits with experienced trip captains.' :
+                    selectedCategory === 'group' ? 'Join curated group tour departures across Jammu & Kashmir circuits with experienced trip captains.' :
                     `Explore our handpicked ${selectedCategory} tour packages.`
                   ) : currentDestMeta && selectedDestSlug !== 'all' ? (
                     <>
@@ -556,7 +556,7 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
                     </>
                   ) : (
                     <>
-                      Explore our entire handpicked collection of Pilgrimage, Family, Honeymoon, and Group tour packages across Jammu & Kashmir and Himachal Pradesh with transparent pricing and 24/7 travel support.
+                      Explore our entire handpicked collection of Pilgrimage, Family, Honeymoon, and Group tour packages across Jammu & Kashmir with transparent pricing and 24/7 travel support.
                     </>
                   )}
                 </p>
@@ -568,7 +568,7 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
                   <Search className="w-4 h-4 text-stone-400 absolute left-4 top-1/2 -translate-y-1/2" />
                   <input
                     type="text"
-                    placeholder="Search packages (e.g. Jammu & Kashmir, Himachal Pradesh, 5 Days)..."
+                    placeholder="Search packages (e.g. Jammu & Kashmir, 5 Days)..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="w-full pl-11 pr-4 py-3 bg-stone-50 border border-stone-200 rounded-xl text-xs sm:text-sm text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-4 focus:ring-[#FF4B00]/10 focus:border-[#FF4B00] transition shadow-2xs"
