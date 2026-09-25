@@ -73,7 +73,7 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
   const [searchQuery, setSearchQuery] = useState<string>(
     systemSearchParams?.searchQuery || ''
   );
-  const [sortBy, setSortBy] = useState<'featured' | 'price-low' | 'price-high' | 'duration'>('featured');
+  const [sortBy, setSortBy] = useState<'featured' | 'price-low' | 'price-high' | 'duration' | 'duration-short'>('featured');
 
   // Sync state when systemSearchParams changes
   useEffect(() => {
@@ -310,6 +310,11 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
       const aDays = a.durationDays || parseInt((a as any).duration) || 0;
       const bDays = b.durationDays || parseInt((b as any).duration) || 0;
       return bDays - aDays;
+    }
+    if (sortBy === 'duration-short') {
+      const aDays = a.durationDays || parseInt((a as any).duration) || 0;
+      const bDays = b.durationDays || parseInt((b as any).duration) || 0;
+      return aDays - bDays;
     }
     return 0; // featured default
   });
@@ -670,7 +675,8 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
                 <option value="featured">Sort: Recommended</option>
                 <option value="price-low">Price: Low to High</option>
                 <option value="price-high">Price: High to Low</option>
-                <option value="duration">Longest Duration</option>
+                <option value="duration-short">Duration: Shortest</option>
+                <option value="duration">Duration: Longest</option>
               </select>
             </div>
           </div>
