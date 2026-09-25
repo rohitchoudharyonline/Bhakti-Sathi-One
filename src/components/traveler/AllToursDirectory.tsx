@@ -135,15 +135,15 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
       ? `${selectedTempleMeta?.name} Pilgrimage & Darshan Tour Packages 2026 | Holidays Hunt`
       : isDestSpecific
       ? `${currentDestMeta?.name} Tour Packages 2026 | Holidays Hunt`
-      : toursSeo?.metaTitle || 'Book Family, Honeymoon & Pilgrimage Tour Packages | Holidays Hunt';
+      : toursSeo?.metaTitle || 'Book Jammu & Kashmir Family, Honeymoon & Pilgrimage Tour Packages | Holidays Hunt';
 
     const pageDescription = isCategorySpecific
-      ? categorySeo?.metaDescription || `Explore verified ${selectedCategory} tour packages across Jammu & Kashmir and Himachal Pradesh.`
+      ? categorySeo?.metaDescription || `Explore verified ${selectedCategory} tour packages across Jammu & Kashmir.`
       : isTempleSpecific
       ? `Book customized pilgrimage itineraries and guided tour packages for ${selectedTempleMeta?.name}. Verified stays, private transfers, and experienced yatra guides.`
       : isDestSpecific
       ? `Explore all verified ${currentDestMeta?.name} holiday packages. Dedicated private cabs, inspected 3-star/4-star hotels, and 24/7 mountain support.`
-      : toursSeo?.metaDescription || 'Explore and book verified Family, Honeymoon, and Pilgrimage tour packages across Jammu & Kashmir and Himachal Pradesh.';
+      : toursSeo?.metaDescription || 'Explore and book verified Family, Honeymoon, and Pilgrimage tour packages across Jammu & Kashmir.';
 
     const canonicalPath = isCategorySpecific
       ? `/tour-type/${selectedCategory.toLowerCase()}`
