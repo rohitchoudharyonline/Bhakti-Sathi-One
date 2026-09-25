@@ -47,6 +47,13 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
+      - name: Diagnose current D1 tour registry
+        run: |
+          bunx wrangler d1 execute DB --remote --command "SELECT id, updated_at, substr(structured_content, 1, 12000) AS structured_content FROM contents WHERE id='registry-packages';"
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
       - name: Deploy Worker and Static Assets
         run: bunx wrangler deploy
         env:
