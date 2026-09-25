@@ -148,11 +148,17 @@ function decodeServerRow(row: ServerContentRow): DecodedRegistryItem | null {
  * The server database is the only source of truth for shared public/CMS content.
  */
 function clearSharedRegistryCache() {
-  for (const reg of SYNCED_REGISTRIES) {
-    try {
-      window.localStorage.removeItem(reg.storageKey);
-      window.localStorage.removeItem(`_sync_time_${reg.storageKey}`);
-    } catch {}
+  const wasHydrating = isHydrating;
+  isHydrating = true;
+  try {
+    for (const reg of SYNCED_REGISTRIES) {
+      try {
+        window.localStorage.removeItem(reg.storageKey);
+        window.localStorage.removeItem(`_sync_time_${reg.storageKey}`);
+      } catch {}
+    }
+  } finally {
+    isHydrating = wasHydrating;
   }
 }
 
