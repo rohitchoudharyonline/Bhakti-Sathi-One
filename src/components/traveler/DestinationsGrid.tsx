@@ -22,6 +22,12 @@ interface DestinationCardData {
   popularHighlight: string;
 }
 
+const APPROVED_DESTINATION_IMAGE_FALLBACKS: Record<string, string> = {
+  'jammu-kashmir': 'https://images.unsplash.com/photo-1719377678428-d9bcec6976f3?auto=format&fit=crop&w=1600&q=85',
+  'himachal': 'https://images.unsplash.com/photo-1590265788376-5d99eb11976e?auto=format&fit=crop&w=1600&q=85',
+  'amritsar': 'https://images.unsplash.com/photo-1517427677506-ade074eb1432?auto=format&fit=crop&w=1600&q=85',
+};
+
 const PILGRIMAGE_DESTINATIONS: DestinationCardData[] = [
   {
     id: 'jammu-kashmir',
@@ -31,7 +37,7 @@ const PILGRIMAGE_DESTINATIONS: DestinationCardData[] = [
     rating: 4.99,
     bestTime: 'Year Round',
     tagline: 'Scenic Mountain Valleys, Houseboats & Sacred Shrines',
-    image: 'https://images.unsplash.com/photo-1598091383021-15ddea10925d?auto=format&fit=crop&w=800&q=80',
+    image: 'https://images.unsplash.com/photo-1719377678428-d9bcec6976f3?auto=format&fit=crop&w=800&q=85',
     badge: 'Jammu & Kashmir',
     popularHighlight: 'Alpine Meadows, Houseboats & Mountain Shrines',
   },
@@ -43,7 +49,7 @@ const PILGRIMAGE_DESTINATIONS: DestinationCardData[] = [
     rating: 4.98,
     bestTime: 'Year Round',
     tagline: 'Himalayan Passes, Pine Valleys & Serene Hill Escapes',
-    image: 'https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?auto=format&fit=crop&w=800&q=80',
+    image: 'https://images.unsplash.com/photo-1590265788376-5d99eb11976e?auto=format&fit=crop&w=800&q=85',
     badge: 'Himachal Pradesh',
     popularHighlight: 'Alpine Passes, Pine Forests & Hill Escapes',
   },
@@ -103,7 +109,7 @@ export const DestinationsGrid: React.FC<DestinationsGridProps> = ({
                   alt={dest.name}
                   className="absolute inset-0 w-full h-full object-cover group-hover:scale-108 transition-transform duration-700 ease-out"
                   loading="lazy"
-                  onError={(e) => handleImageError(e, rawImg, mediaAssets, dest.image)}
+                  onError={(e) => handleImageError(e, rawImg, mediaAssets, APPROVED_DESTINATION_IMAGE_FALLBACKS[dest.id] || dest.image)}
                 />
 
                 {/* Scrim Overlay */}
