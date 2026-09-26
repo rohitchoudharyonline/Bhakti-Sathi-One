@@ -2092,6 +2092,10 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
           const deletedBlogIds = getDeletedItems('hh_deleted_blog_post_ids');
           const parsed = JSON.parse(e.newValue);
           if (Array.isArray(parsed)) setBlogPosts(parsed.filter((b: BlogPost) => !deletedBlogIds.includes(b.id)));
+        } else if (e.key === STORAGE_KEYS.BLOG_CATEGORIES && e.newValue) {
+          const deletedCategoryIds = getDeletedItems('hh_deleted_blog_category_ids');
+          const parsed = JSON.parse(e.newValue);
+          if (Array.isArray(parsed)) setBlogCategories(parsed.filter((c: BlogCategory) => !deletedCategoryIds.includes(c.id)));
         } else if (e.key === STORAGE_KEYS.MEDIA_ASSETS && e.newValue) {
           const parsed = JSON.parse(e.newValue);
           if (Array.isArray(parsed)) setMediaAssets(parsed);
@@ -2120,6 +2124,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const deletedTempleIds = getDeletedItems('hh_deleted_temple_ids');
         const deletedPkgIds = getDeletedItems('hh_deleted_package_ids');
         const deletedBlogIds = getDeletedItems('hh_deleted_blog_post_ids');
+        const deletedBlogCategoryIds = getDeletedItems('hh_deleted_blog_category_ids');
         const deletedPageIds = getDeletedItems('hh_deleted_custom_page_ids');
 
         const d = hasDestinationRegistry ? null : localStorage.getItem(STORAGE_KEYS.DESTINATIONS);
@@ -2173,6 +2178,11 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (b) {
           const parsed = JSON.parse(b);
           if (Array.isArray(parsed)) setBlogPosts(parsed.filter((item: BlogPost) => !deletedBlogIds.includes(item.id)));
+        }
+        const bc = localStorage.getItem(STORAGE_KEYS.BLOG_CATEGORIES);
+        if (bc) {
+          const parsed = JSON.parse(bc);
+          if (Array.isArray(parsed)) setBlogCategories(parsed.filter((item: BlogCategory) => !deletedBlogCategoryIds.includes(item.id)));
         }
         const m = localStorage.getItem(STORAGE_KEYS.MEDIA_ASSETS);
         if (m) {
@@ -2821,6 +2831,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const deleteBlogPost = (id: string) => {
     markItemDeleted('hh_deleted_blog_post_ids', id);
+    void syncRegistryToServer('hh_deleted_blog_post_ids', JSON.stringify(getDeletedItems('hh_deleted_blog_post_ids')));
     setBlogPosts((prev) => {
       const next = prev.filter((p) => p.id !== id);
       try {
@@ -2899,6 +2910,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const deleteBlogCategory = (id: string) => {
     markItemDeleted('hh_deleted_blog_category_ids', id);
+    void syncRegistryToServer('hh_deleted_blog_category_ids', JSON.stringify(getDeletedItems('hh_deleted_blog_category_ids')));
     setBlogCategories((prev) => {
       const next = prev.filter((c) => c.id !== id);
       try {

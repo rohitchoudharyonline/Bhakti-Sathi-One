@@ -22,6 +22,8 @@ export const SYNCED_REGISTRIES: SyncedRegistryDef[] = [
   { id: 'registry-destinations', storageKey: 'hh_destinations_registry_v2', title: 'Destinations Registry', contentType: 'shared_local_state' },
   { id: 'registry-temples', storageKey: 'hh_temples_places_v1', title: 'Temples and Sacred Places', contentType: 'shared_local_state' },
   { id: 'registry-blog-posts-v2', storageKey: 'hh_blog_posts_v2', title: 'Blog Posts Registry', contentType: 'shared_local_state' },
+  { id: 'registry-deleted-blog-posts', storageKey: 'hh_deleted_blog_post_ids', title: 'Deleted Blog Post IDs', contentType: 'shared_local_state' },
+  { id: 'registry-deleted-blog-categories', storageKey: 'hh_deleted_blog_category_ids', title: 'Deleted Blog Category IDs', contentType: 'shared_local_state' },
   { id: 'registry-blog-posts', storageKey: 'hh_blog_posts_v1', title: 'Legacy Blog Posts Registry', contentType: 'shared_local_state' },
   { id: 'registry-blog-categories-v2', storageKey: 'hh_blog_categories_v2', title: 'Blog Categories Registry', contentType: 'shared_local_state' },
   { id: 'registry-blog-categories', storageKey: 'hh_blog_categories_v1', title: 'Legacy Blog Categories Registry', contentType: 'shared_local_state' },
@@ -199,8 +201,11 @@ export function clearSharedRegistryCache() {
   try {
     for (const reg of SYNCED_REGISTRIES) {
       try {
-        window.localStorage.removeItem(reg.storageKey);
-        window.localStorage.removeItem(`_sync_time_${reg.storageKey}`);
+        // Keep deletion tombstones until the server copy has been merged.
+        if (reg.storageKey !== 'hh_deleted_blog_post_ids' && reg.storageKey !== 'hh_deleted_blog_category_ids') {
+          window.localStorage.removeItem(reg.storageKey);
+          window.localStorage.removeItem(`_sync_time_${reg.storageKey}`);
+        }
       } catch {}
     }
   } finally {
@@ -311,19 +316,45 @@ export async function loadAuthoritativeServerContent(): Promise<boolean> {
       } catch {}
     }
 
-    // If the user previously deleted CMS blog categories, persist that deletion
-    // back to D1 so refresh cannot resurrect the old category registry.
-    const blogCategoryItem = serverItemsByKey.get('hh_blog_categories_v2');
-    if (blogCategoryItem) {
+    // Merge blog deletion tombstones from localStorage with the server copy.
+    // These IDs are persisted in D1 so relogin/cache clear cannot resurrect deleted content.
+    for (const tombstoneKey of ['hh_deleted_blog_post_ids', 'hh_deleted_blog_category_ids']) {
       try {
-        const parsed = JSON.parse(blogCategoryItem.value);
-        const deletedRaw = window.localStorage.getItem('hh_deleted_blog_category_ids');
-        const deletedIds = deletedRaw ? JSON.parse(deletedRaw) : [];
-        if (Array.isArray(parsed) && Array.isArray(deletedIds)) {
-          const deletedSet = new Set(deletedIds.map(String));
-          const cleaned = parsed.filter((cat: any) => !deletedSet.has(String(cat?.id || '')));
-          blogCategoryItem.value = JSON.stringify(cleaned);
-          window.localStorage.setItem('hh_deleted_blog_category_ids', JSON.stringify([]));
+        const localRaw = window.localStorage.getItem(tombstoneKey);
+        const serverItem = serverItemsByKey.get(tombstoneKey);
+        const serverRaw = serverItem?.value;
+        const localIds = localRaw ? JSON.parse(localRaw) : [];
+        const serverIds = serverRaw ? JSON.parse(serverRaw) : [];
+        const merged = Array.from(new Set([
+          ...(Array.isArray(serverIds) ? serverIds : []),
+          ...(Array.isArray(localIds) ? localIds : []),
+        ].map(String)));
+        if (merged.length > 0 || serverItem) {
+          const item = serverItem || {
+            id: tombstoneKey === 'hh_deleted_blog_post_ids' ? 'registry-deleted-blog-posts' : 'registry-deleted-blog-categories',
+            storageKey: tombstoneKey,
+            value: '[]',
+            updatedAt: undefined,
+          };
+          item.value = JSON.stringify(merged);
+          serverItemsByKey.set(tombstoneKey, item);
+        }
+      } catch {}
+    }
+
+    // Remove deleted posts/categories from the authoritative registries before hydration.
+    for (const [registryKey, tombstoneKey, field] of [
+      ['hh_blog_posts_v2', 'hh_deleted_blog_post_ids', 'id'],
+      ['hh_blog_categories_v2', 'hh_deleted_blog_category_ids', 'id'],
+    ] as const) {
+      const registryItem = serverItemsByKey.get(registryKey);
+      const tombstoneItem = serverItemsByKey.get(tombstoneKey);
+      if (!registryItem || !tombstoneItem) continue;
+      try {
+        const deletedIds = new Set(JSON.parse(tombstoneItem.value).map(String));
+        const parsed = JSON.parse(registryItem.value);
+        if (Array.isArray(parsed)) {
+          registryItem.value = JSON.stringify(parsed.filter((item: any) => !deletedIds.has(String(item?.[field] || ''))));
         }
       } catch {}
     }
