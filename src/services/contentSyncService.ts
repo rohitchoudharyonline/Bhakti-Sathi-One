@@ -370,7 +370,12 @@ export async function syncRegistryToServer(key: string, value: string): Promise<
     try {
       const parsed = JSON.parse(value);
       if (Array.isArray(parsed)) {
-        const cleaned = parsed.filter((pkg: any) => !DISALLOWED_DUMMY_PACKAGE_IDS.has(String(pkg?.id || '')));
+        const cleaned = parsed.filter((pkg: any) => {
+          const id = String(pkg?.id || '');
+          const slug = String(pkg?.slug || '');
+          return !DISALLOWED_DUMMY_PACKAGE_IDS.has(id) &&
+            (PROTECTED_REAL_TOUR_IDS.has(id) || PROTECTED_REAL_TOUR_SLUGS.has(slug));
+        });
         if (parsed.length > 0 && cleaned.length === 0) return false;
         value = JSON.stringify(cleaned);
       }
