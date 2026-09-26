@@ -1636,7 +1636,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (typeof window === 'undefined' || packages.length === 0) return;
     const path = window.location.pathname.toLowerCase();
     if (!path.startsWith('/tours/')) return;
-    const segment = path.replace('/tours/', '').replace(/^\\/+|\\/+$/g, '').split('/')[0];
+    const segment = path.replace('/tours/', '').replace(/^\/+|\/+$/g, '').split('/')[0];
     if (!segment || ['pilgrimage', 'family', 'honeymoon', 'group', 'luxury'].includes(segment)) return;
 
     const matchedPkg = packages.find((p) =>
