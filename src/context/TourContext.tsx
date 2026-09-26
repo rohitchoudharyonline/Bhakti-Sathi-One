@@ -534,7 +534,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const parsed = JSON.parse(saved);
       if (!Array.isArray(parsed)) return [];
       return parsed
-        .filter((pkg: TourPackage) => isProtectedRealTour(pkg))
+        .filter((pkg: TourPackage) => !DISALLOWED_DUMMY_PKG_IDS.has(pkg.id))
         .map((pkg: TourPackage) => {
           const cat = normalizePackageCategory(pkg.category || pkg.tourType);
           return { ...pkg, category: cat, tourType: cat };
