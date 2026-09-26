@@ -1,4 +1,5 @@
 name: Deploy Cloudflare
+# Protected registries: Tours, Destinations, and Media must survive every deploy/hydration.
 
 on:
   workflow_dispatch:
