@@ -1319,10 +1319,12 @@ export async function generateTourPDF(pkg:TourPackage,a:AgencySettings,onProgres
     d.text('Holidays Hunt', margin, 46);
   }
 
-  d.setFont('helvetica', 'normal');
+  d.setFont('helvetica', 'bold');
   d.setFontSize(10);
-  d.setTextColor(...MUTED);
+  d.setTextColor(...INK);
   if (a.phone) d.text(clean(a.phone), w - margin, 50, { align: 'right' });
+  d.setFont('helvetica', 'normal');
+  d.setTextColor(...MUTED);
   if (a.email) d.text(clean(a.email), w - margin, 66, { align: 'right' });
 
   d.setDrawColor(...LINE);
