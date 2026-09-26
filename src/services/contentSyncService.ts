@@ -51,9 +51,9 @@ const DISALLOWED_DUMMY_PACKAGE_IDS = new Set([
 // These are the three real Holidays Hunt tours. They must never be hidden
 // by an old browser/server deletion tombstone after the approved restore.
 const PROTECTED_REAL_TOUR_IDS = new Set([
-  'pkg-kashmir-honeymoon-01',
-  'pkg-kashmir-vaishno-01',
-  'pkg-kashmir-family-01',
+  'pkg-1789721050903',
+  'pkg-1789720939137',
+  'pkg-1789411062209',
 ]);
 
 const REGISTRY_BY_ID = new Map<string, SyncedRegistryDef>(
