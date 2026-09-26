@@ -28,32 +28,7 @@ const APPROVED_DESTINATION_IMAGE_FALLBACKS: Record<string, string> = {
   'amritsar': 'https://images.unsplash.com/photo-1517427677506-ade074eb1432?auto=format&fit=crop&w=1600&q=85',
 };
 
-const PILGRIMAGE_DESTINATIONS: DestinationCardData[] = [
-  {
-    id: 'jammu-kashmir',
-    name: 'Jammu & Kashmir',
-    region: 'Jammu & Kashmir',
-    packagesCount: 12,
-    rating: 4.99,
-    bestTime: 'Year Round',
-    tagline: 'Scenic Mountain Valleys, Houseboats & Sacred Shrines',
-    image: 'https://images.unsplash.com/photo-1719377678428-d9bcec6976f3?auto=format&fit=crop&w=800&q=85',
-    badge: 'Jammu & Kashmir',
-    popularHighlight: 'Alpine Meadows, Houseboats & Mountain Shrines',
-  },
-  {
-    id: 'himachal',
-    name: 'Himachal Pradesh',
-    region: 'Himachal Pradesh',
-    packagesCount: 8,
-    rating: 4.98,
-    bestTime: 'Year Round',
-    tagline: 'Himalayan Passes, Pine Valleys & Serene Hill Escapes',
-    image: 'https://images.unsplash.com/photo-1590265788376-5d99eb11976e?auto=format&fit=crop&w=800&q=85',
-    badge: 'Himachal Pradesh',
-    popularHighlight: 'Alpine Passes, Pine Forests & Hill Escapes',
-  },
-];
+const APPROVED_DESTINATION_SLUGS = ['jammu-kashmir', 'himachal', 'amritsar'] as const;
 
 export const DestinationsGrid: React.FC<DestinationsGridProps> = ({
   onSelectDestination,
