@@ -509,35 +509,15 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   // 1. Packages State
-  // Use the last server-hydrated registry immediately on first paint. D1
-  // remains authoritative and will replace this cache after hydration.
-  // This removes the visible "Curating Family Tours" delay without using
-  // DEFAULT_PACKAGES or reintroducing any dummy tours.
+  // NEVER paint browser-local package data on the first render. Older
+  // localStorage can contain stale/dummy tours and causes them to flash
+  // before the authoritative D1 registry arrives.
   const PROTECTED_REAL_TOUR_IDS = new Set([
     'pkg-1789721050903',
     'pkg-1789720939137',
     'pkg-1789411062209',
   ]);
-  const [packages, setPackages] = useState<TourPackage[]>(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEYS.PACKAGES);
-      if (!saved) return [];
-      const parsed = JSON.parse(saved);
-      if (!Array.isArray(parsed)) return [];
-      const deletedPkgIds = getDeletedItems('hh_deleted_package_ids');
-      return parsed
-        .filter((pkg: TourPackage) =>
-          !DISALLOWED_DUMMY_PKG_IDS.has(pkg.id) &&
-          (!deletedPkgIds.includes(pkg.id) || PROTECTED_REAL_TOUR_IDS.has(pkg.id))
-        )
-        .map((pkg: TourPackage) => {
-          const cat = normalizePackageCategory(pkg.category || pkg.tourType);
-          return { ...pkg, category: cat, tourType: cat };
-        });
-    } catch {
-      return [];
-    }
-  });
+  const [packages, setPackages] = useState<TourPackage[]>([]);
 
   const DISALLOWED_DUMMY_DEST_SLUGS = new Set([
     'ladakh',
@@ -2004,10 +1984,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
           if (Array.isArray(parsed)) {
             const deletedPkgIds = getDeletedItems('hh_deleted_package_ids');
             setPackages(parsed
-              .filter((pkg: TourPackage) =>
-                !DISALLOWED_DUMMY_PKG_IDS.has(pkg.id) &&
-                (!deletedPkgIds.includes(pkg.id) || PROTECTED_REAL_TOUR_IDS.has(pkg.id))
-              )
+              .filter((pkg: TourPackage) => PROTECTED_REAL_TOUR_IDS.has(pkg.id))
               .map((pkg: TourPackage) => {
                 const cat = normalizePackageCategory(pkg.category || pkg.tourType);
                 return { ...pkg, category: cat, tourType: cat };
@@ -2063,7 +2040,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
         } else if (e.key === STORAGE_KEYS.PACKAGES && e.newValue) {
           const deletedPkgIds = getDeletedItems('hh_deleted_package_ids');
           const parsed = JSON.parse(e.newValue);
-          if (Array.isArray(parsed)) setPackages(parsed.filter((p: TourPackage) => !deletedPkgIds.includes(p.id) || PROTECTED_REAL_TOUR_IDS.has(p.id)));
+          if (Array.isArray(parsed)) setPackages(parsed.filter((p: TourPackage) => PROTECTED_REAL_TOUR_IDS.has(p.id)));
         } else if (e.key === STORAGE_KEYS.BLOG_POSTS && e.newValue) {
           const deletedBlogIds = getDeletedItems('hh_deleted_blog_post_ids');
           const parsed = JSON.parse(e.newValue);
@@ -2132,7 +2109,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
             // Server content is authoritative: if a tour exists in D1, restore it
             // even if an old browser tombstone still contains its package ID.
             const cleaned = parsed
-              .filter((item: TourPackage) => !DISALLOWED_DUMMY_PKG_IDS.has(item.id))
+              .filter((item: TourPackage) => PROTECTED_REAL_TOUR_IDS.has(item.id))
               .map((item: TourPackage) => {
                 const cat = normalizePackageCategory(item.category || item.tourType);
                 return {
