@@ -392,6 +392,53 @@ export default {
               }
             }
 
+            if (id === 'registry-destinations' || slug === 'hh_destinations_registry_v2') {
+              try {
+                const structured = typeof b.structured_content === 'string'
+                  ? JSON.parse(b.structured_content)
+                  : (b.structured_content || {});
+                const rawValue = structured && typeof structured.value === 'string' ? structured.value : structured?.value;
+                const destinations = typeof rawValue === 'string' ? JSON.parse(rawValue) : rawValue;
+                const required = new Set(['jammu-kashmir', 'himachal', 'amritsar']);
+                const incoming = new Set(
+                  destinations && typeof destinations === 'object'
+                    ? (Array.isArray(destinations)
+                        ? destinations.map((d: any) => String(d?.slug || d?.id || '').trim().toLowerCase())
+                        : Object.keys(destinations).map((k) => k.trim().toLowerCase()))
+                    : []
+                );
+                if (![...required].every((slugName) => incoming.has(slugName))) {
+                  return json({ error: 'Destination registry rejected: protected destinations must remain intact.' }, 409, privateHeaders(env, request));
+                }
+              } catch {
+                return json({ error: 'Destination registry rejected: invalid registry payload.' }, 400, privateHeaders(env, request));
+              }
+            }
+
+            if (id === 'registry-media-assets-v2' || slug === 'hh_media_assets_v2') {
+              try {
+                const structured = typeof b.structured_content === 'string'
+                  ? JSON.parse(b.structured_content)
+                  : (b.structured_content || {});
+                const rawValue = structured && typeof structured.value === 'string' ? structured.value : structured?.value;
+                const media = typeof rawValue === 'string' ? JSON.parse(rawValue) : rawValue;
+                if (Array.isArray(media) && media.length === 0) {
+                  const existing = await env.DB.prepare('SELECT structured_content FROM contents WHERE id=?').bind('registry-media-assets-v2').first();
+                  if (existing?.structured_content) {
+                    try {
+                      const current = JSON.parse(existing.structured_content as string);
+                      const currentValue = typeof current?.value === 'string' ? JSON.parse(current.value) : current?.value;
+                      if (Array.isArray(currentValue) && currentValue.length > 0) {
+                        return json({ error: 'Media registry protected: an empty upload state cannot erase existing photos.' }, 409, privateHeaders(env, request));
+                      }
+                    } catch {}
+                  }
+                }
+              } catch {
+                return json({ error: 'Media registry rejected: invalid registry payload.' }, 400, privateHeaders(env, request));
+              }
+            }
+
             await env.DB.prepare(
               'INSERT INTO contents (id,content_type,title,slug,subtitle,summary,body,structured_content,seo_title,seo_description,seo_keywords,status,media,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET content_type=excluded.content_type,title=excluded.title,slug=excluded.slug,subtitle=excluded.subtitle,summary=excluded.summary,body=excluded.body,structured_content=excluded.structured_content,seo_title=excluded.seo_title,seo_description=excluded.seo_description,seo_keywords=excluded.seo_keywords,status=excluded.status,media=excluded.media,updated_at=excluded.updated_at'
             ).bind(
