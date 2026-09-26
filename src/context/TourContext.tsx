@@ -2127,7 +2127,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const deletedBlogCategoryIds = getDeletedItems('hh_deleted_blog_category_ids');
         const deletedPageIds = getDeletedItems('hh_deleted_custom_page_ids');
 
-        const d = hasDestinationRegistry ? null : localStorage.getItem(STORAGE_KEYS.DESTINATIONS);
+        const d = localStorage.getItem(STORAGE_KEYS.DESTINATIONS);
         if (d) {
           const parsed = JSON.parse(d);
           if (parsed && typeof parsed === 'object') {
