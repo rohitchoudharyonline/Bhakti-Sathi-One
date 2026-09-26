@@ -513,6 +513,12 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // packages never flash while D1 content is being hydrated.
   const [packages, setPackages] = useState<TourPackage[]>([]);
 
+  const PROTECTED_REAL_TOUR_IDS = new Set([
+    'pkg-kashmir-honeymoon-01',
+    'pkg-kashmir-vaishno-01',
+    'pkg-kashmir-family-01',
+  ]);
+
   const DISALLOWED_DUMMY_DEST_SLUGS = new Set([
     'ladakh',
     'jammu',
@@ -1966,8 +1972,36 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     });
 
-    // Refresh all shared collections from server
-    void loadAuthoritativeServerContent();
+    // Refresh all shared collections from server, then explicitly apply the
+    // hydrated package/category registries in this React context. This avoids
+    // a first-load event race where D1 data could arrive before the listener.
+    void loadAuthoritativeServerContent().then((loaded) => {
+      if (!loaded) return;
+      try {
+        const p = localStorage.getItem(STORAGE_KEYS.PACKAGES);
+        if (p) {
+          const parsed = JSON.parse(p);
+          if (Array.isArray(parsed)) {
+            const deletedPkgIds = getDeletedItems('hh_deleted_package_ids');
+            setPackages(parsed
+              .filter((pkg: TourPackage) =>
+                !DISALLOWED_DUMMY_PKG_IDS.has(pkg.id) &&
+                (!deletedPkgIds.includes(pkg.id) || PROTECTED_REAL_TOUR_IDS.has(pkg.id))
+              )
+              .map((pkg: TourPackage) => {
+                const cat = normalizePackageCategory(pkg.category || pkg.tourType);
+                return { ...pkg, category: cat, tourType: cat };
+              })
+            );
+          }
+        }
+        const c = localStorage.getItem(STORAGE_KEYS.BLOG_CATEGORIES);
+        if (c) {
+          const parsed = JSON.parse(c);
+          if (Array.isArray(parsed)) setBlogCategories(parsed);
+        }
+      } catch {}
+    });
   }, []);
 
   useEffect(() => {
@@ -2009,7 +2043,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
         } else if (e.key === STORAGE_KEYS.PACKAGES && e.newValue) {
           const deletedPkgIds = getDeletedItems('hh_deleted_package_ids');
           const parsed = JSON.parse(e.newValue);
-          if (Array.isArray(parsed)) setPackages(parsed.filter((p: TourPackage) => !deletedPkgIds.includes(p.id)));
+          if (Array.isArray(parsed)) setPackages(parsed.filter((p: TourPackage) => !deletedPkgIds.includes(p.id) || PROTECTED_REAL_TOUR_IDS.has(p.id)));
         } else if (e.key === STORAGE_KEYS.BLOG_POSTS && e.newValue) {
           const deletedBlogIds = getDeletedItems('hh_deleted_blog_post_ids');
           const parsed = JSON.parse(e.newValue);
