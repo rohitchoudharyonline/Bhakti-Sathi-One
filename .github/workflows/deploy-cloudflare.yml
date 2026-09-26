@@ -83,6 +83,22 @@ jobs:
                   out.append("DELETE FROM contents WHERE id = '%s';" % r['id'].replace("'","''"))
           if set(seen) != {'registry-packages','registry-destinations'}:
               raise SystemExit('Historical restore did not contain both required registry rows')
+          # The approved restore must contain all three real Holidays Hunt tours.
+          package_rows = [r for r in rows if r['id'] == 'registry-packages']
+          if not package_rows:
+              raise SystemExit('Historical restore is missing registry-packages')
+          try:
+              raw = bytes.fromhex(str(package_rows[0].get('structured_hex') or '')).decode('utf-8')
+              outer = json.loads(raw)
+              value = outer.get('value') if isinstance(outer, dict) else None
+              packages = json.loads(value) if isinstance(value, str) else value
+              ids = {str(p.get('id')) for p in packages if isinstance(p, dict)}
+          except Exception as exc:
+              raise SystemExit(f'Could not validate historical tour registry: {exc}')
+          required = {'pkg-kashmir-honeymoon-01','pkg-kashmir-vaishno-01','pkg-kashmir-family-01'}
+          if not required.issubset(ids):
+              raise SystemExit(f'Historical 3:45 tour registry is missing approved tours: {sorted(required - ids)}')
+          out.append("UPDATE contents SET status = 'published' WHERE id IN ('registry-packages','registry-destinations');")
           open('/tmp/restore-selected.sql','w').write('\n'.join(out)+'\n')
           PY
           printf 'y\n' | bunx wrangler d1 time-travel restore DB --bookmark="$CURRENT_BOOKMARK" --json
