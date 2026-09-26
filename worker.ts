@@ -363,6 +363,35 @@ export default {
             const slug = text(b.slug || title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''), 200);
             const now = new Date().toISOString();
 
+            // Server-side invariant: never allow a stale/empty CMS browser to
+            // erase the three approved real Holidays Hunt tours from D1.
+            if (id === 'registry-packages' || slug === 'hh_tour_packages_v2') {
+              try {
+                const structured = typeof b.structured_content === 'string'
+                  ? JSON.parse(b.structured_content)
+                  : (b.structured_content || {});
+                const rawValue = structured && typeof structured.value === 'string'
+                  ? structured.value
+                  : structured?.value;
+                const packages = typeof rawValue === 'string' ? JSON.parse(rawValue) : rawValue;
+                const requiredSlugs = new Set([
+                  'kashmir-pilgrimage-tour-package',
+                  '6-days-kashmir-honeymoon-package-srinagar-gulmarg-pahalgam',
+                  'kashmir-tour-package-5-nights-6-days',
+                ]);
+                const incomingSlugs = new Set(
+                  Array.isArray(packages)
+                    ? packages.map((pkg: any) => String(pkg?.slug || '').trim().toLowerCase()).filter(Boolean)
+                    : []
+                );
+                if (incomingSlugs.size === 0 || [...requiredSlugs].some((required) => !incomingSlugs.has(required))) {
+                  return json({ error: 'Tour registry rejected: approved real tours must remain intact.' }, 409, privateHeaders(env, request));
+                }
+              } catch {
+                return json({ error: 'Tour registry rejected: invalid registry payload.' }, 400, privateHeaders(env, request));
+              }
+            }
+
             await env.DB.prepare(
               'INSERT INTO contents (id,content_type,title,slug,subtitle,summary,body,structured_content,seo_title,seo_description,seo_keywords,status,media,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET content_type=excluded.content_type,title=excluded.title,slug=excluded.slug,subtitle=excluded.subtitle,summary=excluded.summary,body=excluded.body,structured_content=excluded.structured_content,seo_title=excluded.seo_title,seo_description=excluded.seo_description,seo_keywords=excluded.seo_keywords,status=excluded.status,media=excluded.media,updated_at=excluded.updated_at'
             ).bind(
