@@ -466,7 +466,7 @@ export function handleImageError(
   }
 
   // Step 3: Fallback image resolution
-  const safeFallback = fallbackUrl || 'https://images.unsplash.com/photo-1595815771614-ade9d652a65d?auto=format&fit=crop&w=1200&q=80';
+  const safeFallback = fallbackUrl || '';
   if (!target.dataset.triedFallback && target.src !== safeFallback) {
     target.dataset.triedFallback = 'true';
     target.src = safeFallback;
