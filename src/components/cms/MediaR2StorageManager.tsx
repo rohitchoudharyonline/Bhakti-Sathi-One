@@ -126,24 +126,34 @@ export const MediaR2StorageManager: React.FC<MediaR2StorageManagerProps> = ({
           folder: selectedFolder === 'all' ? 'uploads' : selectedFolder,
         });
 
-        // 1. Immediately register asset so picture shows in UI without delay
-        addMediaAsset(result.asset);
-
-        // 2. Upload to Cloudflare R2 bucket via server-side proxy
-        try {
-          const r2Uploaded = await uploadToR2(
-            result.dataUrl,
-            result.asset.fileName,
-            result.blob.type,
-            result.asset.storagePath,
-            cloudStorageSettings
-          );
-          if (r2Uploaded) {
-            addMediaAsset({ ...result.asset, r2Synced: true });
+        // Upload the processed image to R2 before committing its metadata.
+        // Retry once so a transient network/worker failure does not silently
+        // leave selected files behind.
+        let r2Uploaded = false;
+        for (let attempt = 1; attempt <= 2 && !r2Uploaded; attempt++) {
+          try {
+            r2Uploaded = await uploadToR2(
+              result.dataUrl,
+              result.asset.fileName,
+              result.blob.type,
+              result.asset.storagePath,
+              cloudStorageSettings
+            );
+          } catch (r2Err) {
+            console.warn(`R2 upload attempt ${attempt} failed for ${file.name}:`, r2Err);
           }
-        } catch (r2Err) {
-          console.warn('R2 sync notice:', r2Err);
+          if (!r2Uploaded && attempt < 2) {
+            await new Promise((resolve) => setTimeout(resolve, 500));
+          }
         }
+
+        // Commit this file once. TourContext uses a functional state update,
+        // so every selected file is retained even during rapid multi-upload.
+        addMediaAsset({
+          ...result.asset,
+          dataUrl: result.dataUrl,
+          r2Synced: r2Uploaded,
+        });
 
         logs.push({
           name: file.name,
