@@ -3134,17 +3134,14 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Media Library Operations
   const addMediaAsset = (asset: MediaAsset) => {
     void saveMediaAssetToDb(asset);
-    setMediaAssets((prev) => {
-      const existingIdx = prev.findIndex(
-        (a) => a.id === asset.id || a.url === asset.url || a.storagePath === asset.storagePath
-      );
-      if (existingIdx >= 0) {
-        const next = [...prev];
-        next[existingIdx] = asset;
-        return next;
-      }
-      return [asset, ...prev];
-    });
+    const existingIdx = mediaAssets.findIndex(
+      (a) => a.id === asset.id || a.url === asset.url || a.storagePath === asset.storagePath
+    );
+    const next = existingIdx >= 0
+      ? mediaAssets.map((a, i) => (i === existingIdx ? asset : a))
+      : [asset, ...mediaAssets];
+    setMediaAssets(next);
+    void syncRegistryToServer('hh_media_assets_v2', JSON.stringify(next));
   };
 
   const restoreSampleMedia = () => {
@@ -3153,12 +3150,16 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const deleteMediaAsset = (id: string) => {
     void deleteMediaAssetFromDb(id);
-    setMediaAssets((prev) => prev.filter((a) => a.id !== id));
+    const next = mediaAssets.filter((a) => a.id !== id);
+    setMediaAssets(next);
+    void syncRegistryToServer('hh_media_assets_v2', JSON.stringify(next));
   };
 
   const updateMediaAsset = (asset: MediaAsset) => {
     void saveMediaAssetToDb(asset);
-    setMediaAssets((prev) => prev.map((a) => (a.id === asset.id ? asset : a)));
+    const next = mediaAssets.map((a) => (a.id === asset.id ? asset : a));
+    setMediaAssets(next);
+    void syncRegistryToServer('hh_media_assets_v2', JSON.stringify(next));
   };
 
   const updateCloudStorageSettings = (settings: CloudStorageSettings) => {
