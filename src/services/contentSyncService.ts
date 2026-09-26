@@ -386,6 +386,15 @@ export async function loadAuthoritativeServerContent(): Promise<boolean> {
       isHydrating = false;
     }
 
+    // Persist any local deletion tombstones that were merged into the authoritative
+    // state during this load, including tombstones created before this fix deployed.
+    for (const tombstoneKey of ['hh_deleted_blog_post_ids', 'hh_deleted_blog_category_ids']) {
+      try {
+        const value = window.localStorage.getItem(tombstoneKey);
+        if (value) void syncRegistryToServer(tombstoneKey, value);
+      } catch {}
+    }
+
     // Broadcast synchronization to all in-memory React contexts
     try {
       window.dispatchEvent(

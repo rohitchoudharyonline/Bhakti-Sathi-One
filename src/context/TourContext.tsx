@@ -2804,6 +2804,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
       likesCount: 0,
     };
     unmarkItemDeleted('hh_deleted_blog_post_ids', id);
+    void syncRegistryToServer('hh_deleted_blog_post_ids', JSON.stringify(getDeletedItems('hh_deleted_blog_post_ids')));
     setBlogPosts((prev) => {
       const next = [post, ...prev];
       try {
@@ -2816,6 +2817,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const updateBlogPost = (updatedPost: BlogPost) => {
     unmarkItemDeleted('hh_deleted_blog_post_ids', updatedPost.id);
+    void syncRegistryToServer('hh_deleted_blog_post_ids', JSON.stringify(getDeletedItems('hh_deleted_blog_post_ids')));
     setBlogPosts((prev) => {
       const next = prev.map((post) =>
         post.id === updatedPost.id
@@ -2886,6 +2888,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const addBlogCategory = (cat: Omit<BlogCategory, 'id'>) => {
     const id = `cat-${Date.now()}`;
     unmarkItemDeleted('hh_deleted_blog_category_ids', id);
+    void syncRegistryToServer('hh_deleted_blog_category_ids', JSON.stringify(getDeletedItems('hh_deleted_blog_category_ids')));
     setBlogCategories((prev) => {
       const next = [...prev, { ...cat, id, postCount: 0 }];
       try {
@@ -2898,6 +2901,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const updateBlogCategory = (cat: BlogCategory) => {
     unmarkItemDeleted('hh_deleted_blog_category_ids', cat.id);
+    void syncRegistryToServer('hh_deleted_blog_category_ids', JSON.stringify(getDeletedItems('hh_deleted_blog_category_ids')));
     setBlogCategories((prev) => {
       const next = prev.map((c) => (c.id === cat.id ? cat : c));
       try {
