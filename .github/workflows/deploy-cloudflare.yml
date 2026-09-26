@@ -84,24 +84,45 @@ jobs:
           if set(seen) != {'registry-packages','registry-destinations'}:
               raise SystemExit('Historical restore did not contain both required registry rows')
           # The approved restore must contain all three real Holidays Hunt tours.
+          # Stable slugs are the canonical identity; legacy numeric IDs are accepted
+          # implicitly because the restore must preserve the records verbatim.
           package_rows = [r for r in rows if r['id'] == 'registry-packages']
+          destination_rows = [r for r in rows if r['id'] == 'registry-destinations']
           if not package_rows:
               raise SystemExit('Historical restore is missing registry-packages')
+          if not destination_rows:
+              raise SystemExit('Historical restore is missing registry-destinations')
           try:
               raw = bytes.fromhex(str(package_rows[0].get('structured_hex') or '')).decode('utf-8')
               outer = json.loads(raw)
               value = outer.get('value') if isinstance(outer, dict) else None
               packages = json.loads(value) if isinstance(value, str) else value
-              ids = {str(p.get('id')) for p in packages if isinstance(p, dict)}
+              slugs = {str(p.get('slug')).strip().lower() for p in packages if isinstance(p, dict)}
           except Exception as exc:
               raise SystemExit(f'Could not validate historical tour registry: {exc}')
-          required = {
-              'pkg-1789721050903',
-              'pkg-1789720939137',
-              'pkg-1789411062209',
+          required_tour_slugs = {
+              'kashmir-pilgrimage-tour-package',
+              '6-days-kashmir-honeymoon-package-srinagar-gulmarg-pahalgam',
+              'kashmir-tour-package-5-nights-6-days',
           }
-          if not required.issubset(ids):
-              raise SystemExit(f'Historical 3:45 tour registry is missing approved tours: {sorted(required - ids)}')
+          if not required_tour_slugs.issubset(slugs):
+              raise SystemExit(f'Historical 3:45 tour registry is missing approved tours: {sorted(required_tour_slugs - slugs)}')
+          try:
+              raw = bytes.fromhex(str(destination_rows[0].get('structured_hex') or '')).decode('utf-8')
+              outer = json.loads(raw)
+              value = outer.get('value') if isinstance(outer, dict) else None
+              destinations = json.loads(value) if isinstance(value, str) else value
+              if isinstance(destinations, list):
+                  destination_slugs = {str(d.get('slug') or d.get('id')).strip().lower() for d in destinations if isinstance(d, dict)}
+              elif isinstance(destinations, dict):
+                  destination_slugs = {str(k).strip().lower() for k in destinations.keys()}
+              else:
+                  destination_slugs = set()
+          except Exception as exc:
+              raise SystemExit(f'Could not validate historical destination registry: {exc}')
+          required_destination_slugs = {'jammu-kashmir', 'himachal', 'amritsar'}
+          if not required_destination_slugs.issubset(destination_slugs):
+              raise SystemExit(f'Historical 3:45 destination registry is missing approved destinations: {sorted(required_destination_slugs - destination_slugs)}')
           out.append("UPDATE contents SET status = 'published' WHERE id IN ('registry-packages','registry-destinations');")
           open('/tmp/restore-selected.sql','w').write('\n'.join(out)+'\n')
           PY

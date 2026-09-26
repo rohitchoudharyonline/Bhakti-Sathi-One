@@ -545,6 +545,8 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   });
 
+  const APPROVED_DESTINATION_SLUGS = new Set(['jammu-kashmir', 'himachal', 'amritsar']);
+
   const DISALLOWED_DUMMY_DEST_SLUGS = new Set([
     'ladakh',
     'jammu',
@@ -563,7 +565,26 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // 2. Destinations Registry State (Strictly Jammu & Kashmir, Himachal Pradesh, Amritsar)
   // Never render browser-local/default destination data before D1 hydration.
   // This prevents stale/dummy destination images from flashing on first paint.
-  const [destinations, setDestinations] = useState<Record<string, DestinationMeta>>({});
+  const [destinations, setDestinations] = useState<Record<string, DestinationMeta>>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.DESTINATIONS);
+      if (!saved) return {};
+      const parsed = JSON.parse(saved);
+      if (!parsed || typeof parsed !== 'object') return {};
+      const map: Record<string, DestinationMeta> = {};
+      const entries = Array.isArray(parsed)
+        ? parsed.map((item: any) => [String(item?.slug || item?.id || ''), item] as const)
+        : Object.entries(parsed);
+      for (const [slug, destination] of entries) {
+        if (APPROVED_DESTINATION_SLUGS.has(String(slug).toLowerCase()) && destination) {
+          map[String(slug).toLowerCase()] = destination as DestinationMeta;
+        }
+      }
+      return map;
+    } catch {
+      return {};
+    }
+  });
 
 
   // 2.1 Sacred Temples & Holy Places State

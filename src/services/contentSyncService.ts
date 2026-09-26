@@ -43,6 +43,32 @@ const REGISTRY_BY_KEY = new Map<string, SyncedRegistryDef>(
 );
 const APPROVED_DESTINATION_SLUGS = new Set(['jammu-kashmir', 'himachal', 'amritsar']);
 
+function normalizeDestinationRegistry(value: unknown): Record<string, any> {
+  let parsed: any = value;
+  if (typeof parsed === 'string') {
+    try { parsed = JSON.parse(parsed); } catch { return {}; }
+  }
+  if (Array.isArray(parsed)) {
+    const map: Record<string, any> = {};
+    for (const destination of parsed) {
+      const slug = String(destination?.slug || destination?.id || '').toLowerCase().trim();
+      if (slug && destination && typeof destination === 'object') map[slug] = destination;
+    }
+    return map;
+  }
+  if (parsed && typeof parsed === 'object') return parsed as Record<string, any>;
+  return {};
+}
+
+function cleanApprovedDestinations(value: unknown): Record<string, any> {
+  const map = normalizeDestinationRegistry(value);
+  const cleaned: Record<string, any> = {};
+  for (const [slug, destination] of Object.entries(map)) {
+    if (APPROVED_DESTINATION_SLUGS.has(String(slug).toLowerCase()) && destination) cleaned[slug] = destination;
+  }
+  return cleaned;
+}
+
 const DISALLOWED_DUMMY_PACKAGE_IDS = new Set([
   'pkg-kashmir-01', 'pkg-kashmir-02', 'pkg-kashmir-03', 'pkg-kashmir-04',
   'pkg-jammu-01', 'pkg-jammu-02', 'pkg-ladakh-01',
@@ -250,14 +276,7 @@ export async function loadAuthoritativeServerContent(): Promise<boolean> {
     const destinationItem = serverItemsByKey.get('hh_destinations_registry_v2');
     if (destinationItem) {
       try {
-        const parsed = JSON.parse(destinationItem.value);
-        if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
-          const cleaned: Record<string, any> = {};
-          for (const [slug, destination] of Object.entries(parsed)) {
-            if (APPROVED_DESTINATION_SLUGS.has(String(slug)) && destination) cleaned[slug] = destination;
-          }
-          destinationItem.value = JSON.stringify(cleaned);
-        }
+        destinationItem.value = JSON.stringify(cleanApprovedDestinations(destinationItem.value));
       } catch {}
     }
 
@@ -384,14 +403,7 @@ export async function syncRegistryToServer(key: string, value: string): Promise<
 
   if (key === 'hh_destinations_registry_v2') {
     try {
-      const parsed = JSON.parse(value);
-      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
-        const cleaned: Record<string, any> = {};
-        for (const [slug, destination] of Object.entries(parsed)) {
-          if (APPROVED_DESTINATION_SLUGS.has(String(slug)) && destination) cleaned[slug] = destination;
-        }
-        value = JSON.stringify(cleaned);
-      }
+      value = JSON.stringify(cleanApprovedDestinations(value));
     } catch {}
   }
 
@@ -497,14 +509,9 @@ export async function fetchDestinationsFromServer(): Promise<Record<string, Dest
     });
     if (!res.ok) return null;
     const json = await res.json().catch(() => null);
-    if (json && json.success && Array.isArray(json.data) && json.data.length > 0) {
-      const map: Record<string, DestinationMeta> = {};
-      for (const d of json.data) {
-        if (d && d.slug) {
-          map[d.slug] = d;
-        }
-      }
-      return map;
+    if (json && json.success) {
+      const map = cleanApprovedDestinations(json.data) as Record<string, DestinationMeta>;
+      if (Object.keys(map).length > 0) return map;
     }
   } catch (err) {
     console.warn('[ContentSync] fetchDestinationsFromServer error:', err);

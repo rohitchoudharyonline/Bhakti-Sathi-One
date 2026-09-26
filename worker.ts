@@ -2,6 +2,33 @@ import { GoogleGenAI } from '@google/genai';
 
 const text = (v: unknown, max = 2000) => String(v ?? '').replace(/[\u0000-\u001F\u007F]/g, ' ').trim().slice(0, max);
 const APPROVED_DESTINATION_SLUGS = new Set(['jammu-kashmir', 'himachal', 'amritsar']);
+
+// D1 has historically stored this registry both as an object keyed by slug and
+// as an array of destination records. Normalize both shapes before filtering so
+// a valid restored registry can never become an empty destination response.
+function normalizeDestinationRegistry(value: unknown): Record<string, any> {
+  let parsed: any = value;
+  if (typeof parsed === 'string') {
+    try { parsed = JSON.parse(parsed); } catch { return {}; }
+  }
+  if (Array.isArray(parsed)) {
+    const map: Record<string, any> = {};
+    for (const destination of parsed) {
+      const slug = text(destination?.slug || destination?.id, 200).toLowerCase();
+      if (slug && destination && typeof destination === 'object') map[slug] = destination;
+    }
+    return map;
+  }
+  if (parsed && typeof parsed === 'object') return parsed as Record<string, any>;
+  return {};
+}
+
+function getApprovedDestinationMap(value: unknown): Record<string, any> {
+  const map = normalizeDestinationRegistry(value);
+  return Object.fromEntries(
+    Object.entries(map).filter(([slug, destination]) => APPROVED_DESTINATION_SLUGS.has(String(slug).toLowerCase()) && destination)
+  );
+}
 const json = (data: unknown, status = 200, headers: HeadersInit = {}) => new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json; charset=utf-8', ...headers } });
 const b64 = (s: string) => btoa(unescape(encodeURIComponent(s))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
 const unb64 = (s: string) => decodeURIComponent(escape(atob(s.replace(/-/g, '+').replace(/_/g, '/') + '='.repeat((4 - s.length % 4) % 4))));
