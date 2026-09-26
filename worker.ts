@@ -287,8 +287,8 @@ export default {
             }
 
             if (request.method === 'DELETE') {
-              if (['jammu-kashmir', 'himachal', 'amritsar'].includes(targetSlug.toLowerCase())) {
-                return json({ error: 'Protected destination cannot be deleted.' }, 409, privateHeaders(env, request));
+              if (targetSlug.toLowerCase() === 'jammu-kashmir') {
+                return json({ error: 'The Jammu & Kashmir destination is permanently protected.' }, 409, privateHeaders(env, request));
               }
               if (targetSlug) delete map[targetSlug];
             } else {
