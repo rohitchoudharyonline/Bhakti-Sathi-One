@@ -199,6 +199,25 @@ export function clearSharedRegistryCache() {
   const wasHydrating = isHydrating;
   isHydrating = true;
   try {
+    // Keep the three approved real tours available during a transient server
+    // failure. The authoritative D1 copy will replace this cache when it loads.
+    let preservedPackages: string | null = null;
+    try {
+      const raw = window.localStorage.getItem('hh_tour_packages_v2');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          const approved = parsed.filter((pkg: any) => {
+            const id = String(pkg?.id || '');
+            const slug = String(pkg?.slug || '').trim().toLowerCase();
+            return !DISALLOWED_DUMMY_PACKAGE_IDS.has(id) &&
+              (PROTECTED_REAL_TOUR_IDS.has(id) || PROTECTED_REAL_TOUR_SLUGS.has(slug));
+          });
+          if (approved.length > 0) preservedPackages = JSON.stringify(approved);
+        }
+      }
+    } catch {}
+
     for (const reg of SYNCED_REGISTRIES) {
       try {
         // Keep deletion tombstones until the server copy has been merged.
@@ -207,6 +226,10 @@ export function clearSharedRegistryCache() {
           window.localStorage.removeItem(`_sync_time_${reg.storageKey}`);
         }
       } catch {}
+    }
+
+    if (preservedPackages) {
+      window.localStorage.setItem('hh_tour_packages_v2', preservedPackages);
     }
   } finally {
     isHydrating = wasHydrating;
@@ -470,14 +493,28 @@ export async function syncRegistryToServer(key: string, value: string): Promise<
     try {
       const parsed = JSON.parse(value);
       if (Array.isArray(parsed)) {
+        // Never replace the authoritative tour registry with an empty browser
+        // state. The three approved real tours must survive reloads/logouts.
+        if (parsed.length === 0) return false;
         const cleaned = parsed.filter((pkg: any) => {
           const id = String(pkg?.id || '');
           const slug = String(pkg?.slug || '');
           return !DISALLOWED_DUMMY_PACKAGE_IDS.has(id) &&
             (PROTECTED_REAL_TOUR_IDS.has(id) || PROTECTED_REAL_TOUR_SLUGS.has(slug.trim().toLowerCase()));
         });
-        if (parsed.length > 0 && cleaned.length === 0) return false;
+        if (cleaned.length === 0) return false;
         value = JSON.stringify(cleaned);
+      }
+    } catch {}
+  }
+
+  if (key === 'hh_media_assets_v2') {
+    try {
+      const parsed = JSON.parse(value);
+      if (Array.isArray(parsed)) {
+        // D1 stores metadata/reference text only. Image bytes and browser
+        // preview data stay in R2/IndexedDB and are never written to D1.
+        value = JSON.stringify(parsed.map(({ dataUrl, ...asset }: any) => asset));
       }
     } catch {}
   }
