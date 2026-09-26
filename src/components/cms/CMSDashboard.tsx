@@ -1083,7 +1083,6 @@ export const CMSDashboard: React.FC = () => {
                     <span>+ Create Tour Package</span>
                   </button>
                 </div>
-                </button>
               </div>
             </div>
 
