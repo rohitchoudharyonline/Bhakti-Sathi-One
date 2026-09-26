@@ -513,10 +513,10 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // packages never flash while D1 content is being hydrated.
   const [packages, setPackages] = useState<TourPackage[]>([]);
 
-  const PROTECTED_REAL_TOUR_IDS = new Set([
-    'pkg-kashmir-honeymoon-01',
-    'pkg-kashmir-vaishno-01',
-    'pkg-kashmir-family-01',
+    const PROTECTED_REAL_TOUR_IDS = new Set([
+    'pkg-1789721050903',
+    'pkg-1789720939137',
+    'pkg-1789411062209',
   ]);
 
   const DISALLOWED_DUMMY_DEST_SLUGS = new Set([
