@@ -525,7 +525,25 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const isProtectedRealTour = (pkg: TourPackage) =>
     PROTECTED_REAL_TOUR_IDS.has(String(pkg.id || '')) ||
     PROTECTED_REAL_TOUR_SLUGS.has(String(pkg.slug || ''));
-  const [packages, setPackages] = useState<TourPackage[]>([]);
+  // Use only the three approved tour records from the browser cache for the
+  // very first paint. This removes the visible few-second gap while D1 hydrates,
+  // without ever allowing dummy/stale tour records to render.
+  const [packages, setPackages] = useState<TourPackage[]>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.PACKAGES);
+      if (!saved) return [];
+      const parsed = JSON.parse(saved);
+      if (!Array.isArray(parsed)) return [];
+      return parsed
+        .filter((pkg: TourPackage) => isProtectedRealTour(pkg))
+        .map((pkg: TourPackage) => {
+          const cat = normalizePackageCategory(pkg.category || pkg.tourType);
+          return { ...pkg, category: cat, tourType: cat };
+        });
+    } catch {
+      return [];
+    }
+  });
 
   const DISALLOWED_DUMMY_DEST_SLUGS = new Set([
     'ladakh',
