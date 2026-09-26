@@ -55,6 +55,11 @@ const PROTECTED_REAL_TOUR_IDS = new Set([
   'pkg-1789720939137',
   'pkg-1789411062209',
 ]);
+const PROTECTED_REAL_TOUR_SLUGS = new Set([
+  'kashmir-pilgrimage-tour-package',
+  '6-days-kashmir-honeymoon-package-srinagar-gulmarg-pahalgam',
+  'kashmir-tour-package-5-nights-6-days',
+]);
 
 const REGISTRY_BY_ID = new Map<string, SyncedRegistryDef>(
   SYNCED_REGISTRIES.map((r) => [r.id, r])
@@ -261,7 +266,12 @@ export async function loadAuthoritativeServerContent(): Promise<boolean> {
       try {
         const parsed = JSON.parse(packageItem.value);
         if (Array.isArray(parsed)) {
-          const cleaned = parsed.filter((pkg: any) => !DISALLOWED_DUMMY_PACKAGE_IDS.has(String(pkg?.id || '')));
+          const cleaned = parsed.filter((pkg: any) => {
+        const id = String(pkg?.id || '');
+        const slug = String(pkg?.slug || '');
+        return !DISALLOWED_DUMMY_PACKAGE_IDS.has(id) &&
+          (PROTECTED_REAL_TOUR_IDS.has(id) || PROTECTED_REAL_TOUR_SLUGS.has(slug));
+      });
           packageItem.value = JSON.stringify(cleaned);
         }
       } catch {}
