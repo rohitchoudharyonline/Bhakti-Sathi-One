@@ -293,22 +293,6 @@ export function getDestinationBySlug(slug?: string | null): DestinationMeta | un
   ) {
     return DESTINATIONS_REGISTRY['jammu-kashmir'];
   }
-  if (
-    clean === 'himachal-pradesh' ||
-    clean === 'himachal_pradesh' ||
-    clean === 'himachal_devi' ||
-    clean === 'himachal-devi' ||
-    clean === 'shimla' ||
-    clean === 'manali' ||
-    clean === 'dharamshala' ||
-    clean === 'dalhousie' ||
-    clean === 'spiti' ||
-    clean === 'devi-darshan' ||
-    clean === 'kangra'
-  ) {
-    return DESTINATIONS_REGISTRY['himachal'];
-  }
-
   // Fuzzy match
   const foundKey = Object.keys(DESTINATIONS_REGISTRY).find(
     (key) => clean.includes(key) || DESTINATIONS_REGISTRY[key].name.toLowerCase().includes(clean)
