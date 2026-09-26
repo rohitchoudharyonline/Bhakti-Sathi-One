@@ -272,6 +272,17 @@ export const SettingsManager: React.FC<{ initialTab?: 'branding' | 'faqs' | 'foo
     setTimeout(() => setSaveSuccess(false), 2500);
   };
 
+  const editFooterSection = (sectionId: string) => {
+    const section = (form.footerMenus || []).find(sec => sec.id === sectionId);
+    if (!section) return;
+    const nextTitle = window.prompt('Edit footer column title', section.title);
+    if (nextTitle === null || !nextTitle.trim()) return;
+    const updated = (form.footerMenus || []).map(sec => sec.id === sectionId ? { ...sec, title: nextTitle.trim().toUpperCase() } : sec);
+    const updatedForm = { ...form, footerMenus: updated };
+    setForm(updatedForm);
+    updateAgencySettings(updatedForm);
+  };
+
   const deleteFooterSection = (sectionId: string) => {
     const updated = (form.footerMenus || []).filter(sec => sec.id !== sectionId);
     const updatedForm = { ...form, footerMenus: updated };
@@ -308,6 +319,20 @@ export const SettingsManager: React.FC<{ initialTab?: 'branding' | 'faqs' | 'foo
     setInlineLinkUrl('');
     setSaveSuccess(true);
     setTimeout(() => setSaveSuccess(false), 2500);
+  };
+
+  const editFooterLink = (sectionId: string, linkId: string) => {
+    const section = (form.footerMenus || []).find(sec => sec.id === sectionId);
+    const item = section?.items.find(link => link.id === linkId);
+    if (!item) return;
+    const nextLabel = window.prompt('Edit menu label', item.label);
+    if (nextLabel === null || !nextLabel.trim()) return;
+    const nextUrl = window.prompt('Edit target URL / page slug', item.url);
+    if (nextUrl === null || !nextUrl.trim()) return;
+    const updated = (form.footerMenus || []).map(sec => sec.id === sectionId ? { ...sec, items: sec.items.map(link => link.id === linkId ? { ...link, label: nextLabel.trim(), url: nextUrl.trim() } : link) } : sec);
+    const updatedForm = { ...form, footerMenus: updated };
+    setForm(updatedForm);
+    updateAgencySettings(updatedForm);
   };
 
   const deleteFooterLink = (sectionId: string, linkId: string) => {
@@ -871,6 +896,7 @@ export const SettingsManager: React.FC<{ initialTab?: 'branding' | 'faqs' | 'foo
                               <Plus className="w-3 h-3" />
                               Add Link
                             </button>
+                            <button type="button" onClick={() => editFooterSection(section.id)} className="text-[10.5px] font-bold text-slate-600 hover:text-brand px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-orange-50 transition cursor-pointer flex items-center gap-1" title="Edit this column"><Edit2 className="w-3 h-3" /> Edit</button>
                             <button
                               type="button"
                               onClick={() => {
@@ -939,7 +965,15 @@ export const SettingsManager: React.FC<{ initialTab?: 'branding' | 'faqs' | 'foo
                                 </div>
                                 <button
                                   type="button"
-                                  onClick={() => deleteFooterLink(section.id, item.id)}
+                                  onClick={() => editFooterLink(section.id, item.id)}
+                                  title={`Edit ${item.label}`}
+                                >
+                                  <Edit2 className="w-3.5 h-3.5" />
+                                  <span className="hidden group-hover:inline text-brand">Edit</span>
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => deleteFooterLink(section.id, item.id)
                                   className="text-slate-400 hover:text-rose-600 hover:bg-rose-50 p-1.5 rounded-lg transition cursor-pointer flex items-center gap-1 text-[11px] font-bold shrink-0"
                                   title={`Delete ${item.label}`}
                                 >
