@@ -533,8 +533,13 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (!saved) return [];
       const parsed = JSON.parse(saved);
       if (!Array.isArray(parsed)) return [];
+      const deletedPkgIds = new Set(getDeletedItems('hh_deleted_package_ids').map((id) => String(id).trim().toLowerCase()));
       return parsed
-        .filter((pkg: TourPackage) => !DISALLOWED_DUMMY_PKG_IDS.has(pkg.id))
+        .filter((pkg: TourPackage) => {
+          const id = String(pkg?.id || '').trim().toLowerCase();
+          const slug = String(pkg?.slug || '').trim().toLowerCase();
+          return !DISALLOWED_DUMMY_PKG_IDS.has(String(pkg?.id || '')) && !deletedPkgIds.has(id) && !deletedPkgIds.has(slug);
+        })
         .map((pkg: TourPackage) => {
           const cat = normalizePackageCategory(pkg.category || pkg.tourType);
           return { ...pkg, category: cat, tourType: cat };
@@ -2063,9 +2068,13 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setDestinations(clean);
           }
         } else if (e.key === STORAGE_KEYS.PACKAGES && e.newValue) {
-          const deletedPkgIds = getDeletedItems('hh_deleted_package_ids');
+          const deletedPkgIds = getDeletedItems('hh_deleted_package_ids').map((id) => String(id).trim().toLowerCase());
           const parsed = JSON.parse(e.newValue);
-          if (Array.isArray(parsed)) setPackages(parsed.filter((p: TourPackage) => !DISALLOWED_DUMMY_PKG_IDS.has(p.id)));
+          if (Array.isArray(parsed)) setPackages(parsed.filter((p: TourPackage) => {
+            const id = String(p?.id || '').trim().toLowerCase();
+            const slug = String(p?.slug || '').trim().toLowerCase();
+            return !DISALLOWED_DUMMY_PKG_IDS.has(String(p?.id || '')) && !deletedPkgIds.includes(id) && !deletedPkgIds.includes(slug);
+          }));
         } else if (e.key === STORAGE_KEYS.BLOG_POSTS && e.newValue) {
           const deletedBlogIds = getDeletedItems('hh_deleted_blog_post_ids');
           const parsed = JSON.parse(e.newValue);
@@ -2138,8 +2147,13 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
           if (Array.isArray(parsed)) {
             // Server content is authoritative: if a tour exists in D1, restore it
             // even if an old browser tombstone still contains its package ID.
+            const deletedPkgIds = getDeletedItems('hh_deleted_package_ids').map((id) => String(id).trim().toLowerCase());
             const cleaned = parsed
-              .filter((item: TourPackage) => !DISALLOWED_DUMMY_PKG_IDS.has(item.id))
+              .filter((item: TourPackage) => {
+                const id = String(item?.id || '').trim().toLowerCase();
+                const slug = String(item?.slug || '').trim().toLowerCase();
+                return !DISALLOWED_DUMMY_PKG_IDS.has(String(item?.id || '')) && !deletedPkgIds.includes(id) && !deletedPkgIds.includes(slug);
+              })
               .map((item: TourPackage) => {
                 const cat = normalizePackageCategory(item.category || item.tourType);
                 return {
@@ -2562,14 +2576,25 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const deletePackage = (id: string) => {
-    const target = packages.find((pkg) => pkg.id === id);
     markItemDeleted('hh_deleted_package_ids', id);
+    const deletedIds = getDeletedItems('hh_deleted_package_ids');
+    const deletionSync = syncRegistryToServer(
+      'hh_deleted_package_ids',
+      JSON.stringify(deletedIds)
+    );
     setPackages((prev) => {
       const next = prev.filter((pkg) => pkg.id !== id);
       try {
         localStorage.setItem(STORAGE_KEYS.PACKAGES, JSON.stringify(next));
       } catch {}
-      void syncRegistryToServer(STORAGE_KEYS.PACKAGES, JSON.stringify(next), { allowTourDeletion: true });
+      // Persist the deletion record first. Then replace the tour registry.
+      void deletionSync.finally(() => {
+        void syncRegistryToServer(
+          STORAGE_KEYS.PACKAGES,
+          JSON.stringify(next),
+          { allowTourDeletion: true }
+        );
+      });
       return next;
     });
   };
