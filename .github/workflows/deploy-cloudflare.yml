@@ -46,6 +46,7 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
       - name: Restore only Tours and Destinations from 3:45 AM IST
         # This run is intentionally invoked only with the restore-345 commit marker.
         if: contains(github.event.head_commit.message, '[restore-345]')
@@ -83,9 +84,11 @@ jobs:
           if set(seen) != {'registry-packages','registry-destinations'}:
               raise SystemExit('Historical restore did not contain both required registry rows')
           open('/tmp/restore-selected.sql','w').write('\n'.join(out)+'\n')
+          PY
           printf 'y\n' | bunx wrangler d1 time-travel restore DB --bookmark="$CURRENT_BOOKMARK" --json
           bunx wrangler d1 execute DB --remote --file=/tmp/restore-selected.sql --yes
           bunx wrangler d1 execute DB --remote --command="SELECT id, length(structured_content) AS content_length FROM contents WHERE id IN ('registry-packages','registry-destinations')"
+
       - name: Restore exact 4:00 AM IST D1 state
         if: contains(github.event.head_commit.message, '[restore-4am]')
         env:
@@ -93,6 +96,7 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
           printf 'y\n' | bunx wrangler d1 time-travel restore DB --timestamp="2026-09-24T22:29:59Z" --json
+
       - name: Deploy Worker and Static Assets
         run: bunx wrangler deploy
         env:
