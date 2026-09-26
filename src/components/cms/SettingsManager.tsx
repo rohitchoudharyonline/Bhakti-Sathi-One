@@ -371,6 +371,20 @@ export const SettingsManager: React.FC<{ initialTab?: 'branding' | 'faqs' | 'foo
     setTimeout(() => setSaveSuccess(false), 2500);
   };
 
+  const editBottomNavItem = (id: string) => {
+    const current = form.bottomNavItems || DEFAULT_BOTTOM_NAV_ITEMS;
+    const item = current.find(nav => nav.id === id);
+    if (!item) return;
+    const nextLabel = window.prompt('Edit bottom menu label', item.label);
+    if (nextLabel === null || !nextLabel.trim()) return;
+    const nextUrl = window.prompt('Edit target URL / page slug (leave blank to keep current)', item.url || '');
+    if (nextUrl === null) return;
+    const updated = current.map(nav => nav.id === id ? { ...nav, label: nextLabel.trim(), url: nextUrl.trim() || undefined } : nav);
+    const updatedForm = { ...form, bottomNavItems: updated };
+    setForm(updatedForm);
+    updateAgencySettings(updatedForm);
+  };
+
   const deleteBottomNavItem = (id: string) => {
     const current = form.bottomNavItems || DEFAULT_BOTTOM_NAV_ITEMS;
     const updated = current.filter(item => item.id !== id);
@@ -1214,6 +1228,16 @@ export const SettingsManager: React.FC<{ initialTab?: 'branding' | 'faqs' | 'foo
                           title="Toggle visibility in mobile bottom bar"
                         >
                           {item.enabled !== false ? 'Active' : 'Disabled'}
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => editBottomNavItem(item.id)}
+                          className="text-slate-600 hover:text-brand hover:bg-orange-50 bg-slate-50 border border-slate-200 px-3 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1 cursor-pointer"
+                          title="Edit this bottom menu option"
+                        >
+                          <Edit2 className="w-3.5 h-3.5" />
+                          Edit
                         </button>
 
                         {/* Explicit Delete Button */}
