@@ -85,6 +85,12 @@ const TRAVEL_MONTH_OPTIONS = [
 // CORE DESTINATION SHOWCASES
 // ==========================================
 
+const APPROVED_DESTINATION_IMAGE_FALLBACKS: Record<string, string> = {
+  'jammu-kashmir': 'https://images.unsplash.com/photo-1719377678428-d9bcec6976f3?auto=format&fit=crop&w=1600&q=85',
+  'himachal': 'https://images.unsplash.com/photo-1590265788376-5d99eb11976e?auto=format&fit=crop&w=1600&q=85',
+  'amritsar': 'https://images.unsplash.com/photo-1517427677506-ade074eb1432?auto=format&fit=crop&w=1600&q=85',
+};
+
 interface LocationShowcase {
   id: string;
   type: 'domestic';
@@ -1157,7 +1163,7 @@ export const LuxuryHomepage: React.FC = () => {
                         src={resolveDisplayImage(loc.coverImage, mediaAssets)}
                         alt={loc.name}
                         onError={(e: any) => {
-                          handleImageError(e, loc.coverImage, mediaAssets);
+                          handleImageError(e, loc.coverImage, mediaAssets, APPROVED_DESTINATION_IMAGE_FALLBACKS[loc.filterKey] || '');
                           setLoadedImages((prev) => ({ ...prev, [loc.id]: true }));
                         }}
                         onLoad={() => setLoadedImages((prev) => ({ ...prev, [loc.id]: true }))}
