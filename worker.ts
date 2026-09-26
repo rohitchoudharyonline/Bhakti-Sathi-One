@@ -370,10 +370,9 @@ export default {
             const now = new Date().toISOString();
 
             // Tour registry safety:
-            // - Normal/background syncs may add or update tours, but can never
-            //   remove an existing server tour because of a stale browser copy.
-            // - An explicit CMS delete carries allowTourDeletion=true and may
-            //   intentionally remove the selected tour.
+            // Every CMS-created tour is durable. A normal browser sync may add/update
+            // tours, but it can never resurrect a tour recorded in the server deletion
+            // tombstone registry. Explicit CMS deletion may intentionally remove tours.
             if (id === 'registry-packages' || slug === 'hh_tour_packages_v2') {
               try {
                 const structured = typeof b.structured_content === 'string'
@@ -382,15 +381,77 @@ export default {
                 const rawValue = structured && typeof structured.value === 'string'
                   ? structured.value
                   : structured?.value;
-                const incoming = typeof rawValue === 'string' ? JSON.parse(rawValue) : rawValue;
-                if (!Array.isArray(incoming)) {
+                const incomingRaw = typeof rawValue === 'string' ? JSON.parse(rawValue) : rawValue;
+                if (!Array.isArray(incomingRaw)) {
                   return json({ error: 'Tour registry rejected: invalid registry payload.' }, 400, privateHeaders(env, request));
                 }
+
+                const clientDeletedRaw = Array.isArray(structured?.deletedPackageIds)
+                  ? structured.deletedPackageIds
+                  : [];
+                const deletedRow = await env.DB.prepare(
+                  'SELECT structured_content FROM contents WHERE id=?'
+                ).bind('registry-deleted-packages').first();
+
+                let serverDeleted: string[] = [];
+                if (deletedRow?.structured_content) {
+                  try {
+                    const deletedStructured = JSON.parse(deletedRow.structured_content as string);
+                    const deletedValue = typeof deletedStructured?.value === 'string'
+                      ? JSON.parse(deletedStructured.value)
+                      : deletedStructured?.value;
+                    if (Array.isArray(deletedValue)) serverDeleted = deletedValue.map((x: any) => String(x).trim().toLowerCase());
+                  } catch {}
+                }
+
+                const deletedSet = new Set<string>([
+                  ...serverDeleted,
+                  ...clientDeletedRaw.map((x: any) => String(x).trim().toLowerCase()),
+                ].filter(Boolean));
+
+                // Persist the deletion tombstones before accepting this package registry.
+                // This makes the protection survive logout, refresh, another browser,
+                // and later stale background syncs.
+                if (deletedSet.size > 0) {
+                  const deletedNow = new Date().toISOString();
+                  const deletedStructured = {
+                    storageKey: 'hh_deleted_package_ids',
+                    value: JSON.stringify(Array.from(deletedSet)),
+                    updatedAt: deletedNow,
+                  };
+                  await env.DB.prepare(
+                    `INSERT INTO contents (id,content_type,title,slug,structured_content,status,created_at,updated_at)
+                     VALUES (?,?,?,?,?,?,?,?)
+                     ON CONFLICT(id) DO UPDATE SET
+                       structured_content=excluded.structured_content,
+                       status=excluded.status,
+                       updated_at=excluded.updated_at`
+                  ).bind(
+                    'registry-deleted-packages',
+                    'shared_local_state',
+                    'Deleted Package IDs',
+                    'hh_deleted_package_ids',
+                    JSON.stringify(deletedStructured),
+                    'published',
+                    deletedNow,
+                    deletedNow
+                  ).run();
+                }
+
+                const isDeleted = (pkg: any) => {
+                  const pkgId = String(pkg?.id || '').trim().toLowerCase();
+                  const pkgSlug = String(pkg?.slug || '').trim().toLowerCase();
+                  return (pkgId && deletedSet.has(pkgId)) || (pkgSlug && deletedSet.has(pkgSlug));
+                };
+
+                const incoming = incomingRaw.filter((pkg: any) => !isDeleted(pkg));
                 const allowTourDeletion = structured?.allowTourDeletion === true;
+
                 if (!allowTourDeletion) {
                   const existingRow = await env.DB.prepare(
                     'SELECT structured_content FROM contents WHERE id=?'
                   ).bind('registry-packages').first();
+
                   if (existingRow?.structured_content) {
                     try {
                       const existingStructured = JSON.parse(existingRow.structured_content as string);
@@ -403,9 +464,13 @@ export default {
                       const merged = [
                         ...incoming,
                         ...existingTours.filter((pkg: any) => {
+                          const pkgId = String(pkg?.id || '').trim().toLowerCase();
+                          const pkgSlug = String(pkg?.slug || '').trim().toLowerCase();
                           const id = String(pkg?.id || '');
-                          const tourSlug = String(pkg?.slug || '').trim().toLowerCase();
-                          return id && !incomingIds.has(id) && (!tourSlug || !incomingSlugs.has(tourSlug));
+                          return id &&
+                            !isDeleted(pkg) &&
+                            !incomingIds.has(id) &&
+                            (!pkgSlug || !incomingSlugs.has(pkgSlug));
                         }),
                       ];
                       b.structured_content = {
@@ -415,6 +480,12 @@ export default {
                       };
                     } catch {}
                   }
+                } else {
+                  b.structured_content = {
+                    ...structured,
+                    value: JSON.stringify(incoming),
+                    updatedAt: new Date().toISOString(),
+                  };
                 }
               } catch {
                 return json({ error: 'Tour registry rejected: invalid registry payload.' }, 400, privateHeaders(env, request));
