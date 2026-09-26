@@ -1,7 +1,7 @@
 import { GoogleGenAI } from '@google/genai';
 
 const text = (v: unknown, max = 2000) => String(v ?? '').replace(/[\u0000-\u001F\u007F]/g, ' ').trim().slice(0, max);
-const APPROVED_DESTINATION_SLUGS = new Set(['jammu-kashmir', 'himachal', 'amritsar']);
+const APPROVED_DESTINATION_SLUGS = new Set(['jammu-kashmir']);
 
 // D1 has historically stored this registry both as an object keyed by slug and
 // as an array of destination records. Normalize both shapes before filtering so
