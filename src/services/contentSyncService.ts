@@ -379,8 +379,7 @@ export async function loadAuthoritativeServerContent(): Promise<boolean> {
           const cleaned = parsed.filter((pkg: any) => {
         const id = String(pkg?.id || '');
         const slug = String(pkg?.slug || '');
-        return !DISALLOWED_DUMMY_PACKAGE_IDS.has(id) &&
-          (PROTECTED_REAL_TOUR_IDS.has(id) || PROTECTED_REAL_TOUR_SLUGS.has(slug.trim().toLowerCase()));
+        return !DISALLOWED_DUMMY_PACKAGE_IDS.has(id);
       });
           packageItem.value = JSON.stringify(cleaned);
         }
