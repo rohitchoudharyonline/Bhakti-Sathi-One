@@ -1630,6 +1630,29 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setPushSettings((prev) => ({ ...prev, ...newSettings }));
   };
 
+  // Direct tour URLs can be opened before D1 hydration completes. Re-resolve the
+  // exact /tours/<slug> route once the authoritative package registry arrives.
+  useEffect(() => {
+    if (typeof window === 'undefined' || packages.length === 0) return;
+    const path = window.location.pathname.toLowerCase();
+    if (!path.startsWith('/tours/')) return;
+    const segment = path.replace('/tours/', '').replace(/^\\/+|\\/+$/g, '').split('/')[0];
+    if (!segment || ['pilgrimage', 'family', 'honeymoon', 'group', 'luxury'].includes(segment)) return;
+
+    const matchedPkg = packages.find((p) =>
+      String(p.id || '').toLowerCase() === segment ||
+      String(p.slug || '').toLowerCase() === segment ||
+      String(p.title || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') === segment
+    );
+
+    if (matchedPkg) {
+      _setSelectedPackageId(matchedPkg.id);
+      _setSelectedDestinationSlug(null);
+      setIsToursDirectoryOpen(false);
+      setSelectedToursDestination(null);
+    }
+  }, [packages]);
+
   // URL Synchronization & History handling for Google indexable paths
   useEffect(() => {
     const parseUrl = () => {
