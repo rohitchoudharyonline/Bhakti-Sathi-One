@@ -2563,17 +2563,13 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const deletePackage = (id: string) => {
     const target = packages.find((pkg) => pkg.id === id);
-    if (target && isProtectedRealTour(target)) {
-      alert('This approved Holidays Hunt tour is permanently protected and cannot be deleted.');
-      return;
-    }
     markItemDeleted('hh_deleted_package_ids', id);
     setPackages((prev) => {
       const next = prev.filter((pkg) => pkg.id !== id);
       try {
         localStorage.setItem(STORAGE_KEYS.PACKAGES, JSON.stringify(next));
       } catch {}
-      void syncRegistryToServer(STORAGE_KEYS.PACKAGES, JSON.stringify(next));
+      void syncRegistryToServer(STORAGE_KEYS.PACKAGES, JSON.stringify(next), { allowTourDeletion: true });
       return next;
     });
   };
