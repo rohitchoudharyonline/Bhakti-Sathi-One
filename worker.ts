@@ -287,6 +287,9 @@ export default {
             }
 
             if (request.method === 'DELETE') {
+              if (['jammu-kashmir', 'himachal', 'amritsar'].includes(targetSlug.toLowerCase())) {
+                return json({ error: 'Protected destination cannot be deleted.' }, 409, privateHeaders(env, request));
+              }
               if (targetSlug) delete map[targetSlug];
             } else {
               const b = await request.json().catch(() => ({}));
@@ -421,18 +424,30 @@ export default {
                   ? JSON.parse(b.structured_content)
                   : (b.structured_content || {});
                 const rawValue = structured && typeof structured.value === 'string' ? structured.value : structured?.value;
-                const media = typeof rawValue === 'string' ? JSON.parse(rawValue) : rawValue;
-                if (Array.isArray(media) && media.length === 0) {
-                  const existing = await env.DB.prepare('SELECT structured_content FROM contents WHERE id=?').bind('registry-media-assets-v2').first();
-                  if (existing?.structured_content) {
-                    try {
-                      const current = JSON.parse(existing.structured_content as string);
-                      const currentValue = typeof current?.value === 'string' ? JSON.parse(current.value) : current?.value;
-                      if (Array.isArray(currentValue) && currentValue.length > 0) {
-                        return json({ error: 'Media registry protected: an empty upload state cannot erase existing photos.' }, 409, privateHeaders(env, request));
-                      }
-                    } catch {}
-                  }
+                const incomingMedia = Array.isArray(typeof rawValue === 'string' ? JSON.parse(rawValue) : rawValue)
+                  ? (typeof rawValue === 'string' ? JSON.parse(rawValue) : rawValue)
+                  : null;
+                const allowMediaDeletion = structured?.allowMediaDeletion === true;
+                if (!incomingMedia) {
+                  return json({ error: 'Media registry rejected: invalid registry payload.' }, 400, privateHeaders(env, request));
+                }
+
+                const existing = await env.DB.prepare('SELECT structured_content FROM contents WHERE id=?').bind('registry-media-assets-v2').first();
+                if (existing?.structured_content && !allowMediaDeletion) {
+                  try {
+                    const currentStructured = JSON.parse(existing.structured_content as string);
+                    const currentValue = typeof currentStructured?.value === 'string'
+                      ? JSON.parse(currentStructured.value)
+                      : currentStructured?.value;
+                    const currentIds = new Set(
+                      Array.isArray(currentValue) ? currentValue.map((asset: any) => String(asset?.id || '')) : []
+                    );
+                    const incomingIds = new Set(incomingMedia.map((asset: any) => String(asset?.id || '')));
+                    const missingExisting = [...currentIds].some((assetId) => assetId && !incomingIds.has(assetId));
+                    if (missingExisting) {
+                      return json({ error: 'Media registry protected: stale browser state cannot remove existing photos.' }, 409, privateHeaders(env, request));
+                    }
+                  } catch {}
                 }
               } catch {
                 return json({ error: 'Media registry rejected: invalid registry payload.' }, 400, privateHeaders(env, request));
