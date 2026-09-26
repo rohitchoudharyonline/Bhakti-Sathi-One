@@ -14,7 +14,7 @@ export const AllDestinationsExplorer: React.FC = () => {
   const [selectedFilter, setSelectedFilter] = useState<string>('all');
 
   const destinationsList: DestinationMeta[] = useMemo(() => {
-    const list = Object.values(destinations || DESTINATIONS_REGISTRY) as DestinationMeta[];
+    const list = Object.values(destinations || {}) as DestinationMeta[];
     return list;
   }, [destinations]);
 
