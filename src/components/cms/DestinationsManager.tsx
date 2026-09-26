@@ -55,7 +55,7 @@ export const DestinationsManager: React.FC = () => {
     displayName: '',
     state: 'India',
     tagline: '',
-    heroImage: 'https://images.unsplash.com/photo-1598091383021-15ddea10925d?auto=format&fit=crop&w=1600&q=85',
+    heroImage: '',
     guideTitle: '',
     weatherInfo: '15°C - 25°C',
     bestSeason: 'Year-Round',
