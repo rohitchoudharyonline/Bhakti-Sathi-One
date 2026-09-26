@@ -2675,7 +2675,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const deleteDestination = (slug: string) => {
     if (APPROVED_DESTINATION_SLUGS.has(String(slug).trim().toLowerCase())) {
-      alert('This approved Holidays Hunt destination is permanently protected and cannot be deleted.');
+      alert('The Jammu & Kashmir destination is permanently protected and cannot be deleted.');
       return;
     }
     markItemDeleted('hh_deleted_destination_slugs', slug);
