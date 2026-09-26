@@ -517,6 +517,14 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
     'pkg-1789720939137',
     'pkg-1789411062209',
   ]);
+  const PROTECTED_REAL_TOUR_SLUGS = new Set([
+    'kashmir-pilgrimage-tour-package',
+    '6-days-kashmir-honeymoon-package-srinagar-gulmarg-pahalgam',
+    'kashmir-tour-package-5-nights-6-days',
+  ]);
+  const isProtectedRealTour = (pkg: TourPackage) =>
+    PROTECTED_REAL_TOUR_IDS.has(String(pkg.id || '')) ||
+    PROTECTED_REAL_TOUR_SLUGS.has(String(pkg.slug || ''));
   const [packages, setPackages] = useState<TourPackage[]>([]);
 
   const DISALLOWED_DUMMY_DEST_SLUGS = new Set([
@@ -1984,7 +1992,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
           if (Array.isArray(parsed)) {
             const deletedPkgIds = getDeletedItems('hh_deleted_package_ids');
             setPackages(parsed
-              .filter((pkg: TourPackage) => PROTECTED_REAL_TOUR_IDS.has(pkg.id))
+              .filter((pkg: TourPackage) => isProtectedRealTour(pkg))
               .map((pkg: TourPackage) => {
                 const cat = normalizePackageCategory(pkg.category || pkg.tourType);
                 return { ...pkg, category: cat, tourType: cat };
@@ -2040,7 +2048,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
         } else if (e.key === STORAGE_KEYS.PACKAGES && e.newValue) {
           const deletedPkgIds = getDeletedItems('hh_deleted_package_ids');
           const parsed = JSON.parse(e.newValue);
-          if (Array.isArray(parsed)) setPackages(parsed.filter((p: TourPackage) => PROTECTED_REAL_TOUR_IDS.has(p.id)));
+          if (Array.isArray(parsed)) setPackages(parsed.filter((p: TourPackage) => isProtectedRealTour(p)));
         } else if (e.key === STORAGE_KEYS.BLOG_POSTS && e.newValue) {
           const deletedBlogIds = getDeletedItems('hh_deleted_blog_post_ids');
           const parsed = JSON.parse(e.newValue);
