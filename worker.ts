@@ -1,6 +1,7 @@
 import { GoogleGenAI } from '@google/genai';
 
-const text = (v: unknown, max = 2000) => String(v ?? '').replace(/[\u0000-\u001F\u007F]/g, ' ').trim().slice(0, max);\nconst APPROVED_DESTINATION_SLUGS = new Set(['jammu-kashmir', 'himachal', 'amritsar']);
+const text = (v: unknown, max = 2000) => String(v ?? '').replace(/[\u0000-\u001F\u007F]/g, ' ').trim().slice(0, max);
+const APPROVED_DESTINATION_SLUGS = new Set(['jammu-kashmir', 'himachal', 'amritsar']);
 const json = (data: unknown, status = 200, headers: HeadersInit = {}) => new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json; charset=utf-8', ...headers } });
 const b64 = (s: string) => btoa(unescape(encodeURIComponent(s))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
 const unb64 = (s: string) => decodeURIComponent(escape(atob(s.replace(/-/g, '+').replace(/_/g, '/') + '='.repeat((4 - s.length % 4) % 4))));
@@ -234,7 +235,8 @@ export default {
             if (q && q.structured_content) {
               try {
                 const parsed = JSON.parse(q.structured_content as string);
-                map = typeof parsed.value === 'string' ? JSON.parse(parsed.value) : (parsed.value || {});\n                map = Object.fromEntries(Object.entries(map).filter(([slug]) => APPROVED_DESTINATION_SLUGS.has(slug)));
+                map = typeof parsed.value === 'string' ? JSON.parse(parsed.value) : (parsed.value || {});
+                map = Object.fromEntries(Object.entries(map).filter(([slug]) => APPROVED_DESTINATION_SLUGS.has(slug)));
               } catch {}
             }
             if (targetSlug) {
