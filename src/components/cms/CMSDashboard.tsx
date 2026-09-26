@@ -3,6 +3,7 @@ import { useTours } from '../../context/TourContext';
 import { TourPackage, BookingInquiry } from '../../types/tour';
 import { BlogPost } from '../../types/cms';
 import { PackageEditor } from './PackageEditor';
+import { AITourCreator } from './AITourCreator';
 import { InquiriesManager } from './InquiriesManager';
 import { SettingsManager } from './SettingsManager';
 import { FaqsManager } from './FaqsManager';
@@ -164,6 +165,7 @@ export const CMSDashboard: React.FC = () => {
   }, [activeCmsTab]);
 
   const [editingPackage, setEditingPackage] = useState<TourPackage | null>(null);
+  const [isAITourCreatorOpen, setIsAITourCreatorOpen] = useState(false);
   const [editingBlogPost, setEditingBlogPost] = useState<BlogPost | null>(null);
   const [editingGuide, setEditingGuide] = useState<GuideArticle | null>(null);
   const [guidesSubView, setGuidesSubView] = useState<'list' | 'editor'>('list');
@@ -277,6 +279,17 @@ export const CMSDashboard: React.FC = () => {
   const handleConvertInquiryToInvoice = (inquiry: BookingInquiry) => {
     setActiveCmsTab('invoices');
   };
+
+  {isAITourCreatorOpen && (
+    <AITourCreator
+      onCreated={(pkg) => {
+        setIsAITourCreatorOpen(false);
+        setEditingPackage(pkg);
+        setActiveCmsTab('editor');
+      }}
+      onClose={() => setIsAITourCreatorOpen(false)}
+    />
+  )}
 
   // If on editor tab, render the PackageEditor
   if (activeCmsTab === 'editor') {
@@ -1052,13 +1065,25 @@ export const CMSDashboard: React.FC = () => {
                   <ImagePlus className="w-4 h-4 text-amber-500" />
                   <span>Photos & Reviews Studio</span>
                 </button>
-                <button
-                  type="button"
-                  onClick={handleStartCreate}
-                  className="px-3.5 py-2 rounded-xl bg-[#FF4B00] hover:bg-[#E02c00] text-white text-xs font-black flex items-center gap-1.5 shadow-xs transition cursor-pointer"
-                >
-                  <Plus className="w-4 h-4" />
-                  <span>+ Create Tour Package</span>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsAITourCreatorOpen(true)}
+                    className="px-3.5 py-2 rounded-xl border border-orange-200 bg-orange-50 hover:bg-orange-100 text-[#E02C00] text-xs font-black flex items-center gap-1.5 shadow-xs transition cursor-pointer"
+                    title="Create a tour draft with Gemini AI"
+                  >
+                    <Sparkles className="w-4 h-4" />
+                    <span>AI Create</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleStartCreate}
+                    className="px-3.5 py-2 rounded-xl bg-[#FF4B00] hover:bg-[#E02c00] text-white text-xs font-black flex items-center gap-1.5 shadow-xs transition cursor-pointer"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>+ Create Tour Package</span>
+                  </button>
+                </div>
                 </button>
               </div>
             </div>
