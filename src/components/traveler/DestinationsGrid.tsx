@@ -36,6 +36,22 @@ export const DestinationsGrid: React.FC<DestinationsGridProps> = ({
 }) => {
   const { destinations, mediaAssets } = useTours();
 
+  const destinationCards: DestinationCardData[] = APPROVED_DESTINATION_SLUGS
+    .map((slug) => (destinations as Record<string, any>)[slug])
+    .filter(Boolean)
+    .map((dest: any) => ({
+      id: dest.id || dest.slug,
+      name: dest.name || dest.displayName,
+      region: dest.state || '',
+      packagesCount: dest.packagesCount || 0,
+      rating: dest.rating || 0,
+      bestTime: dest.bestSeason || '',
+      tagline: dest.tagline || '',
+      image: dest.heroImage || '',
+      badge: dest.displayName || dest.name,
+      popularHighlight: (dest.keyHighlights || [])[0] || '',
+    }));
+
   return (
     <section id="destinations-section" className="py-14 bg-stone-50 border-t border-stone-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -58,11 +74,11 @@ export const DestinationsGrid: React.FC<DestinationsGridProps> = ({
 
         {/* Responsive Destination Cards Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-4xl mx-auto">
-          {PILGRIMAGE_DESTINATIONS.map((dest, index) => {
+          {destinationCards.map((dest, index) => {
             const isSelected = selectedDestination.toLowerCase().includes(dest.id.toLowerCase());
             const destState = destinations ? (destinations as Record<string, any>)[dest.id] : null;
             const rawImg = destState?.heroImage || dest.image;
-            const displayImg = resolveDisplayImage(rawImg, mediaAssets, dest.image);
+            const displayImg = resolveDisplayImage(rawImg, mediaAssets);
 
             return (
               <motion.div
