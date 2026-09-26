@@ -405,7 +405,6 @@ export default {
                   : (b.structured_content || {});
                 const rawValue = structured && typeof structured.value === 'string' ? structured.value : structured?.value;
                 const destinations = typeof rawValue === 'string' ? JSON.parse(rawValue) : rawValue;
-                const required = new Set(['jammu-kashmir', 'himachal', 'amritsar']);
                 const incoming = new Set(
                   destinations && typeof destinations === 'object'
                     ? (Array.isArray(destinations)
@@ -413,8 +412,14 @@ export default {
                         : Object.keys(destinations).map((k) => k.trim().toLowerCase()))
                     : []
                 );
-                if (![...required].every((slugName) => incoming.has(slugName))) {
-                  return json({ error: 'Destination registry rejected: protected destinations must remain intact.' }, 409, privateHeaders(env, request));
+                if (!incoming.has('jammu-kashmir')) {
+                  return json({ error: 'Destination registry rejected: Jammu & Kashmir must remain intact.' }, 409, privateHeaders(env, request));
+                }
+                // Himachal and Amritsar were intentionally deleted. Reject any stale
+                // browser registry that still contains them so refresh/hydration can
+                // never resurrect those destinations.
+                if (incoming.has('himachal') || incoming.has('amritsar')) {
+                  return json({ error: 'Deleted destinations cannot be restored.' }, 409, privateHeaders(env, request));
                 }
               } catch {
                 return json({ error: 'Destination registry rejected: invalid registry payload.' }, 400, privateHeaders(env, request));
