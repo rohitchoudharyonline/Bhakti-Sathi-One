@@ -373,6 +373,46 @@ export default {
             // Every CMS-created tour is durable. A normal browser sync may add/update
             // tours, but it can never resurrect a tour recorded in the server deletion
             // tombstone registry. Explicit CMS deletion may intentionally remove tours.
+            // Deletion tombstones are append-only. A stale browser is never
+            // allowed to replace the server's permanent deletion history.
+            if (id === 'registry-deleted-packages' || slug === 'hh_deleted_package_ids') {
+              try {
+                const structured = typeof b.structured_content === 'string'
+                  ? JSON.parse(b.structured_content)
+                  : (b.structured_content || {});
+                const rawValue = typeof structured?.value === 'string' ? structured.value : structured?.value;
+                const incomingValue = typeof rawValue === 'string' ? JSON.parse(rawValue) : rawValue;
+                if (!Array.isArray(incomingValue)) {
+                  return json({ error: 'Deleted package registry rejected: invalid payload.' }, 400, privateHeaders(env, request));
+                }
+                const existingRow = await env.DB.prepare(
+                  'SELECT structured_content FROM contents WHERE id=?'
+                ).bind('registry-deleted-packages').first();
+                let existingIds: string[] = [];
+                if (existingRow?.structured_content) {
+                  try {
+                    const existingStructured = JSON.parse(existingRow.structured_content as string);
+                    const existingValue = typeof existingStructured?.value === 'string'
+                      ? JSON.parse(existingStructured.value)
+                      : existingStructured?.value;
+                    if (Array.isArray(existingValue)) existingIds = existingValue.map((x: any) => String(x).trim().toLowerCase());
+                  } catch {}
+                }
+                const mergedIds = Array.from(new Set([
+                  ...existingIds,
+                  ...incomingValue.map((x: any) => String(x).trim().toLowerCase()),
+                ].filter(Boolean)));
+                b.structured_content = {
+                  ...structured,
+                  storageKey: 'hh_deleted_package_ids',
+                  value: JSON.stringify(mergedIds),
+                  updatedAt: new Date().toISOString(),
+                };
+              } catch {
+                return json({ error: 'Deleted package registry rejected: invalid payload.' }, 400, privateHeaders(env, request));
+              }
+            }
+
             if (id === 'registry-packages' || slug === 'hh_tour_packages_v2') {
               try {
                 const structured = typeof b.structured_content === 'string'
