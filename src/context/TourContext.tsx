@@ -2068,10 +2068,17 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
           if (parsed && typeof parsed === 'object') {
             const clean: Record<string, DestinationMeta> = {};
             for (const [k, v] of Object.entries(parsed)) {
-              if (!deletedDestSlugs.includes(k) && !DISALLOWED_DUMMY_DEST_SLUGS.has(k) && v) {
+              // Server-synced D1 destinations are authoritative after restore.
+              // Do not let stale browser tombstones hide restored destinations.
+              if (!DISALLOWED_DUMMY_DEST_SLUGS.has(k) && v) {
                 clean[k] = v as DestinationMeta;
               }
             }
+            const restoredSlugs = new Set(Object.keys(clean));
+            const remainingDeleted = deletedDestSlugs.filter((slug) => !restoredSlugs.has(slug));
+            try {
+              localStorage.setItem('hh_deleted_destination_slugs', JSON.stringify(remainingDeleted));
+            } catch {}
             setDestinations(clean);
           }
         }
