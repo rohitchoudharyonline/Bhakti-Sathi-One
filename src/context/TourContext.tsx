@@ -2085,15 +2085,20 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     // When D1 server sync hydrates data into localStorage, update in-memory state
-    const handleContentSynced = () => {
+    const handleContentSynced = (event?: Event) => {
       try {
+        const syncedKeys = (event as CustomEvent<{ keys?: string[] }> | undefined)?.detail?.keys || [];
+        // Destination data has a dedicated authoritative /api/destinations endpoint.
+        // Do not paint the generic shared registry first, because it can briefly contain
+        // an older image set and cause a visible dummy-image flash on first load.
+        const hasDestinationRegistry = syncedKeys.includes('hh_destinations_registry_v2');
         const deletedDestSlugs = getDeletedItems('hh_deleted_destination_slugs');
         const deletedTempleIds = getDeletedItems('hh_deleted_temple_ids');
         const deletedPkgIds = getDeletedItems('hh_deleted_package_ids');
         const deletedBlogIds = getDeletedItems('hh_deleted_blog_post_ids');
         const deletedPageIds = getDeletedItems('hh_deleted_custom_page_ids');
 
-        const d = localStorage.getItem(STORAGE_KEYS.DESTINATIONS);
+        const d = hasDestinationRegistry ? null : localStorage.getItem(STORAGE_KEYS.DESTINATIONS);
         if (d) {
           const parsed = JSON.parse(d);
           if (parsed && typeof parsed === 'object') {
