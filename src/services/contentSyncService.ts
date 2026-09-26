@@ -41,6 +41,11 @@ export const SYNCED_REGISTRIES: SyncedRegistryDef[] = [
 const REGISTRY_BY_KEY = new Map<string, SyncedRegistryDef>(
   SYNCED_REGISTRIES.map((r) => [r.storageKey, r])
 );
+const DISALLOWED_DUMMY_PACKAGE_IDS = new Set([
+  'pkg-kashmir-01', 'pkg-kashmir-02', 'pkg-kashmir-03', 'pkg-kashmir-04',
+  'pkg-jammu-01', 'pkg-jammu-02', 'pkg-ladakh-01',
+]);
+
 const REGISTRY_BY_ID = new Map<string, SyncedRegistryDef>(
   SYNCED_REGISTRIES.map((r) => [r.id, r])
 );
@@ -227,6 +232,17 @@ export async function loadAuthoritativeServerContent(): Promise<boolean> {
       }
     }
 
+    const packageItem = serverItemsByKey.get('hh_tour_packages_v2');
+    if (packageItem) {
+      try {
+        const parsed = JSON.parse(packageItem.value);
+        if (Array.isArray(parsed)) {
+          const cleaned = parsed.filter((pkg: any) => !DISALLOWED_DUMMY_PACKAGE_IDS.has(String(pkg?.id || '')));
+          packageItem.value = JSON.stringify(cleaned);
+        }
+      } catch {}
+    }
+
     isHydrating = true;
     try {
       for (const [key, item] of serverItemsByKey) {
@@ -285,6 +301,18 @@ export async function syncRegistryToServer(key: string, value: string): Promise<
 
   const registry = REGISTRY_BY_KEY.get(key);
   if (!registry) return false;
+
+  // Never write the known legacy dummy tour records back to D1.
+  if (key === 'hh_tour_packages_v2') {
+    try {
+      const parsed = JSON.parse(value);
+      if (Array.isArray(parsed)) {
+        const cleaned = parsed.filter((pkg: any) => !DISALLOWED_DUMMY_PACKAGE_IDS.has(String(pkg?.id || '')));
+        if (parsed.length > 0 && cleaned.length === 0) return false;
+        value = JSON.stringify(cleaned);
+      }
+    } catch {}
+  }
 
   // If a push for this key is already running, queue it
   if (inFlightPushes.has(key)) {
