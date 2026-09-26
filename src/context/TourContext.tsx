@@ -509,15 +509,35 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   // 1. Packages State
-  // Public tours are server-authoritative. Start empty so legacy/default dummy
-  // packages never flash while D1 content is being hydrated.
-  const [packages, setPackages] = useState<TourPackage[]>([]);
-
-    const PROTECTED_REAL_TOUR_IDS = new Set([
+  // Use the last server-hydrated registry immediately on first paint. D1
+  // remains authoritative and will replace this cache after hydration.
+  // This removes the visible "Curating Family Tours" delay without using
+  // DEFAULT_PACKAGES or reintroducing any dummy tours.
+  const PROTECTED_REAL_TOUR_IDS = new Set([
     'pkg-1789721050903',
     'pkg-1789720939137',
     'pkg-1789411062209',
   ]);
+  const [packages, setPackages] = useState<TourPackage[]>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.PACKAGES);
+      if (!saved) return [];
+      const parsed = JSON.parse(saved);
+      if (!Array.isArray(parsed)) return [];
+      const deletedPkgIds = getDeletedItems('hh_deleted_package_ids');
+      return parsed
+        .filter((pkg: TourPackage) =>
+          !DISALLOWED_DUMMY_PKG_IDS.has(pkg.id) &&
+          (!deletedPkgIds.includes(pkg.id) || PROTECTED_REAL_TOUR_IDS.has(pkg.id))
+        )
+        .map((pkg: TourPackage) => {
+          const cat = normalizePackageCategory(pkg.category || pkg.tourType);
+          return { ...pkg, category: cat, tourType: cat };
+        });
+    } catch {
+      return [];
+    }
+  });
 
   const DISALLOWED_DUMMY_DEST_SLUGS = new Set([
     'ladakh',
