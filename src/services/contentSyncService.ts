@@ -519,7 +519,7 @@ export async function loadAuthoritativeServerContent(): Promise<boolean> {
 export async function syncRegistryToServer(
   key: string,
   value: string,
-  options: { allowMediaDeletion?: boolean } = {}
+  options: { allowMediaDeletion?: boolean; allowTourDeletion?: boolean } = {}
 ): Promise<boolean> {
   if (typeof window === 'undefined') return false;
   if (!SHARED_STORAGE_KEYS.has(key)) return false;
@@ -533,9 +533,9 @@ export async function syncRegistryToServer(
     try {
       const parsed = JSON.parse(value);
       if (Array.isArray(parsed)) {
-        // Never replace the authoritative tour registry with an empty browser
-        // state. The three approved real tours must survive reloads/logouts.
-        if (parsed.length === 0) return false;
+        // A completely empty browser registry is never a valid automatic sync.
+        // Explicit CMS deletion is handled separately with allowTourDeletion.
+        if (parsed.length === 0 && !options.allowTourDeletion) return false;
         const cleaned = parsed.filter((pkg: any) => {
           const id = String(pkg?.id || '');
           const slug = String(pkg?.slug || '');
