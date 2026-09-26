@@ -22,12 +22,6 @@ interface DestinationCardData {
   popularHighlight: string;
 }
 
-const APPROVED_DESTINATION_IMAGE_FALLBACKS: Record<string, string> = {
-  'jammu-kashmir': 'https://images.unsplash.com/photo-1719377678428-d9bcec6976f3?auto=format&fit=crop&w=1600&q=85',
-  'himachal': 'https://images.unsplash.com/photo-1590265788376-5d99eb11976e?auto=format&fit=crop&w=1600&q=85',
-  'amritsar': 'https://images.unsplash.com/photo-1517427677506-ade074eb1432?auto=format&fit=crop&w=1600&q=85',
-};
-
 const APPROVED_DESTINATION_SLUGS = ['jammu-kashmir', 'himachal', 'amritsar'] as const;
 
 export const DestinationsGrid: React.FC<DestinationsGridProps> = ({
@@ -78,7 +72,12 @@ export const DestinationsGrid: React.FC<DestinationsGridProps> = ({
             const isSelected = selectedDestination.toLowerCase().includes(dest.id.toLowerCase());
             const destState = destinations ? (destinations as Record<string, any>)[dest.id] : null;
             const rawImg = destState?.heroImage || dest.image;
-            const displayImg = resolveDisplayImage(rawImg, mediaAssets);
+            // Do not ask the browser to load the raw registry URL before the
+            // authoritative media catalog/IndexedDB cache is hydrated. Those
+            // raw references can briefly be unavailable and show a broken-image
+            // icon before the R2-backed image resolves.
+            const mediaHydrated = mediaAssets.length > 0;
+            const displayImg = mediaHydrated ? resolveDisplayImage(rawImg, mediaAssets) : '';
 
             return (
               <motion.div
@@ -95,13 +94,20 @@ export const DestinationsGrid: React.FC<DestinationsGridProps> = ({
                 }`}
               >
                 {/* Background Image */}
-                <img
-                  src={displayImg}
-                  alt={dest.name}
-                  className="absolute inset-0 w-full h-full object-cover group-hover:scale-108 transition-transform duration-700 ease-out"
-                  loading="lazy"
-                  onError={(e) => handleImageError(e, rawImg, mediaAssets, APPROVED_DESTINATION_IMAGE_FALLBACKS[dest.id] || dest.image)}
-                />
+                {displayImg ? (
+                  <img
+                    src={displayImg}
+                    alt={dest.name}
+                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-108 transition-transform duration-700 ease-out"
+                    loading="lazy"
+                    onError={(e) => handleImageError(e, rawImg, mediaAssets, '')}
+                  />
+                ) : (
+                  <div
+                    aria-hidden="true"
+                    className="absolute inset-0 bg-stone-200"
+                  />
+                )}
 
                 {/* Scrim Overlay */}
                 <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/30 to-transparent group-hover:from-stone-950/90 transition-all duration-300 pointer-events-none" />
