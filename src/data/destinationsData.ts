@@ -53,7 +53,7 @@ export const DESTINATIONS_REGISTRY: Record<string, DestinationMeta> = {
     state: 'Jammu & Kashmir',
     destinationType: 'regular',
     tagline: 'Vaishno Devi Cave Yatra, Dal Lake Shikara & Gulmarg Alpine Snow',
-    heroImage: 'https://images.unsplash.com/photo-1598091383021-15ddea10925d?auto=format&fit=crop&w=1600&q=85',
+    heroImage: 'https://images.unsplash.com/photo-1719377678428-d9bcec6976f3?auto=format&fit=crop&w=1600&q=85',
     guideTitle: 'Jammu & Kashmir Sacred Yatra & Valley Guide',
     weatherInfo: '8°C - 24°C (Alpine & Hill Climate)',
     bestSeason: 'Year-Round (Navratri & Winter Snow Peak)',
