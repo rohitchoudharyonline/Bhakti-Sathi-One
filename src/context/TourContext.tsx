@@ -544,7 +544,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   });
 
-  const APPROVED_DESTINATION_SLUGS = new Set(['jammu-kashmir', 'himachal', 'amritsar']);
+  const APPROVED_DESTINATION_SLUGS = new Set(['jammu-kashmir']);
 
   const DISALLOWED_DUMMY_DEST_SLUGS = new Set([
     'ladakh',
