@@ -131,7 +131,7 @@ interface DecodedRegistryItem {
 let isHydrating = false;
 let isInitialized = false;
 const inFlightPushes = new Map<string, Promise<boolean>>();
-const pendingSyncQueue = new Map<string, string>();
+const pendingSyncQueue = new Map<string, { value: string; options: { allowMediaDeletion?: boolean } }>();
 const lastSyncedTimestamps = new Map<string, number>();
 
 /**
@@ -569,7 +569,7 @@ export async function syncRegistryToServer(
 
   // If a push for this key is already running, queue it
   if (inFlightPushes.has(key)) {
-    pendingSyncQueue.set(key, value);
+    pendingSyncQueue.set(key, { value, options });
     return inFlightPushes.get(key)!;
   }
 
@@ -644,10 +644,10 @@ export async function syncRegistryToServer(
       inFlightPushes.delete(key);
 
       // Process any pending sync that occurred while in flight
-      const nextVal = pendingSyncQueue.get(key);
-      if (nextVal !== undefined) {
+      const pending = pendingSyncQueue.get(key);
+      if (pending !== undefined) {
         pendingSyncQueue.delete(key);
-        void syncRegistryToServer(key, nextVal);
+        void syncRegistryToServer(key, pending.value, pending.options);
       }
     }
   })();
