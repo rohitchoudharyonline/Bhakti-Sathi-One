@@ -2633,6 +2633,10 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Destinations Operations
   const addDestination = (newDest: Omit<DestinationMeta, 'id'>): string => {
     const slug = newDest.slug || newDest.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    if (!APPROVED_DESTINATION_SLUGS.has(slug.toLowerCase())) {
+      alert('Only the three approved Holidays Hunt destinations are locked for this site.');
+      return slug;
+    }
     const id = slug;
     const destinationItem: DestinationMeta = {
       ...newDest,
