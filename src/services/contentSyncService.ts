@@ -217,6 +217,23 @@ export async function loadAuthoritativeServerContent(): Promise<boolean> {
   if (typeof window === 'undefined') return false;
 
   try {
+    // Preserve any existing local media metadata so uploads made before server
+    // persistence was enabled can be migrated into the authoritative registry.
+    let localMediaForMigration: string | null = null;
+    try {
+      const rawMedia = window.localStorage.getItem('hh_media_assets_v2');
+      if (rawMedia) {
+        const parsedMedia = JSON.parse(rawMedia);
+        if (Array.isArray(parsedMedia) && parsedMedia.length > 0) {
+          // dataUrl is only a browser preview and can be very large; R2 URL/path
+          // is the durable asset reference that should be shared through D1.
+          localMediaForMigration = JSON.stringify(
+            parsedMedia.map(({ dataUrl, ...asset }: any) => asset)
+          );
+        }
+      }
+    } catch {}
+
     // Purge stale browser copies first so legacy/dummy content cannot flash or be pushed back.
     clearSharedRegistryCache();
 
@@ -276,6 +293,20 @@ export async function loadAuthoritativeServerContent(): Promise<boolean> {
       if (decodedTime >= existingTime) {
         serverItemsByKey.set(decoded.storageKey, decoded);
       }
+    }
+
+    // If the media registry does not exist yet, migrate the existing browser
+    // library once. This preserves uploads already present in R2 while making
+    // their metadata survive logout/login and work across browsers.
+    let mediaRegistryMigrated = false;
+    if (!serverItemsByKey.has('hh_media_assets_v2') && localMediaForMigration) {
+      serverItemsByKey.set('hh_media_assets_v2', {
+        id: 'registry-media-assets-v2',
+        storageKey: 'hh_media_assets_v2',
+        value: localMediaForMigration,
+        updatedAt: new Date().toISOString(),
+      });
+      mediaRegistryMigrated = true;
     }
 
     const destinationItem = serverItemsByKey.get('hh_destinations_registry_v2');
@@ -384,6 +415,13 @@ export async function loadAuthoritativeServerContent(): Promise<boolean> {
       }
     } finally {
       isHydrating = false;
+    }
+
+    if (mediaRegistryMigrated) {
+      void syncRegistryToServer(
+        'hh_media_assets_v2',
+        serverItemsByKey.get('hh_media_assets_v2')!.value
+      );
     }
 
     // Persist any local deletion tombstones that were merged into the authoritative
