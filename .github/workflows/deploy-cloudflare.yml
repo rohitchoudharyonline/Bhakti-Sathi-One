@@ -142,7 +142,8 @@ jobs:
           outer=json.loads(raw) if isinstance(raw,str) else raw
           value=outer.get('value') if isinstance(outer,dict) else None
           dests=json.loads(value) if isinstance(value,str) else value
-          print('RESTORED_DESTINATIONS=' + json.dumps([{'id':x.get('id'),'slug':x.get('slug'),'name':x.get('name'),'heroImage':x.get('heroImage')} for x in dests if isinstance(x,dict)],ensure_ascii=False))
+          items = list(dests.values()) if isinstance(dests,dict) else dests
+          print('RESTORED_DESTINATIONS=' + json.dumps([{'id':x.get('id'),'slug':x.get('slug'),'name':x.get('name'),'heroImage':x.get('heroImage')} for x in items if isinstance(x,dict)],ensure_ascii=False))
           PY
       - name: Deploy Worker and Static Assets
         run: bunx wrangler deploy
