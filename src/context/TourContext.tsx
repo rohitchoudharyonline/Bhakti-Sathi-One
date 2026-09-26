@@ -520,6 +520,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
     'kashmir-pilgrimage-tour-package',
     '6-days-kashmir-honeymoon-package-srinagar-gulmarg-pahalgam',
     'kashmir-tour-package-5-nights-6-days',
+    '5-days-kashmir-tour-itinerary',
   ]);
   const isProtectedRealTour = (pkg: TourPackage) =>
     PROTECTED_REAL_TOUR_IDS.has(String(pkg.id || '')) ||
@@ -2576,6 +2577,8 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const deletePackage = (id: string) => {
+    const target = packages.find((pkg) => pkg.id === id);
+    if (target && isProtectedRealTour(target)) return;
     markItemDeleted('hh_deleted_package_ids', id);
     const deletedIds = getDeletedItems('hh_deleted_package_ids');
     const deletionSync = syncRegistryToServer(
