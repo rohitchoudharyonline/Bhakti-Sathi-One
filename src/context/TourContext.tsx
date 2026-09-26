@@ -529,56 +529,10 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
   ]);
 
   // 2. Destinations Registry State (Strictly Jammu & Kashmir, Himachal Pradesh, Amritsar)
-  const [destinations, setDestinations] = useState<Record<string, DestinationMeta>>(() => {
-    const deletedSlugs = getDeletedItems('hh_deleted_destination_slugs');
+  // Never render browser-local/default destination data before D1 hydration.
+  // This prevents stale/dummy destination images from flashing on first paint.
+  const [destinations, setDestinations] = useState<Record<string, DestinationMeta>>({});
 
-    try {
-      const saved = localStorage.getItem(STORAGE_KEYS.DESTINATIONS);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
-          const result: Record<string, DestinationMeta> = {};
-          for (const [slug, rawItem] of Object.entries(parsed)) {
-            if (!deletedSlugs.includes(slug) && !DISALLOWED_DUMMY_DEST_SLUGS.has(slug) && rawItem) {
-              const defaultDest: any = DESTINATIONS_REGISTRY[slug] || {};
-              const item: any = rawItem;
-              result[slug] = {
-                ...defaultDest,
-                ...item,
-                name: item.name || defaultDest.name || slug,
-                displayName: item.displayName || defaultDest.displayName || item.name || slug,
-                tagline: item.tagline || defaultDest.tagline || '',
-                heroImage: item.heroImage || defaultDest.heroImage || '',
-                destinationType: item.destinationType || defaultDest.destinationType || 'regular',
-                guide: {
-                  ...(defaultDest.guide || {}),
-                  ...(item.guide || {}),
-                  topAttractions: item.guide?.topAttractions || defaultDest.guide?.topAttractions || [],
-                  faqs: item.guide?.faqs || defaultDest.guide?.faqs || [],
-                },
-                keyHighlights: item.keyHighlights || defaultDest.keyHighlights || [],
-                startingPrice: item.startingPrice || defaultDest.startingPrice || 6499,
-              };
-            }
-          }
-          if (Object.keys(result).length > 0) {
-            try {
-              localStorage.setItem(STORAGE_KEYS.DESTINATIONS, JSON.stringify(result));
-            } catch {}
-            return result;
-          }
-        }
-      }
-    } catch {}
-
-    const initial: Record<string, DestinationMeta> = {};
-    for (const [slug, dest] of Object.entries(DESTINATIONS_REGISTRY)) {
-      if (!deletedSlugs.includes(slug) && !DISALLOWED_DUMMY_DEST_SLUGS.has(slug)) {
-        initial[slug] = dest;
-      }
-    }
-    return initial;
-  });
 
   // 2.1 Sacred Temples & Holy Places State
   const [temples, setTemples] = useState<TemplePlace[]>(() => {
