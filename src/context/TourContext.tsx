@@ -2577,8 +2577,8 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const deletePackage = (id: string) => {
-    const target = packages.find((pkg) => pkg.id === id);
-    if (target && isProtectedRealTour(target)) return;
+    // Explicit CMS deletion is always allowed, including protected tours.
+    // Protection only prevents stale sync/hydration from resurrecting the record.
     markItemDeleted('hh_deleted_package_ids', id);
     const deletedIds = getDeletedItems('hh_deleted_package_ids');
     const deletionSync = syncRegistryToServer(
