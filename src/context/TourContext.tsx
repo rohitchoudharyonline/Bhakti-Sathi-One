@@ -561,7 +561,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
     'singapore',
   ]);
 
-  // 2. Destinations Registry State (Strictly Jammu & Kashmir, Himachal Pradesh, Amritsar)
+  // 2. Destinations Registry State (Strictly Jammu & Kashmir)
   // Never render browser-local/default destination data before D1 hydration.
   // This prevents stale/dummy destination images from flashing on first paint.
   const [destinations, setDestinations] = useState<Record<string, DestinationMeta>>(() => {
