@@ -480,6 +480,11 @@ export async function loadAuthoritativeServerContent(): Promise<boolean> {
       );
     }
 
+    for (const blogKey of ['hh_blog_posts_v2', 'hh_blog_categories_v2'] as const) {
+      const blogItem = serverItemsByKey.get(blogKey);
+      if (blogItem) void syncRegistryToServer(blogKey, blogItem.value);
+    }
+
     // Persist any local deletion tombstones that were merged into the authoritative
     // state during this load, including tombstones created before this fix deployed.
     for (const tombstoneKey of ['hh_deleted_blog_post_ids', 'hh_deleted_blog_category_ids']) {
@@ -513,7 +518,11 @@ export async function loadAuthoritativeServerContent(): Promise<boolean> {
  * Pushes a single registry's value to D1 server.
  * Uses PUT for existing records, falling back to POST if not yet created.
  */
-export async function syncRegistryToServer(key: string, value: string): Promise<boolean> {
+export async function syncRegistryToServer(
+  key: string,
+  value: string,
+  options: { allowMediaDeletion?: boolean } = {}
+): Promise<boolean> {
   if (typeof window === 'undefined') return false;
   if (!SHARED_STORAGE_KEYS.has(key)) return false;
   if (isHydrating) return false;
@@ -576,6 +585,9 @@ export async function syncRegistryToServer(key: string, value: string): Promise<
           storageKey: key,
           value,
           updatedAt: new Date().toISOString(),
+          ...(key === 'hh_media_assets_v2' && options.allowMediaDeletion
+            ? { allowMediaDeletion: true }
+            : {}),
         },
       };
 
