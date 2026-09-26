@@ -1964,22 +1964,24 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     // Fetch authoritative destinations from server database
     void fetchDestinationsFromServer().then((serverDests) => {
-      const deletedSlugs = getDeletedItems('hh_deleted_destination_slugs');
+      // D1 is authoritative after an explicit restore. Do not let newer
+      // browser tombstones hide destinations that exist in the restored server state.
       if (serverDests && typeof serverDests === 'object') {
         const cleanServerDests: Record<string, DestinationMeta> = {};
         for (const [k, v] of Object.entries(serverDests)) {
-          if (!deletedSlugs.includes(k) && v) {
+          if (!DISALLOWED_DUMMY_DEST_SLUGS.has(k) && v) {
             cleanServerDests[k] = v;
           }
         }
         if (Object.keys(cleanServerDests).length > 0) {
           setDestinations((prev) => {
             const next = { ...prev, ...cleanServerDests };
-            for (const s of deletedSlugs) {
-              delete next[s];
-            }
             try {
               localStorage.setItem(STORAGE_KEYS.DESTINATIONS, JSON.stringify(next));
+              const deleted = getDeletedItems('hh_deleted_destination_slugs');
+              const restoredSlugs = new Set(Object.keys(cleanServerDests));
+              const remainingDeleted = deleted.filter((slug) => !restoredSlugs.has(slug));
+              localStorage.setItem('hh_deleted_destination_slugs', JSON.stringify(remainingDeleted));
             } catch {}
             return next;
           });
