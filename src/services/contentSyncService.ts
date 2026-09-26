@@ -43,7 +43,7 @@ export const SYNCED_REGISTRIES: SyncedRegistryDef[] = [
 const REGISTRY_BY_KEY = new Map<string, SyncedRegistryDef>(
   SYNCED_REGISTRIES.map((r) => [r.storageKey, r])
 );
-const APPROVED_DESTINATION_SLUGS = new Set(['jammu-kashmir', 'himachal', 'amritsar']);
+const APPROVED_DESTINATION_SLUGS = new Set(['jammu-kashmir']);
 
 function normalizeDestinationRegistry(value: unknown): Record<string, any> {
   let parsed: any = value;
