@@ -2,12 +2,6 @@ import { GoogleGenAI } from '@google/genai';
 
 const text = (v: unknown, max = 2000) => String(v ?? '').replace(/[\u0000-\u001F\u007F]/g, ' ').trim().slice(0, max);
 const APPROVED_DESTINATION_SLUGS = new Set(['jammu-kashmir']);
-const PROTECTED_TOUR_SLUGS = new Set([
-  'kashmir-pilgrimage-tour-package',
-  '6-days-kashmir-honeymoon-package-srinagar-gulmarg-pahalgam',
-  'kashmir-tour-package-5-nights-6-days',
-  '5-days-kashmir-tour-itinerary',
-]);
 
 // D1 has historically stored this registry both as an object keyed by slug and
 // as an array of destination records. Normalize both shapes before filtering so
@@ -484,9 +478,7 @@ export default {
                   ).run();
                 }
 
-                const isProtectedTour = (pkg: any) => PROTECTED_TOUR_SLUGS.has(String(pkg?.slug || '').trim().toLowerCase());
                 const isDeleted = (pkg: any) => {
-                  if (isProtectedTour(pkg)) return false;
                   const pkgId = String(pkg?.id || '').trim().toLowerCase();
                   const pkgSlug = String(pkg?.slug || '').trim().toLowerCase();
                   return (pkgId && deletedSet.has(pkgId)) || (pkgSlug && deletedSet.has(pkgSlug));
