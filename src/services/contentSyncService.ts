@@ -222,8 +222,7 @@ export function clearSharedRegistryCache() {
           const approved = parsed.filter((pkg: any) => {
             const id = String(pkg?.id || '');
             const slug = String(pkg?.slug || '').trim().toLowerCase();
-            return !DISALLOWED_DUMMY_PACKAGE_IDS.has(id) &&
-              (PROTECTED_REAL_TOUR_IDS.has(id) || PROTECTED_REAL_TOUR_SLUGS.has(slug));
+            return !DISALLOWED_DUMMY_PACKAGE_IDS.has(id);
           });
           if (approved.length > 0) preservedPackages = JSON.stringify(approved);
         }
