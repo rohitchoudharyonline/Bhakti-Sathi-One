@@ -295,8 +295,8 @@ export default {
               const b = await request.json().catch(() => ({}));
               const slug = text(b.slug || targetSlug, 200).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
               if (!slug) return json({ error: 'Valid slug required.' }, 400, privateHeaders(env, request));
-              if (!['jammu-kashmir', 'himachal', 'amritsar'].includes(slug)) {
-                return json({ error: 'Only the protected Holidays Hunt destinations are allowed.' }, 409, privateHeaders(env, request));
+              if (slug !== 'jammu-kashmir') {
+                return json({ error: 'Only the Jammu & Kashmir destination is allowed.' }, 409, privateHeaders(env, request));
               }
               map[slug] = { ...map[slug], ...b, slug, id: slug, updated_at: new Date().toISOString() };
             }
