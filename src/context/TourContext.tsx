@@ -2562,6 +2562,11 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const deletePackage = (id: string) => {
+    const target = packages.find((pkg) => pkg.id === id);
+    if (target && isProtectedRealTour(target)) {
+      alert('This approved Holidays Hunt tour is permanently protected and cannot be deleted.');
+      return;
+    }
     markItemDeleted('hh_deleted_package_ids', id);
     setPackages((prev) => {
       const next = prev.filter((pkg) => pkg.id !== id);
@@ -2665,6 +2670,10 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const deleteDestination = (slug: string) => {
+    if (APPROVED_DESTINATION_SLUGS.has(String(slug).trim().toLowerCase())) {
+      alert('This approved Holidays Hunt destination is permanently protected and cannot be deleted.');
+      return;
+    }
     markItemDeleted('hh_deleted_destination_slugs', slug);
     setDestinations((prev) => {
       const next = { ...prev };
@@ -3138,7 +3147,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setMediaAssets((prev) => {
       const next = prev.filter((a) => a.id !== id);
       const d1Registry = next.map(({ dataUrl, ...metadata }) => metadata);
-      void syncRegistryToServer('hh_media_assets_v2', JSON.stringify(d1Registry));
+      void syncRegistryToServer('hh_media_assets_v2', JSON.stringify(d1Registry), { allowMediaDeletion: true });
       return next;
     });
   };
