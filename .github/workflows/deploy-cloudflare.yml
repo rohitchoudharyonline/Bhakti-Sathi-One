@@ -47,16 +47,6 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
-      - name: STRICT one-time restore to pre-8am D1 snapshot
-        run: |
-          bunx wrangler d1 time-travel restore DB --timestamp="2026-09-25T02:29:59Z" --json
-          bunx wrangler d1 execute DB --remote --command "SELECT id, json_array_length(json_extract(structured_content, '$.value')) AS item_count FROM contents WHERE id IN ('registry-packages','registry-destinations');"
-          bunx wrangler d1 execute DB --remote --command "SELECT json_extract(value,'$.id') AS id, json_extract(value,'$.title') AS title, json_extract(value,'$.slug') AS slug FROM contents, json_each(json_extract(structured_content,'$.value')) WHERE contents.id='registry-packages';"
-          bunx wrangler d1 execute DB --remote --command "SELECT json_extract(value,'$.slug') AS slug, json_extract(value,'$.name') AS name FROM contents, json_each(json_extract(structured_content,'$.value')) WHERE contents.id='registry-destinations';"
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-
       - name: Deploy Worker and Static Assets
         run: bunx wrangler deploy
         env:
