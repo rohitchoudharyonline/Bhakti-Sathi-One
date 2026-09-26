@@ -24,7 +24,6 @@ import {
 import { DEFAULT_REGISTERED_USERS } from '../data/defaultUsersData';
 import { generateBookingNumber, formatBookingNumber } from '../utils/bookingHelper';
 import { DESTINATIONS_REGISTRY, DestinationMeta } from '../data/destinationsData';
-import { DEFAULT_BLOG_POSTS, DEFAULT_BLOG_CATEGORIES } from '../data/defaultBlogData';
 import { GuideArticle, GuideCategory } from '../types/guide';
 import { DEFAULT_GUIDES, DEFAULT_GUIDE_CATEGORIES } from '../data/defaultGuidesData';
 import { DEFAULT_CUSTOM_PAGES } from '../data/defaultPagesData';
@@ -607,31 +606,10 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [selectedTempleId, setSelectedTempleId] = useState<string | null>(null);
 
   // 3. Blog Posts & Categories State
-  const [blogPosts, setBlogPosts] = useState<BlogPost[]>(() => {
-    const deletedIds = getDeletedItems('hh_deleted_blog_post_ids');
-
-    try {
-      const saved = localStorage.getItem(STORAGE_KEYS.BLOG_POSTS);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) return parsed.filter((p: BlogPost) => !deletedIds.includes(p.id));
-      }
-    } catch {}
-    return DEFAULT_BLOG_POSTS.filter((p) => !deletedIds.includes(p.id));
-  });
-
-  const [blogCategories, setBlogCategories] = useState<BlogCategory[]>(() => {
-    const deletedIds = getDeletedItems('hh_deleted_blog_category_ids');
-
-    try {
-      const saved = localStorage.getItem(STORAGE_KEYS.BLOG_CATEGORIES);
-      if (saved !== null) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) return parsed.filter((c: BlogCategory) => !deletedIds.includes(c.id));
-      }
-    } catch {}
-    return DEFAULT_BLOG_CATEGORIES.filter((c) => !deletedIds.includes(c.id));
-  });
+  // No seeded blog stories/categories. Existing server/browser copies are removed
+  // during authoritative hydration.
+  const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
+  const [blogCategories, setBlogCategories] = useState<BlogCategory[]>([]);
 
   // Guides State
   const [guides, setGuides] = useState<GuideArticle[]>(() => {
