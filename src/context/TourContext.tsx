@@ -3606,8 +3606,8 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const resetToDefaults = () => {
     setPackages(DEFAULT_PACKAGES);
     setDestinations(DESTINATIONS_REGISTRY);
-    setBlogPosts(DEFAULT_BLOG_POSTS);
-    setBlogCategories(DEFAULT_BLOG_CATEGORIES);
+    setBlogPosts([]);
+    setBlogCategories([]);
     setCustomPages(DEFAULT_CUSTOM_PAGES);
     setPageSeoConfigs(DEFAULT_PAGE_SEO_CONFIGS);
     setMediaAssets(DEFAULT_SAMPLE_MEDIA);
