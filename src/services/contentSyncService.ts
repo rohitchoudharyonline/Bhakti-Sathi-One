@@ -8,7 +8,6 @@
 
 import { saveAllMediaAssetsToDb } from '../utils/mediaStorage';
 import { DestinationMeta } from '../data/destinationsData';
-import { DEFAULT_PACKAGES } from '../data/defaultPackages';
 
 export interface SyncedRegistryDef {
   id: string;
@@ -227,67 +226,6 @@ export async function loadAuthoritativeServerContent(): Promise<boolean> {
       if (decodedTime >= existingTime) {
         serverItemsByKey.set(decoded.storageKey, decoded);
       }
-    }
-
-    // If the public tour registry is missing or empty, rebuild it from the
-    // controlled Jammu & Kashmir defaults instead of showing dummy/blank tours.
-    const packageKey = 'hh_tour_packages_v2';
-    const packageItem = serverItemsByKey.get(packageKey);
-    let packageCount = 0;
-    try {
-      const parsed = packageItem ? JSON.parse(packageItem.value) : [];
-      packageCount = Array.isArray(parsed) ? parsed.length : 0;
-    } catch {}
-    if (packageCount === 0 && DEFAULT_PACKAGES.length === 3) {
-      const value = JSON.stringify(DEFAULT_PACKAGES);
-      serverItemsByKey.set(packageKey, {
-        id: REGISTRY_BY_KEY.get(packageKey)?.id || 'registry-packages',
-        storageKey: packageKey,
-        value,
-        updatedAt: new Date().toISOString(),
-      });
-      shouldBootstrapPackages = true;
-    }
-
-    isHydrating = true;
-    try {
-      for (const [key, item] of serverItemsByKey) {
-        try {
-          // Server is authoritative source of truth: write server confirmed data
-          window.localStorage.setItem(key, item.value);
-          const timestamp = item.updatedAt ? new Date(item.updatedAt).getTime() : Date.now();
-          lastSyncedTimestamps.set(key, timestamp);
-          window.localStorage.setItem(`_sync_time_${key}`, String(timestamp));
-
-          // Also populate IndexedDB media storage if media assets are hydrated
-          if (key === 'hh_media_assets_v2' || key === 'hh_media_assets_v1') {
-            try {
-              const parsedAssets = JSON.parse(item.value);
-              if (Array.isArray(parsedAssets)) {
-                void saveAllMediaAssetsToDb(parsedAssets);
-              }
-            } catch {}
-          }
-        } catch (e) {
-          console.error(`[ContentSync] Error writing server state for ${key}:`, e);
-        }
-      }
-    } finally {
-      isHydrating = false;
-    }
-
-    // Broadcast synchronization to all in-memory React contexts
-    try {
-      window.dispatchEvent(
-        new CustomEvent('holidayshunt_content_synced', {
-          detail: { keys: Array.from(serverItemsByKey.keys()) },
-        })
-      );
-    } catch {}
-
-
-    if (shouldBootstrapPackages) {
-      await syncRegistryToServer(packageKey, JSON.stringify(DEFAULT_PACKAGES));
     }
 
     return true;
