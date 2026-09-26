@@ -269,7 +269,6 @@ export const DESTINATIONS_REGISTRY: Record<string, DestinationMeta> = {
 
 export const POPULAR_DESTINATION_SLUGS = [
   'jammu-kashmir',
-  'himachal',
 ];
 
 export function getDestinationBySlug(slug?: string | null): DestinationMeta | undefined {
