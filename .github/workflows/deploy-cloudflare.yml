@@ -127,24 +127,13 @@ jobs:
               raise SystemExit(f'Historical 3:45 destination registry is missing the required destination: {sorted(required_destination_slugs - destination_slugs)}')
           # The historical snapshot may contain destinations that were deleted later.
           # Filter it immediately so a restore can never resurrect Himachal or Amritsar.
-          out.append("""UPDATE contents
-SET structured_content = json_set(
-  structured_content,
-  '$.value',
-  (
-    SELECT json_group_object(key, json(value))
-    FROM json_each(
-      CASE
-        WHEN json_type(structured_content, '$.value') = 'text'
-          THEN json_extract(structured_content, '$.value')
-        ELSE json_extract(structured_content, '$.value')
-      END
-    )
-    WHERE key = 'jammu-kashmir'
-  )
-),
-updated_at = datetime('now')
-WHERE id = 'registry-destinations';""")
+          out.append(
+              "UPDATE contents SET structured_content = json_set(structured_content, '$.value', "
+              "(SELECT json_group_object(key, json(value)) FROM json_each(CASE "
+              "WHEN json_type(structured_content, '$.value') = 'text' THEN json_extract(structured_content, '$.value') "
+              "ELSE json_extract(structured_content, '$.value') END) WHERE key = 'jammu-kashmir')), "
+              "updated_at = datetime('now') WHERE id = 'registry-destinations';"
+          )
           out.append("UPDATE contents SET status = 'published' WHERE id IN ('registry-packages','registry-destinations');")
           open('/tmp/restore-selected.sql','w').write('\n'.join(out)+'\n')
           PY
