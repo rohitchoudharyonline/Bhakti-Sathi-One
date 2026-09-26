@@ -89,6 +89,18 @@ const PROTECTED_REAL_TOUR_SLUGS = new Set([
   'kashmir-tour-package-5-nights-6-days',
 ]);
 
+// These were seeded into the CMS but were never created by the site owner.
+// They are permanently filtered from every server/browser hydration.
+const PURGED_BLOG_POST_IDS = new Set([
+  'post-kashmir-best-time',
+  'post-vaishno-devi-helicopter-guide',
+]);
+const PURGED_BLOG_CATEGORY_IDS = new Set([
+  'cat-kashmir',
+  'cat-tips-rates',
+  'cat-spiritual',
+]);
+
 const REGISTRY_BY_ID = new Map<string, SyncedRegistryDef>(
   SYNCED_REGISTRIES.map((r) => [r.id, r])
 );
@@ -227,6 +239,11 @@ export function clearSharedRegistryCache() {
         }
       } catch {}
     }
+    // Explicitly clear legacy/current blog registries so an old browser cannot
+    // resurrect the removed seeded records.
+    for (const key of ['hh_blog_posts_v2', 'hh_blog_posts_v1', 'hh_blog_categories_v2', 'hh_blog_categories_v1']) {
+      try { window.localStorage.removeItem(key); } catch {}
+    }
 
     if (preservedPackages) {
       window.localStorage.setItem('hh_tour_packages_v2', preservedPackages);
@@ -336,6 +353,22 @@ export async function loadAuthoritativeServerContent(): Promise<boolean> {
     if (destinationItem) {
       try {
         destinationItem.value = JSON.stringify(cleanApprovedDestinations(destinationItem.value));
+      } catch {}
+    }
+
+    // Permanently remove only the uncreated seeded blog records. Future CMS-created
+    // posts/categories remain supported.
+    for (const [registryKey, purgedIds] of [
+      ['hh_blog_posts_v2', PURGED_BLOG_POST_IDS],
+      ['hh_blog_categories_v2', PURGED_BLOG_CATEGORY_IDS],
+    ] as const) {
+      const item = serverItemsByKey.get(registryKey);
+      if (!item) continue;
+      try {
+        const parsed = JSON.parse(item.value);
+        if (Array.isArray(parsed)) {
+          item.value = JSON.stringify(parsed.filter((entry: any) => !purgedIds.has(String(entry?.id || ''))));
+        }
       } catch {}
     }
 
