@@ -684,7 +684,7 @@ export const DestinationsManager: React.FC = () => {
                       {
                         name: 'New Attraction',
                         description: 'Detailed description of this must-see spot...',
-                        image: 'https://images.unsplash.com/photo-1598091383021-15ddea10925d?auto=format&fit=crop&w=800&q=80',
+                        image: '',
                         badge: 'Featured',
                       },
                     ];
