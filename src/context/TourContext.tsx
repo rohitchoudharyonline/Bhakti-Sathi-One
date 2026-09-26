@@ -2009,7 +2009,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
           if (Array.isArray(parsed)) {
             const deletedPkgIds = getDeletedItems('hh_deleted_package_ids');
             setPackages(parsed
-              .filter((pkg: TourPackage) => isProtectedRealTour(pkg))
+              .filter((pkg: TourPackage) => !DISALLOWED_DUMMY_PKG_IDS.has(pkg.id))
               .map((pkg: TourPackage) => {
                 const cat = normalizePackageCategory(pkg.category || pkg.tourType);
                 return { ...pkg, category: cat, tourType: cat };
