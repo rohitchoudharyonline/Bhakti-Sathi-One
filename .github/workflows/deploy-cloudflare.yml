@@ -117,6 +117,33 @@ jobs:
         run: |
           printf 'y\n' | bunx wrangler d1 time-travel restore DB --timestamp="2026-09-24T22:29:59Z" --json
 
+      - name: Verify restored destination images
+        if: contains(github.event.head_commit.message, '[restore-345]')
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          DEST_ROWS="$(bunx wrangler d1 execute DB --remote --json --command="SELECT id, structured_content FROM contents WHERE id='registry-destinations'")"
+          printf '%s' "$DEST_ROWS" > /tmp/dest-check.json
+          python3 - <<'PY'
+          import json
+          d=json.load(open('/tmp/dest-check.json'))
+          rows=[]
+          def walk(x):
+              if isinstance(x,dict):
+                  if x.get('id')=='registry-destinations' and 'structured_content' in x: rows.append(x)
+                  for v in x.values(): walk(v)
+              elif isinstance(x,list):
+                  for v in x: walk(v)
+          walk(d)
+          if not rows: raise SystemExit('registry-destinations not found')
+          raw=rows[0]['structured_content']
+          outer=json.loads(raw) if isinstance(raw,str) else raw
+          value=outer.get('value') if isinstance(outer,dict) else None
+          dests=json.loads(value) if isinstance(value,str) else value
+          print('RESTORED_DESTINATIONS=' + json.dumps([{'id':x.get('id'),'slug':x.get('slug'),'name':x.get('name'),'heroImage':x.get('heroImage')} for x in dests if isinstance(x,dict)],ensure_ascii=False))
+          PY
       - name: Deploy Worker and Static Assets
         run: bunx wrangler deploy
         env:
