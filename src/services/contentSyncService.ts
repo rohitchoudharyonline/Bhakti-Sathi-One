@@ -48,6 +48,14 @@ const DISALLOWED_DUMMY_PACKAGE_IDS = new Set([
   'pkg-jammu-01', 'pkg-jammu-02', 'pkg-ladakh-01',
 ]);
 
+// These are the three real Holidays Hunt tours. They must never be hidden
+// by an old browser/server deletion tombstone after the approved restore.
+const PROTECTED_REAL_TOUR_IDS = new Set([
+  'pkg-kashmir-honeymoon-01',
+  'pkg-kashmir-vaishno-01',
+  'pkg-kashmir-family-01',
+]);
+
 const REGISTRY_BY_ID = new Map<string, SyncedRegistryDef>(
   SYNCED_REGISTRIES.map((r) => [r.id, r])
 );
@@ -255,6 +263,35 @@ export async function loadAuthoritativeServerContent(): Promise<boolean> {
         if (Array.isArray(parsed)) {
           const cleaned = parsed.filter((pkg: any) => !DISALLOWED_DUMMY_PACKAGE_IDS.has(String(pkg?.id || '')));
           packageItem.value = JSON.stringify(cleaned);
+        }
+      } catch {}
+    }
+
+    // Never allow stale deletion tombstones to hide the three real tours.
+    const deletedPackageItem = serverItemsByKey.get('hh_deleted_package_ids');
+    if (deletedPackageItem) {
+      try {
+        const parsed = JSON.parse(deletedPackageItem.value);
+        if (Array.isArray(parsed)) {
+          const cleaned = parsed.filter((id: any) => !PROTECTED_REAL_TOUR_IDS.has(String(id)));
+          deletedPackageItem.value = JSON.stringify(cleaned);
+        }
+      } catch {}
+    }
+
+    // If the user previously deleted CMS blog categories, persist that deletion
+    // back to D1 so refresh cannot resurrect the old category registry.
+    const blogCategoryItem = serverItemsByKey.get('hh_blog_categories_v2');
+    if (blogCategoryItem) {
+      try {
+        const parsed = JSON.parse(blogCategoryItem.value);
+        const deletedRaw = window.localStorage.getItem('hh_deleted_blog_category_ids');
+        const deletedIds = deletedRaw ? JSON.parse(deletedRaw) : [];
+        if (Array.isArray(parsed) && Array.isArray(deletedIds)) {
+          const deletedSet = new Set(deletedIds.map(String));
+          const cleaned = parsed.filter((cat: any) => !deletedSet.has(String(cat?.id || '')));
+          blogCategoryItem.value = JSON.stringify(cleaned);
+          window.localStorage.setItem('hh_deleted_blog_category_ids', JSON.stringify([]));
         }
       } catch {}
     }
