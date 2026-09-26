@@ -592,6 +592,66 @@ export default {
           return json({ success: true }, 200, privateHeaders(env, request));
         }
         if(pathname==='/api/notify-lead'&&request.method==='POST'){if(!env.DB)return json({error:'Database unavailable.'},503,privateHeaders(env,request));const b=await request.json().catch(()=>({})),name=text(b.name,120),phone=text(b.phone,40),pack=text(b.package,200);if(!name||!phone)return json({error:'Name and phone are required.'},400,privateHeaders(env,request));await env.DB.prepare('INSERT INTO leads (name,phone,package,created_at) VALUES (?,?,?,?)').bind(name,phone,pack,new Date().toISOString()).run();return json({success:true},201,publicHeaders(env,request));}
+        if(pathname==='/api/generate-tour'&&request.method==='POST'){
+          const e=await requireCms();
+          if(!e)return json({error:'Unauthorized.'},401,privateHeaders(env,request));
+          const key=String(env.GEMINI_API_KEY||'');
+          if(!key)return json({error:'AI service not configured.'},503,privateHeaders(env,request));
+          const b=await request.json().catch(()=>({}));
+          const command=text(b.command,12000);
+          if(!command)return json({error:'Tour command is required.'},400,privateHeaders(env,request));
+          const ai=new GoogleGenAI({apiKey:key});
+          const prompt=`You are the content assistant for Holidays Hunt, a professional Indian travel agency. Convert the user's tour command into ONE complete tour package draft.
+
+Return ONLY valid JSON. Do not use markdown or code fences. Do not invent prices, hotel ratings, permits, ticket costs, reviews, or factual claims that were not supplied. If information is missing, use an empty string, empty array, or a safe neutral value.
+
+Required JSON shape:
+{
+  "title": string,
+  "tagline": string,
+  "destination": string,
+  "destinationTag": string,
+  "country": string,
+  "category": "Family"|"Honeymoon"|"Pilgrimage",
+  "durationDays": number,
+  "durationNights": number,
+  "overview": string,
+  "startLocation": string,
+  "endLocation": string,
+  "bestTimeToVisit": string,
+  "tourType": string,
+  "itinerary": [{"dayNumber":number,"title":string,"location":string,"description":string,"meals":string[],"stayHotel":string,"activities":string[]}],
+  "inclusions": string[],
+  "exclusions": string[],
+  "hotels": [{"name":string,"city":string,"roomType":string,"nights":number,"mealPlan":string}],
+  "seoTitle": string,
+  "metaDescription": string,
+  "seoKeywords": string,
+  "importantNotes": string[],
+  "policies": {"cancellationPolicy":string[],"termsAndConditions":string[],"paymentPolicy":string[]}
+}
+
+User command:
+${command}`;
+          try{
+            const r=await ai.models.generateContent({
+              model:'gemini-2.5-flash',
+              contents:prompt,
+              config:{responseMimeType:'application/json'}
+            });
+            const raw=String(r.text||'').trim();
+            const clean=raw.replace(/^\`\`\`json\s*/i,'').replace(/^\`\`\`\s*/,'').replace(/\s*\`\`\`$/,'').trim();
+            const tour=JSON.parse(clean);
+            if(!tour||typeof tour!=='object'||!String(tour.title||'').trim()||!Array.isArray(tour.itinerary)){
+              return json({error:'AI returned an incomplete tour draft.'},502,privateHeaders(env,request));
+            }
+            return json({success:true,tour},200,privateHeaders(env,request));
+          }catch(err:any){
+            console.error('Tour AI generation failed',err);
+            return json({error:'AI could not create the tour draft. Please try again.'},502,privateHeaders(env,request));
+          }
+        }
+
         if(['/api/generate-seo','/api/generate-guide-article','/api/generate-guide-faqs','/api/generate-guide-seo','/api/fetch-hotel-details'].includes(pathname)){const e=await requireCms();if(!e)return json({error:'Unauthorized.'},401,privateHeaders(env,request));const key=String(env.GEMINI_API_KEY||'');if(!key)return json({error:'AI service not configured.'},503,privateHeaders(env,request));const b=await request.json().catch(()=>({})),title=text(b.title||b.hotelName||'Sacred destination',300),ai=new GoogleGenAI({apiKey:key});const prompt=pathname==='/api/generate-seo'?`Generate concise SEO title and meta description for ${title}.`:`Create accurate editorial content for ${title}. Do not invent facts, ratings, reviews or amenities.`;const r=await ai.models.generateContent({model:'gemini-2.5-flash',contents:prompt});return json({success:true,result:r.text},200,privateHeaders(env,request));}
 
         return json({error:'API endpoint not found'},404,publicHeaders(env,request));
