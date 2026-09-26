@@ -369,8 +369,11 @@ export default {
             const slug = text(b.slug || title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''), 200);
             const now = new Date().toISOString();
 
-            // Server-side invariant: never allow a stale/empty CMS browser to
-            // erase the three approved real Holidays Hunt tours from D1.
+            // Tour registry safety:
+            // - Normal/background syncs may add or update tours, but can never
+            //   remove an existing server tour because of a stale browser copy.
+            // - An explicit CMS delete carries allowTourDeletion=true and may
+            //   intentionally remove the selected tour.
             if (id === 'registry-packages' || slug === 'hh_tour_packages_v2') {
               try {
                 const structured = typeof b.structured_content === 'string'
@@ -379,25 +382,44 @@ export default {
                 const rawValue = structured && typeof structured.value === 'string'
                   ? structured.value
                   : structured?.value;
-                const packages = typeof rawValue === 'string' ? JSON.parse(rawValue) : rawValue;
-                const requiredSlugs = new Set([
-                  'kashmir-pilgrimage-tour-package',
-                  '6-days-kashmir-honeymoon-package-srinagar-gulmarg-pahalgam',
-                  'kashmir-tour-package-5-nights-6-days',
-                ]);
-                const incomingSlugs = new Set(
-                  Array.isArray(packages)
-                    ? packages.map((pkg: any) => String(pkg?.slug || '').trim().toLowerCase()).filter(Boolean)
-                    : []
-                );
-                if (incomingSlugs.size === 0 || [...requiredSlugs].some((required) => !incomingSlugs.has(required))) {
-                  return json({ error: 'Tour registry rejected: approved real tours must remain intact.' }, 409, privateHeaders(env, request));
+                const incoming = typeof rawValue === 'string' ? JSON.parse(rawValue) : rawValue;
+                if (!Array.isArray(incoming)) {
+                  return json({ error: 'Tour registry rejected: invalid registry payload.' }, 400, privateHeaders(env, request));
+                }
+                const allowTourDeletion = structured?.allowTourDeletion === true;
+                if (!allowTourDeletion) {
+                  const existingRow = await env.DB.prepare(
+                    'SELECT structured_content FROM contents WHERE id=?'
+                  ).bind('registry-packages').first();
+                  if (existingRow?.structured_content) {
+                    try {
+                      const existingStructured = JSON.parse(existingRow.structured_content as string);
+                      const existingValue = typeof existingStructured?.value === 'string'
+                        ? JSON.parse(existingStructured.value)
+                        : existingStructured?.value;
+                      const existingTours = Array.isArray(existingValue) ? existingValue : [];
+                      const incomingIds = new Set(incoming.map((pkg: any) => String(pkg?.id || '')));
+                      const incomingSlugs = new Set(incoming.map((pkg: any) => String(pkg?.slug || '').trim().toLowerCase()));
+                      const merged = [
+                        ...incoming,
+                        ...existingTours.filter((pkg: any) => {
+                          const id = String(pkg?.id || '');
+                          const tourSlug = String(pkg?.slug || '').trim().toLowerCase();
+                          return id && !incomingIds.has(id) && (!tourSlug || !incomingSlugs.has(tourSlug));
+                        }),
+                      ];
+                      b.structured_content = {
+                        ...structured,
+                        value: JSON.stringify(merged),
+                        updatedAt: new Date().toISOString(),
+                      };
+                    } catch {}
+                  }
                 }
               } catch {
                 return json({ error: 'Tour registry rejected: invalid registry payload.' }, 400, privateHeaders(env, request));
               }
             }
-
             if (id === 'registry-destinations' || slug === 'hh_destinations_registry_v2') {
               try {
                 const structured = typeof b.structured_content === 'string'
