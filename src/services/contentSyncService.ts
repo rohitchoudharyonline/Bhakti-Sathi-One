@@ -131,7 +131,7 @@ interface DecodedRegistryItem {
 let isHydrating = false;
 let isInitialized = false;
 const inFlightPushes = new Map<string, Promise<boolean>>();
-const pendingSyncQueue = new Map<string, { value: string; options: { allowMediaDeletion?: boolean } }>();
+const pendingSyncQueue = new Map<string, { value: string; options: { allowMediaDeletion?: boolean; allowTourDeletion?: boolean } }>();
 const lastSyncedTimestamps = new Map<string, number>();
 
 /**
@@ -582,9 +582,8 @@ export async function syncRegistryToServer(
           storageKey: key,
           value,
           updatedAt: new Date().toISOString(),
-          ...(key === 'hh_media_assets_v2' && options.allowMediaDeletion
-            ? { allowMediaDeletion: true }
-            : {}),
+          ...(key === 'hh_media_assets_v2' && options.allowMediaDeletion ? { allowMediaDeletion: true } : {}),
+          ...(key === 'hh_tour_packages_v2' && options.allowTourDeletion ? { allowTourDeletion: true } : {}),
         },
       };
 
