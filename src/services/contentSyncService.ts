@@ -386,17 +386,45 @@ export async function loadAuthoritativeServerContent(): Promise<boolean> {
       } catch {}
     }
 
-    // Never allow stale deletion tombstones to hide the three real tours.
+    // Package deletions are permanent. Merge local and server tombstones before
+    // hydrating the tour registry so an old browser can never resurrect a tour.
     const deletedPackageItem = serverItemsByKey.get('hh_deleted_package_ids');
-    if (deletedPackageItem) {
+    let deletedPackageIds = new Set<string>();
+    try {
+      const localRaw = window.localStorage.getItem('hh_deleted_package_ids');
+      const localIds = localRaw ? JSON.parse(localRaw) : [];
+      const serverIds = deletedPackageItem?.value ? JSON.parse(deletedPackageItem.value) : [];
+      deletedPackageIds = new Set(
+        [...(Array.isArray(serverIds) ? serverIds : []), ...(Array.isArray(localIds) ? localIds : [])]
+          .map((id) => String(id ?? '').trim().toLowerCase())
+          .filter(Boolean)
+      );
+      const mergedDeleted = JSON.stringify(Array.from(deletedPackageIds));
+      const tombstoneItem = deletedPackageItem || {
+        id: 'registry-deleted-packages',
+        storageKey: 'hh_deleted_package_ids',
+        value: '[]',
+        updatedAt: new Date().toISOString(),
+      };
+      tombstoneItem.value = mergedDeleted;
+      tombstoneItem.updatedAt = new Date().toISOString();
+      serverItemsByKey.set('hh_deleted_package_ids', tombstoneItem);
+      window.localStorage.setItem('hh_deleted_package_ids', mergedDeleted);
+      if (deletedPackageIds.size > 0) {
+        void syncRegistryToServer('hh_deleted_package_ids', mergedDeleted);
+      }
+    } catch {}
+
+    const packageItemForDeletion = serverItemsByKey.get('hh_tour_packages_v2');
+    if (packageItemForDeletion) {
       try {
-        const parsed = JSON.parse(deletedPackageItem.value);
-        if (Array.isArray(parsed)) {
-          const cleaned = parsed.filter((id: any) => {
-            const key = String(id ?? '').trim().toLowerCase();
-            return !PROTECTED_REAL_TOUR_IDS.has(key) && !PROTECTED_REAL_TOUR_SLUGS.has(key);
-          });
-          deletedPackageItem.value = JSON.stringify(cleaned);
+        const parsed = JSON.parse(packageItemForDeletion.value);
+        if (Array.isArray(parsed) && deletedPackageIds.size > 0) {
+          packageItemForDeletion.value = JSON.stringify(parsed.filter((pkg: any) => {
+            const id = String(pkg?.id || '').trim().toLowerCase();
+            const slug = String(pkg?.slug || '').trim().toLowerCase();
+            return id && !deletedPackageIds.has(id) && !deletedPackageIds.has(slug);
+          }));
         }
       } catch {}
     }
@@ -584,6 +612,15 @@ export async function syncRegistryToServer(
           updatedAt: new Date().toISOString(),
           ...(key === 'hh_media_assets_v2' && options.allowMediaDeletion ? { allowMediaDeletion: true } : {}),
           ...(key === 'hh_tour_packages_v2' && options.allowTourDeletion ? { allowTourDeletion: true } : {}),
+          ...(key === 'hh_tour_packages_v2' ? {
+            deletedPackageIds: (() => {
+              try {
+                const raw = window.localStorage.getItem('hh_deleted_package_ids');
+                const parsed = raw ? JSON.parse(raw) : [];
+                return Array.isArray(parsed) ? parsed.map(String) : [];
+              } catch { return []; }
+            })(),
+          } : {}),
         },
       };
 
