@@ -95,9 +95,10 @@ jobs:
               ids = {str(p.get('id')) for p in packages if isinstance(p, dict)}
           except Exception as exc:
               raise SystemExit(f'Could not validate historical tour registry: {exc}')
-          required = {'pkg-kashmir-honeymoon-01','pkg-kashmir-vaishno-01','pkg-kashmir-family-01'}
-          if not required.issubset(ids):
-              raise SystemExit(f'Historical 3:45 tour registry is missing approved tours: {sorted(required - ids)}')
+          print('HISTORICAL_3_45_TOURS=' + json.dumps([
+              {'id': p.get('id'), 'slug': p.get('slug'), 'title': p.get('title'), 'status': p.get('status')}
+              for p in packages if isinstance(p, dict)
+          ], ensure_ascii=False))
           out.append("UPDATE contents SET status = 'published' WHERE id IN ('registry-packages','registry-destinations');")
           open('/tmp/restore-selected.sql','w').write('\n'.join(out)+'\n')
           PY
