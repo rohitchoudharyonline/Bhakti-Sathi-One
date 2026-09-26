@@ -2797,6 +2797,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
       try {
         localStorage.setItem(STORAGE_KEYS.BLOG_CATEGORIES, JSON.stringify(next));
       } catch {}
+      void syncRegistryToServer(STORAGE_KEYS.BLOG_CATEGORIES, JSON.stringify(next));
       return next;
     });
   };
@@ -2808,6 +2809,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
       try {
         localStorage.setItem(STORAGE_KEYS.BLOG_CATEGORIES, JSON.stringify(next));
       } catch {}
+      void syncRegistryToServer(STORAGE_KEYS.BLOG_CATEGORIES, JSON.stringify(next));
       return next;
     });
   };
@@ -2819,6 +2821,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
       try {
         localStorage.setItem(STORAGE_KEYS.BLOG_CATEGORIES, JSON.stringify(next));
       } catch {}
+      void syncRegistryToServer(STORAGE_KEYS.BLOG_CATEGORIES, JSON.stringify(next));
       return next;
     });
   };
