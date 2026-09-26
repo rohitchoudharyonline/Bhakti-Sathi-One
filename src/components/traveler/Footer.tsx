@@ -235,7 +235,7 @@ export const Footer: React.FC<FooterProps> = ({ onSelectDestination, onSelectDha
   };
 
   return (
-    <footer className="w-full font-sans">
+    <footer className="w-full font-sans mt-auto">
       {/* =========================================================================
           1. TOP CONTACT DETAILS & SOCIAL BAR (Persistent Across All Pages)
           ========================================================================= */}
@@ -521,23 +521,6 @@ export const Footer: React.FC<FooterProps> = ({ onSelectDestination, onSelectDha
           <div className="pt-8 border-t border-slate-800">
             <div className="w-full max-w-5xl mx-auto mb-8 flex flex-col md:flex-row items-center justify-between gap-6 bg-[#1A222C] border border-slate-700/50 rounded-2xl p-6 shadow-sm">
               
-              {/* Subscription Section */}
-              <div className="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
-                <h4 className="text-slate-300 text-[14px] sm:text-base font-medium">Subscribe for handpicked itineraries & travel inspiration.</h4>
-                <button 
-                  onClick={() => setShowNewsletterModal(true)}
-                  className="bg-[#FF4B00] hover:bg-[#E04200] text-white px-8 py-3 rounded-xl font-bold text-sm transition shrink-0 shadow-lg shadow-[#FF4B00]/20"
-                >
-                  Subscribe
-                </button>
-              </div>
-
-              {/* Vertical Divider for Desktop */}
-              <div className="hidden md:block w-px h-12 bg-slate-700/50"></div>
-              
-              {/* Horizontal Divider for Mobile */}
-              <div className="block md:hidden w-full h-px bg-slate-700/50"></div>
-
               {/* Recognised By Section */}
               <div className="flex items-center gap-4">
                 <span className="text-slate-400 text-xs sm:text-sm font-medium whitespace-nowrap">Recognised By</span>
