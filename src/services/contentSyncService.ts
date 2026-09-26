@@ -87,6 +87,7 @@ const PROTECTED_REAL_TOUR_SLUGS = new Set([
   'kashmir-pilgrimage-tour-package',
   '6-days-kashmir-honeymoon-package-srinagar-gulmarg-pahalgam',
   'kashmir-tour-package-5-nights-6-days',
+  '5-days-kashmir-tour-itinerary',
 ]);
 
 // These were seeded into the CMS but were never created by the site owner.
