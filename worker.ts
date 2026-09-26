@@ -262,8 +262,7 @@ export default {
             if (q && q.structured_content) {
               try {
                 const parsed = JSON.parse(q.structured_content as string);
-                map = typeof parsed.value === 'string' ? JSON.parse(parsed.value) : (parsed.value || {});
-                map = Object.fromEntries(Object.entries(map).filter(([slug]) => APPROVED_DESTINATION_SLUGS.has(slug)));
+                map = getApprovedDestinationMap(typeof parsed.value === 'string' ? parsed.value : (parsed.value || {}));
               } catch {}
             }
             if (targetSlug) {

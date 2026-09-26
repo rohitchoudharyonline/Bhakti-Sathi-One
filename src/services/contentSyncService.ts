@@ -289,7 +289,7 @@ export async function loadAuthoritativeServerContent(): Promise<boolean> {
         const id = String(pkg?.id || '');
         const slug = String(pkg?.slug || '');
         return !DISALLOWED_DUMMY_PACKAGE_IDS.has(id) &&
-          (PROTECTED_REAL_TOUR_IDS.has(id) || PROTECTED_REAL_TOUR_SLUGS.has(slug));
+          (PROTECTED_REAL_TOUR_IDS.has(id) || PROTECTED_REAL_TOUR_SLUGS.has(slug.trim().toLowerCase()));
       });
           packageItem.value = JSON.stringify(cleaned);
         }
@@ -302,7 +302,10 @@ export async function loadAuthoritativeServerContent(): Promise<boolean> {
       try {
         const parsed = JSON.parse(deletedPackageItem.value);
         if (Array.isArray(parsed)) {
-          const cleaned = parsed.filter((id: any) => !PROTECTED_REAL_TOUR_IDS.has(String(id)));
+          const cleaned = parsed.filter((id: any) => {
+            const key = String(id ?? '').trim().toLowerCase();
+            return !PROTECTED_REAL_TOUR_IDS.has(key) && !PROTECTED_REAL_TOUR_SLUGS.has(key);
+          });
           deletedPackageItem.value = JSON.stringify(cleaned);
         }
       } catch {}
@@ -393,7 +396,7 @@ export async function syncRegistryToServer(key: string, value: string): Promise<
           const id = String(pkg?.id || '');
           const slug = String(pkg?.slug || '');
           return !DISALLOWED_DUMMY_PACKAGE_IDS.has(id) &&
-            (PROTECTED_REAL_TOUR_IDS.has(id) || PROTECTED_REAL_TOUR_SLUGS.has(slug));
+            (PROTECTED_REAL_TOUR_IDS.has(id) || PROTECTED_REAL_TOUR_SLUGS.has(slug.trim().toLowerCase()));
         });
         if (parsed.length > 0 && cleaned.length === 0) return false;
         value = JSON.stringify(cleaned);

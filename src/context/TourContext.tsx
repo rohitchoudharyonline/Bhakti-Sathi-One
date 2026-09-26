@@ -2156,7 +2156,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
             // Server content is authoritative: if a tour exists in D1, restore it
             // even if an old browser tombstone still contains its package ID.
             const cleaned = parsed
-              .filter((item: TourPackage) => PROTECTED_REAL_TOUR_IDS.has(item.id))
+              .filter((item: TourPackage) => isProtectedRealTour(item))
               .map((item: TourPackage) => {
                 const cat = normalizePackageCategory(item.category || item.tourType);
                 return {
