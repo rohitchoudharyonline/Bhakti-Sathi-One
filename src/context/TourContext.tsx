@@ -2094,6 +2094,9 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
         } else if (e.key === STORAGE_KEYS.PAGE_SEO_CONFIGS && e.newValue) {
           const parsed = JSON.parse(e.newValue);
           if (parsed && typeof parsed === 'object') setPageSeoConfigs(sanitizePageSeoConfigs(parsed));
+        } else if (e.key === STORAGE_KEYS.SETTINGS && e.newValue) {
+          const parsed = JSON.parse(e.newValue);
+          if (parsed && typeof parsed === 'object') setAgencySettings(parsed as AgencySettings);
         }
       } catch (err) {
         console.warn('Error syncing storage event:', err);
@@ -2191,6 +2194,11 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (s) {
           const parsed = JSON.parse(s);
           if (parsed && typeof parsed === 'object') setPageSeoConfigs(sanitizePageSeoConfigs(parsed));
+        }
+        const settingsRaw = localStorage.getItem(STORAGE_KEYS.SETTINGS);
+        if (settingsRaw) {
+          const parsed = JSON.parse(settingsRaw);
+          if (parsed && typeof parsed === 'object') setAgencySettings(parsed as AgencySettings);
         }
       } catch (err) {
         console.warn('Error applying synced content to state:', err);
@@ -3624,7 +3632,15 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const updateAgencySettings = (settings: AgencySettings) => {
+    // Agency settings (including footer and mobile bottom menus) are shared CMS state.
+    // Persist locally immediately and push the exact edited state to D1 so refresh,
+    // logout/login, and another browser cannot replace the user's changes with defaults.
     setAgencySettings(settings);
+    try {
+      const serialized = JSON.stringify(settings);
+      localStorage.setItem(STORAGE_KEYS.SETTINGS, serialized);
+      void syncRegistryToServer(STORAGE_KEYS.SETTINGS, serialized);
+    } catch {}
   };
 
   const resetToDefaults = () => {
