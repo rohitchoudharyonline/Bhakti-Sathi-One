@@ -1447,7 +1447,7 @@ export async function generateTourPDF(pkg:TourPackage,a:AgencySettings,onProgres
       const nameLines = d.splitTextToSize(clean(hotel.name), contentWidth - 32);
       d.setFont('helvetica','normal');
       d.setFontSize(10.5);
-      const starText = hotel.starRating ? `${hotel.starRating}-Star | ` : '';
+      const starText = '';
       const locText = getHotelLocation(hotel, pkg);
       const infoLines = d.splitTextToSize(`${starText}${locText} | ${clean(hotel.roomType || 'Deluxe Room')} (${hotel.nights}N)`, contentWidth - 32);
       let amLines: string[] = [];
