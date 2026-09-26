@@ -3134,14 +3134,21 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Media Library Operations
   const addMediaAsset = (asset: MediaAsset) => {
     void saveMediaAssetToDb(asset);
-    const existingIdx = mediaAssets.findIndex(
-      (a) => a.id === asset.id || a.url === asset.url || a.storagePath === asset.storagePath
-    );
-    const next = existingIdx >= 0
-      ? mediaAssets.map((a, i) => (i === existingIdx ? asset : a))
-      : [asset, ...mediaAssets];
-    setMediaAssets(next);
-    void syncRegistryToServer('hh_media_assets_v2', JSON.stringify(next));
+    setMediaAssets((prev) => {
+      const existingIdx = prev.findIndex(
+        (a) => a.id === asset.id || a.url === asset.url || a.storagePath === asset.storagePath
+      );
+      const next = existingIdx >= 0
+        ? prev.map((a, i) => (i === existingIdx ? asset : a))
+        : [asset, ...prev];
+
+      // Persist the complete registry, but strip browser-only dataUrl before
+      // sending metadata to D1. This also prevents rapid multi-file uploads
+      // from overwriting each other with a stale React closure.
+      const d1Registry = next.map(({ dataUrl, ...metadata }) => metadata);
+      void syncRegistryToServer('hh_media_assets_v2', JSON.stringify(d1Registry));
+      return next;
+    });
   };
 
   const restoreSampleMedia = () => {
@@ -3150,16 +3157,22 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const deleteMediaAsset = (id: string) => {
     void deleteMediaAssetFromDb(id);
-    const next = mediaAssets.filter((a) => a.id !== id);
-    setMediaAssets(next);
-    void syncRegistryToServer('hh_media_assets_v2', JSON.stringify(next));
+    setMediaAssets((prev) => {
+      const next = prev.filter((a) => a.id !== id);
+      const d1Registry = next.map(({ dataUrl, ...metadata }) => metadata);
+      void syncRegistryToServer('hh_media_assets_v2', JSON.stringify(d1Registry));
+      return next;
+    });
   };
 
   const updateMediaAsset = (asset: MediaAsset) => {
     void saveMediaAssetToDb(asset);
-    const next = mediaAssets.map((a) => (a.id === asset.id ? asset : a));
-    setMediaAssets(next);
-    void syncRegistryToServer('hh_media_assets_v2', JSON.stringify(next));
+    setMediaAssets((prev) => {
+      const next = prev.map((a) => (a.id === asset.id ? asset : a));
+      const d1Registry = next.map(({ dataUrl, ...metadata }) => metadata);
+      void syncRegistryToServer('hh_media_assets_v2', JSON.stringify(d1Registry));
+      return next;
+    });
   };
 
   const updateCloudStorageSettings = (settings: CloudStorageSettings) => {
