@@ -192,7 +192,6 @@ export async function loadAuthoritativeServerContent(): Promise<boolean> {
       return false;
     }
 
-    let shouldBootstrapPackages = false;
     const serverItemsByKey = new Map<string, DecodedRegistryItem>();
     for (const row of rows) {
       const decoded = decodeServerRow(row);
@@ -227,6 +226,44 @@ export async function loadAuthoritativeServerContent(): Promise<boolean> {
         serverItemsByKey.set(decoded.storageKey, decoded);
       }
     }
+
+    isHydrating = true;
+    try {
+      for (const [key, item] of serverItemsByKey) {
+        try {
+          // Server is authoritative source of truth: write server confirmed data
+          window.localStorage.setItem(key, item.value);
+          const timestamp = item.updatedAt ? new Date(item.updatedAt).getTime() : Date.now();
+          lastSyncedTimestamps.set(key, timestamp);
+          window.localStorage.setItem(`_sync_time_${key}`, String(timestamp));
+
+          // Also populate IndexedDB media storage if media assets are hydrated
+          if (key === 'hh_media_assets_v2' || key === 'hh_media_assets_v1') {
+            try {
+              const parsedAssets = JSON.parse(item.value);
+              if (Array.isArray(parsedAssets)) {
+                void saveAllMediaAssetsToDb(parsedAssets);
+              }
+            } catch {}
+          }
+        } catch (e) {
+          console.error(`[ContentSync] Error writing server state for ${key}:`, e);
+        }
+      }
+    } finally {
+      isHydrating = false;
+    }
+
+    // Broadcast synchronization to all in-memory React contexts
+    try {
+      window.dispatchEvent(
+        new CustomEvent('holidayshunt_content_synced', {
+          detail: { keys: Array.from(serverItemsByKey.keys()) },
+        })
+      );
+    } catch {}
+
+
 
     return true;
   } catch (err) {
