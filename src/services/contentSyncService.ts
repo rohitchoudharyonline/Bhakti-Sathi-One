@@ -41,7 +41,7 @@ export const SYNCED_REGISTRIES: SyncedRegistryDef[] = [
 const REGISTRY_BY_KEY = new Map<string, SyncedRegistryDef>(
   SYNCED_REGISTRIES.map((r) => [r.storageKey, r])
 );
-const DISALLOWED_DUMMY_PACKAGE_IDS = new Set([
+const APPROVED_DESTINATION_SLUGS = new Set(['jammu-kashmir', 'himachal', 'amritsar']);\n\nconst DISALLOWED_DUMMY_PACKAGE_IDS = new Set([
   'pkg-kashmir-01', 'pkg-kashmir-02', 'pkg-kashmir-03', 'pkg-kashmir-04',
   'pkg-jammu-01', 'pkg-jammu-02', 'pkg-ladakh-01',
 ]);
@@ -232,7 +232,7 @@ export async function loadAuthoritativeServerContent(): Promise<boolean> {
       }
     }
 
-    const packageItem = serverItemsByKey.get('hh_tour_packages_v2');
+    const destinationItem = serverItemsByKey.get('hh_destinations_registry_v2');\n    if (destinationItem) {\n      try {\n        const parsed = JSON.parse(destinationItem.value);\n        if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {\n          const cleaned: Record<string, any> = {};\n          for (const [slug, destination] of Object.entries(parsed)) {\n            if (APPROVED_DESTINATION_SLUGS.has(String(slug)) && destination) cleaned[slug] = destination;\n          }\n          destinationItem.value = JSON.stringify(cleaned);\n        }\n      } catch {}\n    }\n\n    const packageItem = serverItemsByKey.get('hh_tour_packages_v2');
     if (packageItem) {
       try {
         const parsed = JSON.parse(packageItem.value);
@@ -314,7 +314,7 @@ export async function syncRegistryToServer(key: string, value: string): Promise<
     } catch {}
   }
 
-  // If a push for this key is already running, queue it
+  if (key === 'hh_destinations_registry_v2') {\n    try {\n      const parsed = JSON.parse(value);\n      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {\n        const cleaned: Record<string, any> = {};\n        for (const [slug, destination] of Object.entries(parsed)) {\n          if (APPROVED_DESTINATION_SLUGS.has(String(slug)) && destination) cleaned[slug] = destination;\n        }\n        value = JSON.stringify(cleaned);\n      }\n    } catch {}\n  }\n\n  // If a push for this key is already running, queue it
   if (inFlightPushes.has(key)) {
     pendingSyncQueue.set(key, value);
     return inFlightPushes.get(key)!;
