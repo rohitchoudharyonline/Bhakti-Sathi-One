@@ -2964,6 +2964,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const next = [created, ...prev];
       try {
         localStorage.setItem(STORAGE_KEYS.GUIDES, JSON.stringify(next));
+        void syncRegistryToServer(STORAGE_KEYS.GUIDES, JSON.stringify(next));
       } catch {}
       return next;
     });
@@ -2976,17 +2977,22 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const next = prev.map((g) => (g.id === updated.id ? { ...updated, updatedAt: new Date().toISOString() } : g));
       try {
         localStorage.setItem(STORAGE_KEYS.GUIDES, JSON.stringify(next));
+        void syncRegistryToServer(STORAGE_KEYS.GUIDES, JSON.stringify(next));
       } catch {}
       return next;
     });
   };
 
   const deleteGuide = (id: string) => {
+    const deletedGuide = guides.find((g) => g.id === id);
     markItemDeleted('hh_deleted_guide_ids', id);
+    if (deletedGuide?.slug) markItemDeleted('hh_deleted_guide_ids', deletedGuide.slug);
     setGuides((prev) => {
       const next = prev.filter((g) => g.id !== id);
       try {
         localStorage.setItem(STORAGE_KEYS.GUIDES, JSON.stringify(next));
+        void syncRegistryToServer(STORAGE_KEYS.GUIDES, JSON.stringify(next));
+        void syncRegistryToServer('hh_deleted_guide_ids', localStorage.getItem('hh_deleted_guide_ids') || '[]');
       } catch {}
       return next;
     });
@@ -2997,6 +3003,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const next = prev.map((g) => (g.id === id ? { ...g, status: 'review' as const, updatedAt: new Date().toISOString() } : g));
       try {
         localStorage.setItem(STORAGE_KEYS.GUIDES, JSON.stringify(next));
+        void syncRegistryToServer(STORAGE_KEYS.GUIDES, JSON.stringify(next));
       } catch {}
       return next;
     });
@@ -3016,6 +3023,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
       );
       try {
         localStorage.setItem(STORAGE_KEYS.GUIDES, JSON.stringify(next));
+        void syncRegistryToServer(STORAGE_KEYS.GUIDES, JSON.stringify(next));
       } catch {}
       return next;
     });
@@ -3026,6 +3034,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const next = prev.map((g) => (g.id === id ? { ...g, status: 'draft' as const, updatedAt: new Date().toISOString() } : g));
       try {
         localStorage.setItem(STORAGE_KEYS.GUIDES, JSON.stringify(next));
+        void syncRegistryToServer(STORAGE_KEYS.GUIDES, JSON.stringify(next));
       } catch {}
       return next;
     });
@@ -3036,6 +3045,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const next = prev.map((g) => (g.id === id ? { ...g, status: 'draft' as const, updatedAt: new Date().toISOString() } : g));
       try {
         localStorage.setItem(STORAGE_KEYS.GUIDES, JSON.stringify(next));
+        void syncRegistryToServer(STORAGE_KEYS.GUIDES, JSON.stringify(next));
       } catch {}
       return next;
     });
@@ -3060,6 +3070,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const next = [duplicated, ...prev];
       try {
         localStorage.setItem(STORAGE_KEYS.GUIDES, JSON.stringify(next));
+        void syncRegistryToServer(STORAGE_KEYS.GUIDES, JSON.stringify(next));
       } catch {}
       return next;
     });
@@ -3076,6 +3087,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const next = [...prev, newCat];
       try {
         localStorage.setItem(STORAGE_KEYS.GUIDE_CATEGORIES, JSON.stringify(next));
+        void syncRegistryToServer(STORAGE_KEYS.GUIDE_CATEGORIES, JSON.stringify(next));
       } catch {}
       return next;
     });
@@ -3087,17 +3099,22 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const next = prev.map((c) => (c.id === cat.id ? cat : c));
       try {
         localStorage.setItem(STORAGE_KEYS.GUIDE_CATEGORIES, JSON.stringify(next));
+        void syncRegistryToServer(STORAGE_KEYS.GUIDE_CATEGORIES, JSON.stringify(next));
       } catch {}
       return next;
     });
   };
 
   const deleteGuideCategory = (id: string) => {
+    const deletedCategory = guideCategories.find((c) => c.id === id);
     markItemDeleted('hh_deleted_guide_category_ids', id);
+    if (deletedCategory?.slug) markItemDeleted('hh_deleted_guide_category_ids', deletedCategory.slug);
     setGuideCategories((prev) => {
       const next = prev.filter((c) => c.id !== id);
       try {
         localStorage.setItem(STORAGE_KEYS.GUIDE_CATEGORIES, JSON.stringify(next));
+        void syncRegistryToServer(STORAGE_KEYS.GUIDE_CATEGORIES, JSON.stringify(next));
+        void syncRegistryToServer('hh_deleted_guide_category_ids', localStorage.getItem('hh_deleted_guide_category_ids') || '[]');
       } catch {}
       return next;
     });
