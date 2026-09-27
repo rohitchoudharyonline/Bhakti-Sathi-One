@@ -1,57 +1,8 @@
 import { GuideArticle, GuideCategory } from '../types/guide';
 
-export const DEFAULT_GUIDE_CATEGORIES: GuideCategory[] = [
-  {
-    id: 'cat-devi-darshan',
-    name: 'Devi Darshan',
-    slug: 'devi-darshan',
-    description: 'Sacred pilgrimage and Devi temple darshan guides across Jammu & Kashmir.',
-    icon: 'Sparkles',
-    guideCount: 3,
-  },
-  {
-    id: 'cat-temple-guides',
-    name: 'Temple Guides',
-    slug: 'temple-guides',
-    description: 'Detailed darshan guides, temple histories, etiquette, and visiting information.',
-    icon: 'Building2',
-    guideCount: 4,
-  },
-  {
-    id: 'cat-yatra-guides',
-    name: 'Yatra Guides',
-    slug: 'yatra-guides',
-    description: 'Comprehensive Jammu & Kashmir route itineraries, mountain travel and holy circuit guides.',
-    icon: 'Compass',
-    guideCount: 3,
-  },
-  {
-    id: 'cat-kashmir-travel',
-    name: 'Kashmir Guides',
-    slug: 'kashmir-travel-guides',
-    description: 'Expert tips on Dal Lake houseboats, Gulmarg Gondola, Pahalgam valleys & seasonal snow.',
-    icon: 'Mountain',
-    guideCount: 2,
-  },
-  {
-    id: 'cat-travel-guides',
-    name: 'Travel Guides',
-    slug: 'travel-guides',
-    description: 'Logistics, cab information, weather advisories, and stay recommendations.',
-    icon: 'MapPin',
-    guideCount: 2,
-  },
-  {
-    id: 'cat-tips-rates',
-    name: 'Cab Rates & Tips',
-    slug: 'cab-rates-and-tips',
-    description: 'Transparent guide to taxi fares, toll permits, packing lists, and road travel.',
-    icon: 'Car',
-    guideCount: 1,
-  },
-];
+export const DEFAULT_GUIDE_CATEGORIES: GuideCategory[] = [];
 
-export const DEFAULT_GUIDES: GuideArticle[] = [
+export const DEFAULT_GUIDES: GuideArticle[] = [];
   {
     id: 'guide-kashmir-best-time',
     slug: 'best-time-to-visit-kashmir-season-wise-guide',
