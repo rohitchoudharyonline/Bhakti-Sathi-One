@@ -27,7 +27,10 @@ export const SYNCED_REGISTRIES: SyncedRegistryDef[] = [
   { id: 'registry-blog-posts', storageKey: 'hh_blog_posts_v1', title: 'Legacy Blog Posts Registry', contentType: 'shared_local_state' },
   { id: 'registry-blog-categories-v2', storageKey: 'hh_blog_categories_v2', title: 'Blog Categories Registry', contentType: 'shared_local_state' },
   { id: 'registry-blog-categories', storageKey: 'hh_blog_categories_v1', title: 'Legacy Blog Categories Registry', contentType: 'shared_local_state' },
-  { id: 'registry-guides-v1', storageKey: 'hh_guide_articles_v1', title: 'Pilgrimage Guides Registry', contentType: 'shared_local_state' },
+  { id: 'registry-guides-v2', storageKey: 'hh_guide_articles_v2', title: 'Guides Registry', contentType: 'shared_local_state' },
+  { id: 'registry-deleted-guides', storageKey: 'hh_deleted_guide_ids', title: 'Deleted Guide IDs', contentType: 'shared_local_state' },
+  { id: 'registry-guide-categories-v2', storageKey: 'hh_guide_categories_v2', title: 'Guide Categories Registry', contentType: 'shared_local_state' },
+  { id: 'registry-deleted-guide-categories', storageKey: 'hh_deleted_guide_category_ids', title: 'Deleted Guide Category IDs', contentType: 'shared_local_state' },
   { id: 'registry-guides', storageKey: 'hh_guides_v1', title: 'Legacy Guides Registry', contentType: 'shared_local_state' },
   { id: 'registry-guide-categories', storageKey: 'hh_guide_categories_v1', title: 'Guide Categories Registry', contentType: 'shared_local_state' },
   { id: 'registry-custom-pages-v2', storageKey: 'hh_custom_pages_v2', title: 'Custom Pages Registry', contentType: 'shared_local_state' },
@@ -430,6 +433,51 @@ export async function loadAuthoritativeServerContent(): Promise<boolean> {
       } catch {}
     }
 
+    // Merge guide deletion tombstones from localStorage with the server copy.
+    for (const tombstoneKey of ['hh_deleted_guide_ids', 'hh_deleted_guide_category_ids']) {
+      try {
+        const localRaw = window.localStorage.getItem(tombstoneKey);
+        const serverItem = serverItemsByKey.get(tombstoneKey);
+        const serverRaw = serverItem?.value;
+        const localIds = localRaw ? JSON.parse(localRaw) : [];
+        const serverIds = serverRaw ? JSON.parse(serverRaw) : [];
+        const merged = Array.from(new Set([
+          ...(Array.isArray(serverIds) ? serverIds : []),
+          ...(Array.isArray(localIds) ? localIds : []),
+        ].map((x) => String(x).trim().toLowerCase()).filter(Boolean)));
+        const item = serverItem || {
+          id: tombstoneKey === 'hh_deleted_guide_ids' ? 'registry-deleted-guides' : 'registry-deleted-guide-categories',
+          storageKey: tombstoneKey,
+          value: '[]',
+          updatedAt: undefined,
+        };
+        item.value = JSON.stringify(merged);
+        serverItemsByKey.set(tombstoneKey, item);
+        window.localStorage.setItem(tombstoneKey, JSON.stringify(merged));
+        if (merged.length > 0) void syncRegistryToServer(tombstoneKey, JSON.stringify(merged));
+      } catch {}
+    }
+
+    for (const [registryKey, tombstoneKey] of [
+      ['hh_guide_articles_v2', 'hh_deleted_guide_ids'],
+      ['hh_guide_categories_v2', 'hh_deleted_guide_category_ids'],
+    ] as const) {
+      const registryItem = serverItemsByKey.get(registryKey);
+      const tombstoneItem = serverItemsByKey.get(tombstoneKey);
+      if (!registryItem || !tombstoneItem) continue;
+      try {
+        const deletedIds = new Set(JSON.parse(tombstoneItem.value).map((x: any) => String(x).trim().toLowerCase()));
+        const parsed = JSON.parse(registryItem.value);
+        if (Array.isArray(parsed)) {
+          registryItem.value = JSON.stringify(parsed.filter((item: any) => {
+            const id = String(item?.id || '').trim().toLowerCase();
+            const slug = String(item?.slug || '').trim().toLowerCase();
+            return id && !deletedIds.has(id) && !deletedIds.has(slug);
+          }));
+        }
+      } catch {}
+    }
+
     // Merge blog deletion tombstones from localStorage with the server copy.
     // These IDs are persisted in D1 so relogin/cache clear cannot resurrect deleted content.
     for (const tombstoneKey of ['hh_deleted_blog_post_ids', 'hh_deleted_blog_category_ids']) {
@@ -507,9 +555,21 @@ export async function loadAuthoritativeServerContent(): Promise<boolean> {
       );
     }
 
+    for (const guideKey of ['hh_guide_articles_v2', 'hh_guide_categories_v2'] as const) {
+      const guideItem = serverItemsByKey.get(guideKey);
+      if (guideItem) void syncRegistryToServer(guideKey, guideItem.value);
+    }
+
     for (const blogKey of ['hh_blog_posts_v2', 'hh_blog_categories_v2'] as const) {
       const blogItem = serverItemsByKey.get(blogKey);
       if (blogItem) void syncRegistryToServer(blogKey, blogItem.value);
+    }
+
+    for (const tombstoneKey of ['hh_deleted_guide_ids', 'hh_deleted_guide_category_ids']) {
+      try {
+        const value = window.localStorage.getItem(tombstoneKey);
+        if (value) void syncRegistryToServer(tombstoneKey, value);
+      } catch {}
     }
 
     // Persist any local deletion tombstones that were merged into the authoritative
