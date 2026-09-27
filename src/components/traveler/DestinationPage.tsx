@@ -446,7 +446,7 @@ export const DestinationPage: React.FC = () => {
             <div className="md:col-span-2">
               <div className="flex items-center gap-2 mb-0.5">
                 <h1 className="text-xl sm:text-2xl font-black text-stone-900 tracking-tight">
-                  {destinationMeta.name} Tour Packages
+                  {isJammuKashmirDestination ? 'Jammu and Kashmir Tour Packages' : ${destinationMeta.name} Tour Packages}
                 </h1>
                 <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-md bg-stone-100 text-stone-900 border border-stone-200">
                   {destinationMeta.state || 'Himalayan Circuit'}
@@ -494,7 +494,7 @@ export const DestinationPage: React.FC = () => {
 
           {(destinationMeta.tourPackagesDescription || isJammuKashmirDestination) && (
             <section className="mt-4 rounded-2xl border border-stone-200 bg-stone-50/70 px-4 py-3.5 sm:px-5 shadow-2xs">
-              <h2 className="text-sm sm:text-base font-black text-stone-900 mb-1.5">{destinationMeta.name} Tour Packages</h2>
+              <h2 className="text-sm sm:text-base font-black text-stone-900 mb-1.5">{isJammuKashmirDestination ? 'Jammu and Kashmir Tour Packages' : ${destinationMeta.name} Tour Packages}</h2>
               <p className="text-xs sm:text-sm text-stone-600 font-medium leading-relaxed">
                 {destinationMeta.tourPackagesDescription ||
                   (isJammuKashmirDestination
@@ -507,7 +507,7 @@ export const DestinationPage: React.FC = () => {
           {destinationMeta.popularCities?.length > 0 && (
             <section className="mt-4 rounded-2xl border border-stone-200 bg-white px-4 py-3.5 sm:px-5 shadow-2xs" aria-labelledby="popular-places-heading">
               <h2 id="popular-places-heading" className="text-sm sm:text-base font-black text-stone-900">
-                Popular Places & Attractions in {destinationMeta.name}
+                Popular Places & Attractions in {isJammuKashmirDestination ? 'Jammu and Kashmir' : ${destinationMeta.name}}
               </h2>
               <p className="text-xs sm:text-sm text-stone-600 font-medium leading-relaxed mt-1">
                 Plan your {destinationMeta.name} trip around popular places, sightseeing highlights and pilgrimage stops. Choose the places that fit your travel dates and build them into a private, flexible itinerary.
@@ -554,7 +554,7 @@ export const DestinationPage: React.FC = () => {
         {activeTab === 'packages' ? (
           <div>
             <h2 className="text-base sm:text-lg font-black text-stone-900 mb-3">
-              {destinationMeta.name} Tour Packages
+              {isJammuKashmirDestination ? 'Jammu and Kashmir Tour Packages' : ${destinationMeta.name} Tour Packages}
             </h2>
 
             {/* Filter & Sort Bar */}
@@ -829,7 +829,7 @@ export const DestinationPage: React.FC = () => {
         {activeTourFaqs.length > 0 && (
           <section className="mt-5 rounded-2xl border border-stone-200 bg-white shadow-2xs overflow-hidden" aria-labelledby="jammu-kashmir-faq-heading">
             <div className="px-4 py-3.5 sm:px-5 border-b border-stone-100">
-              <h2 id="jammu-kashmir-faq-heading" className="text-base sm:text-lg font-black text-stone-900">{destinationMeta.name} Tour Packages – FAQs</h2>
+              <h2 id="jammu-kashmir-faq-heading" className="text-base sm:text-lg font-black text-stone-900">{isJammuKashmirDestination ? 'Jammu and Kashmir Tour Packages – FAQs' : ${destinationMeta.name} Tour Packages – FAQs}</h2>
               <p className="text-[11px] sm:text-xs text-stone-500 font-medium mt-0.5">Quick answers to help you plan your trip.</p>
             </div>
             <div className="divide-y divide-stone-100">
@@ -858,8 +858,6 @@ export const DestinationPage: React.FC = () => {
 
           </section>
         )}
-          </div>
-        )
           <section className="mt-4 rounded-2xl border border-stone-200 bg-white p-4 sm:p-5 shadow-2xs" aria-labelledby="destination-planning-heading">
             <h2 id="destination-planning-heading" className="text-base sm:text-lg font-black text-stone-900">
               Plan Your {destinationMeta.name} Trip
