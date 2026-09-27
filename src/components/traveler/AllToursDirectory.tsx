@@ -20,6 +20,10 @@ import {
   ArrowRight,
   ChevronRight,
   Hotel,
+  Utensils,
+  Plane,
+  Camera,
+  Car,
   ShieldCheck,
   Users,
   SlidersHorizontal,
@@ -810,13 +814,29 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
                       </div>
 
                       {/* Inclusions Highlights */}
-                      <div className="space-y-1.5 pt-2 border-t border-stone-100">
-                        {pkg.inclusions?.slice(0, 3).map((inc, i) => (
-                          <div key={i} className="flex items-center gap-2 text-xs text-stone-700">
-                            <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                            <span className="truncate">{inc}</span>
+                      <div className="pt-2 border-t border-stone-100">
+                        <div className="grid grid-cols-5 items-start">
+                          <div className="flex flex-col items-center justify-start gap-1 text-center">
+                            <Hotel className="w-7 h-7 text-[#9B0000] shrink-0" strokeWidth={1.9} />
+                            <span className="text-[11px] sm:text-xs font-medium text-stone-700 leading-tight">Hotel</span>
                           </div>
-                        ))}
+                          <div className="flex flex-col items-center justify-start gap-1 text-center">
+                            <Utensils className="w-7 h-7 text-[#9B0000] shrink-0" strokeWidth={1.9} />
+                            <span className="text-[11px] sm:text-xs font-medium text-stone-700 leading-tight">Meals</span>
+                          </div>
+                          <div className="flex flex-col items-center justify-start gap-1 text-center">
+                            <Plane className="w-7 h-7 text-[#9B0000] shrink-0" strokeWidth={1.9} />
+                            <span className="text-[11px] sm:text-xs font-medium text-stone-700 leading-tight">Flight <span className="text-[10px] text-stone-500">(optional)</span></span>
+                          </div>
+                          <div className="flex flex-col items-center justify-start gap-1 text-center">
+                            <Camera className="w-7 h-7 text-[#9B0000] shrink-0" strokeWidth={1.9} />
+                            <span className="text-[11px] sm:text-xs font-medium text-stone-700 leading-tight">Sightseeing</span>
+                          </div>
+                          <div className="flex flex-col items-center justify-start gap-1 text-center">
+                            <Car className="w-7 h-7 text-[#9B0000] shrink-0" strokeWidth={1.9} />
+                            <span className="text-[11px] sm:text-xs font-medium text-stone-700 leading-tight">Transport</span>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
