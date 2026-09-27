@@ -327,7 +327,7 @@ export const DestinationPage: React.FC = () => {
             )}
           </div>
 
-          {isJammuKashmirDestination && (
+          {(destinationMeta.tourPackagesDescription || isJammuKashmirDestination) && (
             <section className="mt-4 rounded-2xl border border-stone-200 bg-stone-50/70 px-4 py-3.5 sm:px-5 shadow-2xs">
               <h2 className="text-sm sm:text-base font-black text-stone-900 mb-1.5">Jammu and Kashmir Tour Packages</h2>
               <p className="text-xs sm:text-sm text-stone-600 font-medium leading-relaxed">
