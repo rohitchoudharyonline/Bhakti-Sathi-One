@@ -363,7 +363,11 @@ export async function loadAuthoritativeServerContent(): Promise<boolean> {
 
     // Migrate only genuinely CMS-created legacy Guides/Categories.
     // Never migrate the old seeded guide content back into the new authoritative registry.
-    if (!serverItemsByKey.has('hh_guide_articles_v2') && localGuidesForMigration) {
+    const existingGuideV2 = serverItemsByKey.get('hh_guide_articles_v2');
+    const existingGuideV2IsEmpty = !existingGuideV2 || (() => {
+      try { const v = JSON.parse(existingGuideV2.value); return Array.isArray(v) && v.length === 0; } catch { return false; }
+    })();
+    if (existingGuideV2IsEmpty && localGuidesForMigration) {
       serverItemsByKey.set('hh_guide_articles_v2', {
         id: 'registry-guides-v2',
         storageKey: 'hh_guide_articles_v2',
@@ -371,7 +375,11 @@ export async function loadAuthoritativeServerContent(): Promise<boolean> {
         updatedAt: new Date().toISOString(),
       });
     }
-    if (!serverItemsByKey.has('hh_guide_categories_v2') && localGuideCategoriesForMigration) {
+    const existingGuideCategoriesV2 = serverItemsByKey.get('hh_guide_categories_v2');
+    const existingGuideCategoriesV2IsEmpty = !existingGuideCategoriesV2 || (() => {
+      try { const v = JSON.parse(existingGuideCategoriesV2.value); return Array.isArray(v) && v.length === 0; } catch { return false; }
+    })();
+    if (existingGuideCategoriesV2IsEmpty && localGuideCategoriesForMigration) {
       serverItemsByKey.set('hh_guide_categories_v2', {
         id: 'registry-guide-categories-v2',
         storageKey: 'hh_guide_categories_v2',
