@@ -646,6 +646,22 @@ export async function loadAuthoritativeServerContent(): Promise<boolean> {
       isHydrating = false;
     }
 
+    // Flush CMS writes that happened during hydration. Restore their latest
+    // local value first so the React context cannot briefly lose a newly-created
+    // guide while the queued D1 write is being sent.
+    const queuedDuringHydration = Array.from(pendingSyncQueue.entries());
+    pendingSyncQueue.clear();
+    if (queuedDuringHydration.length > 0) {
+      await Promise.all(
+        queuedDuringHydration.map(async ([key, pending]) => {
+          try {
+            window.localStorage.setItem(key, pending.value);
+          } catch {}
+          await syncRegistryToServer(key, pending.value, pending.options);
+        })
+      );
+    }
+
     if (mediaRegistryMigrated) {
       void syncRegistryToServer(
         'hh_media_assets_v2',
@@ -710,7 +726,13 @@ export async function syncRegistryToServer(
 ): Promise<boolean> {
   if (typeof window === 'undefined') return false;
   if (!SHARED_STORAGE_KEYS.has(key)) return false;
-  if (isHydrating) return false;
+  // A CMS edit can happen while the initial authoritative hydration is still
+  // running. Never drop that write: queue the latest value and flush it as soon
+  // as hydration finishes.
+  if (isHydrating) {
+    pendingSyncQueue.set(key, { value, options });
+    return false;
+  }
 
   const registry = REGISTRY_BY_KEY.get(key);
   if (!registry) return false;
