@@ -57,7 +57,7 @@ export const GuideEditor: React.FC<GuideEditorProps> = ({
   // Form State
   const [title, setTitle] = useState(initialGuide?.title || '');
   const [slug, setSlug] = useState(initialGuide?.slug || '');
-  const [category, setCategory] = useState(initialGuide?.category || 'Temple Guides');
+  const [category, setCategory] = useState(initialGuide?.category || '');
   const [destination, setDestination] = useState(initialGuide?.destination || 'Himachal Pradesh');
   const [excerpt, setExcerpt] = useState(initialGuide?.excerpt || '');
   const [content, setContent] = useState(initialGuide?.content || '');
