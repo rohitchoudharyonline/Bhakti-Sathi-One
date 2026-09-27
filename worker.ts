@@ -499,6 +499,178 @@ export default {
               }
             }
 
+            // Blog registries: deletions are permanent and survive stale browser syncs.
+            // A deleted post/category is recorded in an append-only tombstone registry.
+            // The server also removes it from the live registry immediately so hydration
+            // can never resurrect it.
+            if (id === 'registry-deleted-blog-posts' || slug === 'hh_deleted_blog_post_ids' ||
+                id === 'registry-deleted-blog-categories' || slug === 'hh_deleted_blog_category_ids') {
+              try {
+                const isPostTombstone = id === 'registry-deleted-blog-posts' || slug === 'hh_deleted_blog_post_ids';
+                const tombstoneId = isPostTombstone ? 'registry-deleted-blog-posts' : 'registry-deleted-blog-categories';
+                const tombstoneKey = isPostTombstone ? 'hh_deleted_blog_post_ids' : 'hh_deleted_blog_category_ids';
+                const registryId = isPostTombstone ? 'registry-blog-posts-v2' : 'registry-blog-categories-v2';
+                const structured = typeof b.structured_content === 'string'
+                  ? JSON.parse(b.structured_content)
+                  : (b.structured_content || {});
+                const rawValue = typeof structured?.value === 'string' ? structured.value : structured?.value;
+                const incomingValue = typeof rawValue === 'string' ? JSON.parse(rawValue) : rawValue;
+                if (!Array.isArray(incomingValue)) {
+                  return json({ error: 'Blog deletion registry rejected: invalid payload.' }, 400, privateHeaders(env, request));
+                }
+
+                const existingRow = await env.DB.prepare(
+                  'SELECT structured_content FROM contents WHERE id=?'
+                ).bind(tombstoneId).first();
+                let existingIds: string[] = [];
+                if (existingRow?.structured_content) {
+                  try {
+                    const existingStructured = JSON.parse(existingRow.structured_content as string);
+                    const existingValue = typeof existingStructured?.value === 'string'
+                      ? JSON.parse(existingStructured.value)
+                      : existingStructured?.value;
+                    if (Array.isArray(existingValue)) {
+                      existingIds = existingValue.map((x: any) => String(x).trim().toLowerCase()).filter(Boolean);
+                    }
+                  } catch {}
+                }
+
+                const deletedSet = new Set<string>([
+                  ...existingIds,
+                  ...incomingValue.map((x: any) => String(x).trim().toLowerCase()).filter(Boolean),
+                ]);
+
+                const now = new Date().toISOString();
+                const tombstoneStructured = {
+                  storageKey: tombstoneKey,
+                  value: JSON.stringify(Array.from(deletedSet)),
+                  updatedAt: now,
+                };
+
+                await env.DB.prepare(
+                  `INSERT INTO contents (id,content_type,title,slug,structured_content,status,created_at,updated_at)
+                   VALUES (?,?,?,?,?,?,?,?)
+                   ON CONFLICT(id) DO UPDATE SET
+                     structured_content=excluded.structured_content,
+                     status=excluded.status,
+                     updated_at=excluded.updated_at`
+                ).bind(
+                  tombstoneId,
+                  'shared_local_state',
+                  isPostTombstone ? 'Deleted Blog Post IDs' : 'Deleted Blog Category IDs',
+                  tombstoneKey,
+                  JSON.stringify(tombstoneStructured),
+                  'published',
+                  now,
+                  now
+                ).run();
+
+                // Immediately remove every tombstoned record from the live server registry.
+                const registryRow = await env.DB.prepare(
+                  'SELECT structured_content FROM contents WHERE id=?'
+                ).bind(registryId).first();
+                if (registryRow?.structured_content) {
+                  try {
+                    const registryStructured = JSON.parse(registryRow.structured_content as string);
+                    const registryValue = typeof registryStructured?.value === 'string'
+                      ? JSON.parse(registryStructured.value)
+                      : registryStructured?.value;
+                    if (Array.isArray(registryValue)) {
+                      const clean = registryValue.filter((item: any) => {
+                        const itemId = String(item?.id || '').trim().toLowerCase();
+                        return itemId && !deletedSet.has(itemId);
+                      });
+                      await env.DB.prepare(
+                        'UPDATE contents SET structured_content=?, updated_at=? WHERE id=?'
+                      ).bind(
+                        JSON.stringify({
+                          ...registryStructured,
+                          value: JSON.stringify(clean),
+                          updatedAt: now,
+                        }),
+                        now,
+                        registryId
+                      ).run();
+                    }
+                  } catch {}
+                }
+
+                b.structured_content = tombstoneStructured;
+              } catch {
+                return json({ error: 'Blog deletion registry rejected: invalid payload.' }, 400, privateHeaders(env, request));
+              }
+            }
+
+            if (id === 'registry-blog-posts-v2' || slug === 'hh_blog_posts_v2' ||
+                id === 'registry-blog-categories-v2' || slug === 'hh_blog_categories_v2') {
+              try {
+                const isPostRegistry = id === 'registry-blog-posts-v2' || slug === 'hh_blog_posts_v2';
+                const registryId = isPostRegistry ? 'registry-blog-posts-v2' : 'registry-blog-categories-v2';
+                const tombstoneId = isPostRegistry ? 'registry-deleted-blog-posts' : 'registry-deleted-blog-categories';
+                const structured = typeof b.structured_content === 'string'
+                  ? JSON.parse(b.structured_content)
+                  : (b.structured_content || {});
+                const rawValue = typeof structured?.value === 'string' ? structured.value : structured?.value;
+                const incoming = typeof rawValue === 'string' ? JSON.parse(rawValue) : rawValue;
+                if (!Array.isArray(incoming)) {
+                  return json({ error: 'Blog registry rejected: invalid registry payload.' }, 400, privateHeaders(env, request));
+                }
+
+                const deletedRow = await env.DB.prepare(
+                  'SELECT structured_content FROM contents WHERE id=?'
+                ).bind(tombstoneId).first();
+                let deletedIds: string[] = [];
+                if (deletedRow?.structured_content) {
+                  try {
+                    const deletedStructured = JSON.parse(deletedRow.structured_content as string);
+                    const deletedValue = typeof deletedStructured?.value === 'string'
+                      ? JSON.parse(deletedStructured.value)
+                      : deletedStructured?.value;
+                    if (Array.isArray(deletedValue)) {
+                      deletedIds = deletedValue.map((x: any) => String(x).trim().toLowerCase()).filter(Boolean);
+                    }
+                  } catch {}
+                }
+                const deletedSet = new Set(deletedIds);
+                const cleanIncoming = incoming.filter((item: any) => {
+                  const itemId = String(item?.id || '').trim().toLowerCase();
+                  return itemId && !deletedSet.has(itemId);
+                });
+
+                // Normal browser sync must not shrink the server registry. It may add/update,
+                // while the permanent tombstones above are the only way records disappear.
+                const existingRow = await env.DB.prepare(
+                  'SELECT structured_content FROM contents WHERE id=?'
+                ).bind(registryId).first();
+                let merged = cleanIncoming;
+                if (existingRow?.structured_content) {
+                  try {
+                    const currentStructured = JSON.parse(existingRow.structured_content as string);
+                    const currentValue = typeof currentStructured?.value === 'string'
+                      ? JSON.parse(currentStructured.value)
+                      : currentStructured?.value;
+                    if (Array.isArray(currentValue)) {
+                      const incomingIds = new Set(cleanIncoming.map((item: any) => String(item?.id || '').trim().toLowerCase()));
+                      const existingLive = currentValue.filter((item: any) => {
+                        const itemId = String(item?.id || '').trim().toLowerCase();
+                        return itemId && !deletedSet.has(itemId) && !incomingIds.has(itemId);
+                      });
+                      merged = [...cleanIncoming, ...existingLive];
+                    }
+                  } catch {}
+                }
+
+                b.structured_content = {
+                  ...structured,
+                  storageKey: isPostRegistry ? 'hh_blog_posts_v2' : 'hh_blog_categories_v2',
+                  value: JSON.stringify(merged),
+                  updatedAt: new Date().toISOString(),
+                };
+              } catch {
+                return json({ error: 'Blog registry rejected: invalid registry payload.' }, 400, privateHeaders(env, request));
+              }
+            }
+
             if (id === 'registry-packages' || slug === 'hh_tour_packages_v2') {
               try {
                 const structured = typeof b.structured_content === 'string'
