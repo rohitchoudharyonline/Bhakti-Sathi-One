@@ -987,7 +987,7 @@ export const SettingsManager: React.FC<{ initialTab?: 'branding' | 'faqs' | 'foo
                                 </button>
                                 <button
                                   type="button"
-                                  onClick={() => deleteFooterLink(section.id, item.id)
+                                  onClick={() => deleteFooterLink(section.id, item.id)}
                                   className="text-slate-400 hover:text-rose-600 hover:bg-rose-50 p-1.5 rounded-lg transition cursor-pointer flex items-center gap-1 text-[11px] font-bold shrink-0"
                                   title={`Delete ${item.label}`}
                                 >
