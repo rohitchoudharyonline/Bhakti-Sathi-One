@@ -261,9 +261,11 @@ export const GuideDetailView: React.FC<GuideDetailViewProps> = ({ slug }) => {
         {/* Article Meta Header */}
         <header className="space-y-4 text-center sm:text-left">
           <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
-            <span className="px-3 py-1 bg-amber-100/80 text-amber-900 font-bold text-xs rounded-lg border border-amber-200/80">
-              {guide.category}
-            </span>
+            {guide.category && guide.category !== 'Temple Guides' && (
+              <span className="px-3 py-1 bg-amber-100/80 text-amber-900 font-bold text-xs rounded-lg border border-amber-200/80">
+                {guide.category}
+              </span>
+            )}
             <span className="inline-flex items-center gap-1 px-3 py-1 bg-stone-100 text-stone-700 text-xs rounded-lg font-medium">
               <MapPin className="w-3 h-3 text-stone-500" />
               {guide.destination || guide.destinationName || 'Sacred Pilgrimage'}
