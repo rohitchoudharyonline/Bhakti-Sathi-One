@@ -46,7 +46,6 @@ export const DestinationPage: React.FC = () => {
   const {
     selectedDestinationSlug,
     navigateToHome,
-    navigateToDestinationsExplorer,
     navigateToPackage,
     navigateToTemple,
     packages,
@@ -174,168 +173,6 @@ export const DestinationPage: React.FC = () => {
   const activeTourFaqs =
     destinationTourFaqs.length > 0 ? destinationTourFaqs : defaultJammuKashmirFaqs;
 
-  // Destination SEO: synchronize canonical metadata and structured data with the
-  // destination currently rendered by this client-side route.
-  useEffect(() => {
-    if (!destinationMeta || typeof document === 'undefined') return;
-
-    const origin = window.location.origin;
-    const canonicalUrl = `${origin}/destinations/${currentSlug}`;
-    const title =
-      destinationMeta.seoMetaTitle ||
-      `${destinationMeta.name} Tour Packages & Yatra Guide | Holidays Hunt`;
-    const description =
-      destinationMeta.seoMetaDescription ||
-      destinationMeta.tourPackagesDescription ||
-      destinationMeta.guide?.overview ||
-      `Explore ${destinationMeta.name} tour packages with Holidays Hunt.`;
-    const imageUrl = resolveDisplayImage(destinationMeta.heroImage, mediaAssets);
-
-    let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
-    if (!canonical) {
-      canonical = document.createElement('link');
-      canonical.setAttribute('rel', 'canonical');
-      document.head.appendChild(canonical);
-    }
-    canonical.href = canonicalUrl;
-
-    const upsertMeta = (selector: string, attr: string, key: string, content: string) => {
-      let meta = document.querySelector(selector) as HTMLMetaElement | null;
-      if (!meta) {
-        meta = document.createElement('meta');
-        meta.setAttribute(attr, key);
-        document.head.appendChild(meta);
-      }
-      meta.setAttribute('content', content);
-    };
-
-    upsertMeta('meta[property="og:title"]', 'property', 'og:title', title);
-    upsertMeta('meta[property="og:description"]', 'property', 'og:description', description);
-    upsertMeta('meta[property="og:url"]', 'property', 'og:url', canonicalUrl);
-    upsertMeta('meta[property="og:image"]', 'property', 'og:image', imageUrl);
-    upsertMeta('meta[property="og:type"]', 'property', 'og:type', 'website');
-    upsertMeta('meta[name="twitter:card"]', 'name', 'twitter:card', 'summary_large_image');
-    upsertMeta('meta[name="twitter:title"]', 'name', 'twitter:title', title);
-    upsertMeta('meta[name="twitter:description"]', 'name', 'twitter:description', description);
-    upsertMeta('meta[name="twitter:image"]', 'name', 'twitter:image', imageUrl);
-
-    const slugify = (value: string) =>
-      value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-
-    const tourItems = destinationPackages.map((pkg, index) => {
-      const tourSlug = pkg.slug || slugify(pkg.title || pkg.id);
-      return {
-        '@type': 'ListItem',
-        position: index + 1,
-        name: pkg.title,
-        url: `${origin}/tours/${tourSlug}`,
-      };
-    });
-
-    const graph: Record<string, any>[] = [
-      {
-        '@type': 'WebPage',
-        '@id': `${canonicalUrl}#webpage`,
-        url: canonicalUrl,
-        name: title,
-        description,
-        inLanguage: 'en-IN',
-        about: { '@id': `${canonicalUrl}#destination` },
-        primaryImageOfPage: imageUrl
-          ? { '@type': 'ImageObject', url: imageUrl }
-          : undefined,
-      },
-      {
-        '@type': 'TouristDestination',
-        '@id': `${canonicalUrl}#destination`,
-        name: destinationMeta.name,
-        description:
-          destinationMeta.tourPackagesDescription ||
-          destinationMeta.guide?.overview ||
-          destinationMeta.tagline,
-        url: canonicalUrl,
-        image: imageUrl,
-        touristType: ['Family Holiday', 'Honeymoon', 'Pilgrimage', 'Leisure Travel'],
-        containedInPlace: {
-          '@type': 'AdministrativeArea',
-          name: destinationMeta.state || 'India',
-        },
-        includesAttraction:
-          destinationMeta.guide?.topAttractions?.map((attraction) => ({
-            '@type': 'TouristAttraction',
-            name: attraction.name,
-            description: attraction.description,
-            ...(attraction.image ? { image: attraction.image } : {}),
-          })) || [],
-      },
-      {
-        '@type': 'BreadcrumbList',
-        '@id': `${canonicalUrl}#breadcrumb`,
-        itemListElement: [
-          {
-            '@type': 'ListItem',
-            position: 1,
-            name: 'Home',
-            item: origin,
-          },
-          {
-            '@type': 'ListItem',
-            position: 2,
-            name: 'Destinations',
-            item: `${origin}/destinations`,
-          },
-          {
-            '@type': 'ListItem',
-            position: 3,
-            name: destinationMeta.name,
-            item: canonicalUrl,
-          },
-        ],
-      },
-      {
-        '@type': 'ItemList',
-        '@id': `${canonicalUrl}#tour-packages`,
-        name: `${destinationMeta.name} Tour Packages`,
-        numberOfItems: destinationPackages.length,
-        itemListElement: tourItems,
-      },
-    ];
-
-    if (activeTourFaqs.length > 0) {
-      graph.push({
-        '@type': 'FAQPage',
-        '@id': `${canonicalUrl}#faqs`,
-        mainEntity: activeTourFaqs.map((faq) => ({
-          '@type': 'Question',
-          name: faq.question,
-          acceptedAnswer: {
-            '@type': 'Answer',
-            text: faq.answer,
-          },
-        })),
-      });
-    }
-
-    let schemaScript = document.getElementById('destination-structured-data');
-    if (!schemaScript) {
-      schemaScript = document.createElement('script');
-      schemaScript.id = 'destination-structured-data';
-      schemaScript.setAttribute('type', 'application/ld+json');
-      document.head.appendChild(schemaScript);
-    }
-    schemaScript.textContent = JSON.stringify({
-      '@context': 'https://schema.org',
-      '@graph': graph,
-    });
-
-    return () => {
-      const currentCanonical = document.querySelector('link[rel="canonical"]');
-      if (currentCanonical) currentCanonical.remove();
-      const currentSchema = document.getElementById('destination-structured-data');
-      if (currentSchema) currentSchema.remove();
-    };
-  }, [destinationMeta, currentSlug, destinationPackages, activeTourFaqs, mediaAssets]);
-
   const isLeadFormValid = Boolean(
     leadName.trim() &&
     leadPhone.trim() &&
@@ -430,13 +267,11 @@ export const DestinationPage: React.FC = () => {
         <div className="max-w-7xl mx-auto">
           {/* Breadcrumb */}
           <div className="flex items-center gap-1.5 text-xs text-stone-500 mb-1.5 font-medium">
-            <a href="/" onClick={(e) => { e.preventDefault(); navigateToHome(); }} className="hover:text-stone-900 transition">
+            <button type="button" onClick={navigateToHome} className="hover:text-stone-900 transition">
               Home
-            </a>
+            </button>
             <ChevronRight className="w-3.5 h-3.5 text-stone-400" />
-            <a href="/destinations" onClick={(e) => { e.preventDefault(); navigateToDestinationsExplorer(); }} className="hover:text-stone-900 transition">
-              Destinations
-            </a>
+            <span>Destinations</span>
             <ChevronRight className="w-3.5 h-3.5 text-stone-400" />
             <span className="text-stone-900 font-bold">{destinationMeta.name}</span>
           </div>
@@ -446,7 +281,7 @@ export const DestinationPage: React.FC = () => {
             <div className="md:col-span-2">
               <div className="flex items-center gap-2 mb-0.5">
                 <h1 className="text-xl sm:text-2xl font-black text-stone-900 tracking-tight">
-                  {isJammuKashmirDestination ? 'Jammu and Kashmir Tour Packages' : `${destinationMeta.name} Tour Packages`}
+                  {destinationMeta.name} Tour Packages
                 </h1>
                 <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-md bg-stone-100 text-stone-900 border border-stone-200">
                   {destinationMeta.state || 'Himalayan Circuit'}
@@ -494,31 +329,13 @@ export const DestinationPage: React.FC = () => {
 
           {(destinationMeta.tourPackagesDescription || isJammuKashmirDestination) && (
             <section className="mt-4 rounded-2xl border border-stone-200 bg-stone-50/70 px-4 py-3.5 sm:px-5 shadow-2xs">
-              <h2 className="text-sm sm:text-base font-black text-stone-900 mb-1.5">{isJammuKashmirDestination ? 'Jammu and Kashmir Tour Packages' : `${destinationMeta.name} Tour Packages`}</h2>
+              <h2 className="text-sm sm:text-base font-black text-stone-900 mb-1.5">Jammu and Kashmir Tour Packages</h2>
               <p className="text-xs sm:text-sm text-stone-600 font-medium leading-relaxed">
                 {destinationMeta.tourPackagesDescription ||
                   (isJammuKashmirDestination
                     ? 'Plan your Jammu and Kashmir holiday with thoughtfully designed tour packages covering the region’s most-loved landscapes, from the calm waters of Dal Lake and the gardens of Srinagar to the alpine beauty of Gulmarg, the valleys of Pahalgam and the scenic routes of Sonamarg. Choose a short getaway or a longer itinerary with comfortable hotels, private cab transfers and flexible sightseeing. Holidays Hunt also helps families, couples and pilgrims customise their Jammu and Kashmir tour package around travel dates, preferred stays, sightseeing interests and overall trip pace.'
                     : '')}
               </p>
-            </section>
-          )}
-
-          {destinationMeta.popularCities?.length > 0 && (
-            <section className="mt-4 rounded-2xl border border-stone-200 bg-white px-4 py-3.5 sm:px-5 shadow-2xs" aria-labelledby="popular-places-heading">
-              <h2 id="popular-places-heading" className="text-sm sm:text-base font-black text-stone-900">
-                Popular Places & Attractions in {isJammuKashmirDestination ? 'Jammu and Kashmir' : destinationMeta.name}
-              </h2>
-              <p className="text-xs sm:text-sm text-stone-600 font-medium leading-relaxed mt-1">
-                Plan your {destinationMeta.name} trip around popular places, sightseeing highlights and pilgrimage stops. Choose the places that fit your travel dates and build them into a private, flexible itinerary.
-              </p>
-              <div className="flex flex-wrap gap-1.5 mt-2.5">
-                {destinationMeta.popularCities.slice(0, 10).map((place: string) => (
-                  <span key={place} className="px-2.5 py-1 rounded-full bg-stone-50 border border-stone-200 text-[10px] sm:text-xs font-bold text-stone-700">
-                    {place}
-                  </span>
-                ))}
-              </div>
             </section>
           )}
 
@@ -553,10 +370,6 @@ export const DestinationPage: React.FC = () => {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex-1 w-full">
         {activeTab === 'packages' ? (
           <div>
-            <h2 className="text-base sm:text-lg font-black text-stone-900 mb-3">
-              {isJammuKashmirDestination ? 'Jammu and Kashmir Tour Packages' : `${destinationMeta.name} Tour Packages`}
-            </h2>
-
             {/* Filter & Sort Bar */}
             <div className="bg-white rounded-xl border border-stone-200 p-2.5 sm:p-3 mb-4 shadow-2xs flex flex-wrap items-center justify-between gap-2.5">
               {/* Duration Pills */}
@@ -704,13 +517,11 @@ export const DestinationPage: React.FC = () => {
                           </div>
 
                           {/* Tour Title */}
-                          <h2 className="text-base sm:text-lg font-black text-stone-900 hover:text-stone-600 transition leading-snug">
-                            <a
-                              href={`/tours/${pkg.slug || pkg.id}`}
-                              onClick={(e) => { e.preventDefault(); navigateToPackage(pkg.id); }}
-                            >
-                              {pkg.title}
-                            </a>
+                          <h2
+                            onClick={() => navigateToPackage(pkg.id)}
+                            className="text-base sm:text-lg font-black text-stone-900 hover:text-stone-600 transition cursor-pointer leading-snug"
+                          >
+                            {pkg.title}
                           </h2>
 
                           {/* Tagline */}
@@ -796,14 +607,14 @@ export const DestinationPage: React.FC = () => {
 
                         {/* CTA Buttons - 50/50 side by side in one single line */}
                         <div className="grid grid-cols-2 gap-2 mt-3">
-                          <a
-                            href={`/tours/${pkg.slug || pkg.id}`}
-                            onClick={(e) => { e.preventDefault(); navigateToPackage(pkg.id); }}
+                          <button
+                            type="button"
+                            onClick={() => navigateToPackage(pkg.id)}
                             className="py-2.5 px-2 rounded-xl bg-[#FF4B00] hover:bg-[#E04200] text-white border border-[#FF4B00] text-xs font-black transition shadow-xs flex items-center justify-center gap-1 cursor-pointer"
                           >
                             <span>View Itinerary</span>
                             <ArrowRight className="w-3.5 h-3.5" />
-                          </a>
+                          </button>
 
                           <button
                             type="button"
@@ -826,58 +637,6 @@ export const DestinationPage: React.FC = () => {
                 })}
               </div>
             )}
-        {activeTourFaqs.length > 0 && (
-          <section className="mt-5 rounded-2xl border border-stone-200 bg-white shadow-2xs overflow-hidden" aria-labelledby="jammu-kashmir-faq-heading">
-            <div className="px-4 py-3.5 sm:px-5 border-b border-stone-100">
-              <h2 id="jammu-kashmir-faq-heading" className="text-base sm:text-lg font-black text-stone-900">{isJammuKashmirDestination ? 'Jammu and Kashmir Tour Packages – FAQs' : `${destinationMeta.name} Tour Packages – FAQs`}</h2>
-              <p className="text-[11px] sm:text-xs text-stone-500 font-medium mt-0.5">Quick answers to help you plan your trip.</p>
-            </div>
-            <div className="divide-y divide-stone-100">
-              {activeTourFaqs.map((faq, idx) => {
-                const isOpen = openFaqIndex === idx;
-                return (
-                  <div key={idx}>
-                    <button
-                      type="button"
-                      onClick={() => setOpenFaqIndex(isOpen ? null : idx)}
-                      className="w-full flex items-center justify-between gap-3 px-4 py-3 text-left hover:bg-stone-50 transition cursor-pointer"
-                      aria-expanded={isOpen}
-                    >
-                      <span className="text-xs sm:text-sm font-bold text-stone-900 leading-snug">{faq.question}</span>
-                      <ChevronRight className={`w-4 h-4 shrink-0 text-[#FF4B00] transition-transform duration-200 ${isOpen ? 'rotate-90' : ''}`} />
-                    </button>
-                    {isOpen && (
-                      <div className="px-4 pb-3 -mt-0.5">
-                        <p className="text-[11px] sm:text-xs text-stone-600 leading-relaxed pr-7">{faq.answer}</p>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-
-          </section>
-        )}
-          <section className="mt-4 rounded-2xl border border-stone-200 bg-white p-4 sm:p-5 shadow-2xs" aria-labelledby="destination-planning-heading">
-            <h2 id="destination-planning-heading" className="text-base sm:text-lg font-black text-stone-900">
-              Plan Your {destinationMeta.name} Trip
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-3">
-              <div className="rounded-xl bg-stone-50 border border-stone-200 p-3">
-                <h3 className="text-xs font-black text-stone-900">Best Time to Visit</h3>
-                <p className="text-[11px] text-stone-600 font-medium leading-relaxed mt-1">{destinationMeta.guide?.bestTimeToVisit}</p>
-              </div>
-              <div className="rounded-xl bg-stone-50 border border-stone-200 p-3">
-                <h3 className="text-xs font-black text-stone-900">Ideal Trip Duration</h3>
-                <p className="text-[11px] text-stone-600 font-medium leading-relaxed mt-1">{destinationMeta.guide?.idealDuration}</p>
-              </div>
-              <div className="rounded-xl bg-stone-50 border border-stone-200 p-3">
-                <h3 className="text-xs font-black text-stone-900">Getting There</h3>
-                <p className="text-[11px] text-stone-600 font-medium leading-relaxed mt-1">{destinationMeta.guide?.nearestAirport}</p>
-                <p className="text-[11px] text-stone-600 font-medium leading-relaxed mt-0.5">{destinationMeta.guide?.nearestRailway}</p>
-              </div>
-            </div>
-          </section>
           </div>
         ) : activeTab === 'guide' ? (
           /* 4. CLEAN DESTINATION GUIDE & FAQS */
@@ -1125,7 +884,56 @@ export const DestinationPage: React.FC = () => {
               )}
             </div>
 
- : activeTab === 'guide' ? (
+        {activeTourFaqs.length > 0 && (
+          <section className="mt-5 rounded-2xl border border-stone-200 bg-white shadow-2xs overflow-hidden" aria-labelledby="jammu-kashmir-faq-heading">
+            <div className="px-4 py-3.5 sm:px-5 border-b border-stone-100">
+              <h2 id="jammu-kashmir-faq-heading" className="text-base sm:text-lg font-black text-stone-900">{destinationMeta.name} Tour Packages – FAQs</h2>
+              <p className="text-[11px] sm:text-xs text-stone-500 font-medium mt-0.5">Quick answers to help you plan your trip.</p>
+            </div>
+            <div className="divide-y divide-stone-100">
+              {activeTourFaqs.map((faq, idx) => {
+                const isOpen = openFaqIndex === idx;
+                return (
+                  <div key={idx}>
+                    <button
+                      type="button"
+                      onClick={() => setOpenFaqIndex(isOpen ? null : idx)}
+                      className="w-full flex items-center justify-between gap-3 px-4 py-3 text-left hover:bg-stone-50 transition cursor-pointer"
+                      aria-expanded={isOpen}
+                    >
+                      <span className="text-xs sm:text-sm font-bold text-stone-900 leading-snug">{faq.question}</span>
+                      <ChevronRight className={`w-4 h-4 shrink-0 text-[#FF4B00] transition-transform duration-200 ${isOpen ? 'rotate-90' : ''}`} />
+                    </button>
+                    {isOpen && (
+                      <div className="px-4 pb-3 -mt-0.5">
+                        <p className="text-[11px] sm:text-xs text-stone-600 leading-relaxed pr-7">{faq.answer}</p>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+            <script
+              type="application/ld+json"
+              dangerouslySetInnerHTML={{
+                __html: JSON.stringify({
+                  '@context': 'https://schema.org',
+                  '@type': 'FAQPage',
+                  mainEntity: activeTourFaqs.map((faq) => ({
+                    '@type': 'Question',
+                    name: faq.question,
+                    acceptedAnswer: {
+                      '@type': 'Answer',
+                      text: faq.answer
+                    }
+                  }))
+                })
+              }}
+            />
+          </section>
+        )}
+          </div>
+        ) : activeTab === 'guide' ? (
           /* 4. CLEAN DESTINATION GUIDE & FAQS */
           <div className="space-y-4">
             {/* Overview Card */}
