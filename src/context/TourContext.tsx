@@ -1947,6 +1947,12 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     try {
+      localStorage.setItem(STORAGE_KEYS.GUIDES, JSON.stringify(guides));
+    } catch {}
+  }, [guides]);
+
+  useEffect(() => {
+    try {
       localStorage.setItem(STORAGE_KEYS.GUIDE_CATEGORIES, JSON.stringify(guideCategories));
     } catch {}
   }, [guideCategories]);
@@ -2027,6 +2033,30 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (c) {
           const parsed = JSON.parse(c);
           if (Array.isArray(parsed)) setBlogCategories(parsed);
+        }
+        const g = localStorage.getItem(STORAGE_KEYS.GUIDES);
+        if (g) {
+          const parsed = JSON.parse(g);
+          if (Array.isArray(parsed)) {
+            const deleted = getDeletedItems('hh_deleted_guide_ids').map((id) => String(id).trim().toLowerCase());
+            setGuides(parsed.filter((item: GuideArticle) => {
+              const id = String(item?.id || '').trim().toLowerCase();
+              const slug = String(item?.slug || '').trim().toLowerCase();
+              return id && !deleted.includes(id) && !deleted.includes(slug);
+            }));
+          }
+        }
+        const gc = localStorage.getItem(STORAGE_KEYS.GUIDE_CATEGORIES);
+        if (gc) {
+          const parsed = JSON.parse(gc);
+          if (Array.isArray(parsed)) {
+            const deleted = getDeletedItems('hh_deleted_guide_category_ids').map((id) => String(id).trim().toLowerCase());
+            setGuideCategories(parsed.filter((item: GuideCategory) => {
+              const id = String(item?.id || '').trim().toLowerCase();
+              const slug = String(item?.slug || '').trim().toLowerCase();
+              return id && !deleted.includes(id) && !deleted.includes(slug);
+            }));
+          }
         }
       } catch {}
     });
@@ -2179,6 +2209,30 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (bc) {
           const parsed = JSON.parse(bc);
           if (Array.isArray(parsed)) setBlogCategories(parsed.filter((item: BlogCategory) => !deletedBlogCategoryIds.includes(item.id)));
+        }
+        const guideDeletedIds = getDeletedItems('hh_deleted_guide_ids').map((id) => String(id).trim().toLowerCase());
+        const guideCategoryDeletedIds = getDeletedItems('hh_deleted_guide_category_ids').map((id) => String(id).trim().toLowerCase());
+        const g = localStorage.getItem(STORAGE_KEYS.GUIDES);
+        if (g) {
+          const parsed = JSON.parse(g);
+          if (Array.isArray(parsed)) {
+            setGuides(parsed.filter((item: GuideArticle) => {
+              const id = String(item?.id || '').trim().toLowerCase();
+              const slug = String(item?.slug || '').trim().toLowerCase();
+              return id && !guideDeletedIds.includes(id) && !guideDeletedIds.includes(slug);
+            }));
+          }
+        }
+        const gc = localStorage.getItem(STORAGE_KEYS.GUIDE_CATEGORIES);
+        if (gc) {
+          const parsed = JSON.parse(gc);
+          if (Array.isArray(parsed)) {
+            setGuideCategories(parsed.filter((item: GuideCategory) => {
+              const id = String(item?.id || '').trim().toLowerCase();
+              const slug = String(item?.slug || '').trim().toLowerCase();
+              return id && !guideCategoryDeletedIds.includes(id) && !guideCategoryDeletedIds.includes(slug);
+            }));
+          }
         }
         const m = localStorage.getItem(STORAGE_KEYS.MEDIA_ASSETS);
         if (m) {
@@ -2957,7 +3011,9 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
       id,
       createdAt: now,
       updatedAt: now,
-      status: 'draft', // Critical rule: newly created article always starts as draft!
+      // Respect the editor action: Save Draft/Review/Publish Live supplies the
+      // intended status. Default to draft only when no status is supplied.
+      status: newGuide.status || 'draft',
     };
     unmarkItemDeleted('hh_deleted_guide_ids', id);
     setGuides((prev) => {
