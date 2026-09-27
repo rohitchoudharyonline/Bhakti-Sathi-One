@@ -1178,6 +1178,7 @@ export const DestinationPage: React.FC = () => {
                 </div>
               )}
             </div>
+          </div>
         ) : null}
 
 
