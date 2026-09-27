@@ -37,6 +37,8 @@ export interface DestinationMeta {
   popularCities: string[];
   keyHighlights?: string[];
   categoryFilters: { id: string; label: string; iconName: string }[];
+  tourPackagesDescription?: string;
+  tourPackageFaqs?: { question: string; answer: string }[];
   guide: DestinationGuide;
   destinationType?: 'regular' | 'temple';
   seoMetaTitle?: string;
@@ -55,6 +57,7 @@ export const DESTINATIONS_REGISTRY: Record<string, DestinationMeta> = {
     tagline: 'Vaishno Devi Cave Yatra, Dal Lake Shikara & Gulmarg Alpine Snow',
     heroImage: 'https://images.unsplash.com/photo-1719377678428-d9bcec6976f3?auto=format&fit=crop&w=1600&q=85',
     guideTitle: 'Jammu & Kashmir Sacred Yatra & Valley Guide',
+    tourPackagesDescription: 'Plan your Jammu and Kashmir holiday with thoughtfully designed tour packages covering the region’s most-loved landscapes, from the calm waters of Dal Lake and the gardens of Srinagar to the alpine beauty of Gulmarg, the valleys of Pahalgam and the scenic routes of Sonamarg. Choose a short getaway or a longer itinerary with comfortable hotels, private cab transfers and flexible sightseeing. Holidays Hunt also helps families, couples and pilgrims customise their Jammu and Kashmir tour package around travel dates, preferred stays, sightseeing interests and overall trip pace.',
     weatherInfo: '8°C - 24°C (Alpine & Hill Climate)',
     bestSeason: 'Year-Round (Navratri & Winter Snow Peak)',
     startingPrice: 6499,
