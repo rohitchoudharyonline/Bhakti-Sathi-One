@@ -260,27 +260,37 @@ export async function loadAuthoritativeServerContent(): Promise<boolean> {
   if (typeof window === 'undefined') return false;
 
   try {
-    // Preserve locally-created Guides/Categories made before D1 persistence was enabled.
-    // User-created IDs use timestamp-based IDs; old seeded guides/categories use fixed IDs.
+    // Preserve CMS-created Guides/Categories before clearing browser registries.
+    // Keep both the new V2 registry and the old V1 migration key. This is important
+    // when a guide was saved locally but its D1 write was interrupted: refresh must
+    // not delete the user's guide before we have a confirmed server copy.
     let localGuidesForMigration: string | null = null;
     let localGuideCategoriesForMigration: string | null = null;
     try {
-      const raw = window.localStorage.getItem('hh_guide_articles_v1');
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        if (Array.isArray(parsed)) {
-          const custom = parsed.filter((g: any) => /^guide-\d+$/.test(String(g?.id || '')));
-          if (custom.length) localGuidesForMigration = JSON.stringify(custom);
+      const collectCustom = (keys: string[], idPattern: RegExp): string | null => {
+        const merged = new Map<string, any>();
+        for (const key of keys) {
+          try {
+            const raw = window.localStorage.getItem(key);
+            if (!raw) continue;
+            const parsed = JSON.parse(raw);
+            if (!Array.isArray(parsed)) continue;
+            for (const item of parsed) {
+              const id = String(item?.id || '');
+              if (idPattern.test(id)) merged.set(id, item);
+            }
+          } catch {}
         }
-      }
-      const rawCats = window.localStorage.getItem('hh_guide_categories_v1');
-      if (rawCats) {
-        const parsedCats = JSON.parse(rawCats);
-        if (Array.isArray(parsedCats)) {
-          const customCats = parsedCats.filter((cat: any) => /^cat-\d+$/.test(String(cat?.id || '')));
-          if (customCats.length) localGuideCategoriesForMigration = JSON.stringify(customCats);
-        }
-      }
+        return merged.size ? JSON.stringify(Array.from(merged.values())) : null;
+      };
+      localGuidesForMigration = collectCustom(
+        ['hh_guide_articles_v2', 'hh_guide_articles_v1'],
+        /^guide-\d+$/
+      );
+      localGuideCategoriesForMigration = collectCustom(
+        ['hh_guide_categories_v2', 'hh_guide_categories_v1'],
+        /^cat-\d+$/
+      );
     } catch {}
 
     // Preserve any existing local media metadata so uploads made before server
@@ -313,7 +323,13 @@ export async function loadAuthoritativeServerContent(): Promise<boolean> {
     });
 
     if (!response.ok) {
-      console.warn(`[ContentSync] Server returned status ${response.status}. Using local cache fallback.`);
+      console.warn(`[ContentSync] Server returned status ${response.status}. Restoring locally-created guides instead of losing them.`);
+      if (localGuidesForMigration) {
+        try { window.localStorage.setItem('hh_guide_articles_v2', localGuidesForMigration); } catch {}
+      }
+      if (localGuideCategoriesForMigration) {
+        try { window.localStorage.setItem('hh_guide_categories_v2', localGuideCategoriesForMigration); } catch {}
+      }
       return false;
     }
 
@@ -321,8 +337,21 @@ export async function loadAuthoritativeServerContent(): Promise<boolean> {
     const rows = extractRowsFromPayload(payload);
 
     if (rows.length === 0) {
-      // Never repopulate the shared database from browser-local data.
-      // An empty/failed server registry must not resurrect stale or legacy content.
+      // If the server temporarily returns no shared rows, preserve genuinely
+      // CMS-created guides/categories locally and retry their D1 sync. Never
+      // let a transient/empty response erase a user's new guide on refresh.
+      if (localGuidesForMigration) {
+        try {
+          window.localStorage.setItem('hh_guide_articles_v2', localGuidesForMigration);
+          void syncRegistryToServer('hh_guide_articles_v2', localGuidesForMigration);
+        } catch {}
+      }
+      if (localGuideCategoriesForMigration) {
+        try {
+          window.localStorage.setItem('hh_guide_categories_v2', localGuideCategoriesForMigration);
+          void syncRegistryToServer('hh_guide_categories_v2', localGuideCategoriesForMigration);
+        } catch {}
+      }
       return false;
     }
 
