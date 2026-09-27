@@ -164,6 +164,93 @@ export default {
 
     if (pathname.startsWith('/api/')) {
       try {
+        // Machine-readable XML sitemap for Google Search Console and other crawlers.
+        // Keep /info/sitemap as the human-facing visual sitemap; /sitemap.xml is the actual XML sitemap.
+        if (pathname === '/sitemap.xml' && request.method === 'GET' && env.DB) {
+          const esc = (value: unknown) => String(value ?? '')
+            .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;').replace(/'/g, '&apos;');
+          const registryIds = [
+            'registry-packages', 'registry-deleted-packages', 'registry-destinations',
+            'registry-guides-v1', 'registry-custom-pages-v2'
+          ];
+          const placeholders = registryIds.map(() => '?').join(',');
+          const result = await env.DB.prepare(
+            `SELECT id, structured_content, updated_at FROM contents WHERE status=? AND id IN (${placeholders})`
+          ).bind('published', ...registryIds).all();
+          const rows = result.results || [];
+          const byId = new Map<string, any>();
+          for (const row of rows) {
+            try {
+              const structured = row.structured_content ? JSON.parse(String(row.structured_content)) : {};
+              const raw = structured?.value;
+              byId.set(String(row.id), typeof raw === 'string' ? JSON.parse(raw) : raw);
+            } catch { byId.set(String(row.id), null); }
+          }
+
+          const urls = new Map<string, string>();
+          const add = (path: string, changefreq: string, priority: string, lastmod?: string) => {
+            if (!path.startsWith('/')) return;
+            const loc = `https://holidayshunt.com${path}`;
+            urls.set(loc, `    <url>\\n      <loc>${esc(loc)}</loc>\\n      <lastmod>${esc(lastmod || new Date().toISOString().slice(0, 10))}</lastmod>\\n      <changefreq>${changefreq}</changefreq>\\n      <priority>${priority}</priority>\\n    </url>`);
+          };
+
+          const today = new Date().toISOString().slice(0, 10);
+          const core = [
+            ['/', 'daily', '1.0'], ['/tours', 'weekly', '0.9'], ['/destinations', 'weekly', '0.8'],
+            ['/guide', 'weekly', '0.8'], ['/panchang', 'daily', '0.6'], ['/rashifal', 'daily', '0.6'],
+            ['/reviews', 'monthly', '0.5'], ['/info/about', 'monthly', '0.5'], ['/info/locate_us', 'monthly', '0.5'],
+            ['/info/faq', 'monthly', '0.5'], ['/info/careers', 'monthly', '0.4'], ['/info/terms', 'yearly', '0.3'],
+            ['/info/cancellation', 'monthly', '0.3'], ['/info/privacy', 'yearly', '0.3'], ['/info/security', 'monthly', '0.4'],
+            ['/info/sitemap', 'weekly', '0.4']
+          ];
+          for (const [path, freq, priority] of core) add(path, freq, priority, today);
+
+          const deletedRaw = byId.get('registry-deleted-packages');
+          const deleted = new Set<string>(Array.isArray(deletedRaw) ? deletedRaw.map((x: any) => String(x).trim().toLowerCase()).filter(Boolean) : []);
+          const packages = byId.get('registry-packages');
+          if (Array.isArray(packages)) for (const pkg of packages) {
+            const id = String(pkg?.id || '').trim().toLowerCase();
+            const slug = String(pkg?.slug || '').trim().toLowerCase();
+            if (!id || !slug || deleted.has(id) || deleted.has(slug)) continue;
+            add(`/tours/${encodeURIComponent(slug)}`, 'weekly', '0.9', pkg?.updatedAt || pkg?.updated_at || today);
+          }
+
+          const destinations = getApprovedDestinationMap(byId.get('registry-destinations'));
+          for (const [slug, destination] of Object.entries(destinations)) {
+            add(`/destination/${encodeURIComponent(slug)}`, 'weekly', '0.8', destination?.updatedAt || destination?.updated_at || today);
+          }
+
+          const guides = byId.get('registry-guides-v1');
+          if (Array.isArray(guides)) for (const guide of guides) {
+            const slug = String(guide?.slug || '').trim();
+            if (!slug || guide?.status !== 'published') continue;
+            add(`/guide/${encodeURIComponent(slug)}`, 'weekly', '0.8', guide?.updatedAt || guide?.updated_at || today);
+          }
+
+          const customPages = byId.get('registry-custom-pages-v2');
+          if (Array.isArray(customPages)) for (const page of customPages) {
+            const slug = String(page?.slug || '').trim();
+            if (!slug || page?.status !== 'published') continue;
+            add(`/page/${encodeURIComponent(slug)}`, 'monthly', '0.7', page?.updatedAt || page?.updated_at || today);
+          }
+
+          const body = [
+            '<?xml version="1.0" encoding="UTF-8"?>',
+            '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+            ...Array.from(urls.values()),
+            '</urlset>'
+          ].join('\\n');
+          return new Response(body, {
+            status: 200,
+            headers: {
+              'Content-Type': 'application/xml; charset=UTF-8',
+              'Cache-Control': 'public, max-age=300, s-maxage=300',
+              'X-Content-Type-Options': 'nosniff'
+            }
+          });
+        }
+
         if (pathname === '/api/health') return json({ status: 'ok' }, 200, publicHeaders(env, request));
 
         if (pathname === '/api/admin/pin/verify' && request.method === 'POST') {
