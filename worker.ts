@@ -172,7 +172,7 @@ export default {
             .replace(/"/g, '&quot;').replace(/'/g, '&apos;');
           const registryIds = [
             'registry-packages', 'registry-deleted-packages', 'registry-destinations',
-            'registry-guides-v1', 'registry-custom-pages-v2'
+            'registry-guides-v2', 'registry-custom-pages-v2'
           ];
           const placeholders = registryIds.map(() => '?').join(',');
           const rows = env.DB ? ((await env.DB.prepare(
@@ -220,7 +220,7 @@ export default {
             add(`/destination/${encodeURIComponent(slug)}`, 'weekly', '0.8', destination?.updatedAt || destination?.updated_at || today);
           }
 
-          const guides = byId.get('registry-guides-v1');
+          const guides = byId.get('registry-guides-v2');
           if (Array.isArray(guides)) for (const guide of guides) {
             const slug = String(guide?.slug || '').trim();
             if (!slug || guide?.status !== 'published') continue;
