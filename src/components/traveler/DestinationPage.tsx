@@ -46,6 +46,7 @@ export const DestinationPage: React.FC = () => {
   const {
     selectedDestinationSlug,
     navigateToHome,
+    navigateToDestinationsExplorer,
     navigateToPackage,
     navigateToTemple,
     packages,
