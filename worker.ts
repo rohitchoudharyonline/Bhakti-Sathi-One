@@ -162,7 +162,7 @@ export default {
     const requireCms = async () => { const e = await cmsToken(); return e && cmsEmails.has(e.toLowerCase()) ? e.toLowerCase() : null; };
     const requireUser = async () => verifyToken(cookies(request).bs_user_session, cmsSecret);
 
-    if (pathname.startsWith('/api/')) {
+    if (pathname.startsWith('/api/') || pathname === '/sitemap.xml') {
       try {
         // Machine-readable XML sitemap for Google Search Console and other crawlers.
         // Keep /info/sitemap as the human-facing visual sitemap; /sitemap.xml is the actual XML sitemap.
@@ -192,7 +192,7 @@ export default {
           const add = (path: string, changefreq: string, priority: string, lastmod?: string) => {
             if (!path.startsWith('/')) return;
             const loc = `https://holidayshunt.com${path}`;
-            urls.set(loc, `    <url>\\n      <loc>${esc(loc)}</loc>\\n      <lastmod>${esc(lastmod || new Date().toISOString().slice(0, 10))}</lastmod>\\n      <changefreq>${changefreq}</changefreq>\\n      <priority>${priority}</priority>\\n    </url>`);
+            urls.set(loc, `    <url>\n      <loc>${esc(loc)}</loc>\n      <lastmod>${esc(lastmod || new Date().toISOString().slice(0, 10))}</lastmod>\n      <changefreq>${changefreq}</changefreq>\n      <priority>${priority}</priority>\n    </url>`);
           };
 
           const today = new Date().toISOString().slice(0, 10);
@@ -240,7 +240,7 @@ export default {
             '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
             ...Array.from(urls.values()),
             '</urlset>'
-          ].join('\\n');
+          ].join('\n');
           return new Response(body, {
             status: 200,
             headers: {
