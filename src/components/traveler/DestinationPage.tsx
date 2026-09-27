@@ -873,7 +873,7 @@ export const DestinationPage: React.FC = () => {
                 </div>
               )}
             </div>
-
+          </div>
         ) : null}
         {isJammuKashmirDestination && (
           <section className="mt-5 rounded-2xl border border-stone-200 bg-white shadow-2xs overflow-hidden" aria-labelledby="jammu-kashmir-faq-heading">
