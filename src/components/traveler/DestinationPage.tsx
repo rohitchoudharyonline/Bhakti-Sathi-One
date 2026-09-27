@@ -139,7 +139,11 @@ export const DestinationPage: React.FC = () => {
   const isJammuKashmirDestination =
     destinationMeta?.name === 'Jammu & Kashmir' || currentSlug === 'jammu-kashmir';
 
-  const jammuKashmirFaqs = [
+  const destinationTourFaqs = (destinationMeta?.tourPackageFaqs?.length
+    ? destinationMeta.tourPackageFaqs
+    : (destinationMeta?.tourPackageFaqs || destinationMeta?.guide?.faqs || [])) as { question: string; answer: string }[];
+
+  const defaultJammuKashmirFaqs = [
     {
       question: 'What are the best places to cover in a Jammu and Kashmir tour package?',
       answer: 'Popular Jammu and Kashmir tour packages commonly combine Srinagar, Gulmarg, Pahalgam and Sonamarg, with Jammu, Katra or other places added according to the duration and purpose of the trip.'
@@ -165,6 +169,9 @@ export const DestinationPage: React.FC = () => {
       answer: 'Yes. Jammu and Kashmir offers options for family holidays, honeymoon trips, leisure tours and pilgrimage journeys, including itineraries that can be planned around Katra and Vaishno Devi.'
     }
   ];
+
+  const activeTourFaqs =
+    destinationTourFaqs.length > 0 ? destinationTourFaqs : defaultJammuKashmirFaqs;
 
   const isLeadFormValid = Boolean(
     leadName.trim() &&
@@ -324,7 +331,10 @@ export const DestinationPage: React.FC = () => {
             <section className="mt-4 rounded-2xl border border-stone-200 bg-stone-50/70 px-4 py-3.5 sm:px-5 shadow-2xs">
               <h2 className="text-sm sm:text-base font-black text-stone-900 mb-1.5">Jammu and Kashmir Tour Packages</h2>
               <p className="text-xs sm:text-sm text-stone-600 font-medium leading-relaxed">
-                Plan your Jammu and Kashmir holiday with thoughtfully designed tour packages covering the region’s most-loved landscapes, from the calm waters of Dal Lake and the gardens of Srinagar to the alpine beauty of Gulmarg, the valleys of Pahalgam and the scenic routes of Sonamarg. Choose a short getaway or a longer itinerary with comfortable hotels, private cab transfers and flexible sightseeing. Holidays Hunt also helps families, couples and pilgrims customise their Jammu and Kashmir tour package around travel dates, preferred stays, sightseeing interests and overall trip pace.
+                {destinationMeta.tourPackagesDescription ||
+                  (isJammuKashmirDestination
+                    ? 'Plan your Jammu and Kashmir holiday with thoughtfully designed tour packages covering the region’s most-loved landscapes, from the calm waters of Dal Lake and the gardens of Srinagar to the alpine beauty of Gulmarg, the valleys of Pahalgam and the scenic routes of Sonamarg. Choose a short getaway or a longer itinerary with comfortable hotels, private cab transfers and flexible sightseeing. Holidays Hunt also helps families, couples and pilgrims customise their Jammu and Kashmir tour package around travel dates, preferred stays, sightseeing interests and overall trip pace.'
+                    : '')}
               </p>
             </section>
           )}
@@ -349,7 +359,7 @@ export const DestinationPage: React.FC = () => {
                 activeTab === 'guide' ? 'text-[#FF4B00]' : 'text-stone-500 hover:text-stone-800'
               }`}
             >
-              Travel Guide & FAQs
+              Travel Guide
               {activeTab === 'guide' && <span className="absolute bottom-0 inset-x-0 h-0.5 bg-[#FF4B00]" />}
             </button>
           </div>
@@ -873,16 +883,15 @@ export const DestinationPage: React.FC = () => {
                 </div>
               )}
             </div>
-          </div>
-        ) : null}
-        {isJammuKashmirDestination && (
+
+        {activeTourFaqs.length > 0 && (
           <section className="mt-5 rounded-2xl border border-stone-200 bg-white shadow-2xs overflow-hidden" aria-labelledby="jammu-kashmir-faq-heading">
             <div className="px-4 py-3.5 sm:px-5 border-b border-stone-100">
-              <h2 id="jammu-kashmir-faq-heading" className="text-base sm:text-lg font-black text-stone-900">Jammu and Kashmir Tour Packages – FAQs</h2>
-              <p className="text-[11px] sm:text-xs text-stone-500 font-medium mt-0.5">Quick answers to help you plan your Jammu and Kashmir holiday.</p>
+              <h2 id="jammu-kashmir-faq-heading" className="text-base sm:text-lg font-black text-stone-900">{destinationMeta.name} Tour Packages – FAQs</h2>
+              <p className="text-[11px] sm:text-xs text-stone-500 font-medium mt-0.5">Quick answers to help you plan your trip.</p>
             </div>
             <div className="divide-y divide-stone-100">
-              {jammuKashmirFaqs.map((faq, idx) => {
+              {activeTourFaqs.map((faq, idx) => {
                 const isOpen = openFaqIndex === idx;
                 return (
                   <div key={idx}>
@@ -910,7 +919,7 @@ export const DestinationPage: React.FC = () => {
                 __html: JSON.stringify({
                   '@context': 'https://schema.org',
                   '@type': 'FAQPage',
-                  mainEntity: jammuKashmirFaqs.map((faq) => ({
+                  mainEntity: activeTourFaqs.map((faq) => ({
                     '@type': 'Question',
                     name: faq.question,
                     acceptedAnswer: {
@@ -923,6 +932,254 @@ export const DestinationPage: React.FC = () => {
             />
           </section>
         )}
+          </div>
+        ) : activeTab === 'guide' ? (
+          /* 4. CLEAN DESTINATION GUIDE & FAQS */
+          <div className="space-y-4">
+            {/* Overview Card */}
+            <div className="bg-white rounded-2xl border border-stone-200 p-5 sm:p-6 shadow-2xs">
+              <h2 className="text-lg sm:text-xl font-black text-stone-900 mb-2">
+                About {destinationMeta.name}
+              </h2>
+              <p className="text-stone-700 text-xs sm:text-sm leading-relaxed font-medium">
+                {destinationMeta.guide.overview}
+              </p>
+            </div>
+
+            {/* Quick Travel Facts */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div className="bg-white rounded-xl border border-stone-200 p-3.5 shadow-2xs">
+                <div className="flex items-center gap-1.5 text-[10px] font-bold text-stone-900 uppercase mb-0.5">
+                  <Calendar className="w-3.5 h-3.5" />
+                  <span>Best Time</span>
+                </div>
+                <p className="text-xs font-bold text-stone-900">{destinationMeta.guide.bestTimeToVisit}</p>
+              </div>
+
+              <div className="bg-white rounded-xl border border-stone-200 p-3.5 shadow-2xs">
+                <div className="flex items-center gap-1.5 text-[10px] font-bold text-stone-900 uppercase mb-0.5">
+                  <Clock className="w-3.5 h-3.5" />
+                  <span>Ideal Duration</span>
+                </div>
+                <p className="text-xs font-bold text-stone-900">{destinationMeta.guide.idealDuration}</p>
+              </div>
+
+              <div className="bg-white rounded-xl border border-stone-200 p-3.5 shadow-2xs">
+                <div className="flex items-center gap-1.5 text-[10px] font-bold text-stone-900 uppercase mb-0.5">
+                  <Plane className="w-3.5 h-3.5" />
+                  <span>Airport</span>
+                </div>
+                <p className="text-xs font-bold text-stone-900">{destinationMeta.guide.nearestAirport}</p>
+              </div>
+
+              <div className="bg-white rounded-xl border border-stone-200 p-3.5 shadow-2xs">
+                <div className="flex items-center gap-1.5 text-[10px] font-bold text-stone-900 uppercase mb-0.5">
+                  <Train className="w-3.5 h-3.5" />
+                  <span>Railway</span>
+                </div>
+                <p className="text-xs font-bold text-stone-900">{destinationMeta.guide.nearestRailway}</p>
+              </div>
+            </div>
+
+            {/* Sacred Shrines & Temples in Destination */}
+            {destinationTemples.length > 0 && (
+              <div className="bg-white rounded-2xl border border-stone-200 p-5 sm:p-6 shadow-2xs space-y-4">
+                <div className="flex items-center justify-between gap-3 pb-3 border-b border-stone-100">
+                  <div>
+                    <h3 className="text-base sm:text-lg font-black text-stone-900 tracking-tight flex items-center gap-2">
+                      <Landmark className="w-5 h-5 text-[#FF4B00]" />
+                      <span>Sacred Shrines & Holy Temples in {destinationMeta.name}</span>
+                    </h3>
+                    <p className="text-xs text-stone-500 font-medium mt-0.5">
+                      {destinationTemples.length} revered pilgrimage sites & holy shrines in this region
+                    </p>
+                  </div>
+                  <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-50 text-[#FF4B00] border border-orange-200 text-xs font-bold">
+                    <span>Revered Shrines</span>
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {destinationTemples.map((temple) => (
+                    <div
+                      key={temple.id}
+                      className="group rounded-2xl border border-stone-200/90 hover:border-orange-300 bg-stone-50/60 hover:bg-white overflow-hidden transition-all shadow-2xs hover:shadow-md flex flex-col justify-between"
+                    >
+                      <div>
+                        {temple.image && (
+                          <div className="aspect-[16/9] relative bg-stone-100 overflow-hidden border-b border-stone-100">
+                            <img
+                              src={resolveDisplayImage(temple.image, mediaAssets)}
+                              alt={temple.name}
+                              onError={(e) => handleImageError(e, temple.image, mediaAssets)}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                              loading="lazy"
+                            />
+                          </div>
+                        )}
+
+                        <div className="p-3.5 space-y-2">
+                          <div>
+                            <span className="text-[10px] font-bold text-stone-500 uppercase tracking-wider block">
+                              {temple.city}, {temple.state}
+                            </span>
+                            <h4 className="text-sm font-black text-stone-900 group-hover:text-[#FF4B00] transition line-clamp-1">
+                              {temple.name}
+                            </h4>
+                          </div>
+
+                          {temple.deity && (
+                            <div className="inline-flex items-center gap-1.5 text-[11px] font-bold text-stone-700 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200/80">
+                              <Sparkles className="w-3 h-3 text-amber-600" />
+                              <span>Presiding Deity: {temple.deity}</span>
+                            </div>
+                          )}
+
+                          {temple.tagline && (
+                            <p className="text-xs text-stone-600 font-medium leading-relaxed line-clamp-2">
+                              {temple.tagline}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="p-3.5 pt-0">
+                        <button
+                          type="button"
+                          onClick={() => navigateToTemple(temple.id)}
+                          className="w-full py-2 px-3 rounded-xl bg-stone-900 hover:bg-[#FF4B00] text-white text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
+                        >
+                          <span>Explore Packages for this Shrine</span>
+                          <ChevronRight className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Top Attractions (Photo-free information-rich cards) */}
+            <div className="bg-white rounded-2xl border border-stone-200 p-5 sm:p-6 shadow-2xs">
+              <div className="flex items-center justify-between gap-3 mb-4 pb-3 border-b border-stone-100">
+                <div>
+                  <h3 className="text-base sm:text-lg font-black text-stone-900 tracking-tight">
+                    Must-Visit Attractions & Shrines in {destinationMeta.name}
+                  </h3>
+                  <p className="text-xs text-stone-500 font-medium mt-0.5">
+                    {destinationMeta.guide?.topAttractions?.length || 0} key sacred places, viewpoints & heritage landmarks
+                  </p>
+                </div>
+                <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-50 text-[#FF4B00] border border-orange-200 text-xs font-bold">
+                  <MapPin className="w-3.5 h-3.5" />
+                  <span>Key Pilgrimage & Sights</span>
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+                {destinationMeta.guide?.topAttractions?.map((attraction, idx) => (
+                  <div
+                    key={idx}
+                    className="group rounded-2xl border border-stone-200/90 hover:border-orange-300 bg-stone-50/60 hover:bg-white overflow-hidden transition-all shadow-2xs hover:shadow-md flex flex-col justify-between"
+                  >
+                    <div>
+                      {attraction.image && (
+                        <div className="aspect-[16/10] relative bg-stone-100 overflow-hidden">
+                          <img
+                            src={resolveDisplayImage(attraction.image, mediaAssets)}
+                            alt={attraction.name}
+                            onError={(e) => handleImageError(e, attraction.image, mediaAssets)}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                            loading="lazy"
+                          />
+                          {attraction.badge && (
+                            <span className="absolute top-2.5 left-3 px-2 py-0.5 bg-black/75 text-white rounded-md text-[9px] font-black uppercase tracking-wider">
+                              {attraction.badge}
+                            </span>
+                          )}
+                        </div>
+                      )}
+                      
+                      <div className="p-4 space-y-2">
+                        <div className="flex items-center gap-2">
+                          <span className="w-5 h-5 rounded-lg bg-orange-100 text-[#FF4B00] font-black text-[10px] flex items-center justify-center shrink-0 border border-orange-200">
+                            {String(idx + 1).padStart(2, '0')}
+                          </span>
+                          <h4 className="text-xs sm:text-sm font-black text-stone-900 group-hover:text-[#FF4B00] transition">
+                            {attraction.name}
+                          </h4>
+                        </div>
+                        
+                        <p className="text-xs text-stone-600 font-medium leading-relaxed">
+                          {attraction.description}
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <div className="px-4 pb-4">
+                      <div className="pt-2.5 border-t border-stone-200/60 flex items-center gap-1.5 text-[10px] text-stone-600 font-bold">
+                        <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
+                        <span>Included in customized tour plans</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Things To Do & Local Highlights */}
+            {destinationMeta.guide?.thingsToDo && destinationMeta.guide.thingsToDo.length > 0 && (
+              <div className="bg-white rounded-2xl border border-stone-200 p-5 sm:p-6 shadow-2xs">
+                <h3 className="text-base sm:text-lg font-black text-stone-900 mb-3 tracking-tight">
+                  Top Recommended Experiences in {destinationMeta.name}
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  {destinationMeta.guide.thingsToDo.map((thing, idx) => (
+                    <div key={idx} className="flex items-start gap-2.5 p-3 rounded-xl bg-stone-50 border border-stone-200/70">
+                      <span className="w-2 h-2 rounded-full bg-[#FF4B00] mt-1.5 shrink-0" />
+                      <span className="text-xs text-stone-700 font-medium leading-relaxed">{thing}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Local Cuisine & Travel Tips */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {destinationMeta.guide?.localCuisine && destinationMeta.guide.localCuisine.length > 0 && (
+                <div className="bg-white rounded-2xl border border-stone-200 p-5 shadow-2xs">
+                  <h3 className="text-base font-black text-stone-900 mb-3 tracking-tight">
+                    Must-Try Prasad & Local Cuisine
+                  </h3>
+                  <div className="space-y-2.5">
+                    {destinationMeta.guide.localCuisine.map((c, idx) => (
+                      <div key={idx} className="p-3 bg-stone-50 rounded-xl border border-stone-200/70">
+                        <div className="text-xs font-black text-stone-900">{c.dish}</div>
+                        <p className="text-[11px] text-stone-600 mt-0.5 font-medium leading-relaxed">{c.description}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {destinationMeta.guide?.travelTips && destinationMeta.guide.travelTips.length > 0 && (
+                <div className="bg-white rounded-2xl border border-stone-200 p-5 shadow-2xs">
+                  <h3 className="text-base font-black text-stone-900 mb-3 tracking-tight">
+                    Essential Pilgrim & Travel Tips
+                  </h3>
+                  <div className="space-y-2.5">
+                    {destinationMeta.guide.travelTips.map((tip, idx) => (
+                      <div key={idx} className="flex items-start gap-2 p-3 bg-amber-50/60 rounded-xl border border-amber-200/70">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-amber-700 mt-0.5 shrink-0" />
+                        <p className="text-xs text-stone-700 font-medium leading-relaxed">{tip}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+        ) : null}
+
 
       </main>
 
