@@ -173,11 +173,13 @@ export const PublicGuidesHub: React.FC = () => {
                       className="w-full h-full object-cover group-hover:scale-103 transition duration-500"
                       loading="lazy"
                     />
-                    <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">
-                      <span className="px-2.5 py-1 bg-stone-900/80 backdrop-blur-xs text-white text-[11px] font-bold rounded-lg">
-                        {guide.category}
-                      </span>
-                    </div>
+                    {guide.category && guide.category !== 'Temple Guides' && (
+                      <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">
+                        <span className="px-2.5 py-1 bg-stone-900/80 backdrop-blur-xs text-white text-[11px] font-bold rounded-lg">
+                          {guide.category}
+                        </span>
+                      </div>
+                    )}
                   </div>
 
                   {/* Card Content */}
