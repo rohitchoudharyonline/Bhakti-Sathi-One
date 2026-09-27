@@ -92,6 +92,7 @@ export const DestinationPage: React.FC = () => {
 
   // Active view: Packages or Destination Guide
   const [activeTab, setActiveTab] = useState<'packages' | 'guide'>('packages');
+  const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
 
   // Filters
   const [selectedDuration, setSelectedDuration] = useState<'all' | 'short' | 'medium' | 'long'>('all');
@@ -134,6 +135,36 @@ export const DestinationPage: React.FC = () => {
 
     return result;
   }, [destinationPackages, selectedDuration, sortBy]);
+
+  const isJammuKashmirDestination =
+    destinationMeta?.name === 'Jammu & Kashmir' || currentSlug === 'jammu-kashmir';
+
+  const jammuKashmirFaqs = [
+    {
+      question: 'What are the best places to cover in a Jammu and Kashmir tour package?',
+      answer: 'Popular Jammu and Kashmir tour packages commonly combine Srinagar, Gulmarg, Pahalgam and Sonamarg, with Jammu, Katra or other places added according to the duration and purpose of the trip.'
+    },
+    {
+      question: 'How many days are enough for a Jammu and Kashmir tour?',
+      answer: 'A 5 to 7 day itinerary is a practical choice for covering the main Kashmir highlights at a comfortable pace. Longer trips allow more time for places such as Doodhpathri, Gurez or additional Jammu and pilgrimage stops.'
+    },
+    {
+      question: 'What is the best time to visit Jammu and Kashmir?',
+      answer: 'The best time depends on the experience you want. Spring and summer are popular for green valleys and sightseeing, autumn is known for clear landscapes and colours, while winter attracts travellers looking for snow in destinations such as Gulmarg.'
+    },
+    {
+      question: 'Are hotels and private cabs included in Jammu and Kashmir tour packages?',
+      answer: 'Package inclusions vary by itinerary. Holidays Hunt can arrange hotel stays, private vehicle transfers, sightseeing and other services according to the selected package and your travel requirements.'
+    },
+    {
+      question: 'Can I customise a Jammu and Kashmir tour package?',
+      answer: 'Yes. You can customise the duration, hotels, sightseeing, vehicle category and travel plan around your preferred dates, interests and budget.'
+    },
+    {
+      question: 'Is Jammu and Kashmir suitable for family, honeymoon and pilgrimage trips?',
+      answer: 'Yes. Jammu and Kashmir offers options for family holidays, honeymoon trips, leisure tours and pilgrimage journeys, including itineraries that can be planned around Katra and Vaishno Devi.'
+    }
+  ];
 
   const isLeadFormValid = Boolean(
     leadName.trim() &&
@@ -198,7 +229,7 @@ export const DestinationPage: React.FC = () => {
             </button>
 
             <span className="text-sm font-black text-stone-900 tracking-tight">
-              {destinationMeta.name} Yatra & Tours
+              {isJammuKashmirDestination ? 'Jammu And Kashmir Tour Packages' : `${destinationMeta.name} Tour Packages`}
             </span>
           </div>
 
@@ -283,11 +314,20 @@ export const DestinationPage: React.FC = () => {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
                 <span className="absolute bottom-2.5 left-3 text-[10px] font-black text-white uppercase tracking-wider">
-                  {destinationMeta.name} Region
+                  {isJammuKashmirDestination ? 'Jammu and Kashmir' : `${destinationMeta.name} Region`}
                 </span>
               </div>
             )}
           </div>
+
+          {isJammuKashmirDestination && (
+            <section className="mt-4 rounded-2xl border border-stone-200 bg-stone-50/70 px-4 py-3.5 sm:px-5 shadow-2xs">
+              <h2 className="text-sm sm:text-base font-black text-stone-900 mb-1.5">Jammu and Kashmir Tour Packages</h2>
+              <p className="text-xs sm:text-sm text-stone-600 font-medium leading-relaxed">
+                Plan your Jammu and Kashmir holiday with thoughtfully designed tour packages covering the region’s most-loved landscapes, from the calm waters of Dal Lake and the gardens of Srinagar to the alpine beauty of Gulmarg, the valleys of Pahalgam and the scenic routes of Sonamarg. Choose a short getaway or a longer itinerary with comfortable hotels, private cab transfers and flexible sightseeing. Holidays Hunt also helps families, couples and pilgrims customise their Jammu and Kashmir tour package around travel dates, preferred stays, sightseeing interests and overall trip pace.
+              </p>
+            </section>
+          )}
 
           {/* Tab Switcher: Packages vs Travel Guide */}
           <div className="flex items-center gap-4 mt-4 border-b border-stone-200">
@@ -834,38 +874,56 @@ export const DestinationPage: React.FC = () => {
               )}
             </div>
 
-            {/* FAQs Accordion */}
-            <div className="bg-white rounded-2xl border border-stone-200 p-5 sm:p-6 shadow-2xs">
-              <div className="flex items-center justify-between gap-3 mb-4 pb-3 border-b border-stone-100">
-                <div>
-                  <h3 className="text-base sm:text-lg font-black text-stone-900 tracking-tight">
-                    Frequently Asked Questions (FAQs)
-                  </h3>
-                  <p className="text-xs text-stone-500 font-medium mt-0.5">
-                    Essential answers for yatra registration, weather, darshan, food & connectivity
-                  </p>
-                </div>
-                <span className="px-2.5 py-1 rounded-full bg-stone-100 text-stone-700 text-xs font-bold border border-stone-200">
-                  {destinationMeta.guide.faqs.length} Answers
-                </span>
-              </div>
-
-              <div className="space-y-3">
-                {destinationMeta.guide.faqs.map((faq, idx) => (
-                  <div key={idx} className="border border-stone-200 rounded-xl p-4 bg-stone-50/70 hover:bg-stone-50 transition">
-                    <h4 className="text-xs sm:text-sm font-black text-stone-900 flex items-start gap-2">
-                      <span className="text-[#FF4B00] font-black">Q.</span>
-                      <span>{faq.question.replace(/^\d+\.\s*/, '')}</span>
-                    </h4>
-                    <p className="text-xs text-stone-600 mt-2 font-medium leading-relaxed pl-5 border-l-2 border-orange-300">
-                      {faq.answer}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
         ) : null}
+        {isJammuKashmirDestination && (
+          <section className="mt-5 rounded-2xl border border-stone-200 bg-white shadow-2xs overflow-hidden" aria-labelledby="jammu-kashmir-faq-heading">
+            <div className="px-4 py-3.5 sm:px-5 border-b border-stone-100">
+              <h2 id="jammu-kashmir-faq-heading" className="text-base sm:text-lg font-black text-stone-900">Jammu and Kashmir Tour Packages – FAQs</h2>
+              <p className="text-[11px] sm:text-xs text-stone-500 font-medium mt-0.5">Quick answers to help you plan your Jammu and Kashmir holiday.</p>
+            </div>
+            <div className="divide-y divide-stone-100">
+              {jammuKashmirFaqs.map((faq, idx) => {
+                const isOpen = openFaqIndex === idx;
+                return (
+                  <div key={idx}>
+                    <button
+                      type="button"
+                      onClick={() => setOpenFaqIndex(isOpen ? null : idx)}
+                      className="w-full flex items-center justify-between gap-3 px-4 py-3 text-left hover:bg-stone-50 transition cursor-pointer"
+                      aria-expanded={isOpen}
+                    >
+                      <span className="text-xs sm:text-sm font-bold text-stone-900 leading-snug">{faq.question}</span>
+                      <ChevronRight className={`w-4 h-4 shrink-0 text-[#FF4B00] transition-transform duration-200 ${isOpen ? 'rotate-90' : ''}`} />
+                    </button>
+                    {isOpen && (
+                      <div className="px-4 pb-3 -mt-0.5">
+                        <p className="text-[11px] sm:text-xs text-stone-600 leading-relaxed pr-7">{faq.answer}</p>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+            <script
+              type="application/ld+json"
+              dangerouslySetInnerHTML={{
+                __html: JSON.stringify({
+                  '@context': 'https://schema.org',
+                  '@type': 'FAQPage',
+                  mainEntity: jammuKashmirFaqs.map((faq) => ({
+                    '@type': 'Question',
+                    name: faq.question,
+                    acceptedAnswer: {
+                      '@type': 'Answer',
+                      text: faq.answer
+                    }
+                  }))
+                })
+              }}
+            />
+          </section>
+        )}
+
       </main>
 
       {/* 5. CUSTOM TRIP INQUIRY MODAL */}
