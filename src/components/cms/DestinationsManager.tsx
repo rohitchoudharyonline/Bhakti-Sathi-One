@@ -61,6 +61,8 @@ export const DestinationsManager: React.FC = () => {
     bestSeason: 'Year-Round',
     startingPrice: 12999,
     popularCities: ['City Center', 'Old Town', 'Valley Point'],
+    tourPackagesDescription: '',
+    tourPackageFaqs: [],
     categoryFilters: [
       { id: 'all', label: 'All Packages', iconName: 'Compass' },
       { id: 'family', label: 'Family & Hills', iconName: 'Hotel' },
@@ -117,6 +119,8 @@ export const DestinationsManager: React.FC = () => {
       bestSeason: 'Year-Round',
       startingPrice: 14999,
       popularCities: ['City Center', 'Valley Point', 'Snow Peak'],
+      tourPackagesDescription: '',
+      tourPackageFaqs: [],
       categoryFilters: [
         { id: 'all', label: 'All Packages', iconName: 'Compass' },
         { id: 'family', label: 'Family & Hills', iconName: 'Hotel' },
@@ -152,7 +156,9 @@ export const DestinationsManager: React.FC = () => {
 
   const handleStartEdit = (dest: DestinationMeta) => {
     setEditingDest(dest);
-    setFormData(JSON.parse(JSON.stringify(dest)));
+    const cloned = JSON.parse(JSON.stringify(dest)) as DestinationMeta;
+    cloned.tourPackageFaqs = cloned.tourPackageFaqs || cloned.guide?.faqs || [];
+    setFormData(cloned);
     setActiveTab('editor');
     setEditorSubTab('basic');
   };
@@ -541,6 +547,18 @@ export const DestinationsManager: React.FC = () => {
                 />
               </div>
 
+              <div>
+                <label className="block font-bold text-stone-700 mb-1 text-xs">Tour Packages SEO Introduction</label>
+                <textarea
+                  rows={5}
+                  placeholder="Write the destination-specific introduction that appears below the hero image and above the tour packages."
+                  value={formData.tourPackagesDescription || ''}
+                  onChange={(e) => setFormData({ ...formData, tourPackagesDescription: e.target.value })}
+                  className="w-full p-3 bg-stone-50 border border-stone-200 rounded-xl text-xs focus:bg-white focus:outline-none leading-relaxed"
+                />
+                <p className="text-[10px] text-stone-500 mt-1.5">This content is shown on the public destination page and should naturally describe the destination and its tour packages.</p>
+              </div>
+
               {/* Hero Image */}
               <div className="space-y-2">
                 <UniversalImageUploader
@@ -787,13 +805,13 @@ export const DestinationsManager: React.FC = () => {
             <div className="bg-white p-6 rounded-2xl border border-stone-200 space-y-4">
               <div className="flex items-center justify-between">
                 <h4 className="text-xs font-bold text-black uppercase tracking-wider">
-                  Destination FAQs (Google FAQPage Schema)
+                  Tour Package FAQs
                 </h4>
                 <button
                   type="button"
                   onClick={() => {
                     const nextFaqs = [
-                      ...(formData.guide?.faqs || []),
+                      ...(formData.tourPackageFaqs || []),
                       {
                         question: 'Frequently Asked Question?',
                         answer: 'Accurate and comprehensive travel answer.',
@@ -801,7 +819,7 @@ export const DestinationsManager: React.FC = () => {
                     ];
                     setFormData({
                       ...formData,
-                      guide: { ...formData.guide, faqs: nextFaqs },
+                      tourPackageFaqs: nextFaqs,
                     });
                   }}
                   className="flex items-center gap-1 px-3 py-1.5 bg-black hover:bg-stone-800 text-white rounded-lg text-xs font-bold cursor-pointer"
@@ -812,18 +830,15 @@ export const DestinationsManager: React.FC = () => {
               </div>
 
               <div className="space-y-3">
-                {formData.guide?.faqs?.map((faq, idx) => (
+                {(formData.tourPackageFaqs || []).map((faq, idx) => (
                   <div key={idx} className="p-4 bg-stone-50 rounded-xl border border-stone-200 space-y-2 text-xs">
                     <div className="flex items-center justify-between">
                       <span className="font-bold text-black">FAQ #{idx + 1}</span>
                       <button
                         type="button"
                         onClick={() => {
-                          const updated = formData.guide.faqs.filter((_, i) => i !== idx);
-                          setFormData({
-                            ...formData,
-                            guide: { ...formData.guide, faqs: updated },
-                          });
+                          const updated = (formData.tourPackageFaqs || []).filter((_, i) => i !== idx);
+                          setFormData({ ...formData, tourPackageFaqs: updated });
                         }}
                         className="text-stone-400 hover:text-rose-600 font-bold"
                       >
@@ -836,9 +851,9 @@ export const DestinationsManager: React.FC = () => {
                       placeholder="Question..."
                       value={faq.question}
                       onChange={(e) => {
-                        const updated = [...formData.guide.faqs];
+                        const updated = [...(formData.tourPackageFaqs || [])];
                         updated[idx].question = e.target.value;
-                        setFormData({ ...formData, guide: { ...formData.guide, faqs: updated } });
+                        setFormData({ ...formData, tourPackageFaqs: updated });
                       }}
                       className="w-full p-2 bg-white border border-stone-200 rounded-lg font-bold"
                     />
