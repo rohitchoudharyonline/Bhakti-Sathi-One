@@ -260,6 +260,29 @@ export async function loadAuthoritativeServerContent(): Promise<boolean> {
   if (typeof window === 'undefined') return false;
 
   try {
+    // Preserve locally-created Guides/Categories made before D1 persistence was enabled.
+    // User-created IDs use timestamp-based IDs; old seeded guides/categories use fixed IDs.
+    let localGuidesForMigration: string | null = null;
+    let localGuideCategoriesForMigration: string | null = null;
+    try {
+      const raw = window.localStorage.getItem('hh_guide_articles_v1');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          const custom = parsed.filter((g: any) => /^guide-\d+$/.test(String(g?.id || '')));
+          if (custom.length) localGuidesForMigration = JSON.stringify(custom);
+        }
+      }
+      const rawCats = window.localStorage.getItem('hh_guide_categories_v1');
+      if (rawCats) {
+        const parsedCats = JSON.parse(rawCats);
+        if (Array.isArray(parsedCats)) {
+          const customCats = parsedCats.filter((cat: any) => /^cat-\d+$/.test(String(cat?.id || '')));
+          if (customCats.length) localGuideCategoriesForMigration = JSON.stringify(customCats);
+        }
+      }
+    } catch {}
+
     // Preserve any existing local media metadata so uploads made before server
     // persistence was enabled can be migrated into the authoritative registry.
     let localMediaForMigration: string | null = null;
@@ -336,6 +359,25 @@ export async function loadAuthoritativeServerContent(): Promise<boolean> {
       if (decodedTime >= existingTime) {
         serverItemsByKey.set(decoded.storageKey, decoded);
       }
+    }
+
+    // Migrate only genuinely CMS-created legacy Guides/Categories.
+    // Never migrate the old seeded guide content back into the new authoritative registry.
+    if (!serverItemsByKey.has('hh_guide_articles_v2') && localGuidesForMigration) {
+      serverItemsByKey.set('hh_guide_articles_v2', {
+        id: 'registry-guides-v2',
+        storageKey: 'hh_guide_articles_v2',
+        value: localGuidesForMigration,
+        updatedAt: new Date().toISOString(),
+      });
+    }
+    if (!serverItemsByKey.has('hh_guide_categories_v2') && localGuideCategoriesForMigration) {
+      serverItemsByKey.set('hh_guide_categories_v2', {
+        id: 'registry-guide-categories-v2',
+        storageKey: 'hh_guide_categories_v2',
+        value: localGuideCategoriesForMigration,
+        updatedAt: new Date().toISOString(),
+      });
     }
 
     // If the media registry does not exist yet, migrate the existing browser
