@@ -166,7 +166,7 @@ export default {
       try {
         // Machine-readable XML sitemap for Google Search Console and other crawlers.
         // Keep /info/sitemap as the human-facing visual sitemap; /sitemap.xml is the actual XML sitemap.
-        if (pathname === '/sitemap.xml' && request.method === 'GET' && env.DB) {
+        if (pathname === '/sitemap.xml' && request.method === 'GET') {
           const esc = (value: unknown) => String(value ?? '')
             .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
             .replace(/"/g, '&quot;').replace(/'/g, '&apos;');
@@ -175,10 +175,9 @@ export default {
             'registry-guides-v1', 'registry-custom-pages-v2'
           ];
           const placeholders = registryIds.map(() => '?').join(',');
-          const result = await env.DB.prepare(
+          const rows = env.DB ? ((await env.DB.prepare(
             `SELECT id, structured_content, updated_at FROM contents WHERE status=? AND id IN (${placeholders})`
-          ).bind('published', ...registryIds).all();
-          const rows = result.results || [];
+          ).bind('published', ...registryIds).all()).results || []) : [];
           const byId = new Map<string, any>();
           for (const row of rows) {
             try {
@@ -245,7 +244,7 @@ export default {
             status: 200,
             headers: {
               'Content-Type': 'application/xml; charset=UTF-8',
-              'Cache-Control': 'public, max-age=300, s-maxage=300',
+              'Cache-Control': 'no-store',
               'X-Content-Type-Options': 'nosniff'
             }
           });
