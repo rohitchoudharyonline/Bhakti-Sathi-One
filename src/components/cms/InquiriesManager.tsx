@@ -51,7 +51,7 @@ export const InquiriesManager: React.FC<{
 
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('All');
-  const [leadTypeFilter, setLeadTypeFilter] = useState<'all' | 'tours' | 'newsletter'>('all');
+  const [leadTypeFilter, setLeadTypeFilter] = useState<'all' | 'tours'>('all');
   const [selectedInquiryIds, setSelectedInquiryIds] = useState<string[]>([]);
   const [selectedInquiryForQuote, setSelectedInquiryForQuote] = useState<BookingInquiry | null>(null);
   const [selectedInquiryForTimeline, setSelectedInquiryForTimeline] = useState<BookingInquiry | null>(null);
@@ -98,7 +98,7 @@ export const InquiriesManager: React.FC<{
   );
 
   const formatPackageHotels = (pkg?: any): string => {
-    if (!pkg) return 'Handpicked Deluxe Hotels with Mountain View + Luxury Houseboat';
+    if (!pkg) return 'Handpicked Deluxe Hotels with Mountain View\n1 Night Luxury Houseboat Stay';
     if (pkg.hotels && Array.isArray(pkg.hotels) && pkg.hotels.length > 0) {
       return pkg.hotels
         .map((h: any) => {
@@ -107,15 +107,15 @@ export const InquiriesManager: React.FC<{
           const star = h.starRating ? ` (${h.starRating}-Star)` : '';
           return `${loc ? loc + ': ' : ''}${h.name}${alt}${star}`;
         })
-        .join(', ');
+        .join('\n');
     }
     if (pkg.pricingTiers) {
       const tier = pkg.pricingTiers.deluxe || pkg.pricingTiers.standard || pkg.pricingTiers.luxury;
       if (tier?.hotels?.length) {
-        return tier.hotels.join(', ');
+        return tier.hotels.join('\n');
       }
     }
-    return '3-Star / 4-Star Handpicked Deluxe Stays with Mountain View + 1 Night Luxury Houseboat';
+    return '3-Star / 4-Star Handpicked Deluxe Stays with Mountain View\n1 Night Luxury Houseboat Stay';
   };
 
   const formatCabType = (inq: Partial<BookingInquiry>, pkg?: any): string => {
@@ -173,9 +173,8 @@ export const InquiriesManager: React.FC<{
   };
 
   const filteredInquiries = inquiries.filter((inq) => {
-    const isNewsletter = isNewsletterInquiry(inq);
-    if (leadTypeFilter === 'tours' && isNewsletter) return false;
-    if (leadTypeFilter === 'newsletter' && !isNewsletter) return false;
+    // Exclude any legacy newsletter signups since newsletter feature is discontinued
+    if (isNewsletterInquiry(inq)) return false;
 
     if (statusFilter !== 'All') {
       if (statusFilter === 'Booked') {
@@ -431,7 +430,7 @@ export const InquiriesManager: React.FC<{
       </div>
 
       {/* Lead Type Classification Tabs */}
-      <div className="flex bg-stone-100 p-1 rounded-xl border border-stone-200 text-xs font-bold gap-1 max-w-lg">
+      <div className="flex bg-stone-100 p-1 rounded-xl border border-stone-200 text-xs font-bold gap-1 max-w-xs">
         <button
           type="button"
           onClick={() => setLeadTypeFilter('all')}
@@ -441,7 +440,7 @@ export const InquiriesManager: React.FC<{
         >
           <span>📋 All Leads</span>
           <span className="bg-stone-200/80 px-1.5 py-0.5 rounded-md text-[10px] font-mono">
-            {inquiries.length}
+            {inquiries.filter(i => !isNewsletterInquiry(i)).length}
           </span>
         </button>
         <button
@@ -451,21 +450,9 @@ export const InquiriesManager: React.FC<{
             leadTypeFilter === 'tours' ? 'bg-white text-stone-900 shadow-xs font-extrabold' : 'text-stone-600 hover:text-stone-900'
           }`}
         >
-          <span>✈️ Yatra Bookings</span>
+          <span>✈️ Tours Booking</span>
           <span className="bg-stone-200/80 px-1.5 py-0.5 rounded-md text-[10px] font-mono">
             {inquiries.filter(i => !isNewsletterInquiry(i)).length}
-          </span>
-        </button>
-        <button
-          type="button"
-          onClick={() => setLeadTypeFilter('newsletter')}
-          className={`flex-1 px-3 py-2 rounded-lg transition cursor-pointer flex items-center justify-center gap-1.5 ${
-            leadTypeFilter === 'newsletter' ? 'bg-white text-stone-900 shadow-xs font-extrabold' : 'text-stone-600 hover:text-stone-900'
-          }`}
-        >
-          <span>📬 Newsletter Signups</span>
-          <span className="bg-stone-200/80 px-1.5 py-0.5 rounded-md text-[10px] font-mono">
-            {inquiries.filter(i => isNewsletterInquiry(i)).length}
           </span>
         </button>
       </div>
@@ -1020,14 +1007,14 @@ export const InquiriesManager: React.FC<{
                   Proposed Hotels & Accommodation (Included in Snapshot)
                 </label>
                 <textarea
-                  rows={2}
+                  rows={3}
                   value={quoteHotels}
                   onChange={(e) => setQuoteHotels(e.target.value)}
-                  className="w-full px-3.5 py-2 rounded-xl border border-stone-200 bg-white text-xs font-medium"
-                  placeholder="e.g. Srinagar Hotel: Blanco / The Azara / Similar, Pahalgam: White Water Resort / Similar, Houseboat: Shiekh Palace"
+                  className="w-full px-3.5 py-2 rounded-xl border border-stone-200 bg-white text-xs font-medium leading-relaxed"
+                  placeholder={"e.g. Srinagar: Blanco / The Azara\nPahalgam: White Water Resort\nSrinagar: Houseboat Harmus / Sheikh Palace"}
                 />
                 <p className="text-[11px] text-stone-500 mt-0.5">
-                  Enter specific hotel names or tiers. Will dynamically wrap without cut-off in the PDF snapshot.
+                  Enter hotel details (one per line or comma-separated). Each will appear neatly with its own bullet in the PDF.
                 </p>
               </div>
 

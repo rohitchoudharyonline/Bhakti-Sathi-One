@@ -225,8 +225,62 @@ export async function generateQuotationPDF(inq:BookingInquiry,pkg:TourPackage|un
   // Snapshot Card with Dynamic Height & Full Multi-line Text Wrapping
   const destVal = q.destination || pkg?.destination || inq.packageTitle || 'Jammu & Kashmir';
   const durVal = q.duration || (pkg ? `${pkg.durationDays} Days / ${pkg.durationNights} Nights` : 'Customized Itinerary');
-  const hotelVal = q.hotels || (pkg?.hotels?.length ? pkg.hotels.map(h => `${h.location ? h.location + ': ' : ''}${h.name}${h.alternativeHotel ? '/' + h.alternativeHotel : ''}`).join(', ') : 'Handpicked Deluxe Hotels + Luxury Houseboat');
-  const transVal = q.cabType || (pkg?.transportation || 'Dedicated Private AC Chauffeur Vehicle');
+  
+  const parseBulletItems = (input: string | string[]): string[] => {
+    if (!input) return [];
+    if (Array.isArray(input)) {
+      return input.flatMap(i => parseBulletItems(i));
+    }
+    const str = String(input).trim();
+    if (!str) return [];
+
+    let rawList: string[] = [];
+    if (str.includes('\n')) {
+      rawList = str.split(/\r?\n/);
+    } else if (str.includes(';')) {
+      rawList = str.split(/;/);
+    } else if (/,\s*[A-Za-z0-9\s]+:/.test(str)) {
+      // e.g. "Srinagar: Blanco/The Azara, Pahalgam: White Water Resort, Srinagar : Houseboat Harmus/Sheikh Palace"
+      rawList = str.split(/,\s*(?=[A-Za-z0-9\s]+:)/);
+    } else if (str.includes(',') && !str.includes('(')) {
+      const parts = str.split(/,\s*/);
+      if (parts.length > 1 && parts.every(p => p.trim().length > 0 && p.trim().length < 60)) {
+        rawList = parts;
+      } else {
+        rawList = [str];
+      }
+    } else {
+      rawList = [str];
+    }
+
+    return rawList
+      .map(s => s.replace(/^[-•*●\d+.)]\s*/, '').trim())
+      .filter(Boolean);
+  };
+
+  let hotelItems: string[] = [];
+  if (q.hotels && q.hotels.trim()) {
+    hotelItems = parseBulletItems(q.hotels);
+  } else if (pkg?.hotels?.length) {
+    hotelItems = pkg.hotels.map(h => `${h.location ? h.location + ': ' : ''}${h.name}${h.alternativeHotel ? ' / ' + h.alternativeHotel : ''}`);
+  } else {
+    hotelItems = ['Handpicked Deluxe Hotels with Mountain View', '1 Night Luxury Houseboat Stay'];
+  }
+  if (hotelItems.length === 0) {
+    hotelItems = ['Handpicked Deluxe Hotels + Luxury Houseboat'];
+  }
+
+  let transItems: string[] = [];
+  if (q.cabType && q.cabType.trim()) {
+    transItems = parseBulletItems(q.cabType);
+  } else if (pkg?.transportation) {
+    transItems = parseBulletItems(pkg.transportation);
+  } else {
+    transItems = ['Dedicated Private AC Chauffeur Vehicle for all transfers & sightseeing'];
+  }
+  if (transItems.length === 0) {
+    transItems = ['Dedicated Private AC Chauffeur Vehicle'];
+  }
 
   const halfWidth = (contentWidth - 28) / 2; // ~255.5pt
   
@@ -235,14 +289,28 @@ export async function generateQuotationPDF(inq:BookingInquiry,pkg:TourPackage|un
   const destLines = d.splitTextToSize(clean(destVal), halfWidth);
   const durLines = d.splitTextToSize(clean(durVal), halfWidth);
 
+  const row1TextH = Math.max(destLines.length, durLines.length) * 11.5;
+
   d.setFont('helvetica', 'normal');
   d.setFontSize(8.5);
-  const hotelLines = d.splitTextToSize(clean(hotelVal), halfWidth);
-  const transLines = d.splitTextToSize(clean(transVal), halfWidth);
 
-  const row1TextH = Math.max(destLines.length, durLines.length) * 11.5;
-  const row2TextH = Math.max(hotelLines.length, transLines.length) * 11.5;
-  const snapH = 14 + 12 + row1TextH + 10 + 12 + row2TextH + 14;
+  const colTextW = halfWidth - 18;
+  let totalHotelH = 0;
+  const parsedHotelLines = hotelItems.map(item => {
+    const lines = d.splitTextToSize(clean(item), colTextW);
+    totalHotelH += lines.length * 11 + 4;
+    return lines;
+  });
+
+  let totalTransH = 0;
+  const parsedTransLines = transItems.map(item => {
+    const lines = d.splitTextToSize(clean(item), colTextW);
+    totalTransH += lines.length * 11 + 4;
+    return lines;
+  });
+
+  const row2TextH = Math.max(totalHotelH, totalTransH, 24);
+  const snapH = 14 + 11 + row1TextH + 6 + 10 + 11 + row2TextH + 12;
 
   if (y + snapH > maxPageHeight) { p++; y = next(d, a, 'Travel Proposal', p, logoData, SOFT); }
   y = drawSecHeader(d, 'Journey snapshot', y);
@@ -270,46 +338,79 @@ export async function generateQuotationPDF(inq:BookingInquiry,pkg:TourPackage|un
   d.setLineWidth(0.4);
   d.line(margin + 12, curSnapY, margin + contentWidth - 12, curSnapY);
 
-  curSnapY += 8;
+  curSnapY += 9;
 
-  // Row 2: Hotels & Transport
+  // Row 2: Hotels & Transport Headers
   d.setFont('helvetica', 'bold');
   d.setFontSize(7);
   d.setTextColor(...MUTED);
   d.text('HOTELS & ACCOMMODATION', margin + 12, curSnapY);
   d.text('TRANSPORT & TRANSFERS', margin + 12 + halfWidth + 14, curSnapY);
 
-  curSnapY += 11;
-  d.setFont('helvetica', 'normal');
-  d.setFontSize(8.5);
-  d.setTextColor(...BODY);
-  d.text(hotelLines, margin + 12, curSnapY, { lineHeightFactor: 1.3 });
-  d.text(transLines, margin + 12 + halfWidth + 14, curSnapY, { lineHeightFactor: 1.3 });
+  curSnapY += 12;
+
+  // Render Hotels with Bullets (Column 1)
+  let curHotelY = curSnapY;
+  parsedHotelLines.forEach(lines => {
+    d.setFillColor(...GOLD);
+    d.circle(margin + 15, curHotelY - 2.8, 2, 'F');
+    d.setFont('helvetica', 'normal');
+    d.setFontSize(8.5);
+    d.setTextColor(...BODY);
+    d.text(lines, margin + 22, curHotelY, { lineHeightFactor: 1.25 });
+    curHotelY += lines.length * 11 + 4;
+  });
+
+  // Render Transport with Bullets (Column 2)
+  const col2Left = margin + 12 + halfWidth + 14;
+  let curTransY = curSnapY;
+  parsedTransLines.forEach(lines => {
+    d.setFillColor(...GOLD);
+    d.circle(col2Left + 3, curTransY - 2.8, 2, 'F');
+    d.setFont('helvetica', 'normal');
+    d.setFontSize(8.5);
+    d.setTextColor(...BODY);
+    d.text(lines, col2Left + 10, curTransY, { lineHeightFactor: 1.25 });
+    curTransY += lines.length * 11 + 4;
+  });
 
   y += snapH + 24;
   
   // Commercial Proposal Card
-  if (y + 86 > maxPageHeight) { p++; y = next(d, a, 'Travel Proposal', p, logoData, SOFT); }
-  y=drawSecHeader(d,'Commercial proposal',y);
-  drawCard(d, margin, y, contentWidth, 76, CREAM, GOLD);
-  d.setFont('helvetica','normal');
+  const hasDiscount = Boolean(q.discount && Number(q.discount) > 0);
+  const commH = hasDiscount ? 76 : 64;
+  if (y + commH + 10 > maxPageHeight) { p++; y = next(d, a, 'Travel Proposal', p, logoData, SOFT); }
+  y = drawSecHeader(d, 'Commercial proposal', y);
+  drawCard(d, margin, y, contentWidth, commH, CREAM, GOLD);
+  d.setFont('helvetica', 'normal');
   d.setFontSize(8.5);
   d.setTextColor(...MUTED);
-  d.text('PROPOSED PACKAGE VALUE', margin+10, y+18);
-  d.setFont('helvetica','bold');
+  d.text('PROPOSED PACKAGE VALUE', margin + 10, y + 18);
+  d.setFont('helvetica', 'bold');
   d.setFontSize(18);
   d.setTextColor(...GOLD);
-  d.text(money(q.finalPrice), margin+10, y+38);
+  d.text(money(q.finalPrice), margin + 10, y + 38);
   
-  d.setFont('helvetica','normal');
-  d.setFontSize(8.5);
-  d.setTextColor(...BODY);
-  d.text(`Base ${money(q.basePrice||0)}    Discount ${money(q.discount||0)}`, margin+10, y+53);
-  d.setFont('helvetica','bold');
-  d.setFontSize(8);
-  d.setTextColor(...GOLD); // changed from GREEN to GOLD (brand)
-  d.text('CUSTOMISED PRICE - CONFIRMATION REQUIRED', margin+10, y+65);
-  y+=106; // proper space
+  if (hasDiscount) {
+    d.setFont('helvetica', 'normal');
+    d.setFontSize(8.5);
+    d.setTextColor(...BODY);
+    const baseVal = q.basePrice && q.basePrice > q.finalPrice ? q.basePrice : (q.finalPrice + Number(q.discount));
+    d.text(`Base ${money(baseVal)}    Discount ${money(q.discount)}`, margin + 10, y + 52);
+    
+    d.setFont('helvetica', 'bold');
+    d.setFontSize(8);
+    d.setTextColor(...GOLD);
+    d.text('CUSTOMISED PRICE - CONFIRMATION REQUIRED', margin + 10, y + 65);
+    y += commH + 30;
+  } else {
+    // No discount: do NOT show discount or base price line!
+    d.setFont('helvetica', 'bold');
+    d.setFontSize(8);
+    d.setTextColor(...GOLD);
+    d.text('CUSTOMISED PRICE - CONFIRMATION REQUIRED', margin + 10, y + 53);
+    y += commH + 30;
+  }
   
   // Inclusions & Exclusions Stacked (Dynamic Heights)
   const cleanList = (list: string[]) => {

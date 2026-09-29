@@ -67,43 +67,9 @@ export const Footer: React.FC<FooterProps> = ({ onSelectDestination, onSelectDha
     navigateToCustomPage,
     navigateToBlogHub,
     navigateToJapCounter,
-    submitInquiry,
   } = useTours();
 
-  const [newsletterEmail, setNewsletterEmail] = useState('');
-  const [newsletterName, setNewsletterName] = useState('');
-  const [newsletterPhone, setNewsletterPhone] = useState('');
-  const [showNewsletterModal, setShowNewsletterModal] = useState(false);
-  const [newsletterStatus, setNewsletterStatus] = useState<'idle' | 'loading' | 'success'>('idle');
   const [cautionExpanded, setCautionExpanded] = useState(false);
-
-  const handleSubscribe = (e?: React.FormEvent) => {
-    e?.preventDefault();
-    if (!newsletterEmail || !newsletterName || !newsletterPhone) return;
-    setNewsletterStatus('loading');
-    setTimeout(() => {
-      submitInquiry({
-        packageId: 'newsletter-signup',
-        packageTitle: 'Newsletter Subscription',
-        travelerName: newsletterName,
-        email: newsletterEmail,
-        phone: newsletterPhone,
-        travelDate: new Date().toISOString().split('T')[0],
-        adults: 1,
-        children: 0,
-        specialRequests: 'Subscribed to newsletter',
-        estimatedTotal: 0
-      });
-      setNewsletterStatus('success');
-      setTimeout(() => {
-        setNewsletterStatus('idle');
-        setShowNewsletterModal(false);
-        setNewsletterEmail('');
-        setNewsletterName('');
-        setNewsletterPhone('');
-      }, 2000);
-    }, 500);
-  };
 
   const handleShare = async () => {
     if (navigator.share) {
@@ -560,74 +526,6 @@ export const Footer: React.FC<FooterProps> = ({ onSelectDestination, onSelectDha
 
         </div>
       </div>
-
-      {/* Newsletter Modal */}
-      {showNewsletterModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="bg-white rounded-3xl w-full max-w-md shadow-2xl relative overflow-hidden flex flex-col max-h-[90vh]">
-            <div className="p-6 border-b border-gray-100 flex items-center justify-between sticky top-0 bg-white z-10">
-              <h3 className="text-xl font-bold text-gray-900">Subscribe to our Newsletter</h3>
-              <button 
-                onClick={() => setShowNewsletterModal(false)}
-                className="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-50 transition"
-              >
-                <XIcon className="w-4 h-4" />
-              </button>
-            </div>
-            <div className="p-6 overflow-y-auto">
-              <form onSubmit={handleSubscribe} className="space-y-6">
-                <div>
-                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Full Name *</label>
-                  <input 
-                    type="text" 
-                    required
-                    value={newsletterName}
-                    onChange={(e) => setNewsletterName(e.target.value)}
-                    className="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand"
-                    placeholder="Enter your full name"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Email ID *</label>
-                  <input 
-                    type="email" 
-                    required
-                    value={newsletterEmail}
-                    onChange={(e) => setNewsletterEmail(e.target.value)}
-                    className="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand"
-                    placeholder="Enter your email address"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Mobile No. *</label>
-                  <div className="flex">
-                    <div className="border border-gray-300 border-r-0 rounded-l-xl px-3 py-3 bg-gray-50 flex items-center gap-1.5 shrink-0">
-                      <span className="text-lg leading-none">🇮🇳</span>
-                      <span className="text-sm font-medium text-gray-600">+91</span>
-                    </div>
-                    <input 
-                      type="tel" 
-                      required
-                      value={newsletterPhone}
-                      onChange={(e) => setNewsletterPhone(e.target.value)}
-                      className="flex-1 border border-gray-300 rounded-r-xl px-4 py-3 text-sm focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand"
-                      placeholder="Enter mobile number"
-                    />
-                  </div>
-                </div>
-                
-                <button 
-                  type="submit"
-                  disabled={newsletterStatus !== 'idle'}
-                  className="w-full bg-[#FF4B00] hover:bg-[#E04200] text-white py-3.5 rounded-xl font-bold text-sm transition disabled:opacity-70 mt-2 shadow-lg shadow-brand/20"
-                >
-                  {newsletterStatus === 'loading' ? 'Subscribing...' : newsletterStatus === 'success' ? 'Subscribed!' : 'Subscribe'}
-                </button>
-              </form>
-            </div>
-          </div>
-        </div>
-      )}
     </footer>
   );
 };

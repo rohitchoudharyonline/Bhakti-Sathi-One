@@ -2069,24 +2069,73 @@ app.post('/api/media/delete', requireCmsSession, async (req, res) => {
 });
 
 app.post('/api/notify-lead', leadRateLimit, async (req, res) => {
-  const leadData = req.body?.leadData;
-  if (!leadData || typeof leadData !== 'object') return res.status(400).json({ error: 'Lead data is required.' });
+  const raw = req.body?.leadData || req.body;
+  if (!raw || typeof raw !== 'object') return res.status(400).json({ error: 'Lead data is required.' });
   const safe = {
-    packageTitle: cleanText(leadData.packageTitle, 200), travelerName: cleanText(leadData.travelerName, 120), phone: cleanText(leadData.phone, 40), email: cleanText(leadData.email, 160), travelDate: cleanText(leadData.travelDate, 40), adults: cleanText(leadData.adults, 20), children: cleanText(leadData.children, 20), estimatedTotal: cleanText(leadData.estimatedTotal, 30), specialRequests: cleanText(leadData.specialRequests, 1000),
+    packageTitle: cleanText(raw.packageTitle || raw.package, 200),
+    travelerName: cleanText(raw.travelerName || raw.name, 120),
+    phone: cleanText(raw.phone, 40),
+    email: cleanText(raw.email, 160),
+    travelDate: cleanText(raw.travelDate, 40),
+    adults: cleanText(raw.adults, 20),
+    children: cleanText(raw.children, 20),
+    estimatedTotal: cleanText(raw.estimatedTotal, 30),
+    specialRequests: cleanText(raw.specialRequests || raw.notes, 1000),
   };
   if (!safe.travelerName || !safe.phone) return res.status(400).json({ error: 'Traveler name and phone are required.' });
   if (safe.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(safe.email)) return res.status(400).json({ error: 'Invalid email address.' });
-  try {
-    if (!process.env.SMTP_USER || !process.env.SMTP_PASS) return res.json({ success: true, message: 'Lead accepted; email notification is not configured.' });
-    const port = Number(process.env.SMTP_PORT || 587);
-    const transporter = nodemailer.createTransport({ host: process.env.SMTP_HOST || 'smtp.gmail.com', port, secure: port === 465, auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS } });
-    const info = await transporter.sendMail({
-      from: `Holidays Hunt Notifications <${process.env.SMTP_USER}>`, to: process.env.NOTIFICATION_EMAIL || process.env.SMTP_USER, subject: `New Lead: ${safe.packageTitle || 'Travel Inquiry'}`,
-      text: `New Inquiry Received!\n\nName: ${safe.travelerName}\nPhone: ${safe.phone}\nEmail: ${safe.email || 'N/A'}\nTravel Date: ${safe.travelDate}\nAdults: ${safe.adults}\nChildren: ${safe.children}\nBudget: ₹${safe.estimatedTotal}\nSpecial Requests: ${safe.specialRequests}`,
-      html: `<h2>New Inquiry Received!</h2><p><strong>Name:</strong> ${escapeHtml(safe.travelerName)}</p><p><strong>Phone:</strong> ${escapeHtml(safe.phone)}</p><p><strong>Email:</strong> ${escapeHtml(safe.email || 'N/A')}</p><p><strong>Travel Date:</strong> ${escapeHtml(safe.travelDate)}</p><p><strong>Travelers:</strong> ${escapeHtml(safe.adults)} Adults, ${escapeHtml(safe.children)} Children</p><p><strong>Budget:</strong> ₹${escapeHtml(safe.estimatedTotal)}</p><p><strong>Special Requests:</strong> ${escapeHtml(safe.specialRequests)}</p>`,
-    });
-    return res.json({ success: true, message: 'Notification sent', messageId: info.messageId });
-  } catch (error) { console.error('Error sending lead notification:', error); return res.status(500).json({ error: 'Failed to send notification.' }); }
+
+  const recipientEmail = process.env.NOTIFICATION_EMAIL || 'rohitchoudharyonline@gmail.com';
+
+  // 1. Send via Resend API if configured (recommended & easiest)
+  if (process.env.RESEND_API_KEY) {
+    try {
+      const resendRes = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          from: process.env.FROM_EMAIL || 'Holidays Hunt <onboarding@resend.dev>',
+          to: [recipientEmail],
+          subject: `New Lead: ${safe.packageTitle || 'Travel Inquiry'} - ${safe.travelerName}`,
+          html: `<h2>New Inquiry Received!</h2><p><strong>Name:</strong> ${escapeHtml(safe.travelerName)}</p><p><strong>Phone:</strong> ${escapeHtml(safe.phone)}</p><p><strong>Email:</strong> ${escapeHtml(safe.email || 'N/A')}</p><p><strong>Package:</strong> ${escapeHtml(safe.packageTitle || 'Custom Itinerary')}</p><p><strong>Travel Date:</strong> ${escapeHtml(safe.travelDate || 'Not specified')}</p><p><strong>Travelers:</strong> ${escapeHtml(safe.adults || '1')} Adults, ${escapeHtml(safe.children || '0')} Children</p><p><strong>Special Requests:</strong> ${escapeHtml(safe.specialRequests || 'None')}</p>`,
+        }),
+      });
+      if (resendRes.ok) {
+        return res.json({ success: true, message: 'Notification sent via Resend' });
+      }
+    } catch (err) {
+      console.error('Resend notification error:', err);
+    }
+  }
+
+  // 2. Send via SMTP / Gmail App Password if configured
+  if (process.env.SMTP_USER && process.env.SMTP_PASS) {
+    try {
+      const port = Number(process.env.SMTP_PORT || 587);
+      const transporter = nodemailer.createTransport({
+        host: process.env.SMTP_HOST || 'smtp.gmail.com',
+        port,
+        secure: port === 465,
+        auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
+      });
+      const info = await transporter.sendMail({
+        from: `Holidays Hunt Notifications <${process.env.SMTP_USER}>`,
+        to: recipientEmail,
+        subject: `New Lead: ${safe.packageTitle || 'Travel Inquiry'} - ${safe.travelerName}`,
+        text: `New Inquiry Received!\n\nName: ${safe.travelerName}\nPhone: ${safe.phone}\nEmail: ${safe.email || 'N/A'}\nPackage: ${safe.packageTitle}\nTravel Date: ${safe.travelDate}\nAdults: ${safe.adults}\nChildren: ${safe.children}\nSpecial Requests: ${safe.specialRequests}`,
+        html: `<h2>New Inquiry Received!</h2><p><strong>Name:</strong> ${escapeHtml(safe.travelerName)}</p><p><strong>Phone:</strong> ${escapeHtml(safe.phone)}</p><p><strong>Email:</strong> ${escapeHtml(safe.email || 'N/A')}</p><p><strong>Package:</strong> ${escapeHtml(safe.packageTitle || 'Custom Itinerary')}</p><p><strong>Travel Date:</strong> ${escapeHtml(safe.travelDate || 'Not specified')}</p><p><strong>Travelers:</strong> ${escapeHtml(safe.adults || '1')} Adults, ${escapeHtml(safe.children || '0')} Children</p><p><strong>Special Requests:</strong> ${escapeHtml(safe.specialRequests || 'None')}</p>`,
+      });
+      return res.json({ success: true, message: 'Notification sent via SMTP', messageId: info.messageId });
+    } catch (error) {
+      console.error('Error sending lead notification via SMTP:', error);
+      return res.status(500).json({ error: 'Failed to send notification via SMTP.' });
+    }
+  }
+
+  return res.json({ success: true, message: 'Lead accepted; email notification credentials not configured.' });
 });
 
 if (!isProduction) {

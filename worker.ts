@@ -1072,7 +1072,33 @@ export default {
           }
           return json({ success: true }, 200, privateHeaders(env, request));
         }
-        if(pathname==='/api/notify-lead'&&request.method==='POST'){if(!env.DB)return json({error:'Database unavailable.'},503,privateHeaders(env,request));const b=await request.json().catch(()=>({})),name=text(b.name,120),phone=text(b.phone,40),pack=text(b.package,200);if(!name||!phone)return json({error:'Name and phone are required.'},400,privateHeaders(env,request));await env.DB.prepare('INSERT INTO leads (name,phone,package,created_at) VALUES (?,?,?,?)').bind(name,phone,pack,new Date().toISOString()).run();return json({success:true},201,publicHeaders(env,request));}
+        if(pathname==='/api/notify-lead'&&request.method==='POST'){
+          if(!env.DB)return json({error:'Database unavailable.'},503,privateHeaders(env,request));
+          const b=await request.json().catch(()=>({})),
+                lead=b.leadData||b,
+                name=text(lead.travelerName||lead.name,120),
+                phone=text(lead.phone,40),
+                pack=text(lead.packageTitle||lead.package,200),
+                email=text(lead.email,160),
+                notes=text(lead.specialRequests||lead.notes,1000);
+          if(!name||!phone)return json({error:'Name and phone are required.'},400,privateHeaders(env,request));
+          await env.DB.prepare('INSERT INTO leads (name,phone,package,created_at) VALUES (?,?,?,?)').bind(name,phone,pack,new Date().toISOString()).run();
+          if(env.RESEND_API_KEY){
+            try {
+              await fetch('https://api.resend.com/emails',{
+                method:'POST',
+                headers:{'Authorization':`Bearer ${env.RESEND_API_KEY}`,'Content-Type':'application/json'},
+                body:JSON.stringify({
+                  from: env.FROM_EMAIL || 'Holidays Hunt <onboarding@resend.dev>',
+                  to:[env.NOTIFICATION_EMAIL || 'rohitchoudharyonline@gmail.com'],
+                  subject:`New Lead: ${pack||'Tour Inquiry'} - ${name}`,
+                  html:`<h2>New Lead Received!</h2><p><strong>Name:</strong> ${name}</p><p><strong>Phone:</strong> ${phone}</p><p><strong>Email:</strong> ${email||'N/A'}</p><p><strong>Package:</strong> ${pack||'Custom'}</p><p><strong>Notes:</strong> ${notes||'None'}</p>`
+                })
+              });
+            } catch(e) { console.error('Cloudflare Worker email notification failed:', e); }
+          }
+          return json({success:true},201,publicHeaders(env,request));
+        }
         if(pathname==='/api/generate-tour'&&request.method==='POST'){
           const e=await requireCms();
           if(!e)return json({error:'Unauthorized.'},401,privateHeaders(env,request));

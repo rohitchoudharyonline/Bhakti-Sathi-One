@@ -42,9 +42,6 @@ export const BlogPostDetailView: React.FC<BlogPostDetailViewProps> = ({ slug }) 
   } = useTours();
 
   const [copied, setCopied] = useState(false);
-  const [emailInput, setEmailInput] = useState('');
-  const [subscribing, setSubscribing] = useState(false);
-  const [subscribed, setSubscribed] = useState(false);
 
   const post = blogPosts.find((p) => p.slug === slug) || blogPosts[0];
 
@@ -263,72 +260,40 @@ export const BlogPostDetailView: React.FC<BlogPostDetailViewProps> = ({ slug }) 
             </div>
           </div>
 
-          {/* Elegant Newsletter Signup Card */}
+          {/* Trip Planning CTA Card */}
           <div className="bg-stone-50 border border-stone-200 p-6 sm:p-8 rounded-3xl space-y-4">
             <div className="flex items-center gap-2 text-[#FF4B00] text-xs font-bold uppercase tracking-wider">
-              <span className="p-1 bg-[#FF4B00]/10 rounded-md">📬</span>
-              <span>Spiritual Pilgrimage Newsletter</span>
+              <span className="p-1 bg-[#FF4B00]/10 rounded-md">🏔️</span>
+              <span>Holidays Hunt Travel Desk</span>
             </div>
             <div>
               <h3 className="text-lg sm:text-xl font-black text-stone-900">
-                Join Holidays Hunt's Devotee Community
+                Planning Your Trip to Jammu & Kashmir?
               </h3>
               <p className="text-stone-600 text-xs sm:text-sm mt-1 leading-relaxed max-w-2xl">
-                Subscribe to get direct sacred temple histories, upcoming pilgrimage muhurats (timings), and professional travel tips for elderly devotees in India. No spam, unsubscribe anytime.
+                Get custom-crafted itineraries, luxury stays, private chauffeur transfers, and 24/7 on-ground assistance for your family or honeymoon journey.
               </p>
             </div>
 
-            {subscribed ? (
-              <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 flex items-center gap-3 text-emerald-800">
-                <span className="text-xl">✨</span>
-                <div>
-                  <p className="font-bold text-sm">Thank you for subscribing!</p>
-                  <p className="text-xs text-emerald-700/90 mt-0.5">We have registered your email. You will receive our next spiritual updates soon.</p>
-                </div>
-              </div>
-            ) : (
-              <form onSubmit={(e) => {
-                e.preventDefault();
-                const cleanEmail = emailInput.trim();
-                if (!cleanEmail || !cleanEmail.includes('@') || cleanEmail.length < 5) {
-                  alert("Please enter a valid email address");
-                  return;
-                }
-                setSubscribing(true);
-                submitInquiry({
-                  packageId: 'newsletter-signup',
-                  packageTitle: 'Newsletter Subscriber',
-                  travelerName: cleanEmail.split('@')[0],
-                  email: cleanEmail,
-                  phone: '-',
-                  travelDate: new Date().toISOString().split('T')[0],
-                  adults: 1,
-                  children: 0,
-                  specialRequests: `Signed up to newsletter via blog post: "${post.title}"`,
-                  estimatedTotal: 0,
-                });
-                setSubscribed(true);
-                setEmailInput('');
-                setSubscribing(false);
-              }} className="flex flex-col sm:flex-row gap-2 mt-2">
-                <input
-                  type="email"
-                  value={emailInput}
-                  onChange={(e) => setEmailInput(e.target.value)}
-                  placeholder="Enter your email address..."
-                  required
-                  disabled={subscribing}
-                  className="flex-1 px-4 py-3 bg-white border border-stone-200 rounded-xl text-sm outline-hidden focus:border-[#FF4B00] focus:ring-1 focus:ring-[#FF4B00] text-stone-900 placeholder-stone-400 font-medium"
-                />
-                <button
-                  type="submit"
-                  disabled={subscribing}
-                  className="px-6 py-3 bg-[#FF4B00] hover:bg-[#d43e00] text-white rounded-xl text-xs font-black tracking-wide shadow-2xs transition shrink-0 cursor-pointer disabled:opacity-50"
-                >
-                  {subscribing ? 'Subscribing...' : 'Subscribe Now'}
-                </button>
-              </form>
-            )}
+            <div className="flex flex-col sm:flex-row gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => navigateToAllTours()}
+                className="px-6 py-3 bg-[#FF4B00] hover:bg-[#d43e00] text-white rounded-xl text-xs font-black tracking-wide shadow-2xs transition shrink-0 cursor-pointer flex items-center justify-center gap-2"
+              >
+                <span>Explore Tour Packages</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+              <a
+                href="https://wa.me/919419915255?text=Hello%20Holidays%20Hunt%2C%20I%20am%20planning%20a%20trip%20to%20Jammu%20%26%20Kashmir%20and%20need%20customized%20tour%20details."
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-black tracking-wide shadow-2xs transition shrink-0 cursor-pointer flex items-center justify-center gap-2"
+              >
+                <MessageCircle className="w-3.5 h-3.5" />
+                <span>Chat on WhatsApp</span>
+              </a>
+            </div>
           </div>
 
           {/* Read this also / Recommended Articles */}
