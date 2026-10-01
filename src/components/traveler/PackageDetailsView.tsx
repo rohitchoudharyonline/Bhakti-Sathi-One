@@ -242,49 +242,16 @@ export const PackageDetailsView: React.FC<PackageDetailsViewProps> = ({ pkg, onB
             </div>
           </div>
 
-          {/* 4-Pic Interactive Gallery (1 Main + 3 Thumbnails below) */}
-          <div className="lg:col-span-5 space-y-2.5">
-            <div className="relative rounded-2xl overflow-hidden shadow-lg border border-stone-200 aspect-[16/10] bg-stone-900 group">
+          {/* Featured Tour Cover Image (1 Pic, Clean) */}
+          <div className="lg:col-span-5">
+            <div className="relative rounded-2xl overflow-hidden shadow-sm border border-stone-200 aspect-[16/10] bg-stone-100">
               <img
-                key={activeMainPhoto.url}
-                src={activeMainPhoto.url}
-                alt={activeMainPhoto.caption || pkg.title}
-                onError={(e) => handleImageError(e, activeMainPhoto.url, mediaAssets)}
-                className="w-full h-full object-cover transition-all duration-500 ease-out"
+                src={resolveDisplayImage(pkg.coverImage, mediaAssets) || pkg.coverImage || 'https://images.unsplash.com/photo-1598091383021-15ddea10925d?auto=format&fit=crop&w=800&q=80'}
+                alt={pkg.title}
+                onError={(e) => handleImageError(e, pkg.coverImage, mediaAssets)}
+                className="w-full h-full object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
-              <div className="absolute left-3 bottom-3 right-3 flex items-center justify-between text-white pointer-events-none">
-                <span className="text-[11px] font-bold bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full text-white inline-flex items-center gap-1.5 border border-white/15 truncate max-w-[200px]">
-                  <Sparkles className="w-3 h-3 text-[#FF4B00] shrink-0" /> {activeMainPhoto.caption || 'Tour Highlight'}
-                </span>
-                <span className="text-[10px] font-bold bg-black/50 backdrop-blur-md px-2 py-0.5 rounded-full text-stone-200 border border-white/10 shrink-0">
-                  {selectedPhotoIndex + 1} / {fourPhotos.length}
-                </span>
-              </div>
             </div>
-
-            {/* 3 Thumbnails Row */}
-            {thumbnailPhotos.length > 0 && (
-              <div className="grid grid-cols-3 gap-2 h-16 sm:h-20">
-                {thumbnailPhotos.map((item) => (
-                  <button
-                    key={item.photo.id || item.photo.url}
-                    type="button"
-                    onClick={() => setSelectedPhotoIndex(item.index)}
-                    className="relative rounded-xl overflow-hidden bg-stone-100 cursor-pointer group border-2 border-stone-200 hover:border-[#FF4B00] transition duration-200 focus:outline-hidden p-0 text-left"
-                    title={`View ${item.photo.caption || 'Photo'}`}
-                  >
-                    <img
-                      src={item.photo.url}
-                      alt={item.photo.caption || 'Tour Photo'}
-                      onError={(e) => handleImageError(e, item.photo.url, mediaAssets)}
-                      className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
-                    />
-                    <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition" />
-                  </button>
-                ))}
-              </div>
-            )}
           </div>
         </div>
       </div>

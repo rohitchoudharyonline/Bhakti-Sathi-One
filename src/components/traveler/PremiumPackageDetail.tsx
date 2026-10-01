@@ -444,55 +444,16 @@ export const PremiumPackageDetail: React.FC<Props> = ({ pkg, onBack }) => {
           </div>
         </div>
 
-        {/* 4-Pic Interactive Gallery (1 Main on top, 3 Thumbnails below) */}
+        {/* Featured Tour Cover Image (1 Pic, Clean) */}
         <section className="mb-4">
-          {/* Main Large Photo Display */}
-          <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden bg-stone-900 aspect-[16/9] sm:aspect-[21/9] max-h-[360px] group shadow-sm border border-stone-200">
+          <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden bg-stone-100 aspect-[16/9] sm:aspect-[21/9] max-h-[360px] shadow-sm border border-stone-200">
             <img
-              key={activeMainPhoto.url}
-              src={activeMainPhoto.url}
-              alt={activeMainPhoto.caption || pkg.title}
-              onError={(e) => handleImageError(e, activeMainPhoto.url, mediaAssets)}
-              className="w-full h-full object-cover transition-all duration-500 ease-out"
+              src={resolveDisplayImage(pkg.coverImage, mediaAssets) || pkg.coverImage || 'https://images.unsplash.com/photo-1598091383021-15ddea10925d?auto=format&fit=crop&w=800&q=80'}
+              alt={pkg.title}
+              onError={(e) => handleImageError(e, pkg.coverImage, mediaAssets)}
+              className="w-full h-full object-cover"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent pointer-events-none" />
-            <div className="absolute left-3.5 bottom-3.5 right-3.5 flex items-center justify-between text-white pointer-events-none">
-              <span className="text-[11px] sm:text-xs font-bold bg-black/60 backdrop-blur-md px-3 py-1 rounded-full text-white inline-flex items-center gap-1.5 border border-white/15">
-                <Sparkles className="w-3 h-3 text-[#FF4B00]" /> {activeMainPhoto.caption || 'Tour Highlight'}
-              </span>
-              <span className="text-[10px] font-bold bg-black/50 backdrop-blur-md px-2.5 py-1 rounded-full text-stone-200 border border-white/10">
-                Photo {selectedPhotoIndex + 1} of {fourPhotos.length}
-              </span>
-            </div>
           </div>
-
-          {/* 3 Thumbnails Grid Below (Clicking any swaps it into the main container) */}
-          {thumbnailPhotos.length > 0 && (
-            <div className="grid grid-cols-3 gap-2 sm:gap-3 mt-2 sm:mt-3 h-20 sm:h-28">
-              {thumbnailPhotos.map((item) => (
-                <button
-                  key={item.photo.id || item.photo.url}
-                  type="button"
-                  onClick={() => setSelectedPhotoIndex(item.index)}
-                  className="relative rounded-xl sm:rounded-2xl overflow-hidden bg-stone-100 cursor-pointer group border-2 border-stone-200 hover:border-[#FF4B00] transition-all duration-300 focus:outline-hidden p-0 text-left"
-                  title={`View ${item.photo.caption || 'Photo'}`}
-                >
-                  <img
-                    src={item.photo.url}
-                    alt={item.photo.caption || 'Tour Photo'}
-                    onError={(e) => handleImageError(e, item.photo.url, mediaAssets)}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                  <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition" />
-                  <div className="absolute bottom-1 right-1 sm:bottom-1.5 sm:right-1.5">
-                    <span className="text-[9px] sm:text-[10px] font-bold bg-black/70 text-white px-1.5 py-0.5 rounded-md backdrop-blur-xs">
-                      View
-                    </span>
-                  </div>
-                </button>
-              ))}
-            </div>
-          )}
         </section>
 
         {/* Pricing Card below Gallery (Matching Screenshot 1 & 2) */}
