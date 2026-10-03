@@ -10,6 +10,7 @@ import { TourReviewsAndGalleryModal } from './TourReviewsAndGalleryModal';
 import { FreeTravelInsuranceCard } from './FreeTravelInsuranceCard';
 import { updatePageSeo } from '../../utils/seo';
 import { generateTouristTripSchema, generateBreadcrumbSchema } from '../../utils/seoEngine';
+import { trackEvent } from '../../utils/analytics';
 import {
   ArrowLeft,
   CalendarDays,
@@ -116,6 +117,10 @@ export const PremiumPackageDetail: React.FC<Props> = ({ pkg, onBack }) => {
       console.warn('SEO Schema initialization warning:', err);
     }
   }, [pkg, agencySettings]);
+
+  useEffect(() => {
+    trackEvent('view_item', { content_type: 'tour_package', content_id: pkg.id, package_title: pkg.title });
+  }, [pkg.id, pkg.title]);
 
   // Reviews and Photo Gallery Modal state
   const [isGalleryModalOpen, setIsGalleryModalOpen] = useState(false);
@@ -265,6 +270,8 @@ export const PremiumPackageDetail: React.FC<Props> = ({ pkg, onBack }) => {
       : `${activePriceResult.displayPrice}/person`;
 
     const trimmedEmail = email.trim().toLowerCase();
+
+    trackEvent('generate_lead', { lead_method: 'booking_inquiry', package_id: pkg.id, package_title: pkg.title, hotel_category: selectedTier });
 
     submitInquiry({
       packageId: pkg.id,
