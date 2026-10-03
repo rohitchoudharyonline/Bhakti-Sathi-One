@@ -1562,9 +1562,12 @@ export async function generateTourPDF(
   y += detailsCardH + 24;
 
   // Verified Accommodation & Stays
-  if (pkg.hotels && pkg.hotels.length > 0) {
+  const accommodationHotels = activeTierStar
+    ? (pkg.hotels || []).filter((hotel) => Number(hotel.starRating) === activeTierStar)
+    : (pkg.hotels || []);
+  if (accommodationHotels.length > 0) {
     y = drawSecHeader(d, 'Accommodation & Stays', y);
-    for (const hotel of pkg.hotels) {
+    for (const hotel of accommodationHotels) {
       d.setFont('helvetica','bold');
       d.setFontSize(13);
       const nameLines = d.splitTextToSize(clean(hotel.name), contentWidth - 32);
@@ -1573,14 +1576,7 @@ export async function generateTourPDF(
       const starText = '';
       const locText = getHotelLocation(hotel, pkg);
       const infoLines = d.splitTextToSize(`${starText}${locText} | ${clean(hotel.roomType || 'Deluxe Room')} (${hotel.nights}N)`, contentWidth - 32);
-      let amLines: string[] = [];
-      if (hotel.amenities?.length) {
-        d.setFont('helvetica','italic');
-        d.setFontSize(10);
-        amLines = d.splitTextToSize(`Amenities: ${hotel.amenities.join(' • ')}`, contentWidth - 32);
-      }
-      
-      const hCardH = 20 + (nameLines.length * 15) + (infoLines.length * 14) + (amLines.length ? amLines.length * 13 + 6 : 0) + 12;
+      const hCardH = 20 + (nameLines.length * 15) + (infoLines.length * 14) + 12;
       drawCard(d, margin, y, contentWidth, hCardH, [255, 255, 255], LINE);
       
       d.setFont('helvetica','bold');
@@ -1594,13 +1590,6 @@ export async function generateTourPDF(
       d.setTextColor(...MUTED);
       d.text(infoLines, margin + 16, curHY);
       curHY += (infoLines.length * 14) + 6;
-      
-      if (amLines.length) {
-        d.setFont('helvetica','italic');
-        d.setFontSize(10);
-        d.setTextColor(...BODY);
-        d.text(amLines, margin + 16, curHY);
-      }
       y += hCardH + 16;
     }
     y += 12;
