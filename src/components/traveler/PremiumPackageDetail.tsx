@@ -10,7 +10,6 @@ import { TourReviewsAndGalleryModal } from './TourReviewsAndGalleryModal';
 import { FreeTravelInsuranceCard } from './FreeTravelInsuranceCard';
 import { updatePageSeo } from '../../utils/seo';
 import { generateTouristTripSchema, generateBreadcrumbSchema } from '../../utils/seoEngine';
-import { trackEvent } from '../../utils/analytics';
 import {
   ArrowLeft,
   CalendarDays,
@@ -117,10 +116,6 @@ export const PremiumPackageDetail: React.FC<Props> = ({ pkg, onBack }) => {
       console.warn('SEO Schema initialization warning:', err);
     }
   }, [pkg, agencySettings]);
-
-  useEffect(() => {
-    trackEvent('view_item', { content_type: 'tour_package', content_id: pkg.id, package_title: pkg.title });
-  }, [pkg.id, pkg.title]);
 
   // Reviews and Photo Gallery Modal state
   const [isGalleryModalOpen, setIsGalleryModalOpen] = useState(false);
@@ -271,8 +266,6 @@ export const PremiumPackageDetail: React.FC<Props> = ({ pkg, onBack }) => {
 
     const trimmedEmail = email.trim().toLowerCase();
 
-    trackEvent('generate_lead', { lead_method: 'booking_inquiry', package_id: pkg.id, package_title: pkg.title, hotel_category: selectedTier });
-
     submitInquiry({
       packageId: pkg.id,
       packageTitle: `${pkg.title} [${currentTierInfo.tierName}]`,
@@ -308,7 +301,6 @@ export const PremiumPackageDetail: React.FC<Props> = ({ pkg, onBack }) => {
     try {
       setDownloadingPdf(true);
       await generateTourPDF(pkg, agencySettings, undefined, selectedTier === '3-star' ? 'star3' : selectedTier === '4-star' ? 'star4' : 'star5');
-      trackEvent('brochure_download', { package_id: pkg.id, package_title: pkg.title, hotel_category: selectedTier });
     } catch (err) {
       console.error(err);
     } finally {
