@@ -1240,8 +1240,26 @@ async function loadBrandLogoData(): Promise<{ dataUrl: string; width: number; he
   return null;
 }
 
-export async function generateTourPDF(pkg:TourPackage,a:AgencySettings,onProgress?:(status:string)=>void):Promise<void>{
+export async function generateTourPDF(
+  pkg: TourPackage,
+  a: AgencySettings,
+  onProgress?: (status: string) => void,
+  selectedTierKey?: string,
+): Promise<void>{
   onProgress?.('Preparing official mobile tour brochure...');
+
+  const activeTier = selectedTierKey ? pkg.pricingTiers?.[selectedTierKey] : undefined;
+  const activeTierPrice = Number(activeTier?.discountedPrice || 0) > 0
+    ? Number(activeTier.discountedPrice)
+    : Number(activeTier?.price || 0);
+  const activeTierPriceOnRequest = activeTier?.priceOnRequest === true || activeTierPrice <= 0;
+  const activeTierStar = selectedTierKey === 'star3' ? 3 : selectedTierKey === 'star4' ? 4 : selectedTierKey === 'star5' ? 5 : 0;
+  const activeTierHotels = Array.isArray(activeTier?.hotels) && activeTier.hotels.length
+    ? activeTier.hotels.map((hotel: unknown) => clean(hotel))
+    : (pkg.hotels || [])
+        .filter((hotel) => !activeTierStar || Number(hotel.starRating) === activeTierStar)
+        .map((hotel) => `${clean(hotel.name)} (${getHotelLocation(hotel, pkg)})`);
+
   
   const w = 430;
   const margin = 18;
@@ -1511,18 +1529,20 @@ export async function generateTourPDF(pkg:TourPackage,a:AgencySettings,onProgres
   y = drawSecHeader(d, 'Package Pricing & Inclusions', y);
   d.setFont('helvetica','normal');
   d.setFontSize(11);
-  const hotelSummaryNames = pkg.hotels && pkg.hotels.length > 0 
-    ? pkg.hotels.map(h => `${h.name} (${getHotelLocation(h, pkg)})`).join(', ')
-    : 'Verified Accommodations & Stays';
+  const hotelSummaryNames = activeTierHotels.length
+    ? activeTierHotels.join(', ')
+    : (pkg.hotels && pkg.hotels.length > 0
+      ? pkg.hotels.map(h => `${h.name} (${getHotelLocation(h, pkg)})`).join(', ')
+      : 'Verified Accommodations & Stays');
   const hLines = d.splitTextToSize(`Hotels: ${clean(hotelSummaryNames)}`, contentWidth - 40);
-  const mLines = d.splitTextToSize(`Meals: ${clean(pkg.hotels?.[0]?.mealPlan || 'Daily Breakfast & Dinner Included')}`, contentWidth - 40);
+  const mLines = d.splitTextToSize(`Meals: ${clean(activeTier?.mealPlan || pkg.hotels?.[0]?.mealPlan || 'Daily Breakfast & Dinner Included')}`, contentWidth - 40);
   const cLines = d.splitTextToSize(`Cab: ${clean(pkg.transportation || 'Private AC Chauffeur Vehicle')}`, contentWidth - 40);
   
   // Calculate dynamic height for details card
   const detailsCardH = 40 + 20 + (hLines.length * 14) + (mLines.length * 14) + (cLines.length * 14) + 16;
   
-  const isPor = pkg.priceOnRequest || (!pkg.price && !pkg.discountedPrice) || ((pkg.price || 0) <= 0 && (!pkg.discountedPrice || pkg.discountedPrice <= 0));
-  const effectivePrice = pkg.discountedPrice && pkg.discountedPrice > 0 ? pkg.discountedPrice : (pkg.price || 0);
+  const isPor = activeTier ? activeTierPriceOnRequest : (pkg.priceOnRequest || (!pkg.price && !pkg.discountedPrice) || ((pkg.price || 0) <= 0 && (!pkg.discountedPrice || pkg.discountedPrice <= 0)));
+  const effectivePrice = activeTier ? activeTierPrice : (pkg.discountedPrice && pkg.discountedPrice > 0 ? pkg.discountedPrice : (pkg.price || 0));
   const priceDisplayStr = isPor ? 'Price on Request' : money(effectivePrice);
   const priceFontSize = isPor ? 15 : 20;
 
