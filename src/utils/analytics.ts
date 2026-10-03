@@ -22,7 +22,9 @@ export const initAnalytics = (): void => {
     window.dataLayer?.push(args);
   };
 
-  if (!document.querySelector(`script[data-hh-ga4="${GA_MEASUREMENT_ID}"]`)) {
+  const hasGoogleTag = Boolean(document.querySelector(`script[data-hh-ga4="${GA_MEASUREMENT_ID}"], script[src*="googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}"]`));
+
+  if (!hasGoogleTag) {
     const script = document.createElement('script');
     script.async = true;
     script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`;
