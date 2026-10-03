@@ -4,7 +4,6 @@ import { useTours } from '../../context/TourContext';
 import { PDFBrochureModal } from './PDFBrochureModal';
 import { formatPackagePrice } from '../../utils/priceHelper';
 import { resolveDisplayImage, handleImageError } from '../../utils/imageResolver';
-import { trackEvent } from '../../utils/analytics';
 import {
   Clock,
   MapPin,
@@ -64,7 +63,6 @@ export const PackageCard: React.FC<PackageCardProps> = ({ pkg, onSelect, onQuick
 
   const handleWhatsAppQuickQuote = (e: React.MouseEvent) => {
     e.stopPropagation();
-    trackEvent('generate_lead', { lead_method: 'whatsapp', package_id: pkg.id, package_title: pkg.title });
     const rawPhone = agencySettings.whatsapp || agencySettings.phone || '+919419915255';
     const cleanPhone = rawPhone.replace(/[^0-9]/g, '');
     const priceText = priceResult.isPriceOnRequest
@@ -248,7 +246,6 @@ export const PackageCard: React.FC<PackageCardProps> = ({ pkg, onSelect, onQuick
               <button
                 type="button"
                 onClick={() => {
-                  trackEvent('select_item', { content_type: 'tour_package', content_id: pkg.id, package_title: pkg.title });
                   onSelect(pkg.id);
                 }}
                 className="py-2.5 px-2 rounded-xl bg-[#FF4B00] hover:bg-[#E04200] text-white border border-[#FF4B00] text-[11px] font-black transition shadow-xs flex items-center justify-center gap-1 cursor-pointer"
