@@ -10,7 +10,6 @@ import { FloatingSupportWidget } from './components/common/FloatingSupportWidget
 import { SplashScreen } from './components/common/SplashScreen';
 import { TravelerAuthSessionSync } from './components/auth/TravelerAuthSessionSync';
 import { ErrorBoundary } from './components/common/ErrorBoundary';
-import { trackPageView } from './utils/analytics';
 
 const EnhancedERP = lazy(() => import('./components/cms/EnhancedERP').then((m) => ({ default: m.EnhancedERP })));
 const EnhancedTourExperience = lazy(() => import('./components/traveler/EnhancedTourExperience').then((m) => ({ default: m.EnhancedTourExperience })));
@@ -130,12 +129,6 @@ const MainAppContent: React.FC = () => {
   }, []);
 
   const cmsEntry = isCmsEntryPath(pathname);
-
-  useEffect(() => {
-    if (cmsEntry) return;
-    const timer = window.setTimeout(() => trackPageView(pathname), 0);
-    return () => window.clearTimeout(timer);
-  }, [pathname, cmsEntry]);
 
   useEffect(() => {
     if (cmsEntry) {
