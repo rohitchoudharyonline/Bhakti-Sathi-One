@@ -53,8 +53,19 @@ interface Props {
 export const PremiumPackageDetail: React.FC<Props> = ({ pkg, onBack }) => {
   const { submitInquiry, toggleWishlist, isWishlisted, agencySettings, mediaAssets, travelerUser, setTravelerUser } = useTours();
 
-  // Selected Hotel Tier (2-star, 3-star, 4-star, 5-star)
-  const [selectedTier, setSelectedTier] = useState<HotelStarCategory>('3-star');
+  const getInitialTier = (): HotelStarCategory => {
+    const hasTierPrice = (tier: any) =>
+      !!tier &&
+      tier.priceOnRequest !== true &&
+      (Number(tier.discountedPrice || 0) > 0 || Number(tier.price || 0) > 0);
+
+    if (hasTierPrice(pkg.pricingTiers?.star3)) return '3-star';
+    if (hasTierPrice(pkg.pricingTiers?.star4)) return '4-star';
+    if (hasTierPrice(pkg.pricingTiers?.star5)) return '5-star';
+    return '3-star';
+  };
+
+  const [selectedTier, setSelectedTier] = useState<HotelStarCategory>(getInitialTier);
 
   const [showEnquiry, setShowEnquiry] = useState(false);
   const [bookingStep, setBookingStep] = useState<'details' | 'review' | 'confirmation'>('details');
@@ -151,6 +162,26 @@ export const PremiumPackageDetail: React.FC<Props> = ({ pkg, onBack }) => {
 
   const isBasePriceOnRequest = pkg.priceOnRequest || !pkg.price || pkg.price <= 0;
   const basePrice = isBasePriceOnRequest ? 0 : (pkg.discountedPrice ?? pkg.price);
+
+  const tierOptions = useMemo(() => {
+    const known: Array<{ value: HotelStarCategory; key: 'star3' | 'star4' | 'star5'; label: string }> = [
+      { value: '3-star', key: 'star3', label: '3-Star' },
+      { value: '4-star', key: 'star4', label: '4-Star' },
+      { value: '5-star', key: 'star5', label: '5-Star' },
+    ];
+    const hasPrice = (tier: any) =>
+      !!tier &&
+      tier.priceOnRequest !== true &&
+      (Number(tier.discountedPrice || 0) > 0 || Number(tier.price || 0) > 0);
+
+    return known.filter(({ key }) => hasPrice(pkg.pricingTiers?.[key]));
+  }, [pkg.pricingTiers]);
+
+  useEffect(() => {
+    if (tierOptions.length && !tierOptions.some((option) => option.value === selectedTier)) {
+      setSelectedTier(tierOptions[0].value);
+    }
+  }, [tierOptions, selectedTier]);
 
   const currentTierInfo = useMemo(() => {
     if (pkg.pricingTiers) {
@@ -269,7 +300,8 @@ export const PremiumPackageDetail: React.FC<Props> = ({ pkg, onBack }) => {
   const handleDownloadPDF = async () => {
     try {
       setDownloadingPdf(true);
-      await generateTourPDF(pkg, agencySettings);
+      await generateTourPDF(pkg, agencySettings, undefined, selectedTier === '3-star' ? 'star3' : selectedTier === '4-star' ? 'star4' : 'star5');
+      trackEvent('brochure_download', { package_id: pkg.id, package_title: pkg.title, hotel_category: selectedTier });
     } catch (err) {
       console.error(err);
     } finally {
@@ -643,6 +675,26 @@ export const PremiumPackageDetail: React.FC<Props> = ({ pkg, onBack }) => {
                   </>
                 )}
               </div>
+
+              {tierOptions.length > 0 && (
+                <div className="mt-2.5 pt-2.5 border-t border-stone-100">
+                  <div className="flex items-center justify-between gap-2">
+                    <label htmlFor="hh-hotel-tier" className="text-[10px] font-black uppercase tracking-wider text-stone-500 whitespace-nowrap">
+                      Hotel Category
+                    </label>
+                    <select
+                      id="hh-hotel-tier"
+                      value={selectedTier}
+                      onChange={(e) => setSelectedTier(e.target.value as HotelStarCategory)}
+                      className="min-w-0 flex-1 max-w-[170px] rounded-lg border border-stone-300 bg-white px-2.5 py-1.5 text-[11px] font-bold text-stone-900 outline-none focus:border-stone-900"
+                    >
+                      {tierOptions.map((option) => (
+                        <option key={option.key} value={option.value}>{option.label}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              )}
 
               {/* Dynamic Inclusions based on Selected Tier */}
               <div className="border-t border-stone-100 my-3 pt-2.5 space-y-1.5 text-xs">
