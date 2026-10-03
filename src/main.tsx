@@ -5,6 +5,7 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 import App from './App.tsx';
 import './index.css';
 import { loadAuthoritativeServerContent, installContentSyncBridge, clearSharedRegistryCache } from './services/contentSyncService';
+import { initAnalytics } from './utils/analytics';
 
 const mountApp = () => {
   const clientId = (import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined)?.trim()
@@ -25,6 +26,7 @@ const mountApp = () => {
 // then hydrate the React state from the authoritative D1 content in the background.
 installContentSyncBridge();
 clearSharedRegistryCache();
+initAnalytics();
 mountApp();
 void loadAuthoritativeServerContent();
 
