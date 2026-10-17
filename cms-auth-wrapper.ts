@@ -1,9 +1,16 @@
 import app from './worker-auth-wrapper';
 
-const json = (data: unknown, status = 200, headers: HeadersInit = {}) => new Response(JSON.stringify(data), {
-  status,
-  headers: { 'Content-Type': 'application/json; charset=utf-8', ...headers },
-});
+const json = (data: unknown, status = 200, headers: HeadersInit = {}) => {
+  // Preserve Headers instances (including multiple Set-Cookie values). Spreading
+  // a Headers object into a plain object drops its entries, which can silently
+  // prevent the CMS session cookie from being set after login.
+  const responseHeaders = new Headers(headers);
+  responseHeaders.set('Content-Type', 'application/json; charset=utf-8');
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: responseHeaders,
+  });
+};
 const text = (v: unknown, max = 2000) => String(v ?? '').replace(/[\u0000-\u001F\u007F]/g, ' ').trim().slice(0, max);
 const b64 = (s: string) => btoa(unescape(encodeURIComponent(s))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
 const unb64 = (s: string) => decodeURIComponent(escape(atob(s.replace(/-/g, '+').replace(/_/g, '/') + '='.repeat((4 - s.length % 4) % 4))));
