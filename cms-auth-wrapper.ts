@@ -103,20 +103,65 @@ async function clearCmsFailures(env: any, ip: string) {
   await env.DB.prepare('DELETE FROM ip_blocks WHERE ip=?').bind(ip).run();
 }
 
+type CmsConfig = {
+  secret: string;
+  pin: string;
+  password: string;
+  allowedEmails: Set<string>;
+  ready: boolean;
+};
+
+function cmsConfig(env: any): CmsConfig {
+  const secret = String(env?.CMS_SESSION_SECRET || '').trim();
+  const pin = String(env?.CMS_PIN || '').trim();
+  const password = String(env?.CMS_PASSWORD || '');
+  const staff = String(env?.CMS_STAFF_EMAILS || '')
+    .split(',')
+    .map((value) => text(value, 160).toLowerCase())
+    .filter(Boolean);
+  return {
+    secret,
+    pin,
+    password,
+    allowedEmails: new Set(staff),
+    ready: secret.length >= 32 && /^\d{6}$/.test(pin) && password.length >= 1 && staff.length > 0,
+  };
+}
+
+function originAllowed(request: Request, env: any) {
+  const origin = request.headers.get('Origin');
+  if (!origin) return true;
+  const configured = String(env?.PUBLIC_ORIGIN || '').trim().replace(/\/$/, '');
+  const requestOrigin = new URL(request.url).origin;
+  const allowedOrigins = new Set([
+    'https://holidayshunt.com',
+    'https://www.holidayshunt.com',
+    'https://mybhaktisathi.com',
+    'https://www.mybhaktisathi.com',
+    'http://localhost:5173',
+    'http://localhost:3000',
+    'http://127.0.0.1:5173',
+    'http://127.0.0.1:3000',
+  ]);
+  if (configured) allowedOrigins.add(configured);
+  return origin === requestOrigin || allowedOrigins.has(origin);
+}
+
+function secureCompare(a: string, b: string) {
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return diff === 0;
+}
+
 async function requireCms(request: Request, env: any) {
-  const secret = String(env.CMS_SESSION_SECRET || 'bhakti-bharat-yatra-cms-secret-session-key-32-chars-ok').trim();
-  const cookies = parseCookies(request);
-  let token = cookies.bs_cms_session;
-  if (!token && request.headers.get('x-cms-token')) {
-    token = request.headers.get('x-cms-token')!.trim();
-  }
-  if (!token && request.headers.get('authorization')?.startsWith('Bearer ')) {
-    token = request.headers.get('authorization')!.slice(7).trim();
-  }
-  const email = await verifyToken(token, secret);
-  const defaultEmails = ['rohitchoudharyonline@gmail.com', 'holidayshunt@gmail.com', 'admin@example.com', 'staff@bhaktibharatyatra.com'];
-  const allowed = new Set([...defaultEmails, ...String(env.CMS_STAFF_EMAILS || '').split(',').map(x => text(x, 160).toLowerCase()).filter(Boolean)]);
-  return email && allowed.has(email.toLowerCase()) ? email.toLowerCase() : null;
+  const cfg = cmsConfig(env);
+  if (!cfg.ready) return null;
+  const token = parseCookies(request).bs_cms_session;
+  const email = await verifyToken(token, cfg.secret);
+  if (!email) return null;
+  const normalized = email.toLowerCase();
+  return cfg.allowedEmails.has(normalized) ? normalized : null;
 }
 
 function safeR2Key(value: unknown) {
@@ -166,104 +211,60 @@ async function mediaDelete(request: Request, env: any) {
 }
 
 async function cmsLogin(request: Request, env: any) {
-  const secret = String(env.CMS_SESSION_SECRET || 'bhakti-bharat-yatra-cms-secret-session-key-32-chars-ok').trim();
-  const pin = String(env.CMS_PIN || '071224').trim();
-  const password = String(env.CMS_PASSWORD || 'HarHarMahadev@2026').trim();
-  const defaultEmails = ['rohitchoudharyonline@gmail.com', 'holidayshunt@gmail.com', 'admin@example.com', 'staff@bhaktibharatyatra.com'];
-  const allowedEmails = new Set([...defaultEmails, ...String(env.CMS_STAFF_EMAILS || '').split(',').map((value) => text(value, 160).toLowerCase()).filter(Boolean)]);
-  const ip = clientIp(request);
+  const cfg = cmsConfig(env);
+  if (!cfg.ready) return json({ success: false, error: 'CMS authentication is not configured on the server.' }, 503, privateHeaders());
+  if (!originAllowed(request, env)) return json({ success: false, error: 'Invalid authentication origin.' }, 403, privateHeaders());
 
+  const ip = clientIp(request);
   if (await cmsIpBlocked(env, ip)) {
     return json({ success: false, error: 'This source is temporarily blocked after repeated failed CMS authentication attempts.' }, 429, privateHeaders());
   }
 
-  const origin = request.headers.get('Origin');
-  if (origin) {
-    const requestOrigin = new URL(request.url).origin;
-    const isAllowed = origin === requestOrigin
-      || origin.endsWith('.run.app')
-      || origin.endsWith('.workers.dev')
-      || origin.endsWith('.pages.dev')
-      || origin.includes('holidayshunt.com')
-      || origin.includes('mybhaktisathi.com')
-      || origin.includes('localhost')
-      || origin.includes('127.0.0.1');
-    if (!isAllowed) return json({ error: 'Invalid authentication origin.' }, 403, privateHeaders());
-  }
-
   const body: any = await request.json().catch(() => ({}));
   const email = text(body.email, 160).toLowerCase();
-  const suppliedPin = String(body.pin || '').trim();
-  const suppliedPassword = String(body.password || '').trim();
+  const suppliedPin = String(body.pin ?? '').trim();
+  const suppliedPassword = String(body.password ?? '');
 
-  const pinCookieToken = parseCookies(request).bs_cms_pin || request.headers.get('x-pin-token') || (request.headers.get('authorization')?.startsWith('Bearer ') ? request.headers.get('authorization')!.slice(7).trim() : '');
-  const isPinCookieValid = !!(await verifyToken(pinCookieToken, secret));
-  const isPinValid = (suppliedPin && suppliedPin === pin) || isPinCookieValid;
-
-  if (!isPinValid) {
+  if (!cfg.allowedEmails.has(email) || suppliedPin !== cfg.pin || !secureCompare(suppliedPassword, cfg.password)) {
     await recordCmsFailure(env, ip);
-    return json({ success: false, error: 'Invalid PIN.' }, 401, privateHeaders());
-  }
-  if (!allowedEmails.has(email) || suppliedPassword !== password) {
-    await recordCmsFailure(env, ip);
-    return json({ success: false, error: 'Invalid credentials.' }, 401, privateHeaders());
+    return json({ success: false, error: 'Invalid credentials or PIN.' }, 401, privateHeaders());
   }
 
   await clearCmsFailures(env, ip);
-  const session = await signedToken(email, secret, 7 * 24 * 60 * 60);
-  const pinToken = await signedToken('pin', secret, 24 * 60 * 60);
+  const session = await signedToken(email, cfg.secret, 7 * 24 * 60 * 60);
+  const pinToken = await signedToken('pin', cfg.secret, 24 * 60 * 60);
   const headers = new Headers(privateHeaders());
   headers.append('Set-Cookie', cmsCookie(session, 7 * 24 * 60 * 60));
-  headers.append('Set-Cookie', `bs_cms_pin=${encodeURIComponent(pinToken)}; Path=/; Max-Age=86400; HttpOnly; Secure; SameSite=Lax`);
-  if (origin) {
-    headers.set('Access-Control-Allow-Origin', origin);
-    headers.set('Access-Control-Allow-Credentials', 'true');
-  }
-  return json({
-    success: true,
-    authorized: true,
-    authenticated: true,
-    token: session,
-    pinToken,
-    user: { email, role: 'super_admin' },
-  }, 200, headers);
+  headers.append('Set-Cookie', `bs_cms_pin=${encodeURIComponent(pinToken)}; Path=/; Max-Age=86400; HttpOnly; Secure; SameSite=Strict`);
+  return json({ success: true, authorized: true, authenticated: true, user: { email, role: 'super_admin' } }, 200, headers);
 }
 
 async function cmsSession(request: Request, env: any) {
   const email = await requireCms(request, env);
   if (!email) return json({ authorized: false, authenticated: false }, 401, privateHeaders());
-  const secret = String(env.CMS_SESSION_SECRET || 'bhakti-bharat-yatra-cms-secret-session-key-32-chars-ok').trim();
-  const session = await signedToken(email, secret, 7 * 24 * 60 * 60);
-  const pinToken = await signedToken('pin', secret, 24 * 60 * 60);
-  return json({
-    success: true,
-    authorized: true,
-    authenticated: true,
-    email,
-    token: session,
-    pinToken,
-    user: { email, role: 'super_admin' },
-  }, 200, privateHeaders());
+  return json({ success: true, authorized: true, authenticated: true, email, user: { email, role: 'super_admin' } }, 200, privateHeaders());
 }
 
 async function pinVerify(request: Request, env: any) {
-  const pin = String(env.CMS_PIN || '071224').trim();
-  const secret = String(env.CMS_SESSION_SECRET || 'bhakti-bharat-yatra-cms-secret-session-key-32-chars-ok').trim();
+  const cfg = cmsConfig(env);
+  if (!cfg.ready) return json({ success: false, error: 'CMS authentication is not configured on the server.' }, 503, privateHeaders());
+  if (!originAllowed(request, env)) return json({ success: false, error: 'Invalid authentication origin.' }, 403, privateHeaders());
+
   const body: any = await request.json().catch(() => ({}));
-  if (String(body.pin || '').trim() !== pin) {
-    return json({ success: false, error: 'Invalid PIN.' }, 401, privateHeaders());
-  }
-  const token = await signedToken('pin', secret, 24 * 60 * 60);
+  const supplied = String(body.pin ?? '').trim();
+  if (supplied !== cfg.pin) return json({ success: false, error: 'Invalid PIN.' }, 401, privateHeaders());
+
+  const token = await signedToken('pin', cfg.secret, 24 * 60 * 60);
   const headers = new Headers(privateHeaders());
-  headers.append('Set-Cookie', `bs_cms_pin=${encodeURIComponent(token)}; Path=/; Max-Age=86400; HttpOnly; Secure; SameSite=Lax`);
-  return json({ success: true, verified: true, token, pinToken: token }, 200, headers);
+  headers.append('Set-Cookie', `bs_cms_pin=${encodeURIComponent(token)}; Path=/; Max-Age=86400; HttpOnly; Secure; SameSite=Strict`);
+  return json({ success: true, verified: true }, 200, headers);
 }
 
 async function pinSession(request: Request, env: any) {
-  const secret = String(env.CMS_SESSION_SECRET || 'bhakti-bharat-yatra-cms-secret-session-key-32-chars-ok').trim();
-  const cookies = parseCookies(request);
-  let token = cookies.bs_cms_pin || request.headers.get('x-pin-token') || (request.headers.get('authorization')?.startsWith('Bearer ') ? request.headers.get('authorization')!.slice(7).trim() : '');
-  const ok = token ? (await verifyToken(token, secret)) === 'pin' : false;
+  const cfg = cmsConfig(env);
+  if (!cfg.ready) return json({ verified: false, success: false }, 503, privateHeaders());
+  const token = parseCookies(request).bs_cms_pin;
+  const ok = token ? (await verifyToken(token, cfg.secret)) === 'pin' : false;
   return json({ verified: ok, success: ok }, ok ? 200 : 401, privateHeaders());
 }
 
