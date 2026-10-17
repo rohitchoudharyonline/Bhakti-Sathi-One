@@ -31,32 +31,15 @@ export const CmsAccessGate: React.FC<{ children: React.ReactNode }> = ({ childre
 
     // Step 1: Check if a durable CMS session is active
     try {
-      const cmsHeaders: Record<string, string> = { Accept: 'application/json' };
-      const savedToken = localStorage.getItem('bs_cms_session_token');
-      if (savedToken) {
-        cmsHeaders['Authorization'] = `Bearer ${savedToken}`;
-        cmsHeaders['X-CMS-Token'] = savedToken;
-      }
-      const savedPinToken = localStorage.getItem('bs_cms_pin_token');
-      if (savedPinToken) {
-        cmsHeaders['X-PIN-Token'] = savedPinToken;
-      }
-
       const cmsRes = await fetch('/api/auth/cms/session', {
         credentials: 'include',
         cache: 'no-store',
-        headers: cmsHeaders,
+        headers: { Accept: 'application/json' },
       });
 
       if (cmsRes.ok) {
         const cmsData = await cmsRes.json().catch(() => null);
         if (cmsData && isAuthorizedSession(cmsData)) {
-          if (cmsData.token) {
-            localStorage.setItem('bs_cms_session_token', cmsData.token);
-          }
-          if (cmsData.pinToken) {
-            localStorage.setItem('bs_cms_pin_token', cmsData.pinToken);
-          }
           setAuthState('authenticated');
           return;
         }
@@ -77,16 +60,10 @@ export const CmsAccessGate: React.FC<{ children: React.ReactNode }> = ({ childre
 
     // Step 2: If durable CMS session is unauthenticated, check if a PIN session exists
     try {
-      const pinHeaders: Record<string, string> = { Accept: 'application/json' };
-      const savedPinToken = localStorage.getItem('bs_cms_pin_token');
-      if (savedPinToken) {
-        pinHeaders['X-PIN-Token'] = savedPinToken;
-      }
-
       const pinRes = await fetch('/api/admin/pin/session', {
         credentials: 'include',
         cache: 'no-store',
-        headers: pinHeaders,
+        headers: { Accept: 'application/json' },
       });
 
       if (pinRes.ok) {
@@ -127,13 +104,6 @@ export const CmsAccessGate: React.FC<{ children: React.ReactNode }> = ({ childre
 
       if (!response.ok || !data?.success) {
         throw new Error(data?.error || 'Authentication failed. Please verify credentials.');
-      }
-
-      if (data.token) {
-        localStorage.setItem('bs_cms_session_token', data.token);
-      }
-      if (data.pinToken) {
-        localStorage.setItem('bs_cms_pin_token', data.pinToken);
       }
 
       setAuthState('authenticated');
