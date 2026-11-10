@@ -238,19 +238,19 @@ export const InquiriesManager: React.FC<{
   const getStatusBadge = (status: BookingInquiry['status']) => {
     switch (status) {
       case 'New':
-        return 'bg-stone-100 text-stone-700 border-stone-200 dark:bg-stone-800 dark:text-stone-300';
+        return 'bg-stone-100 text-stone-700 border-stone-200 ';
       case 'Contacted':
-        return 'bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300';
+        return 'bg-amber-100 text-amber-800 border-amber-200 ';
       case 'Booked':
       case 'Confirmed':
-        return 'bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300';
+        return 'bg-emerald-100 text-emerald-800 border-emerald-200 ';
       case 'Closed':
       case 'Completed':
-        return 'bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-800 dark:text-slate-300';
+        return 'bg-slate-100 text-slate-700 border-slate-200 ';
       case 'Quotation Sent':
-        return 'bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-950/40 dark:text-purple-300';
+        return 'bg-purple-100 text-purple-800 border-purple-200 ';
       case 'Cancelled':
-        return 'bg-rose-100 text-rose-800 border-rose-200 dark:bg-rose-950/40 dark:text-rose-300';
+        return 'bg-rose-100 text-rose-800 border-rose-200 ';
       default:
         return 'bg-stone-100 text-stone-700 border-stone-200';
     }
@@ -388,40 +388,40 @@ export const InquiriesManager: React.FC<{
     <div className="space-y-6" id="inquiries-manager">
       {/* Top Metrics Banner */}
       <div className="grid grid-cols-2 sm:grid-cols-6 gap-3">
-        <div className="bg-white dark:bg-stone-900 p-4 rounded-2xl border border-stone-200 shadow-sm">
+        <div className="bg-white p-4 rounded-2xl border border-stone-200 shadow-sm">
           <div className="text-stone-500 text-xs font-bold uppercase tracking-wider">Total Leads</div>
-          <div className="text-xl sm:text-2xl font-black text-stone-900 dark:text-white mt-1">{inquiries.length}</div>
+          <div className="text-xl sm:text-2xl font-black text-stone-900 mt-1">{inquiries.length}</div>
         </div>
 
-        <div className="bg-white dark:bg-stone-900 p-4 rounded-2xl border border-stone-200 shadow-sm">
+        <div className="bg-white p-4 rounded-2xl border border-stone-200 shadow-sm">
           <div className="text-red-600 text-xs font-bold uppercase tracking-wider">New</div>
           <div className="text-xl sm:text-2xl font-black text-red-600 mt-1">
             {inquiries.filter((i) => i.status === 'New').length}
           </div>
         </div>
 
-        <div className="bg-white dark:bg-stone-900 p-4 rounded-2xl border border-stone-200 shadow-sm">
+        <div className="bg-white p-4 rounded-2xl border border-stone-200 shadow-sm">
           <div className="text-blue-600 text-xs font-bold uppercase tracking-wider">Contacted</div>
           <div className="text-xl sm:text-2xl font-black text-blue-600 mt-1">
             {inquiries.filter((i) => i.status === 'Contacted').length}
           </div>
         </div>
 
-        <div className="bg-white dark:bg-stone-900 p-4 rounded-2xl border border-stone-200 shadow-sm">
+        <div className="bg-white p-4 rounded-2xl border border-stone-200 shadow-sm">
           <div className="text-emerald-600 text-xs font-bold uppercase tracking-wider">Booked</div>
           <div className="text-xl sm:text-2xl font-black text-emerald-600 mt-1">
             {inquiries.filter((i) => i.status === 'Booked' || i.status === 'Confirmed').length}
           </div>
         </div>
 
-        <div className="bg-white dark:bg-stone-900 p-4 rounded-2xl border border-stone-200 shadow-sm">
+        <div className="bg-white p-4 rounded-2xl border border-stone-200 shadow-sm">
           <div className="text-slate-600 text-xs font-bold uppercase tracking-wider">Closed</div>
           <div className="text-xl sm:text-2xl font-black text-slate-700 mt-1">
             {inquiries.filter((i) => i.status === 'Closed' || i.status === 'Completed').length}
           </div>
         </div>
 
-        <div className="bg-white dark:bg-stone-900 p-4 rounded-2xl border border-stone-200 shadow-sm">
+        <div className="bg-white p-4 rounded-2xl border border-stone-200 shadow-sm">
           <div className="text-purple-600 text-xs font-bold uppercase tracking-wider">Proposals Sent</div>
           <div className="text-xl sm:text-2xl font-black text-purple-600 mt-1">
             {inquiries.filter((i) => i.status === 'Quotation Sent').length}
@@ -458,7 +458,7 @@ export const InquiriesManager: React.FC<{
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="bg-white dark:bg-stone-900 p-4 rounded-2xl border border-stone-200 shadow-sm space-y-3">
+      <div className="bg-white p-4 rounded-2xl border border-stone-200 shadow-sm space-y-3">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="relative flex-1 w-full">
             <Search className="w-4 h-4 text-stone-400 absolute left-3 top-2.5" />
@@ -467,7 +467,7 @@ export const InquiriesManager: React.FC<{
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search by Booking Number (e.g. HH76868), traveler name, email, phone, or package..."
-              className="w-full text-xs bg-stone-50 dark:bg-stone-950 border border-stone-200 rounded-xl pl-9 pr-3 py-2 text-stone-900 focus:outline-none focus:ring-2 focus:ring-[#FC3200]/30"
+              className="w-full text-xs bg-white border border-stone-200 rounded-xl pl-9 pr-3 py-2 text-stone-900 focus:outline-none focus:ring-2 focus:ring-[#FC3200]/30"
             />
           </div>
 
@@ -479,8 +479,8 @@ export const InquiriesManager: React.FC<{
                   onClick={() => setStatusFilter(st)}
                   className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${
                     statusFilter === st
-                      ? 'bg-stone-900 dark:bg-white text-white dark:text-stone-900 shadow-sm'
-                      : 'bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:bg-stone-200'
+                      ? 'bg-[#FC3200] text-white shadow-xs font-bold'
+                      : 'bg-stone-100 dark:bg-stone-800 text-stone-700 hover:bg-stone-200'
                   }`}
                 >
                   {st}
@@ -501,8 +501,8 @@ export const InquiriesManager: React.FC<{
 
         {/* Bulk Actions Sub-Bar */}
         {filteredInquiries.length > 0 && (
-          <div className="pt-2 border-t border-stone-100 dark:border-stone-800 flex items-center justify-between text-xs">
-            <label className="flex items-center gap-2 font-bold text-stone-700 dark:text-stone-300 cursor-pointer select-none">
+          <div className="pt-2 border-t border-stone-100  flex items-center justify-between text-xs">
+            <label className="flex items-center gap-2 font-bold text-stone-700 cursor-pointer select-none">
               <input
                 type="checkbox"
                 checked={
@@ -846,14 +846,14 @@ export const InquiriesManager: React.FC<{
       {/* Proposal / Custom Quotation Modal */}
       {selectedInquiryForQuote && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/60 backdrop-blur-sm overflow-y-auto">
-          <div className="bg-white dark:bg-stone-900 rounded-2xl max-w-3xl w-full border border-stone-200 shadow-2xl overflow-hidden my-8">
-            <div className="p-5 sm:p-6 border-b border-stone-100 flex items-center justify-between bg-stone-50/70 dark:bg-stone-950/50">
+          <div className="bg-white rounded-2xl max-w-3xl w-full border border-stone-200 shadow-2xl overflow-hidden my-8">
+            <div className="p-5 sm:p-6 border-b border-stone-100 flex items-center justify-between bg-stone-50">
               <div className="flex items-center gap-2.5">
                 <div className="w-9 h-9 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center font-bold">
                   <Sparkles className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-base sm:text-lg font-bold text-stone-900 dark:text-white">
+                  <h3 className="text-base sm:text-lg font-bold text-stone-900">
                     Generate Holiday Proposal: {selectedInquiryForQuote.travelerName}
                   </h3>
                   <p className="text-xs text-stone-500">
@@ -1109,11 +1109,11 @@ export const InquiriesManager: React.FC<{
       {/* Activity Timeline Modal */}
       {selectedInquiryForTimeline && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/60 backdrop-blur-sm">
-          <div className="bg-white dark:bg-stone-900 rounded-2xl max-w-md w-full border border-stone-200  shadow-2xl overflow-hidden">
-            <div className="p-5 border-b border-stone-100  flex items-center justify-between bg-stone-50/50 dark:bg-stone-950/50">
+          <div className="bg-white rounded-2xl max-w-md w-full border border-stone-200  shadow-2xl overflow-hidden">
+            <div className="p-5 border-b border-stone-100  flex items-center justify-between bg-stone-50">
               <div className="flex items-center gap-2">
                 <History className="w-5 h-5 text-stone-600" />
-                <h3 className="font-bold text-stone-900 dark:text-white text-sm">
+                <h3 className="font-bold text-stone-900 text-sm">
                   Lead Activity History: {selectedInquiryForTimeline.travelerName}
                 </h3>
               </div>
@@ -1133,7 +1133,7 @@ export const InquiriesManager: React.FC<{
                   <select
                     value={newLogAction}
                     onChange={(e) => setNewLogAction(e.target.value)}
-                    className="px-2 py-1 text-xs rounded-lg border border-stone-200  bg-white dark:bg-stone-950 font-medium"
+                    className="px-2 py-1 text-xs rounded-lg border border-stone-200  bg-white font-medium"
                   >
                     <option value="Phone Call">Phone Call</option>
                     <option value="WhatsApp Note">WhatsApp</option>
@@ -1146,11 +1146,11 @@ export const InquiriesManager: React.FC<{
                     placeholder="Add operational notes / call summary..."
                     value={newLogNote}
                     onChange={(e) => setNewLogNote(e.target.value)}
-                    className="flex-1 px-3 py-1 text-xs rounded-lg border border-stone-200  bg-white dark:bg-stone-950"
+                    className="flex-1 px-3 py-1 text-xs rounded-lg border border-stone-200  bg-white"
                   />
                   <button
                     type="submit"
-                    className="px-3 py-1 bg-stone-900 dark:bg-white text-white  rounded-lg text-xs font-semibold"
+                    className="px-3 py-1 bg-[#FC3200] text-white  rounded-lg text-xs font-semibold"
                   >
                     Post
                   </button>
@@ -1162,7 +1162,7 @@ export const InquiriesManager: React.FC<{
                 {selectedInquiryForTimeline.timelineLogs &&
                 selectedInquiryForTimeline.timelineLogs.length > 0 ? (
                   selectedInquiryForTimeline.timelineLogs.map((log) => (
-                    <div key={log.id} className="text-xs bg-stone-50 dark:bg-stone-950 p-3 rounded-xl border border-stone-100 space-y-1">
+                    <div key={log.id} className="text-xs bg-white p-3 rounded-xl border border-stone-100 space-y-1">
                       <div className="flex items-center justify-between font-semibold text-stone-800">
                         <span>{log.action}</span>
                         <span className="text-[10px] text-stone-400 font-normal">{log.timestamp.split('T')[0]}</span>

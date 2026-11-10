@@ -207,12 +207,12 @@ export const VendorPaymentsManager: React.FC<{
  return (
   <div className="space-y-6" id="vendor-payments-manager">
    {/* Header & Stats Banner */}
-   <div className="bg-white dark:bg-stone-900 p-6 rounded-2xl border border-stone-200 shadow-sm">
+   <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm">
     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
      <div>
       <div className="flex items-center gap-2">
        <CreditCard className="w-5 h-5 text-[#FC3200]" />
-       <h2 className="text-xl font-bold text-stone-900 dark:text-white">
+       <h2 className="text-xl font-bold text-stone-900">
         Vendor Payments & Service Vouchers
        </h2>
       </div>
@@ -236,15 +236,15 @@ export const VendorPaymentsManager: React.FC<{
 
     {/* Financial Stat Tiles */}
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6 pt-6 border-t border-stone-100 ">
-     <div className="bg-stone-50 dark:bg-stone-950/50 p-4 rounded-xl border border-stone-100 ">
+     <div className="bg-stone-50 p-4 rounded-xl border border-stone-100 ">
       <p className="text-xs font-semibold text-stone-500 uppercase tracking-wider">Total Contracted</p>
-      <p className="text-2xl font-bold text-stone-900 dark:text-white mt-1">
+      <p className="text-2xl font-bold text-stone-900 mt-1">
        ${totalCommitted.toLocaleString()}
       </p>
       <span className="text-[11px] text-stone-400">{vendorPayments.length} Active Vouchers</span>
      </div>
 
-     <div className="bg-emerald-50/50 dark:bg-emerald-950/20 p-4 rounded-xl border border-emerald-100">
+     <div className="bg-emerald-50 p-4 rounded-xl border border-emerald-100">
       <p className="text-xs font-semibold text-emerald-700 uppercase tracking-wider">
        Total Released / Paid
       </p>
@@ -254,7 +254,7 @@ export const VendorPaymentsManager: React.FC<{
       <span className="text-[11px] text-emerald-600/80">Cleared via UPI & Net Banking</span>
      </div>
 
-     <div className="bg-red-50/50 dark:bg-red-950/20 p-4 rounded-xl border border-red-100">
+     <div className="bg-red-50 p-4 rounded-xl border border-red-100">
       <p className="text-xs font-semibold text-red-700 uppercase tracking-wider">
        Pending Balance Due
       </p>
@@ -275,13 +275,13 @@ export const VendorPaymentsManager: React.FC<{
       placeholder="Search voucher #, vendor, traveler..."
       value={searchTerm}
       onChange={(e) => setSearchTerm(e.target.value)}
-      className="w-full pl-10 pr-4 py-2 text-xs rounded-xl border border-stone-200 bg-white dark:bg-stone-900 text-stone-900 "
+      className="w-full pl-10 pr-4 py-2 text-xs rounded-xl border border-stone-200 bg-white text-stone-900 "
      />
     </div>
 
     <div className="flex flex-wrap gap-2 w-full md:w-auto">
      {/* Status filter */}
-     <div className="flex bg-white dark:bg-stone-900 border border-stone-200 rounded-xl p-1 text-xs">
+     <div className="flex bg-white border border-stone-200 rounded-xl p-1 text-xs">
       {['all', 'unpaid', 'partial', 'paid'].map((st) => (
        <button
         key={st}
@@ -289,7 +289,7 @@ export const VendorPaymentsManager: React.FC<{
         onClick={() => setStatusFilter(st)}
         className={`px-3 py-1 rounded-lg font-medium capitalize transition-all ${
          statusFilter === st
-          ? 'bg-stone-900 dark:bg-white text-white font-semibold'
+          ? 'bg-[#FC3200] text-white font-semibold'
           : 'text-stone-600 hover:text-stone-900'
         }`}
        >
@@ -302,7 +302,7 @@ export const VendorPaymentsManager: React.FC<{
      <select
       value={categoryFilter}
       onChange={(e) => setCategoryFilter(e.target.value)}
-      className="px-3 py-1.5 text-xs rounded-xl border border-stone-200 bg-white dark:bg-stone-900 text-stone-700 font-medium"
+      className="px-3 py-1.5 text-xs rounded-xl border border-stone-200 bg-white text-stone-700 font-medium"
      >
       <option value="all">All Vendor Categories</option>
       <option value="Hotel">Hotels</option>
@@ -324,22 +324,22 @@ export const VendorPaymentsManager: React.FC<{
      return (
       <div
        key={payment.id}
-       className="bg-white dark:bg-stone-900 rounded-2xl border border-stone-200 p-5 shadow-sm hover:shadow-md transition-all"
+       className="bg-white rounded-2xl border border-stone-200 p-5 shadow-sm hover:shadow-md transition-all"
        id={`voucher-card-${payment.id}`}
       >
        <div className="flex flex-col justify-between gap-4">
         {/* Left: Voucher & Vendor Details */}
         <div className="flex items-start gap-4">
-         <div className="p-3 rounded-xl bg-stone-50 dark:bg-stone-800 border border-stone-100 shrink-0">
+         <div className="p-3 rounded-xl bg-stone-100 border border-stone-100 shrink-0">
           {getCategoryIcon(payment.vendorCategory)}
          </div>
 
          <div>
           <div className="flex items-center gap-2 flex-wrap">
-           <span className="font-mono text-xs font-bold text-[#FC3200] bg-red-50 dark:bg-red-950/50 px-2 py-0.5 rounded border border-red-200 ">
+           <span className="font-mono text-xs font-bold text-[#FC3200] bg-red-50  px-2 py-0.5 rounded border border-red-200 ">
             {payment.voucherNumber}
            </span>
-           <h3 className="font-bold text-stone-900 dark:text-white text-base">
+           <h3 className="font-bold text-stone-900 text-base">
             {payment.vendorName}
            </h3>
            <span className="text-xs text-stone-400 font-normal">({payment.vendorCategory})</span>
@@ -379,15 +379,15 @@ export const VendorPaymentsManager: React.FC<{
            <span
             className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
              isFullyPaid
-              ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 border border-emerald-200'
+              ? 'bg-emerald-50 text-emerald-700  border border-emerald-200'
               : isPartial
-              ? 'bg-amber-50 text-amber-700 dark:bg-amber-950/40 border border-amber-200'
+              ? 'bg-amber-50 text-amber-700  border border-amber-200'
               : 'bg-red-50 text-red-700 dark:bg-red-950/40 border border-red-200'
             }`}
            >
             {payment.paymentStatus}
            </span>
-           <span className="text-base font-bold text-stone-900 dark:text-white">
+           <span className="text-base font-bold text-stone-900">
             ${payment.totalAmount.toLocaleString()}
            </span>
           </div>
@@ -424,7 +424,7 @@ export const VendorPaymentsManager: React.FC<{
           <button
            type="button"
            onClick={() => handleDownloadVoucher(payment)}
-           className="px-3 py-1.5 bg-white dark:bg-stone-800 hover:bg-stone-50 dark:hover:bg-stone-700 text-stone-700 border border-stone-200 text-xs font-semibold rounded-xl transition-colors flex items-center gap-1.5 w-full sm:w-auto justify-center"
+           className="px-3 py-1.5 bg-white hover:bg-stone-50 text-stone-700 border border-stone-200 text-xs font-semibold rounded-xl transition-colors flex items-center gap-1.5 w-full sm:w-auto justify-center"
            title="Download Official Service Voucher PDF"
            id={`download-voucher-${payment.id}`}
           >
@@ -444,7 +444,7 @@ export const VendorPaymentsManager: React.FC<{
          {payment.paymentLogs.map((log) => (
           <div
            key={log.id}
-           className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-stone-50 dark:bg-stone-800/80 rounded-lg text-[11px] text-stone-600 border border-stone-100 "
+           className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-stone-100/80 rounded-lg text-[11px] text-stone-600 border border-stone-100 "
           >
            <CheckCircle2 className="w-3 h-3 text-emerald-600" />
            <span className="font-semibold">${log.amount}</span>
@@ -459,7 +459,7 @@ export const VendorPaymentsManager: React.FC<{
     })}
 
     {filteredPayments.length === 0 && (
-     <div className="text-center py-12 bg-white dark:bg-stone-900 rounded-2xl border border-stone-200 p-6">
+     <div className="text-center py-12 bg-white rounded-2xl border border-stone-200 p-6">
       <Receipt className="w-10 h-10 text-stone-300 mx-auto mb-2" />
       <p className="text-sm font-semibold text-stone-700 ">No vendor vouchers found</p>
       <p className="text-xs text-stone-400 mt-1">Adjust search or issue a new operational voucher.</p>
@@ -470,12 +470,12 @@ export const VendorPaymentsManager: React.FC<{
    {/* Record Payment Transaction Modal */}
    {selectedPaymentForTxn && (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/60 backdrop-blur-sm">
-     <div className="bg-white dark:bg-stone-900 rounded-2xl max-w-md w-full border border-stone-200 shadow-2xl overflow-hidden">
-      <div className="p-5 border-b border-stone-100 flex items-center justify-between bg-stone-50/50 dark:bg-stone-950/50">
+     <div className="bg-white rounded-2xl max-w-md w-full border border-stone-200 shadow-2xl overflow-hidden">
+      <div className="p-5 border-b border-stone-100 flex items-center justify-between bg-stone-50">
        <div className="flex items-center gap-2">
         <ArrowUpRight className="w-5 h-5 text-emerald-600" />
         <div>
-         <h3 className="font-bold text-stone-900 dark:text-white text-sm">Release Payout to Vendor</h3>
+         <h3 className="font-bold text-stone-900 text-sm">Release Payout to Vendor</h3>
          <p className="text-[11px] text-stone-500">{selectedPaymentForTxn.vendorName}</p>
         </div>
        </div>
@@ -502,7 +502,7 @@ export const VendorPaymentsManager: React.FC<{
           max={selectedPaymentForTxn.balanceAmount}
           value={txnAmount}
           onChange={(e) => setTxnAmount(Number(e.target.value))}
-          className="w-full pl-8 pr-4 py-2 rounded-xl border border-stone-200 bg-white dark:bg-stone-950 text-sm font-bold"
+          className="w-full pl-8 pr-4 py-2 rounded-xl border border-stone-200 bg-white text-sm font-bold"
          />
         </div>
         <p className="text-[11px] text-stone-500 mt-1">
@@ -517,7 +517,7 @@ export const VendorPaymentsManager: React.FC<{
         <select
          value={txnMode}
          onChange={(e) => setTxnMode(e.target.value)}
-         className="w-full px-3 py-2 rounded-xl border border-stone-200 bg-white dark:bg-stone-950 text-xs font-medium"
+         className="w-full px-3 py-2 rounded-xl border border-stone-200 bg-white text-xs font-medium"
         >
          <option value="Bank Transfer (NEFT/RTGS)">Bank Transfer (NEFT/RTGS/IMPS)</option>
          <option value="UPI">UPI / QR Code Transfer</option>
@@ -535,7 +535,7 @@ export const VendorPaymentsManager: React.FC<{
          type="text"
          value={txnRef}
          onChange={(e) => setTxnRef(e.target.value)}
-         className="w-full px-3.5 py-2 rounded-xl border border-stone-200 bg-white dark:bg-stone-950 text-xs font-mono"
+         className="w-full px-3.5 py-2 rounded-xl border border-stone-200 bg-white text-xs font-mono"
          placeholder="e.g. NEFT-HDFC-9920194"
         />
        </div>
@@ -548,7 +548,7 @@ export const VendorPaymentsManager: React.FC<{
          type="text"
          value={txnNote}
          onChange={(e) => setTxnNote(e.target.value)}
-         className="w-full px-3.5 py-2 rounded-xl border border-stone-200 bg-white dark:bg-stone-950 text-xs"
+         className="w-full px-3.5 py-2 rounded-xl border border-stone-200 bg-white text-xs"
          placeholder="e.g. 50% advance released before tour departure"
         />
        </div>
@@ -577,11 +577,11 @@ export const VendorPaymentsManager: React.FC<{
    {/* Create New Voucher Modal */}
    {isCreating && (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/60 backdrop-blur-sm overflow-y-auto">
-     <div className="bg-white dark:bg-stone-900 rounded-2xl max-w-2xl w-full border border-stone-200 shadow-2xl overflow-hidden my-8">
-      <div className="p-6 border-b border-stone-100 flex items-center justify-between bg-stone-50/50 dark:bg-stone-950/50">
+     <div className="bg-white rounded-2xl max-w-2xl w-full border border-stone-200 shadow-2xl overflow-hidden my-8">
+      <div className="p-6 border-b border-stone-100 flex items-center justify-between bg-stone-50">
        <div className="flex items-center gap-2">
         <Receipt className="w-5 h-5 text-[#FC3200]" />
-        <h3 className="text-lg font-bold text-stone-900 dark:text-white">
+        <h3 className="text-lg font-bold text-stone-900">
          Issue Vendor Service Order / Payment Voucher
         </h3>
        </div>
@@ -604,7 +604,7 @@ export const VendorPaymentsManager: React.FC<{
           required
           value={formData.vendorId}
           onChange={(e) => setFormData({ ...formData, vendorId: e.target.value })}
-          className="w-full px-3.5 py-2 rounded-xl border border-stone-200 bg-white dark:bg-stone-950 text-sm font-semibold"
+          className="w-full px-3.5 py-2 rounded-xl border border-stone-200 bg-white text-sm font-semibold"
          >
           {vendors.map((v) => (
            <option key={v.id} value={v.id}>
@@ -621,7 +621,7 @@ export const VendorPaymentsManager: React.FC<{
          <select
           value={formData.packageId}
           onChange={(e) => setFormData({ ...formData, packageId: e.target.value })}
-          className="w-full px-3.5 py-2 rounded-xl border border-stone-200 bg-white dark:bg-stone-950 text-xs font-medium"
+          className="w-full px-3.5 py-2 rounded-xl border border-stone-200 bg-white text-xs font-medium"
          >
           <option value="">Custom Tour / Ad-hoc Service</option>
           {packages.map((pkg) => (
@@ -640,7 +640,7 @@ export const VendorPaymentsManager: React.FC<{
           type="text"
           value={formData.travelerName}
           onChange={(e) => setFormData({ ...formData, travelerName: e.target.value })}
-          className="w-full px-3.5 py-2 rounded-xl border border-stone-200 bg-white dark:bg-stone-950 text-sm"
+          className="w-full px-3.5 py-2 rounded-xl border border-stone-200 bg-white text-sm"
           placeholder="e.g. Sophia Reynolds (2 Guests)"
          />
         </div>
@@ -654,7 +654,7 @@ export const VendorPaymentsManager: React.FC<{
           required
           value={formData.serviceDate}
           onChange={(e) => setFormData({ ...formData, serviceDate: e.target.value })}
-          className="w-full px-3.5 py-2 rounded-xl border border-stone-200 bg-white dark:bg-stone-950 text-sm"
+          className="w-full px-3.5 py-2 rounded-xl border border-stone-200 bg-white text-sm"
          />
         </div>
 
@@ -668,7 +668,7 @@ export const VendorPaymentsManager: React.FC<{
           min={1}
           value={formData.totalAmount}
           onChange={(e) => setFormData({ ...formData, totalAmount: Number(e.target.value) })}
-          className="w-full px-3.5 py-2 rounded-xl border border-stone-200 bg-white dark:bg-stone-950 text-sm font-bold"
+          className="w-full px-3.5 py-2 rounded-xl border border-stone-200 bg-white text-sm font-bold"
          />
         </div>
 
@@ -682,7 +682,7 @@ export const VendorPaymentsManager: React.FC<{
           max={formData.totalAmount}
           value={formData.paidAmount}
           onChange={(e) => setFormData({ ...formData, paidAmount: Number(e.target.value) })}
-          className="w-full px-3.5 py-2 rounded-xl border border-stone-200 bg-white dark:bg-stone-950 text-sm"
+          className="w-full px-3.5 py-2 rounded-xl border border-stone-200 bg-white text-sm"
          />
         </div>
 
@@ -694,7 +694,7 @@ export const VendorPaymentsManager: React.FC<{
           type="date"
           value={formData.dueDate}
           onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })}
-          className="w-full px-3.5 py-2 rounded-xl border border-stone-200 bg-white dark:bg-stone-950 text-sm"
+          className="w-full px-3.5 py-2 rounded-xl border border-stone-200 bg-white text-sm"
          />
         </div>
 
@@ -707,7 +707,7 @@ export const VendorPaymentsManager: React.FC<{
           onChange={(e) =>
            setFormData({ ...formData, paymentMode: e.target.value as VendorPayment['paymentMode'] })
           }
-          className="w-full px-3.5 py-2 rounded-xl border border-stone-200 bg-white dark:bg-stone-950 text-sm"
+          className="w-full px-3.5 py-2 rounded-xl border border-stone-200 bg-white text-sm"
          >
           <option value="Bank Transfer">Bank Transfer (NEFT/RTGS)</option>
           <option value="UPI">UPI</option>
@@ -727,7 +727,7 @@ export const VendorPaymentsManager: React.FC<{
          required
          value={formData.serviceDescription}
          onChange={(e) => setFormData({ ...formData, serviceDescription: e.target.value })}
-         className="w-full px-3.5 py-2 rounded-xl border border-stone-200 bg-white dark:bg-stone-950 text-xs"
+         className="w-full px-3.5 py-2 rounded-xl border border-stone-200 bg-white text-xs"
          placeholder="e.g. 5 Nights AC Innova Crysta Chauffeur for Srinagar - Gulmarg - Pahalgam with all toll/parking"
         />
        </div>
@@ -740,7 +740,7 @@ export const VendorPaymentsManager: React.FC<{
          type="text"
          value={formData.notes}
          onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-         className="w-full px-3.5 py-2 rounded-xl border border-stone-200 bg-white dark:bg-stone-950 text-xs"
+         className="w-full px-3.5 py-2 rounded-xl border border-stone-200 bg-white text-xs"
          placeholder="e.g. Provide bouquet on arrival; strictly non-smoking vehicle"
         />
        </div>

@@ -191,14 +191,14 @@ export const VendorsManager: React.FC<{
  return (
   <div className="space-y-6" id="vendors-manager">
    {/* Header */}
-   <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white dark:bg-stone-900 p-6 rounded-2xl border border-stone-200 shadow-sm">
+   <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-stone-200 shadow-xs">
     <div>
      <div className="flex items-center gap-2">
-      <h2 className="text-xl font-bold text-stone-900 dark:text-white flex items-center gap-2">
+      <h2 className="text-xl font-bold text-stone-900 flex items-center gap-2">
        <Car className="w-5 h-5 text-[#FC3200]" />
        Vendors & Fleet Directory
       </h2>
-      <span className="bg-red-50 dark:bg-red-950/50 text-red-700 text-xs font-semibold px-2.5 py-0.5 rounded-full border border-red-200 ">
+      <span className="bg-red-50 text-red-700 text-xs font-semibold px-2.5 py-0.5 rounded-full border border-red-200">
        {vendors.length} Partners
       </span>
      </div>
@@ -211,7 +211,7 @@ export const VendorsManager: React.FC<{
      <button
       type="button"
       onClick={handleOpenCreate}
-      className="flex items-center justify-center gap-2 px-4 py-2.5 bg-[#FC3200] hover:bg-[#e02c00] text-white rounded-xl font-medium shadow-sm transition-all text-sm shrink-0 w-full md:w-auto"
+      className="flex items-center justify-center gap-2 px-4 py-2.5 bg-[#FC3200] hover:bg-[#e02c00] text-white rounded-xl font-medium shadow-sm transition-all text-sm shrink-0 w-full md:w-auto cursor-pointer"
       id="add-vendor-btn"
      >
       <Plus className="w-4 h-4" />
@@ -224,13 +224,13 @@ export const VendorsManager: React.FC<{
    <div className="flex flex-col gap-3">
     <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
      <div className="relative w-full sm:w-1/3">
-      <Search className="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -transtone-y-1/2" />
+      <Search className="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
       <input
        type="text"
        placeholder="Search vendor by name, city, phone..."
        value={searchTerm}
        onChange={(e) => setSearchTerm(e.target.value)}
-       className="w-full pl-10 pr-4 py-2 text-xs rounded-xl border border-stone-200 bg-white dark:bg-stone-900 text-stone-900 "
+       className="w-full pl-10 pr-4 py-2 text-xs rounded-xl border border-stone-300 bg-white text-stone-900 placeholder:text-stone-400 focus:border-[#FC3200] outline-none"
       />
      </div>
      <div className="flex items-center gap-2 w-full sm:w-2/3 justify-end">
@@ -240,7 +240,7 @@ export const VendorsManager: React.FC<{
          setCountryFilter(e.target.value);
          setStateFilter('all');
         }}
-        className="px-3 py-2 text-xs rounded-xl border border-stone-200 bg-white dark:bg-stone-900 text-stone-700 font-medium"
+        className="px-3 py-2 text-xs rounded-xl border border-stone-300 bg-white text-stone-800 font-medium outline-none cursor-pointer"
       >
        <option value="all">All Countries</option>
        {uniqueCountries.map(c => <option key={c} value={c}>{c}</option>)}
@@ -249,7 +249,7 @@ export const VendorsManager: React.FC<{
       <select
         value={stateFilter}
         onChange={(e) => setStateFilter(e.target.value)}
-        className="px-3 py-2 text-xs rounded-xl border border-stone-200 bg-white dark:bg-stone-900 text-stone-700 font-medium"
+        className="px-3 py-2 text-xs rounded-xl border border-stone-300 bg-white text-stone-800 font-medium outline-none cursor-pointer"
         disabled={countryFilter === 'all' && uniqueStates.length === 0}
       >
        <option value="all">All States</option>
@@ -263,10 +263,10 @@ export const VendorsManager: React.FC<{
      <button
       type="button"
       onClick={() => setCategoryFilter('all')}
-      className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
+      className={`px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
        categoryFilter === 'all'
-        ? 'bg-stone-900 dark:bg-white text-white '
-        : 'bg-white dark:bg-stone-900 text-stone-600 border border-stone-200 '
+        ? 'bg-[#FC3200] text-white shadow-xs'
+        : 'bg-white hover:bg-stone-100 text-stone-700 border border-stone-200'
       }`}
      >
       All Vendors
@@ -276,10 +276,10 @@ export const VendorsManager: React.FC<{
        key={cat}
        type="button"
        onClick={() => setCategoryFilter(cat)}
-       className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap flex items-center gap-1.5 transition-all ${
+       className={`px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap flex items-center gap-1.5 transition-all cursor-pointer ${
         categoryFilter === cat
-         ? 'bg-[#FC3200] text-white shadow-sm'
-         : 'bg-white dark:bg-stone-900 text-stone-600 border border-stone-200 hover:bg-stone-50 dark:hover:bg-stone-800'
+         ? 'bg-[#FC3200] text-white shadow-xs'
+         : 'bg-white hover:bg-stone-100 text-stone-700 border border-stone-200 hover:border-stone-300'
        }`}
       >
        {getCategoryIcon(cat)}
@@ -290,8 +290,8 @@ export const VendorsManager: React.FC<{
 
     {/* Bulk Actions Bar */}
     {filteredVendors.length > 0 && (
-     <div className="p-3 bg-white dark:bg-stone-900 border border-stone-200 rounded-xl flex items-center justify-between text-xs">
-      <label className="flex items-center gap-2 font-bold text-stone-700 dark:text-stone-300 cursor-pointer select-none">
+     <div className="p-3 bg-white border border-stone-200 rounded-xl flex items-center justify-between text-xs shadow-2xs">
+      <label className="flex items-center gap-2 font-bold text-stone-700 cursor-pointer select-none">
        <input
         type="checkbox"
         checked={
@@ -330,7 +330,7 @@ export const VendorsManager: React.FC<{
       className={`rounded-2xl border p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between ${
        selectedVendorIds.includes(vendor.id)
         ? 'border-[#FC3200] ring-2 ring-[#FC3200]/20 bg-orange-50/20'
-        : 'bg-white dark:bg-stone-900 border-stone-200'
+        : 'bg-white border-stone-200 shadow-2xs'
       }`}
       id={`vendor-card-${vendor.id}`}
      >
@@ -344,18 +344,18 @@ export const VendorsManager: React.FC<{
           onChange={() => handleToggleSelect(vendor.id)}
           className="w-4 h-4 rounded border-stone-300 text-[#FC3200] focus:ring-[#FC3200] cursor-pointer"
          />
-         <div className="p-2.5 rounded-xl bg-stone-50 dark:bg-stone-800 border border-stone-100 ">
+         <div className="p-2.5 rounded-xl bg-stone-100 border border-stone-200 text-stone-700">
           {getCategoryIcon(vendor.category)}
          </div>
          <div>
-          <h3 className="font-bold text-stone-900 dark:text-white text-sm leading-tight">
+          <h3 className="font-bold text-stone-900 text-sm leading-tight">
            {vendor.name}
           </h3>
           <p className="text-xs text-stone-500 font-medium">{vendor.category}</p>
          </div>
         </div>
 
-        <div className="flex items-center gap-1 bg-amber-50 dark:bg-amber-950/40 text-amber-700 px-2 py-0.5 rounded-full text-xs font-semibold border border-amber-200 ">
+        <div className="flex items-center gap-1 bg-amber-50 text-amber-700 px-2 py-0.5 rounded-full text-xs font-semibold border border-amber-200">
          <Star className="w-3 h-3 fill-amber-500 text-amber-500" />
          {vendor.rating.toFixed(1)}
         </div>
@@ -386,7 +386,7 @@ export const VendorsManager: React.FC<{
        </div>
 
        {/* Banking & Payout Credentials Box */}
-       <div className="mt-4 p-3 bg-stone-50 dark:bg-stone-950/60 rounded-xl border border-stone-100 text-[11px] space-y-1">
+       <div className="mt-4 p-3 bg-stone-50 rounded-xl border border-stone-200 text-[11px] space-y-1">
         <div className="flex items-center justify-between text-stone-500 font-bold uppercase tracking-wider text-[10px]">
          <span className="flex items-center gap-1">
           <Landmark className="w-3 h-3 text-[#FC3200]" /> Payout Banking Details
@@ -407,7 +407,7 @@ export const VendorsManager: React.FC<{
        </div>
 
        {vendor.notes && (
-        <p className="mt-3 text-xs text-stone-500 italic bg-amber-50/50 dark:bg-amber-950/20 p-2 rounded-lg border border-amber-100">
+        <p className="mt-3 text-xs text-stone-500 italic bg-amber-50/80 text-amber-900 p-2 rounded-lg border border-amber-200">
          "{vendor.notes}"
         </p>
        )}
@@ -419,7 +419,7 @@ export const VendorsManager: React.FC<{
         <button
          type="button"
          onClick={() => onOpenVendorPayment(vendor.id)}
-         className="px-3 py-1.5 bg-red-50 hover:bg-red-100 dark:bg-red-950/50 dark:hover:bg-red-900/50 text-red-700 text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5 w-full sm:w-auto justify-center"
+         className="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5 w-full sm:w-auto justify-center"
          id={`issue-voucher-${vendor.id}`}
         >
          <CreditCard className="w-3.5 h-3.5" />
@@ -432,7 +432,7 @@ export const VendorsManager: React.FC<{
          <button
           type="button"
           onClick={() => handleOpenEdit(vendor)}
-          className="p-1.5 text-stone-500 hover:text-stone-900 dark:hover:text-white hover:bg-stone-100 dark:hover:bg-stone-800 rounded-lg transition-colors"
+          className="p-1.5 text-stone-500 hover:text-stone-900 hover:bg-stone-100 rounded-lg transition-colors"
           title="Edit Vendor"
           id={`edit-vendor-${vendor.id}`}
          >
@@ -445,7 +445,7 @@ export const VendorsManager: React.FC<{
             deleteVendor(vendor.id);
            }
           }}
-          className="p-1.5 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/50 rounded-lg transition-colors"
+          className="p-1.5 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
           title="Delete Vendor"
           id={`delete-vendor-${vendor.id}`}
          >
@@ -461,11 +461,11 @@ export const VendorsManager: React.FC<{
    {/* Add / Edit Modal */}
    {(isCreating || editingVendor) && (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/60 backdrop-blur-sm">
-     <div className="bg-white dark:bg-stone-900 rounded-2xl max-w-2xl w-full border border-stone-200 shadow-2xl flex flex-col max-h-[95vh]">
-      <div className="p-6 border-b border-stone-100 flex items-center justify-between bg-stone-50/50 dark:bg-stone-950/50">
+     <div className="bg-white rounded-2xl max-w-2xl w-full border border-stone-200 shadow-2xl flex flex-col max-h-[95vh]">
+      <div className="p-6 border-b border-stone-100 flex items-center justify-between bg-stone-50">
        <div className="flex items-center gap-2">
         <Building2 className="w-5 h-5 text-[#FC3200]" />
-        <h3 className="text-lg font-bold text-stone-900 dark:text-white">
+        <h3 className="text-lg font-bold text-stone-900">
          {editingVendor ? `Edit Vendor: ${editingVendor.name}` : 'Register New Vendor Partner'}
         </h3>
        </div>
@@ -492,7 +492,7 @@ export const VendorsManager: React.FC<{
           required
           value={formData.name}
           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-          className="w-full px-3.5 py-2 rounded-xl border border-stone-200 bg-white dark:bg-stone-950 text-sm font-semibold"
+          className="w-full px-3.5 py-2 rounded-xl border border-stone-300 bg-white text-stone-900 text-sm font-semibold"
           placeholder="e.g. Himalayan Cabs & Innovas"
          />
         </div>
@@ -504,7 +504,7 @@ export const VendorsManager: React.FC<{
          <select
           value={formData.category}
           onChange={(e) => setFormData({ ...formData, category: e.target.value as VendorCategory })}
-          className="w-full px-3.5 py-2 rounded-xl border border-stone-200 bg-white dark:bg-stone-950 text-sm font-medium"
+          className="w-full px-3.5 py-2 rounded-xl border border-stone-300 bg-white text-stone-900 text-sm font-medium"
          >
           {categories.map((cat) => (
            <option key={cat} value={cat}>
@@ -522,7 +522,7 @@ export const VendorsManager: React.FC<{
           type="text"
           value={formData.contactPerson}
           onChange={(e) => setFormData({ ...formData, contactPerson: e.target.value })}
-          className="w-full px-3.5 py-2 rounded-xl border border-stone-200 bg-white dark:bg-stone-950 text-sm"
+          className="w-full px-3.5 py-2 rounded-xl border border-stone-300 bg-white text-stone-900 text-sm"
           placeholder="e.g. Farooq Ahmad"
          />
         </div>
@@ -536,7 +536,7 @@ export const VendorsManager: React.FC<{
           required
           value={formData.phone}
           onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-          className="w-full px-3.5 py-2 rounded-xl border border-stone-200 bg-white dark:bg-stone-950 text-sm"
+          className="w-full px-3.5 py-2 rounded-xl border border-stone-300 bg-white text-stone-900 text-sm"
           placeholder="+91 94190 12345"
          />
         </div>
@@ -549,7 +549,7 @@ export const VendorsManager: React.FC<{
           type="email"
           value={formData.email}
           onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-          className="w-full px-3.5 py-2 rounded-xl border border-stone-200 bg-white dark:bg-stone-950 text-sm"
+          className="w-full px-3.5 py-2 rounded-xl border border-stone-300 bg-white text-stone-900 text-sm"
           placeholder="vendor@booking.com"
          />
         </div>
@@ -562,7 +562,7 @@ export const VendorsManager: React.FC<{
           type="text"
           value={formData.country}
           onChange={(e) => setFormData({ ...formData, country: e.target.value })}
-          className="w-full px-3.5 py-2 rounded-xl border border-stone-200 bg-white dark:bg-stone-950 text-sm"
+          className="w-full px-3.5 py-2 rounded-xl border border-stone-300 bg-white text-stone-900 text-sm"
           placeholder="e.g. India / Indonesia"
          />
         </div>
@@ -575,7 +575,7 @@ export const VendorsManager: React.FC<{
           type="text"
           value={formData.state}
           onChange={(e) => setFormData({ ...formData, state: e.target.value })}
-          className="w-full px-3.5 py-2 rounded-xl border border-stone-200 bg-white dark:bg-stone-950 text-sm"
+          className="w-full px-3.5 py-2 rounded-xl border border-stone-300 bg-white text-stone-900 text-sm"
           placeholder="e.g. Jammu & Kashmir / Himachal Pradesh"
          />
         </div>
@@ -588,7 +588,7 @@ export const VendorsManager: React.FC<{
           type="text"
           value={formData.city}
           onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-          className="w-full px-3.5 py-2 rounded-xl border border-stone-200 bg-white dark:bg-stone-950 text-sm"
+          className="w-full px-3.5 py-2 rounded-xl border border-stone-300 bg-white text-stone-900 text-sm"
           placeholder="e.g. Srinagar / Kuta"
          />
         </div>
@@ -596,7 +596,7 @@ export const VendorsManager: React.FC<{
 
        {/* Payout Bank Details */}
        <div className="pt-4 border-t border-stone-100 space-y-3">
-        <h4 className="text-xs font-bold text-stone-900 dark:text-white uppercase tracking-wider flex items-center gap-1.5 w-full sm:w-auto justify-center">
+        <h4 className="text-xs font-bold text-stone-900 uppercase tracking-wider flex items-center gap-1.5 w-full sm:w-auto justify-center">
          <Landmark className="w-4 h-4 text-[#FC3200]" /> Vendor Payout Bank Details
         </h4>
 
@@ -609,7 +609,7 @@ export const VendorsManager: React.FC<{
            type="text"
            value={formData.bankName}
            onChange={(e) => setFormData({ ...formData, bankName: e.target.value })}
-           className="w-full px-3 py-1.5 rounded-lg border border-stone-200 bg-white dark:bg-stone-950 text-xs"
+           className="w-full px-3 py-1.5 rounded-lg border border-stone-300 bg-white text-stone-900 text-xs"
            placeholder="e.g. State Bank of India / HDFC"
           />
          </div>
@@ -622,7 +622,7 @@ export const VendorsManager: React.FC<{
            type="text"
            value={formData.accountNumber}
            onChange={(e) => setFormData({ ...formData, accountNumber: e.target.value })}
-           className="w-full px-3 py-1.5 rounded-lg border border-stone-200 bg-white dark:bg-stone-950 text-xs"
+           className="w-full px-3 py-1.5 rounded-lg border border-stone-300 bg-white text-stone-900 text-xs"
            placeholder="e.g. 5020001234567"
           />
          </div>
@@ -635,7 +635,7 @@ export const VendorsManager: React.FC<{
            type="text"
            value={formData.ifscOrSwift}
            onChange={(e) => setFormData({ ...formData, ifscOrSwift: e.target.value })}
-           className="w-full px-3 py-1.5 rounded-lg border border-stone-200 bg-white dark:bg-stone-950 text-xs"
+           className="w-full px-3 py-1.5 rounded-lg border border-stone-300 bg-white text-stone-900 text-xs"
            placeholder="e.g. SBIN0000722"
           />
          </div>
@@ -648,7 +648,7 @@ export const VendorsManager: React.FC<{
            type="text"
            value={formData.upiId}
            onChange={(e) => setFormData({ ...formData, upiId: e.target.value })}
-           className="w-full px-3 py-1.5 rounded-lg border border-stone-200 bg-white dark:bg-stone-950 text-xs"
+           className="w-full px-3 py-1.5 rounded-lg border border-stone-300 bg-white text-stone-900 text-xs"
            placeholder="e.g. vendor@okhdfcbank"
           />
          </div>
@@ -663,7 +663,7 @@ export const VendorsManager: React.FC<{
          rows={2}
          value={formData.notes}
          onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-         className="w-full px-3.5 py-2 rounded-xl border border-stone-200 bg-white dark:bg-stone-950 text-xs"
+         className="w-full px-3.5 py-2 rounded-xl border border-stone-300 bg-white text-stone-900 text-xs"
          placeholder="e.g. Advance policy, vehicle models, driver night charges included..."
         />
        </div>

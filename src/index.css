@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.never-applied-dark, .never-applied-dark *));
+
 @theme {
   --color-brand-orange: #FF4B00;
   --color-brand-orange-hover: #E04200;

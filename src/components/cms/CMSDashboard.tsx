@@ -604,14 +604,14 @@ export const CMSDashboard: React.FC = () => {
                 className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-[11px] sm:text-xs font-bold border transition cursor-pointer ${
                   activeCmsTab === 'guides'
                     ? 'bg-amber-500 text-white border-amber-600 shadow-xs'
-                    : 'bg-amber-50 dark:bg-amber-950/30 hover:bg-amber-100 dark:hover:bg-amber-950/50 text-amber-900 dark:text-amber-300 border-amber-200 dark:border-amber-800/40'
+                    : 'bg-amber-50 hover:bg-amber-100 text-amber-900 border-amber-200'
                 }`}
                 title="View All Posts & Drafts"
               >
                 <BookOpen className="w-3.5 h-3.5" />
                 <span>Posts</span>
                 <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-black ${
-                  activeCmsTab === 'guides' ? 'bg-white text-amber-800' : 'bg-amber-200/80 dark:bg-amber-900/60 text-amber-950 dark:text-amber-200'
+                  activeCmsTab === 'guides' ? 'bg-white text-amber-800' : 'bg-amber-200/80 text-amber-950'
                 }`}>
                   {guides.length}
                 </span>
@@ -642,7 +642,7 @@ export const CMSDashboard: React.FC = () => {
                     console.error('Logout failed', e);
                   }
                 }}
-                className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-red-50 dark:bg-red-950/40 hover:bg-red-100 dark:hover:bg-red-900/40 text-red-600 dark:text-red-400 text-[11px] sm:text-xs font-bold border border-red-200 dark:border-red-900/40 transition cursor-pointer"
+                className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 text-[11px] sm:text-xs font-bold border border-red-200 transition cursor-pointer"
                 title="Sign Out"
               >
                 <LogOut className="w-3.5 h-3.5" />
@@ -655,14 +655,14 @@ export const CMSDashboard: React.FC = () => {
 
       {/* 2. Main CMS Body Container */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-5 sm:mt-6 pb-36">
-        {/* Sacred Dashboard Mantra Card with Majestic Spiritual Styling */}
-        <div className="bg-gradient-to-r from-stone-950 via-[#18181B] to-stone-950 border border-amber-500/35 hover:border-amber-500/55 rounded-2xl sm:rounded-3xl p-5 sm:p-7 mb-6 shadow-xl relative overflow-hidden transition-all duration-300">
-          <div className="absolute inset-0 opacity-15 bg-[radial-gradient(#f59e0b_1px,transparent_1px)] [background-size:20px_20px] pointer-events-none" />
-          <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-72 sm:w-96 h-24 bg-[#FF4B00]/20 rounded-full blur-2xl pointer-events-none" />
+        {/* Sacred Dashboard Mantra Card with Majestic Spiritual Warm Styling */}
+        <div className="bg-gradient-to-r from-amber-50 via-orange-50/80 to-amber-50 border-2 border-amber-200/90 rounded-2xl sm:rounded-3xl p-5 sm:p-7 mb-6 shadow-xs relative overflow-hidden transition-all duration-300">
+          <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#d97706_1px,transparent_1px)] [background-size:20px_20px] pointer-events-none" />
+          <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-72 sm:w-96 h-24 bg-[#FF4B00]/10 rounded-full blur-2xl pointer-events-none" />
 
           <div className="relative z-10 flex items-center justify-center text-center">
-            <div className="text-2xl sm:text-3xl md:text-4xl lg:text-[42px] font-black tracking-[0.16em] sm:tracking-[0.26em] font-serif py-1 drop-shadow-md select-none">
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-[#FF5500] to-amber-300">
+            <div className="text-2xl sm:text-3xl md:text-4xl lg:text-[42px] font-black tracking-[0.16em] sm:tracking-[0.26em] font-serif py-1 select-none">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-700 via-[#FF4B00] to-orange-700 drop-shadow-xs">
                 {agencySettings?.sacredMantra || 'साम्ब सदाशिव'}
               </span>
             </div>
@@ -670,7 +670,7 @@ export const CMSDashboard: React.FC = () => {
         </div>
 
         {/* 3. ERP WORKSPACE NAVIGATOR FOR EASY STAFF USAGE */}
-        <div className="bg-white dark:bg-[#18191E] rounded-2xl border border-stone-200 dark:border-stone-800 p-3 sm:p-4 mb-6 shadow-2xs space-y-3">
+        <div className="bg-white rounded-2xl border border-stone-200 p-3 sm:p-4 mb-6 shadow-xs space-y-3">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
             {/* Department Workspaces */}
             <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1 md:pb-0">
@@ -692,7 +692,7 @@ export const CMSDashboard: React.FC = () => {
                   className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition cursor-pointer flex items-center gap-1.5 shrink-0 ${
                     activeWorkspace === ws.id
                       ? 'bg-[#FF4B00] text-white shadow-xs'
-                      : 'bg-stone-100 dark:bg-[#252830] text-stone-700 dark:text-stone-300 hover:bg-stone-200 dark:hover:bg-[#2E333E]'
+                      : 'bg-stone-100 hover:bg-stone-200 text-stone-700'
                   }`}
                 >
                   <span>{ws.icon}</span>
@@ -709,13 +709,13 @@ export const CMSDashboard: React.FC = () => {
                 value={moduleSearchQuery}
                 onChange={(e) => setModuleSearchQuery(e.target.value)}
                 placeholder="Search tools... (e.g. invoice, lead, tour)"
-                className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-[#202227] text-stone-900 dark:text-white placeholder:text-stone-400 dark:placeholder:text-stone-500 focus:border-[#FF4B00] outline-none"
+                className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border border-stone-300 bg-white text-stone-900 placeholder:text-stone-400 focus:border-[#FF4B00] focus:ring-1 focus:ring-[#FF4B00] outline-none"
               />
             </div>
           </div>
 
           {/* Module Navigation Cards Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-2.5 pt-2 border-t border-stone-100 dark:border-stone-800">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-2.5 pt-2 border-t border-stone-100">
             {tabsConfig
               .filter((tab) => {
                 if (!tab.show) return false;
@@ -743,7 +743,7 @@ export const CMSDashboard: React.FC = () => {
                     className={`relative p-3 rounded-xl text-left transition flex flex-col justify-between h-full gap-2 cursor-pointer select-none border ${
                       isActive
                         ? 'bg-[#FF4B00] text-white border-[#FF4B00] shadow-md shadow-[#FF4B00]/25'
-                        : 'bg-stone-50 dark:bg-[#202227] text-stone-900 dark:text-white border-stone-200/90 dark:border-stone-800 hover:bg-stone-100 dark:hover:bg-[#282B32] hover:border-[#FF4B00]/40'
+                        : 'bg-white hover:bg-orange-50/60 text-stone-900 border-stone-200/90 hover:border-orange-300 shadow-2xs'
                     }`}
                     id={`tab-${tab.id}`}
                   >
@@ -752,7 +752,7 @@ export const CMSDashboard: React.FC = () => {
                         className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
                           isActive
                             ? 'bg-white/20 text-white'
-                            : 'bg-stone-200/70 dark:bg-stone-800 text-stone-600 dark:text-stone-300'
+                            : 'bg-stone-100 text-stone-700'
                         }`}
                       >
                         <IconComponent className="w-4 h-4" />
@@ -767,7 +767,7 @@ export const CMSDashboard: React.FC = () => {
                               className={`text-[10px] px-1.5 py-0.5 rounded-full font-black ${
                                 isActive
                                   ? 'bg-white text-[#FC3200]'
-                                  : 'bg-stone-200 dark:bg-stone-800 text-stone-700 dark:text-stone-300'
+                                  : 'bg-stone-100 text-stone-700 font-bold border border-stone-200/60'
                               }`}
                             >
                               {tab.count}
@@ -777,11 +777,11 @@ export const CMSDashboard: React.FC = () => {
                       )}
                     </div>
                     <div>
-                      <span className="text-xs font-black block leading-snug">{tab.label}</span>
+                      <span className={`text-xs font-black block leading-snug ${isActive ? 'text-white' : 'text-stone-900'}`}>{tab.label}</span>
                       {tab.desc && (
                         <span
                           className={`text-[10px] line-clamp-1 mt-0.5 block ${
-                            isActive ? 'text-white/80' : 'text-stone-500 dark:text-stone-400'
+                            isActive ? 'text-white/85' : 'text-stone-500'
                           }`}
                         >
                           {tab.desc}
@@ -838,70 +838,70 @@ export const CMSDashboard: React.FC = () => {
           <div className="space-y-4 sm:space-y-6" id="cms-dashboard-tab">
             {/* Financial Overview & KPIs: Refined Bento Design */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-              <div className="bg-white dark:bg-[#18191E] p-4 sm:p-5 rounded-2xl border-l-4 border-l-blue-500 border-y border-r border-stone-200 dark:border-stone-800 shadow-xs flex flex-col justify-between hover:shadow-md transition">
+              <div className="bg-white p-4 sm:p-5 rounded-2xl border-l-4 border-l-blue-500 border-y border-r border-stone-200 shadow-xs flex flex-col justify-between hover:shadow-md transition">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-stone-500 dark:text-stone-400 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider">
+                  <span className="text-stone-500 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider">
                     Total Invoiced
                   </span>
                   <Receipt className="w-4 h-4 text-blue-500" />
                 </div>
-                <div className="text-lg sm:text-2xl font-black text-stone-900 dark:text-white truncate">
+                <div className="text-lg sm:text-2xl font-black text-stone-900 truncate">
                   ₹{totalInvoiced.toLocaleString()}
                 </div>
-                <div className="text-[10px] sm:text-[11px] text-stone-500 dark:text-stone-400 font-medium mt-1">
+                <div className="text-[10px] sm:text-[11px] text-stone-500 font-medium mt-1">
                   {invoices.length} Client Invoices
                 </div>
               </div>
 
-              <div className="bg-white dark:bg-[#18191E] p-4 sm:p-5 rounded-2xl border-l-4 border-l-emerald-500 border-y border-r border-stone-200 dark:border-stone-800 shadow-xs flex flex-col justify-between hover:shadow-md transition">
+              <div className="bg-white p-4 sm:p-5 rounded-2xl border-l-4 border-l-emerald-500 border-y border-r border-stone-200 shadow-xs flex flex-col justify-between hover:shadow-md transition">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-stone-500 dark:text-stone-400 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider">
+                  <span className="text-stone-500 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider">
                     Total Collected
                   </span>
                   <ArrowDownLeft className="w-4 h-4 text-emerald-500" />
                 </div>
-                <div className="text-lg sm:text-2xl font-black text-emerald-700 dark:text-emerald-400 truncate">
+                <div className="text-lg sm:text-2xl font-black text-emerald-700 truncate">
                   ₹{totalCollected.toLocaleString()}
                 </div>
-                <div className="flex items-center gap-1 text-[10px] sm:text-[11px] text-emerald-700 dark:text-emerald-400 font-bold mt-1">
+                <div className="flex items-center gap-1 text-[10px] sm:text-[11px] text-emerald-700 font-bold mt-1">
                   <TrendingUp className="w-3 h-3" />
                   <span>Realized Inflow</span>
                 </div>
               </div>
 
-              <div className="bg-white dark:bg-[#18191E] p-4 sm:p-5 rounded-2xl border-l-4 border-l-amber-500 border-y border-r border-stone-200 dark:border-stone-800 shadow-xs flex flex-col justify-between hover:shadow-md transition">
+              <div className="bg-white p-4 sm:p-5 rounded-2xl border-l-4 border-l-amber-500 border-y border-r border-stone-200 shadow-xs flex flex-col justify-between hover:shadow-md transition">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-stone-500 dark:text-stone-400 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider">
+                  <span className="text-stone-500 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider">
                     Vendor Payouts
                   </span>
                   <ArrowUpRight className="w-4 h-4 text-amber-500" />
                 </div>
-                <div className="text-lg sm:text-2xl font-black text-amber-800 dark:text-amber-400 truncate">
+                <div className="text-lg sm:text-2xl font-black text-amber-800 truncate">
                   ₹{totalVendorPayouts.toLocaleString()}
                 </div>
-                <div className="text-[10px] sm:text-[11px] text-stone-500 dark:text-stone-400 font-medium mt-1">
+                <div className="text-[10px] sm:text-[11px] text-stone-500 font-medium mt-1">
                   Pending: ₹{totalPendingVendor.toLocaleString()}
                 </div>
               </div>
 
-              <div className="bg-white dark:bg-[#18191E] p-4 sm:p-5 rounded-2xl border-l-4 border-l-purple-500 border-y border-r border-stone-200 dark:border-stone-800 shadow-xs flex flex-col justify-between hover:shadow-md transition">
+              <div className="bg-white p-4 sm:p-5 rounded-2xl border-l-4 border-l-purple-500 border-y border-r border-stone-200 shadow-xs flex flex-col justify-between hover:shadow-md transition">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-stone-500 dark:text-stone-400 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider">
+                  <span className="text-stone-500 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider">
                     Gross Margin
                   </span>
                   <Sparkles className="w-4 h-4 text-purple-500" />
                 </div>
-                <div className="text-lg sm:text-2xl font-black text-purple-700 dark:text-purple-400 truncate">
+                <div className="text-lg sm:text-2xl font-black text-purple-700 truncate">
                   ₹{estimatedGrossProfit.toLocaleString()}
                 </div>
-                <div className="text-[10px] sm:text-[11px] text-purple-700 dark:text-purple-400 font-bold mt-1">
+                <div className="text-[10px] sm:text-[11px] text-purple-700 font-bold mt-1">
                   Operating Margin
                 </div>
               </div>
             </div>
 
             {/* Operations Quick Actions: List on Mobile, Grid on Desktop */}
-            <div className="bg-white dark:bg-[#18191E] p-4 sm:p-5 rounded-2xl border border-stone-200 dark:border-stone-800 shadow-xs">
+            <div className="bg-white p-4 sm:p-5 rounded-2xl border border-stone-200 shadow-xs">
               <h3 className="text-[11px] font-black text-stone-400 uppercase tracking-widest mb-3 sm:mb-4 pl-1">
                 Operations Quick Shortcuts
               </h3>
@@ -912,28 +912,28 @@ export const CMSDashboard: React.FC = () => {
                     setActiveView('traveler');
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                   }}
-                  className="flex items-center sm:flex-col sm:items-start p-3 sm:p-4 rounded-xl bg-[#1D1C1C] hover:bg-black border border-stone-800 hover:shadow-md text-left transition-all cursor-pointer group"
+                  className="flex items-center sm:flex-col sm:items-start p-3 sm:p-4 rounded-xl bg-emerald-50/70 hover:bg-emerald-100/70 border border-emerald-200 hover:border-emerald-300 hover:shadow-xs text-left transition-all cursor-pointer group"
                 >
-                  <div className="p-2 sm:p-0 bg-stone-800 sm:bg-transparent rounded-lg border sm:border-none border-stone-700 mr-3 sm:mr-0 sm:mb-3 shrink-0">
-                    <Globe className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-400 group-hover:scale-110 transition-transform" />
+                  <div className="p-2 sm:p-0 bg-emerald-100 sm:bg-transparent rounded-lg border sm:border-none border-emerald-200 mr-3 sm:mr-0 sm:mb-3 shrink-0">
+                    <Globe className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-600 group-hover:scale-110 transition-transform" />
                   </div>
                   <div>
-                    <p className="text-sm font-black text-white group-hover:text-emerald-400 transition-colors">Storefront Preview</p>
-                    <p className="text-[11px] text-stone-400 font-medium line-clamp-1">View public traveler site</p>
+                    <p className="text-sm font-black text-emerald-950 group-hover:text-emerald-700 transition-colors">Storefront Preview</p>
+                    <p className="text-[11px] text-emerald-700 font-medium line-clamp-1">View public traveler site</p>
                   </div>
                 </button>
                 {canAccess("packages") && (
                   <button
                     type="button"
                     onClick={handleStartCreate}
-                    className="flex items-center sm:flex-col sm:items-start p-3 sm:p-4 rounded-xl bg-stone-50 dark:bg-[#202227] hover:bg-white dark:hover:bg-[#282B32] border border-stone-200 dark:border-stone-700 hover:border-blue-500 hover:shadow-md text-left transition-all cursor-pointer group"
+                    className="flex items-center sm:flex-col sm:items-start p-3 sm:p-4 rounded-xl bg-white hover:bg-stone-50 border border-stone-200 hover:border-blue-300 hover:shadow-xs text-left transition-all cursor-pointer group"
                   >
-                    <div className="p-2 sm:p-0 bg-white dark:bg-stone-800 sm:bg-transparent rounded-lg border sm:border-none border-stone-200 dark:border-stone-700 mr-3 sm:mr-0 sm:mb-3 shrink-0">
-                      <Compass className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform" />
+                    <div className="p-2 sm:p-0 bg-stone-100 sm:bg-transparent rounded-lg border sm:border-none border-stone-200 mr-3 sm:mr-0 sm:mb-3 shrink-0">
+                      <Compass className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 group-hover:scale-110 transition-transform" />
                     </div>
                     <div>
-                      <p className="text-sm font-black text-stone-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">Add Tour</p>
-                      <p className="text-[11px] text-stone-500 dark:text-stone-400 font-medium line-clamp-1">Create new package</p>
+                      <p className="text-sm font-black text-stone-900 group-hover:text-blue-600 transition-colors">Add Tour</p>
+                      <p className="text-[11px] text-stone-500 font-medium line-clamp-1">Create new package</p>
                     </div>
                   </button>
                 )}
@@ -944,16 +944,16 @@ export const CMSDashboard: React.FC = () => {
                       setGuidesSubView('list');
                       setActiveCmsTab('guides');
                     }}
-                    className="flex items-center sm:flex-col sm:items-start p-3 sm:p-4 rounded-xl bg-stone-50 dark:bg-[#202227] hover:bg-white dark:hover:bg-[#282B32] border border-stone-200 dark:border-stone-700 hover:border-amber-500 hover:shadow-md text-left transition-all cursor-pointer group"
+                    className="flex items-center sm:flex-col sm:items-start p-3 sm:p-4 rounded-xl bg-white hover:bg-stone-50 border border-stone-200 hover:border-amber-300 hover:shadow-xs text-left transition-all cursor-pointer group"
                   >
-                    <div className="p-2 sm:p-0 bg-white dark:bg-stone-800 sm:bg-transparent rounded-lg border sm:border-none border-stone-200 dark:border-stone-700 mr-3 sm:mr-0 sm:mb-3 shrink-0">
-                      <BookOpen className="w-5 h-5 sm:w-6 sm:h-6 text-amber-600 dark:text-amber-400 group-hover:scale-110 transition-transform" />
+                    <div className="p-2 sm:p-0 bg-stone-100 sm:bg-transparent rounded-lg border sm:border-none border-stone-200 mr-3 sm:mr-0 sm:mb-3 shrink-0">
+                      <BookOpen className="w-5 h-5 sm:w-6 sm:h-6 text-amber-600 group-hover:scale-110 transition-transform" />
                     </div>
                     <div>
-                      <p className="text-sm font-black text-stone-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
+                      <p className="text-sm font-black text-stone-900 group-hover:text-amber-600 transition-colors">
                         All Posts ({guides.length})
                       </p>
-                      <p className="text-[11px] text-stone-500 dark:text-stone-400 font-medium line-clamp-1">Review drafts & live guides</p>
+                      <p className="text-[11px] text-stone-500 font-medium line-clamp-1">Review drafts & live guides</p>
                     </div>
                   </button>
                 )}
@@ -965,14 +965,14 @@ export const CMSDashboard: React.FC = () => {
                       setGuidesSubView('editor');
                       setActiveCmsTab('guides');
                     }}
-                    className="flex items-center sm:flex-col sm:items-start p-3 sm:p-4 rounded-xl bg-stone-50 dark:bg-[#202227] hover:bg-white dark:hover:bg-[#282B32] border border-stone-200 dark:border-stone-700 hover:border-emerald-500 hover:shadow-md text-left transition-all cursor-pointer group"
+                    className="flex items-center sm:flex-col sm:items-start p-3 sm:p-4 rounded-xl bg-white hover:bg-stone-50 border border-stone-200 hover:border-emerald-300 hover:shadow-xs text-left transition-all cursor-pointer group"
                   >
-                    <div className="p-2 sm:p-0 bg-white dark:bg-stone-800 sm:bg-transparent rounded-lg border sm:border-none border-stone-200 dark:border-stone-700 mr-3 sm:mr-0 sm:mb-3 shrink-0">
-                      <FileEdit className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-600 dark:text-emerald-400 group-hover:scale-110 transition-transform" />
+                    <div className="p-2 sm:p-0 bg-stone-100 sm:bg-transparent rounded-lg border sm:border-none border-stone-200 mr-3 sm:mr-0 sm:mb-3 shrink-0">
+                      <FileEdit className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-600 group-hover:scale-110 transition-transform" />
                     </div>
                     <div>
-                      <p className="text-sm font-black text-stone-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">Write Post</p>
-                      <p className="text-[11px] text-stone-500 dark:text-stone-400 font-medium line-clamp-1">Create draft or publish</p>
+                      <p className="text-sm font-black text-stone-900 group-hover:text-emerald-600 transition-colors">Write Post</p>
+                      <p className="text-[11px] text-stone-500 font-medium line-clamp-1">Create draft or publish</p>
                     </div>
                   </button>
                 )}
@@ -980,14 +980,14 @@ export const CMSDashboard: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setActiveCmsTab("invoices")}
-                    className="flex items-center sm:flex-col sm:items-start p-3 sm:p-4 rounded-xl bg-stone-50 dark:bg-[#202227] hover:bg-white dark:hover:bg-[#282B32] border border-stone-200 dark:border-stone-700 hover:border-[#FC3200]/30 hover:shadow-md text-left transition-all cursor-pointer group"
+                    className="flex items-center sm:flex-col sm:items-start p-3 sm:p-4 rounded-xl bg-white hover:bg-stone-50 border border-stone-200 hover:border-[#FC3200]/30 hover:shadow-xs text-left transition-all cursor-pointer group"
                   >
-                    <div className="p-2 sm:p-0 bg-white dark:bg-stone-800 sm:bg-transparent rounded-lg border sm:border-none border-stone-200 dark:border-stone-700 mr-3 sm:mr-0 sm:mb-3 shrink-0">
+                    <div className="p-2 sm:p-0 bg-stone-100 sm:bg-transparent rounded-lg border sm:border-none border-stone-200 mr-3 sm:mr-0 sm:mb-3 shrink-0">
                       <Receipt className="w-5 h-5 sm:w-6 sm:h-6 text-[#FC3200] group-hover:scale-110 transition-transform" />
                     </div>
                     <div>
-                      <p className="text-sm font-black text-stone-900 dark:text-white group-hover:text-[#FC3200] transition-colors">Create Tax Invoice</p>
-                      <p className="text-[11px] text-stone-500 dark:text-stone-400 font-medium line-clamp-1">Bill guest & track advance</p>
+                      <p className="text-sm font-black text-stone-900 group-hover:text-[#FC3200] transition-colors">Create Tax Invoice</p>
+                      <p className="text-[11px] text-stone-500 font-medium line-clamp-1">Bill guest & track advance</p>
                     </div>
                   </button>
                 )}
@@ -995,14 +995,14 @@ export const CMSDashboard: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setActiveCmsTab("payments")}
-                    className="flex items-center sm:flex-col sm:items-start p-3 sm:p-4 rounded-xl bg-stone-50 dark:bg-[#202227] hover:bg-white dark:hover:bg-[#282B32] border border-stone-200 dark:border-stone-700 hover:border-emerald-300 hover:shadow-md text-left transition-all cursor-pointer group"
+                    className="flex items-center sm:flex-col sm:items-start p-3 sm:p-4 rounded-xl bg-white hover:bg-stone-50 border border-stone-200 hover:border-emerald-300 hover:shadow-xs text-left transition-all cursor-pointer group"
                   >
-                    <div className="p-2 sm:p-0 bg-white dark:bg-stone-800 sm:bg-transparent rounded-lg border sm:border-none border-stone-200 dark:border-stone-700 mr-3 sm:mr-0 sm:mb-3 shrink-0">
-                      <CreditCard className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-600 dark:text-emerald-400 group-hover:scale-110 transition-transform" />
+                    <div className="p-2 sm:p-0 bg-stone-100 sm:bg-transparent rounded-lg border sm:border-none border-stone-200 mr-3 sm:mr-0 sm:mb-3 shrink-0">
+                      <CreditCard className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-600 group-hover:scale-110 transition-transform" />
                     </div>
                     <div>
-                      <p className="text-sm font-black text-stone-900 dark:text-white group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors">Vendor Voucher</p>
-                      <p className="text-[11px] text-stone-500 dark:text-stone-400 font-medium line-clamp-1">Book cab, hotel, heli</p>
+                      <p className="text-sm font-black text-stone-900 group-hover:text-emerald-700 transition-colors">Vendor Voucher</p>
+                      <p className="text-[11px] text-stone-500 font-medium line-clamp-1">Book cab, hotel, heli</p>
                     </div>
                   </button>
                 )}
@@ -1010,14 +1010,14 @@ export const CMSDashboard: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setActiveCmsTab("inquiries")}
-                    className="flex items-center sm:flex-col sm:items-start p-3 sm:p-4 rounded-xl bg-stone-50 dark:bg-[#202227] hover:bg-white dark:hover:bg-[#282B32] border border-stone-200 dark:border-stone-700 hover:border-purple-300 hover:shadow-md text-left transition-all cursor-pointer group"
+                    className="flex items-center sm:flex-col sm:items-start p-3 sm:p-4 rounded-xl bg-white hover:bg-stone-50 border border-stone-200 hover:border-purple-300 hover:shadow-xs text-left transition-all cursor-pointer group"
                   >
-                    <div className="p-2 sm:p-0 bg-white dark:bg-stone-800 sm:bg-transparent rounded-lg border sm:border-none border-stone-200 dark:border-stone-700 mr-3 sm:mr-0 sm:mb-3 shrink-0">
-                      <MessageSquare className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600 dark:text-purple-400 group-hover:scale-110 transition-transform" />
+                    <div className="p-2 sm:p-0 bg-stone-100 sm:bg-transparent rounded-lg border sm:border-none border-stone-200 mr-3 sm:mr-0 sm:mb-3 shrink-0">
+                      <MessageSquare className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600 group-hover:scale-110 transition-transform" />
                     </div>
                     <div>
-                      <p className="text-sm font-black text-stone-900 dark:text-white group-hover:text-purple-700 dark:group-hover:text-purple-400 transition-colors">Tour Leads & Quotes</p>
-                      <p className="text-[11px] text-stone-500 dark:text-stone-400 font-medium line-clamp-1">Manage family inquiries</p>
+                      <p className="text-sm font-black text-stone-900 group-hover:text-purple-700 transition-colors">Tour Leads & Quotes</p>
+                      <p className="text-[11px] text-stone-500 font-medium line-clamp-1">Manage family inquiries</p>
                     </div>
                   </button>
                 )}
@@ -1025,14 +1025,14 @@ export const CMSDashboard: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setActiveCmsTab('vendors')}
-                    className="flex items-center sm:flex-col sm:items-start p-3 sm:p-4 rounded-xl bg-stone-50 dark:bg-[#202227] hover:bg-white dark:hover:bg-[#282B32] border border-stone-200 dark:border-stone-700 hover:border-blue-300 hover:shadow-md text-left transition-all cursor-pointer group"
+                    className="flex items-center sm:flex-col sm:items-start p-3 sm:p-4 rounded-xl bg-white hover:bg-stone-50 border border-stone-200 hover:border-blue-300 hover:shadow-xs text-left transition-all cursor-pointer group"
                   >
-                    <div className="p-2 sm:p-0 bg-white dark:bg-stone-800 sm:bg-transparent rounded-lg border sm:border-none border-stone-200 dark:border-stone-700 mr-3 sm:mr-0 sm:mb-3 shrink-0">
-                      <Car className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform" />
+                    <div className="p-2 sm:p-0 bg-stone-100 sm:bg-transparent rounded-lg border sm:border-none border-stone-200 mr-3 sm:mr-0 sm:mb-3 shrink-0">
+                      <Car className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 group-hover:scale-110 transition-transform" />
                     </div>
                     <div>
-                      <p className="text-sm font-black text-stone-900 dark:text-white group-hover:text-blue-700 dark:group-hover:text-blue-400 transition-colors">Mountain Fleets</p>
-                      <p className="text-[11px] text-stone-500 dark:text-stone-400 font-medium line-clamp-1">Hill certified drivers</p>
+                      <p className="text-sm font-black text-stone-900 group-hover:text-blue-700 transition-colors">Mountain Fleets</p>
+                      <p className="text-[11px] text-stone-500 font-medium line-clamp-1">Hill certified drivers</p>
                     </div>
                   </button>
                 )}
@@ -1042,9 +1042,9 @@ export const CMSDashboard: React.FC = () => {
             {/* Split Data Cards: Recent Inquiries & Service Vouchers */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
               {/* Recent Traveler Inquiries */}
-              <div className="bg-white dark:bg-[#18191E] p-5 rounded-2xl border border-stone-200 dark:border-stone-800 shadow-2xs space-y-3">
-                <div className="flex items-center justify-between pb-2 border-b border-stone-100 dark:border-stone-800">
-                  <h3 className="font-black text-stone-900 dark:text-white text-sm flex items-center gap-2">
+              <div className="bg-white p-5 rounded-2xl border border-stone-200 shadow-xs space-y-3">
+                <div className="flex items-center justify-between pb-2 border-b border-stone-100">
+                  <h3 className="font-black text-stone-900 text-sm flex items-center gap-2">
                     <MessageSquare className="w-4 h-4 text-[#FC3200]" />
                     Recent Traveler Inquiries & Quotes
                   </h3>
@@ -1059,14 +1059,14 @@ export const CMSDashboard: React.FC = () => {
                   )}
                 </div>
 
-                <div className="divide-y divide-stone-100 dark:divide-stone-800 text-xs">
+                <div className="divide-y divide-stone-100 text-xs">
                   {inquiries.slice(0, 4).map((inq) => (
                     <div key={inq.id} className="py-2.5 flex items-center justify-between gap-3">
                       <div>
-                        <p className="font-black text-stone-900 dark:text-white">{inq.travelerName}</p>
-                        <p className="text-stone-500 dark:text-stone-400 text-[11px]">{inq.packageTitle} • {inq.travelDate}</p>
+                        <p className="font-black text-stone-900">{inq.travelerName}</p>
+                        <p className="text-stone-500 text-[11px]">{inq.packageTitle} • {inq.travelDate}</p>
                       </div>
-                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 dark:bg-amber-950/40 text-[#FC3200] border border-amber-200 dark:border-amber-800">
+                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-[#FC3200] border border-amber-200">
                         {inq.status}
                       </span>
                     </div>
@@ -1078,10 +1078,10 @@ export const CMSDashboard: React.FC = () => {
               </div>
 
               {/* Pending Vendor Payout Vouchers */}
-              <div className="bg-white dark:bg-[#18191E] p-5 rounded-2xl border border-stone-200 dark:border-stone-800 shadow-2xs space-y-3">
-                <div className="flex items-center justify-between pb-2 border-b border-stone-100 dark:border-stone-800">
-                  <h3 className="font-black text-stone-900 dark:text-white text-sm flex items-center gap-2">
-                    <CreditCard className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
+              <div className="bg-white p-5 rounded-2xl border border-stone-200 shadow-xs space-y-3">
+                <div className="flex items-center justify-between pb-2 border-b border-stone-100">
+                  <h3 className="font-black text-stone-900 text-sm flex items-center gap-2">
+                    <CreditCard className="w-4 h-4 text-emerald-700" />
                     Operational Ground Vouchers
                   </h3>
                   {canAccess('payments') && (
@@ -1095,18 +1095,18 @@ export const CMSDashboard: React.FC = () => {
                   )}
                 </div>
 
-                <div className="divide-y divide-stone-100 dark:divide-stone-800 text-xs">
+                <div className="divide-y divide-stone-100 text-xs">
                   {vendorPayments.slice(0, 4).map((vp) => (
                     <div key={vp.id} className="py-2.5 flex items-center justify-between gap-3">
                       <div>
-                        <p className="font-black text-stone-900 dark:text-white">{vp.vendorName}</p>
-                        <p className="text-stone-500 dark:text-stone-400 text-[11px]">
+                        <p className="font-black text-stone-900">{vp.vendorName}</p>
+                        <p className="text-stone-500 text-[11px]">
                           {vp.voucherNumber} • {vp.serviceDescription}
                         </p>
                       </div>
                       <div className="text-right">
-                        <p className="font-black text-stone-900 dark:text-white">₹{vp.totalAmount.toLocaleString()}</p>
-                        <p className="text-[10px] text-rose-700 dark:text-rose-400 font-bold">Bal: ₹{vp.balanceAmount.toLocaleString()}</p>
+                        <p className="font-black text-stone-900">₹{vp.totalAmount.toLocaleString()}</p>
+                        <p className="text-[10px] text-rose-600 font-bold">Bal: ₹{vp.balanceAmount.toLocaleString()}</p>
                       </div>
                     </div>
                   ))}
