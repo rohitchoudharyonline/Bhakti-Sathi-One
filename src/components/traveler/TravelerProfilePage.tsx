@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useTours } from '../../context/TourContext';
+import { Navbar } from '../common/Navbar';
 import {
   User,
   Mail,
@@ -145,42 +146,7 @@ export const TravelerProfilePage: React.FC = () => {
     navigateToAllTours,
     setIsTravelerAuthModalOpen,
     agencySettings,
-    navigateToJapCounter,
   } = useTours();
-
-  // Load Jap Counter statistics for the profile dashboard card dynamically
-  const [japStats, setJapStats] = useState({ todayChants: 0, lifetimeChants: 0, lifetimeMalas: 0 });
-
-  useEffect(() => {
-    const loadJapStats = () => {
-      try {
-        const saved = localStorage.getItem('hh_jap_counter_data_v2');
-        if (saved) {
-          const parsed = JSON.parse(saved);
-          const records = Array.isArray(parsed.records) ? parsed.records : [];
-          const todayStr = new Date().toISOString().split('T')[0];
-          const todayRecords = records.filter((r: any) => r.dateStr === todayStr);
-          const todayChants = todayRecords.reduce((sum: number, r: any) => sum + (r.beadCount || 0), 0);
-          const lifetimeChants = records.reduce((sum: number, r: any) => sum + (r.beadCount || 0), 0);
-          const lifetimeMalas = records.reduce((sum: number, r: any) => sum + (r.malasCompleted || 0), 0);
-          setJapStats({ todayChants, lifetimeChants, lifetimeMalas });
-        }
-      } catch (e) {
-        console.error('Failed to load jap stats:', e);
-      }
-    };
-
-    loadJapStats();
-    
-    // Refresh stats when user returns to this page/window tab or localStorage updates
-    window.addEventListener('storage', loadJapStats);
-    window.addEventListener('focus', loadJapStats);
-
-    return () => {
-      window.removeEventListener('storage', loadJapStats);
-      window.removeEventListener('focus', loadJapStats);
-    };
-  }, []);
 
   // Google Calendar Integration states in Settings
   const [autoSyncEnabled, setAutoSyncEnabled] = useState(() => {
@@ -691,8 +657,10 @@ export const TravelerProfilePage: React.FC = () => {
     };
 
     return (
-      <div className="w-full min-h-screen bg-stone-50/70 py-10 px-4 sm:px-6 flex flex-col items-center justify-center">
-        <div className="w-full max-w-lg space-y-6">
+      <div className="w-full min-h-screen bg-stone-50/70 pb-12 flex flex-col">
+        <Navbar />
+        <div className="flex-1 flex items-center justify-center py-10 px-4 sm:px-6">
+          <div className="w-full max-w-lg space-y-6">
           
           {/* Top Back Navigation */}
           <div className="flex items-center justify-between">
@@ -726,7 +694,7 @@ export const TravelerProfilePage: React.FC = () => {
                   : 'Sign In to Holidays Hunt'}
               </h1>
               <p className="text-xs text-stone-500 max-w-xs mx-auto">
-                Access your personalized itineraries, booking inquiries, wishlists &amp; daily Jap Sadhana practice.
+                Access your personalized itineraries, booking inquiries, and saved wishlist tours.
               </p>
             </div>
 
@@ -1173,6 +1141,7 @@ export const TravelerProfilePage: React.FC = () => {
           </div>
         </div>
       </div>
+    </div>
     );
   }
 
@@ -1181,6 +1150,7 @@ export const TravelerProfilePage: React.FC = () => {
   // -------------------------------------------------------------
   return (
     <div className="w-full min-h-screen bg-stone-100/60 pb-16">
+      <Navbar />
       
       {/* Toast notification */}
       {recordSuccessToast && (
@@ -1447,37 +1417,6 @@ export const TravelerProfilePage: React.FC = () => {
               {activeTab === 'wishlist' && (
                 <div className="absolute top-0 left-0 right-0 h-1 bg-[#FF4B00]" />
               )}
-            </button>
-
-            {/* Card 5: Jap Counter */}
-            <button
-              type="button"
-              onClick={navigateToJapCounter}
-              className="p-4 rounded-2xl text-left transition-all duration-200 cursor-pointer flex flex-col justify-between border-2 relative overflow-hidden group bg-stone-50/80 hover:bg-white border-stone-200/90 hover:border-stone-300 hover:shadow-sm"
-            >
-              <div className="flex items-center justify-between w-full mb-2">
-                <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-orange-100 text-brand-orange">
-                  <span className="text-base">📿</span>
-                </div>
-                {japStats.todayChants > 0 ? (
-                  <span className="px-2 py-0.5 rounded-full text-[9px] font-black bg-brand-orange text-white whitespace-nowrap">
-                    Today: {japStats.todayChants}
-                  </span>
-                ) : (
-                  <span className="px-2 py-0.5 rounded-full text-[9px] font-black bg-stone-200 text-stone-600 whitespace-nowrap">
-                    Sadhana
-                  </span>
-                )}
-              </div>
-              <div>
-                <p className="text-xs font-black text-stone-900 flex items-center gap-1">
-                  <span>Jap Counter</span>
-                  <Sparkles className="w-3 h-3 text-amber-500 fill-amber-500 animate-pulse shrink-0" />
-                </p>
-                <p className="text-[11px] font-bold text-stone-500 mt-0.5 whitespace-nowrap overflow-hidden text-ellipsis" title={japStats.lifetimeMalas > 0 ? `${japStats.lifetimeMalas} Malas Done` : 'Mantra chanting tool'}>
-                  {japStats.lifetimeMalas > 0 ? `${japStats.lifetimeMalas} Malas Completed` : 'Mantra chanting tool'}
-                </p>
-              </div>
             </button>
 
             {/* Card 6: Account & Security */}
@@ -2284,7 +2223,7 @@ export const TravelerProfilePage: React.FC = () => {
                 <div className="bg-emerald-50/50 rounded-2xl p-4 border border-emerald-100 flex items-start gap-2.5">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                   <p className="text-[11px] text-emerald-700 leading-relaxed">
-                    Google Calendar is successfully authorized! Completing a 108-bead mala round on the Jap Counter will instantly log your sadhana in real-time.
+                    Google Calendar is successfully authorized! Your upcoming travel itinerary and tour dates will be automatically synced.
                   </p>
                 </div>
               )}

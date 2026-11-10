@@ -4,6 +4,7 @@ import { GuideArticle, GuideFaq } from '../../types/guide';
 import { ArticleContentRenderer } from '../common/ArticleContentRenderer';
 import { resolveDisplayImage, handleImageError } from '../../utils/imageResolver';
 import { GlobalFooter } from './GlobalFooter';
+import { Navbar } from '../common/Navbar';
 import {
   generateGuideArticleSchema,
   generateFAQPageSchema,
@@ -211,8 +212,9 @@ export const GuideDetailView: React.FC<GuideDetailViewProps> = ({ slug }) => {
 
   return (
     <div className="min-h-screen bg-[#faf8f5] text-stone-900 pb-48 md:pb-28">
+      <Navbar />
       {/* Top Breadcrumb Bar */}
-      <div className="border-b border-stone-200/80 bg-white/70 backdrop-blur-xs sticky top-0 z-20">
+      <div className="border-b border-stone-200/80 bg-white/70 backdrop-blur-xs">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
           <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-xs text-stone-500 overflow-x-auto whitespace-nowrap py-1">
             <button

@@ -3,6 +3,7 @@ import { useTours } from '../../context/TourContext';
 import { GuideArticle } from '../../types/guide';
 import { generateBreadcrumbSchema } from '../../utils/seoEngine';
 import { GlobalFooter } from './GlobalFooter';
+import { Navbar } from '../common/Navbar';
 import {
   BookOpen,
   Search,
@@ -91,7 +92,8 @@ export const PublicGuidesHub: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#faf8f5] text-stone-900 flex flex-col justify-between">
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-48 md:pt-12 md:pb-28 w-full space-y-8">
+      <Navbar />
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-48 md:pt-8 md:pb-28 w-full space-y-8">
         {/* Breadcrumb Bar */}
         <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs text-stone-500">
           <button

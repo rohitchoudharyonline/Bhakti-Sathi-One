@@ -33,8 +33,6 @@ export const Navbar: React.FC = () => {
     navigateToBlogHub,
     navigateToGuideHub,
     navigateToDestinationsExplorer,
-    navigateToJapCounter,
-    isJapCounterOpen,
     isBlogHubOpen,
     isGuidesHubOpen,
     isToursDirectoryOpen,
@@ -66,13 +64,9 @@ export const Navbar: React.FC = () => {
         <div className="h-[2px] w-full bg-[#FF4B00]" />
 
         {/* Main Navigation Bar */}
-        <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-2 sm:py-3 flex items-center justify-between gap-1.5 sm:gap-4 bg-white">
-          {/* Brand Identity */}
-          <div
-            id="brand-logo"
-            className="flex items-center gap-1.5 sm:gap-2 cursor-pointer group select-none shrink-0"
-          >
-            {/* Mobile Menu Toggle Button (Tiny, no background, before logo) */}
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-1 sm:py-1.5 flex items-center justify-between gap-2 bg-white">
+          {/* Left: Mobile Menu Toggle & Desktop Nav */}
+          <div className="flex-1 flex items-center justify-start gap-3 min-w-0">
             <button
               type="button"
               onClick={(e) => {
@@ -82,103 +76,60 @@ export const Navbar: React.FC = () => {
               className="md:hidden p-1 bg-transparent border-none text-[#1A1A1A] hover:text-[#FF4B00] transition cursor-pointer shrink-0"
               aria-label="Toggle mobile menu"
             >
-              {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
-            <div onClick={navigateToHome} className="flex items-center gap-1 sm:gap-2">
-              <BrandLogo size="md" />
-            </div>
+
+            {/* Desktop Nav Links */}
+            <nav className="hidden md:flex items-center gap-6 text-sm font-bold text-[#1A1A1A]">
+              <button
+                type="button"
+                onClick={navigateToHome}
+                className={`transition cursor-pointer py-1 ${
+                  !isToursDirectoryOpen && !isDestinationsExplorerOpen && !isBlogHubOpen && !selectedDestinationSlug && !selectedPackageId
+                    ? 'text-[#FF4B00] font-black border-b-2 border-[#FF4B00]'
+                    : 'text-[#1A1A1A]/80 hover:text-[#1A1A1A]'
+                }`}
+              >
+                Home
+              </button>
+
+              <button
+                type="button"
+                onClick={navigateToDestinationsExplorer}
+                className={`transition cursor-pointer py-1 ${
+                  isDestinationsExplorerOpen || selectedDestinationSlug
+                    ? 'text-[#FF4B00] font-black border-b-2 border-[#FF4B00]'
+                    : 'text-[#1A1A1A]/80 hover:text-[#1A1A1A]'
+                }`}
+              >
+                Destination
+              </button>
+
+              <button
+                type="button"
+                onClick={navigateToAllTours}
+                className={`transition cursor-pointer py-1 ${
+                  isToursDirectoryOpen
+                    ? 'text-[#FF4B00] font-black border-b-2 border-[#FF4B00]'
+                    : 'text-[#1A1A1A]/80 hover:text-[#1A1A1A]'
+                }`}
+              >
+                Tour Type
+              </button>
+            </nav>
           </div>
 
-          {/* Center Navigation Links (Traveler Mode Desktop) */}
-          <nav className="hidden md:flex items-center gap-8 text-sm font-bold text-[#1A1A1A]">
-            <button
-              type="button"
-              onClick={navigateToHome}
-              className={`transition cursor-pointer py-1 ${
-                !isToursDirectoryOpen && !isDestinationsExplorerOpen && !isBlogHubOpen && !selectedDestinationSlug && !selectedPackageId
-                  ? 'text-[#FF4B00] font-black border-b-2 border-[#FF4B00]'
-                  : 'text-[#1A1A1A]/80 hover:text-[#1A1A1A]'
-              }`}
-            >
-              Home
-            </button>
-
-            <button
-              type="button"
-              onClick={navigateToDestinationsExplorer}
-              className={`transition cursor-pointer py-1 ${
-                isDestinationsExplorerOpen || selectedDestinationSlug
-                  ? 'text-[#FF4B00] font-black border-b-2 border-[#FF4B00]'
-                  : 'text-[#1A1A1A]/80 hover:text-[#1A1A1A]'
-              }`}
-            >
-              Destination
-            </button>
-
-            <button
-              type="button"
-              onClick={navigateToAllTours}
-              className={`transition cursor-pointer py-1 ${
-                isToursDirectoryOpen
-                  ? 'text-[#FF4B00] font-black border-b-2 border-[#FF4B00]'
-                  : 'text-[#1A1A1A]/80 hover:text-[#1A1A1A]'
-              }`}
-            >
-              Tour Type
-            </button>
-          </nav>
-
-          {/* Right Action Icons & Mobile / Desktop Controls */}
-          <div className="flex items-center gap-2 sm:gap-4">
-
-            {/* Helpline Call Button - Direct Phone Link ONLY */}
-            <a
-              href={`tel:${(agencySettings.phone || '+919419915255').replace(/\s+/g, '')}`}
-              className="flex items-center gap-1.5 py-1 px-2.5 sm:py-1.5 sm:px-3.5 rounded-full bg-[#FF4B00] text-white hover:bg-[#E03E00] transition-colors shadow-xs font-extrabold text-[10px] sm:text-xs tracking-wide cursor-pointer select-none outline-none focus:ring-2 focus:ring-[#FF4B00]/40 shrink-0"
-              title="Call Helpline"
-            >
-              <Phone className="w-3 h-3 sm:w-3.5 sm:h-3.5 fill-white text-[#FF4B00]" />
-              <span className="font-black whitespace-nowrap">
-                <span className="hidden sm:inline-block">{agencySettings.phone || '+91 94199 15255'}</span>
-                <span className="inline-block sm:hidden">94199 15255</span>
-              </span>
-            </a>
-
-            {/* Profile / Login Logout Button */}
-            <button
-              type="button"
-              onClick={navigateToTravelerProfile}
-              className="p-0.5 bg-transparent border-none text-stone-700 hover:text-[#FF4B00] transition cursor-pointer flex items-center gap-1.5 shrink-0"
-              title={travelerUser ? `${travelerUser.name} - Traveler Dashboard` : 'Sign In with Google / Account'}
-            >
-              {travelerUser ? (
-                <div className="flex items-center gap-1.5 bg-stone-100/90 hover:bg-stone-200/80 py-1 px-2 sm:px-2.5 rounded-full border border-stone-200 hover:border-[#FF4B00]/40 transition duration-200 shadow-2xs">
-                  {travelerUser.avatar ? (
-                    <img
-                      src={travelerUser.avatar}
-                      alt={travelerUser.name}
-                      referrerPolicy="no-referrer"
-                      className="w-5 h-5 rounded-full object-cover ring-1 ring-[#FF4B00]/40"
-                    />
-                  ) : (
-                    <div className="w-5 h-5 rounded-full bg-gradient-to-br from-[#FF4B00] to-orange-600 text-white text-[9px] font-black flex items-center justify-center select-none shadow-xs">
-                      {travelerUser.name.charAt(0).toUpperCase()}
-                    </div>
-                  )}
-                  <span className="hidden sm:inline-block text-[10.5px] font-extrabold text-stone-800 max-w-[85px] truncate">
-                    {travelerUser.name}
-                  </span>
-                </div>
-              ) : (
-                <div className="flex items-center gap-1 py-1 px-2 sm:px-2.5 rounded-full bg-stone-50 border border-stone-200 hover:border-[#FF4B00]/40 hover:bg-orange-50/40 transition duration-200">
-                  <User className="w-3.5 h-3.5 text-stone-700" />
-                  <span className="hidden sm:inline-block text-[10.5px] font-extrabold text-stone-800">
-                    Sign In
-                  </span>
-                </div>
-              )}
-            </button>
+          {/* Center: Brand Logo */}
+          <div
+            id="brand-logo"
+            onClick={navigateToHome}
+            className="flex items-center justify-center cursor-pointer group select-none shrink-0 px-2"
+          >
+            <BrandLogo size="md" />
           </div>
+
+          {/* Right: Empty spacer for mobile symmetry */}
+          <div className="flex-1 flex items-center justify-end min-w-0" />
         </div>
 
         {/* Mobile Dropdown Drawer */}

@@ -63,8 +63,6 @@ export const SitemapPage: React.FC = () => {
     { title: 'All Tour & Holiday Packages', path: '/tours', slug: 'tours', category: 'Tours', action: navigateToAllTours },
     { title: 'Explore Destinations & Circuits', path: '/destinations', slug: 'destinations', category: 'Destinations', action: navigateToDestinationsExplorer },
     { title: 'Travel Guides & Itinerary Hub', path: '/guide', slug: 'guide', category: 'Guides', action: navigateToGuideHub },
-    { title: 'Panchang & Cultural Calendar', path: '/panchang', slug: 'panchang', category: 'Travel Utility' },
-    { title: 'Daily Horoscope & Travel Vibes', path: '/rashifal', slug: 'rashifal', category: 'Travel Utility' },
     { title: 'Verified Traveller Reviews', path: '/reviews', slug: 'reviews', category: 'Company', action: () => navigateToInfoPage('reviews') },
     { title: 'About Holidays Hunt', path: '/info/about', slug: 'about', category: 'Company', action: () => navigateToInfoPage('about') },
     { title: 'Contact Us & Office Locations', path: '/info/locate_us', slug: 'locate_us', category: 'Company', action: () => navigateToInfoPage('locate_us') },
@@ -489,10 +487,6 @@ export const SitemapPage: React.FC = () => {
                       onClick={() => {
                         if (page.action) {
                           page.action();
-                        } else if (page.path === '/panchang') {
-                          window.location.href = '/panchang';
-                        } else if (page.path === '/rashifal') {
-                          window.location.href = '/rashifal';
                         } else {
                           navigateToHome();
                         }

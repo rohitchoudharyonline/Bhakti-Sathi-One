@@ -19,11 +19,11 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
   const [imgError, setImgError] = useState(false);
 
   const heightMap = {
-    xs: 'h-[42px] sm:h-[47px]',
-    sm: 'h-[52px] sm:h-[57px]',
-    md: 'h-[62px] sm:h-[73px]',
-    lg: 'h-[83px] sm:h-[104px]',
-    xl: 'h-[104px] sm:h-[125px]',
+    xs: 'h-[28px] sm:h-[32px]',
+    sm: 'h-[34px] sm:h-[40px]',
+    md: 'h-[38px] sm:h-[46px] md:h-[52px]',
+    lg: 'h-[48px] sm:h-[58px]',
+    xl: 'h-[60px] sm:h-[76px]',
   };
 
   const textMap = {
@@ -38,7 +38,7 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
     <div className={`inline-flex flex-col justify-center ${className}`}>
       {!imgError ? (
         <img
-          src="/logo-holidays-hunt.png"
+          src="/holidays-hunt-travel-logo.png"
           alt="Holidays Hunt"
           onError={() => setImgError(true)}
           className={`${heightMap[size]} w-auto object-contain select-none ${imageClassName}`}

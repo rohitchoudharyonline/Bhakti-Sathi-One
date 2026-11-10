@@ -37,6 +37,7 @@ import {
 } from 'lucide-react';
 import { InquiryModal } from './InquiryModal';
 import { FreeTravelInsuranceCard } from './FreeTravelInsuranceCard';
+import { Navbar } from '../common/Navbar';
 
 interface PackageDetailsViewProps {
   pkg: TourPackage;
@@ -151,8 +152,9 @@ export const PackageDetailsView: React.FC<PackageDetailsViewProps> = ({ pkg, onB
 
   return (
     <div className="bg-stone-50 min-h-screen pb-24">
+      <Navbar />
       {/* Top Breadcrumb Bar */}
-      <div className="bg-white border-b border-stone-200 sticky top-[69px] z-30 shadow-xs">
+      <div className="bg-white border-b border-stone-200 shadow-xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
           <button
             onClick={onBack}

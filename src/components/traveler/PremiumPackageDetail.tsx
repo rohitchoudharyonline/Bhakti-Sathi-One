@@ -44,6 +44,7 @@ import {
 import { generateTourPDF } from '../../utils/pdfGenerator';
 import { isValidEmail } from '../../utils/validation';
 import { EmailVerificationInput } from '../common/EmailVerificationInput';
+import { Navbar } from '../common/Navbar';
 
 interface Props {
   pkg: TourPackage;
@@ -351,8 +352,9 @@ export const PremiumPackageDetail: React.FC<Props> = ({ pkg, onBack }) => {
 
   return (
     <div className="min-h-screen bg-stone-50/60 text-[#1D1C1C] font-['Plus_Jakarta_Sans',sans-serif] w-full max-w-full overflow-x-hidden pb-20 md:pb-6">
-      {/* Top Bar Header */}
-      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-xl border-b border-stone-200 shadow-2xs w-full">
+      <Navbar />
+      {/* Package Action Sub-Header */}
+      <div className="bg-white/95 backdrop-blur-xl border-b border-stone-200 shadow-2xs w-full">
         {/* 2px Orange Brand Color Line at Top of Header */}
         <div className="h-[2px] w-full bg-[#FF4B00]" />
         <div className="max-w-7xl mx-auto px-3 sm:px-6 h-14 sm:h-16 flex items-center justify-between gap-2 min-w-0 w-full">
@@ -409,7 +411,7 @@ export const PremiumPackageDetail: React.FC<Props> = ({ pkg, onBack }) => {
             </button>
           </div>
         </div>
-      </header>
+      </div>
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-3 sm:px-6 pt-3 sm:pt-5 pb-36 sm:pb-24 w-full min-w-0">

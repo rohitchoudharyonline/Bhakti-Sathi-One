@@ -55,6 +55,7 @@ import {
 } from 'lucide-react';
 import { useTours } from '../../context/TourContext';
 import { Navbar } from '../common/Navbar';
+import { FeaturedDestinationsCarousel } from './FeaturedDestinationsCarousel';
 import { Footer } from './Footer';
 import { TourPackage } from '../../types/tour';
 import { DestinationMeta } from '../../data/destinationsData';
@@ -1068,129 +1069,10 @@ export const LuxuryHomepage: React.FC = () => {
         {/* ========================================================
             SIGNATURE TEERTH STHAL (SACRED PILGRIMAGE) CARDS
             ======================================================== */}
-        <section className="py-8 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto space-y-6">
-          <div>
-            <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-5 gap-2">
-              <div>
-                <h2 className="text-2xl sm:text-3xl font-black text-stone-900 tracking-tight flex items-center gap-2">
-                  <span>Destinations</span>
-                  <span className="w-8 h-1 bg-[#FF4B00] rounded-full inline-block" />
-                </h2>
-                <p className="text-xs sm:text-sm text-stone-600 font-medium mt-1 leading-relaxed max-w-2xl">
-                  Explore family holidays, honeymoon escapes, pilgrimage journeys and leisure tours across Jammu & Kashmir.
-                </p>
-              </div>
-            </div>
-
-            {/* Dynamic Card Grid */}
-            <style dangerouslySetInnerHTML={{ __html: `
-              .dest-card-container {
-                transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.5s ease-out, box-shadow 0.5s cubic-bezier(0.16, 1, 0.3, 1) !important;
-              }
-              .dest-card-container:hover {
-                box-shadow: 0 20px 25px -5px rgba(255, 75, 0, 0.2) !important;
-              }
-              .dest-card-container:hover .card-badge-badge {
-                transform: rotate(-5deg) !important;
-              }
-              .card-badge-badge {
-                transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
-                display: inline-block !important;
-              }
-              .dest-card-container .dest-card-img {
-                transition: transform 0.8s ease-in-out, opacity 0.8s ease-out, scale 0.8s ease-out !important;
-              }
-              .dest-card-container:hover .dest-card-img {
-                transform: scale(1.15) !important;
-              }
-              .dest-card-container:active {
-                transform: scale(0.98) !important;
-                box-shadow: inset 0 0 0 3px #FF4B00, 0 8px 16px -4px rgba(255, 75, 0, 0.3) !important;
-                transition: transform 0.1s ease-out, box-shadow 0.1s ease-out !important;
-              }
-              @keyframes skeleton-shimmer-anim {
-                0% { background-position: -200% 0; }
-                100% { background-position: 200% 0; }
-              }
-              .skeleton-shimmer-bg {
-                background: linear-gradient(90deg, #1c1917 25%, #292524 50%, #1c1917 75%) !important;
-                background-size: 200% 100% !important;
-                animation: skeleton-shimmer-anim 1.5s infinite linear !important;
-              }
-            ` }} />
-            {filteredDestinations.length === 0 ? (
-              <div className="bg-white rounded-2xl border border-dashed border-stone-300 p-8 text-center max-w-md mx-auto">
-                <MapPin className="w-8 h-8 text-stone-300 mx-auto mb-2" />
-                <p className="text-sm font-bold text-stone-700">No destinations available</p>
-                <p className="text-xs text-stone-500 mt-1">Create destinations in the CMS to showcase them here.</p>
-              </div>
-            ) : (
-              <div className={`grid grid-cols-1 ${filteredDestinations.length === 1 ? 'sm:grid-cols-1 max-w-xl mx-auto' : filteredDestinations.length >= 3 ? 'sm:grid-cols-2 lg:grid-cols-3' : 'sm:grid-cols-2'} gap-4 sm:gap-6`}>
-                {filteredDestinations.map((loc, index) => {
-                  const isSelected = activeSpecificDest === loc.filterKey;
-                  const isImgLoaded = loadedImages[loc.id];
-
-                  const displayBadge = loc.toursCount || loc.badge;
-
-                  return (
-                    <motion.div
-                      key={loc.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true, margin: "-50px" }}
-                      transition={{ duration: 0.5, delay: index * 0.1 }}
-                      id={`dest-card-${loc.filterKey}`}
-                      onClick={() => handleSelectLocationCard(loc)}
-                      className={`dest-card-container group relative aspect-[4/3] sm:aspect-[16/10] rounded-2xl sm:rounded-3xl overflow-hidden cursor-pointer border transition-all duration-500 ease-out shadow-sm hover:shadow-[0_20px_25px_-5px_rgba(255,75,0,0.2)] hover:-translate-y-1 hover:scale-[1.02] flex flex-col justify-between p-4 sm:p-6 ${
-                        isSelected
-                          ? 'border-[#FF4B00] ring-2 ring-[#FF4B00]/40'
-                          : 'border-stone-200/90 hover:border-[#FF4B00]/70'
-                      }`}
-                    >
-                      {/* Shimmer Placeholder Overlay */}
-                      {!isImgLoaded && (
-                        <div className="absolute inset-0 skeleton-shimmer-bg transition-opacity duration-500 pointer-events-none z-10" />
-                      )}
-
-                      {/* Background Cover Image */}
-                      <LazyImage
-                        src={resolveDisplayImage(loc.coverImage, mediaAssets)}
-                        alt={loc.name}
-                        onError={(e: any) => {
-                          handleImageError(e, loc.coverImage, mediaAssets, '');
-                          setLoadedImages((prev) => ({ ...prev, [loc.id]: true }));
-                        }}
-                        onLoad={() => setLoadedImages((prev) => ({ ...prev, [loc.id]: true }))}
-                        className={`dest-card-img absolute inset-0 w-full h-full object-cover transition-all ease-out ${
-                          isImgLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
-                        }`}
-                        loading="lazy"
-                      />
-
-                      {/* Multi-step Gradient Scrim */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/40 to-transparent group-hover:from-stone-950/95 group-hover:via-stone-950/70 transition-all duration-300 pointer-events-none z-10" />
-                      
-                      {/* Brand Color Hover Overlay */}
-                      <div className="absolute inset-0 bg-[#FF4B00]/0 group-hover:bg-[#FF4B00]/10 transition-colors duration-500 pointer-events-none z-10 mix-blend-overlay" />
-
-                      {/* Bottom Destination Name & Brand-colored Arrow */}
-                      <div className="relative z-10 text-white pointer-events-none mt-auto">
-                        <div className="flex items-center justify-between gap-3 pt-2">
-                          <h3 className="text-xl sm:text-2xl font-black text-white group-hover:text-orange-200 transition-colors drop-shadow-md leading-tight tracking-tight">
-                            {loc.name}
-                          </h3>
-                          <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-[#FF4B00] group-hover:scale-110 transition-transform duration-300 shadow-md shrink-0">
-                            <ArrowRight className="w-4 h-4" />
-                          </div>
-                        </div>
-                      </div>
-                    </motion.div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-        </section>
+        <FeaturedDestinationsCarousel
+          destinationsList={filteredDestinations}
+          onSelectDestination={(dest) => handleSelectLocationCard(dest as any)}
+        />
 
         {/* ========================================================
             FAMILY TOUR PACKAGES (CURATED FAMILY VACATIONS)

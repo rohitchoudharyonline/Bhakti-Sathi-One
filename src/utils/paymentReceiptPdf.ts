@@ -22,7 +22,7 @@ export interface PaymentReceiptData {
  * Loads an image from the provided sources and converts to base64 DataURL for reliable jsPDF embedding.
  */
 async function loadBrandLogoData(): Promise<{ dataUrl: string; width: number; height: number; format: string } | null> {
-  const sources = ['/logo-holidays-hunt-v3.png', '/logo.png'];
+  const sources = ['/holidays-hunt-travel-logo.png', '/logo-holidays-hunt-v3.png', '/logo.png'];
   for (const src of sources) {
     try {
       const img = await new Promise<HTMLImageElement>((resolve, reject) => {

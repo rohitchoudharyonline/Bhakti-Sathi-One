@@ -7,6 +7,7 @@ import { MantraSelectorModal } from './jap/MantraSelectorModal';
 import { DEFAULT_MANTRAS, JapSessionRecord, JapTimeframe } from '../../types/japCounter';
 import { playBeadChime, playMalaCompleteChime, triggerHaptic } from '../../utils/japAudio';
 import { generateJapSadhanaPdf } from '../../utils/japPdfExport';
+import { Navbar } from '../common/Navbar';
 
 const STORAGE_KEY = 'hh_jap_counter_data_v2';
 
@@ -259,13 +260,13 @@ export const JapCounterPageV2: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#FCFBFA] text-[#181818] font-sans selection:bg-brand-orange selection:text-white pb-24 lg:pb-10">
-      <header className="sticky top-0 z-40 border-b border-[#EEE7E2] bg-white/95 backdrop-blur-xl">
-        <div className="h-[2px] w-full bg-[#FF4B00]" />
-        <div className="max-w-6xl mx-auto h-[64px] px-4 sm:px-6 lg:px-8 flex items-center justify-center relative">
-          <button type="button" onClick={navigateToHome} className="absolute left-4 sm:left-6 inline-flex items-center justify-center w-10 h-10 rounded-xl text-stone-500 hover:text-brand-orange hover:bg-brand-orange-light transition cursor-pointer" aria-label="Back to home"><ArrowLeft className="w-5 h-5" /></button>
-          <h1 className="text-xl sm:text-2xl font-black tracking-tight">Jap Counter</h1>
+      <Navbar />
+      <div className="border-b border-[#EEE7E2] bg-white">
+        <div className="max-w-6xl mx-auto h-[56px] px-4 sm:px-6 lg:px-8 flex items-center justify-center relative">
+          <button type="button" onClick={navigateToHome} className="absolute left-4 sm:left-6 inline-flex items-center justify-center w-9 h-9 rounded-xl text-stone-500 hover:text-brand-orange hover:bg-brand-orange-light transition cursor-pointer" aria-label="Back to home"><ArrowLeft className="w-4 h-4" /></button>
+          <h1 className="text-lg sm:text-xl font-black tracking-tight">Jap Counter</h1>
         </div>
-      </header>
+      </div>
 
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6">
         <section className="mb-4 sm:mb-6 rounded-[24px] border border-[#F0E1D9] bg-white shadow-[0_10px_35px_rgba(60,35,20,0.05)] p-3 sm:p-4">

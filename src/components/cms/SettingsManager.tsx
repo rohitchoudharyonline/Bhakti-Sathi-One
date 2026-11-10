@@ -837,8 +837,6 @@ export const SettingsManager: React.FC<{ initialTab?: 'branding' | 'faqs' | 'foo
                           { label: 'Careers', url: 'careers' },
                           { label: 'Terms', url: 'terms' },
                           { label: 'Privacy', url: 'privacy' },
-                          { label: 'Panchang', url: '/panchang' },
-                          { label: 'Rashifal', url: '/rashifal' },
                         ].map((preset) => (
                           <button
                             key={preset.url}

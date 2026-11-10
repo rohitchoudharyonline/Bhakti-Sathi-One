@@ -159,22 +159,6 @@ export const Footer: React.FC<FooterProps> = ({ onSelectDestination, onSelectDha
       return;
     }
 
-    if (normalized === 'jap-counter' || normalized === 'mala' || normalized === 'jaap') {
-      navigateToJapCounter();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      return;
-    }
-
-    if (normalized === 'panchang') {
-      window.location.href = '/panchang';
-      return;
-    }
-
-    if (normalized === 'rashifal' || normalized === 'horoscope') {
-      window.location.href = '/rashifal';
-      return;
-    }
-
     const infoPages = ['about', 'careers', 'locate_us', 'contact', 'faq', 'terms', 'cancellation', 'privacy', 'security', 'pilgrimage', 'family', 'sitemap'];
     if (infoPages.includes(normalized)) {
       openInfo(normalized);

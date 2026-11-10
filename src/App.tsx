@@ -24,9 +24,6 @@ const TravelerProfilePage = lazy(() => import('./components/traveler/TravelerPro
 import { TravelerAuthModal } from './components/traveler/TravelerAuthModal';
 import { AdminFloatingBar } from './components/cms/AdminFloatingBar';
 const TravelerGoogleAuthPage = lazy(() => import('./components/traveler/TravelerGoogleAuthPage').then((m) => ({ default: m.TravelerGoogleAuthPage })));
-const JapCounterPageV2 = lazy(() => import('./components/traveler/JapCounterPageV2').then((m) => ({ default: m.JapCounterPageV2 })));
-const PanchangCalendarPageV3 = lazy(() => import('./components/traveler/PanchangCalendarPageV3').then((m) => ({ default: m.PanchangCalendarPageV3 })));
-const HoroscopePage = lazy(() => import('./components/traveler/HoroscopePage').then((m) => ({ default: m.HoroscopePage })));
 const PublicGuidesHub = lazy(() => import('./components/traveler/PublicGuidesHub').then((m) => ({ default: m.PublicGuidesHub })));
 const GuideDetailView = lazy(() => import('./components/traveler/GuideDetailView').then((m) => ({ default: m.GuideDetailView })));
 const SitemapPage = lazy(() => import('./components/traveler/SitemapPage').then((m) => ({ default: m.SitemapPage })));
@@ -95,7 +92,6 @@ const MainAppContent: React.FC = () => {
     activeInfoPage,
     setActiveInfoPage,
     isTravelerProfileOpen,
-    isJapCounterOpen,
     travelerUser,
     setActiveView,
   } = useTours();
@@ -138,8 +134,6 @@ const MainAppContent: React.FC = () => {
     }
   }, [cmsEntry, activeView, setActiveView]);
 
-  const isPanchangOpen = pathname === '/panchang' || pathname === '/panchang/';
-  const isHoroscopeOpen = pathname === '/rashifal' || pathname === '/rashifal/';
   const isSitemapOpen = pathname === '/sitemap' || pathname === '/sitemap/' || pathname === '/sitemap.html' || pathname === '/info/sitemap' || pathname === '/info/sitemap/' || activeInfoPage === 'sitemap';
   const showTravelerGoogleAuth = activeView === 'traveler' && isTravelerProfileOpen && !travelerUser;
   const showCms = cmsEntry || activeView === 'cms';
@@ -151,11 +145,10 @@ const MainAppContent: React.FC = () => {
       <div className="w-full min-h-screen bg-stone-50 text-stone-900 flex flex-col selection:bg-stone-900 selection:text-white">
         <ErrorBoundary fallbackTitle="Travel Experience Loading" fallbackMessage="There was a temporary issue loading this Holidays Hunt travel experience. Please reload to refresh the latest destinations and tour details.">
           <Suspense fallback={<RouteFallback />}>
-            {showCms ? <EnhancedERP /> : showTravelerGoogleAuth ? <TravelerGoogleAuthPage /> : isSitemapOpen ? <SitemapPage /> : isPanchangOpen ? <PanchangCalendarPageV3 /> : isHoroscopeOpen ? <HoroscopePage /> : isJapCounterOpen ? <JapCounterPageV2 /> : isTravelerProfileOpen ? <TravelerProfilePage /> : activeGuideSlug ? <GuideDetailView slug={activeGuideSlug} /> : isGuidesHubOpen ? <PublicGuidesHub /> : activeBlogSlug ? <BlogPostDetailView slug={activeBlogSlug} /> : isBlogHubOpen ? <TravelBlogHub /> : isToursDirectoryOpen ? <AllToursDirectory initialDestinationSlug={selectedToursDestination || undefined} /> : activeCustomPageSlug ? <CustomPageDetailView slug={activeCustomPageSlug} /> : activeInfoPage ? <InfoPageView pageSlug={activeInfoPage} onBack={() => setActiveInfoPage(null)} /> : selectedPackageId ? <EnhancedTourExperience /> : selectedDestinationSlug ? <DestinationPage /> : isDestinationsExplorerOpen ? <AllDestinationsExplorer /> : <LuxuryHomepage />}
+            {showCms ? <EnhancedERP /> : showTravelerGoogleAuth ? <TravelerGoogleAuthPage /> : isSitemapOpen ? <SitemapPage /> : isTravelerProfileOpen ? <TravelerProfilePage /> : activeGuideSlug ? <GuideDetailView slug={activeGuideSlug} /> : isGuidesHubOpen ? <PublicGuidesHub /> : activeBlogSlug ? <BlogPostDetailView slug={activeBlogSlug} /> : isBlogHubOpen ? <TravelBlogHub /> : isToursDirectoryOpen ? <AllToursDirectory initialDestinationSlug={selectedToursDestination || undefined} /> : activeCustomPageSlug ? <CustomPageDetailView slug={activeCustomPageSlug} /> : activeInfoPage ? <InfoPageView pageSlug={activeInfoPage} onBack={() => setActiveInfoPage(null)} /> : selectedPackageId ? <EnhancedTourExperience /> : selectedDestinationSlug ? <DestinationPage /> : isDestinationsExplorerOpen ? <AllDestinationsExplorer /> : <LuxuryHomepage />}
           </Suspense>
         </ErrorBoundary>
-        {/* {activeView === 'traveler' && !showTravelerGoogleAuth && !isSitemapOpen && !isPanchangOpen && !isHoroscopeOpen && <MobileBottomNav />} */}
-        {activeView === 'traveler' && !showTravelerGoogleAuth && !isSitemapOpen && !isPanchangOpen && !isHoroscopeOpen && <FloatingSupportWidget />}
+        {activeView === 'traveler' && !showTravelerGoogleAuth && !isSitemapOpen && <FloatingSupportWidget />}
         {!showTravelerGoogleAuth && <TravelerAuthModal />}
         <AdminFloatingBar />
       </div>

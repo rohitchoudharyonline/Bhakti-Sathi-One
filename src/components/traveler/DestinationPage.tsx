@@ -38,6 +38,7 @@ import { TourPackage } from '../../types/tour';
 import { InquiryModal } from './InquiryModal';
 import { formatPackagePrice } from '../../utils/priceHelper';
 import { FreeTravelInsuranceCard } from './FreeTravelInsuranceCard';
+import { Navbar } from '../common/Navbar';
 import { Footer } from './Footer';
 import { isValidEmail } from '../../utils/validation';
 import { EmailVerificationInput } from '../common/EmailVerificationInput';
@@ -220,8 +221,9 @@ export const DestinationPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-stone-100/70 text-stone-900 flex flex-col font-sans">
-      {/* 1. CLEAN TOP NAVBAR */}
-      <header className="sticky top-0 z-40 bg-white border-b border-stone-200 shadow-2xs">
+      <Navbar />
+      {/* 1. DESTINATION SUB-NAVBAR */}
+      <div className="bg-white border-b border-stone-200 shadow-2xs">
         {/* 2px Orange Brand Color Line at Top of Header */}
         <div className="h-[2px] w-full bg-[#FF4B00]" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
@@ -260,7 +262,7 @@ export const DestinationPage: React.FC = () => {
             </a>
           </div>
         </div>
-      </header>
+      </div>
 
       {/* 2. CLEARTRIP STYLE CLEAN DESTINATION HEADER */}
       <section className="bg-white border-b border-stone-200 py-5 px-4 sm:px-6 lg:px-8">

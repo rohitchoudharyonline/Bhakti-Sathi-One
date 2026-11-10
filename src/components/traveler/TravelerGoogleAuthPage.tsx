@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { GoogleLogin } from '@react-oauth/google';
 import { ArrowLeft, Loader2, ShieldCheck, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { useTours } from '../../context/TourContext';
+import { Navbar } from '../common/Navbar';
 
 export const TravelerGoogleAuthPage: React.FC = () => {
   const { loginWithGoogleIdToken, navigateToHome } = useTours();
@@ -31,7 +32,9 @@ export const TravelerGoogleAuthPage: React.FC = () => {
   };
 
   return (
-    <main className="min-h-screen bg-stone-50 flex items-center justify-center p-4 pb-28">
+    <div className="min-h-screen bg-stone-50 flex flex-col">
+      <Navbar />
+      <main className="flex-1 flex items-center justify-center p-4 pb-28">
       <div className="w-full max-w-md">
         <button onClick={navigateToHome} className="mb-6 flex items-center gap-2 text-sm font-bold text-stone-600 hover:text-stone-900">
           <ArrowLeft className="w-4 h-4" /> Back to Tours
@@ -89,5 +92,6 @@ export const TravelerGoogleAuthPage: React.FC = () => {
         </section>
       </div>
     </main>
-  );
+  </div>
+);
 };
