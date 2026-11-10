@@ -1240,7 +1240,7 @@ async function loadBrandLogoData(): Promise<{ dataUrl: string; width: number; he
   return null;
 }
 
-export async function generateTourPDF(pkg:TourPackage,a:AgencySettings,onProgress?:(status:string)=>void):Promise<void>{
+export async function generateTourPDF(pkg:TourPackage,a:AgencySettings,onProgress?:(status:string)=>void, selectedTierKey?: 'star3' | 'star4' | 'star5'):Promise<void>{
   onProgress?.('Preparing official mobile tour brochure...');
   
   const w = 430;
