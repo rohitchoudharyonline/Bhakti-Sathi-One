@@ -80,6 +80,9 @@ import {
   LogOut,
   Menu,
   BarChart3,
+  Sun,
+  Moon,
+  Zap,
 } from 'lucide-react';
 
 export const CMSDashboard: React.FC = () => {
@@ -276,9 +279,46 @@ export const CMSDashboard: React.FC = () => {
     setActiveView('traveler');
   };
 
+  const [invoiceInquiry, setInvoiceInquiry] = useState<BookingInquiry | null>(null);
+
   const handleConvertInquiryToInvoice = (inquiry: BookingInquiry) => {
+    setInvoiceInquiry(inquiry);
+    try {
+      localStorage.setItem('hh_pending_invoice_inquiry', JSON.stringify(inquiry));
+    } catch {}
     setActiveCmsTab('invoices');
   };
+
+  // Theme Management (Light / Dark Mode)
+  const [cmsTheme, setCmsTheme] = useState<'light' | 'dark'>(() => {
+    try {
+      const saved = localStorage.getItem('hh_cms_theme');
+      if (saved === 'dark' || saved === 'light') return saved;
+      if (typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        return 'dark';
+      }
+    } catch {}
+    return 'light';
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('hh_cms_theme', cmsTheme);
+      if (cmsTheme === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    } catch {}
+  }, [cmsTheme]);
+
+  const toggleTheme = () => {
+    setCmsTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
+  };
+
+  // ERP Workspace Department Filter
+  const [activeWorkspace, setActiveWorkspace] = useState<'all' | 'sales' | 'tours' | 'finance' | 'content' | 'admin'>('all');
+  const [moduleSearchQuery, setModuleSearchQuery] = useState('');
 
   // If on editor tab, render the PackageEditor
   if (activeCmsTab === 'editor') {
@@ -297,44 +337,229 @@ export const CMSDashboard: React.FC = () => {
     );
   }
 
-
-    const tabsConfig = [
-    { id: 'dashboard', label: 'Operations Hub', icon: LayoutDashboard, count: null, show: canAccess('dashboard') },
-    
-    // Core WordPress-style Content Management Tabs
-    { id: 'guides', label: 'All Posts', icon: BookOpen, count: guides.length, show: canAccess('guides') },
-    { id: 'blogs', label: 'Blog Stories', icon: Newspaper, count: blogPosts?.length || 0, show: canAccess('blogs') },
-    { id: 'categories', label: 'Categories', icon: Folder, count: (guideCategories?.length || 0) + (blogCategories?.length || 0), show: canAccess('categories') },
-    { id: 'tags', label: 'Tags', icon: Tag, count: null, show: canAccess('tags') },
-    { id: 'media', label: 'Image Library', icon: ImagePlus, count: mediaAssets.length, show: canAccess('media') },
-    { id: 'pages', label: 'Pages', icon: FileEdit, count: customPages.length, show: canAccess('pages') },
-    { id: 'seo', label: 'SEO Meta', icon: Globe, count: null, show: canAccess('seo') },
-    { id: 'analytics-dashboard', label: 'Analytics Recharts', icon: BarChart3, count: null, show: true },
-
-    { id: 'packages', label: 'Tour Packages', icon: Compass, count: packages.length, show: canAccess('packages') },
+  const tabsConfig = [
+    {
+      id: 'dashboard',
+      label: 'Operations Hub',
+      desc: 'Agency KPIs & financial executive dashboard',
+      icon: LayoutDashboard,
+      count: null,
+      workspace: 'all',
+      show: canAccess('dashboard'),
+    },
+    // Sales & Leads
+    {
+      id: 'inquiries',
+      label: 'Inquiries & Leads',
+      desc: 'Guest booking leads & tailored proposals',
+      icon: MessageSquare,
+      count: inquiries.length,
+      badgeNew: newInquiriesCount > 0,
+      workspace: 'sales',
+      show: canAccess('inquiries'),
+    },
+    {
+      id: 'invoices',
+      label: 'Client Invoices',
+      desc: 'Tax invoices, advances & client receipts',
+      icon: Receipt,
+      count: invoices.length,
+      workspace: 'sales',
+      show: canAccess('invoices'),
+    },
+    {
+      id: 'users',
+      label: 'Travelers & Signups',
+      desc: 'Guest member accounts & travel history',
+      icon: Users,
+      count: registeredUsers?.length || 0,
+      workspace: 'sales',
+      show: true,
+    },
+    // Tours & Inventory
+    {
+      id: 'packages',
+      label: 'Tour Packages',
+      desc: 'Itineraries, pricing tiers & photo galleries',
+      icon: Compass,
+      count: packages.length,
+      workspace: 'tours',
+      show: canAccess('packages'),
+    },
     {
       id: 'group-tours',
       label: 'Group Tours & Batches',
+      desc: 'Fixed departures, seat batches & bus yatras',
       icon: Bus,
       count: packages.filter((p) => p.isGroupTour || p.tourType === 'Group Tour').length,
+      workspace: 'tours',
       show: canAccess('group-tours'),
     },
-    { id: 'destinations', label: 'Destinations Hub', icon: MapPin, count: null, show: canAccess('destinations') },
-    { id: 'temples', label: 'Temples & Shrines', icon: Landmark, count: temples.length, show: canAccess('temples') },
-    { id: 'push-notifications', label: 'Push Broadcasts', icon: Bell, count: pushNotifications.length, show: true },
-    { id: 'inquiries', label: 'Inquiries & Leads', icon: MessageSquare, count: inquiries.length, badgeNew: newInquiriesCount > 0, show: canAccess('inquiries') },
-    { id: 'users', label: 'Travelers & Signups', icon: Users, count: registeredUsers?.length || 0, show: true },
-    { id: 'invoices', label: 'Client Invoices', icon: Receipt, count: invoices.length, show: canAccess('invoices') },
-    { id: 'payments', label: 'Vendor Payouts', icon: CreditCard, count: vendorPayments.length, show: canAccess('payments') },
-    { id: 'vendors', label: 'Vendors & Fleets', icon: Car, count: vendors.length, show: canAccess('vendors') },
-    { id: 'staff', label: 'Staff & RBAC', icon: Shield, count: staff.length, show: canAccess('staff') },
-    { id: 'bottom-menus', label: 'Bottom Menus & Footer', icon: Menu, count: agencySettings.footerMenus?.length || 4, show: canAccess('settings') },
-    { id: 'faqs', label: 'FAQ Management', icon: HelpCircle, count: agencySettings.faqs?.length || 10, show: canAccess('faqs') },
-    { id: 'settings', label: 'Agency Settings', icon: Settings, count: null, show: canAccess('settings') },
+    {
+      id: 'destinations',
+      label: 'Destinations Hub',
+      desc: 'Sightseeing spots & regional travel guides',
+      icon: MapPin,
+      count: null,
+      workspace: 'tours',
+      show: canAccess('destinations'),
+    },
+    {
+      id: 'temples',
+      label: 'Temples & Shrines',
+      desc: 'Sacred shrines, aarti timings & yatra portals',
+      icon: Landmark,
+      count: temples.length,
+      workspace: 'tours',
+      show: canAccess('temples'),
+    },
+    // Finance & Accounts
+    {
+      id: 'payments',
+      label: 'Vendor Payouts',
+      desc: 'Supplier vouchers & ground service payments',
+      icon: CreditCard,
+      count: vendorPayments.length,
+      workspace: 'finance',
+      show: canAccess('payments'),
+    },
+    {
+      id: 'vendors',
+      label: 'Vendors & Fleets',
+      desc: 'Mountain drivers, cabs, hotels & guides',
+      icon: Car,
+      count: vendors.length,
+      workspace: 'finance',
+      show: canAccess('vendors'),
+    },
+    // Content Studio
+    {
+      id: 'guides',
+      label: 'All Posts & Guides',
+      desc: 'Pilgrimage guides, articles & rich SEO posts',
+      icon: BookOpen,
+      count: guides.length,
+      workspace: 'content',
+      show: canAccess('guides'),
+    },
+    {
+      id: 'blogs',
+      label: 'Blog Stories',
+      desc: 'Travel stories, devotional tips & editorials',
+      icon: Newspaper,
+      count: blogPosts?.length || 0,
+      workspace: 'content',
+      show: canAccess('blogs'),
+    },
+    {
+      id: 'media',
+      label: 'Image Library',
+      desc: 'Cloudflare R2 photos & media storage',
+      icon: ImagePlus,
+      count: mediaAssets.length,
+      workspace: 'content',
+      show: canAccess('media'),
+    },
+    {
+      id: 'categories',
+      label: 'Categories',
+      desc: 'Blog & post taxonomy structure',
+      icon: Folder,
+      count: (guideCategories?.length || 0) + (blogCategories?.length || 0),
+      workspace: 'content',
+      show: canAccess('categories'),
+    },
+    {
+      id: 'tags',
+      label: 'Tags',
+      desc: 'Keyword tags for tours & travel posts',
+      icon: Tag,
+      count: null,
+      workspace: 'content',
+      show: canAccess('tags'),
+    },
+    {
+      id: 'pages',
+      label: 'Custom Pages',
+      desc: 'CMS pages & landing content blocks',
+      icon: FileEdit,
+      count: customPages.length,
+      workspace: 'content',
+      show: canAccess('pages'),
+    },
+    {
+      id: 'seo',
+      label: 'SEO Meta',
+      desc: 'Search metadata & social OpenGraph cards',
+      icon: Globe,
+      count: null,
+      workspace: 'content',
+      show: canAccess('seo'),
+    },
+    // Admin & Operations
+    {
+      id: 'staff',
+      label: 'Staff & RBAC',
+      desc: 'Team members, roles & granular permissions',
+      icon: Shield,
+      count: staff.length,
+      workspace: 'admin',
+      show: canAccess('staff'),
+    },
+    {
+      id: 'push-notifications',
+      label: 'Push Broadcasts',
+      desc: 'Real-time web push campaigns to subscribers',
+      icon: Bell,
+      count: pushNotifications.length,
+      workspace: 'admin',
+      show: true,
+    },
+    {
+      id: 'analytics-dashboard',
+      label: 'Analytics Recharts',
+      desc: 'Visual traffic, inquiries & performance graphs',
+      icon: BarChart3,
+      count: null,
+      workspace: 'admin',
+      show: true,
+    },
+    {
+      id: 'faqs',
+      label: 'FAQ Management',
+      desc: 'Customer questions & knowledgebase answers',
+      icon: HelpCircle,
+      count: agencySettings.faqs?.length || 10,
+      workspace: 'admin',
+      show: canAccess('faqs'),
+    },
+    {
+      id: 'bottom-menus',
+      label: 'Bottom Menus & Footer',
+      desc: 'Mobile navigation tabs & footer links',
+      icon: Menu,
+      count: agencySettings.footerMenus?.length || 4,
+      workspace: 'admin',
+      show: canAccess('settings'),
+    },
+    {
+      id: 'settings',
+      label: 'Agency Settings',
+      desc: 'Company profile, branding, bank & UPI',
+      icon: Settings,
+      count: null,
+      workspace: 'admin',
+      show: canAccess('settings'),
+    },
   ];
 
   return (
-    <div className="bg-stone-50 min-h-screen pb-20 text-stone-900 font-sans" id="cms-main-container">
+    <div
+      className={`min-h-screen pb-24 font-sans transition-colors duration-200 ${
+        cmsTheme === 'dark' ? 'dark bg-[#0F1014] text-white' : 'bg-stone-50 text-stone-900'
+      }`}
+      id="cms-main-container"
+    >
       {isAITourCreatorOpen && (
         <AITourCreator
           onCreated={(pkg) => {
@@ -346,9 +571,9 @@ export const CMSDashboard: React.FC = () => {
         />
       )}
       {/* 1. Clean Top Header Bar */}
-      <div className="bg-white border-b border-stone-200 sticky top-0 z-30 shadow-2xs">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+      <div className="bg-white dark:bg-[#18191E] border-b border-stone-200 dark:border-stone-800 sticky top-0 z-30 shadow-2xs transition-colors">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-3.5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             {/* Title & Badge */}
             <div className="flex items-center gap-3 min-w-0">
               <div className="w-10 h-10 rounded-2xl bg-[#FF4B00] text-white flex items-center justify-center font-sans text-lg font-black shadow-xs shrink-0">
@@ -356,22 +581,46 @@ export const CMSDashboard: React.FC = () => {
               </div>
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
-                  <h1 className="text-sm sm:text-lg font-black text-[#1A1A1A] truncate font-sans tracking-tight">
+                  <h1 className="text-sm sm:text-lg font-black text-stone-900 dark:text-white truncate font-sans tracking-tight">
                     {agencySettings.agencyName} ERP
                   </h1>
-                  <span className="hidden lg:inline-flex bg-[#FFF0EB] border border-[#FF4B00]/30 text-[#FF4B00] text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">
-                    Operations
+                  <span className="hidden sm:inline-flex bg-orange-50 dark:bg-orange-950/40 border border-orange-200 dark:border-orange-800/60 text-[#FF4B00] text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">
+                    Enterprise
                   </span>
                 </div>
-                <p className="text-[10px] sm:text-[11px] text-[#1A1A1A]/60 truncate font-medium">
-                  Travel & Hospitality Management • RBAC Staff Access
+                <p className="text-[10px] sm:text-[11px] text-stone-500 dark:text-stone-400 truncate font-medium">
+                  Travel & Hospitality Management Portal • RBAC Staff Access
                 </p>
               </div>
             </div>
 
             {/* Top Quick Actions */}
-            <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 shrink-0">
+            <div className="flex flex-wrap items-center gap-2 shrink-0">
               <StaffRoleSwitcher />
+
+              {/* Dark / Light Theme Toggle Button */}
+              <button
+                type="button"
+                onClick={toggleTheme}
+                className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-[11px] sm:text-xs font-bold border transition cursor-pointer ${
+                  cmsTheme === 'dark'
+                    ? 'bg-[#252830] hover:bg-[#2F333D] text-amber-300 border-stone-700 shadow-xs'
+                    : 'bg-stone-100 hover:bg-stone-200 text-stone-700 border-stone-200 shadow-xs'
+                }`}
+                title={`Switch to ${cmsTheme === 'dark' ? 'Light' : 'Dark'} Mode`}
+              >
+                {cmsTheme === 'dark' ? (
+                  <>
+                    <Sun className="w-3.5 h-3.5 text-amber-400" />
+                    <span className="hidden sm:inline">Light</span>
+                  </>
+                ) : (
+                  <>
+                    <Moon className="w-3.5 h-3.5 text-stone-600" />
+                    <span className="hidden sm:inline">Dark</span>
+                  </>
+                )}
+              </button>
 
               <button
                 type="button"
@@ -382,8 +631,8 @@ export const CMSDashboard: React.FC = () => {
                   }
                   setActiveView('traveler');
                 }}
-                className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-[#1A1A1A] text-[11px] sm:text-xs font-bold border border-stone-200 transition cursor-pointer"
-                title="Switch to Storefront"
+                className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-stone-100 dark:bg-[#252830] hover:bg-stone-200 dark:hover:bg-[#2F333D] text-stone-800 dark:text-stone-200 text-[11px] sm:text-xs font-bold border border-stone-200 dark:border-stone-700 transition cursor-pointer"
+                title="Switch to Public Storefront"
               >
                 <Globe className="w-3.5 h-3.5 text-[#FF4B00]" />
                 <span className="hidden md:inline">Storefront</span>
@@ -400,14 +649,14 @@ export const CMSDashboard: React.FC = () => {
                 className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-[11px] sm:text-xs font-bold border transition cursor-pointer ${
                   activeCmsTab === 'guides'
                     ? 'bg-amber-500 text-white border-amber-600 shadow-xs'
-                    : 'bg-amber-50 hover:bg-amber-100 text-amber-900 border-amber-200'
+                    : 'bg-amber-50 dark:bg-amber-950/30 hover:bg-amber-100 dark:hover:bg-amber-950/50 text-amber-900 dark:text-amber-300 border-amber-200 dark:border-amber-800/40'
                 }`}
                 title="View All Posts & Drafts"
               >
                 <BookOpen className="w-3.5 h-3.5" />
                 <span>Posts</span>
                 <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-black ${
-                  activeCmsTab === 'guides' ? 'bg-white text-amber-800' : 'bg-amber-200/80 text-amber-950'
+                  activeCmsTab === 'guides' ? 'bg-white text-amber-800' : 'bg-amber-200/80 dark:bg-amber-900/60 text-amber-950 dark:text-amber-200'
                 }`}>
                   {guides.length}
                 </span>
@@ -421,7 +670,7 @@ export const CMSDashboard: React.FC = () => {
                   className="px-2.5 sm:px-3.5 py-1.5 rounded-xl bg-[#FF4B00] hover:bg-[#E04200] text-white text-[11px] sm:text-xs font-bold flex items-center gap-1.5 shadow-xs transition cursor-pointer"
                 >
                   <Plus className="w-3.5 h-3.5" />
-                  <span className="hidden md:inline">New Tour Package</span>
+                  <span className="hidden md:inline">New Tour</span>
                   <span className="md:hidden">New</span>
                 </button>
               )}
@@ -438,7 +687,7 @@ export const CMSDashboard: React.FC = () => {
                     console.error('Logout failed', e);
                   }
                 }}
-                className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 text-[11px] sm:text-xs font-bold border border-red-200 transition cursor-pointer"
+                className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-red-50 dark:bg-red-950/40 hover:bg-red-100 dark:hover:bg-red-900/40 text-red-600 dark:text-red-400 text-[11px] sm:text-xs font-bold border border-red-200 dark:border-red-900/40 transition cursor-pointer"
                 title="Sign Out"
               >
                 <LogOut className="w-3.5 h-3.5" />
@@ -453,12 +702,10 @@ export const CMSDashboard: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-5 sm:mt-6 pb-36">
         {/* Sacred Dashboard Mantra Card with Majestic Spiritual Styling */}
         <div className="bg-gradient-to-r from-stone-950 via-[#18181B] to-stone-950 border border-amber-500/35 hover:border-amber-500/55 rounded-2xl sm:rounded-3xl p-5 sm:p-7 mb-6 shadow-xl relative overflow-hidden transition-all duration-300">
-          {/* Subtle Ambient Glow and Geometric Shimmer */}
           <div className="absolute inset-0 opacity-15 bg-[radial-gradient(#f59e0b_1px,transparent_1px)] [background-size:20px_20px] pointer-events-none" />
           <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-72 sm:w-96 h-24 bg-[#FF4B00]/20 rounded-full blur-2xl pointer-events-none" />
 
           <div className="relative z-10 flex items-center justify-center text-center">
-            {/* Core Sacred Mantra Typography */}
             <div className="text-2xl sm:text-3xl md:text-4xl lg:text-[42px] font-black tracking-[0.16em] sm:tracking-[0.26em] font-serif py-1 drop-shadow-md select-none">
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-[#FF5500] to-amber-300">
                 {agencySettings?.sacredMantra || 'साम्ब सदाशिव'}
@@ -467,51 +714,129 @@ export const CMSDashboard: React.FC = () => {
           </div>
         </div>
 
-        {/* Navigation Tabs Bar: Grid of Cards */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-3 mb-6">
-          {tabsConfig
-            .filter((t) => t.show)
-            .map((tab) => {
-              const IconComponent = tab.icon;
-              const isActive = activeCmsTab === tab.id;
-
-              return (
+        {/* 3. ERP WORKSPACE NAVIGATOR FOR EASY STAFF USAGE */}
+        <div className="bg-white dark:bg-[#18191E] rounded-2xl border border-stone-200 dark:border-stone-800 p-3 sm:p-4 mb-6 shadow-2xs space-y-3">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+            {/* Department Workspaces */}
+            <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1 md:pb-0">
+              {[
+                { id: 'all', label: 'All Tools', icon: '🌟' },
+                { id: 'sales', label: 'Frontdesk & Sales', icon: '🛎️' },
+                { id: 'tours', label: 'Tours & Inventory', icon: '🗺️' },
+                { id: 'finance', label: 'Finance & Billing', icon: '💳' },
+                { id: 'content', label: 'Content Studio', icon: '✍️' },
+                { id: 'admin', label: 'Admin & Staff', icon: '⚙️' },
+              ].map((ws) => (
                 <button
-                  key={tab.id}
+                  key={ws.id}
                   type="button"
-                  onClick={() => setActiveCmsTab(tab.id as any)}
-                  className={`relative p-3 sm:p-4 rounded-2xl text-left font-bold transition flex flex-col justify-between h-full gap-2 cursor-pointer select-none border ${
-                    isActive
-                      ? 'bg-[#FF4B00] text-white border-[#FF4B00] shadow-md shadow-[#FF4B00]/20'
-                      : 'bg-white text-[#1A1A1A] border-stone-200 hover:bg-stone-50 hover:border-[#FF4B00]/40 hover:shadow-sm'
+                  onClick={() => {
+                    setActiveWorkspace(ws.id as any);
+                    setModuleSearchQuery('');
+                  }}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition cursor-pointer flex items-center gap-1.5 shrink-0 ${
+                    activeWorkspace === ws.id
+                      ? 'bg-[#FF4B00] text-white shadow-xs'
+                      : 'bg-stone-100 dark:bg-[#252830] text-stone-700 dark:text-stone-300 hover:bg-stone-200 dark:hover:bg-[#2E333E]'
                   }`}
-                  id={`tab-${tab.id}`}
                 >
-                  <div className="flex items-center justify-between w-full">
-                    <IconComponent className={`w-5 h-5 sm:w-6 sm:h-6 ${isActive ? 'text-white' : 'text-stone-400'}`} />
-                    {(tab.count !== null || tab.badgeNew) && (
-                      <div className="flex items-center gap-1.5">
-                        {tab.badgeNew && (
-                          <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
-                        )}
-                        {tab.count !== null && (
-                          <span
-                            className={`text-[10px] px-1.5 py-0.5 rounded-full font-black ${
-                              isActive
-                                ? 'bg-white text-[#FC3200]'
-                                : 'bg-stone-100 text-stone-500'
-                            }`}
-                          >
-                            {tab.count}
-                          </span>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                  <span className="text-xs sm:text-sm font-black mt-1">{tab.label}</span>
+                  <span>{ws.icon}</span>
+                  <span>{ws.label}</span>
                 </button>
-              );
-            })}
+              ))}
+            </div>
+
+            {/* Quick search input to locate any tool instantly */}
+            <div className="relative w-full md:w-64 shrink-0">
+              <Search className="w-3.5 h-3.5 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                value={moduleSearchQuery}
+                onChange={(e) => setModuleSearchQuery(e.target.value)}
+                placeholder="Search tools... (e.g. invoice, lead, tour)"
+                className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-[#202227] text-stone-900 dark:text-white placeholder:text-stone-400 dark:placeholder:text-stone-500 focus:border-[#FF4B00] outline-none"
+              />
+            </div>
+          </div>
+
+          {/* Module Navigation Cards Grid */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-2.5 pt-2 border-t border-stone-100 dark:border-stone-800">
+            {tabsConfig
+              .filter((tab) => {
+                if (!tab.show) return false;
+                if (moduleSearchQuery.trim()) {
+                  const q = moduleSearchQuery.toLowerCase();
+                  return (
+                    tab.label.toLowerCase().includes(q) ||
+                    (tab.desc && tab.desc.toLowerCase().includes(q)) ||
+                    tab.id.toLowerCase().includes(q)
+                  );
+                }
+                if (activeWorkspace === 'all') return true;
+                if (tab.id === 'dashboard') return true;
+                return tab.workspace === activeWorkspace;
+              })
+              .map((tab) => {
+                const IconComponent = tab.icon;
+                const isActive = activeCmsTab === tab.id;
+
+                return (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    onClick={() => setActiveCmsTab(tab.id as any)}
+                    className={`relative p-3 rounded-xl text-left transition flex flex-col justify-between h-full gap-2 cursor-pointer select-none border ${
+                      isActive
+                        ? 'bg-[#FF4B00] text-white border-[#FF4B00] shadow-md shadow-[#FF4B00]/25'
+                        : 'bg-stone-50 dark:bg-[#202227] text-stone-900 dark:text-white border-stone-200/90 dark:border-stone-800 hover:bg-stone-100 dark:hover:bg-[#282B32] hover:border-[#FF4B00]/40'
+                    }`}
+                    id={`tab-${tab.id}`}
+                  >
+                    <div className="flex items-center justify-between w-full">
+                      <div
+                        className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+                          isActive
+                            ? 'bg-white/20 text-white'
+                            : 'bg-stone-200/70 dark:bg-stone-800 text-stone-600 dark:text-stone-300'
+                        }`}
+                      >
+                        <IconComponent className="w-4 h-4" />
+                      </div>
+                      {(tab.count !== null || tab.badgeNew) && (
+                        <div className="flex items-center gap-1">
+                          {tab.badgeNew && (
+                            <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+                          )}
+                          {tab.count !== null && (
+                            <span
+                              className={`text-[10px] px-1.5 py-0.5 rounded-full font-black ${
+                                isActive
+                                  ? 'bg-white text-[#FC3200]'
+                                  : 'bg-stone-200 dark:bg-stone-800 text-stone-700 dark:text-stone-300'
+                              }`}
+                            >
+                              {tab.count}
+                            </span>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                    <div>
+                      <span className="text-xs font-black block leading-snug">{tab.label}</span>
+                      {tab.desc && (
+                        <span
+                          className={`text-[10px] line-clamp-1 mt-0.5 block ${
+                            isActive ? 'text-white/80' : 'text-stone-500 dark:text-stone-400'
+                          }`}
+                        >
+                          {tab.desc}
+                        </span>
+                      )}
+                    </div>
+                  </button>
+                );
+              })}
+          </div>
         </div>
 
         {/* ACCESS RESTRICTION NOTICE IF ATTEMPTING UNAUTHORIZED MODULE */}
@@ -558,70 +883,70 @@ export const CMSDashboard: React.FC = () => {
           <div className="space-y-4 sm:space-y-6" id="cms-dashboard-tab">
             {/* Financial Overview & KPIs: Refined Bento Design */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-              <div className="bg-white p-4 sm:p-5 rounded-2xl border-l-4 border-l-blue-500 border-y border-r border-stone-200 shadow-xs flex flex-col justify-between hover:shadow-md transition">
+              <div className="bg-white dark:bg-[#18191E] p-4 sm:p-5 rounded-2xl border-l-4 border-l-blue-500 border-y border-r border-stone-200 dark:border-stone-800 shadow-xs flex flex-col justify-between hover:shadow-md transition">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-stone-500 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider">
+                  <span className="text-stone-500 dark:text-stone-400 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider">
                     Total Invoiced
                   </span>
                   <Receipt className="w-4 h-4 text-blue-500" />
                 </div>
-                <div className="text-lg sm:text-2xl font-black text-stone-900 truncate">
+                <div className="text-lg sm:text-2xl font-black text-stone-900 dark:text-white truncate">
                   ₹{totalInvoiced.toLocaleString()}
                 </div>
-                <div className="text-[10px] sm:text-[11px] text-stone-500 font-medium mt-1">
+                <div className="text-[10px] sm:text-[11px] text-stone-500 dark:text-stone-400 font-medium mt-1">
                   {invoices.length} Client Invoices
                 </div>
               </div>
 
-              <div className="bg-white p-4 sm:p-5 rounded-2xl border-l-4 border-l-emerald-500 border-y border-r border-stone-200 shadow-xs flex flex-col justify-between hover:shadow-md transition">
+              <div className="bg-white dark:bg-[#18191E] p-4 sm:p-5 rounded-2xl border-l-4 border-l-emerald-500 border-y border-r border-stone-200 dark:border-stone-800 shadow-xs flex flex-col justify-between hover:shadow-md transition">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-stone-500 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider">
+                  <span className="text-stone-500 dark:text-stone-400 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider">
                     Total Collected
                   </span>
                   <ArrowDownLeft className="w-4 h-4 text-emerald-500" />
                 </div>
-                <div className="text-lg sm:text-2xl font-black text-emerald-700 truncate">
+                <div className="text-lg sm:text-2xl font-black text-emerald-700 dark:text-emerald-400 truncate">
                   ₹{totalCollected.toLocaleString()}
                 </div>
-                <div className="flex items-center gap-1 text-[10px] sm:text-[11px] text-emerald-700 font-bold mt-1">
+                <div className="flex items-center gap-1 text-[10px] sm:text-[11px] text-emerald-700 dark:text-emerald-400 font-bold mt-1">
                   <TrendingUp className="w-3 h-3" />
                   <span>Realized Inflow</span>
                 </div>
               </div>
 
-              <div className="bg-white p-4 sm:p-5 rounded-2xl border-l-4 border-l-amber-500 border-y border-r border-stone-200 shadow-xs flex flex-col justify-between hover:shadow-md transition">
+              <div className="bg-white dark:bg-[#18191E] p-4 sm:p-5 rounded-2xl border-l-4 border-l-amber-500 border-y border-r border-stone-200 dark:border-stone-800 shadow-xs flex flex-col justify-between hover:shadow-md transition">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-stone-500 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider">
+                  <span className="text-stone-500 dark:text-stone-400 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider">
                     Vendor Payouts
                   </span>
                   <ArrowUpRight className="w-4 h-4 text-amber-500" />
                 </div>
-                <div className="text-lg sm:text-2xl font-black text-amber-800 truncate">
+                <div className="text-lg sm:text-2xl font-black text-amber-800 dark:text-amber-400 truncate">
                   ₹{totalVendorPayouts.toLocaleString()}
                 </div>
-                <div className="text-[10px] sm:text-[11px] text-stone-500 font-medium mt-1">
+                <div className="text-[10px] sm:text-[11px] text-stone-500 dark:text-stone-400 font-medium mt-1">
                   Pending: ₹{totalPendingVendor.toLocaleString()}
                 </div>
               </div>
 
-              <div className="bg-white p-4 sm:p-5 rounded-2xl border-l-4 border-l-purple-500 border-y border-r border-stone-200 shadow-xs flex flex-col justify-between hover:shadow-md transition">
+              <div className="bg-white dark:bg-[#18191E] p-4 sm:p-5 rounded-2xl border-l-4 border-l-purple-500 border-y border-r border-stone-200 dark:border-stone-800 shadow-xs flex flex-col justify-between hover:shadow-md transition">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-stone-500 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider">
+                  <span className="text-stone-500 dark:text-stone-400 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider">
                     Gross Margin
                   </span>
                   <Sparkles className="w-4 h-4 text-purple-500" />
                 </div>
-                <div className="text-lg sm:text-2xl font-black text-purple-700 truncate">
+                <div className="text-lg sm:text-2xl font-black text-purple-700 dark:text-purple-400 truncate">
                   ₹{estimatedGrossProfit.toLocaleString()}
                 </div>
-                <div className="text-[10px] sm:text-[11px] text-purple-700 font-bold mt-1">
+                <div className="text-[10px] sm:text-[11px] text-purple-700 dark:text-purple-400 font-bold mt-1">
                   Operating Margin
                 </div>
               </div>
             </div>
 
             {/* Operations Quick Actions: List on Mobile, Grid on Desktop */}
-            <div className="bg-white p-4 sm:p-5 rounded-2xl border border-stone-200 shadow-xs">
+            <div className="bg-white dark:bg-[#18191E] p-4 sm:p-5 rounded-2xl border border-stone-200 dark:border-stone-800 shadow-xs">
               <h3 className="text-[11px] font-black text-stone-400 uppercase tracking-widest mb-3 sm:mb-4 pl-1">
                 Operations Quick Shortcuts
               </h3>
@@ -646,14 +971,14 @@ export const CMSDashboard: React.FC = () => {
                   <button
                     type="button"
                     onClick={handleStartCreate}
-                    className="flex items-center sm:flex-col sm:items-start p-3 sm:p-4 rounded-xl bg-stone-50 hover:bg-white border border-stone-200 hover:border-blue-500 hover:shadow-md text-left transition-all cursor-pointer group"
+                    className="flex items-center sm:flex-col sm:items-start p-3 sm:p-4 rounded-xl bg-stone-50 dark:bg-[#202227] hover:bg-white dark:hover:bg-[#282B32] border border-stone-200 dark:border-stone-700 hover:border-blue-500 hover:shadow-md text-left transition-all cursor-pointer group"
                   >
-                    <div className="p-2 sm:p-0 bg-white sm:bg-transparent rounded-lg border sm:border-none border-stone-200 mr-3 sm:mr-0 sm:mb-3 shrink-0">
-                      <Compass className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 group-hover:scale-110 transition-transform" />
+                    <div className="p-2 sm:p-0 bg-white dark:bg-stone-800 sm:bg-transparent rounded-lg border sm:border-none border-stone-200 dark:border-stone-700 mr-3 sm:mr-0 sm:mb-3 shrink-0">
+                      <Compass className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform" />
                     </div>
                     <div>
-                      <p className="text-sm font-black text-stone-900 group-hover:text-blue-600 transition-colors">Add Tour</p>
-                      <p className="text-[11px] text-stone-500 font-medium line-clamp-1">Create new package</p>
+                      <p className="text-sm font-black text-stone-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">Add Tour</p>
+                      <p className="text-[11px] text-stone-500 dark:text-stone-400 font-medium line-clamp-1">Create new package</p>
                     </div>
                   </button>
                 )}
@@ -664,16 +989,16 @@ export const CMSDashboard: React.FC = () => {
                       setGuidesSubView('list');
                       setActiveCmsTab('guides');
                     }}
-                    className="flex items-center sm:flex-col sm:items-start p-3 sm:p-4 rounded-xl bg-stone-50 hover:bg-white border border-stone-200 hover:border-amber-500 hover:shadow-md text-left transition-all cursor-pointer group"
+                    className="flex items-center sm:flex-col sm:items-start p-3 sm:p-4 rounded-xl bg-stone-50 dark:bg-[#202227] hover:bg-white dark:hover:bg-[#282B32] border border-stone-200 dark:border-stone-700 hover:border-amber-500 hover:shadow-md text-left transition-all cursor-pointer group"
                   >
-                    <div className="p-2 sm:p-0 bg-white sm:bg-transparent rounded-lg border sm:border-none border-stone-200 mr-3 sm:mr-0 sm:mb-3 shrink-0">
-                      <BookOpen className="w-5 h-5 sm:w-6 sm:h-6 text-amber-600 group-hover:scale-110 transition-transform" />
+                    <div className="p-2 sm:p-0 bg-white dark:bg-stone-800 sm:bg-transparent rounded-lg border sm:border-none border-stone-200 dark:border-stone-700 mr-3 sm:mr-0 sm:mb-3 shrink-0">
+                      <BookOpen className="w-5 h-5 sm:w-6 sm:h-6 text-amber-600 dark:text-amber-400 group-hover:scale-110 transition-transform" />
                     </div>
                     <div>
-                      <p className="text-sm font-black text-stone-900 group-hover:text-amber-600 transition-colors">
+                      <p className="text-sm font-black text-stone-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
                         All Posts ({guides.length})
                       </p>
-                      <p className="text-[11px] text-stone-500 font-medium line-clamp-1">Review drafts & live guides</p>
+                      <p className="text-[11px] text-stone-500 dark:text-stone-400 font-medium line-clamp-1">Review drafts & live guides</p>
                     </div>
                   </button>
                 )}
@@ -685,14 +1010,14 @@ export const CMSDashboard: React.FC = () => {
                       setGuidesSubView('editor');
                       setActiveCmsTab('guides');
                     }}
-                    className="flex items-center sm:flex-col sm:items-start p-3 sm:p-4 rounded-xl bg-stone-50 hover:bg-white border border-stone-200 hover:border-emerald-500 hover:shadow-md text-left transition-all cursor-pointer group"
+                    className="flex items-center sm:flex-col sm:items-start p-3 sm:p-4 rounded-xl bg-stone-50 dark:bg-[#202227] hover:bg-white dark:hover:bg-[#282B32] border border-stone-200 dark:border-stone-700 hover:border-emerald-500 hover:shadow-md text-left transition-all cursor-pointer group"
                   >
-                    <div className="p-2 sm:p-0 bg-white sm:bg-transparent rounded-lg border sm:border-none border-stone-200 mr-3 sm:mr-0 sm:mb-3 shrink-0">
-                      <FileEdit className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-600 group-hover:scale-110 transition-transform" />
+                    <div className="p-2 sm:p-0 bg-white dark:bg-stone-800 sm:bg-transparent rounded-lg border sm:border-none border-stone-200 dark:border-stone-700 mr-3 sm:mr-0 sm:mb-3 shrink-0">
+                      <FileEdit className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-600 dark:text-emerald-400 group-hover:scale-110 transition-transform" />
                     </div>
                     <div>
-                      <p className="text-sm font-black text-stone-900 group-hover:text-emerald-600 transition-colors">Write Post</p>
-                      <p className="text-[11px] text-stone-500 font-medium line-clamp-1">Create draft or publish</p>
+                      <p className="text-sm font-black text-stone-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">Write Post</p>
+                      <p className="text-[11px] text-stone-500 dark:text-stone-400 font-medium line-clamp-1">Create draft or publish</p>
                     </div>
                   </button>
                 )}
@@ -700,14 +1025,14 @@ export const CMSDashboard: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setActiveCmsTab("invoices")}
-                    className="flex items-center sm:flex-col sm:items-start p-3 sm:p-4 rounded-xl bg-stone-50 hover:bg-white border border-stone-200 hover:border-[#FC3200]/30 hover:shadow-md text-left transition-all cursor-pointer group"
+                    className="flex items-center sm:flex-col sm:items-start p-3 sm:p-4 rounded-xl bg-stone-50 dark:bg-[#202227] hover:bg-white dark:hover:bg-[#282B32] border border-stone-200 dark:border-stone-700 hover:border-[#FC3200]/30 hover:shadow-md text-left transition-all cursor-pointer group"
                   >
-                    <div className="p-2 sm:p-0 bg-white sm:bg-transparent rounded-lg border sm:border-none border-stone-200 mr-3 sm:mr-0 sm:mb-3 shrink-0">
+                    <div className="p-2 sm:p-0 bg-white dark:bg-stone-800 sm:bg-transparent rounded-lg border sm:border-none border-stone-200 dark:border-stone-700 mr-3 sm:mr-0 sm:mb-3 shrink-0">
                       <Receipt className="w-5 h-5 sm:w-6 sm:h-6 text-[#FC3200] group-hover:scale-110 transition-transform" />
                     </div>
                     <div>
-                      <p className="text-sm font-black text-stone-900 group-hover:text-[#FC3200] transition-colors">Create Tax Invoice</p>
-                      <p className="text-[11px] text-stone-500 font-medium line-clamp-1">Bill guest & track advance</p>
+                      <p className="text-sm font-black text-stone-900 dark:text-white group-hover:text-[#FC3200] transition-colors">Create Tax Invoice</p>
+                      <p className="text-[11px] text-stone-500 dark:text-stone-400 font-medium line-clamp-1">Bill guest & track advance</p>
                     </div>
                   </button>
                 )}
@@ -715,14 +1040,14 @@ export const CMSDashboard: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setActiveCmsTab("payments")}
-                    className="flex items-center sm:flex-col sm:items-start p-3 sm:p-4 rounded-xl bg-stone-50 hover:bg-white border border-stone-200 hover:border-emerald-300 hover:shadow-md text-left transition-all cursor-pointer group"
+                    className="flex items-center sm:flex-col sm:items-start p-3 sm:p-4 rounded-xl bg-stone-50 dark:bg-[#202227] hover:bg-white dark:hover:bg-[#282B32] border border-stone-200 dark:border-stone-700 hover:border-emerald-300 hover:shadow-md text-left transition-all cursor-pointer group"
                   >
-                    <div className="p-2 sm:p-0 bg-white sm:bg-transparent rounded-lg border sm:border-none border-stone-200 mr-3 sm:mr-0 sm:mb-3 shrink-0">
-                      <CreditCard className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-600 group-hover:scale-110 transition-transform" />
+                    <div className="p-2 sm:p-0 bg-white dark:bg-stone-800 sm:bg-transparent rounded-lg border sm:border-none border-stone-200 dark:border-stone-700 mr-3 sm:mr-0 sm:mb-3 shrink-0">
+                      <CreditCard className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-600 dark:text-emerald-400 group-hover:scale-110 transition-transform" />
                     </div>
                     <div>
-                      <p className="text-sm font-black text-stone-900 group-hover:text-emerald-700 transition-colors">Vendor Voucher</p>
-                      <p className="text-[11px] text-stone-500 font-medium line-clamp-1">Book cab, hotel, heli</p>
+                      <p className="text-sm font-black text-stone-900 dark:text-white group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors">Vendor Voucher</p>
+                      <p className="text-[11px] text-stone-500 dark:text-stone-400 font-medium line-clamp-1">Book cab, hotel, heli</p>
                     </div>
                   </button>
                 )}
@@ -730,14 +1055,14 @@ export const CMSDashboard: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setActiveCmsTab("inquiries")}
-                    className="flex items-center sm:flex-col sm:items-start p-3 sm:p-4 rounded-xl bg-stone-50 hover:bg-white border border-stone-200 hover:border-purple-300 hover:shadow-md text-left transition-all cursor-pointer group"
+                    className="flex items-center sm:flex-col sm:items-start p-3 sm:p-4 rounded-xl bg-stone-50 dark:bg-[#202227] hover:bg-white dark:hover:bg-[#282B32] border border-stone-200 dark:border-stone-700 hover:border-purple-300 hover:shadow-md text-left transition-all cursor-pointer group"
                   >
-                    <div className="p-2 sm:p-0 bg-white sm:bg-transparent rounded-lg border sm:border-none border-stone-200 mr-3 sm:mr-0 sm:mb-3 shrink-0">
-                      <MessageSquare className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600 group-hover:scale-110 transition-transform" />
+                    <div className="p-2 sm:p-0 bg-white dark:bg-stone-800 sm:bg-transparent rounded-lg border sm:border-none border-stone-200 dark:border-stone-700 mr-3 sm:mr-0 sm:mb-3 shrink-0">
+                      <MessageSquare className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600 dark:text-purple-400 group-hover:scale-110 transition-transform" />
                     </div>
                     <div>
-                      <p className="text-sm font-black text-stone-900 group-hover:text-purple-700 transition-colors">Tour Leads & Quotes</p>
-                      <p className="text-[11px] text-stone-500 font-medium line-clamp-1">Manage family inquiries</p>
+                      <p className="text-sm font-black text-stone-900 dark:text-white group-hover:text-purple-700 dark:group-hover:text-purple-400 transition-colors">Tour Leads & Quotes</p>
+                      <p className="text-[11px] text-stone-500 dark:text-stone-400 font-medium line-clamp-1">Manage family inquiries</p>
                     </div>
                   </button>
                 )}
@@ -745,14 +1070,14 @@ export const CMSDashboard: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setActiveCmsTab('vendors')}
-                    className="flex items-center sm:flex-col sm:items-start p-3 sm:p-4 rounded-xl bg-stone-50 hover:bg-white border border-stone-200 hover:border-blue-300 hover:shadow-md text-left transition-all cursor-pointer group"
+                    className="flex items-center sm:flex-col sm:items-start p-3 sm:p-4 rounded-xl bg-stone-50 dark:bg-[#202227] hover:bg-white dark:hover:bg-[#282B32] border border-stone-200 dark:border-stone-700 hover:border-blue-300 hover:shadow-md text-left transition-all cursor-pointer group"
                   >
-                    <div className="p-2 sm:p-0 bg-white sm:bg-transparent rounded-lg border sm:border-none border-stone-200 mr-3 sm:mr-0 sm:mb-3 shrink-0">
-                      <Car className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 group-hover:scale-110 transition-transform" />
+                    <div className="p-2 sm:p-0 bg-white dark:bg-stone-800 sm:bg-transparent rounded-lg border sm:border-none border-stone-200 dark:border-stone-700 mr-3 sm:mr-0 sm:mb-3 shrink-0">
+                      <Car className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform" />
                     </div>
                     <div>
-                      <p className="text-sm font-black text-stone-900 group-hover:text-blue-700 transition-colors">Mountain Fleets</p>
-                      <p className="text-[11px] text-stone-500 font-medium line-clamp-1">Hill certified drivers</p>
+                      <p className="text-sm font-black text-stone-900 dark:text-white group-hover:text-blue-700 dark:group-hover:text-blue-400 transition-colors">Mountain Fleets</p>
+                      <p className="text-[11px] text-stone-500 dark:text-stone-400 font-medium line-clamp-1">Hill certified drivers</p>
                     </div>
                   </button>
                 )}
@@ -762,9 +1087,9 @@ export const CMSDashboard: React.FC = () => {
             {/* Split Data Cards: Recent Inquiries & Service Vouchers */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
               {/* Recent Traveler Inquiries */}
-              <div className="bg-white p-5 rounded-2xl border border-stone-200 shadow-2xs space-y-3">
-                <div className="flex items-center justify-between pb-2 border-b border-stone-100">
-                  <h3 className="font-black text-stone-900 text-sm flex items-center gap-2">
+              <div className="bg-white dark:bg-[#18191E] p-5 rounded-2xl border border-stone-200 dark:border-stone-800 shadow-2xs space-y-3">
+                <div className="flex items-center justify-between pb-2 border-b border-stone-100 dark:border-stone-800">
+                  <h3 className="font-black text-stone-900 dark:text-white text-sm flex items-center gap-2">
                     <MessageSquare className="w-4 h-4 text-[#FC3200]" />
                     Recent Traveler Inquiries & Quotes
                   </h3>
@@ -779,14 +1104,14 @@ export const CMSDashboard: React.FC = () => {
                   )}
                 </div>
 
-                <div className="divide-y divide-stone-100 text-xs">
+                <div className="divide-y divide-stone-100 dark:divide-stone-800 text-xs">
                   {inquiries.slice(0, 4).map((inq) => (
                     <div key={inq.id} className="py-2.5 flex items-center justify-between gap-3">
                       <div>
-                        <p className="font-black text-stone-900">{inq.travelerName}</p>
-                        <p className="text-stone-500 text-[11px]">{inq.packageTitle} • {inq.travelDate}</p>
+                        <p className="font-black text-stone-900 dark:text-white">{inq.travelerName}</p>
+                        <p className="text-stone-500 dark:text-stone-400 text-[11px]">{inq.packageTitle} • {inq.travelDate}</p>
                       </div>
-                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-[#FC3200] border border-amber-200">
+                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 dark:bg-amber-950/40 text-[#FC3200] border border-amber-200 dark:border-amber-800">
                         {inq.status}
                       </span>
                     </div>
@@ -798,10 +1123,10 @@ export const CMSDashboard: React.FC = () => {
               </div>
 
               {/* Pending Vendor Payout Vouchers */}
-              <div className="bg-white p-5 rounded-2xl border border-stone-200 shadow-2xs space-y-3">
-                <div className="flex items-center justify-between pb-2 border-b border-stone-100">
-                  <h3 className="font-black text-stone-900 text-sm flex items-center gap-2">
-                    <CreditCard className="w-4 h-4 text-emerald-700" />
+              <div className="bg-white dark:bg-[#18191E] p-5 rounded-2xl border border-stone-200 dark:border-stone-800 shadow-2xs space-y-3">
+                <div className="flex items-center justify-between pb-2 border-b border-stone-100 dark:border-stone-800">
+                  <h3 className="font-black text-stone-900 dark:text-white text-sm flex items-center gap-2">
+                    <CreditCard className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
                     Operational Ground Vouchers
                   </h3>
                   {canAccess('payments') && (
@@ -815,18 +1140,18 @@ export const CMSDashboard: React.FC = () => {
                   )}
                 </div>
 
-                <div className="divide-y divide-stone-100 text-xs">
+                <div className="divide-y divide-stone-100 dark:divide-stone-800 text-xs">
                   {vendorPayments.slice(0, 4).map((vp) => (
                     <div key={vp.id} className="py-2.5 flex items-center justify-between gap-3">
                       <div>
-                        <p className="font-black text-stone-900">{vp.vendorName}</p>
-                        <p className="text-stone-500 text-[11px]">
+                        <p className="font-black text-stone-900 dark:text-white">{vp.vendorName}</p>
+                        <p className="text-stone-500 dark:text-stone-400 text-[11px]">
                           {vp.voucherNumber} • {vp.serviceDescription}
                         </p>
                       </div>
                       <div className="text-right">
-                        <p className="font-black text-stone-900">₹{vp.totalAmount.toLocaleString()}</p>
-                        <p className="text-[10px] text-rose-700 font-bold">Bal: ₹{vp.balanceAmount.toLocaleString()}</p>
+                        <p className="font-black text-stone-900 dark:text-white">₹{vp.totalAmount.toLocaleString()}</p>
+                        <p className="text-[10px] text-rose-700 dark:text-rose-400 font-bold">Bal: ₹{vp.balanceAmount.toLocaleString()}</p>
                       </div>
                     </div>
                   ))}
@@ -922,7 +1247,18 @@ export const CMSDashboard: React.FC = () => {
         {activeCmsTab === 'users' && !isTabLoading && <UsersManager />}
 
         {/* TAB 3: CLIENT INVOICES */}
-        {activeCmsTab === 'invoices' && canAccess('invoices') && !isTabLoading && <InvoicesManager />}
+        {activeCmsTab === 'invoices' && canAccess('invoices') && !isTabLoading && (
+          <InvoicesManager
+            initialInquiry={invoiceInquiry}
+            initialInquiryId={invoiceInquiry?.id}
+            onClearInitialInquiry={() => {
+              setInvoiceInquiry(null);
+              try {
+                localStorage.removeItem('hh_pending_invoice_inquiry');
+              } catch {}
+            }}
+          />
+        )}
 
         {/* TAB 4: VENDOR PAYOUTS & VOUCHERS */}
         {activeCmsTab === 'payments' && canAccess('payments') && !isTabLoading && <VendorPaymentsManager />}
