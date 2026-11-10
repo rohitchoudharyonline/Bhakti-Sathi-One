@@ -289,32 +289,13 @@ export const CMSDashboard: React.FC = () => {
     setActiveCmsTab('invoices');
   };
 
-  // Theme Management (Light / Dark Mode)
-  const [cmsTheme, setCmsTheme] = useState<'light' | 'dark'>(() => {
-    try {
-      const saved = localStorage.getItem('hh_cms_theme');
-      if (saved === 'dark' || saved === 'light') return saved;
-      if (typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        return 'dark';
-      }
-    } catch {}
-    return 'light';
-  });
-
+  // Pure, clean, professional light theme across the ERP portal
   useEffect(() => {
     try {
-      localStorage.setItem('hh_cms_theme', cmsTheme);
-      if (cmsTheme === 'dark') {
-        document.documentElement.classList.add('dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-      }
+      localStorage.setItem('hh_cms_theme', 'light');
+      document.documentElement.classList.remove('dark');
     } catch {}
-  }, [cmsTheme]);
-
-  const toggleTheme = () => {
-    setCmsTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
-  };
+  }, []);
 
   // ERP Workspace Department Filter
   const [activeWorkspace, setActiveWorkspace] = useState<'all' | 'sales' | 'tours' | 'finance' | 'content' | 'admin'>('all');
@@ -555,9 +536,7 @@ export const CMSDashboard: React.FC = () => {
 
   return (
     <div
-      className={`min-h-screen pb-24 font-sans transition-colors duration-200 ${
-        cmsTheme === 'dark' ? 'dark bg-[#0F1014] text-white' : 'bg-stone-50 text-stone-900'
-      }`}
+      className="min-h-screen pb-24 font-sans bg-stone-50 text-stone-900"
       id="cms-main-container"
     >
       {isAITourCreatorOpen && (
@@ -571,7 +550,7 @@ export const CMSDashboard: React.FC = () => {
         />
       )}
       {/* 1. Clean Top Header Bar */}
-      <div className="bg-white dark:bg-[#18191E] border-b border-stone-200 dark:border-stone-800 sticky top-0 z-30 shadow-2xs transition-colors">
+      <div className="bg-white border-b border-stone-200 sticky top-0 z-30 shadow-2xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-3.5">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             {/* Title & Badge */}
@@ -581,14 +560,14 @@ export const CMSDashboard: React.FC = () => {
               </div>
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
-                  <h1 className="text-sm sm:text-lg font-black text-stone-900 dark:text-white truncate font-sans tracking-tight">
+                  <h1 className="text-sm sm:text-lg font-black text-stone-900 truncate font-sans tracking-tight">
                     {agencySettings.agencyName} ERP
                   </h1>
-                  <span className="hidden sm:inline-flex bg-orange-50 dark:bg-orange-950/40 border border-orange-200 dark:border-orange-800/60 text-[#FF4B00] text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">
+                  <span className="hidden sm:inline-flex bg-orange-50 border border-orange-200 text-[#FF4B00] text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">
                     Enterprise
                   </span>
                 </div>
-                <p className="text-[10px] sm:text-[11px] text-stone-500 dark:text-stone-400 truncate font-medium">
+                <p className="text-[10px] sm:text-[11px] text-stone-500 truncate font-medium">
                   Travel & Hospitality Management Portal • RBAC Staff Access
                 </p>
               </div>
@@ -597,30 +576,6 @@ export const CMSDashboard: React.FC = () => {
             {/* Top Quick Actions */}
             <div className="flex flex-wrap items-center gap-2 shrink-0">
               <StaffRoleSwitcher />
-
-              {/* Dark / Light Theme Toggle Button */}
-              <button
-                type="button"
-                onClick={toggleTheme}
-                className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-[11px] sm:text-xs font-bold border transition cursor-pointer ${
-                  cmsTheme === 'dark'
-                    ? 'bg-[#252830] hover:bg-[#2F333D] text-amber-300 border-stone-700 shadow-xs'
-                    : 'bg-stone-100 hover:bg-stone-200 text-stone-700 border-stone-200 shadow-xs'
-                }`}
-                title={`Switch to ${cmsTheme === 'dark' ? 'Light' : 'Dark'} Mode`}
-              >
-                {cmsTheme === 'dark' ? (
-                  <>
-                    <Sun className="w-3.5 h-3.5 text-amber-400" />
-                    <span className="hidden sm:inline">Light</span>
-                  </>
-                ) : (
-                  <>
-                    <Moon className="w-3.5 h-3.5 text-stone-600" />
-                    <span className="hidden sm:inline">Dark</span>
-                  </>
-                )}
-              </button>
 
               <button
                 type="button"
@@ -631,7 +586,7 @@ export const CMSDashboard: React.FC = () => {
                   }
                   setActiveView('traveler');
                 }}
-                className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-stone-100 dark:bg-[#252830] hover:bg-stone-200 dark:hover:bg-[#2F333D] text-stone-800 dark:text-stone-200 text-[11px] sm:text-xs font-bold border border-stone-200 dark:border-stone-700 transition cursor-pointer"
+                className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-800 text-[11px] sm:text-xs font-bold border border-stone-200 transition cursor-pointer"
                 title="Switch to Public Storefront"
               >
                 <Globe className="w-3.5 h-3.5 text-[#FF4B00]" />

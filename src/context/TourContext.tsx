@@ -380,83 +380,7 @@ const DEFAULT_SAMPLE_MEDIA: MediaAsset[] = [
 
 const TourContext = createContext<TourContextType | undefined>(undefined);
 
-const DEFAULT_SEED_INQUIRIES: BookingInquiry[] = [
-  {
-    id: 'HH76868',
-    packageId: 'pkg-kashmir-01',
-    packageTitle: 'Paradise Kashmir: Srinagar, Gulmarg, Pahalgam & Luxury Houseboat',
-    travelerName: 'VIP Traveler',
-    email: 'vip.traveler@gmail.com',
-    phone: '+91 94199 15255',
-    travelDate: '2026-09-24',
-    adults: 2,
-    children: 1,
-    specialRequests: 'Lake facing Dal Lake luxury houseboat stay, private Innova Crysta throughout, and Gondola phase 2 tickets.',
-    estimatedTotal: 48500,
-    status: 'Confirmed',
-    createdAt: '2026-08-30T10:15:00Z',
-  },
-  {
-    id: 'HH41920',
-    packageId: 'pkg-kashmir-04',
-    packageTitle: 'Hidden Gurez Valley & Razdan Pass Offbeat Expedition',
-    travelerName: 'VIP Traveler',
-    email: 'vip.traveler@gmail.com',
-    phone: '+91 94199 15255',
-    travelDate: '2026-10-05',
-    adults: 4,
-    children: 0,
-    specialRequests: '4x4 Scorpio vehicle for Razdan Pass, bonfire arrangement at Dawar village campsite.',
-    estimatedTotal: 36000,
-    status: 'Quotation Sent',
-    createdAt: '2026-09-02T16:30:00Z',
-  },
-  {
-    id: 'HH89123',
-    packageId: 'pkg-kashmir-01',
-    packageTitle: 'Paradise Kashmir: Srinagar, Gulmarg, Pahalgam & Luxury Houseboat',
-    travelerName: 'Holidays Hunt Guest',
-    email: 'care@holidayshunt.com',
-    phone: '+91 94199 15255',
-    travelDate: '2026-09-28',
-    adults: 2,
-    children: 0,
-    specialRequests: 'Traditional satvik pure vegetarian dinner inclusion and Shikara sunset photo shoot.',
-    estimatedTotal: 42000,
-    status: 'Confirmed',
-    createdAt: '2026-09-01T09:00:00Z',
-  },
-  {
-    id: 'HH65201',
-    packageId: 'pkg-ladakh-01',
-    packageTitle: 'Mesmerizing Ladakh & Pangong Tso Highland Odyssey',
-    travelerName: 'Holidays Hunt Guest',
-    email: 'care@holidayshunt.com',
-    phone: '+91 94199 15255',
-    travelDate: '2026-10-12',
-    adults: 3,
-    children: 1,
-    specialRequests: 'Oxygen cylinder in vehicle and luxury dome camp at Pangong lake.',
-    estimatedTotal: 58000,
-    status: 'Quotation Sent',
-    createdAt: '2026-09-03T11:45:00Z',
-  },
-  {
-    id: 'HH52391',
-    packageId: 'pkg-kashmir-01',
-    packageTitle: 'Paradise Kashmir: Srinagar, Gulmarg, Pahalgam & Luxury Houseboat',
-    travelerName: 'Sophia Reynolds',
-    email: 'sophia.r@example.com',
-    phone: '+91 98765 43210',
-    travelDate: '2026-09-15',
-    adults: 2,
-    children: 0,
-    specialRequests: 'Honeymoon couple looking for flower bed decoration, private shikara, and luxury heating.',
-    estimatedTotal: 37000,
-    status: 'New',
-    createdAt: '2026-08-28T14:20:00Z',
-  },
-];
+const DEFAULT_SEED_INQUIRIES: BookingInquiry[] = [];
 
 export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   // Helper to get deleted entities from persistent local storage
@@ -786,28 +710,23 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // 6. Inquiries State
   const [inquiries, setInquiries] = useState<BookingInquiry[]>(() => {
     const deletedIds = getDeletedItems('hh_deleted_inquiry_ids');
+    const dummyIds = new Set(['HH76868', 'HH41920', 'HH89123', 'HH65201', 'HH52391', 'HH43592', 'HH21659']);
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.INQUIRIES);
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed)) {
-          const filtered = parsed.filter((p: BookingInquiry) => !deletedIds.includes(p.id));
-          // Ensure seed inquiries for test emails are always available unless deleted
-          const existingIds = new Set(filtered.map((p: BookingInquiry) => p.id));
-          const missing = DEFAULT_SEED_INQUIRIES.filter((s) => !existingIds.has(s.id) && !deletedIds.includes(s.id));
-          const finalInquiries = [...filtered, ...missing];
+          const filtered = parsed.filter(
+            (p: BookingInquiry) => !deletedIds.includes(p.id) && !dummyIds.has(p.id)
+          );
           try {
-            localStorage.setItem(STORAGE_KEYS.INQUIRIES, JSON.stringify(finalInquiries));
+            localStorage.setItem(STORAGE_KEYS.INQUIRIES, JSON.stringify(filtered));
           } catch {}
-          return finalInquiries;
+          return filtered;
         }
       }
     } catch {}
-    const initial = DEFAULT_SEED_INQUIRIES.filter((s) => !deletedIds.includes(s.id));
-    try {
-      localStorage.setItem(STORAGE_KEYS.INQUIRIES, JSON.stringify(initial));
-    } catch {}
-    return initial;
+    return [];
   });
 
   // 7. Agency Settings
@@ -2275,7 +2194,9 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     try {
-      localStorage.setItem(STORAGE_KEYS.INQUIRIES, JSON.stringify(inquiries));
+      const serialized = JSON.stringify(inquiries);
+      localStorage.setItem(STORAGE_KEYS.INQUIRIES, serialized);
+      void syncRegistryToServer(STORAGE_KEYS.INQUIRIES, serialized);
     } catch {}
   }, [inquiries]);
 
@@ -3293,7 +3214,15 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
         },
       ],
     };
-    setInquiries((prev) => [newInquiry, ...prev]);
+    setInquiries((prev) => {
+      const next = [newInquiry, ...prev.filter((p) => !['HH76868', 'HH41920', 'HH89123', 'HH65201', 'HH52391', 'HH43592', 'HH21659'].includes(p.id))];
+      try {
+        const serialized = JSON.stringify(next);
+        localStorage.setItem(STORAGE_KEYS.INQUIRIES, serialized);
+        void syncRegistryToServer(STORAGE_KEYS.INQUIRIES, serialized);
+      } catch {}
+      return next;
+    });
 
     // Also link booking ID to registered user if matching email exists
     setRegisteredUsers((prev) =>
@@ -3424,7 +3353,9 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setInquiries((prev) => {
       const next = prev.filter((i) => i.id !== id);
       try {
-        localStorage.setItem(STORAGE_KEYS.INQUIRIES, JSON.stringify(next));
+        const serialized = JSON.stringify(next);
+        localStorage.setItem(STORAGE_KEYS.INQUIRIES, serialized);
+        void syncRegistryToServer(STORAGE_KEYS.INQUIRIES, serialized);
       } catch {}
       return next;
     });

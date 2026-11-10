@@ -4,7 +4,7 @@
  */
 
 export function formatBookingNumber(id?: string | null): string {
-  if (!id) return 'HH76868';
+  if (!id) return generateBookingNumber();
   
   // If already clean HH followed by digits, format uppercase
   const trimmed = id.trim();

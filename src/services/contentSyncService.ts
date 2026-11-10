@@ -105,6 +105,16 @@ const PURGED_BLOG_CATEGORY_IDS = new Set([
   'cat-spiritual',
 ]);
 
+export const PURGED_DUMMY_INQUIRY_IDS = new Set([
+  'HH76868',
+  'HH41920',
+  'HH89123',
+  'HH65201',
+  'HH52391',
+  'HH43592',
+  'HH21659',
+]);
+
 const REGISTRY_BY_ID = new Map<string, SyncedRegistryDef>(
   SYNCED_REGISTRIES.map((r) => [r.id, r])
 );
@@ -233,10 +243,27 @@ export function clearSharedRegistryCache() {
       }
     } catch {}
 
+    // Keep user's real booking inquiries safe from any clearing
+    let preservedInquiries: string | null = null;
+    try {
+      const rawInq = window.localStorage.getItem('hh_booking_inquiries_v2');
+      if (rawInq) {
+        const parsed = JSON.parse(rawInq);
+        if (Array.isArray(parsed)) {
+          const approved = parsed.filter((inq: any) => !PURGED_DUMMY_INQUIRY_IDS.has(String(inq?.id || '')));
+          if (approved.length > 0) preservedInquiries = JSON.stringify(approved);
+        }
+      }
+    } catch {}
+
     for (const reg of SYNCED_REGISTRIES) {
       try {
-        // Keep deletion tombstones until the server copy has been merged.
-        if (reg.storageKey !== 'hh_deleted_blog_post_ids' && reg.storageKey !== 'hh_deleted_blog_category_ids') {
+        // Keep deletion tombstones and never erase user bookings/inquiries!
+        if (
+          reg.storageKey !== 'hh_deleted_blog_post_ids' &&
+          reg.storageKey !== 'hh_deleted_blog_category_ids' &&
+          reg.storageKey !== 'hh_booking_inquiries_v2'
+        ) {
           window.localStorage.removeItem(reg.storageKey);
           window.localStorage.removeItem(`_sync_time_${reg.storageKey}`);
         }
@@ -250,6 +277,9 @@ export function clearSharedRegistryCache() {
 
     if (preservedPackages) {
       window.localStorage.setItem('hh_tour_packages_v2', preservedPackages);
+    }
+    if (preservedInquiries) {
+      window.localStorage.setItem('hh_booking_inquiries_v2', preservedInquiries);
     }
   } finally {
     isHydrating = wasHydrating;
@@ -306,6 +336,19 @@ export async function loadAuthoritativeServerContent(): Promise<boolean> {
           localMediaForMigration = JSON.stringify(
             parsedMedia.map(({ dataUrl, ...asset }: any) => asset)
           );
+        }
+      }
+    } catch {}
+
+    // Preserve user-created booking inquiries so they are never lost on reload
+    let localInquiriesForMigration: string | null = null;
+    try {
+      const rawInq = window.localStorage.getItem('hh_booking_inquiries_v2');
+      if (rawInq) {
+        const parsed = JSON.parse(rawInq);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const approved = parsed.filter((inq: any) => !PURGED_DUMMY_INQUIRY_IDS.has(String(inq?.id || '')));
+          if (approved.length > 0) localInquiriesForMigration = JSON.stringify(approved);
         }
       }
     } catch {}
@@ -472,6 +515,42 @@ export async function loadAuthoritativeServerContent(): Promise<boolean> {
         }
       } catch {}
     }
+
+    // Permanently remove dummy seed inquiries and preserve all real user bookings/inquiries.
+    const inquiryItem = serverItemsByKey.get('hh_booking_inquiries_v2');
+    try {
+      const serverInquiries = inquiryItem?.value ? JSON.parse(inquiryItem.value) : [];
+      const localInquiries = localInquiriesForMigration ? JSON.parse(localInquiriesForMigration) : [];
+      const mergedInquiries = new Map<string, any>();
+      if (Array.isArray(serverInquiries)) {
+        for (const inq of serverInquiries) {
+          const id = String(inq?.id || '').trim();
+          if (id && !PURGED_DUMMY_INQUIRY_IDS.has(id)) {
+            mergedInquiries.set(id, inq);
+          }
+        }
+      }
+      if (Array.isArray(localInquiries)) {
+        for (const inq of localInquiries) {
+          const id = String(inq?.id || '').trim();
+          if (id && !PURGED_DUMMY_INQUIRY_IDS.has(id)) {
+            mergedInquiries.set(id, inq);
+          }
+        }
+      }
+      const finalInquiriesArray = Array.from(mergedInquiries.values());
+      const serializedInquiries = JSON.stringify(finalInquiriesArray);
+      serverItemsByKey.set('hh_booking_inquiries_v2', {
+        id: 'registry-inquiries-v2',
+        storageKey: 'hh_booking_inquiries_v2',
+        value: serializedInquiries,
+        updatedAt: new Date().toISOString(),
+      });
+      window.localStorage.setItem('hh_booking_inquiries_v2', serializedInquiries);
+      if (finalInquiriesArray.length > 0) {
+        void syncRegistryToServer('hh_booking_inquiries_v2', serializedInquiries);
+      }
+    } catch {}
 
     const packageItem = serverItemsByKey.get('hh_tour_packages_v2');
     if (packageItem) {
