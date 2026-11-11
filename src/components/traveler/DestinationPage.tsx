@@ -92,7 +92,7 @@ export const DestinationPage: React.FC = () => {
   }, [temples, currentSlug, destinationMeta]);
 
   // Active view: Packages or Destination Guide
-  const [activeTab, setActiveTab] = useState<'packages' | 'guide'>('packages');
+  const [activeTab] = useState<'packages'>('packages');
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
 
   // Filters
@@ -136,9 +136,6 @@ export const DestinationPage: React.FC = () => {
 
     return result;
   }, [destinationPackages, selectedDuration, sortBy]);
-
-  const isJammuKashmirDestination =
-    destinationMeta?.name === 'Jammu & Kashmir' || currentSlug === 'jammu-kashmir';
 
   const destinationTourFaqs = (destinationMeta?.tourPackageFaqs?.length
     ? destinationMeta.tourPackageFaqs
@@ -238,7 +235,7 @@ export const DestinationPage: React.FC = () => {
             </button>
 
             <span className="text-sm font-black text-stone-900 tracking-tight">
-              {isJammuKashmirDestination ? 'Jammu And Kashmir Tour Packages' : `${destinationMeta.name} Tour Packages`}
+              {destinationMeta.name} Tour Packages
             </span>
           </div>
 
@@ -329,38 +326,20 @@ export const DestinationPage: React.FC = () => {
             )}
           </div>
 
-          {(destinationMeta.tourPackagesDescription || isJammuKashmirDestination) && (
-            <section className="mt-4 rounded-2xl border border-stone-200 bg-stone-50/70 px-4 py-3.5 sm:px-5 shadow-2xs">
-              <h2 className="text-base sm:text-lg font-black text-stone-900 mb-2">{destinationMeta.name} Tour Packages</h2>
-              <p className="text-xs sm:text-sm text-stone-600 font-medium leading-relaxed">
-                {destinationMeta.tourPackagesDescription ||
-                  (isJammuKashmirDestination
-                    ? 'Plan your Jammu and Kashmir holiday with thoughtfully designed tour packages covering the region’s most-loved landscapes, from the calm waters of Dal Lake and the gardens of Srinagar to the alpine beauty of Gulmarg, the valleys of Pahalgam and the scenic routes of Sonamarg. Choose a short getaway or a longer itinerary with comfortable hotels, private cab transfers and flexible sightseeing. Holidays Hunt also helps families, couples and pilgrims customise their Jammu and Kashmir tour package around travel dates, preferred stays, sightseeing interests and overall trip pace.'
-                    : '')}
-              </p>
-            </section>
-          )}
+          <section className="mt-4 rounded-2xl border border-stone-200 bg-stone-50/70 px-4 py-3.5 sm:px-5 shadow-2xs">
+            <h2 className="text-base sm:text-lg font-black text-stone-900 mb-2">{destinationMeta.name} Tour Packages</h2>
+            <p className="text-xs sm:text-sm text-stone-600 font-medium leading-relaxed">
+              {destinationMeta.tourPackagesDescription || destinationMeta.tagline || `Explore ${destinationMeta.name} with curated tour packages and plan an itinerary that suits your travel preferences.`}
+            </p>
+          </section>
 
-          {/* Tab Switcher: Packages vs Travel Guide */}
-          <div className="flex items-center gap-4 mt-4 border-b border-stone-200">
-            <button
-              type="button"
-              onClick={() => setActiveTab('packages')}
-              className={`pb-2.5 text-xs sm:text-sm font-black transition relative cursor-pointer ${
-                activeTab === 'packages' ? 'text-[#FF4B00]' : 'text-stone-500 hover:text-stone-800'
-              }`}
-            >
-              Tour Packages ({destinationPackages.length})
-              {activeTab === 'packages' && <span className="absolute bottom-0 inset-x-0 h-0.5 bg-[#FF4B00]" />}
-            </button>
-
-          </div>
+          {/* Destination pages show tour packages only. */}
         </div>
       </section>
 
       {/* 3. MAIN CONTENT AREA */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex-1 w-full">
-        {activeTab === 'packages' ? (
+        {(
           <div>
             {/* Filter & Sort Bar */}
             <div className="bg-white rounded-xl border border-stone-200 p-2.5 sm:p-3 mb-4 shadow-2xs flex flex-wrap items-center justify-between gap-2.5">
@@ -630,7 +609,7 @@ export const DestinationPage: React.FC = () => {
               </div>
             )}
           </div>
-        ) : activeTab === 'guide' ? (
+        ) : null /* Travel Guide removed from destination pages. */ ? (
           /* 4. CLEAN DESTINATION GUIDE & FAQS */
           <div className="space-y-4">
             {/* Overview Card */}
