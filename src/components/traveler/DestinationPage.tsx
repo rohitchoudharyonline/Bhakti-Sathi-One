@@ -323,7 +323,7 @@ export const DestinationPage: React.FC = () => {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
                 <span className="absolute bottom-2.5 left-3 text-[10px] font-black text-white uppercase tracking-wider">
-                  {isJammuKashmirDestination ? 'Jammu and Kashmir' : `${destinationMeta.name} Region`}
+                  {destinationMeta.name}
                 </span>
               </div>
             )}
@@ -331,7 +331,7 @@ export const DestinationPage: React.FC = () => {
 
           {(destinationMeta.tourPackagesDescription || isJammuKashmirDestination) && (
             <section className="mt-4 rounded-2xl border border-stone-200 bg-stone-50/70 px-4 py-3.5 sm:px-5 shadow-2xs">
-              <h2 className="text-sm sm:text-base font-black text-stone-900 mb-1.5">Jammu and Kashmir Tour Packages</h2>
+              <h2 className="text-base sm:text-lg font-black text-stone-900 mb-2">{destinationMeta.name} Tour Packages</h2>
               <p className="text-xs sm:text-sm text-stone-600 font-medium leading-relaxed">
                 {destinationMeta.tourPackagesDescription ||
                   (isJammuKashmirDestination
@@ -354,16 +354,6 @@ export const DestinationPage: React.FC = () => {
               {activeTab === 'packages' && <span className="absolute bottom-0 inset-x-0 h-0.5 bg-[#FF4B00]" />}
             </button>
 
-            <button
-              type="button"
-              onClick={() => setActiveTab('guide')}
-              className={`pb-2.5 text-xs sm:text-sm font-black transition relative cursor-pointer whitespace-nowrap ${
-                activeTab === 'guide' ? 'text-[#FF4B00]' : 'text-stone-500 hover:text-stone-800'
-              }`}
-            >
-              Travel Guide
-              {activeTab === 'guide' && <span className="absolute bottom-0 inset-x-0 h-0.5 bg-[#FF4B00]" />}
-            </button>
           </div>
         </div>
       </section>
