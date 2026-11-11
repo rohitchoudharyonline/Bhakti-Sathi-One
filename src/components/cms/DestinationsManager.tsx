@@ -175,7 +175,7 @@ export const DestinationsManager: React.FC = () => {
       ...formData,
       slug: cleanSlug,
       id: cleanSlug,
-      displayName: formData.displayName || formData.name.toUpperCase(),
+      displayName: formData.name,
       guideTitle: formData.guideTitle || `${formData.name} Travel Guide`,
     };
 
@@ -494,7 +494,7 @@ export const DestinationsManager: React.FC = () => {
                         ...formData,
                         name: val,
                         slug: formData.slug || val.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
-                        displayName: formData.displayName || val.toUpperCase(),
+                        displayName: val,
                       });
                     }}
                     className="w-full p-2.5 bg-stone-50 border border-stone-200 rounded-xl focus:bg-white focus:outline-none"
