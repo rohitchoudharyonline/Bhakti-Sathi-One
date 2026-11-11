@@ -474,24 +474,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   });
 
-  const APPROVED_DESTINATION_SLUGS = new Set(['jammu-kashmir']);
-
-  const DISALLOWED_DUMMY_DEST_SLUGS = new Set([
-    'ladakh',
-    'jammu',
-    'kashmir',
-    'goa',
-    'kerala',
-    'rajasthan',
-    'uttarakhand',
-    'andaman',
-    'dubai',
-    'thailand',
-    'bali',
-    'singapore',
-  ]);
-
-  // 2. Destinations Registry State (Strictly Jammu & Kashmir)
+  // 2. Destinations Registry State
   // Never render browser-local/default destination data before D1 hydration.
   // This prevents stale/dummy destination images from flashing on first paint.
   const [destinations, setDestinations] = useState<Record<string, DestinationMeta>>(() => {
@@ -505,7 +488,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
         ? parsed.map((item: any) => [String(item?.slug || item?.id || ''), item] as const)
         : Object.entries(parsed);
       for (const [slug, destination] of entries) {
-        if (APPROVED_DESTINATION_SLUGS.has(String(slug).toLowerCase()) && destination) {
+        if (destination) {
           map[String(slug).toLowerCase()] = destination as DestinationMeta;
         }
       }
@@ -1908,7 +1891,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (serverDests && typeof serverDests === 'object') {
         const cleanServerDests: Record<string, DestinationMeta> = {};
         for (const [k, v] of Object.entries(serverDests)) {
-          if (!DISALLOWED_DUMMY_DEST_SLUGS.has(k) && v) {
+          if (v) {
             cleanServerDests[k] = v;
           }
         }
@@ -2075,7 +2058,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
             for (const [k, v] of Object.entries(parsed)) {
               // Server-synced D1 destinations are authoritative after restore.
               // Do not let stale browser tombstones hide restored destinations.
-              if (!DISALLOWED_DUMMY_DEST_SLUGS.has(k) && v) {
+              if (v) {
                 clean[k] = v as DestinationMeta;
               }
             }
@@ -2640,10 +2623,6 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Destinations Operations
   const addDestination = (newDest: Omit<DestinationMeta, 'id'>): string => {
     const slug = newDest.slug || newDest.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-    if (!APPROVED_DESTINATION_SLUGS.has(slug.toLowerCase())) {
-      alert('Only the Jammu & Kashmir destination is available on this site.');
-      return slug;
-    }
     const id = slug;
     const destinationItem: DestinationMeta = {
       ...newDest,
@@ -2681,7 +2660,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const deleteDestination = (slug: string) => {
-    if (APPROVED_DESTINATION_SLUGS.has(String(slug).trim().toLowerCase())) {
+    if (String(slug).trim().toLowerCase() === 'jammu-kashmir') {
       alert('The Jammu & Kashmir destination is permanently protected and cannot be deleted.');
       return;
     }
