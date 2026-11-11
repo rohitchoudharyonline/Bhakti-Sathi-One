@@ -236,7 +236,7 @@ export const DestinationsManager: React.FC = () => {
         <div>
           <h2 className="text-xl font-bold text-black flex items-center gap-2">
             <Compass className="w-5 h-5 text-amber-500" />
-            Destination Hub & Travel Guides Manager
+            Destinations Manager
           </h2>
           <p className="text-xs text-stone-500 mt-0.5">
             Create and edit destination portals, sightseeing guides, FAQs, and Google Schema.
