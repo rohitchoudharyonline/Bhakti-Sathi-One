@@ -263,11 +263,11 @@ export default {
           const requirements = text(b.requirements, 2000);
           const source = text(b.source || 'Homepage Callback Form', 120);
           const marketingConsent = b.marketingConsent === true ? 1 : 0;
-          const digits = phone.replace(/\\D/g, '');
+          const digits = phone.replace(/\D/g, '');
           if (!name || digits.length < 10 || digits.length > 15) {
             return json({ error: 'Please provide your name and a valid phone number.' }, 400, publicHeaders(env, request));
           }
-          if (email && !/^\\S+@\\S+\\.\\S+$/.test(email)) {
+          if (email && !/^\S+@\S+\.\S+$/.test(email)) {
             return json({ error: 'Please provide a valid email address.' }, 400, publicHeaders(env, request));
           }
 
