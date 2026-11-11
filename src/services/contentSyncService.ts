@@ -46,8 +46,6 @@ export const SYNCED_REGISTRIES: SyncedRegistryDef[] = [
 const REGISTRY_BY_KEY = new Map<string, SyncedRegistryDef>(
   SYNCED_REGISTRIES.map((r) => [r.storageKey, r])
 );
-const APPROVED_DESTINATION_SLUGS = new Set(['jammu-kashmir']);
-
 function normalizeDestinationRegistry(value: unknown): Record<string, any> {
   let parsed: any = value;
   if (typeof parsed === 'string') {
@@ -65,11 +63,16 @@ function normalizeDestinationRegistry(value: unknown): Record<string, any> {
   return {};
 }
 
-function cleanApprovedDestinations(value: unknown): Record<string, any> {
+// Keep every CMS-created destination. Only retain the existing explicit
+// exclusions for destinations that were intentionally removed from this site.
+function cleanDestinationRegistry(value: unknown): Record<string, any> {
   const map = normalizeDestinationRegistry(value);
   const cleaned: Record<string, any> = {};
   for (const [slug, destination] of Object.entries(map)) {
-    if (APPROVED_DESTINATION_SLUGS.has(String(slug).toLowerCase()) && destination) cleaned[slug] = destination;
+    const normalizedSlug = String(slug).toLowerCase();
+    if (destination && normalizedSlug !== 'himachal' && normalizedSlug !== 'amritsar') {
+      cleaned[slug] = destination;
+    }
   }
   return cleaned;
 }
@@ -496,7 +499,7 @@ export async function loadAuthoritativeServerContent(): Promise<boolean> {
     const destinationItem = serverItemsByKey.get('hh_destinations_registry_v2');
     if (destinationItem) {
       try {
-        destinationItem.value = JSON.stringify(cleanApprovedDestinations(destinationItem.value));
+        destinationItem.value = JSON.stringify(cleanDestinationRegistry(destinationItem.value));
       } catch {}
     }
 
@@ -848,7 +851,7 @@ export async function syncRegistryToServer(
 
   if (key === 'hh_destinations_registry_v2') {
     try {
-      value = JSON.stringify(cleanApprovedDestinations(value));
+      value = JSON.stringify(cleanDestinationRegistry(value));
     } catch {}
   }
 
@@ -966,7 +969,7 @@ export async function fetchDestinationsFromServer(): Promise<Record<string, Dest
     if (!res.ok) return null;
     const json = await res.json().catch(() => null);
     if (json && json.success) {
-      const map = cleanApprovedDestinations(json.data) as Record<string, DestinationMeta>;
+      const map = cleanDestinationRegistry(json.data) as Record<string, DestinationMeta>;
       if (Object.keys(map).length > 0) return map;
     }
   } catch (err) {
