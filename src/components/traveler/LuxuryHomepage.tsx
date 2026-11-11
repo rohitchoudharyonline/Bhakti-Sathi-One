@@ -264,7 +264,6 @@ export const LuxuryHomepage: React.FC = () => {
     setSelectedPackageId,
     toggleWishlist,
     isWishlisted,
-    submitInquiry,
     navigateToDestination,
     navigateToTemple,
     navigateToSearch,
@@ -532,23 +531,22 @@ export const LuxuryHomepage: React.FC = () => {
     if (!leadName.trim() || !isValidPhone(leadPhone)) return;
     if (leadEmail.trim() && !isValidEmail(leadEmail)) return;
 
-    const cleanEmail = leadEmail.trim()
-      ? leadEmail.trim().toLowerCase()
-      : `${leadPhone.replace(/\D/g, '')}@callback.holidayshunt.com`;
+    const businessWhatsAppNumber = '919419915255';
+    const message = [
+      'NEW CALLBACK REQUEST — HOLIDAYS HUNT',
+      '',
+      `Name: ${leadName.trim()}`,
+      `Customer Phone / WhatsApp: ${leadPhone.trim()}`,
+      leadYatra.trim() ? `Destination / Tour: ${leadYatra.trim()}` : '',
+      leadNotes.trim() ? `Requirements: ${leadNotes.trim()}` : '',
+      leadEmail.trim() ? `Email: ${leadEmail.trim()}` : '',
+      '',
+      'Source: Holidays Hunt Homepage Callback Form',
+      'Please contact this customer.',
+    ].filter(Boolean).join('\\n');
 
-    submitInquiry({
-      packageId: 'callback-request',
-      travelerName: leadName.trim(),
-      phone: leadPhone.trim(),
-      email: cleanEmail,
-      packageTitle: `Holiday & Tour Callback Request${leadYatra.trim() ? `: ${leadYatra.trim()}` : ''}`,
-      travelDate: 'Flexible',
-      adults: 1,
-      children: 0,
-      specialRequests: `Devotee requested instant callback on WhatsApp / Phone: ${leadPhone.trim()}.${leadYatra.trim() ? ` Yatra / Darshan: ${leadYatra.trim()}.` : ''}${leadNotes.trim() ? ` Query / Details: ${leadNotes.trim()}.` : ''}`,
-      estimatedTotal: 0,
-    });
-    setLeadSubmitted(true);
+    const whatsappUrl = `https://wa.me/${businessWhatsAppNumber}?text=${encodeURIComponent(message)}`;
+    window.location.href = whatsappUrl;
   };
 
   return (
