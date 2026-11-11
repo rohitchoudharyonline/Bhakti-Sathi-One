@@ -137,6 +137,9 @@ export const DestinationPage: React.FC = () => {
     return result;
   }, [destinationPackages, selectedDuration, sortBy]);
 
+  const isJammuKashmirDestination =
+    destinationMeta?.name === 'Jammu & Kashmir' || currentSlug === 'jammu-kashmir';
+
   const destinationTourFaqs = (destinationMeta?.tourPackageFaqs?.length
     ? destinationMeta.tourPackageFaqs
     : (destinationMeta?.tourPackageFaqs || destinationMeta?.guide?.faqs || [])) as { question: string; answer: string }[];
@@ -333,13 +336,26 @@ export const DestinationPage: React.FC = () => {
             </p>
           </section>
 
-          {/* Destination pages show tour packages only. */}
+          {/* Tab Switcher: Packages vs Travel Guide */}
+          <div className="flex items-center gap-4 mt-4 border-b border-stone-200">
+            <button
+              type="button"
+              onClick={() => setActiveTab('packages')}
+              className={`pb-2.5 text-xs sm:text-sm font-black transition relative cursor-pointer ${
+                activeTab === 'packages' ? 'text-[#FF4B00]' : 'text-stone-500 hover:text-stone-800'
+              }`}
+            >
+              Tour Packages ({destinationPackages.length})
+              {activeTab === 'packages' && <span className="absolute bottom-0 inset-x-0 h-0.5 bg-[#FF4B00]" />}
+            </button>
+
+          </div>
         </div>
       </section>
 
       {/* 3. MAIN CONTENT AREA */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex-1 w-full">
-        {(
+        {activeTab === 'packages' ? (
           <div>
             {/* Filter & Sort Bar */}
             <div className="bg-white rounded-xl border border-stone-200 p-2.5 sm:p-3 mb-4 shadow-2xs flex flex-wrap items-center justify-between gap-2.5">
