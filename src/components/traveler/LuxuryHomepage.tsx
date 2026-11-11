@@ -70,6 +70,14 @@ import { HandpickedYatraPackagesSection, CategoryToursCarouselSection } from './
 import { PullToRefresh } from '../common/PullToRefresh';
 import { FaqSection } from './FaqSection';
 
+// Prefer the complete saved label if legacy CMS fields disagree (for example, name='H' and displayName='Himachal Pradesh').
+const getDestinationDisplayName = (destination: any): string => {
+  const candidates = [destination?.name, destination?.displayName]
+    .filter((value): value is string => typeof value === 'string' && value.trim().length > 0)
+    .map((value) => value.trim());
+  return candidates.sort((a, b) => b.length - a.length)[0] || 'Destination';
+};
+
 // ==========================================
 // SEARCH WIDGET OPTION DATA (NO EMOJIS, CLEAN LUXURY)
 // ==========================================
@@ -319,7 +327,7 @@ export const LuxuryHomepage: React.FC = () => {
     const destList = Object.values(destinations || {}) as DestinationMeta[];
     const dynamicDestOptions = destList.map((d) => ({
       id: d.slug || d.id,
-      name: d.name || d.displayName,
+      name: getDestinationDisplayName(d),
       region: d.state || 'Circuit',
       desc: d.tagline || (d.popularCities && d.popularCities.length > 0 ? d.popularCities.join(', ') : `${d.name} Pilgrimage`),
       type: 'dest' as const,
@@ -401,7 +409,7 @@ export const LuxuryHomepage: React.FC = () => {
       id: d.id || d.slug,
       type: 'domestic' as const,
       destinationType: d.destinationType || 'regular',
-      name: d.name || d.displayName,
+      name: getDestinationDisplayName(d),
       subtitle: d.tagline || `${d.name} Holiday Destinations`,
       badge: (d as any).badge || `${(d as any).packagesCount || 6}+ TOUR PACKAGES`,
       toursCount: (d as any).badge || `${(d as any).packagesCount || 6}+ TOUR PACKAGES`,
