@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useTours } from '../../context/TourContext';
-import { DestinationMeta, DestinationGuide } from '../../data/destinationsData';
+import { DestinationMeta, DestinationGuide, generateDestinationSeoIntroduction } from '../../data/destinationsData';
 import { generateTouristDestinationSchema } from '../../utils/seoEngine';
 import { resolveDisplayImage, handleImageError } from '../../utils/imageResolver';
 import { MediaR2StorageManager } from './MediaR2StorageManager';
@@ -177,6 +177,7 @@ export const DestinationsManager: React.FC = () => {
       id: cleanSlug,
       displayName: formData.name,
       guideTitle: formData.guideTitle || `${formData.name} Travel Guide`,
+      tourPackagesDescription: formData.tourPackagesDescription?.trim() || generateDestinationSeoIntroduction(formData),
     };
 
     if (editingDest) {
@@ -527,12 +528,12 @@ export const DestinationsManager: React.FC = () => {
                 <label className="block font-bold text-stone-700 mb-1 text-xs">Short Destination Introduction</label>
                 <textarea
                   rows={3}
-                  placeholder="Write 1–2 short sentences introducing this destination. This appears below the hero image."
+                  placeholder="Leave blank to auto-generate a destination-specific SEO introduction from the destination name, cities and highlights."
                   value={formData.tourPackagesDescription || ''}
                   onChange={(e) => setFormData({ ...formData, tourPackagesDescription: e.target.value })}
                   className="w-full p-3 bg-stone-50 border border-stone-200 rounded-xl text-xs focus:bg-white focus:outline-none leading-relaxed"
                 />
-                <p className="text-[10px] text-stone-500 mt-1.5">Keep this concise. It appears below the destination hero image, like the South Korea destination page.</p>
+                <p className="text-[10px] text-stone-500 mt-1.5">If left blank, a unique introduction is generated automatically for this destination and saved with it. You can edit the generated copy anytime.</p>
               </div>
 
               {/* Hero Image */}
