@@ -343,7 +343,7 @@ export default {
             if (q && q.structured_content) {
               try {
                 const parsed = JSON.parse(q.structured_content as string);
-                map = getApprovedDestinationMap(typeof parsed.value === 'string' ? parsed.value : (parsed.value || {}));
+                map = getDestinationMap(typeof parsed.value === 'string' ? parsed.value : (parsed.value || {}));
               } catch {}
             }
             if (targetSlug) {
