@@ -4,6 +4,13 @@ import { Compass, ArrowUpRight, ChevronLeft, ChevronRight, MapPin } from 'lucide
 import { useTours } from '../../context/TourContext';
 import { resolveDisplayImage, handleImageError } from '../../utils/imageResolver';
 
+const getDestinationDisplayName = (destination: any): string => {
+  const candidates = [destination?.name, destination?.displayName]
+    .filter((value): value is string => typeof value === 'string' && value.trim().length > 0)
+    .map((value) => value.trim());
+  return candidates.sort((a, b) => b.length - a.length)[0] || 'Destination';
+};
+
 interface DestinationItem {
   id: string;
   name: string;
@@ -49,7 +56,7 @@ export const FeaturedDestinationsCarousel: React.FC<FeaturedDestinationsCarousel
 
         return {
           id: d.id || d.slug,
-          name: d.name || d.displayName,
+          name: getDestinationDisplayName(d),
           coverImage: d.heroImage || d.coverImage || '',
           startingPrice: calculatedPrice,
           filterKey: d.slug || d.id,
