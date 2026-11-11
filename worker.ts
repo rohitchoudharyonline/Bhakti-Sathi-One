@@ -247,6 +247,81 @@ export default {
 
         if (pathname === '/api/health') return json({ status: 'ok' }, 200, publicHeaders(env, request));
 
+        // Public homepage callback submissions are saved to D1 before WhatsApp opens.
+        if (pathname === '/api/public/leads' && request.method === 'POST') {
+          if (!env.DB) return json({ error: 'Lead storage is temporarily unavailable. Please try again.' }, 503, publicHeaders(env, request));
+          const contentLength = Number(request.headers.get('content-length') || 0);
+          if (contentLength > 12000) return json({ error: 'Enquiry is too large.' }, 413, publicHeaders(env, request));
+          const b = await request.json().catch(() => null) as any;
+          if (!b || typeof b !== 'object') return json({ error: 'Invalid enquiry.' }, 400, publicHeaders(env, request));
+
+          const name = text(b.name, 120);
+          const phone = text(b.phone, 40);
+          const email = text(b.email, 160).toLowerCase();
+          const city = text(b.city, 100);
+          const destination = text(b.destination, 180);
+          const requirements = text(b.requirements, 2000);
+          const source = text(b.source || 'Homepage Callback Form', 120);
+          const marketingConsent = b.marketingConsent === true ? 1 : 0;
+          const digits = phone.replace(/\\D/g, '');
+          if (!name || digits.length < 10 || digits.length > 15) {
+            return json({ error: 'Please provide your name and a valid phone number.' }, 400, publicHeaders(env, request));
+          }
+          if (email && !/^\\S+@\\S+\\.\\S+$/.test(email)) {
+            return json({ error: 'Please provide a valid email address.' }, 400, publicHeaders(env, request));
+          }
+
+          const ip = request.headers.get('CF-Connecting-IP') || '';
+          let ipHash = '';
+          if (ip) {
+            const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(ip));
+            ipHash = Array.from(new Uint8Array(digest)).map((v) => v.toString(16).padStart(2, '0')).join('');
+            const recent = await env.DB.prepare(
+              "SELECT COUNT(*) AS total FROM website_leads WHERE ip_hash=? AND created_at >= ?"
+            ).bind(ipHash, new Date(Date.now() - 10 * 60 * 1000).toISOString()).first();
+            if (Number((recent as any)?.total || 0) >= 5) {
+              return json({ error: 'Too many enquiries from this connection. Please try again later.' }, 429, publicHeaders(env, request));
+            }
+          }
+
+          const id = 'lead-' + crypto.randomUUID();
+          const now = new Date().toISOString();
+          await env.DB.prepare(
+            'INSERT INTO website_leads (id, name, phone, email, city, destination, requirements, source, status, marketing_consent, ip_hash, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+          ).bind(id, name, phone, email, city, destination, requirements, source, 'New', marketingConsent, ipHash, now, now).run();
+          return json({ success: true, id, createdAt: now }, 201, privateHeaders(env, request));
+        }
+
+        if (pathname === '/api/cms/leads' || pathname.startsWith('/api/cms/leads/')) {
+          const email = await requireCms();
+          if (!email || !env.DB) return json({ error: 'Unauthorized.' }, 401, privateHeaders(env, request));
+          if (request.method === 'GET' && pathname === '/api/cms/leads') {
+            const limit = Math.min(10000, Math.max(1, Number(url.searchParams.get('limit')) || 5000));
+            const result = await env.DB.prepare(
+              'SELECT id, name, phone, email, city, destination, requirements, source, status, marketing_consent, created_at, updated_at FROM website_leads ORDER BY created_at DESC LIMIT ?'
+            ).bind(limit).all();
+            return json({ success: true, leads: result.results || [] }, 200, privateHeaders(env, request));
+          }
+          const leadId = text(pathname.slice('/api/cms/leads/'.length), 100);
+          if (!leadId || leadId.includes('/')) return json({ error: 'Lead ID is required.' }, 400, privateHeaders(env, request));
+          if (request.method === 'PATCH') {
+            const b = await request.json().catch(() => ({})) as any;
+            const allowedStatuses = ['New', 'Contacted', 'Follow-up', 'Converted', 'Lost'];
+            const status = text(b.status, 30);
+            if (!allowedStatuses.includes(status)) return json({ error: 'Invalid lead status.' }, 400, privateHeaders(env, request));
+            const result = await env.DB.prepare('UPDATE website_leads SET status=?, updated_at=? WHERE id=?')
+              .bind(status, new Date().toISOString(), leadId).run();
+            if (!result.meta?.changes) return json({ error: 'Lead not found.' }, 404, privateHeaders(env, request));
+            return json({ success: true }, 200, privateHeaders(env, request));
+          }
+          if (request.method === 'DELETE') {
+            const result = await env.DB.prepare('DELETE FROM website_leads WHERE id=?').bind(leadId).run();
+            if (!result.meta?.changes) return json({ error: 'Lead not found.' }, 404, privateHeaders(env, request));
+            return json({ success: true }, 200, privateHeaders(env, request));
+          }
+          return json({ error: 'Method not allowed.' }, 405, privateHeaders(env, request));
+        }
+
         if (pathname === '/api/admin/pin/verify' && request.method === 'POST') {
           const b = await request.json().catch(() => ({}));
           if (String(b.pin || '').trim() !== cmsPin) return json({ success: false, error: 'Invalid PIN.' }, 401, privateHeaders(env, request));
