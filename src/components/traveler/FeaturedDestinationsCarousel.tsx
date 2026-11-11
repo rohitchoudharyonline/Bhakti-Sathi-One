@@ -49,7 +49,7 @@ export const FeaturedDestinationsCarousel: React.FC<FeaturedDestinationsCarousel
 
         return {
           id: d.id || d.slug,
-          name: d.displayName || d.name,
+          name: d.name || d.displayName,
           coverImage: d.heroImage || d.coverImage || '',
           startingPrice: calculatedPrice,
           filterKey: d.slug || d.id,
