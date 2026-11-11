@@ -377,8 +377,8 @@ export function generateDestinationSeoIntroduction(destination: Partial<Destinat
     .slice(0, 3);
   const state = (destination.state || '').trim();
   const location = state && state.toLowerCase() !== 'india' && state.toLowerCase() !== name.toLowerCase()
-    ? `in ${state}`
-    : 'in India';
+    ? ` in ${state}`
+    : '';
   const placesText = places.length
     ? `Popular places and travel hubs include ${places.join(', ')}.`
     : '';
@@ -393,7 +393,7 @@ export function generateDestinationSeoIntroduction(destination: Partial<Destinat
     : 'sightseeing, local experiences and relaxed holidays';
 
   return [
-    `Explore ${name} ${location} with destination-focused ${name} tour packages from Holidays Hunt.`,
+    `Explore ${name}${location} with destination-focused ${name} tour packages from Holidays Hunt.`,
     placesText,
     highlightsText,
     theme,
