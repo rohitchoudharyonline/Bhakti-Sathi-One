@@ -550,7 +550,7 @@ export const LuxuryHomepage: React.FC = () => {
       '',
       'Source: Holidays Hunt Homepage Callback Form',
       'Please contact this customer.',
-    ].filter(Boolean).join('\\n');
+    ].filter(Boolean).join('\n');
 
     try {
       const response = await fetch('/api/public/leads', {
