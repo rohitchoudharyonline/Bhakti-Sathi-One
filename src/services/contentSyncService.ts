@@ -63,16 +63,13 @@ function normalizeDestinationRegistry(value: unknown): Record<string, any> {
   return {};
 }
 
-// Keep every CMS-created destination. Only retain the existing explicit
-// exclusions for destinations that were intentionally removed from this site.
+// Preserve every destination created in the CMS. The registry must not
+// silently discard valid destination slugs during save, hydration, or refresh.
 function cleanDestinationRegistry(value: unknown): Record<string, any> {
   const map = normalizeDestinationRegistry(value);
   const cleaned: Record<string, any> = {};
   for (const [slug, destination] of Object.entries(map)) {
-    const normalizedSlug = String(slug).toLowerCase();
-    if (destination && normalizedSlug !== 'himachal' && normalizedSlug !== 'amritsar') {
-      cleaned[slug] = destination;
-    }
+    if (destination) cleaned[slug] = destination;
   }
   return cleaned;
 }
