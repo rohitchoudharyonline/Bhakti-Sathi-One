@@ -1,5 +1,5 @@
 import { jsPDF } from 'jspdf';
-import { TourPackage, AgencySettings, Invoice, VendorPayment, Vendor, BookingInquiry, InquiryQuotation, PricingTiers } from '../types/tour';
+import { TourPackage, AgencySettings, Invoice, VendorPayment, Vendor, BookingInquiry, InquiryQuotation, PricingTiers, DEFAULT_TRAVELER_GUIDELINES, DEFAULT_CANCELLATION_TERMS, DEFAULT_PAYMENT_TERMS } from '../types/tour';
 
 const GOLD:[number,number,number]=[249,115,22], GOLD_DARK:[number,number,number]=[194,65,12], INK:[number,number,number]=[10,10,10], BODY:[number,number,number]=[68,64,60], MUTED:[number,number,number]=[120,113,108], LINE:[number,number,number]=[231,229,228], SOFT:[number,number,number]=[255,255,255], CREAM:[number,number,number]=[250,248,245], GREEN:[number,number,number]=[13,148,136];
 
@@ -1328,8 +1328,28 @@ export async function generateTourPDF(pkg:TourPackage,a:AgencySettings,onProgres
 
   if (pkg.hotels && pkg.hotels.length > 0) {
     calcY += 24;
-    for (const _ of pkg.hotels) {
-      calcY += 75 + 12;
+    for (const hotel of pkg.hotels) {
+      tempD.setFont('helvetica', 'bold');
+      tempD.setFontSize(12.5);
+      const nameLines = tempD.splitTextToSize(clean(hotel.name), contentWidth - 32);
+
+      const locText = getHotelLocation(hotel, pkg);
+      const stayText = `Stay & Location: ${locText} • ${clean(hotel.roomType || 'Deluxe Room')} (${hotel.nights} ${hotel.nights === 1 ? 'Night' : 'Nights'})`;
+      const mealText = `Meal Plan: ${clean(hotel.mealPlan || 'Daily Breakfast & Dinner Included')}`;
+      const hotelBullets = [stayText, mealText];
+      if (hotel.amenities && hotel.amenities.length > 0) {
+        hotelBullets.push(`Amenities: ${clean(hotel.amenities.join(', '))}`);
+      }
+
+      tempD.setFont('helvetica', 'normal');
+      tempD.setFontSize(10.5);
+      let bulletsH = 0;
+      hotelBullets.forEach(b => {
+        const bLines = tempD.splitTextToSize(b, contentWidth - 44);
+        bulletsH += bLines.length * 13 + 6;
+      });
+      const hCardH = 16 + (nameLines.length * 15) + 8 + bulletsH + 12;
+      calcY += hCardH + 16;
     }
     calcY += 12;
   }
@@ -1377,20 +1397,34 @@ export async function generateTourPDF(pkg:TourPackage,a:AgencySettings,onProgres
   }
 
   calcY += 24; // Policies header
-  const cancellationPolicy = pkg.policies?.cancellationPolicy || ['Standard cancellation policies apply as per booking terms.'];
-  const termsAndConditions = pkg.policies?.termsAndConditions || ['All bookings are subject to confirmation and advance deposit.'];
-  const importantNotes = ['Please carry valid photo identification for all guests during travel.', 'All bookings are subject to availability and weather conditions.'];
+  const paymentPolicy = (pkg.policies?.paymentPolicy && pkg.policies.paymentPolicy.length > 0)
+    ? pkg.policies.paymentPolicy
+    : DEFAULT_PAYMENT_TERMS;
+  const travelerGuidelines = (pkg.importantNotes && pkg.importantNotes.length > 0)
+    ? pkg.importantNotes
+    : (pkg.policies?.importantNotes && pkg.policies.importantNotes.length > 0)
+    ? pkg.policies.importantNotes
+    : (pkg.policies?.termsAndConditions && pkg.policies.termsAndConditions.length > 0 && !pkg.policies.termsAndConditions[0].includes('All bookings subject'))
+    ? pkg.policies.termsAndConditions
+    : DEFAULT_TRAVELER_GUIDELINES;
+  const cancellationPolicy = (pkg.policies?.cancellationPolicy && pkg.policies.cancellationPolicy.length > 0)
+    ? pkg.policies.cancellationPolicy
+    : DEFAULT_CANCELLATION_TERMS;
 
   const getPolicyBoxH = (arr: string[]) => {
     tempD.setFont('helvetica', 'normal');
-    tempD.setFontSize(11);
-    const pLines = tempD.splitTextToSize(clean(arr.join(' • ')), contentWidth - 32);
-    return 45 + pLines.length * 15 + 16;
+    tempD.setFontSize(10.5);
+    let h = 34;
+    arr.forEach(item => {
+      const lines = tempD.splitTextToSize(clean(item), contentWidth - 44);
+      h += lines.length * 14 + 8;
+    });
+    return h + 10 + 16;
   };
 
+  calcY += getPolicyBoxH(paymentPolicy);
+  calcY += getPolicyBoxH(travelerGuidelines);
   calcY += getPolicyBoxH(cancellationPolicy);
-  calcY += getPolicyBoxH(termsAndConditions);
-  calcY += getPolicyBoxH(importantNotes);
 
   const totalHeight = calcY + 400; // Generous extra space to ensure no clipping
 
@@ -1551,41 +1585,49 @@ export async function generateTourPDF(pkg:TourPackage,a:AgencySettings,onProgres
     y = drawSecHeader(d, 'Accommodation & Stays', y);
     for (const hotel of pkg.hotels) {
       d.setFont('helvetica','bold');
-      d.setFontSize(13);
+      d.setFontSize(12.5);
       const nameLines = d.splitTextToSize(clean(hotel.name), contentWidth - 32);
-      d.setFont('helvetica','normal');
-      d.setFontSize(10.5);
-      const starText = '';
+
       const locText = getHotelLocation(hotel, pkg);
-      const infoLines = d.splitTextToSize(`${starText}${locText} | ${clean(hotel.roomType || 'Deluxe Room')} (${hotel.nights}N)`, contentWidth - 32);
-      let amLines: string[] = [];
-      if (hotel.amenities?.length) {
-        d.setFont('helvetica','italic');
-        d.setFontSize(10);
-        amLines = d.splitTextToSize(`Amenities: ${hotel.amenities.join(' • ')}`, contentWidth - 32);
+      const stayText = `Stay & Location: ${locText} • ${clean(hotel.roomType || 'Deluxe Room')} (${hotel.nights} ${hotel.nights === 1 ? 'Night' : 'Nights'})`;
+      const mealText = `Meal Plan: ${clean(hotel.mealPlan || 'Daily Breakfast & Dinner Included')}`;
+      const hotelBullets = [stayText, mealText];
+      if (hotel.amenities && hotel.amenities.length > 0) {
+        hotelBullets.push(`Amenities: ${clean(hotel.amenities.join(', '))}`);
       }
-      
-      const hCardH = 20 + (nameLines.length * 15) + (infoLines.length * 14) + (amLines.length ? amLines.length * 13 + 6 : 0) + 12;
-      drawCard(d, margin, y, contentWidth, hCardH, [255, 255, 255], LINE);
-      
-      d.setFont('helvetica','bold');
-      d.setFontSize(13);
-      d.setTextColor(...INK);
-      d.text(nameLines, margin + 16, y + 22);
-      let curHY = y + 22 + (nameLines.length * 15);
-      
+
       d.setFont('helvetica','normal');
       d.setFontSize(10.5);
-      d.setTextColor(...MUTED);
-      d.text(infoLines, margin + 16, curHY);
-      curHY += (infoLines.length * 14) + 6;
-      
-      if (amLines.length) {
-        d.setFont('helvetica','italic');
-        d.setFontSize(10);
-        d.setTextColor(...BODY);
-        d.text(amLines, margin + 16, curHY);
-      }
+      let bulletsH = 0;
+      const parsedBullets: string[][] = [];
+      hotelBullets.forEach(b => {
+        const bLines = d.splitTextToSize(b, contentWidth - 44);
+        parsedBullets.push(bLines);
+        bulletsH += bLines.length * 13 + 6;
+      });
+
+      const hCardH = 16 + (nameLines.length * 15) + 8 + bulletsH + 12;
+      drawCard(d, margin, y, contentWidth, hCardH, [255, 255, 255], LINE, true);
+
+      // Hotel Title
+      d.setFont('helvetica','bold');
+      d.setFontSize(12.5);
+      d.setTextColor(...INK);
+      d.text(nameLines, margin + 16, y + 20);
+
+      // Hotel Bullets
+      let curHY = y + 20 + (nameLines.length * 15) + 6;
+      d.setFont('helvetica','normal');
+      d.setFontSize(10.5);
+      d.setTextColor(...BODY);
+
+      parsedBullets.forEach((bLines) => {
+        d.setFillColor(...GOLD);
+        d.circle(margin + 20, curHY - 3.5, 2.5, 'F');
+        d.text(bLines, margin + 28, curHY, { lineHeightFactor: 1.3 });
+        curHY += bLines.length * 13 + 6;
+      });
+
       y += hCardH + 16;
     }
     y += 12;
@@ -1701,23 +1743,49 @@ export async function generateTourPDF(pkg:TourPackage,a:AgencySettings,onProgres
   y = drawSecHeader(d, 'Policies & Notes', y);
 
   const addPolicyBlock = (titleText: string, contentArray: string[], isGold = false) => {
-    const pLines = d.splitTextToSize(clean(contentArray.join(' • ')), contentWidth - 32);
-    const boxH = 45 + pLines.length * 15;
-    drawCard(d, margin, y, contentWidth, boxH, isGold ? CREAM : SOFT, isGold ? GOLD : LINE);
-    d.setFont('helvetica', 'bold');
-    d.setFontSize(12);
-    d.setTextColor(isGold ? GOLD[0] : INK[0], isGold ? GOLD[1] : INK[1], isGold ? GOLD[2] : INK[2]);
-    d.text(titleText, margin + 16, y + 26);
     d.setFont('helvetica', 'normal');
-    d.setFontSize(11);
+    d.setFontSize(10.5);
+    let contentH = 0;
+    const itemLinesList: string[][] = [];
+    contentArray.forEach(item => {
+      const lines = d.splitTextToSize(clean(item), contentWidth - 44);
+      itemLinesList.push(lines);
+      contentH += lines.length * 14 + 8;
+    });
+    const boxH = 34 + contentH + 10;
+
+    drawCard(d, margin, y, contentWidth, boxH, isGold ? CREAM : [255, 255, 255], isGold ? GOLD : LINE, true);
+
+    // Section Title
+    d.setFont('helvetica', 'bold');
+    d.setFontSize(11.5);
+    d.setTextColor(isGold ? GOLD[0] : INK[0], isGold ? GOLD[1] : INK[1], isGold ? GOLD[2] : INK[2]);
+    d.text(clean(titleText), margin + 16, y + 22);
+
+    // Bullet Items
+    let curItemY = y + 40;
+    d.setFont('helvetica', 'normal');
+    d.setFontSize(10.5);
     d.setTextColor(...BODY);
-    d.text(pLines, margin + 16, y + 46, { lineHeightFactor: 1.35 });
+
+    itemLinesList.forEach((lines) => {
+      d.setFillColor(...GOLD);
+      d.circle(margin + 20, curItemY - 3.5, 2.5, 'F');
+      d.text(lines, margin + 28, curItemY, { lineHeightFactor: 1.35 });
+      curItemY += lines.length * 14 + 8;
+    });
+
     y += boxH + 16;
   };
 
-  addPolicyBlock('Cancellation Policy:', cancellationPolicy);
-  addPolicyBlock('Terms & Conditions:', termsAndConditions);
-  addPolicyBlock('Important Notes:', importantNotes, true);
+  // 1. Payment & Booking Terms (Above Both Policies)
+  addPolicyBlock('Payment & Booking Terms:', paymentPolicy, false);
+
+  // 2. Important Traveler Notes & Guidelines
+  addPolicyBlock('Important Traveler Notes & Guidelines:', travelerGuidelines, true);
+
+  // 3. Cancellation & Refund Terms
+  addPolicyBlock('Cancellation & Refund Terms:', cancellationPolicy, false);
 
   // Bottom Footer with Contact Details Only
   d.setFont('helvetica', 'bold');

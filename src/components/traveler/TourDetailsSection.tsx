@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { TourPackage } from '../../types/tour';
+import { TourPackage, DEFAULT_TRAVELER_GUIDELINES, DEFAULT_CANCELLATION_TERMS, DEFAULT_PAYMENT_TERMS } from '../../types/tour';
 import {
   Hotel,
   Building2,
@@ -11,6 +11,7 @@ import {
   Check,
   FileText,
   ShieldAlert,
+  Info,
 } from 'lucide-react';
 
 interface TourDetailsSectionProps {
@@ -419,60 +420,82 @@ export const TourDetailsSection: React.FC<TourDetailsSectionProps> = ({
         {/* ============================================================ */}
         {activeTab === 'policies' && (
           <div className="space-y-4">
-            {/* Cancellation Policy */}
-            <div className="border border-stone-200 rounded-xl overflow-hidden bg-white">
-              <div className="bg-stone-100/90 border-b border-stone-200 p-3 text-xs font-black text-stone-800 uppercase tracking-wider flex items-center gap-2">
-                <ShieldAlert className="w-3.5 h-3.5 text-rose-600" />
-                <span>Cancellation & Refund Policy</span>
-              </div>
-              <div className="p-4">
-                {pkg.policies?.cancellationPolicy && pkg.policies.cancellationPolicy.length > 0 ? (
-                  <ul className="space-y-2 text-xs text-stone-700 list-disc list-outside pl-4 leading-relaxed">
-                    {pkg.policies.cancellationPolicy.map((line, i) => (
-                      <li key={i}>{line}</li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="text-xs text-stone-500 italic">No cancellation policies specified.</p>
-                )}
-              </div>
-            </div>
-
-            {/* Payment Policy */}
-            <div className="border border-stone-200 rounded-xl overflow-hidden bg-white">
-              <div className="bg-stone-100/90 border-b border-stone-200 p-3 text-xs font-black text-stone-800 uppercase tracking-wider flex items-center gap-2">
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+            {/* 1. Payment Policy (Placed Above Both Policies) */}
+            <div className="border border-stone-200 rounded-xl overflow-hidden bg-white shadow-2xs">
+              <div className="bg-stone-50 border-b border-stone-200 p-3 text-xs font-black text-stone-800 uppercase tracking-wider flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-emerald-600" />
                 <span>Payment & Booking Terms</span>
               </div>
               <div className="p-4">
-                {pkg.policies?.paymentPolicy && pkg.policies.paymentPolicy.length > 0 ? (
-                  <ul className="space-y-2 text-xs text-stone-700 list-disc list-outside pl-4 leading-relaxed">
-                    {pkg.policies.paymentPolicy.map((line, i) => (
-                      <li key={i}>{line}</li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="text-xs text-stone-500 italic">No payment policies specified.</p>
-                )}
+                {(() => {
+                  const paymentList = (pkg.policies?.paymentPolicy && pkg.policies.paymentPolicy.length > 0)
+                    ? pkg.policies.paymentPolicy
+                    : DEFAULT_PAYMENT_TERMS;
+                  return (
+                    <ul className="space-y-2 text-xs text-stone-700 leading-relaxed">
+                      {paymentList.map((line, i) => (
+                        <li key={i} className="flex items-start gap-2.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#FF4B00] mt-1.5 shrink-0" />
+                          <span className="font-medium text-stone-800">{line}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  );
+                })()}
               </div>
             </div>
 
-            {/* Terms and Conditions */}
-            <div className="border border-stone-200 rounded-xl overflow-hidden bg-white">
-              <div className="bg-stone-100/90 border-b border-stone-200 p-3 text-xs font-black text-stone-800 uppercase tracking-wider flex items-center gap-2">
-                <FileText className="w-3.5 h-3.5 text-stone-700" />
-                <span>Terms & Conditions</span>
+            {/* 2. Important Traveler Notes & Guidelines */}
+            <div className="border border-stone-200 rounded-xl overflow-hidden bg-white shadow-2xs">
+              <div className="bg-stone-50 border-b border-stone-200 p-3 text-xs font-black text-stone-800 uppercase tracking-wider flex items-center gap-2">
+                <FileText className="w-4 h-4 text-[#FF4B00]" />
+                <span>Important Traveler Notes & Guidelines</span>
               </div>
               <div className="p-4">
-                {pkg.policies?.termsAndConditions && pkg.policies.termsAndConditions.length > 0 ? (
-                  <ul className="space-y-2 text-xs text-stone-700 list-disc list-outside pl-4 leading-relaxed">
-                    {pkg.policies.termsAndConditions.map((line, i) => (
-                      <li key={i}>{line}</li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="text-xs text-stone-500 italic">No terms or conditions specified.</p>
-                )}
+                {(() => {
+                  const notesList = (pkg.importantNotes && pkg.importantNotes.length > 0)
+                    ? pkg.importantNotes
+                    : (pkg.policies?.importantNotes && pkg.policies.importantNotes.length > 0)
+                    ? pkg.policies.importantNotes
+                    : (pkg.policies?.termsAndConditions && pkg.policies.termsAndConditions.length > 0 && !pkg.policies.termsAndConditions[0].includes('All bookings subject'))
+                    ? pkg.policies.termsAndConditions
+                    : DEFAULT_TRAVELER_GUIDELINES;
+                  return (
+                    <ul className="space-y-2 text-xs text-stone-700 leading-relaxed">
+                      {notesList.map((note, i) => (
+                        <li key={i} className="flex items-start gap-2.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#FF4B00] mt-1.5 shrink-0" />
+                          <span className="font-medium text-stone-800">{note}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  );
+                })()}
+              </div>
+            </div>
+
+            {/* 3. Cancellation Policy */}
+            <div className="border border-stone-200 rounded-xl overflow-hidden bg-white shadow-2xs">
+              <div className="bg-stone-50 border-b border-stone-200 p-3 text-xs font-black text-stone-800 uppercase tracking-wider flex items-center gap-2">
+                <ShieldAlert className="w-4 h-4 text-rose-600" />
+                <span>Cancellation & Refund Terms</span>
+              </div>
+              <div className="p-4">
+                {(() => {
+                  const cancelList = (pkg.policies?.cancellationPolicy && pkg.policies.cancellationPolicy.length > 0)
+                    ? pkg.policies.cancellationPolicy
+                    : DEFAULT_CANCELLATION_TERMS;
+                  return (
+                    <ul className="space-y-2 text-xs text-stone-700 leading-relaxed">
+                      {cancelList.map((line, i) => (
+                        <li key={i} className="flex items-start gap-2.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#FF4B00] mt-1.5 shrink-0" />
+                          <span className="font-medium text-stone-800">{line}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  );
+                })()}
               </div>
             </div>
           </div>

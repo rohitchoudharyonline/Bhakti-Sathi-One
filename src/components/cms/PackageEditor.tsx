@@ -12,6 +12,9 @@ import {
   PricingTiers,
   GroupTourBatch,
   GroupTourDetails,
+  DEFAULT_TRAVELER_GUIDELINES,
+  DEFAULT_CANCELLATION_TERMS,
+  DEFAULT_PAYMENT_TERMS,
 } from '../../types/tour';
 import { useTours } from '../../context/TourContext';
 import { DestinationMeta } from '../../data/destinationsData';
@@ -327,26 +330,27 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
 
   // Policies
   const [cancellationPolicy, setCancellationPolicy] = useState<string[]>(
-    initialPackage?.policies?.cancellationPolicy || [
-      'Free cancellation up to 30 days prior to departure date.',
-      '29 to 15 days before departure: 50% refund.',
-      'Under 14 days: Non-refundable.',
-    ]
+    initialPackage?.policies?.cancellationPolicy && initialPackage.policies.cancellationPolicy.length > 0
+      ? initialPackage.policies.cancellationPolicy
+      : DEFAULT_CANCELLATION_TERMS
   );
   const [newCancelRule, setNewCancelRule] = useState('');
 
   const [paymentPolicy, setPaymentPolicy] = useState<string[]>(
-    initialPackage?.policies?.paymentPolicy || [
-      '25% Advance deposit to confirm booking.',
-      '75% Balance payable 15 days prior to travel.',
-    ]
+    initialPackage?.policies?.paymentPolicy && initialPackage.policies.paymentPolicy.length > 0
+      ? initialPackage.policies.paymentPolicy
+      : DEFAULT_PAYMENT_TERMS
   );
+  const [newPaymentRule, setNewPaymentRule] = useState('');
 
   const [importantNotes, setImportantNotes] = useState<string[]>(
-    initialPackage?.importantNotes || [
-      'Carry valid government photo ID for all travelers.',
-      'Hotel standard check-in time is 2:00 PM and check-out is 11:00 AM.',
-    ]
+    (initialPackage?.importantNotes && initialPackage.importantNotes.length > 0)
+      ? initialPackage.importantNotes
+      : (initialPackage?.policies?.importantNotes && initialPackage.policies.importantNotes.length > 0)
+      ? initialPackage.policies.importantNotes
+      : (initialPackage?.policies?.termsAndConditions && initialPackage.policies.termsAndConditions.length > 0 && !initialPackage.policies.termsAndConditions[0].includes('All bookings subject'))
+      ? initialPackage.policies.termsAndConditions
+      : DEFAULT_TRAVELER_GUIDELINES
   );
   const [newNote, setNewNote] = useState('');
 
@@ -483,12 +487,10 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
       includedIcons,
       hotels,
       policies: {
-        cancellationPolicy,
-        termsAndConditions: [
-          'All bookings subject to availability at time of confirmation.',
-          'Package rates subject to change during peak festival dates.',
-        ],
         paymentPolicy,
+        importantNotes,
+        cancellationPolicy,
+        termsAndConditions: importantNotes,
       },
       importantNotes,
       status: finalStatus,
@@ -2122,31 +2124,54 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
         {/* TAB 6: POLICIES & NOTES */}
         {activeTab === 'policies' && (
           <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-2xs space-y-6">
-            <h3 className="text-base font-black text-slate-900 pb-3 border-b border-slate-100 flex items-center gap-2">
-              <FileText className="w-4 h-4 text-brand" />
-              Policies, Terms & Traveler Guidelines
-            </h3>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+              <div>
+                <h3 className="text-base font-black text-slate-900 flex items-center gap-2">
+                  <FileText className="w-4 h-4 text-brand" />
+                  <span>Policies, Terms & Traveler Guidelines</span>
+                </h3>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Standard defaults automatically apply to all tours. You can customize them here anytime.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setPaymentPolicy([...DEFAULT_PAYMENT_TERMS]);
+                  setImportantNotes([...DEFAULT_TRAVELER_GUIDELINES]);
+                  setCancellationPolicy([...DEFAULT_CANCELLATION_TERMS]);
+                }}
+                className="self-start sm:self-auto px-3 py-1.5 bg-orange-50 hover:bg-orange-100 text-brand border border-orange-200 text-xs font-bold rounded-xl transition flex items-center gap-1.5 cursor-pointer"
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>Reset to Standard Defaults</span>
+              </button>
+            </div>
 
-            {/* Cancellation Policy */}
+            {/* 1. Payment & Booking Terms (Above Both Policies) */}
             <div className="space-y-3">
-              <label className="text-xs font-bold text-slate-700 block">
-                Cancellation & Refund Terms ({cancellationPolicy.length})
-              </label>
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>1. Payment & Booking Terms ({paymentPolicy.length})</span>
+                </label>
+                <span className="text-[11px] text-slate-400">Placed above both policies</span>
+              </div>
 
               <div className="flex gap-2">
                 <input
                   type="text"
-                  value={newCancelRule}
-                  onChange={(e) => setNewCancelRule(e.target.value)}
-                  placeholder="e.g. 100% refund for cancellations up to 30 days before departure"
+                  value={newPaymentRule}
+                  onChange={(e) => setNewPaymentRule(e.target.value)}
+                  placeholder="e.g. 25% Advance deposit to confirm booking"
                   className="flex-1 text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 focus:bg-white focus:border-brand focus:outline-hidden"
                 />
                 <button
                   type="button"
                   onClick={() => {
-                    if (!newCancelRule.trim()) return;
-                    setCancellationPolicy([...cancellationPolicy, newCancelRule.trim()]);
-                    setNewCancelRule('');
+                    if (!newPaymentRule.trim()) return;
+                    setPaymentPolicy([...paymentPolicy, newPaymentRule.trim()]);
+                    setNewPaymentRule('');
                   }}
                   className="px-3.5 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition flex items-center gap-1 cursor-pointer"
                 >
@@ -2156,7 +2181,7 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
               </div>
 
               <ul className="space-y-1.5">
-                {cancellationPolicy.map((line, i) => (
+                {paymentPolicy.map((line, i) => (
                   <li
                     key={i}
                     className="flex items-center justify-between gap-2 p-2 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-700"
@@ -2165,9 +2190,9 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
                     <button
                       type="button"
                       onClick={() =>
-                        setCancellationPolicy(cancellationPolicy.filter((_, idx) => idx !== i))
+                        setPaymentPolicy(paymentPolicy.filter((_, idx) => idx !== i))
                       }
-                      className="text-slate-400 hover:text-rose-600 p-1"
+                      className="text-slate-400 hover:text-rose-600 p-1 cursor-pointer"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
@@ -2176,10 +2201,11 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
               </ul>
             </div>
 
-            {/* Important Notes */}
+            {/* 2. Important Traveler Notes & Guidelines */}
             <div className="space-y-3 pt-4 border-t border-slate-100">
-              <label className="text-xs font-bold text-slate-700 block">
-                Important Traveler Notes & Guidelines ({importantNotes.length})
+              <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                <FileText className="w-3.5 h-3.5 text-brand" />
+                <span>2. Important Traveler Notes & Guidelines ({importantNotes.length})</span>
               </label>
 
               <div className="flex gap-2">
@@ -2187,7 +2213,7 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
                   type="text"
                   value={newNote}
                   onChange={(e) => setNewNote(e.target.value)}
-                  placeholder="e.g. Warm clothing required for snow excursion points"
+                  placeholder="e.g. Carry valid government-issued photo ID for all travellers"
                   className="flex-1 text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 focus:bg-white focus:border-brand focus:outline-hidden"
                 />
                 <button
@@ -2216,7 +2242,57 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
                       onClick={() =>
                         setImportantNotes(importantNotes.filter((_, idx) => idx !== i))
                       }
-                      className="text-slate-400 hover:text-rose-600 p-1"
+                      className="text-slate-400 hover:text-rose-600 p-1 cursor-pointer"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* 3. Cancellation Policy */}
+            <div className="space-y-3 pt-4 border-t border-slate-100">
+              <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                <ShieldCheck className="w-3.5 h-3.5 text-rose-600" />
+                <span>3. Cancellation & Refund Terms ({cancellationPolicy.length})</span>
+              </label>
+
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={newCancelRule}
+                  onChange={(e) => setNewCancelRule(e.target.value)}
+                  placeholder="e.g. Non-Refundable Booking: All bookings are non-refundable once confirmed"
+                  className="flex-1 text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 focus:bg-white focus:border-brand focus:outline-hidden"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!newCancelRule.trim()) return;
+                    setCancellationPolicy([...cancellationPolicy, newCancelRule.trim()]);
+                    setNewCancelRule('');
+                  }}
+                  className="px-3.5 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition flex items-center gap-1 cursor-pointer"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>Add Term</span>
+                </button>
+              </div>
+
+              <ul className="space-y-1.5">
+                {cancellationPolicy.map((line, i) => (
+                  <li
+                    key={i}
+                    className="flex items-center justify-between gap-2 p-2 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-700"
+                  >
+                    <span>• {line}</span>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setCancellationPolicy(cancellationPolicy.filter((_, idx) => idx !== i))
+                      }
+                      className="text-slate-400 hover:text-rose-600 p-1 cursor-pointer"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>

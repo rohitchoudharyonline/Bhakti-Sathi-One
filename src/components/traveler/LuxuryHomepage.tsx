@@ -70,14 +70,6 @@ import { HandpickedYatraPackagesSection, CategoryToursCarouselSection } from './
 import { PullToRefresh } from '../common/PullToRefresh';
 import { FaqSection } from './FaqSection';
 
-// Prefer the complete saved label if legacy CMS fields disagree (for example, name='H' and displayName='Himachal Pradesh').
-const getDestinationDisplayName = (destination: any): string => {
-  const candidates = [destination?.name, destination?.displayName]
-    .filter((value): value is string => typeof value === 'string' && value.trim().length > 0)
-    .map((value) => value.trim());
-  return candidates.sort((a, b) => b.length - a.length)[0] || 'Destination';
-};
-
 // ==========================================
 // SEARCH WIDGET OPTION DATA (NO EMOJIS, CLEAN LUXURY)
 // ==========================================
@@ -264,6 +256,7 @@ export const LuxuryHomepage: React.FC = () => {
     setSelectedPackageId,
     toggleWishlist,
     isWishlisted,
+    submitInquiry,
     navigateToDestination,
     navigateToTemple,
     navigateToSearch,
@@ -326,7 +319,7 @@ export const LuxuryHomepage: React.FC = () => {
     const destList = Object.values(destinations || {}) as DestinationMeta[];
     const dynamicDestOptions = destList.map((d) => ({
       id: d.slug || d.id,
-      name: getDestinationDisplayName(d),
+      name: d.displayName || d.name,
       region: d.state || 'Circuit',
       desc: d.tagline || (d.popularCities && d.popularCities.length > 0 ? d.popularCities.join(', ') : `${d.name} Pilgrimage`),
       type: 'dest' as const,
@@ -408,7 +401,7 @@ export const LuxuryHomepage: React.FC = () => {
       id: d.id || d.slug,
       type: 'domestic' as const,
       destinationType: d.destinationType || 'regular',
-      name: getDestinationDisplayName(d),
+      name: d.displayName || d.name,
       subtitle: d.tagline || `${d.name} Holiday Destinations`,
       badge: (d as any).badge || `${(d as any).packagesCount || 6}+ TOUR PACKAGES`,
       toursCount: (d as any).badge || `${(d as any).packagesCount || 6}+ TOUR PACKAGES`,
@@ -457,11 +450,8 @@ export const LuxuryHomepage: React.FC = () => {
   const [leadPhone, setLeadPhone] = useState('');
   const [leadYatra, setLeadYatra] = useState('');
   const [leadNotes, setLeadNotes] = useState('');
-  const [leadCity, setLeadCity] = useState('');
-  const [leadMarketingConsent, setLeadMarketingConsent] = useState(false);
-  const [leadSaving, setLeadSaving] = useState(false);
-  const [leadError, setLeadError] = useState('');
   const [leadSubmitted, setLeadSubmitted] = useState(false);
+  const [submittedWaUrl, setSubmittedWaUrl] = useState('');
 
   const handleHeroSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -530,53 +520,54 @@ export const LuxuryHomepage: React.FC = () => {
     (!leadEmail.trim() || isValidEmail(leadEmail))
   );
 
-  const handleCustomLeadSubmit = async (e: React.FormEvent) => {
+  const handleCustomLeadSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!leadName.trim() || !isValidPhone(leadPhone) || leadSaving) return;
+    if (!leadName.trim() || !isValidPhone(leadPhone)) return;
     if (leadEmail.trim() && !isValidEmail(leadEmail)) return;
 
-    setLeadSaving(true);
-    setLeadError('');
-    const businessWhatsAppNumber = '919419915255';
-    const message = [
-      'NEW CALLBACK REQUEST — HOLIDAYS HUNT',
-      '',
-      `Name: ${leadName.trim()}`,
-      `Customer Phone / WhatsApp: ${leadPhone.trim()}`,
-      leadCity.trim() ? `City: ${leadCity.trim()}` : '',
-      leadYatra.trim() ? `Destination / Tour: ${leadYatra.trim()}` : '',
-      leadNotes.trim() ? `Requirements: ${leadNotes.trim()}` : '',
-      leadEmail.trim() ? `Email: ${leadEmail.trim()}` : '',
-      '',
-      'Source: Holidays Hunt Homepage Callback Form',
-      'Please contact this customer.',
-    ].filter(Boolean).join('\n');
+    const cleanEmail = leadEmail.trim()
+      ? leadEmail.trim().toLowerCase()
+      : `${leadPhone.replace(/\D/g, '')}@callback.holidayshunt.com`;
 
+    const cleanWhatsapp = (agencySettings?.whatsapp || '+91 94199 15255').replace(/\D/g, '');
+
+    // Formatted WhatsApp message with lead details
+    const waLines = [
+      `*New Callback & Tour Inquiry - Holidays Hunt*`,
+      `━━━━━━━━━━━━━━━━━━━━`,
+      `👤 *Name:* ${leadName.trim()}`,
+      `📞 *Phone / WhatsApp:* ${leadPhone.trim()}`,
+      cleanEmail && !cleanEmail.includes('@callback.') ? `📧 *Email:* ${cleanEmail}` : null,
+      leadYatra.trim() ? `🗺️ *Destination / Tour:* ${leadYatra.trim()}` : null,
+      leadNotes.trim() ? `📝 *Requirements / Query:* ${leadNotes.trim()}` : null,
+      `━━━━━━━━━━━━━━━━━━━━`,
+      `_I filled this callback request on holidayshunt.com. Please connect with me for customized tour planning._`,
+    ].filter(Boolean);
+
+    const waUrl = `https://wa.me/${cleanWhatsapp}?text=${encodeURIComponent(waLines.join('\n'))}`;
+
+    // Record inquiry in system database
+    submitInquiry({
+      packageId: 'callback-request',
+      travelerName: leadName.trim(),
+      phone: leadPhone.trim(),
+      email: cleanEmail,
+      packageTitle: `Holiday & Tour Callback Request${leadYatra.trim() ? `: ${leadYatra.trim()}` : ''}`,
+      travelDate: 'Flexible',
+      adults: 1,
+      children: 0,
+      specialRequests: `Customer requested instant callback on WhatsApp / Phone: ${leadPhone.trim()}.${leadYatra.trim() ? ` Yatra / Destination: ${leadYatra.trim()}.` : ''}${leadNotes.trim() ? ` Query / Details: ${leadNotes.trim()}.` : ''}`,
+      estimatedTotal: 0,
+    });
+
+    setSubmittedWaUrl(waUrl);
+    setLeadSubmitted(true);
+
+    // Open WhatsApp directly
     try {
-      const response = await fetch('/api/public/leads', {
-        method: 'POST',
-        credentials: 'same-origin',
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        body: JSON.stringify({
-          name: leadName.trim(),
-          phone: leadPhone.trim(),
-          email: leadEmail.trim(),
-          city: leadCity.trim(),
-          destination: leadYatra.trim(),
-          requirements: leadNotes.trim(),
-          source: 'Homepage Callback Form',
-          marketingConsent: leadMarketingConsent,
-        }),
-      });
-      const data = await response.json().catch(() => ({}));
-      if (!response.ok || !data.success) {
-        throw new Error(data.error || 'We could not save your enquiry. Please try again.');
-      }
-      // The lead is safely stored in the CMS database before opening WhatsApp.
-      window.location.href = `https://wa.me/${businessWhatsAppNumber}?text=${encodeURIComponent(message)}`;
-    } catch (error) {
-      setLeadError(error instanceof Error ? error.message : 'We could not save your enquiry. Please try again.');
-      setLeadSaving(false);
+      window.open(waUrl, '_blank') || (window.location.href = waUrl);
+    } catch {
+      window.location.href = waUrl;
     }
   };
 
@@ -1295,26 +1286,42 @@ export const LuxuryHomepage: React.FC = () => {
               <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#FF4B00] via-[#FF7A33] to-[#FF4B00]" />
 
               {leadSubmitted ? (
-                <div className="text-center py-6">
-                  <div className="w-14 h-14 rounded-full bg-[#FFF0EB] border border-[#FF4B00]/30 text-[#FF4B00] grid place-items-center mx-auto mb-3 shadow-xs">
-                    <Check className="w-7 h-7 text-[#FF4B00]" />
+                <div className="text-center py-6 animate-fade-in">
+                  <div className="w-14 h-14 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-600 grid place-items-center mx-auto mb-3 shadow-xs">
+                    <Check className="w-7 h-7 text-emerald-600" />
                   </div>
-                  <h3 className="text-base font-bold text-stone-900">Callback Request Received!</h3>
-                  <p className="text-xs text-stone-600 mt-1.5">
-                    Our travel specialist will call or WhatsApp you at <b className="text-[#FF4B00]">{leadPhone}</b> shortly.
+                  <h3 className="text-base font-bold text-stone-900">Callback Request Sent to WhatsApp!</h3>
+                  <p className="text-xs text-stone-600 mt-1.5 max-w-sm mx-auto">
+                    Your details have been submitted. If WhatsApp did not open automatically, tap below to send your details to our travel expert:
                   </p>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setLeadSubmitted(false);
-                      setLeadPhone('');
-                      setLeadYatra('');
-                      setLeadNotes('');
-                    }}
-                    className="mt-4 px-4 py-2 rounded-xl bg-[#FFF0EB] hover:bg-[#FFE4D6] text-[#FF4B00] border border-[#FF4B00]/30 text-xs font-bold transition-all cursor-pointer"
-                  >
-                    Request Another Callback
-                  </button>
+
+                  {submittedWaUrl && (
+                    <a
+                      href={submittedWaUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-3.5 inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#25D366] hover:bg-[#20bd5a] text-white text-xs font-black shadow-md hover:shadow-lg transition-all"
+                    >
+                      <MessageCircle className="w-4 h-4 fill-white text-white" />
+                      <span>Open in WhatsApp</span>
+                    </a>
+                  )}
+
+                  <div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setLeadSubmitted(false);
+                        setLeadPhone('');
+                        setLeadYatra('');
+                        setLeadNotes('');
+                        setSubmittedWaUrl('');
+                      }}
+                      className="mt-4 px-4 py-2 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-bold transition-all cursor-pointer"
+                    >
+                      Request Another Callback
+                    </button>
+                  </div>
                 </div>
               ) : (
                 <form onSubmit={handleCustomLeadSubmit} className="space-y-3 pt-1">
@@ -1402,23 +1409,6 @@ export const LuxuryHomepage: React.FC = () => {
                     </p>
                   </div>
 
-                  {/* Customer city for lead segmentation */}
-                  <div>
-                    <label className="block text-[10.5px] font-black uppercase tracking-wider text-stone-800 mb-1 flex items-center gap-1">
-                      <MapPin className="w-3.5 h-3.5 text-[#FF4B00]" />
-                      <span>Your City</span>
-                      <span className="text-stone-400 font-normal normal-case ml-1">(Optional)</span>
-                    </label>
-                    <input
-                      type="text"
-                      value={leadCity}
-                      onChange={(e) => setLeadCity(e.target.value)}
-                      placeholder="e.g. Jammu, Delhi, Mumbai"
-                      maxLength={100}
-                      className="w-full px-3 py-2 rounded-xl bg-stone-50/80 border border-stone-200 text-xs font-semibold focus:bg-white focus:outline-none focus:border-[#FF4B00] focus:ring-2 focus:ring-[#FF4B00]/20 transition"
-                    />
-                  </div>
-
                   {/* Destination / Tour of Interest */}
                   <div>
                     <label className="block text-[10.5px] font-black uppercase tracking-wider text-stone-800 mb-1 flex items-center gap-1">
@@ -1462,26 +1452,14 @@ export const LuxuryHomepage: React.FC = () => {
                     inputClassName="bg-stone-50/80 border-stone-200 py-2 text-xs"
                   />
 
-                  <label className="flex items-start gap-2 text-[10px] leading-relaxed text-stone-500 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={leadMarketingConsent}
-                      onChange={(e) => setLeadMarketingConsent(e.target.checked)}
-                      className="mt-0.5 accent-[#FF4B00]"
-                    />
-                    <span>I agree to receive relevant travel updates and offers from Holidays Hunt. I can opt out anytime.</span>
-                  </label>
-
-                  {leadError && <p role="alert" className="text-[11px] font-bold text-red-600 text-center">{leadError}</p>}
-
                   <div>
                     <button
                       type="submit"
-                      disabled={!isLeadFormValid || leadSaving}
-                      className="w-full py-3 rounded-xl bg-[#FF4B00] hover:bg-[#E04200] active:scale-[0.99] disabled:bg-stone-200 disabled:border-stone-200 disabled:text-stone-400 disabled:cursor-not-allowed text-white border border-[#FF4B00] text-xs font-black transition-all shadow-md shadow-[#FF4B00]/25 hover:shadow-lg hover:shadow-[#FF4B00]/35 cursor-pointer mt-2 flex items-center justify-center gap-2"
+                      disabled={!isLeadFormValid}
+                      className="w-full py-3 rounded-xl bg-[#25D366] hover:bg-[#20bd5a] active:scale-[0.99] disabled:bg-stone-200 disabled:border-stone-200 disabled:text-stone-400 disabled:cursor-not-allowed text-white text-xs font-black transition-all shadow-md shadow-emerald-500/20 hover:shadow-lg hover:shadow-emerald-500/30 cursor-pointer mt-2 flex items-center justify-center gap-2"
                     >
-                      <PhoneCall className="w-3.5 h-3.5 text-white" />
-                      <span>{leadSaving ? 'Saving Enquiry...' : 'Request Instant Callback'}</span>
+                      <MessageCircle className="w-4 h-4 fill-white text-white" />
+                      <span>Request Instant Callback on WhatsApp</span>
                     </button>
                     {!isValidPhone(leadPhone) ? (
                       <p className="text-[10px] text-center text-[#FF4B00] mt-1.5 font-bold">
@@ -1489,7 +1467,7 @@ export const LuxuryHomepage: React.FC = () => {
                       </p>
                     ) : (
                       <p className="text-[10px] text-center text-stone-500 mt-1.5 font-medium">
-                        ✓ Free callback within 15 minutes • 100% privacy protected
+                        ✓ Opens WhatsApp directly • 100% privacy protected
                       </p>
                     )}
                   </div>

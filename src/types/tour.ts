@@ -102,10 +102,33 @@ export interface GalleryItem {
   caption: string;
 }
 
+export const DEFAULT_TRAVELER_GUIDELINES: string[] = [
+  'Carry valid government-issued photo ID for all travellers.',
+  'Standard hotel check-in time is 2:00 PM and check-out time is 11:00 AM.',
+  'Carry suitable warm clothing, especially during winter and colder weather conditions.',
+  'Sightseeing and travel schedules may change depending on weather, road conditions and local restrictions.',
+  'Any additional activities, entry tickets, personal expenses or services not mentioned in the package inclusions will be charged separately.',
+  'Guests must follow local rules, hotel policies and instructions provided by the tour coordinator.'
+];
+
+export const DEFAULT_CANCELLATION_TERMS: string[] = [
+  'Non-Refundable Booking: All bookings are non-refundable once confirmed.',
+  'Cancellation Within 30 Days: No refund will be provided for cancellations made within 30 days of the travel date.',
+  'No-Show Policy: No refund will be provided in case of failure to report at the departure point or hotel.',
+  'Unused Services: No refund will be provided for partially used or unused hotels, meals, sightseeing, transportation or other services.',
+  'Date Changes: Any request for date changes will be subject to availability and applicable additional charges.'
+];
+
+export const DEFAULT_PAYMENT_TERMS: string[] = [
+  '25% Advance deposit to confirm booking.',
+  '75% Balance payable 15 days prior to travel.'
+];
+
 export interface PackagePolicies {
   cancellationPolicy: string[];
   termsAndConditions: string[];
   paymentPolicy: string[];
+  importantNotes?: string[];
 }
 
 export type TourInclusionIconType =
