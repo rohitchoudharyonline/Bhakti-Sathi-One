@@ -319,7 +319,7 @@ export const LuxuryHomepage: React.FC = () => {
     const destList = Object.values(destinations || {}) as DestinationMeta[];
     const dynamicDestOptions = destList.map((d) => ({
       id: d.slug || d.id,
-      name: d.displayName || d.name,
+      name: d.name || d.displayName,
       region: d.state || 'Circuit',
       desc: d.tagline || (d.popularCities && d.popularCities.length > 0 ? d.popularCities.join(', ') : `${d.name} Pilgrimage`),
       type: 'dest' as const,
@@ -401,7 +401,7 @@ export const LuxuryHomepage: React.FC = () => {
       id: d.id || d.slug,
       type: 'domestic' as const,
       destinationType: d.destinationType || 'regular',
-      name: d.displayName || d.name,
+      name: d.name || d.displayName,
       subtitle: d.tagline || `${d.name} Holiday Destinations`,
       badge: (d as any).badge || `${(d as any).packagesCount || 6}+ TOUR PACKAGES`,
       toursCount: (d as any).badge || `${(d as any).packagesCount || 6}+ TOUR PACKAGES`,
