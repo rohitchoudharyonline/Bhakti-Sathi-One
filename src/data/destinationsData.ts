@@ -356,3 +356,48 @@ export function matchPackageToDestination(pkg: any, destSlug: string): boolean {
 
   return false;
 }
+
+
+/**
+ * Builds a destination-specific introduction from verified CMS fields.
+ * It intentionally avoids invented attractions, prices, travel times or service claims.
+ */
+export function generateDestinationSeoIntroduction(destination: Partial<DestinationMeta>): string {
+  const name = (destination.name || '').trim();
+  if (!name) return '';
+
+  const genericPlaceNames = new Set(['city center', 'old town', 'valley point', 'snow peak']);
+  const places = (destination.popularCities || [])
+    .map((place) => place.trim())
+    .filter((place) => place && !genericPlaceNames.has(place.toLowerCase()))
+    .slice(0, 5);
+  const highlights = (destination.keyHighlights || [])
+    .map((item) => item.trim())
+    .filter(Boolean)
+    .slice(0, 3);
+  const state = (destination.state || '').trim();
+  const location = state && state.toLowerCase() !== 'india' && state.toLowerCase() !== name.toLowerCase()
+    ? `in ${state}`
+    : 'in India';
+  const placesText = places.length
+    ? `Popular places and travel hubs include ${places.join(', ')}.`
+    : '';
+  const highlightsText = highlights.length
+    ? `Highlights include ${highlights.join(', ')}.`
+    : '';
+  const tagline = (destination.tagline || '').trim();
+  const theme = tagline ? `The destination is known for ${tagline.charAt(0).toLowerCase() + tagline.slice(1)}.` : '';
+
+  const tripType = destination.destinationType === 'temple'
+    ? 'pilgrimage and temple visits'
+    : 'sightseeing, local experiences and relaxed holidays';
+
+  return [
+    `Explore ${name} ${location} with destination-focused ${name} tour packages from Holidays Hunt.`,
+    placesText,
+    highlightsText,
+    theme,
+    `Compare available holiday packages and plan ${tripType} around your travel dates, interests and preferred pace.`,
+    `Use this ${name} travel guide to review the destination details and choose an itinerary that matches your plans.`,
+  ].filter(Boolean).join(' ').replace(/\\s+/g, ' ').trim();
+}
