@@ -1,8 +1,6 @@
 import { GoogleGenAI } from '@google/genai';
 
 const text = (v: unknown, max = 2000) => String(v ?? '').replace(/[\u0000-\u001F\u007F]/g, ' ').trim().slice(0, max);
-const APPROVED_DESTINATION_SLUGS = new Set(['jammu-kashmir']);
-
 // D1 has historically stored this registry both as an object keyed by slug and
 // as an array of destination records. Normalize both shapes before filtering so
 // a valid restored registry can never become an empty destination response.
@@ -23,11 +21,8 @@ function normalizeDestinationRegistry(value: unknown): Record<string, any> {
   return {};
 }
 
-function getApprovedDestinationMap(value: unknown): Record<string, any> {
-  const map = normalizeDestinationRegistry(value);
-  return Object.fromEntries(
-    Object.entries(map).filter(([slug, destination]) => APPROVED_DESTINATION_SLUGS.has(String(slug).toLowerCase()) && destination)
-  );
+function getDestinationMap(value: unknown): Record<string, any> {
+  return normalizeDestinationRegistry(value);
 }
 const json = (data: unknown, status = 200, headers: HeadersInit = {}) => new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json; charset=utf-8', ...headers } });
 const b64 = (s: string) => btoa(unescape(encodeURIComponent(s))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
@@ -215,7 +210,7 @@ export default {
             add(`/tours/${encodeURIComponent(slug)}`, 'weekly', '0.9', pkg?.updatedAt || pkg?.updated_at || today);
           }
 
-          const destinations = getApprovedDestinationMap(byId.get('registry-destinations'));
+          const destinations = getDestinationMap(byId.get('registry-destinations'));
           for (const [slug, destination] of Object.entries(destinations)) {
             add(`/destination/${encodeURIComponent(slug)}`, 'weekly', '0.8', destination?.updatedAt || destination?.updated_at || today);
           }
@@ -368,7 +363,7 @@ export default {
             if (q && q.structured_content) {
               try {
                 const parsed = JSON.parse(q.structured_content as string);
-                map = typeof parsed.value === 'string' ? JSON.parse(parsed.value) : (parsed.value || {});
+                map = normalizeDestinationRegistry(typeof parsed.value === 'string' ? parsed.value : (parsed.value || {}));
               } catch {}
             }
 
@@ -381,9 +376,6 @@ export default {
               const b = await request.json().catch(() => ({}));
               const slug = text(b.slug || targetSlug, 200).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
               if (!slug) return json({ error: 'Valid slug required.' }, 400, privateHeaders(env, request));
-              if (slug !== 'jammu-kashmir') {
-                return json({ error: 'Only the Jammu & Kashmir destination is allowed.' }, 409, privateHeaders(env, request));
-              }
               map[slug] = { ...map[slug], ...b, slug, id: slug, updated_at: new Date().toISOString() };
             }
 
