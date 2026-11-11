@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
-  Download, RefreshCw, Search, Users, UserPlus, Phone, Mail, MapPin,
-  CalendarDays, MessageCircle, Trash2, CheckCircle2, Clock3, XCircle,
-  ShieldCheck, Loader2, AlertCircle, Filter,
+  Download, RefreshCw, Search, Users, UserPlus, Mail, MapPin,
+  CalendarDays, MessageCircle, Trash2, CheckCircle2, ShieldCheck,
+  Loader2, AlertCircle,
 } from 'lucide-react';
 
 type WebsiteLead = {
