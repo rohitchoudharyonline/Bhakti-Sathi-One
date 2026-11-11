@@ -457,6 +457,10 @@ export const LuxuryHomepage: React.FC = () => {
   const [leadPhone, setLeadPhone] = useState('');
   const [leadYatra, setLeadYatra] = useState('');
   const [leadNotes, setLeadNotes] = useState('');
+  const [leadCity, setLeadCity] = useState('');
+  const [leadMarketingConsent, setLeadMarketingConsent] = useState(false);
+  const [leadSaving, setLeadSaving] = useState(false);
+  const [leadError, setLeadError] = useState('');
   const [leadSubmitted, setLeadSubmitted] = useState(false);
 
   const handleHeroSearch = (e: React.FormEvent) => {
@@ -526,27 +530,54 @@ export const LuxuryHomepage: React.FC = () => {
     (!leadEmail.trim() || isValidEmail(leadEmail))
   );
 
-  const handleCustomLeadSubmit = (e: React.FormEvent) => {
+  const handleCustomLeadSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!leadName.trim() || !isValidPhone(leadPhone)) return;
+    if (!leadName.trim() || !isValidPhone(leadPhone) || leadSaving) return;
     if (leadEmail.trim() && !isValidEmail(leadEmail)) return;
 
+    setLeadSaving(true);
+    setLeadError('');
     const businessWhatsAppNumber = '919419915255';
     const message = [
       'NEW CALLBACK REQUEST — HOLIDAYS HUNT',
       '',
       `Name: ${leadName.trim()}`,
       `Customer Phone / WhatsApp: ${leadPhone.trim()}`,
+      leadCity.trim() ? `City: ${leadCity.trim()}` : '',
       leadYatra.trim() ? `Destination / Tour: ${leadYatra.trim()}` : '',
       leadNotes.trim() ? `Requirements: ${leadNotes.trim()}` : '',
       leadEmail.trim() ? `Email: ${leadEmail.trim()}` : '',
       '',
       'Source: Holidays Hunt Homepage Callback Form',
       'Please contact this customer.',
-    ].filter(Boolean).join('\n');
+    ].filter(Boolean).join('\\n');
 
-    const whatsappUrl = `https://wa.me/${businessWhatsAppNumber}?text=${encodeURIComponent(message)}`;
-    window.location.href = whatsappUrl;
+    try {
+      const response = await fetch('/api/public/leads', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({
+          name: leadName.trim(),
+          phone: leadPhone.trim(),
+          email: leadEmail.trim(),
+          city: leadCity.trim(),
+          destination: leadYatra.trim(),
+          requirements: leadNotes.trim(),
+          source: 'Homepage Callback Form',
+          marketingConsent: leadMarketingConsent,
+        }),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || 'We could not save your enquiry. Please try again.');
+      }
+      // The lead is safely stored in the CMS database before opening WhatsApp.
+      window.location.href = `https://wa.me/${businessWhatsAppNumber}?text=${encodeURIComponent(message)}`;
+    } catch (error) {
+      setLeadError(error instanceof Error ? error.message : 'We could not save your enquiry. Please try again.');
+      setLeadSaving(false);
+    }
   };
 
   return (
@@ -1371,6 +1402,23 @@ export const LuxuryHomepage: React.FC = () => {
                     </p>
                   </div>
 
+                  {/* Customer city for lead segmentation */}
+                  <div>
+                    <label className="block text-[10.5px] font-black uppercase tracking-wider text-stone-800 mb-1 flex items-center gap-1">
+                      <MapPin className="w-3.5 h-3.5 text-[#FF4B00]" />
+                      <span>Your City</span>
+                      <span className="text-stone-400 font-normal normal-case ml-1">(Optional)</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={leadCity}
+                      onChange={(e) => setLeadCity(e.target.value)}
+                      placeholder="e.g. Jammu, Delhi, Mumbai"
+                      maxLength={100}
+                      className="w-full px-3 py-2 rounded-xl bg-stone-50/80 border border-stone-200 text-xs font-semibold focus:bg-white focus:outline-none focus:border-[#FF4B00] focus:ring-2 focus:ring-[#FF4B00]/20 transition"
+                    />
+                  </div>
+
                   {/* Destination / Tour of Interest */}
                   <div>
                     <label className="block text-[10.5px] font-black uppercase tracking-wider text-stone-800 mb-1 flex items-center gap-1">
@@ -1414,14 +1462,26 @@ export const LuxuryHomepage: React.FC = () => {
                     inputClassName="bg-stone-50/80 border-stone-200 py-2 text-xs"
                   />
 
+                  <label className="flex items-start gap-2 text-[10px] leading-relaxed text-stone-500 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={leadMarketingConsent}
+                      onChange={(e) => setLeadMarketingConsent(e.target.checked)}
+                      className="mt-0.5 accent-[#FF4B00]"
+                    />
+                    <span>I agree to receive relevant travel updates and offers from Holidays Hunt. I can opt out anytime.</span>
+                  </label>
+
+                  {leadError && <p role="alert" className="text-[11px] font-bold text-red-600 text-center">{leadError}</p>}
+
                   <div>
                     <button
                       type="submit"
-                      disabled={!isLeadFormValid}
+                      disabled={!isLeadFormValid || leadSaving}
                       className="w-full py-3 rounded-xl bg-[#FF4B00] hover:bg-[#E04200] active:scale-[0.99] disabled:bg-stone-200 disabled:border-stone-200 disabled:text-stone-400 disabled:cursor-not-allowed text-white border border-[#FF4B00] text-xs font-black transition-all shadow-md shadow-[#FF4B00]/25 hover:shadow-lg hover:shadow-[#FF4B00]/35 cursor-pointer mt-2 flex items-center justify-center gap-2"
                     >
                       <PhoneCall className="w-3.5 h-3.5 text-white" />
-                      <span>Request Instant Callback</span>
+                      <span>{leadSaving ? 'Saving Enquiry...' : 'Request Instant Callback'}</span>
                     </button>
                     {!isValidPhone(leadPhone) ? (
                       <p className="text-[10px] text-center text-[#FF4B00] mt-1.5 font-bold">
