@@ -437,30 +437,6 @@ export const DestinationsManager: React.FC = () => {
               Basic Info & Hero
             </button>
             <button
-              onClick={() => setEditorSubTab('guide')}
-              className={`px-4 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
-                editorSubTab === 'guide' ? 'bg-black text-white' : 'bg-stone-100 text-stone-700'
-              }`}
-            >
-              Guide Overview & Logistics
-            </button>
-            <button
-              onClick={() => setEditorSubTab('attractions')}
-              className={`px-4 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
-                editorSubTab === 'attractions' ? 'bg-black text-white' : 'bg-stone-100 text-stone-700'
-              }`}
-            >
-              Top Attractions ({formData.guide?.topAttractions?.length || 0})
-            </button>
-            <button
-              onClick={() => setEditorSubTab('faqs')}
-              className={`px-4 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
-                editorSubTab === 'faqs' ? 'bg-black text-white' : 'bg-stone-100 text-stone-700'
-              }`}
-            >
-              Destination FAQs ({formData.guide?.faqs?.length || 0})
-            </button>
-            <button
               onClick={() => setEditorSubTab('seo')}
               className={`px-4 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
                 editorSubTab === 'seo' ? 'bg-black text-white' : 'bg-stone-100 text-stone-700'
@@ -548,15 +524,15 @@ export const DestinationsManager: React.FC = () => {
               </div>
 
               <div>
-                <label className="block font-bold text-stone-700 mb-1 text-xs">Tour Packages SEO Introduction</label>
+                <label className="block font-bold text-stone-700 mb-1 text-xs">Short Destination Introduction</label>
                 <textarea
-                  rows={5}
-                  placeholder="Write the destination-specific introduction that appears below the hero image and above the tour packages."
+                  rows={3}
+                  placeholder="Write 1–2 short sentences introducing this destination. This appears below the hero image."
                   value={formData.tourPackagesDescription || ''}
                   onChange={(e) => setFormData({ ...formData, tourPackagesDescription: e.target.value })}
                   className="w-full p-3 bg-stone-50 border border-stone-200 rounded-xl text-xs focus:bg-white focus:outline-none leading-relaxed"
                 />
-                <p className="text-[10px] text-stone-500 mt-1.5">This content is shown on the public destination page and should naturally describe the destination and its tour packages.</p>
+                <p className="text-[10px] text-stone-500 mt-1.5">Keep this concise. It appears below the destination hero image, like the South Korea destination page.</p>
               </div>
 
               {/* Hero Image */}
