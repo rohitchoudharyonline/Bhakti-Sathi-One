@@ -32,7 +32,7 @@ import {
   Ticket,
 } from 'lucide-react';
 import { useTours } from '../../context/TourContext';
-import { DESTINATIONS_REGISTRY, matchPackageToDestination, DestinationMeta } from '../../data/destinationsData';
+import { DESTINATIONS_REGISTRY, matchPackageToDestination, DestinationMeta, generateDestinationSeoIntroduction } from '../../data/destinationsData';
 import { resolveDisplayImage, handleImageError } from '../../utils/imageResolver';
 import { TourPackage } from '../../types/tour';
 import { InquiryModal } from './InquiryModal';
@@ -67,11 +67,19 @@ export const DestinationPage: React.FC = () => {
     (Object.values(destinations || {}) as DestinationMeta[])[0] ||
     DESTINATIONS_REGISTRY['kashmir'];
 
+  const destinationSeoIntro = destinationMeta?.tourPackagesDescription?.trim() || generateDestinationSeoIntroduction(destinationMeta || {});
+
   useEffect(() => {
     if (destinationMeta) {
       const title = destinationMeta.seoMetaTitle || `${destinationMeta.name} Tour Packages & Yatra Guide | Holidays Hunt`;
-      const description = destinationMeta.seoMetaDescription || `Book ${destinationMeta.name} tour packages with Holidays Hunt. Verified hotels, private vehicle transfers & 24/7 yatra support.`;
-      const keywords = destinationMeta.seoKeywords || `${destinationMeta.name} tour packages, ${destinationMeta.name} yatra, Holidays Hunt`;
+      const description = destinationMeta.seoMetaDescription || destinationSeoIntro.slice(0, 160);
+      const keywords = destinationMeta.seoKeywords || [
+        `${destinationMeta.name} tour packages`,
+        `${destinationMeta.name} holiday packages`,
+        `${destinationMeta.name} travel guide`,
+        ...(destinationMeta.popularCities || []).slice(0, 4).map((place: string) => `${place} tour packages`),
+        'Holidays Hunt',
+      ].join(', ');
       updateDocumentSEO(title, description, keywords);
     }
   }, [destinationMeta]);
@@ -332,7 +340,7 @@ export const DestinationPage: React.FC = () => {
           <section className="mt-4 rounded-2xl border border-stone-200 bg-stone-50/70 px-4 py-3.5 sm:px-5 shadow-2xs">
             <h2 className="text-base sm:text-lg font-black text-stone-900 mb-2">{destinationMeta.name} Tour Packages</h2>
             <p className="text-xs sm:text-sm text-stone-600 font-medium leading-relaxed">
-              {destinationMeta.tourPackagesDescription || destinationMeta.tagline || `Explore ${destinationMeta.name} with curated tour packages and plan an itinerary that suits your travel preferences.`}
+              {destinationSeoIntro}
             </p>
           </section>
 
