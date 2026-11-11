@@ -92,7 +92,7 @@ export const DestinationPage: React.FC = () => {
   }, [temples, currentSlug, destinationMeta]);
 
   // Active view: Packages or Destination Guide
-  const [activeTab] = useState<'packages'>('packages');
+  const [activeTab, setActiveTab] = useState<'packages' | 'guide'>('packages');
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
 
   // Filters
@@ -609,7 +609,7 @@ export const DestinationPage: React.FC = () => {
               </div>
             )}
           </div>
-        ) : null /* Travel Guide removed from destination pages. */ ? (
+        ) : activeTab === 'guide' ? (
           /* 4. CLEAN DESTINATION GUIDE & FAQS */
           <div className="space-y-4">
             {/* Overview Card */}
