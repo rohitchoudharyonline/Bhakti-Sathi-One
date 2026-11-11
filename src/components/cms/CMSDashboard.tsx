@@ -5,6 +5,7 @@ import { BlogPost } from '../../types/cms';
 import { PackageEditor } from './PackageEditor';
 import { AITourCreator } from './AITourCreator';
 import { InquiriesManager } from './InquiriesManager';
+import { WebsiteLeadsManager } from './WebsiteLeadsManager';
 import { SettingsManager } from './SettingsManager';
 import { FaqsManager } from './FaqsManager';
 import { StaffManager } from './StaffManager';
@@ -132,6 +133,7 @@ export const CMSDashboard: React.FC = () => {
     | 'media'
     | 'push-notifications'
     | 'inquiries'
+    | 'website-leads'
     | 'users'
     | 'invoices'
     | 'payments'
@@ -211,6 +213,7 @@ export const CMSDashboard: React.FC = () => {
       case 'faqs':
         return true;
       case 'inquiries':
+      case 'website-leads':
         return perms.canManageInquiries;
       case 'invoices':
         return perms.canManageInvoices;
@@ -338,6 +341,15 @@ export const CMSDashboard: React.FC = () => {
       badgeNew: newInquiriesCount > 0,
       workspace: 'sales',
       show: canAccess('inquiries'),
+    },
+    {
+      id: 'website-leads',
+      label: 'Website Enquiries',
+      desc: 'Homepage callback leads, customer data & exports',
+      icon: MessageSquare,
+      count: null,
+      workspace: 'sales',
+      show: canAccess('website-leads'),
     },
     {
       id: 'invoices',
@@ -1197,6 +1209,9 @@ export const CMSDashboard: React.FC = () => {
         {activeCmsTab === 'inquiries' && canAccess('inquiries') && !isTabLoading && (
           <InquiriesManager onConvertToInvoice={handleConvertInquiryToInvoice} />
         )}
+
+        {/* Website callback leads stored in Cloudflare D1 */}
+        {activeCmsTab === 'website-leads' && canAccess('website-leads') && !isTabLoading && <WebsiteLeadsManager />}
 
         {/* TAB 6.5: REGISTERED TRAVELERS & SIGNUPS DIRECTORY */}
         {activeCmsTab === 'users' && !isTabLoading && <UsersManager />}
