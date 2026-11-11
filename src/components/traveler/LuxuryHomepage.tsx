@@ -543,7 +543,7 @@ export const LuxuryHomepage: React.FC = () => {
       '',
       'Source: Holidays Hunt Homepage Callback Form',
       'Please contact this customer.',
-    ].filter(Boolean).join('\\n');
+    ].filter(Boolean).join('\n');
 
     const whatsappUrl = `https://wa.me/${businessWhatsAppNumber}?text=${encodeURIComponent(message)}`;
     window.location.href = whatsappUrl;
