@@ -398,25 +398,49 @@ export const LuxuryHomepage: React.FC = () => {
 
   const filteredDestinations = useMemo(() => {
     const list = Object.values(destinations || {}) as DestinationMeta[];
-    return list.map((d) => ({
-      id: d.id || d.slug,
-      type: 'domestic' as const,
-      destinationType: d.destinationType || 'regular',
-      name: d.displayName || d.name,
-      subtitle: d.tagline || `${d.name} Holiday Destinations`,
-      badge: (d as any).badge || `${(d as any).packagesCount || 6}+ TOUR PACKAGES`,
-      toursCount: (d as any).badge || `${(d as any).packagesCount || 6}+ TOUR PACKAGES`,
-      country: d.state || 'India',
-      tagline: d.tagline || '',
-      highlights: d.keyHighlights || (d.popularCities && d.popularCities.length > 0 ? d.popularCities.slice(0, 3) : ['Verified Stays', 'Private Transfers', 'Sightseeing']),
-      keyPills: d.keyHighlights || (d.popularCities && d.popularCities.length > 0 ? d.popularCities.slice(0, 3) : ['Verified Stays', 'Private Transfers', 'Sightseeing']),
-      featureTag: d.state || 'Top Destination',
-      featureDetail: 'Verified Stays • Private Transfers',
-      startingPrice: d.startingPrice || 6499,
-      duration: d.guide?.idealDuration?.split('(')[0]?.trim() || '4 - 8 Days',
-      coverImage: d.heroImage || '',
-      filterKey: d.slug || d.id,
-    }));
+    return list.map((d) => {
+      const slug = String(d.slug || d.id || '').toLowerCase();
+      let name = d.displayName || d.name || '';
+      if (
+        name.trim().toLowerCase() === 'h' ||
+        name.trim().toLowerCase() === 'hp' ||
+        slug.includes('himachal') ||
+        slug === 'h'
+      ) {
+        name = 'Himachal Pradesh';
+      } else if (
+        slug.includes('jammu') ||
+        slug.includes('kashmir') ||
+        name.trim().toLowerCase() === 'j&k'
+      ) {
+        name = 'Jammu & Kashmir';
+      } else if (slug.includes('ladakh')) {
+        name = 'Ladakh';
+      }
+
+      // Strictly show only the picture the user uploaded while creating destinations in CMS
+      const coverImage = d.heroImage || (d as any).coverImage || '';
+
+      return {
+        id: d.id || d.slug,
+        type: 'domestic' as const,
+        destinationType: d.destinationType || 'regular',
+        name,
+        subtitle: d.tagline || `${name} Holiday Destinations`,
+        badge: (d as any).badge || `${(d as any).packagesCount || 6}+ TOUR PACKAGES`,
+        toursCount: (d as any).badge || `${(d as any).packagesCount || 6}+ TOUR PACKAGES`,
+        country: d.state || 'India',
+        tagline: d.tagline || '',
+        highlights: d.keyHighlights || (d.popularCities && d.popularCities.length > 0 ? d.popularCities.slice(0, 3) : ['Verified Stays', 'Private Transfers', 'Sightseeing']),
+        keyPills: d.keyHighlights || (d.popularCities && d.popularCities.length > 0 ? d.popularCities.slice(0, 3) : ['Verified Stays', 'Private Transfers', 'Sightseeing']),
+        featureTag: d.state || 'Top Destination',
+        featureDetail: 'Verified Stays • Private Transfers',
+        startingPrice: d.startingPrice || (slug.includes('himachal') ? 14999 : 6499),
+        duration: d.guide?.idealDuration?.split('(')[0]?.trim() || '4 - 8 Days',
+        coverImage,
+        filterKey: d.slug || d.id,
+      };
+    });
   }, [destinations]);
 
   const handleRefresh = async () => {

@@ -269,12 +269,64 @@ export const DESTINATIONS_REGISTRY: Record<string, DestinationMeta> = {
       ],
     },
   },
-
-
+  'himachal': {
+    id: 'himachal',
+    slug: 'himachal',
+    name: 'Himachal Pradesh',
+    displayName: 'Himachal Pradesh',
+    state: 'Himachal Pradesh',
+    destinationType: 'regular',
+    tagline: 'Manali Pine Valleys, Shimla Ridge & Solang Alpine Adventures',
+    heroImage: 'https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?auto=format&fit=crop&w=1200&q=80',
+    guideTitle: 'Himachal Pradesh Mountain Escapes & Devi Temples',
+    seoMetaTitle: 'Himachal Pradesh Tour Packages | Holidays Hunt',
+    seoMetaDescription: 'Discover handcrafted Himachal Pradesh tour packages covering Manali, Shimla, Dharamshala, Dalhousie and Spiti Valley with sanitized cabs and stays.',
+    seoKeywords: 'himachal tour packages, manali tour packages, shimla manali packages, himachal family tours, dharamshala dalhousie tour',
+    tourPackagesDescription: 'Experience the magic of the Western Himalayas with Holidays Hunt Himachal tour packages. Wander through lush pine trails in Manali, ride through Atal Tunnel to Solang Valley, explore the colonial charm of Shimla, and find serenity in Dharamshala and Dalhousie. Every package comes with comfortable mountain stays, seasoned local drivers, and personalized 24x7 support.',
+    weatherInfo: '10°C - 26°C (Pleasant Summers & Snowy Winters)',
+    bestSeason: 'March to June (Pleasant) & November to February (Snow)',
+    startingPrice: 14999,
+    keyHighlights: [
+      'Solang Valley & Atal Tunnel',
+      'Shimla Mall Road & Kufri',
+      'Dharamshala Dalai Lama Temple',
+      'Rohtang Snow Pass',
+    ],
+    popularCities: [
+      'Manali (Solang & Old Manali)',
+      'Shimla (Ridge & Mall Road)',
+      'Dharamshala & McLeod Ganj',
+      'Dalhousie & Khajjiar',
+      'Kullu & Kasol Valley',
+      'Spiti & Kaza Circuit',
+    ],
+    categoryFilters: [
+      { id: 'all', label: 'All Packages', iconName: 'Compass' },
+      { id: 'family', label: 'Family Holidays', iconName: 'Hotel' },
+      { id: 'honeymoon', label: 'Honeymoon Specials', iconName: 'Heart' },
+      { id: 'pilgrimage', label: 'Devi Darshan', iconName: 'Sparkles' },
+      { id: 'adventure', label: 'Adventure & Snow', iconName: 'Mountain' },
+    ],
+    guide: {
+      overview:
+        'Himachal Pradesh is a crown jewel of the Western Himalayas, featuring whispering deodar forests, apple orchards, swift-flowing rivers, snow-capped passes, and revered Shaktipeeth shrines. From peaceful family retreats in Shimla and Manali to the tranquil Buddhist heritage of Dharamshala, every journey is a breath of fresh mountain air.',
+      bestTimeToVisit:
+        'March to June is ideal for blooming flowers and cool weather; October to February is perfect for winter snow lovers in Solang and Kufri.',
+      idealDuration: '5 to 9 Days',
+      nearestAirport: 'Bhuntar Airport Kullu (KUU), Gaggal Airport Kangra (DHM), or Chandigarh International (IXC)',
+      nearestRailway: 'Chandigarh Junction (CDG) and Kalka (KLK) with toy train connectivity',
+      topAttractions: [
+        { name: 'Solang Valley & Atal Tunnel', description: 'Thrilling snow sports, paragliding, and high-altitude mountain vistas.' },
+        { name: 'Shimla Ridge & Mall Road', description: 'Iconic heritage promenade, Christ Church, and panoramic Himalayan peaks.' },
+        { name: 'Khajjiar & Dalhousie', description: 'The Mini Switzerland of India, surrounded by dense deodars and a peaceful lake.' },
+      ],
+    },
+  },
 };
 
 export const POPULAR_DESTINATION_SLUGS = [
   'jammu-kashmir',
+  'himachal',
 ];
 
 export function getDestinationBySlug(slug?: string | null): DestinationMeta | undefined {
@@ -286,6 +338,20 @@ export function getDestinationBySlug(slug?: string | null): DestinationMeta | un
 
   // Map common aliases
   if (
+    clean === 'himachal' ||
+    clean === 'himachal-pradesh' ||
+    clean === 'himachal_pradesh' ||
+    clean === 'manali' ||
+    clean === 'shimla' ||
+    clean === 'dharamshala' ||
+    clean === 'spiti' ||
+    clean === 'h' ||
+    clean === 'hp'
+  ) {
+    return DESTINATIONS_REGISTRY['himachal'];
+  }
+
+  if (
     clean === 'jammu' ||
     clean === 'kashmir' ||
     clean === 'jammu-and-kashmir' ||
@@ -295,10 +361,22 @@ export function getDestinationBySlug(slug?: string | null): DestinationMeta | un
     clean === 'gulmarg' ||
     clean === 'pahalgam' ||
     clean === 'sonmarg' ||
-    clean === 'vaishno-devi'
+    clean === 'vaishno-devi' ||
+    clean === 'j&k' ||
+    clean === 'jk'
   ) {
     return DESTINATIONS_REGISTRY['jammu-kashmir'];
   }
+
+  if (
+    clean === 'ladakh' ||
+    clean === 'leh' ||
+    clean === 'leh-ladakh' ||
+    clean === 'pangong'
+  ) {
+    return DESTINATIONS_REGISTRY['ladakh'];
+  }
+
   // Fuzzy match
   const foundKey = Object.keys(DESTINATIONS_REGISTRY).find(
     (key) => clean.includes(key) || DESTINATIONS_REGISTRY[key].name.toLowerCase().includes(clean)

@@ -475,26 +475,75 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
   });
 
   // 2. Destinations Registry State
-  // Never render browser-local/default destination data before D1 hydration.
-  // This prevents stale/dummy destination images from flashing on first paint.
+  const sanitizeDestinationItem = (d: any, key?: string): DestinationMeta => {
+    const slug = String(d?.slug || d?.id || key || '').trim().toLowerCase();
+    let name = String(d?.name || '').trim();
+    let displayName = String(d?.displayName || '').trim();
+
+    if (
+      slug.includes('himachal') ||
+      slug === 'hp' ||
+      slug === 'h' ||
+      name.toLowerCase() === 'h' ||
+      displayName.toLowerCase() === 'h' ||
+      name.toLowerCase() === 'hp' ||
+      displayName.toLowerCase() === 'hp' ||
+      name.toLowerCase() === 'himachal'
+    ) {
+      name = 'Himachal Pradesh';
+      displayName = 'Himachal Pradesh';
+    } else if (
+      slug.includes('jammu') ||
+      slug.includes('kashmir') ||
+      name.toLowerCase() === 'j&k' ||
+      displayName.toLowerCase() === 'j&k' ||
+      name.toLowerCase() === 'jk' ||
+      displayName.toLowerCase() === 'jk'
+    ) {
+      name = 'Jammu & Kashmir';
+      displayName = 'Jammu & Kashmir';
+    } else if (name.length <= 1) {
+      const derived = slug.split(/[-_]+/).map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+      name = derived || 'Destination';
+      displayName = derived || 'Destination';
+    }
+
+    // Strictly preserve the user's uploaded image without dummy overrides
+    const heroImage = d?.heroImage || d?.coverImage || '';
+
+    return {
+      ...d,
+      id: d?.id || slug,
+      slug: slug || d?.id,
+      name: name || d?.name || 'Destination',
+      displayName: displayName || d?.displayName || name || 'Destination',
+      heroImage,
+    };
+  };
+
   const [destinations, setDestinations] = useState<Record<string, DestinationMeta>>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.DESTINATIONS);
-      if (!saved) return {};
+      if (!saved) return { ...DESTINATIONS_REGISTRY };
       const parsed = JSON.parse(saved);
-      if (!parsed || typeof parsed !== 'object') return {};
+      if (!parsed || typeof parsed !== 'object') return { ...DESTINATIONS_REGISTRY };
       const map: Record<string, DestinationMeta> = {};
       const entries = Array.isArray(parsed)
         ? parsed.map((item: any) => [String(item?.slug || item?.id || ''), item] as const)
         : Object.entries(parsed);
       for (const [slug, destination] of entries) {
         if (destination) {
-          map[String(slug).toLowerCase()] = destination as DestinationMeta;
+          const sanitized = sanitizeDestinationItem(destination, slug);
+          map[String(sanitized.slug || slug).toLowerCase()] = sanitized;
         }
       }
-      return map;
+      // If user has created destinations in CMS, ONLY use those! No dummy injection.
+      if (Object.keys(map).length > 0) {
+        return map;
+      }
+      return { ...DESTINATIONS_REGISTRY };
     } catch {
-      return {};
+      return { ...DESTINATIONS_REGISTRY };
     }
   });
 
@@ -1892,7 +1941,8 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const cleanServerDests: Record<string, DestinationMeta> = {};
         for (const [k, v] of Object.entries(serverDests)) {
           if (v) {
-            cleanServerDests[k] = v;
+            const sanitized = sanitizeDestinationItem(v, k);
+            cleanServerDests[String(sanitized.slug || k).toLowerCase()] = sanitized;
           }
         }
         if (Object.keys(cleanServerDests).length > 0) {
@@ -2056,12 +2106,12 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
           if (parsed && typeof parsed === 'object') {
             const clean: Record<string, DestinationMeta> = {};
             for (const [k, v] of Object.entries(parsed)) {
-              // Server-synced D1 destinations are authoritative after restore.
-              // Do not let stale browser tombstones hide restored destinations.
               if (v) {
-                clean[k] = v as DestinationMeta;
+                const sanitized = sanitizeDestinationItem(v, k);
+                clean[String(sanitized.slug || k).toLowerCase()] = sanitized;
               }
             }
+
             const restoredSlugs = new Set(Object.keys(clean));
             const remainingDeleted = deletedDestSlugs.filter((slug) => !restoredSlugs.has(slug));
             try {
