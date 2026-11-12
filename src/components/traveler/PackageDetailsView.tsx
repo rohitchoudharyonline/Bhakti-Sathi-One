@@ -38,6 +38,7 @@ import {
 import { InquiryModal } from './InquiryModal';
 import { FreeTravelInsuranceCard } from './FreeTravelInsuranceCard';
 import { Navbar } from '../common/Navbar';
+import { QuickOrderContactCards } from '../common/QuickOrderContactCards';
 
 interface PackageDetailsViewProps {
   pkg: TourPackage;
@@ -1094,17 +1095,9 @@ export const PackageDetailsView: React.FC<PackageDetailsViewProps> = ({ pkg, onB
                   <span>Download Yatra Itinerary PDF</span>
                 </button>
 
-                <a
-                  href={`https://wa.me/${(agencySettings?.whatsapp || '').replace(/[^0-9]/g, '')}?text=${encodeURIComponent(
-                    `Namaste ${agencySettings.agencyName}! I am inquiring about *${pkg.title}* (${pkg.durationDays}D/${pkg.durationNights}N). Please confirm package availability and quotation for ${calcAdults} Pilgrims${calcChildren > 0 ? ` and ${calcChildren} Children` : ''} on ${calcDate}.`
-                  )}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full py-3 px-4 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs transition flex items-center justify-center gap-2"
-                >
-                  <MessageCircle className="w-4 h-4" />
-                  <span>WhatsApp Yatra Helpline</span>
-                </a>
+                <div className="pt-1">
+                  <QuickOrderContactCards tourTitle={pkg.title} />
+                </div>
               </div>
 
               {/* Agency Trust Guarantee */}

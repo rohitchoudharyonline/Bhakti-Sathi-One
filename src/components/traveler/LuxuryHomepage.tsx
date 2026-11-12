@@ -69,6 +69,7 @@ import { PencilTempleIllustration } from './PencilTempleIllustration';
 import { HandpickedYatraPackagesSection, CategoryToursCarouselSection } from './HandpickedYatraPackagesSection';
 import { PullToRefresh } from '../common/PullToRefresh';
 import { FaqSection } from './FaqSection';
+import { QuickOrderContactCards } from '../common/QuickOrderContactCards';
 
 // ==========================================
 // SEARCH WIDGET OPTION DATA (NO EMOJIS, CLEAN LUXURY)
@@ -1044,6 +1045,11 @@ export const LuxuryHomepage: React.FC = () => {
                 </div>
               </form>
             </div>
+
+            {/* Quick Actions: Order via call & Order from WhatsApp */}
+            <div className="mt-4 sm:mt-5 max-w-xl mx-auto md:mx-0">
+              <QuickOrderContactCards />
+            </div>
           </div>
         </section>
 
@@ -1277,6 +1283,13 @@ export const LuxuryHomepage: React.FC = () => {
                   </div>
                   <span>Instant WhatsApp Itinerary</span>
                 </div>
+              </div>
+
+              <div className="mt-5 pt-4 border-t border-stone-800">
+                <span className="text-xs font-bold text-stone-300 block mb-2.5">
+                  Or connect instantly with our tour experts:
+                </span>
+                <QuickOrderContactCards />
               </div>
             </div>
 
