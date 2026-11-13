@@ -389,7 +389,7 @@ export const InvoicesManager: React.FC<{
     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
      <div>
       <div className="flex items-center gap-2">
-       <div className="w-9 h-9 rounded-xl bg-orange-100 dark:bg-orange-950/50 text-[#FC3200] flex items-center justify-center font-bold">
+       <div className="w-9 h-9 rounded-xl bg-[#FCE8E8] dark:bg-orange-950/50 text-[#9b0000] flex items-center justify-center font-bold">
         <Receipt className="w-5 h-5" />
        </div>
        <div>
@@ -407,7 +407,7 @@ export const InvoicesManager: React.FC<{
       <button
        type="button"
        onClick={handleOpenCreate}
-       className="flex items-center justify-center gap-2 px-4 py-2.5 bg-[#FC3200] hover:bg-[#e02c00] text-white rounded-xl font-bold shadow-sm transition-all text-xs sm:text-sm shrink-0 w-full md:w-auto cursor-pointer"
+       className="flex items-center justify-center gap-2 px-4 py-2.5 bg-[#9b0000] hover:bg-[#7D0000] text-white rounded-xl font-bold shadow-sm transition-all text-xs sm:text-sm shrink-0 w-full md:w-auto cursor-pointer"
        id="create-invoice-btn"
       >
        <Plus className="w-4 h-4" />
@@ -457,7 +457,7 @@ export const InvoicesManager: React.FC<{
       placeholder="Search invoice #, client name, email..."
       value={searchTerm}
       onChange={(e) => setSearchTerm(e.target.value)}
-      className="w-full pl-10 pr-4 py-2.5 text-xs rounded-xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-[#1E2024] text-stone-900 dark:text-white placeholder:text-stone-400 dark:placeholder:text-stone-500 focus:border-[#FC3200] outline-none"
+      className="w-full pl-10 pr-4 py-2.5 text-xs rounded-xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-[#1E2024] text-stone-900 dark:text-white placeholder:text-stone-400 dark:placeholder:text-stone-500 focus:border-[#9b0000] outline-none"
      />
     </div>
 
@@ -494,7 +494,7 @@ export const InvoicesManager: React.FC<{
        <div>
         {/* Top: Invoice header & traveler info */}
         <div className="flex items-start gap-3">
-         <div className="p-2.5 rounded-xl bg-orange-50 dark:bg-orange-950/40 text-[#FC3200] border border-orange-200 dark:border-orange-900/40 shrink-0">
+         <div className="p-2.5 rounded-xl bg-[#FDF2F2] dark:bg-orange-950/40 text-[#9b0000] border border-[#F5C2C2] dark:border-orange-900/40 shrink-0">
           <Receipt className="w-5 h-5" />
          </div>
 
@@ -601,7 +601,7 @@ export const InvoicesManager: React.FC<{
           title="Download Official PDF Invoice"
           id={`download-invoice-${invoice.id}`}
          >
-          <Download className="w-3.5 h-3.5 text-[#FC3200]" />
+          <Download className="w-3.5 h-3.5 text-[#9b0000]" />
           <span>PDF Invoice</span>
          </button>
         </div>
@@ -752,7 +752,7 @@ export const InvoicesManager: React.FC<{
       {/* Modal Top Header */}
       <div className="p-4 sm:p-6 border-b border-stone-200 dark:border-stone-800 flex items-center justify-between bg-stone-50 dark:bg-[#1E2025]">
        <div className="flex items-center gap-2.5">
-        <div className="w-9 h-9 rounded-xl bg-orange-100 dark:bg-orange-950/50 text-[#FC3200] flex items-center justify-center font-bold">
+        <div className="w-9 h-9 rounded-xl bg-[#FCE8E8] dark:bg-orange-950/50 text-[#9b0000] flex items-center justify-center font-bold">
          <Receipt className="w-5 h-5" />
         </div>
         <div>
@@ -788,7 +788,7 @@ export const InvoicesManager: React.FC<{
           required
           value={formClientName}
           onChange={(e) => setFormClientName(e.target.value)}
-          className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-[#1E2024] text-stone-900 dark:text-white text-sm font-bold focus:bg-white dark:focus:bg-[#252830] focus:border-[#FC3200] outline-none"
+          className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-[#1E2024] text-stone-900 dark:text-white text-sm font-bold focus:bg-white dark:focus:bg-[#252830] focus:border-[#9b0000] outline-none"
           placeholder="e.g. David Henderson"
          />
         </div>
@@ -802,7 +802,7 @@ export const InvoicesManager: React.FC<{
           required
           value={formClientEmail}
           onChange={(e) => setFormClientEmail(e.target.value)}
-          className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-[#1E2024] text-stone-900 dark:text-white text-sm focus:bg-white dark:focus:bg-[#252830] focus:border-[#FC3200] outline-none"
+          className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-[#1E2024] text-stone-900 dark:text-white text-sm focus:bg-white dark:focus:bg-[#252830] focus:border-[#9b0000] outline-none"
           placeholder="david@traveler.com"
          />
         </div>
@@ -816,7 +816,7 @@ export const InvoicesManager: React.FC<{
           required
           value={formClientPhone}
           onChange={(e) => setFormClientPhone(e.target.value)}
-          className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-[#1E2024] text-stone-900 dark:text-white text-sm focus:bg-white dark:focus:bg-[#252830] focus:border-[#FC3200] outline-none"
+          className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-[#1E2024] text-stone-900 dark:text-white text-sm focus:bg-white dark:focus:bg-[#252830] focus:border-[#9b0000] outline-none"
           placeholder="+91 94199 15255"
          />
         </div>
@@ -829,7 +829,7 @@ export const InvoicesManager: React.FC<{
           type="text"
           value={formTravelDates}
           onChange={(e) => setFormTravelDates(e.target.value)}
-          className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-[#1E2024] text-stone-900 dark:text-white text-sm focus:bg-white dark:focus:bg-[#252830] focus:border-[#FC3200] outline-none"
+          className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-[#1E2024] text-stone-900 dark:text-white text-sm focus:bg-white dark:focus:bg-[#252830] focus:border-[#9b0000] outline-none"
           placeholder="e.g. 10 Nov 2026 to 18 Nov 2026"
          />
         </div>
@@ -843,7 +843,7 @@ export const InvoicesManager: React.FC<{
           min={1}
           value={formPaxCount}
           onChange={(e) => setFormPaxCount(Number(e.target.value))}
-          className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-[#1E2024] text-stone-900 dark:text-white text-sm font-bold focus:bg-white dark:focus:bg-[#252830] focus:border-[#FC3200] outline-none"
+          className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-[#1E2024] text-stone-900 dark:text-white text-sm font-bold focus:bg-white dark:focus:bg-[#252830] focus:border-[#9b0000] outline-none"
          />
         </div>
 
@@ -855,7 +855,7 @@ export const InvoicesManager: React.FC<{
           type="date"
           value={formDueDate}
           onChange={(e) => setFormDueDate(e.target.value)}
-          className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-[#1E2024] text-stone-900 dark:text-white text-sm focus:bg-white dark:focus:bg-[#252830] focus:border-[#FC3200] outline-none"
+          className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-[#1E2024] text-stone-900 dark:text-white text-sm focus:bg-white dark:focus:bg-[#252830] focus:border-[#9b0000] outline-none"
          />
         </div>
        </div>
@@ -863,13 +863,13 @@ export const InvoicesManager: React.FC<{
        {/* Package Quick Preset Dropdown */}
        <div className="bg-amber-50/70 dark:bg-amber-950/20 p-3 sm:p-4 rounded-xl border border-amber-200 dark:border-amber-900/40 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
         <span className="text-xs font-bold text-amber-900 dark:text-amber-200 flex items-center gap-1.5">
-         <Sparkles className="w-4 h-4 text-[#FC3200] shrink-0" />
+         <Sparkles className="w-4 h-4 text-[#9b0000] shrink-0" />
          Auto-fill from Tour Package:
         </span>
         <select
          value={formPackageId}
          onChange={(e) => handlePopulateFromPackage(e.target.value)}
-         className="w-full sm:w-auto px-3 py-2 rounded-xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-[#1E2024] text-stone-900 dark:text-white text-xs font-semibold focus:border-[#FC3200] outline-none cursor-pointer"
+         className="w-full sm:w-auto px-3 py-2 rounded-xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-[#1E2024] text-stone-900 dark:text-white text-xs font-semibold focus:border-[#9b0000] outline-none cursor-pointer"
         >
          <option value="">Select Tour Package...</option>
          {packages.map((pkg) => (
@@ -889,7 +889,7 @@ export const InvoicesManager: React.FC<{
          <button
           type="button"
           onClick={handleAddItem}
-          className="text-xs text-[#FC3200] hover:text-red-700 dark:hover:text-red-400 font-bold flex items-center gap-1 cursor-pointer"
+          className="text-xs text-[#9b0000] hover:text-red-700 dark:hover:text-red-400 font-bold flex items-center gap-1 cursor-pointer"
          >
           <Plus className="w-3.5 h-3.5" /> Add Service Item
          </button>
@@ -911,7 +911,7 @@ export const InvoicesManager: React.FC<{
               type="text"
               value={item.description}
               onChange={(e) => handleUpdateItem(item.id, 'description', e.target.value)}
-              className="w-full px-2.5 py-1.5 rounded-lg border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-[#1E2024] text-stone-900 dark:text-white text-xs focus:bg-white dark:focus:bg-[#252830] focus:border-[#FC3200] outline-none"
+              className="w-full px-2.5 py-1.5 rounded-lg border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-[#1E2024] text-stone-900 dark:text-white text-xs focus:bg-white dark:focus:bg-[#252830] focus:border-[#9b0000] outline-none"
               placeholder="e.g. Tour package, Airport Transfer, Hotel Upgrade..."
              />
             </div>
@@ -921,7 +921,7 @@ export const InvoicesManager: React.FC<{
               min={1}
               value={item.quantity}
               onChange={(e) => handleUpdateItem(item.id, 'quantity', Number(e.target.value))}
-              className="w-full px-2 py-1.5 text-center rounded-lg border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-[#1E2024] text-stone-900 dark:text-white text-xs font-bold focus:bg-white dark:focus:bg-[#252830] focus:border-[#FC3200] outline-none"
+              className="w-full px-2 py-1.5 text-center rounded-lg border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-[#1E2024] text-stone-900 dark:text-white text-xs font-bold focus:bg-white dark:focus:bg-[#252830] focus:border-[#9b0000] outline-none"
              />
             </div>
             <div className="col-span-2">
@@ -930,7 +930,7 @@ export const InvoicesManager: React.FC<{
               min={0}
               value={item.unitPrice}
               onChange={(e) => handleUpdateItem(item.id, 'unitPrice', Number(e.target.value))}
-              className="w-full px-2 py-1.5 text-right rounded-lg border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-[#1E2024] text-stone-900 dark:text-white text-xs font-bold focus:bg-white dark:focus:bg-[#252830] focus:border-[#FC3200] outline-none"
+              className="w-full px-2 py-1.5 text-right rounded-lg border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-[#1E2024] text-stone-900 dark:text-white text-xs font-bold focus:bg-white dark:focus:bg-[#252830] focus:border-[#9b0000] outline-none"
              />
             </div>
             <div className="col-span-2 flex items-center justify-end gap-2 font-black text-xs text-stone-900 dark:text-white">
@@ -964,7 +964,7 @@ export const InvoicesManager: React.FC<{
            min={0}
            value={formDiscount}
            onChange={(e) => setFormDiscount(Number(e.target.value))}
-           className="w-full px-3.5 py-2 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-[#1E2024] text-stone-900 dark:text-white text-xs font-bold focus:bg-white dark:focus:bg-[#252830] focus:border-[#FC3200] outline-none"
+           className="w-full px-3.5 py-2 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-[#1E2024] text-stone-900 dark:text-white text-xs font-bold focus:bg-white dark:focus:bg-[#252830] focus:border-[#9b0000] outline-none"
           />
          </div>
 
@@ -977,7 +977,7 @@ export const InvoicesManager: React.FC<{
            min={0}
            value={formTaxRate}
            onChange={(e) => setFormTaxRate(Number(e.target.value))}
-           className="w-full px-3.5 py-2 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-[#1E2024] text-stone-900 dark:text-white text-xs font-bold focus:bg-white dark:focus:bg-[#252830] focus:border-[#FC3200] outline-none"
+           className="w-full px-3.5 py-2 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-[#1E2024] text-stone-900 dark:text-white text-xs font-bold focus:bg-white dark:focus:bg-[#252830] focus:border-[#9b0000] outline-none"
           />
          </div>
 
@@ -991,7 +991,7 @@ export const InvoicesManager: React.FC<{
            max={grandTotal}
            value={formPaidAmount}
            onChange={(e) => setFormPaidAmount(Number(e.target.value))}
-           className="w-full px-3.5 py-2 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-[#1E2024] text-stone-900 dark:text-white text-xs font-bold focus:bg-white dark:focus:bg-[#252830] focus:border-[#FC3200] outline-none"
+           className="w-full px-3.5 py-2 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-[#1E2024] text-stone-900 dark:text-white text-xs font-bold focus:bg-white dark:focus:bg-[#252830] focus:border-[#9b0000] outline-none"
           />
          </div>
         </div>
@@ -1020,7 +1020,7 @@ export const InvoicesManager: React.FC<{
           <span>Initial Deposit Collected:</span>
           <span>₹{formPaidAmount.toLocaleString('en-IN')}</span>
          </div>
-         <div className="pt-1.5 border-t border-stone-200 dark:border-stone-700 flex justify-between font-black text-sm text-[#FC3200]">
+         <div className="pt-1.5 border-t border-stone-200 dark:border-stone-700 flex justify-between font-black text-sm text-[#9b0000]">
           <span>Net Balance Due:</span>
           <span>₹{balanceDue.toLocaleString('en-IN')}</span>
          </div>
@@ -1035,7 +1035,7 @@ export const InvoicesManager: React.FC<{
          rows={3}
          value={formNotes}
          onChange={(e) => setFormNotes(e.target.value)}
-         className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-[#1E2024] text-stone-900 dark:text-white text-xs focus:bg-white dark:focus:bg-[#252830] focus:border-[#FC3200] outline-none"
+         className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-[#1E2024] text-stone-900 dark:text-white text-xs focus:bg-white dark:focus:bg-[#252830] focus:border-[#9b0000] outline-none"
         />
        </div>
 
@@ -1053,7 +1053,7 @@ export const InvoicesManager: React.FC<{
         </button>
         <button
          type="submit"
-         className="px-6 py-2.5 bg-[#FC3200] hover:bg-[#e02c00] text-white rounded-xl text-xs sm:text-sm font-bold shadow-sm transition-all cursor-pointer"
+         className="px-6 py-2.5 bg-[#9b0000] hover:bg-[#7D0000] text-white rounded-xl text-xs sm:text-sm font-bold shadow-sm transition-all cursor-pointer"
          id="save-invoice-btn"
         >
          Generate Invoice

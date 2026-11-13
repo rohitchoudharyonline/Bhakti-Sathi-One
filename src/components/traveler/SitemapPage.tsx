@@ -213,7 +213,7 @@ export const SitemapPage: React.FC = () => {
           <div className="max-w-6xl mx-auto space-y-4">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#FF4B00]/10 text-[#FF4B00] text-xs font-bold mb-2">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#9b0000]/10 text-[#9b0000] text-xs font-bold mb-2">
                   <Globe className="w-3.5 h-3.5" />
                   Auto-Discovered & Live Synchronized
                 </div>
@@ -235,7 +235,7 @@ export const SitemapPage: React.FC = () => {
                 </button>
                 <button
                   onClick={handleDownloadXml}
-                  className="px-4 py-2.5 bg-[#FF4B00] hover:bg-[#E04200] text-white rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-xs cursor-pointer"
+                  className="px-4 py-2.5 bg-[#9b0000] hover:bg-[#7D0000] text-white rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-xs cursor-pointer"
                 >
                   <Download className="w-4 h-4" />
                   Download sitemap.xml
@@ -252,7 +252,7 @@ export const SitemapPage: React.FC = () => {
                   placeholder="Search pages, packages, destinations, temple guides..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs sm:text-sm focus:bg-white focus:border-[#FF4B00] focus:outline-none transition"
+                  className="w-full pl-10 pr-4 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs sm:text-sm focus:bg-white focus:border-[#9b0000] focus:outline-none transition"
                 />
               </div>
 
@@ -292,7 +292,7 @@ export const SitemapPage: React.FC = () => {
             <div className="bg-stone-900 rounded-2xl p-4 sm:p-6 border border-stone-800 text-emerald-400 font-mono text-xs overflow-x-auto shadow-xl">
               <div className="flex items-center justify-between pb-3 border-b border-stone-800 mb-4 text-stone-400">
                 <span className="font-bold flex items-center gap-2">
-                  <Globe className="w-4 h-4 text-[#FF4B00]" />
+                  <Globe className="w-4 h-4 text-[#9b0000]" />
                   https://holidayshunt.com/sitemap.xml
                 </span>
                 <span className="text-[11px]">{totalUrls} URL entries generated</span>
@@ -323,7 +323,7 @@ export const SitemapPage: React.FC = () => {
                   </div>
                   <button
                     onClick={navigateToAllTours}
-                    className="text-xs font-bold text-[#FF4B00] hover:underline flex items-center gap-1 cursor-pointer"
+                    className="text-xs font-bold text-[#9b0000] hover:underline flex items-center gap-1 cursor-pointer"
                   >
                     Browse All <ChevronRight className="w-3.5 h-3.5" />
                   </button>
@@ -334,7 +334,7 @@ export const SitemapPage: React.FC = () => {
                     <div
                       key={pkg.id}
                       onClick={() => navigateToPackage(pkg.id)}
-                      className="p-3.5 rounded-xl border border-stone-200 hover:border-[#FF4B00] hover:shadow-xs transition bg-stone-50/50 hover:bg-white cursor-pointer group flex flex-col justify-between"
+                      className="p-3.5 rounded-xl border border-stone-200 hover:border-[#9b0000] hover:shadow-xs transition bg-stone-50/50 hover:bg-white cursor-pointer group flex flex-col justify-between"
                     >
                       <div className="space-y-1">
                         <div className="flex items-center justify-between gap-2">
@@ -347,7 +347,7 @@ export const SitemapPage: React.FC = () => {
                               : `₹${(pkg.discountedPrice || pkg.price)?.toLocaleString('en-IN')}`}
                           </span>
                         </div>
-                        <h3 className="text-xs font-bold text-stone-900 group-hover:text-[#FF4B00] transition line-clamp-2 leading-snug pt-1">
+                        <h3 className="text-xs font-bold text-stone-900 group-hover:text-[#9b0000] transition line-clamp-2 leading-snug pt-1">
                           {pkg.title}
                         </h3>
                         <p className="text-[10px] text-stone-500 flex items-center gap-1 font-mono">

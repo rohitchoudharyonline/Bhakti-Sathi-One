@@ -156,7 +156,7 @@ export const RedirectsManager: React.FC = () => {
                 <ShieldCheck className="w-3.5 h-3.5" />
                 Domain Migration Guard Active
               </span>
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#FF4B00]/20 text-[#FF4B00] border border-[#FF4B00]/30 text-xs font-black">
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#9b0000]/20 text-[#9b0000] border border-[#9b0000]/30 text-xs font-black">
                 100% PageRank Transfer
               </span>
             </div>
@@ -171,12 +171,12 @@ export const RedirectsManager: React.FC = () => {
           <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between gap-3 shrink-0 pt-3 lg:pt-0 border-t lg:border-t-0 border-stone-800">
             <div className="text-left sm:text-right">
               <div className="text-xs text-stone-400 font-bold uppercase tracking-wider">Traffic Protected</div>
-              <div className="text-2xl sm:text-3xl font-black text-[#FF4B00]">{totalHits} Hits</div>
+              <div className="text-2xl sm:text-3xl font-black text-[#9b0000]">{totalHits} Hits</div>
             </div>
             <button
               type="button"
               onClick={() => setShowAddModal(true)}
-              className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#FF4B00] text-white text-xs font-extrabold rounded-xl hover:bg-[#e04200] transition shadow-xs cursor-pointer active:scale-98"
+              className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#9b0000] text-white text-xs font-extrabold rounded-xl hover:bg-[#7D0000] transition shadow-xs cursor-pointer active:scale-98"
             >
               <Plus className="w-4 h-4" />
               Add 301 Redirect Rule
@@ -220,7 +220,7 @@ export const RedirectsManager: React.FC = () => {
       {/* Interactive URL Redirect Tester */}
       <div className="bg-white border border-stone-200 rounded-2xl p-5 shadow-xs">
         <h4 className="text-sm font-black text-stone-900 flex items-center gap-2 mb-1">
-          <RefreshCw className="w-4 h-4 text-[#FF4B00]" />
+          <RefreshCw className="w-4 h-4 text-[#9b0000]" />
           Instant 301 Redirect Tester
         </h4>
         <p className="text-stone-500 text-xs mb-3">
@@ -233,7 +233,7 @@ export const RedirectsManager: React.FC = () => {
             value={testUrl}
             onChange={(e) => setTestUrl(e.target.value)}
             placeholder="e.g. /vaishno-devi-helicopter.html or /himachal-devi-darshan"
-            className="flex-1 px-4 py-2 text-sm bg-stone-50 border border-stone-200 rounded-xl outline-none focus:border-[#FF4B00] font-mono text-xs"
+            className="flex-1 px-4 py-2 text-sm bg-stone-50 border border-stone-200 rounded-xl outline-none focus:border-[#9b0000] font-mono text-xs"
           />
           <button
             type="submit"
@@ -282,7 +282,7 @@ export const RedirectsManager: React.FC = () => {
         <div className="p-4 sm:p-5 border-b border-stone-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
           <div>
             <h4 className="text-base font-black text-stone-900 flex items-center gap-2">
-              <Shuffle className="w-4 h-4 text-[#FF4B00]" />
+              <Shuffle className="w-4 h-4 text-[#9b0000]" />
               Active 301 Redirect Rules ({filteredRules.length})
             </h4>
             <p className="text-stone-500 text-xs mt-0.5">
@@ -297,7 +297,7 @@ export const RedirectsManager: React.FC = () => {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Filter rules or paths..."
-              className="w-full pl-8 pr-3 py-1.5 text-xs bg-stone-50 border border-stone-200 rounded-xl outline-none focus:border-[#FF4B00]"
+              className="w-full pl-8 pr-3 py-1.5 text-xs bg-stone-50 border border-stone-200 rounded-xl outline-none focus:border-[#9b0000]"
             />
           </div>
         </div>
@@ -328,7 +328,7 @@ export const RedirectsManager: React.FC = () => {
                     <td className="p-3.5 pl-5 font-mono text-stone-900 font-semibold max-w-xs truncate">
                       {rule.fromPath}
                     </td>
-                    <td className="p-3.5 font-mono text-[#FF4B00] font-bold max-w-xs truncate">
+                    <td className="p-3.5 font-mono text-[#9b0000] font-bold max-w-xs truncate">
                       {rule.toPath}
                     </td>
                     <td className="p-3.5">
@@ -373,7 +373,7 @@ export const RedirectsManager: React.FC = () => {
               </div>
               <div className="space-y-1 font-mono text-xs">
                 <div className="text-stone-600 line-through truncate">{rule.fromPath}</div>
-                <div className="flex items-center gap-1.5 text-[#FF4B00] font-bold truncate">
+                <div className="flex items-center gap-1.5 text-[#9b0000] font-bold truncate">
                   <ArrowRight className="w-3 h-3 shrink-0" />
                   <span>{rule.toPath}</span>
                 </div>
@@ -427,7 +427,7 @@ export const RedirectsManager: React.FC = () => {
                   value={fromPath}
                   onChange={(e) => setFromPath(e.target.value)}
                   placeholder="/old-kashmir-tour.html or /packages/vaishno-devi"
-                  className="w-full px-3.5 py-2 text-sm bg-stone-50 border border-stone-200 rounded-xl outline-none focus:border-[#FF4B00] font-mono text-xs"
+                  className="w-full px-3.5 py-2 text-sm bg-stone-50 border border-stone-200 rounded-xl outline-none focus:border-[#9b0000] font-mono text-xs"
                 />
                 <p className="text-[11px] text-stone-400 mt-1">
                   Exact path or legacy file name from your previous website.
@@ -444,7 +444,7 @@ export const RedirectsManager: React.FC = () => {
                   value={toPath}
                   onChange={(e) => setToPath(e.target.value)}
                   placeholder="/tours/kashmir-paradise-luxury-houseboat or /tours"
-                  className="w-full px-3.5 py-2 text-sm bg-stone-50 border border-stone-200 rounded-xl outline-none focus:border-[#FF4B00] font-mono text-xs"
+                  className="w-full px-3.5 py-2 text-sm bg-stone-50 border border-stone-200 rounded-xl outline-none focus:border-[#9b0000] font-mono text-xs"
                 />
                 <p className="text-[11px] text-stone-400 mt-1">
                   The new live canonical destination where PageRank should be passed.
@@ -458,7 +458,7 @@ export const RedirectsManager: React.FC = () => {
                 <select
                   value={statusCode}
                   onChange={(e) => setStatusCode(Number(e.target.value) as 301 | 302)}
-                  className="w-full px-3.5 py-2 text-sm bg-stone-50 border border-stone-200 rounded-xl outline-none focus:border-[#FF4B00] font-medium"
+                  className="w-full px-3.5 py-2 text-sm bg-stone-50 border border-stone-200 rounded-xl outline-none focus:border-[#9b0000] font-medium"
                 >
                   <option value={301}>301 - Permanent Redirect (Recommended: Passes 100% SEO Equity)</option>
                   <option value={302}>302 - Temporary Redirect (Does not transfer PageRank)</option>
@@ -474,7 +474,7 @@ export const RedirectsManager: React.FC = () => {
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   placeholder="e.g. Preserves high-ranking Google query for Vaishno Devi packages"
-                  className="w-full px-3.5 py-2 text-sm bg-stone-50 border border-stone-200 rounded-xl outline-none focus:border-[#FF4B00]"
+                  className="w-full px-3.5 py-2 text-sm bg-stone-50 border border-stone-200 rounded-xl outline-none focus:border-[#9b0000]"
                 />
               </div>
 
@@ -489,7 +489,7 @@ export const RedirectsManager: React.FC = () => {
                 <button
                   type="submit"
                   disabled={saving || !fromPath.trim() || !toPath.trim()}
-                  className="px-5 py-2 bg-[#FF4B00] text-white text-xs font-bold rounded-xl hover:bg-[#e04200] transition disabled:opacity-50 cursor-pointer shadow-xs"
+                  className="px-5 py-2 bg-[#9b0000] text-white text-xs font-bold rounded-xl hover:bg-[#7D0000] transition disabled:opacity-50 cursor-pointer shadow-xs"
                 >
                   {saving ? 'Creating Rule...' : 'Save 301 Redirect'}
                 </button>

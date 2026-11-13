@@ -37,7 +37,7 @@ const isCmsEntryPath = (path: string) => {
 
 const RouteFallback = () => (
   <div className="min-h-[40vh] flex items-center justify-center" aria-label="Loading">
-    <div className="w-7 h-7 rounded-full border-2 border-stone-300 border-t-[#FF4B00] animate-spin" />
+    <div className="w-7 h-7 rounded-full border-2 border-stone-300 border-t-[#9b0000] animate-spin" />
   </div>
 );
 

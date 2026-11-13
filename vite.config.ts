@@ -36,7 +36,7 @@ export default defineConfig(() => ({
         name: 'Holidays Hunt',
         short_name: 'HolidaysHunt',
         description: 'Book customized Family, Honeymoon, Pilgrimage, Leisure, Domestic & International tour packages with Holidays Hunt.',
-        theme_color: '#FF4B00',
+        theme_color: '#9b0000',
         background_color: '#FAFAFA',
         display: 'standalone',
         start_url: '/',

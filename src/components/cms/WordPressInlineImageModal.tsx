@@ -136,7 +136,7 @@ export const WordPressInlineImageModal: React.FC<WordPressInlineImageModalProps>
         {/* Modal Header */}
         <div className="bg-stone-900 text-white p-4 flex items-center justify-between border-b border-stone-800">
           <div className="flex items-center gap-2">
-            <span className="p-1.5 bg-[#FC3200] rounded-lg text-white">
+            <span className="p-1.5 bg-[#9b0000] rounded-lg text-white">
               <ImageIcon className="w-4 h-4" />
             </span>
             <div>
@@ -207,7 +207,7 @@ export const WordPressInlineImageModal: React.FC<WordPressInlineImageModalProps>
                   accept="image/*"
                   className="hidden"
                 />
-                <div className="w-12 h-12 rounded-2xl bg-white shadow-xs border border-stone-200 flex items-center justify-center mx-auto text-[#FC3200]">
+                <div className="w-12 h-12 rounded-2xl bg-white shadow-xs border border-stone-200 flex items-center justify-center mx-auto text-[#9b0000]">
                   {isCompressing ? (
                     <Loader2 className="w-6 h-6 animate-spin" />
                   ) : (
@@ -287,7 +287,7 @@ export const WordPressInlineImageModal: React.FC<WordPressInlineImageModalProps>
           {selectedImageUrl && (
             <div className="bg-stone-50 p-4 rounded-2xl border border-stone-200 space-y-4">
               <h4 className="text-xs font-black uppercase tracking-wider text-stone-900 flex items-center gap-1.5">
-                <Sliders className="w-4 h-4 text-[#FC3200]" />
+                <Sliders className="w-4 h-4 text-[#9b0000]" />
                 <span>WordPress Layout & Alignment Settings</span>
               </h4>
 
@@ -390,7 +390,7 @@ export const WordPressInlineImageModal: React.FC<WordPressInlineImageModalProps>
           <button
             onClick={handleInsert}
             disabled={!selectedImageUrl}
-            className="px-5 py-2 bg-[#FC3200] hover:bg-[#e02c00] text-white rounded-xl text-xs font-black shadow-md transition cursor-pointer disabled:opacity-40 flex items-center gap-1.5"
+            className="px-5 py-2 bg-[#9b0000] hover:bg-[#7D0000] text-white rounded-xl text-xs font-black shadow-md transition cursor-pointer disabled:opacity-40 flex items-center gap-1.5"
           >
             <Check className="w-4 h-4 text-white" />
             <span>Insert Image Into Article</span>

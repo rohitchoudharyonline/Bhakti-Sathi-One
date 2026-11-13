@@ -1,7 +1,7 @@
 import { jsPDF } from 'jspdf';
 import { TourPackage, AgencySettings, Invoice, VendorPayment, Vendor, BookingInquiry, InquiryQuotation, PricingTiers, DEFAULT_TRAVELER_GUIDELINES, DEFAULT_CANCELLATION_TERMS, DEFAULT_PAYMENT_TERMS } from '../types/tour';
 
-const GOLD:[number,number,number]=[249,115,22], GOLD_DARK:[number,number,number]=[194,65,12], INK:[number,number,number]=[10,10,10], BODY:[number,number,number]=[68,64,60], MUTED:[number,number,number]=[120,113,108], LINE:[number,number,number]=[231,229,228], SOFT:[number,number,number]=[255,255,255], CREAM:[number,number,number]=[250,248,245], GREEN:[number,number,number]=[13,148,136];
+const GOLD:[number,number,number]=[155,0,0], GOLD_DARK:[number,number,number]=[125,0,0], INK:[number,number,number]=[10,10,10], BODY:[number,number,number]=[68,64,60], MUTED:[number,number,number]=[120,113,108], LINE:[number,number,number]=[231,229,228], SOFT:[number,number,number]=[255,255,255], CREAM:[number,number,number]=[250,248,245], GREEN:[number,number,number]=[13,148,136];
 
 function drawBackground(d: jsPDF, isCover = false, bgColor: [number,number,number] = CREAM) {
   const w = d.internal.pageSize.getWidth();
@@ -1180,7 +1180,7 @@ function getImageData(url: string): Promise<string | null> {
 
 function drawLandscapePlaceholder(d: jsPDF, x: number, y: number, w: number, h: number, label: string) {
   d.setFillColor(244, 241, 236);
-  d.setDrawColor(180, 83, 9);
+  d.setDrawColor(155, 0, 0);
   d.setLineWidth(0.4);
   d.roundedRect(x, y, w, h, 4, 4, 'FD');
   
@@ -1206,7 +1206,7 @@ function drawLandscapePlaceholder(d: jsPDF, x: number, y: number, w: number, h: 
 }
 
 async function loadBrandLogoData(): Promise<{ dataUrl: string; width: number; height: number; format: string } | null> {
-  const sources = ['/holidays-hunt-travel-logo.png', '/logo-holidays-hunt-v3.png', '/logo.png'];
+  const sources = ['/holidayshunt-logo.png', '/holidays-hunt-travel-logo.png', '/logo-holidays-hunt-v3.png', '/logo.png'];
   for (const src of sources) {
     try {
       const img = await new Promise<HTMLImageElement>((resolve, reject) => {

@@ -272,12 +272,12 @@ export const JapCounterPageV2: React.FC = () => {
         <section className="mb-4 sm:mb-6 rounded-[24px] border border-[#F0E1D9] bg-white shadow-[0_10px_35px_rgba(60,35,20,0.05)] p-3 sm:p-4">
           <div className="flex items-center justify-between gap-3 mb-3">
             <div><div className="text-[9px] uppercase tracking-[0.2em] font-black text-brand-orange">Choose your mantra</div><div className="text-sm font-black text-stone-900 mt-0.5">Sacred names for your japa</div></div>
-            <button type="button" onClick={() => setIsMantraModalOpen(true)} className="shrink-0 rounded-xl bg-[#FFF4EE] border border-[#F5D6C8] px-3 py-2 text-[10px] font-black text-brand-orange hover:bg-[#FFE9E0] transition cursor-pointer">More</button>
+            <button type="button" onClick={() => setIsMantraModalOpen(true)} className="shrink-0 rounded-xl bg-[#FDF2F2] border border-[#F2C6C6] px-3 py-2 text-[10px] font-black text-brand-orange hover:bg-[#FADADA] transition cursor-pointer">More</button>
           </div>
           <div className="flex gap-2 overflow-x-auto no-scrollbar pb-0.5">
             {quickMantras.map((mantra) => {
               const selected = activeMantra === mantra.name;
-              return <button key={mantra.id} type="button" onClick={() => setActiveMantra(mantra.name)} className={`shrink-0 min-w-[118px] rounded-2xl border px-3 py-2.5 text-left transition cursor-pointer ${selected ? 'bg-brand-orange text-white border-brand-orange shadow-[0_7px_18px_rgba(255,75,0,0.18)]' : 'bg-[#FFFDFC] border-stone-200 text-stone-700 hover:border-brand-orange/35'}`}><div className={`text-xs font-serif font-black truncate ${selected ? 'text-white' : 'text-stone-900'}`}>{mantra.name}</div><div className={`text-[9px] font-bold mt-0.5 ${selected ? 'text-orange-100' : 'text-stone-400'}`}>{mantra.deity}</div></button>;
+              return <button key={mantra.id} type="button" onClick={() => setActiveMantra(mantra.name)} className={`shrink-0 min-w-[118px] rounded-2xl border px-3 py-2.5 text-left transition cursor-pointer ${selected ? 'bg-brand-orange text-white border-brand-orange shadow-[0_7px_18px_rgba(155, 0, 0,0.18)]' : 'bg-[#FFFDFC] border-stone-200 text-stone-700 hover:border-brand-orange/35'}`}><div className={`text-xs font-serif font-black truncate ${selected ? 'text-white' : 'text-stone-900'}`}>{mantra.name}</div><div className={`text-[9px] font-bold mt-0.5 ${selected ? 'text-red-100' : 'text-stone-400'}`}>{mantra.deity}</div></button>;
             })}
           </div>
           <div className="mt-3 flex items-center justify-center gap-2 text-brand-orange font-serif font-bold text-sm"><Sparkles className="w-3.5 h-3.5" /> ॥ {activeMantra} ॥ <Heart className="w-3.5 h-3.5 fill-current" /></div>
@@ -296,8 +296,8 @@ export const JapCounterPageV2: React.FC = () => {
         <section className="mt-6 sm:mt-8 rounded-[24px] border border-[#EEE6E1] bg-white shadow-[0_10px_35px_rgba(60,35,20,0.04)] p-5 sm:p-6">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="flex items-start gap-3.5">
-              <div className="w-10 h-10 rounded-2xl bg-orange-50 flex items-center justify-center text-orange-600 shrink-0">
-                <Calendar className="w-5 h-5 text-[#FF4B00]" />
+              <div className="w-10 h-10 rounded-2xl bg-[#FDF2F2] flex items-center justify-center text-[#9b0000] shrink-0">
+                <Calendar className="w-5 h-5 text-[#9b0000]" />
               </div>
               <div>
                 <h3 className="text-sm sm:text-base font-black text-stone-900 flex items-center gap-2">
@@ -325,7 +325,7 @@ export const JapCounterPageV2: React.FC = () => {
                     type="checkbox"
                     checked={autoSyncEnabled}
                     onChange={(e) => setAutoSyncEnabled(e.target.checked)}
-                    className="rounded border-stone-300 text-[#FF4B00] focus:ring-[#FF4B00] w-4 h-4"
+                    className="rounded border-stone-300 text-[#9b0000] focus:ring-[#9b0000] w-4 h-4"
                   />
                   <span>Auto-Sync on Mala Done</span>
                 </label>
@@ -351,8 +351,8 @@ export const JapCounterPageV2: React.FC = () => {
                   syncStatus === 'syncing'
                     ? 'bg-stone-100 text-stone-400 border border-stone-200 cursor-not-allowed'
                     : googleToken
-                    ? 'bg-[#FF4B00] text-white hover:bg-[#FF4B00]/90'
-                    : 'bg-[#FF4B00] text-white hover:bg-[#FF4B00]/90 border-2 border-[#FF4B00]'
+                    ? 'bg-[#9b0000] text-white hover:bg-[#9b0000]/90'
+                    : 'bg-[#9b0000] text-white hover:bg-[#9b0000]/90 border-2 border-[#9b0000]'
                 }`}
               >
                 {syncStatus === 'syncing' ? (
@@ -404,7 +404,7 @@ export const JapCounterPageV2: React.FC = () => {
           )}
         </section>
 
-        <section className="mt-6 sm:mt-8 rounded-[24px] bg-[#FFF8F3] border border-[#F4DED2] px-5 sm:px-8 py-4 sm:py-5 text-center shadow-sm"><div className="text-brand-orange text-2xl font-serif leading-none">“</div><p className="text-sm sm:text-base font-serif font-semibold text-stone-700 leading-relaxed max-w-2xl mx-auto">A calm mind, a devoted heart, and a sacred name on your lips can change everything.</p><div className="mt-1 text-[10px] font-bold text-stone-400">— Holidays Hunt</div></section>
+        <section className="mt-6 sm:mt-8 rounded-[24px] bg-[#FDF5F5] border border-[#F4DED2] px-5 sm:px-8 py-4 sm:py-5 text-center shadow-sm"><div className="text-brand-orange text-2xl font-serif leading-none">“</div><p className="text-sm sm:text-base font-serif font-semibold text-stone-700 leading-relaxed max-w-2xl mx-auto">A calm mind, a devoted heart, and a sacred name on your lips can change everything.</p><div className="mt-1 text-[10px] font-bold text-stone-400">— Holidays Hunt</div></section>
 
         <section className="mt-7 sm:mt-9">
           <div className="flex items-end justify-between mb-4"><div><div className="text-[9px] uppercase tracking-[0.2em] font-black text-brand-orange">Your practice</div><h2 className="text-xl sm:text-2xl font-black mt-0.5">Sadhana insights</h2></div><button type="button" onClick={handleDownloadPdf} className="inline-flex items-center gap-1.5 rounded-xl bg-white border border-stone-200 px-3 py-2 text-[10px] font-black text-stone-600 hover:border-brand-orange/30 hover:text-brand-orange transition cursor-pointer"><Download className="w-3.5 h-3.5" /><span className="hidden sm:inline">Export PDF</span></button></div>

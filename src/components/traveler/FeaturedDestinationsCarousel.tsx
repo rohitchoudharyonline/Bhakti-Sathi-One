@@ -107,14 +107,14 @@ export const FeaturedDestinationsCarousel: React.FC<FeaturedDestinationsCarousel
     <section id="featured-destinations-section" className="py-6 sm:py-12 px-3 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-4 sm:space-y-6 select-none">
       {/* Header with Badge & Red Bar */}
       <div className="text-center sm:text-left space-y-2">
-        <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#FFF4EE] border border-[#FCD6C3] text-[#FF4B00] text-[11px] sm:text-xs font-extrabold uppercase tracking-wider shadow-2xs">
-          <Compass className="w-3.5 h-3.5 text-[#FF4B00] shrink-0" />
+        <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#FDF2F2] border border-[#F5C2C2] text-[#9b0000] text-[11px] sm:text-xs font-extrabold uppercase tracking-wider shadow-2xs">
+          <Compass className="w-3.5 h-3.5 text-[#9b0000] shrink-0" />
           <span>FEATURED DESTINATIONS</span>
         </div>
 
         <h2 className="text-2xl sm:text-4xl lg:text-5xl font-black text-stone-900 tracking-tight flex items-center justify-center sm:justify-start gap-2.5">
           <span>{title}</span>
-          <span className="w-8 h-1.5 bg-[#FF4B00] rounded-full inline-block shrink-0" />
+          <span className="w-8 h-1.5 bg-[#9b0000] rounded-full inline-block shrink-0" />
         </h2>
 
         <p className="text-xs sm:text-sm text-stone-600 font-medium max-w-2xl leading-relaxed">
@@ -139,7 +139,7 @@ export const FeaturedDestinationsCarousel: React.FC<FeaturedDestinationsCarousel
           >
             <div
               onClick={() => onSelectDestination(dest)}
-              className="group relative h-[250px] xs:h-[290px] sm:h-[380px] md:h-[420px] rounded-2xl sm:rounded-3xl overflow-hidden cursor-pointer border border-stone-200/90 hover:border-[#FF4B00] shadow-[0_8px_24px_-6px_rgba(0,0,0,0.16)] hover:shadow-[0_22px_45px_-12px_rgba(0,0,0,0.3)] transition-all duration-300 ease-out hover:scale-[1.025] hover:-translate-y-1 select-none flex flex-col justify-end p-4 sm:p-6 bg-stone-900 will-change-transform"
+              className="group relative h-[250px] xs:h-[290px] sm:h-[380px] md:h-[420px] rounded-2xl sm:rounded-3xl overflow-hidden cursor-pointer border border-stone-200/90 hover:border-[#9b0000] shadow-[0_8px_24px_-6px_rgba(0,0,0,0.16)] hover:shadow-[0_22px_45px_-12px_rgba(0,0,0,0.3)] transition-all duration-300 ease-out hover:scale-[1.025] hover:-translate-y-1 select-none flex flex-col justify-end p-4 sm:p-6 bg-stone-900 will-change-transform"
             >
               {/* Show ONLY the photo uploaded by the user while creating the destination */}
               {dest.coverImage ? (

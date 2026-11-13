@@ -62,7 +62,7 @@ const topTourPackagesData = [
 ];
 
 const tourCategoryDemandData = [
-  { name: 'Pilgrimage Yatras', value: 38, count: 1420, color: '#FF4B00' },
+  { name: 'Pilgrimage Yatras', value: 38, count: 1420, color: '#9b0000' },
   { name: 'Family & Scenic Tours', value: 28, count: 1050, color: '#3b82f6' },
   { name: 'Honeymoon Specials', value: 18, count: 680, color: '#ec4899' },
   { name: 'Adventure & Treks', value: 10, count: 370, color: '#10b981' },
@@ -77,13 +77,13 @@ const conversionFunnelSteps = [
 ];
 
 const inflowChannelsData = [
-  { channel: 'Direct Web / App Bookings', share: 58, icon: Globe, color: 'bg-orange-600' },
+  { channel: 'Direct Web / App Bookings', share: 58, icon: Globe, color: 'bg-[#9b0000]' },
   { channel: 'WhatsApp Tour Desk', share: 28, icon: MessageSquare, color: 'bg-emerald-500' },
   { channel: '24/7 Helpline & Phone Concierge', share: 14, icon: Phone, color: 'bg-blue-600' },
 ];
 
 const liveTourStream = [
-  { title: 'Vaishno Devi Helicopter Yatra', duration: '3 Days / 2 Nights', category: 'Pilgrimage', channel: 'Direct Web', amount: '₹9,500', status: 'Booking Confirmed', time: 'Just now', icon: ShieldCheck, bg: 'text-orange-600 bg-orange-50' },
+  { title: 'Vaishno Devi Helicopter Yatra', duration: '3 Days / 2 Nights', category: 'Pilgrimage', channel: 'Direct Web', amount: '₹9,500', status: 'Booking Confirmed', time: 'Just now', icon: ShieldCheck, bg: 'text-[#9b0000] bg-[#FDF2F2]' },
   { title: 'Kashmir Paradise: Srinagar & Gulmarg', duration: '5 Days / 4 Nights', category: 'Scenic', channel: 'WhatsApp', amount: '₹32,000', status: 'Deposit Received', time: 'Just now', icon: MessageSquare, bg: 'text-emerald-600 bg-emerald-50' },
   { title: 'Shimla Manali Honeymoon Special', duration: '6 Days / 5 Nights', category: 'Honeymoon', channel: 'Direct Web', amount: '₹26,400', status: 'Itinerary Locked', time: '1m ago', icon: Heart, bg: 'text-pink-600 bg-pink-50' },
   { title: 'Srinagar to Leh Ladakh Road Trip', duration: '7 Days / 6 Nights', category: 'Adventure', channel: 'WhatsApp', amount: '₹79,000', status: 'Booking Confirmed', time: '3m ago', icon: Mountain, bg: 'text-purple-600 bg-purple-50' },
@@ -101,7 +101,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ onClose,
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-3xl border border-stone-200 shadow-xs">
         <div>
           <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-            <span className="px-3 py-1 rounded-full text-[11px] font-black bg-orange-100 text-orange-800 uppercase tracking-wider">
+            <span className="px-3 py-1 rounded-full text-[11px] font-black bg-[#FCE8E8] text-[#7D0000] uppercase tracking-wider">
               Tour Operations & Booking CRM
             </span>
             <span className="text-xs text-stone-500 font-medium">Jammu, Kashmir & Himachal Packages</span>
@@ -162,7 +162,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ onClose,
         <div className="bg-white p-6 rounded-3xl border border-stone-200 shadow-xs flex flex-col justify-between space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-stone-500 text-xs font-bold uppercase tracking-wider">Active Inquiries</span>
-            <div className="p-2.5 rounded-2xl bg-orange-50 text-[#FF4B00]">
+            <div className="p-2.5 rounded-2xl bg-[#FDF2F2] text-[#9b0000]">
               <Users className="w-4 h-4" />
             </div>
           </div>
@@ -228,7 +228,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ onClose,
             <span>Itinerary Searches</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="w-3.5 h-3.5 rounded-full bg-[#FF4B00] inline-block"></span>
+            <span className="w-3.5 h-3.5 rounded-full bg-[#9b0000] inline-block"></span>
             <span>Traveler Inquiries</span>
           </div>
           <div className="flex items-center gap-2">
@@ -246,8 +246,8 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ onClose,
                   <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.0} />
                 </linearGradient>
                 <linearGradient id="colorInquiries" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#FF4B00" stopOpacity={0.4} />
-                  <stop offset="95%" stopColor="#FF4B00" stopOpacity={0.0} />
+                  <stop offset="5%" stopColor="#9b0000" stopOpacity={0.4} />
+                  <stop offset="95%" stopColor="#9b0000" stopOpacity={0.0} />
                 </linearGradient>
                 <linearGradient id="colorBookings" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#10b981" stopOpacity={0.5} />
@@ -259,7 +259,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ onClose,
               <YAxis stroke="#888" fontSize={12} tickLine={false} />
               <Tooltip contentStyle={{ backgroundColor: '#1c1917', color: '#fff', borderRadius: '12px', border: 'none', fontSize: '12px' }} />
               <Area type="monotone" dataKey="searches" stroke="#3b82f6" fillOpacity={1} fill="url(#colorSearches)" strokeWidth={2} />
-              <Area type="monotone" dataKey="inquiries" stroke="#FF4B00" fillOpacity={1} fill="url(#colorInquiries)" strokeWidth={2} />
+              <Area type="monotone" dataKey="inquiries" stroke="#9b0000" fillOpacity={1} fill="url(#colorInquiries)" strokeWidth={2} />
               <Area type="monotone" dataKey="bookings" stroke="#10b981" fillOpacity={1} fill="url(#colorBookings)" strokeWidth={2} />
             </AreaChart>
           </ResponsiveContainer>
@@ -307,7 +307,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ onClose,
                 {topTourPackagesData.map((tour, i) => (
                   <tr key={i} className="hover:bg-stone-50 transition">
                     <td className="py-3.5 pr-4 font-bold text-stone-900 flex items-center gap-3">
-                      <div className="p-2 rounded-xl bg-orange-50 text-[#FF4B00] shrink-0">
+                      <div className="p-2 rounded-xl bg-[#FDF2F2] text-[#9b0000] shrink-0">
                         <Compass className="w-4 h-4" />
                       </div>
                       <div>
@@ -316,7 +316,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ onClose,
                       </div>
                     </td>
                     <td className="py-3.5 px-4 text-right font-semibold text-stone-700">{tour.searches.toLocaleString()}</td>
-                    <td className="py-3.5 px-4 text-right font-black text-[#FF4B00]">{tour.bookings}</td>
+                    <td className="py-3.5 px-4 text-right font-black text-[#9b0000]">{tour.bookings}</td>
                     <td className="py-3.5 px-4 text-right font-bold text-stone-900">{tour.avgPrice}</td>
                     <td className="py-3.5 pl-4 text-right">
                       <span className="px-2.5 py-1 rounded-xl bg-emerald-50 text-emerald-700 font-black">
@@ -335,7 +335,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ onClose,
           <div>
             <div className="flex items-center justify-between mb-1">
               <h3 className="text-lg font-black text-stone-900">Tour Category Demand</h3>
-              <Mountain className="w-4 h-4 text-[#FF4B00]" />
+              <Mountain className="w-4 h-4 text-[#9b0000]" />
             </div>
             <p className="text-xs text-stone-500 font-medium">Share of traveler bookings</p>
           </div>
@@ -408,13 +408,13 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ onClose,
                     <span className="font-black text-stone-900 text-sm">{step.title}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="font-black text-[#FF4B00] text-sm">{step.count}</span>
+                    <span className="font-black text-[#9b0000] text-sm">{step.count}</span>
                     <span className="text-stone-400 font-medium">({step.percent})</span>
                   </div>
                 </div>
                 <div className="text-xs text-stone-500 font-medium">{step.subtitle}</div>
                 <div className="w-full bg-stone-200 h-2.5 rounded-full overflow-hidden">
-                  <div className="bg-[#FF4B00] h-full rounded-full" style={{ width: step.width }}></div>
+                  <div className="bg-[#9b0000] h-full rounded-full" style={{ width: step.width }}></div>
                 </div>
                 <div className="flex justify-end text-xs font-bold text-red-600">{step.drop}</div>
               </div>
@@ -437,7 +437,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ onClose,
                   <div key={i} className="space-y-2">
                     <div className="flex items-center justify-between text-xs">
                       <div className="flex items-center gap-2.5 font-bold text-stone-800">
-                        <div className="p-1.5 rounded-lg bg-stone-100 text-[#FF4B00]">
+                        <div className="p-1.5 rounded-lg bg-stone-100 text-[#9b0000]">
                           <IconComponent className="w-4 h-4" />
                         </div>
                         <span>{ch.channel}</span>
@@ -452,9 +452,9 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ onClose,
               })}
             </div>
 
-            <div className="mt-4 p-4.5 bg-orange-50/70 border border-orange-200/80 rounded-2xl">
-              <div className="text-xs font-bold text-orange-900 mb-1">Booking Takeaway:</div>
-              <p className="text-xs text-orange-800 leading-relaxed font-medium">
+            <div className="mt-4 p-4.5 bg-[#FDF2F2]/70 border border-[#F5C2C2]/80 rounded-2xl">
+              <div className="text-xs font-bold text-[#660000] mb-1">Booking Takeaway:</div>
+              <p className="text-xs text-[#7D0000] leading-relaxed font-medium">
                 WhatsApp tour desks convert 32% faster for custom multi-city holiday packages, while standard pilgrimage yatras are predominantly booked via instant web checkout.
               </p>
             </div>

@@ -172,7 +172,7 @@ export const PremiumTravelMarketplace: React.FC = () => {
               <button
                 disabled={!isFormValid}
                 onClick={sendQuickInquiry}
-                className="py-2.5 rounded-xl bg-[#FF4B00] hover:bg-[#E04200] disabled:bg-stone-300 disabled:cursor-not-allowed text-white text-xs font-bold cursor-pointer transition"
+                className="py-2.5 rounded-xl bg-[#9b0000] hover:bg-[#7D0000] disabled:bg-stone-300 disabled:cursor-not-allowed text-white text-xs font-bold cursor-pointer transition"
               >
                 Submit Request →
               </button>

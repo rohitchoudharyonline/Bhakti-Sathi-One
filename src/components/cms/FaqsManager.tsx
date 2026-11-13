@@ -160,7 +160,7 @@ export const FaqsManager: React.FC = () => {
       <div className="pb-4 border-b border-stone-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h3 className="text-base font-black text-stone-900 flex items-center gap-2">
-            <HelpCircle className="w-5 h-5 text-[#FF4B00]" />
+            <HelpCircle className="w-5 h-5 text-[#9b0000]" />
             Homepage FAQ Questions & Answers
           </h3>
           <p className="text-xs text-stone-500 mt-0.5">
@@ -184,7 +184,7 @@ export const FaqsManager: React.FC = () => {
         <div className="lg:col-span-5 space-y-4">
           <div className="p-5 rounded-2xl bg-stone-50 border border-stone-200 space-y-4">
             <h4 className="text-xs font-black text-stone-800 uppercase tracking-wider flex items-center gap-1.5">
-              <Plus className="w-4 h-4 text-[#FF4B00]" /> Create New FAQ Question
+              <Plus className="w-4 h-4 text-[#9b0000]" /> Create New FAQ Question
             </h4>
             
             <form onSubmit={handleAddFaq} className="space-y-4">
@@ -198,7 +198,7 @@ export const FaqsManager: React.FC = () => {
                   placeholder="e.g., Does Holidays Hunt offer senior citizen assistance?"
                   value={newQuestion}
                   onChange={(e) => setNewQuestion(e.target.value)}
-                  className="w-full text-xs font-semibold bg-white border border-stone-200 rounded-xl px-3.5 py-2.5 focus:border-[#FF4B00] focus:outline-hidden"
+                  className="w-full text-xs font-semibold bg-white border border-stone-200 rounded-xl px-3.5 py-2.5 focus:border-[#9b0000] focus:outline-hidden"
                 />
               </div>
 
@@ -212,13 +212,13 @@ export const FaqsManager: React.FC = () => {
                   placeholder="Write a clear, professional answer explaining Holidays Hunt's facilitation..."
                   value={newAnswer}
                   onChange={(e) => setNewAnswer(e.target.value)}
-                  className="w-full text-xs bg-white border border-stone-200 rounded-xl px-3.5 py-2.5 focus:border-[#FF4B00] focus:outline-hidden resize-none"
+                  className="w-full text-xs bg-white border border-stone-200 rounded-xl px-3.5 py-2.5 focus:border-[#9b0000] focus:outline-hidden resize-none"
                 />
               </div>
 
               <button
                 type="submit"
-                className="w-full py-2.5 bg-[#FF4B00] hover:bg-[#E04200] text-white text-xs font-bold rounded-xl shadow-xs transition cursor-pointer flex items-center justify-center gap-1.5"
+                className="w-full py-2.5 bg-[#9b0000] hover:bg-[#7D0000] text-white text-xs font-bold rounded-xl shadow-xs transition cursor-pointer flex items-center justify-center gap-1.5"
               >
                 <Plus className="w-4 h-4" />
                 Add & Publish FAQ
@@ -238,7 +238,7 @@ export const FaqsManager: React.FC = () => {
                 placeholder="Search existing questions & answers..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full text-xs bg-white border border-stone-200 rounded-xl pl-10 pr-4 py-2.5 focus:border-[#FF4B00] focus:outline-hidden font-medium"
+                className="w-full text-xs bg-white border border-stone-200 rounded-xl pl-10 pr-4 py-2.5 focus:border-[#9b0000] focus:outline-hidden font-medium"
               />
             </div>
 
@@ -253,7 +253,7 @@ export const FaqsManager: React.FC = () => {
                       filteredFaqs.length > 0
                     }
                     onChange={handleToggleSelectAll}
-                    className="w-4 h-4 rounded border-stone-300 text-[#FF4B00] focus:ring-[#FF4B00] cursor-pointer"
+                    className="w-4 h-4 rounded border-stone-300 text-[#9b0000] focus:ring-[#9b0000] cursor-pointer"
                   />
                   <span>Select All FAQs ({filteredFaqs.length})</span>
                 </label>
@@ -288,7 +288,7 @@ export const FaqsManager: React.FC = () => {
                     key={faq.id}
                     className={`p-4 rounded-2xl border transition ${
                       isEditing
-                        ? 'border-[#FF4B00] bg-orange-50/25'
+                        ? 'border-[#9b0000] bg-[#FDF2F2]/25'
                         : 'border-stone-200 bg-white hover:border-stone-300'
                     }`}
                   >
@@ -296,7 +296,7 @@ export const FaqsManager: React.FC = () => {
                       // Inline edit form
                       <div className="space-y-3">
                         <div className="flex items-center justify-between pb-2 border-b border-stone-100">
-                          <span className="text-[10px] font-extrabold text-[#FF4B00] uppercase tracking-wider">
+                          <span className="text-[10px] font-extrabold text-[#9b0000] uppercase tracking-wider">
                             Editing Question #{globalIndex + 1}
                           </span>
                           <div className="flex gap-1.5">
@@ -341,7 +341,7 @@ export const FaqsManager: React.FC = () => {
                               type="checkbox"
                               checked={selectedFaqIds.includes(faq.id)}
                               onChange={() => handleToggleSelect(faq.id)}
-                              className="w-4 h-4 rounded border-stone-300 text-[#FF4B00] focus:ring-[#FF4B00] cursor-pointer mt-0.5"
+                              className="w-4 h-4 rounded border-stone-300 text-[#9b0000] focus:ring-[#9b0000] cursor-pointer mt-0.5"
                             />
                             <div className="space-y-1">
                               <span className="text-[10px] font-extrabold text-stone-400">
@@ -363,7 +363,7 @@ export const FaqsManager: React.FC = () => {
                               className={`p-1 rounded-md transition ${
                                 globalIndex === 0
                                   ? 'text-stone-300 cursor-not-allowed'
-                                  : 'text-stone-500 hover:text-[#FF4B00] hover:bg-stone-100'
+                                  : 'text-stone-500 hover:text-[#9b0000] hover:bg-stone-100'
                               }`}
                               title="Move Up"
                             >
@@ -377,7 +377,7 @@ export const FaqsManager: React.FC = () => {
                               className={`p-1 rounded-md transition ${
                                 globalIndex === faqs.length - 1
                                   ? 'text-stone-300 cursor-not-allowed'
-                                  : 'text-stone-500 hover:text-[#FF4B00] hover:bg-stone-100'
+                                  : 'text-stone-500 hover:text-[#9b0000] hover:bg-stone-100'
                               }`}
                               title="Move Down"
                             >

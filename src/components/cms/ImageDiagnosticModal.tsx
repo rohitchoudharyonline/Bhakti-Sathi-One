@@ -88,7 +88,7 @@ export const ImageDiagnosticModal: React.FC<ImageDiagnosticModalProps> = ({
         {/* Modal Header */}
         <div className="flex items-center justify-between border-b border-stone-800 pb-4">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center text-orange-500">
+            <div className="w-9 h-9 rounded-xl bg-[#9b0000]/10 border border-[#9b0000]/20 flex items-center justify-center text-[#9b0000]">
               <Activity className="w-5 h-5" />
             </div>
             <div>
@@ -160,7 +160,7 @@ export const ImageDiagnosticModal: React.FC<ImageDiagnosticModalProps> = ({
             </div>
             <div className="flex justify-between items-start gap-2">
               <span className="text-stone-400 shrink-0 font-sans">Resolved Endpoint:</span>
-              <span className="text-orange-300 truncate text-right text-[11px]">
+              <span className="text-red-300 truncate text-right text-[11px]">
                 {diagnostic.resolvedUrl}
               </span>
             </div>
@@ -201,7 +201,7 @@ export const ImageDiagnosticModal: React.FC<ImageDiagnosticModalProps> = ({
             <button
               type="button"
               onClick={handleCopyReport}
-              className="px-4 py-2 rounded-xl bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold flex items-center gap-1.5 transition shadow-md cursor-pointer"
+              className="px-4 py-2 rounded-xl bg-[#9b0000] hover:bg-[#FDF2F2]0 text-white text-xs font-bold flex items-center gap-1.5 transition shadow-md cursor-pointer"
             >
               {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
               <span>{copied ? 'Copied JSON Report' : 'Copy Diagnostic Report'}</span>

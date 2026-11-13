@@ -193,7 +193,7 @@ export const UniversalImageUploader: React.FC<UniversalImageUploaderProps> = ({
         {label && (
           <div className="flex items-center justify-between">
             <label className="text-xs font-bold text-stone-700 flex items-center gap-1.5">
-              <ImageIcon className="w-3.5 h-3.5 text-[#FF4B00]" />
+              <ImageIcon className="w-3.5 h-3.5 text-[#9b0000]" />
               {label}
             </label>
             {lastStats && (
@@ -234,7 +234,7 @@ export const UniversalImageUploader: React.FC<UniversalImageUploaderProps> = ({
               type="button"
               onClick={() => fileInputRef.current?.click()}
               disabled={isCompressing}
-              className="px-3 py-1.5 rounded-lg bg-[#FF4B00] hover:bg-[#E04200] text-white text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-xs disabled:opacity-50"
+              className="px-3 py-1.5 rounded-lg bg-[#9b0000] hover:bg-[#7D0000] text-white text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-xs disabled:opacity-50"
             >
               {isCompressing ? (
                 <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -324,7 +324,7 @@ export const UniversalImageUploader: React.FC<UniversalImageUploaderProps> = ({
               value={manualUrl}
               onChange={(e) => setManualUrl(e.target.value)}
               placeholder="https://..."
-              className="flex-1 text-xs px-3 py-1.5 bg-white border border-stone-200 rounded-lg focus:outline-hidden focus:border-[#FF4B00]"
+              className="flex-1 text-xs px-3 py-1.5 bg-white border border-stone-200 rounded-lg focus:outline-hidden focus:border-[#9b0000]"
             />
             <button
               type="submit"
@@ -365,7 +365,7 @@ export const UniversalImageUploader: React.FC<UniversalImageUploaderProps> = ({
           <div>
             {label && (
               <h4 className="text-sm font-black text-stone-900 flex items-center gap-2">
-                <ImageIcon className="w-4 h-4 text-[#FF4B00]" />
+                <ImageIcon className="w-4 h-4 text-[#9b0000]" />
                 {label}
               </h4>
             )}
@@ -388,7 +388,7 @@ export const UniversalImageUploader: React.FC<UniversalImageUploaderProps> = ({
         <div>
           <div className="flex items-center justify-between mb-1.5">
             <span className="text-[11px] font-black uppercase tracking-wider text-stone-600 flex items-center gap-1">
-              <Sliders className="w-3 h-3 text-[#FF4B00]" />
+              <Sliders className="w-3 h-3 text-[#9b0000]" />
               <span>Target Width:</span>
             </span>
             <span className="text-[11px] text-stone-500 font-medium">
@@ -406,7 +406,7 @@ export const UniversalImageUploader: React.FC<UniversalImageUploaderProps> = ({
                   onClick={() => setTargetWidth(opt.value)}
                   className={`px-3 py-1 rounded-lg text-xs font-bold transition cursor-pointer flex items-center gap-1 ${
                     isSelected
-                      ? 'bg-[#FF4B00] text-white shadow-xs'
+                      ? 'bg-[#9b0000] text-white shadow-xs'
                       : 'bg-white border border-stone-200 text-stone-700 hover:bg-stone-100'
                   }`}
                 >
@@ -461,7 +461,7 @@ export const UniversalImageUploader: React.FC<UniversalImageUploaderProps> = ({
         onDrop={handleDrop}
         className={`relative rounded-2xl border-2 border-dashed transition p-6 text-center flex flex-col items-center justify-center ${
           dragOver
-            ? 'border-[#FF4B00] bg-[#FF4B00]/5'
+            ? 'border-[#9b0000] bg-[#9b0000]/5'
             : 'border-stone-300 hover:border-stone-400 bg-stone-50/50'
         }`}
       >
@@ -475,7 +475,7 @@ export const UniversalImageUploader: React.FC<UniversalImageUploaderProps> = ({
 
         {isCompressing ? (
           <div className="py-4 space-y-2">
-            <Loader2 className="w-8 h-8 animate-spin text-[#FF4B00] mx-auto" />
+            <Loader2 className="w-8 h-8 animate-spin text-[#9b0000] mx-auto" />
             <p className="text-xs font-black text-stone-900">
               Auto-Compressing to {targetFormat.toUpperCase()} ({targetWidth > 0 ? `${targetWidth}px` : 'Original'})…
             </p>
@@ -485,7 +485,7 @@ export const UniversalImageUploader: React.FC<UniversalImageUploaderProps> = ({
           </div>
         ) : (
           <div className="py-2 space-y-3">
-            <div className="w-12 h-12 rounded-2xl bg-white border border-stone-200 shadow-2xs flex items-center justify-center mx-auto text-[#FF4B00]">
+            <div className="w-12 h-12 rounded-2xl bg-white border border-stone-200 shadow-2xs flex items-center justify-center mx-auto text-[#9b0000]">
               <UploadCloud className="w-6 h-6" />
             </div>
 
@@ -495,7 +495,7 @@ export const UniversalImageUploader: React.FC<UniversalImageUploaderProps> = ({
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="text-[#FF4B00] underline font-black hover:text-[#E04200] cursor-pointer"
+                  className="text-[#9b0000] underline font-black hover:text-[#7D0000] cursor-pointer"
                 >
                   browse from device
                 </button>
@@ -510,7 +510,7 @@ export const UniversalImageUploader: React.FC<UniversalImageUploaderProps> = ({
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="px-4 py-2 rounded-xl bg-[#FF4B00] hover:bg-[#E04200] text-white text-xs font-black transition flex items-center gap-1.5 shadow-xs cursor-pointer active:scale-98"
+                className="px-4 py-2 rounded-xl bg-[#9b0000] hover:bg-[#7D0000] text-white text-xs font-black transition flex items-center gap-1.5 shadow-xs cursor-pointer active:scale-98"
               >
                 <UploadCloud className="w-4 h-4" />
                 <span>{buttonLabel}</span>
@@ -548,7 +548,7 @@ export const UniversalImageUploader: React.FC<UniversalImageUploaderProps> = ({
             value={manualUrl}
             onChange={(e) => setManualUrl(e.target.value)}
             placeholder="Paste direct image URL (https://images.unsplash.com/...)"
-            className="flex-1 text-xs px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl focus:bg-white focus:outline-hidden focus:border-[#FF4B00]"
+            className="flex-1 text-xs px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl focus:bg-white focus:outline-hidden focus:border-[#9b0000]"
           />
           <button
             type="submit"

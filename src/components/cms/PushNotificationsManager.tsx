@@ -157,7 +157,7 @@ export const PushNotificationsManager: React.FC = () => {
       <div className="bg-gradient-to-r from-stone-900 via-stone-800 to-black text-white p-6 sm:p-8 rounded-3xl shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden">
         <div className="relative z-10">
           <div className="flex items-center gap-2 mb-2">
-            <span className="px-2.5 py-0.5 rounded-full bg-[#FF4B00] text-white text-[10px] font-black uppercase tracking-wider flex items-center gap-1">
+            <span className="px-2.5 py-0.5 rounded-full bg-[#9b0000] text-white text-[10px] font-black uppercase tracking-wider flex items-center gap-1">
               <Radio className="w-3 h-3 animate-pulse" /> Live Web Push Gateway
             </span>
             <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] font-bold">
@@ -165,7 +165,7 @@ export const PushNotificationsManager: React.FC = () => {
             </span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white flex items-center gap-3">
-            <Bell className="w-7 h-7 text-[#FF4B00]" /> Push Notifications Manager
+            <Bell className="w-7 h-7 text-[#9b0000]" /> Push Notifications Manager
           </h1>
           <p className="text-xs sm:text-sm text-stone-300 mt-1 max-w-2xl">
             Broadcast instant real-time push alerts, snowfall warnings, deal drops, and itinerary updates directly to traveler desktop & mobile browsers.
@@ -178,13 +178,13 @@ export const PushNotificationsManager: React.FC = () => {
             onClick={handleTestToMyDevice}
             className="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold border border-white/20 transition flex items-center gap-2 cursor-pointer shadow-sm active:scale-95"
           >
-            <Smartphone className="w-4 h-4 text-[#FF4B00]" />
+            <Smartphone className="w-4 h-4 text-[#9b0000]" />
             <span>Test My Browser</span>
           </button>
           <button
             type="button"
             onClick={() => setActiveTab('broadcast')}
-            className="px-4 py-2.5 rounded-xl bg-[#FF4B00] hover:bg-[#E04200] text-white text-xs font-bold transition flex items-center gap-2 cursor-pointer shadow-md active:scale-95"
+            className="px-4 py-2.5 rounded-xl bg-[#9b0000] hover:bg-[#7D0000] text-white text-xs font-bold transition flex items-center gap-2 cursor-pointer shadow-md active:scale-95"
           >
             <Send className="w-4 h-4" />
             <span>New Broadcast</span>
@@ -213,7 +213,7 @@ export const PushNotificationsManager: React.FC = () => {
             <h3 className="text-2xl font-black text-stone-900 mt-1">{pushNotifications.length}</h3>
             <span className="text-[10px] font-bold text-stone-500 mt-0.5 block">Lifetime campaigns</span>
           </div>
-          <div className="w-11 h-11 rounded-2xl bg-orange-50 text-[#FF4B00] grid place-items-center">
+          <div className="w-11 h-11 rounded-2xl bg-[#FDF2F2] text-[#9b0000] grid place-items-center">
             <Send className="w-5.5 h-5.5" />
           </div>
         </div>
@@ -304,7 +304,7 @@ export const PushNotificationsManager: React.FC = () => {
             <div className="flex items-center justify-between border-b border-stone-100 pb-4">
               <div>
                 <h3 className="text-base font-black text-stone-900 flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-[#FF4B00]" /> Compose Broadcast Push
+                  <Sparkles className="w-4 h-4 text-[#9b0000]" /> Compose Broadcast Push
                 </h3>
                 <p className="text-xs text-stone-500">
                   Target custom traveler segments or send instant alerts to all active subscribers.
@@ -333,7 +333,7 @@ export const PushNotificationsManager: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => handleLoadPreset('flight')}
-                  className="p-1.5 rounded-lg bg-orange-50 text-orange-600 hover:bg-orange-100 transition text-[10px] font-bold cursor-pointer"
+                  className="p-1.5 rounded-lg bg-[#FDF2F2] text-[#9b0000] hover:bg-[#FCE8E8] transition text-[10px] font-bold cursor-pointer"
                   title="Flight Discount Preset"
                 >
                   <Globe className="w-3.5 h-3.5" />
@@ -470,7 +470,7 @@ export const PushNotificationsManager: React.FC = () => {
 
                 <button
                   type="submit"
-                  className="px-6 py-2.5 rounded-xl bg-[#FF4B00] hover:bg-[#E04200] text-white text-xs font-black transition shadow-md flex items-center gap-2 cursor-pointer active:scale-95"
+                  className="px-6 py-2.5 rounded-xl bg-[#9b0000] hover:bg-[#7D0000] text-white text-xs font-black transition shadow-md flex items-center gap-2 cursor-pointer active:scale-95"
                 >
                   <Send className="w-4 h-4" />
                   <span>Broadcast Push Notification</span>
@@ -484,7 +484,7 @@ export const PushNotificationsManager: React.FC = () => {
             <div className="bg-stone-900 text-white p-6 rounded-3xl shadow-xl space-y-4">
               <div className="flex items-center justify-between border-b border-stone-800 pb-3">
                 <span className="text-xs font-bold text-stone-400 uppercase tracking-wider flex items-center gap-2">
-                  <Smartphone className="w-4 h-4 text-[#FF4B00]" /> Live Device Lock Screen Preview
+                  <Smartphone className="w-4 h-4 text-[#9b0000]" /> Live Device Lock Screen Preview
                 </span>
                 <span className="text-[10px] bg-stone-800 text-stone-300 px-2 py-0.5 rounded-full font-mono">
                   iOS / Android / Desktop
@@ -494,7 +494,7 @@ export const PushNotificationsManager: React.FC = () => {
               {/* Mobile Lock Screen Card Mockup */}
               <div className="bg-stone-950 rounded-2xl p-4 border border-stone-800/80 shadow-2xl relative overflow-hidden">
                 <div className="flex items-start gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-[#FF4B00] text-white grid place-items-center shrink-0 shadow-md">
+                  <div className="w-9 h-9 rounded-xl bg-[#9b0000] text-white grid place-items-center shrink-0 shadow-md">
                     <Bell className="w-5 h-5" />
                   </div>
                   <div className="flex-1 min-w-0">
@@ -513,7 +513,7 @@ export const PushNotificationsManager: React.FC = () => {
                   </div>
                 )}
 
-                <div className="mt-3 pt-2 border-t border-stone-800/80 flex items-center justify-between text-[10px] font-bold text-[#FF4B00]">
+                <div className="mt-3 pt-2 border-t border-stone-800/80 flex items-center justify-between text-[10px] font-bold text-[#9b0000]">
                   <span>Tap to view itinerary deal</span>
                   <ExternalLink className="w-3 h-3" />
                 </div>
@@ -543,7 +543,7 @@ export const PushNotificationsManager: React.FC = () => {
         <div className="bg-white rounded-3xl border border-stone-200/90 shadow-sm p-6 space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-stone-100 pb-4">
             <h3 className="text-base font-black text-stone-900 flex items-center gap-2">
-              <FileText className="w-4.5 h-4.5 text-[#FF4B00]" /> Sent Broadcast History Log
+              <FileText className="w-4.5 h-4.5 text-[#9b0000]" /> Sent Broadcast History Log
             </h3>
             
             {pushNotifications.length > 0 && (
@@ -562,7 +562,7 @@ export const PushNotificationsManager: React.FC = () => {
                         setSelectedNotificationIds(pushNotifications.map((n) => n.id));
                       }
                     }}
-                    className="w-4 h-4 rounded border-stone-300 text-[#FF4B00] focus:ring-[#FF4B00] cursor-pointer"
+                    className="w-4 h-4 rounded border-stone-300 text-[#9b0000] focus:ring-[#9b0000] cursor-pointer"
                   />
                   <span>Select All ({pushNotifications.length})</span>
                 </label>
@@ -608,7 +608,7 @@ export const PushNotificationsManager: React.FC = () => {
                           setSelectedNotificationIds(pushNotifications.map((n) => n.id));
                         }
                       }}
-                      className="w-4 h-4 rounded border-stone-300 text-[#FF4B00] focus:ring-[#FF4B00] cursor-pointer"
+                      className="w-4 h-4 rounded border-stone-300 text-[#9b0000] focus:ring-[#9b0000] cursor-pointer"
                     />
                   </th>
                   <th className="py-3 px-4">Notification</th>
@@ -625,7 +625,7 @@ export const PushNotificationsManager: React.FC = () => {
                   <tr
                     key={notif.id}
                     className={`hover:bg-stone-50/80 transition ${
-                      selectedNotificationIds.includes(notif.id) ? 'bg-orange-50/30' : ''
+                      selectedNotificationIds.includes(notif.id) ? 'bg-[#FDF2F2]/30' : ''
                     }`}
                   >
                     <td className="py-3.5 px-4">
@@ -639,7 +639,7 @@ export const PushNotificationsManager: React.FC = () => {
                               : [...prev, notif.id]
                           );
                         }}
-                        className="w-4 h-4 rounded border-stone-300 text-[#FF4B00] focus:ring-[#FF4B00] cursor-pointer"
+                        className="w-4 h-4 rounded border-stone-300 text-[#9b0000] focus:ring-[#9b0000] cursor-pointer"
                       />
                     </td>
                     <td className="py-3.5 px-4 max-w-xs">
@@ -647,7 +647,7 @@ export const PushNotificationsManager: React.FC = () => {
                         {notif.icon ? (
                           <img src={notif.icon} alt="" className="w-8 h-8 rounded-lg object-cover border border-stone-200" />
                         ) : (
-                          <div className="w-8 h-8 rounded-lg bg-orange-100 text-[#FF4B00] grid place-items-center">
+                          <div className="w-8 h-8 rounded-lg bg-[#FCE8E8] text-[#9b0000] grid place-items-center">
                             <Bell className="w-4 h-4" />
                           </div>
                         )}
@@ -703,7 +703,7 @@ export const PushNotificationsManager: React.FC = () => {
         <div className="bg-white rounded-3xl border border-stone-200/90 shadow-sm p-6 space-y-4">
           <div className="flex items-center justify-between border-b border-stone-100 pb-4">
             <h3 className="text-base font-black text-stone-900 flex items-center gap-2">
-              <Users className="w-4.5 h-4.5 text-[#FF4B00]" /> Active Browser Devices & Segments
+              <Users className="w-4.5 h-4.5 text-[#9b0000]" /> Active Browser Devices & Segments
             </h3>
             <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full">
               {activeSubscribersCount} Active Tokens
@@ -740,7 +740,7 @@ export const PushNotificationsManager: React.FC = () => {
         <div className="bg-white rounded-3xl border border-stone-200/90 shadow-sm p-6 space-y-6 max-w-4xl">
           <div className="border-b border-stone-100 pb-4">
             <h3 className="text-base font-black text-stone-900 flex items-center gap-2">
-              <Settings className="w-4.5 h-4.5 text-[#FF4B00]" /> Push Gateway & VAPID Keys Setup
+              <Settings className="w-4.5 h-4.5 text-[#9b0000]" /> Push Gateway & VAPID Keys Setup
             </h3>
             <p className="text-xs text-stone-500">Configure Web Push Protocol SSL keys, automated prompt delays, and external gateways.</p>
           </div>
@@ -775,7 +775,7 @@ export const PushNotificationsManager: React.FC = () => {
                   id="autoPrompt"
                   checked={autoPrompt}
                   onChange={(e) => setAutoPrompt(e.target.checked)}
-                  className="w-4 h-4 rounded text-[#FF4B00] cursor-pointer"
+                  className="w-4 h-4 rounded text-[#9b0000] cursor-pointer"
                 />
                 <label htmlFor="autoPrompt" className="text-xs font-bold text-stone-800 cursor-pointer">
                   Show non-intrusive "Enable Push Notifications" banner automatically to website visitors

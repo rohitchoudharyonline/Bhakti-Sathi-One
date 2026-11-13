@@ -290,14 +290,14 @@ export const GuideDetailView: React.FC<GuideDetailViewProps> = ({ slug }) => {
           <div className="flex flex-wrap items-center justify-between gap-4 pt-2 border-t border-stone-200/80 text-xs text-stone-500">
             <div className="flex items-center gap-2">
               <img
-                src="/icon.png"
+                src="/holidayshunt-logo.png"
                 alt="Holidays Hunt"
-                className="w-7 h-7 rounded-full object-cover bg-white border border-stone-100"
+                className="h-6 w-auto object-contain bg-white px-2 py-0.5 rounded-full border border-stone-200"
               />
               <div>
                 <div className="flex items-center gap-1">
                   <span className="font-bold text-stone-800">Posted by Holidays Hunt</span>
-                  <BadgeCheck className="w-4 h-4 text-orange-600 fill-orange-50" />
+                  <BadgeCheck className="w-4 h-4 text-[#9b0000] fill-[#FDF2F2]" />
                 </div>
               </div>
             </div>
@@ -381,7 +381,7 @@ export const GuideDetailView: React.FC<GuideDetailViewProps> = ({ slug }) => {
                 <button
                   type="button"
                   onClick={() => navigateToDestination('jammu-kashmir')}
-                  className="px-6 py-3.5 bg-[#FF4B00] hover:bg-[#E04300] text-white rounded-2xl text-xs sm:text-sm font-bold shadow-lg shadow-amber-950/50 transition cursor-pointer flex items-center justify-center gap-2 group-hover:scale-105"
+                  className="px-6 py-3.5 bg-[#9b0000] hover:bg-[#7D0000] text-white rounded-2xl text-xs sm:text-sm font-bold shadow-lg shadow-amber-950/50 transition cursor-pointer flex items-center justify-center gap-2 group-hover:scale-105"
                 >
                   <span>Check Kashmir Packages</span>
                   <ArrowRight className="w-4 h-4" />

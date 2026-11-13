@@ -441,7 +441,7 @@ export const SEOManager: React.FC = () => {
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <span className="px-2.5 py-0.5 rounded-full bg-[#FF4B00]/10 text-[#FF4B00] border border-[#FF4B00]/20 text-[10px] font-black uppercase tracking-wider">
+              <span className="px-2.5 py-0.5 rounded-full bg-[#9b0000]/10 text-[#9b0000] border border-[#9b0000]/20 text-[10px] font-black uppercase tracking-wider">
                 Holidays Hunt CMS
               </span>
               <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
@@ -461,7 +461,7 @@ export const SEOManager: React.FC = () => {
             <button
               type="button"
               onClick={handleAddNewPageSeo}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#FF4B00] text-white text-xs font-bold hover:bg-[#e04200] transition cursor-pointer shadow-2xs active:scale-95"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#9b0000] text-white text-xs font-bold hover:bg-[#7D0000] transition cursor-pointer shadow-2xs active:scale-95"
             >
               <Plus className="w-3.5 h-3.5 text-white" />
               Add Tour Type / Page SEO
@@ -471,7 +471,7 @@ export const SEOManager: React.FC = () => {
               onClick={handleNormalizeAllDomains}
               className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-stone-900 text-white text-xs font-bold hover:bg-stone-800 transition cursor-pointer shadow-2xs"
             >
-              <RefreshCw className="w-3.5 h-3.5 text-[#FF4B00]" />
+              <RefreshCw className="w-3.5 h-3.5 text-[#9b0000]" />
               Normalize All Canonical URLs
             </button>
             <a
@@ -512,7 +512,7 @@ export const SEOManager: React.FC = () => {
             onClick={() => setActiveSection('tour-types')}
             className={`px-3.5 py-2 rounded-xl text-xs font-black transition whitespace-nowrap cursor-pointer flex items-center gap-1.5 ${
               activeSection === 'tour-types'
-                ? 'bg-[#FF4B00] text-white shadow-xs'
+                ? 'bg-[#9b0000] text-white shadow-xs'
                 : 'bg-stone-100 text-stone-600 hover:bg-stone-200/80'
             }`}
           >
@@ -628,8 +628,8 @@ export const SEOManager: React.FC = () => {
             onClick={() => setActiveSection('redirects')}
             className={`px-3.5 py-2 rounded-xl text-xs font-black transition whitespace-nowrap cursor-pointer flex items-center gap-1.5 ${
               activeSection === 'redirects'
-                ? 'bg-[#FF4B00] text-white shadow-xs'
-                : 'bg-orange-50 text-[#FF4B00] border border-orange-200 hover:bg-orange-100'
+                ? 'bg-[#9b0000] text-white shadow-xs'
+                : 'bg-[#FDF2F2] text-[#9b0000] border border-[#F5C2C2] hover:bg-[#FCE8E8]'
             }`}
           >
             <Shuffle className="w-3.5 h-3.5" />
@@ -654,7 +654,7 @@ export const SEOManager: React.FC = () => {
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="Search pages, tour packages, destinations, keywords, or URLs..."
-                  className="w-full pl-9 pr-4 py-2 text-xs bg-stone-50 border border-stone-200 rounded-xl outline-none focus:border-[#FF4B00] font-medium"
+                  className="w-full pl-9 pr-4 py-2 text-xs bg-stone-50 border border-stone-200 rounded-xl outline-none focus:border-[#9b0000] font-medium"
                 />
               </div>
 
@@ -664,7 +664,7 @@ export const SEOManager: React.FC = () => {
                 <select
                   value={scoreFilter}
                   onChange={(e) => setScoreFilter(e.target.value as any)}
-                  className="px-3 py-2 text-xs bg-stone-50 border border-stone-200 rounded-xl outline-none focus:border-[#FF4B00] font-bold text-stone-700"
+                  className="px-3 py-2 text-xs bg-stone-50 border border-stone-200 rounded-xl outline-none focus:border-[#9b0000] font-bold text-stone-700"
                 >
                   <option value="all">All SEO Scores</option>
                   <option value="needs-work">Needs Work (&lt; 60)</option>
@@ -678,7 +678,7 @@ export const SEOManager: React.FC = () => {
             {(activeSection === 'all' || activeSection === 'tours') && (
               <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-stone-100">
                 <span className="text-[11px] font-black text-stone-500 uppercase tracking-wider mr-1 flex items-center gap-1">
-                  <Compass className="w-3.5 h-3.5 text-[#FF4B00]" />
+                  <Compass className="w-3.5 h-3.5 text-[#9b0000]" />
                   Tour Type:
                 </span>
 
@@ -692,7 +692,7 @@ export const SEOManager: React.FC = () => {
                         onClick={() => setTourTypeFilter(type)}
                         className={`px-3 py-1 rounded-lg text-xs font-bold transition cursor-pointer ${
                           isSelected
-                            ? 'bg-[#FF4B00] text-white shadow-2xs'
+                            ? 'bg-[#9b0000] text-white shadow-2xs'
                             : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
                         }`}
                       >
@@ -783,7 +783,7 @@ export const SEOManager: React.FC = () => {
                           </h3>
 
                           <div className="flex items-center gap-1.5 font-mono text-[11px] text-stone-500 truncate">
-                            <Globe className="w-3 h-3 text-[#FF4B00] shrink-0" />
+                            <Globe className="w-3 h-3 text-[#9b0000] shrink-0" />
                             <span className="text-stone-700 font-semibold truncate">
                               {item.canonicalUrl}
                             </span>
@@ -859,7 +859,7 @@ export const SEOManager: React.FC = () => {
                             setSelectedItem(item);
                             setIsModalOpen(true);
                           }}
-                          className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#FF4B00] text-white text-xs font-extrabold rounded-xl hover:bg-[#e04200] transition cursor-pointer shadow-2xs active:scale-98"
+                          className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#9b0000] text-white text-xs font-extrabold rounded-xl hover:bg-[#7D0000] transition cursor-pointer shadow-2xs active:scale-98"
                         >
                           <Sparkles className="w-3.5 h-3.5" />
                           Edit SEO {item.itemType === 'tour' ? '& Tour Type' : ''}

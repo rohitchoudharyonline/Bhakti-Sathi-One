@@ -152,7 +152,7 @@ export const CabsBookingSection: React.FC = () => {
       <div className="bg-white rounded-3xl border border-stone-200 shadow-sm p-5 sm:p-8">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-5 border-b border-stone-100">
           <div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FC3200]/10 text-[#FC3200] text-xs font-black mb-1">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#9b0000]/10 text-[#9b0000] text-xs font-black mb-1">
               <Car className="w-3.5 h-3.5" />
               <span>Chauffeur-Driven Sanitized Cabs</span>
             </div>
@@ -171,7 +171,7 @@ export const CabsBookingSection: React.FC = () => {
               onClick={() => setTripType('outstation')}
               className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
                 tripType === 'outstation'
-                  ? 'bg-[#FC3200] text-white shadow-xs'
+                  ? 'bg-[#9b0000] text-white shadow-xs'
                   : 'text-stone-700 hover:text-stone-900'
               }`}
             >
@@ -182,7 +182,7 @@ export const CabsBookingSection: React.FC = () => {
               onClick={() => setTripType('local')}
               className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
                 tripType === 'local'
-                  ? 'bg-[#FC3200] text-white shadow-xs'
+                  ? 'bg-[#9b0000] text-white shadow-xs'
                   : 'text-stone-700 hover:text-stone-900'
               }`}
             >
@@ -193,7 +193,7 @@ export const CabsBookingSection: React.FC = () => {
               onClick={() => setTripType('airport')}
               className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
                 tripType === 'airport'
-                  ? 'bg-[#FC3200] text-white shadow-xs'
+                  ? 'bg-[#9b0000] text-white shadow-xs'
                   : 'text-stone-700 hover:text-stone-900'
               }`}
             >
@@ -214,7 +214,7 @@ export const CabsBookingSection: React.FC = () => {
             </p>
             <button
               onClick={() => setBookingSuccess(false)}
-              className="mt-5 px-5 py-2.5 rounded-xl bg-[#FC3200] text-white text-xs font-bold cursor-pointer"
+              className="mt-5 px-5 py-2.5 rounded-xl bg-[#9b0000] text-white text-xs font-bold cursor-pointer"
             >
               Book Another Cab
             </button>
@@ -228,14 +228,14 @@ export const CabsBookingSection: React.FC = () => {
                   Pickup City / Airport *
                 </label>
                 <div className="relative">
-                  <MapPin className="w-4 h-4 text-[#FC3200] absolute left-3 top-1/2 -translate-y-1/2" />
+                  <MapPin className="w-4 h-4 text-[#9b0000] absolute left-3 top-1/2 -translate-y-1/2" />
                   <input
                     type="text"
                     required
                     value={pickupCity}
                     onChange={(e) => setPickupCity(e.target.value)}
                     placeholder="e.g. Delhi, Srinagar, Haridwar, Cochin..."
-                    className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-stone-200 text-xs sm:text-sm font-semibold outline-none focus:border-[#FC3200]"
+                    className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-stone-200 text-xs sm:text-sm font-semibold outline-none focus:border-[#9b0000]"
                   />
                 </div>
               </div>
@@ -253,7 +253,7 @@ export const CabsBookingSection: React.FC = () => {
                     value={dropCity}
                     onChange={(e) => setDropCity(e.target.value)}
                     placeholder="e.g. Manali, Gulmarg, Rishikesh, Munnar..."
-                    className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-stone-200 text-xs sm:text-sm font-semibold outline-none focus:border-[#FC3200]"
+                    className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-stone-200 text-xs sm:text-sm font-semibold outline-none focus:border-[#9b0000]"
                   />
                 </div>
               </div>
@@ -268,7 +268,7 @@ export const CabsBookingSection: React.FC = () => {
                   required
                   value={travelDate}
                   onChange={(e) => setTravelDate(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl border border-stone-200 text-xs sm:text-sm font-semibold outline-none focus:border-[#FC3200]"
+                  className="w-full px-3 py-2 rounded-xl border border-stone-200 text-xs sm:text-sm font-semibold outline-none focus:border-[#9b0000]"
                 />
               </div>
 
@@ -283,7 +283,7 @@ export const CabsBookingSection: React.FC = () => {
                   value={customerPhone}
                   onChange={(e) => setCustomerPhone(e.target.value)}
                   placeholder="Enter 10-digit mobile"
-                  className="w-full px-3 py-2.5 rounded-xl border border-stone-200 text-xs sm:text-sm font-semibold outline-none focus:border-[#FC3200]"
+                  className="w-full px-3 py-2.5 rounded-xl border border-stone-200 text-xs sm:text-sm font-semibold outline-none focus:border-[#9b0000]"
                 />
               </div>
             </div>
@@ -299,7 +299,7 @@ export const CabsBookingSection: React.FC = () => {
                   value={customerName}
                   onChange={(e) => setCustomerName(e.target.value)}
                   placeholder="e.g. Ramesh Kumar"
-                  className="w-full px-3 py-2.5 rounded-xl border border-stone-200 text-xs sm:text-sm font-semibold outline-none focus:border-[#FC3200]"
+                  className="w-full px-3 py-2.5 rounded-xl border border-stone-200 text-xs sm:text-sm font-semibold outline-none focus:border-[#9b0000]"
                 />
               </div>
 
@@ -330,7 +330,7 @@ export const CabsBookingSection: React.FC = () => {
                       onClick={() => setSelectedCab(cab.id)}
                       className={`relative rounded-2xl p-4 border-2 transition cursor-pointer flex flex-col justify-between ${
                         isSelected
-                          ? 'border-[#FC3200] bg-[#fff5f2] shadow-sm'
+                          ? 'border-[#9b0000] bg-[#fff5f2] shadow-sm'
                           : 'border-stone-200 bg-white hover:border-stone-300'
                       }`}
                     >
@@ -365,7 +365,7 @@ export const CabsBookingSection: React.FC = () => {
                             Starting Rate
                           </span>
                           <div className="flex items-baseline gap-0.5">
-                            <b className="text-base font-black text-[#FC3200]">
+                            <b className="text-base font-black text-[#9b0000]">
                               {agencySettings.currencySymbol}{cab.ratePerKm}
                             </b>
                             <span className="text-[10px] text-stone-500">/ km</span>
@@ -374,7 +374,7 @@ export const CabsBookingSection: React.FC = () => {
 
                         <span
                           className={`text-xs font-bold px-2 py-1 rounded-lg ${
-                            isSelected ? 'bg-[#FC3200] text-white' : 'bg-stone-100 text-stone-700'
+                            isSelected ? 'bg-[#9b0000] text-white' : 'bg-stone-100 text-stone-700'
                           }`}
                         >
                           {isSelected ? '✓ Selected' : 'Choose'}
@@ -406,7 +406,7 @@ export const CabsBookingSection: React.FC = () => {
                   <button
                     type="submit"
                     disabled={!isFormValid}
-                    className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-[#FC3200] hover:bg-[#e02c00] disabled:bg-stone-300 disabled:cursor-not-allowed disabled:hover:bg-stone-300 text-white text-xs font-black transition shadow-sm cursor-pointer"
+                    className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-[#9b0000] hover:bg-[#7D0000] disabled:bg-stone-300 disabled:cursor-not-allowed disabled:hover:bg-stone-300 text-white text-xs font-black transition shadow-sm cursor-pointer"
                   >
                     Confirm & Reserve Cab →
                   </button>
@@ -426,7 +426,7 @@ export const CabsBookingSection: React.FC = () => {
       <div className="mt-10">
         <div className="flex items-end justify-between mb-4">
           <div>
-            <span className="text-[10px] uppercase tracking-wider text-[#FC3200] font-black block">
+            <span className="text-[10px] uppercase tracking-wider text-[#9b0000] font-black block">
               FIXED FARE GUARANTEE
             </span>
             <h3 className="text-lg sm:text-2xl font-black text-[#1D1C1C]">
@@ -446,7 +446,7 @@ export const CabsBookingSection: React.FC = () => {
             >
               <div>
                 <div className="flex items-center gap-1.5 text-xs font-bold text-stone-500 mb-1">
-                  <MapPin className="w-3.5 h-3.5 text-[#FC3200]" />
+                  <MapPin className="w-3.5 h-3.5 text-[#9b0000]" />
                   <span>{route.from}</span>
                   <ArrowRight className="w-3 h-3 text-stone-400" />
                   <span className="text-[#1D1C1C] font-bold">{route.to}</span>
@@ -471,7 +471,7 @@ export const CabsBookingSection: React.FC = () => {
                     setDropCity(route.to);
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                   }}
-                  className="px-3 py-1.5 rounded-lg bg-stone-100 hover:bg-[#FC3200] hover:text-white text-stone-800 text-xs font-bold transition cursor-pointer"
+                  className="px-3 py-1.5 rounded-lg bg-stone-100 hover:bg-[#9b0000] hover:text-white text-stone-800 text-xs font-bold transition cursor-pointer"
                 >
                   Book Route
                 </button>
@@ -491,7 +491,7 @@ export const CabsBookingSection: React.FC = () => {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Car className="w-5 h-5 text-[#FC3200] shrink-0" />
+          <Car className="w-5 h-5 text-[#9b0000] shrink-0" />
           <div className="text-[11px]">
             <b className="block text-[#1D1C1C]">Zero Cancellation Fee</b>
             <span className="text-stone-500">Up to 6 hours before trip</span>
@@ -505,7 +505,7 @@ export const CabsBookingSection: React.FC = () => {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Phone className="w-5 h-5 text-[#FC3200] shrink-0" />
+          <Phone className="w-5 h-5 text-[#9b0000] shrink-0" />
           <div className="text-[11px]">
             <b className="block text-[#1D1C1C]">24x7 Cab Support Desk</b>
             <span className="text-stone-500">Live trip tracking assistance</span>

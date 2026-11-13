@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useTours } from '../../context/TourContext';
+import { BrandLogo } from '../common/BrandLogo';
 import {
   Building2,
   Phone,
@@ -191,6 +192,9 @@ export const Footer: React.FC<FooterProps> = ({ onSelectDestination, onSelectDha
           ========================================================================= */}
       <div className="bg-white border-t border-stone-200 py-6 px-4 sm:px-6 lg:px-8 shadow-inner">
         <div className="max-w-6xl mx-auto space-y-4">
+          <div className="pb-2 border-b border-stone-100">
+            <BrandLogo size="sm" />
+          </div>
           {/* 1. Local Travel Agency */}
           <div className="flex items-start gap-3 text-stone-800">
             <Building2 className="w-5 h-5 text-stone-700 shrink-0 mt-0.5" />

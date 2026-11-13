@@ -585,7 +585,7 @@ Carry layered clothing, comfortable walking footwear, and keep valid ID proofs h
 
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md bg-amber-50 text-[#FC3200] border border-amber-200">
+                  <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md bg-amber-50 text-[#9b0000] border border-amber-200">
                     Post Editor
                   </span>
                   <h2 className="text-sm sm:text-base font-black text-stone-900 truncate">
@@ -627,7 +627,7 @@ Carry layered clothing, comfortable walking footwear, and keep valid ID proofs h
               <button
                 type="button"
                 onClick={() => handleSavePost('published')}
-                className="px-4 py-2 bg-[#FC3200] hover:bg-[#e02c00] text-white rounded-xl text-xs font-black flex items-center gap-1.5 shadow-sm hover:shadow-md transition cursor-pointer"
+                className="px-4 py-2 bg-[#9b0000] hover:bg-[#7D0000] text-white rounded-xl text-xs font-black flex items-center gap-1.5 shadow-sm hover:shadow-md transition cursor-pointer"
               >
                 <Check className="w-4 h-4 text-white" />
                 <span>
@@ -719,14 +719,14 @@ Carry layered clothing, comfortable walking footwear, and keep valid ID proofs h
               <div className="bg-white p-4 sm:p-5 rounded-2xl border border-stone-200 shadow-xs space-y-3">
                 <div>
                   <label className="block text-[11px] font-black text-stone-700 uppercase tracking-wider mb-1">
-                    Article Title / Headline <span className="text-[#FC3200]">*</span>
+                    Article Title / Headline <span className="text-[#9b0000]">*</span>
                   </label>
                   <input
                     type="text"
                     placeholder="e.g. 10 Best Places to Visit in Kashmir in Winter: Complete Snow Guide"
                     value={formData.title}
                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    className="w-full text-base sm:text-lg font-black p-3 bg-stone-50 border border-stone-300 rounded-xl focus:bg-white focus:outline-hidden focus:border-[#FC3200] transition"
+                    className="w-full text-base sm:text-lg font-black p-3 bg-stone-50 border border-stone-300 rounded-xl focus:bg-white focus:outline-hidden focus:border-[#9b0000] transition"
                   />
                 </div>
 
@@ -745,7 +745,7 @@ Carry layered clothing, comfortable walking footwear, and keep valid ID proofs h
                   <button
                     type="button"
                     onClick={handleAutoSlug}
-                    className="text-[11px] font-bold text-[#FC3200] hover:text-[#e02c00] flex items-center gap-1 cursor-pointer self-end sm:self-auto"
+                    className="text-[11px] font-bold text-[#9b0000] hover:text-[#7D0000] flex items-center gap-1 cursor-pointer self-end sm:self-auto"
                   >
                     <Sparkles className="w-3.5 h-3.5" />
                     <span>Generate Slug from Title</span>
@@ -767,7 +767,7 @@ Carry layered clothing, comfortable walking footwear, and keep valid ID proofs h
                     value={formData.excerpt}
                     onChange={(e) => setFormData({ ...formData, excerpt: e.target.value })}
                     placeholder="Brief intro summary displayed on blog cards, search engine snippets, and WhatsApp shares..."
-                    className="w-full p-2.5 bg-stone-50 border border-stone-300 rounded-xl text-xs focus:bg-white focus:outline-hidden focus:border-[#FC3200] font-medium transition"
+                    className="w-full p-2.5 bg-stone-50 border border-stone-300 rounded-xl text-xs focus:bg-white focus:outline-hidden focus:border-[#9b0000] font-medium transition"
                   />
                 </div>
               </div>
@@ -859,7 +859,7 @@ Carry layered clothing, comfortable walking footwear, and keep valid ID proofs h
                     <button
                       type="button"
                       onClick={() => setShowWpImgModal(true)}
-                      className="px-3 py-1.5 bg-[#FC3200] hover:bg-[#e02c00] text-white rounded-lg text-xs font-black flex items-center gap-1.5 transition cursor-pointer shadow-xs"
+                      className="px-3 py-1.5 bg-[#9b0000] hover:bg-[#7D0000] text-white rounded-lg text-xs font-black flex items-center gap-1.5 transition cursor-pointer shadow-xs"
                       title="WordPress-style inline image builder (Upload to R2, set alignment & caption)"
                     >
                       <FileImage className="w-3.5 h-3.5 text-white" />
@@ -901,7 +901,7 @@ Carry layered clothing, comfortable walking footwear, and keep valid ID proofs h
                     value={formData.content}
                     onChange={(e) => setFormData({ ...formData, content: e.target.value })}
                     placeholder="Write your comprehensive travel article, itinerary details, markdown headers, and advice here..."
-                    className="w-full font-mono text-xs sm:text-sm p-3 bg-stone-50/70 border border-stone-200 rounded-xl leading-relaxed focus:bg-white focus:outline-hidden focus:border-[#FC3200] font-medium"
+                    className="w-full font-mono text-xs sm:text-sm p-3 bg-stone-50/70 border border-stone-200 rounded-xl leading-relaxed focus:bg-white focus:outline-hidden focus:border-[#9b0000] font-medium"
                   />
                 </div>
               </div>
@@ -913,7 +913,7 @@ Carry layered clothing, comfortable walking footwear, and keep valid ID proofs h
               <div className="bg-white p-4 sm:p-5 rounded-2xl border border-stone-200 shadow-xs space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-black text-stone-900 uppercase tracking-wider flex items-center gap-1.5">
-                    <FileImage className="w-4 h-4 text-[#FC3200]" />
+                    <FileImage className="w-4 h-4 text-[#9b0000]" />
                     <span>Featured Cover Photo</span>
                   </span>
                   <button
@@ -922,7 +922,7 @@ Carry layered clothing, comfortable walking footwear, and keep valid ID proofs h
                       setMediaModalTarget('featured');
                       setShowMediaModal(true);
                     }}
-                    className="text-xs text-[#FC3200] font-bold hover:underline cursor-pointer"
+                    className="text-xs text-[#9b0000] font-bold hover:underline cursor-pointer"
                   >
                     R2 Cloud Library
                   </button>
@@ -957,13 +957,13 @@ Carry layered clothing, comfortable walking footwear, and keep valid ID proofs h
               <div className="bg-white p-4 sm:p-5 rounded-2xl border border-stone-200 shadow-xs space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-black text-stone-900 uppercase tracking-wider flex items-center gap-1.5">
-                    <Folder className="w-4 h-4 text-[#FC3200]" />
+                    <Folder className="w-4 h-4 text-[#9b0000]" />
                     <span>Category & Taxonomy</span>
                   </span>
                   <button
                     type="button"
                     onClick={() => setShowNewCatModal(true)}
-                    className="text-xs text-[#FC3200] font-bold hover:underline flex items-center gap-0.5 cursor-pointer"
+                    className="text-xs text-[#9b0000] font-bold hover:underline flex items-center gap-0.5 cursor-pointer"
                   >
                     <Plus className="w-3.5 h-3.5" />
                     <span>New Category</span>
@@ -982,7 +982,7 @@ Carry layered clothing, comfortable walking footwear, and keep valid ID proofs h
                       });
                     }
                   }}
-                  className="w-full p-2.5 bg-stone-50 border border-stone-300 rounded-xl text-xs font-bold text-stone-900 focus:outline-hidden focus:border-[#FC3200]"
+                  className="w-full p-2.5 bg-stone-50 border border-stone-300 rounded-xl text-xs font-bold text-stone-900 focus:outline-hidden focus:border-[#9b0000]"
                 >
                   {blogCategories.map((c) => (
                     <option key={c.id} value={c.slug}>
@@ -1032,7 +1032,7 @@ Carry layered clothing, comfortable walking footwear, and keep valid ID proofs h
               {/* 3. Tags & Popular Tags */}
               <div className="bg-white p-4 sm:p-5 rounded-2xl border border-stone-200 shadow-xs space-y-3">
                 <span className="text-xs font-black text-stone-900 uppercase tracking-wider flex items-center gap-1.5">
-                  <Tag className="w-4 h-4 text-[#FC3200]" />
+                  <Tag className="w-4 h-4 text-[#9b0000]" />
                   <span>Tags & Topics</span>
                 </span>
 
@@ -1041,7 +1041,7 @@ Carry layered clothing, comfortable walking footwear, and keep valid ID proofs h
                   value={formData.tags}
                   onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
                   placeholder="Kashmir, Gulmarg, Snowfall, Itinerary"
-                  className="w-full p-2.5 bg-stone-50 border border-stone-300 rounded-xl text-xs focus:bg-white focus:outline-hidden focus:border-[#FC3200]"
+                  className="w-full p-2.5 bg-stone-50 border border-stone-300 rounded-xl text-xs focus:bg-white focus:outline-hidden focus:border-[#9b0000]"
                 />
 
                 <div className="space-y-1.5">
@@ -1074,7 +1074,7 @@ Carry layered clothing, comfortable walking footwear, and keep valid ID proofs h
               {/* 4. Author Attribution */}
               <div className="bg-white p-4 sm:p-5 rounded-2xl border border-stone-200 shadow-xs space-y-3">
                 <span className="text-xs font-black text-stone-900 uppercase tracking-wider flex items-center gap-1.5">
-                  <User className="w-4 h-4 text-[#FC3200]" />
+                  <User className="w-4 h-4 text-[#9b0000]" />
                   <span>Author Attribution</span>
                 </span>
 
@@ -1208,7 +1208,7 @@ Carry layered clothing, comfortable walking footwear, and keep valid ID proofs h
             <div className="flex items-center justify-between border-b border-stone-200 pb-4">
               <div>
                 <h3 className="text-base font-black text-stone-900 flex items-center gap-2">
-                  <Globe className="w-5 h-5 text-[#FC3200]" />
+                  <Globe className="w-5 h-5 text-[#9b0000]" />
                   <span>Yoast & RankMath On-Page SEO Engine</span>
                 </h3>
                 <p className="text-xs text-stone-500 mt-0.5">

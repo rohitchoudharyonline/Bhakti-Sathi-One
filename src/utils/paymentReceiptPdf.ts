@@ -22,7 +22,7 @@ export interface PaymentReceiptData {
  * Loads an image from the provided sources and converts to base64 DataURL for reliable jsPDF embedding.
  */
 async function loadBrandLogoData(): Promise<{ dataUrl: string; width: number; height: number; format: string } | null> {
-  const sources = ['/holidays-hunt-travel-logo.png', '/logo-holidays-hunt-v3.png', '/logo.png'];
+  const sources = ['/holidayshunt-logo.png', '/holidays-hunt-travel-logo.png', '/logo-holidays-hunt-v3.png', '/logo.png'];
   for (const src of sources) {
     try {
       const img = await new Promise<HTMLImageElement>((resolve, reject) => {
@@ -60,7 +60,7 @@ async function loadBrandLogoData(): Promise<{ dataUrl: string; width: number; he
  * Generates a clean, professional, non-tax payment receipt PDF.
  * - Exact official brand logo on top left (matching the website header)
  * - Clean header with zero clutter
- * - Cards for details with brand colors (#FF4B00, #1A1A1A, #F5F5F4)
+ * - Cards for details with brand colors (#9b0000, #1A1A1A, #F5F5F4)
  * - Agency phone, email, website in small footer text
  * - Accurate, non-dummy details
  */
@@ -77,7 +77,7 @@ export async function generatePaymentReceiptPdf(data: PaymentReceiptData): Promi
   const contentWidth = pageWidth - margin * 2; // ~182 mm
 
   // Brand Colors
-  const primaryOrange = [255, 75, 0]; // #FF4B00
+  const primaryOrange = [155, 0, 0]; // #9b0000
   const darkCharcoal = [26, 26, 26]; // #1A1A1A
   const textMuted = [115, 115, 115]; // #737373
   const cardBg = [250, 250, 249]; // #FAFAF9
@@ -326,7 +326,7 @@ export async function generatePaymentReceiptPdf(data: PaymentReceiptData): Promi
   doc.line(margin + 4, rowY - 1.5, pageWidth - margin - 4, rowY - 1.5);
 
   // Row 2: Amount Received in this Receipt (Highlighted)
-  doc.setFillColor(255, 247, 237); // Orange-50
+  doc.setFillColor(253, 242, 242); // Orange-50
   doc.roundedRect(margin + 2, rowY, contentWidth - 4, 9, 1.5, 1.5, 'F');
 
   doc.setFont('helvetica', 'bold');

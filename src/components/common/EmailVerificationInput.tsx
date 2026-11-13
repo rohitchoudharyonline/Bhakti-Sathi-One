@@ -41,9 +41,9 @@ export const EmailVerificationInput: React.FC<EmailVerificationInputProps> = ({
           htmlFor={id}
           className="text-[10.5px] uppercase font-black tracking-wider text-stone-800 flex items-center gap-1.5"
         >
-          <Mail className="w-3.5 h-3.5 text-[#FF4B00]" />
+          <Mail className="w-3.5 h-3.5 text-[#9b0000]" />
           <span>{label}</span>
-          {required && <span className="text-[#FF4B00] font-bold">*</span>}
+          {required && <span className="text-[#9b0000] font-bold">*</span>}
         </label>
 
         {showSyncBadge && (
@@ -95,7 +95,7 @@ export const EmailVerificationInput: React.FC<EmailVerificationInputProps> = ({
               ? 'border-emerald-500 bg-emerald-50/20 text-stone-900 focus:border-emerald-600 focus:ring-1 focus:ring-emerald-500'
               : isInputInvalid
               ? 'border-rose-400 bg-rose-50/20 text-stone-900 focus:border-rose-500 focus:ring-1 focus:ring-rose-400'
-              : 'border-stone-300 bg-white text-stone-900 focus:border-[#FF4B00] focus:ring-1 focus:ring-[#FF4B00]'
+              : 'border-stone-300 bg-white text-stone-900 focus:border-[#9b0000] focus:ring-1 focus:ring-[#9b0000]'
           } ${inputClassName}`}
         />
 

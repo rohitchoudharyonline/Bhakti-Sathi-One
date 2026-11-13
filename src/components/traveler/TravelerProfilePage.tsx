@@ -667,7 +667,7 @@ export const TravelerProfilePage: React.FC = () => {
             <button
               type="button"
               onClick={navigateToHome}
-              className="inline-flex items-center gap-2 text-xs font-bold text-stone-600 hover:text-[#FF4B00] transition cursor-pointer"
+              className="inline-flex items-center gap-2 text-xs font-bold text-stone-600 hover:text-[#9b0000] transition cursor-pointer"
             >
               <ArrowLeft className="w-4 h-4" />
               <span>Back to Tours</span>
@@ -682,7 +682,7 @@ export const TravelerProfilePage: React.FC = () => {
           <div className="bg-white rounded-3xl border border-stone-200 shadow-xl overflow-hidden p-6 sm:p-8 space-y-6">
             <div className="text-center space-y-2">
               <div className="w-12 h-12 rounded-2xl bg-stone-900 text-white mx-auto flex items-center justify-center shadow-md">
-                <Lock className="w-5 h-5 text-[#FF4B00]" />
+                <Lock className="w-5 h-5 text-[#9b0000]" />
               </div>
               <h1 className="text-xl sm:text-2xl font-black text-stone-900 tracking-tight">
                 {guestAuthMode === 'signup'
@@ -709,7 +709,7 @@ export const TravelerProfilePage: React.FC = () => {
                 }}
                 className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
                   guestAuthMode === 'otp'
-                    ? 'bg-[#FF4B00] text-white shadow-md'
+                    ? 'bg-[#9b0000] text-white shadow-md'
                     : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200/60'
                 }`}
               >
@@ -781,7 +781,7 @@ export const TravelerProfilePage: React.FC = () => {
                         placeholder="e.g. Rohit Choudhary"
                         value={profileGuestName}
                         onChange={(e) => setProfileGuestName(e.target.value)}
-                        className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-bold text-stone-800 focus:bg-white focus:border-[#FF4B00] focus:outline-hidden transition"
+                        className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-bold text-stone-800 focus:bg-white focus:border-[#9b0000] focus:outline-hidden transition"
                       />
                     </div>
                   )}
@@ -796,7 +796,7 @@ export const TravelerProfilePage: React.FC = () => {
                       placeholder="e.g. rohit@gmail.com"
                       value={profileGuestEmail}
                       onChange={(e) => setProfileGuestEmail(e.target.value)}
-                      className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-bold text-stone-800 focus:bg-white focus:border-[#FF4B00] focus:outline-hidden transition"
+                      className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-bold text-stone-800 focus:bg-white focus:border-[#9b0000] focus:outline-hidden transition"
                     />
                   </div>
 
@@ -810,7 +810,7 @@ export const TravelerProfilePage: React.FC = () => {
                         placeholder="e.g. +91 98765 43210"
                         value={profileGuestPhone}
                         onChange={(e) => setProfileGuestPhone(e.target.value)}
-                        className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-bold text-stone-800 focus:bg-white focus:border-[#FF4B00] focus:outline-hidden transition"
+                        className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-bold text-stone-800 focus:bg-white focus:border-[#9b0000] focus:outline-hidden transition"
                       />
                     </div>
                   )}
@@ -830,7 +830,7 @@ export const TravelerProfilePage: React.FC = () => {
                             setGuestAuthError('');
                             setGuestAuthSuccess('');
                           }}
-                          className="text-xs font-bold text-[#FF4B00] hover:underline cursor-pointer"
+                          className="text-xs font-bold text-[#9b0000] hover:underline cursor-pointer"
                         >
                           Forgot Password?
                         </button>
@@ -843,7 +843,7 @@ export const TravelerProfilePage: React.FC = () => {
                         placeholder="At least 6 characters"
                         value={profileGuestPassword}
                         onChange={(e) => setProfileGuestPassword(e.target.value)}
-                        className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-bold text-stone-800 focus:bg-white focus:border-[#FF4B00] focus:outline-hidden transition pr-10"
+                        className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-bold text-stone-800 focus:bg-white focus:border-[#9b0000] focus:outline-hidden transition pr-10"
                       />
                       <button
                         type="button"
@@ -859,7 +859,7 @@ export const TravelerProfilePage: React.FC = () => {
                 <button
                   type="submit"
                   disabled={guestAuthLoading}
-                  className="w-full py-3.5 px-4 rounded-xl bg-[#FF4B00] hover:bg-[#e04300] text-white text-xs font-black tracking-wide shadow-lg shadow-[#FF4B00]/20 flex items-center justify-center gap-2 transition cursor-pointer disabled:opacity-50"
+                  className="w-full py-3.5 px-4 rounded-xl bg-[#9b0000] hover:bg-[#7D0000] text-white text-xs font-black tracking-wide shadow-lg shadow-[#9b0000]/20 flex items-center justify-center gap-2 transition cursor-pointer disabled:opacity-50"
                 >
                   {guestAuthLoading ? (
                     <>
@@ -900,7 +900,7 @@ export const TravelerProfilePage: React.FC = () => {
                 {forgotStep === 'email' ? (
                   <form onSubmit={handleForgotSendOtp} className="space-y-4">
                     <div className="text-center space-y-1">
-                      <div className="w-10 h-10 rounded-full bg-amber-50 text-[#FF4B00] mx-auto flex items-center justify-center">
+                      <div className="w-10 h-10 rounded-full bg-amber-50 text-[#9b0000] mx-auto flex items-center justify-center">
                         <RotateCcw className="w-5 h-5" />
                       </div>
                       <h3 className="text-sm font-bold text-stone-800">Password Recovery</h3>
@@ -919,14 +919,14 @@ export const TravelerProfilePage: React.FC = () => {
                         placeholder="e.g. rohit@gmail.com"
                         value={forgotEmail}
                         onChange={(e) => setForgotEmail(e.target.value)}
-                        className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-bold text-stone-800 focus:bg-white focus:border-[#FF4B00] focus:outline-hidden transition"
+                        className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-bold text-stone-800 focus:bg-white focus:border-[#9b0000] focus:outline-hidden transition"
                       />
                     </div>
 
                     <button
                       type="submit"
                       disabled={guestAuthLoading}
-                      className="w-full py-3.5 px-4 rounded-xl bg-[#FF4B00] hover:bg-[#e04300] text-white text-xs font-black tracking-wide shadow-md flex items-center justify-center gap-2 transition cursor-pointer disabled:opacity-50"
+                      className="w-full py-3.5 px-4 rounded-xl bg-[#9b0000] hover:bg-[#7D0000] text-white text-xs font-black tracking-wide shadow-md flex items-center justify-center gap-2 transition cursor-pointer disabled:opacity-50"
                     >
                       {guestAuthLoading ? (
                         <>
@@ -948,7 +948,7 @@ export const TravelerProfilePage: React.FC = () => {
                       <button
                         type="button"
                         onClick={() => setForgotStep('email')}
-                        className="text-[#FF4B00] font-bold hover:underline"
+                        className="text-[#9b0000] font-bold hover:underline"
                       >
                         Change
                       </button>
@@ -965,7 +965,7 @@ export const TravelerProfilePage: React.FC = () => {
                         placeholder="Enter 6-digit code"
                         value={forgotOtp}
                         onChange={(e) => setForgotOtp(e.target.value.replace(/\D/g, ''))}
-                        className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-center text-lg font-mono font-bold tracking-widest text-stone-800 focus:bg-white focus:border-[#FF4B00] focus:outline-hidden transition"
+                        className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-center text-lg font-mono font-bold tracking-widest text-stone-800 focus:bg-white focus:border-[#9b0000] focus:outline-hidden transition"
                       />
                     </div>
 
@@ -980,7 +980,7 @@ export const TravelerProfilePage: React.FC = () => {
                           placeholder="At least 6 characters"
                           value={forgotNewPassword}
                           onChange={(e) => setForgotNewPassword(e.target.value)}
-                          className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-bold text-stone-800 focus:bg-white focus:border-[#FF4B00] focus:outline-hidden transition pr-10"
+                          className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-bold text-stone-800 focus:bg-white focus:border-[#9b0000] focus:outline-hidden transition pr-10"
                         />
                         <button
                           type="button"
@@ -1002,14 +1002,14 @@ export const TravelerProfilePage: React.FC = () => {
                         placeholder="Re-type new password"
                         value={forgotConfirmPassword}
                         onChange={(e) => setForgotConfirmPassword(e.target.value)}
-                        className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-bold text-stone-800 focus:bg-white focus:border-[#FF4B00] focus:outline-hidden transition"
+                        className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-bold text-stone-800 focus:bg-white focus:border-[#9b0000] focus:outline-hidden transition"
                       />
                     </div>
 
                     <button
                       type="submit"
                       disabled={guestAuthLoading}
-                      className="w-full py-3.5 px-4 rounded-xl bg-[#FF4B00] hover:bg-[#e04300] text-white text-xs font-black tracking-wide shadow-lg shadow-[#FF4B00]/20 flex items-center justify-center gap-2 transition cursor-pointer disabled:opacity-50"
+                      className="w-full py-3.5 px-4 rounded-xl bg-[#9b0000] hover:bg-[#7D0000] text-white text-xs font-black tracking-wide shadow-lg shadow-[#9b0000]/20 flex items-center justify-center gap-2 transition cursor-pointer disabled:opacity-50"
                     >
                       {guestAuthLoading ? (
                         <>
@@ -1050,7 +1050,7 @@ export const TravelerProfilePage: React.FC = () => {
                         placeholder="e.g. rohit@gmail.com"
                         value={profileOtpEmail}
                         onChange={(e) => setProfileOtpEmail(e.target.value)}
-                        className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-bold text-stone-800 focus:bg-white focus:border-[#FF4B00] focus:outline-hidden transition"
+                        className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-bold text-stone-800 focus:bg-white focus:border-[#9b0000] focus:outline-hidden transition"
                       />
                     </div>
 
@@ -1079,7 +1079,7 @@ export const TravelerProfilePage: React.FC = () => {
                       <button
                         type="button"
                         onClick={() => setProfileOtpSent(false)}
-                        className="text-[#FF4B00] font-bold hover:underline"
+                        className="text-[#9b0000] font-bold hover:underline"
                       >
                         Change
                       </button>
@@ -1096,14 +1096,14 @@ export const TravelerProfilePage: React.FC = () => {
                         placeholder="Enter 6 digits"
                         value={profileOtpCode}
                         onChange={(e) => setProfileOtpCode(e.target.value.replace(/\D/g, ''))}
-                        className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-center text-lg font-mono font-bold tracking-widest text-stone-800 focus:bg-white focus:border-[#FF4B00] focus:outline-hidden transition"
+                        className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-center text-lg font-mono font-bold tracking-widest text-stone-800 focus:bg-white focus:border-[#9b0000] focus:outline-hidden transition"
                       />
                     </div>
 
                     <button
                       type="submit"
                       disabled={guestAuthLoading}
-                      className="w-full py-3.5 px-4 rounded-xl bg-[#FF4B00] hover:bg-[#e04300] text-white text-xs font-black tracking-wide shadow-lg shadow-[#FF4B00]/20 flex items-center justify-center gap-2 transition cursor-pointer disabled:opacity-50"
+                      className="w-full py-3.5 px-4 rounded-xl bg-[#9b0000] hover:bg-[#7D0000] text-white text-xs font-black tracking-wide shadow-lg shadow-[#9b0000]/20 flex items-center justify-center gap-2 transition cursor-pointer disabled:opacity-50"
                     >
                       {guestAuthLoading ? (
                         <>
@@ -1179,7 +1179,7 @@ export const TravelerProfilePage: React.FC = () => {
             <button
               type="button"
               onClick={navigateToHome}
-              className="inline-flex items-center gap-2 text-xs font-bold text-stone-600 hover:text-[#FF4B00] transition cursor-pointer"
+              className="inline-flex items-center gap-2 text-xs font-bold text-stone-600 hover:text-[#9b0000] transition cursor-pointer"
             >
               <ArrowLeft className="w-4 h-4" />
               <span>Back to Explore Tours</span>
@@ -1216,7 +1216,7 @@ export const TravelerProfilePage: React.FC = () => {
                     className="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover border border-stone-200 shadow-sm shrink-0"
                   />
                 ) : (
-                  <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 text-white font-black text-xl sm:text-2xl flex items-center justify-center shadow-sm shrink-0">
+                  <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-[#9b0000] to-[#7D0000] text-white font-black text-xl sm:text-2xl flex items-center justify-center shadow-sm shrink-0">
                     {travelerUser.name.charAt(0).toUpperCase()}
                   </div>
                 )}
@@ -1248,7 +1248,7 @@ export const TravelerProfilePage: React.FC = () => {
 
                 <div className="flex flex-wrap items-center gap-y-1 gap-x-4 text-xs font-bold text-stone-500">
                   <span className="flex items-center gap-1 text-stone-700">
-                    <Mail className="w-3.5 h-3.5 text-[#FF4B00]" />
+                    <Mail className="w-3.5 h-3.5 text-[#9b0000]" />
                     <span>{travelerUser.email}</span>
                   </span>
                   {travelerUser.phone && (
@@ -1275,7 +1275,7 @@ export const TravelerProfilePage: React.FC = () => {
                 }}
                 className="grow sm:grow-0 py-2.5 px-4 bg-stone-100 hover:bg-stone-200 border border-stone-200 rounded-xl text-xs font-extrabold text-stone-800 transition cursor-pointer flex items-center justify-center gap-1.5"
               >
-                <Edit3 className="w-3.5 h-3.5 text-[#FF4B00]" />
+                <Edit3 className="w-3.5 h-3.5 text-[#9b0000]" />
                 <span>Edit Profile</span>
               </button>
 
@@ -1301,18 +1301,18 @@ export const TravelerProfilePage: React.FC = () => {
               onClick={() => setActiveTab('trips')}
               className={`p-4 rounded-2xl text-left transition-all duration-200 cursor-pointer flex flex-col justify-between border-2 relative overflow-hidden group ${
                 activeTab === 'trips'
-                  ? 'bg-white border-[#FF4B00] shadow-md ring-4 ring-[#FF4B00]/10'
+                  ? 'bg-white border-[#9b0000] shadow-md ring-4 ring-[#9b0000]/10'
                   : 'bg-stone-50/80 hover:bg-white border-stone-200/90 hover:border-stone-300'
               }`}
             >
               <div className="flex items-center justify-between w-full mb-2">
                 <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${
-                  activeTab === 'trips' ? 'bg-[#FF4B00] text-white' : 'bg-orange-50 text-[#FF4B00]'
+                  activeTab === 'trips' ? 'bg-[#9b0000] text-white' : 'bg-[#FDF2F2] text-[#9b0000]'
                 }`}>
                   <Compass className="w-5 h-5" />
                 </div>
                 <span className={`px-2 py-0.5 rounded-full text-[11px] font-black ${
-                  activeTab === 'trips' ? 'bg-[#FF4B00] text-white' : 'bg-stone-200 text-stone-700'
+                  activeTab === 'trips' ? 'bg-[#9b0000] text-white' : 'bg-stone-200 text-stone-700'
                 }`}>
                   {userInquiries.length}
                 </span>
@@ -1322,7 +1322,7 @@ export const TravelerProfilePage: React.FC = () => {
                 <p className="text-[11px] font-bold text-stone-500 mt-0.5">Bookings & Itineraries</p>
               </div>
               {activeTab === 'trips' && (
-                <div className="absolute top-0 left-0 right-0 h-1 bg-[#FF4B00]" />
+                <div className="absolute top-0 left-0 right-0 h-1 bg-[#9b0000]" />
               )}
             </button>
 
@@ -1332,18 +1332,18 @@ export const TravelerProfilePage: React.FC = () => {
               onClick={() => setActiveTab('payments')}
               className={`p-4 rounded-2xl text-left transition-all duration-200 cursor-pointer flex flex-col justify-between border-2 relative overflow-hidden group ${
                 activeTab === 'payments'
-                  ? 'bg-white border-[#FF4B00] shadow-md ring-4 ring-[#FF4B00]/10'
+                  ? 'bg-white border-[#9b0000] shadow-md ring-4 ring-[#9b0000]/10'
                   : 'bg-stone-50/80 hover:bg-white border-stone-200/90 hover:border-stone-300'
               }`}
             >
               <div className="flex items-center justify-between w-full mb-2">
                 <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${
-                  activeTab === 'payments' ? 'bg-[#FF4B00] text-white' : 'bg-emerald-50 text-emerald-600'
+                  activeTab === 'payments' ? 'bg-[#9b0000] text-white' : 'bg-emerald-50 text-emerald-600'
                 }`}>
                   <CreditCard className="w-5 h-5" />
                 </div>
                 <span className={`px-2 py-0.5 rounded-full text-[11px] font-black ${
-                  activeTab === 'payments' ? 'bg-[#FF4B00] text-white' : 'bg-emerald-100 text-emerald-800'
+                  activeTab === 'payments' ? 'bg-[#9b0000] text-white' : 'bg-emerald-100 text-emerald-800'
                 }`}>
                   {userPayments.length}
                 </span>
@@ -1353,7 +1353,7 @@ export const TravelerProfilePage: React.FC = () => {
                 <p className="text-[11px] font-bold text-stone-500 mt-0.5">Receipts & Invoices</p>
               </div>
               {activeTab === 'payments' && (
-                <div className="absolute top-0 left-0 right-0 h-1 bg-[#FF4B00]" />
+                <div className="absolute top-0 left-0 right-0 h-1 bg-[#9b0000]" />
               )}
             </button>
 
@@ -1363,18 +1363,18 @@ export const TravelerProfilePage: React.FC = () => {
               onClick={() => setActiveTab('cotravelers')}
               className={`p-4 rounded-2xl text-left transition-all duration-200 cursor-pointer flex flex-col justify-between border-2 relative overflow-hidden group ${
                 activeTab === 'cotravelers'
-                  ? 'bg-white border-[#FF4B00] shadow-md ring-4 ring-[#FF4B00]/10'
+                  ? 'bg-white border-[#9b0000] shadow-md ring-4 ring-[#9b0000]/10'
                   : 'bg-stone-50/80 hover:bg-white border-stone-200/90 hover:border-stone-300'
               }`}
             >
               <div className="flex items-center justify-between w-full mb-2">
                 <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${
-                  activeTab === 'cotravelers' ? 'bg-[#FF4B00] text-white' : 'bg-purple-50 text-purple-600'
+                  activeTab === 'cotravelers' ? 'bg-[#9b0000] text-white' : 'bg-purple-50 text-purple-600'
                 }`}>
                   <Users className="w-5 h-5" />
                 </div>
                 <span className={`px-2 py-0.5 rounded-full text-[11px] font-black ${
-                  activeTab === 'cotravelers' ? 'bg-[#FF4B00] text-white' : 'bg-purple-100 text-purple-800'
+                  activeTab === 'cotravelers' ? 'bg-[#9b0000] text-white' : 'bg-purple-100 text-purple-800'
                 }`}>
                   {(travelerUser.coTravelers || []).length}
                 </span>
@@ -1384,7 +1384,7 @@ export const TravelerProfilePage: React.FC = () => {
                 <p className="text-[11px] font-bold text-stone-500 mt-0.5">Family & Friends Hub</p>
               </div>
               {activeTab === 'cotravelers' && (
-                <div className="absolute top-0 left-0 right-0 h-1 bg-[#FF4B00]" />
+                <div className="absolute top-0 left-0 right-0 h-1 bg-[#9b0000]" />
               )}
             </button>
 
@@ -1394,18 +1394,18 @@ export const TravelerProfilePage: React.FC = () => {
               onClick={() => setActiveTab('wishlist')}
               className={`p-4 rounded-2xl text-left transition-all duration-200 cursor-pointer flex flex-col justify-between border-2 relative overflow-hidden group ${
                 activeTab === 'wishlist'
-                  ? 'bg-white border-[#FF4B00] shadow-md ring-4 ring-[#FF4B00]/10'
+                  ? 'bg-white border-[#9b0000] shadow-md ring-4 ring-[#9b0000]/10'
                   : 'bg-stone-50/80 hover:bg-white border-stone-200/90 hover:border-stone-300'
               }`}
             >
               <div className="flex items-center justify-between w-full mb-2">
                 <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${
-                  activeTab === 'wishlist' ? 'bg-[#FF4B00] text-white' : 'bg-red-50 text-red-500'
+                  activeTab === 'wishlist' ? 'bg-[#9b0000] text-white' : 'bg-red-50 text-red-500'
                 }`}>
                   <Heart className="w-5 h-5" />
                 </div>
                 <span className={`px-2 py-0.5 rounded-full text-[11px] font-black ${
-                  activeTab === 'wishlist' ? 'bg-[#FF4B00] text-white' : 'bg-red-100 text-red-800'
+                  activeTab === 'wishlist' ? 'bg-[#9b0000] text-white' : 'bg-red-100 text-red-800'
                 }`}>
                   {wishlistIds.length}
                 </span>
@@ -1415,7 +1415,7 @@ export const TravelerProfilePage: React.FC = () => {
                 <p className="text-[11px] font-bold text-stone-500 mt-0.5">Saved Tour Plans</p>
               </div>
               {activeTab === 'wishlist' && (
-                <div className="absolute top-0 left-0 right-0 h-1 bg-[#FF4B00]" />
+                <div className="absolute top-0 left-0 right-0 h-1 bg-[#9b0000]" />
               )}
             </button>
 
@@ -1425,13 +1425,13 @@ export const TravelerProfilePage: React.FC = () => {
               onClick={() => setActiveTab('settings')}
               className={`p-4 rounded-2xl text-left transition-all duration-200 cursor-pointer flex flex-col justify-between border-2 relative overflow-hidden group col-span-1 ${
                 activeTab === 'settings'
-                  ? 'bg-white border-[#FF4B00] shadow-md ring-4 ring-[#FF4B00]/10'
+                  ? 'bg-white border-[#9b0000] shadow-md ring-4 ring-[#9b0000]/10'
                   : 'bg-stone-50/80 hover:bg-white border-stone-200/90 hover:border-stone-300'
               }`}
             >
               <div className="flex items-center justify-between w-full mb-2">
                 <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${
-                  activeTab === 'settings' ? 'bg-[#FF4B00] text-white' : 'bg-stone-200 text-stone-700'
+                  activeTab === 'settings' ? 'bg-[#9b0000] text-white' : 'bg-stone-200 text-stone-700'
                 }`}>
                   <Settings className="w-5 h-5" />
                 </div>
@@ -1442,7 +1442,7 @@ export const TravelerProfilePage: React.FC = () => {
                 <p className="text-[11px] font-bold text-stone-500 mt-0.5">Profile & Security</p>
               </div>
               {activeTab === 'settings' && (
-                <div className="absolute top-0 left-0 right-0 h-1 bg-[#FF4B00]" />
+                <div className="absolute top-0 left-0 right-0 h-1 bg-[#9b0000]" />
               )}
             </button>
           </div>
@@ -1475,7 +1475,7 @@ export const TravelerProfilePage: React.FC = () => {
                   onClick={() => setTripsFilter(tab.id)}
                   className={`py-2 px-1 rounded-xl text-[11px] sm:text-xs font-bold transition-all cursor-pointer text-center flex items-center justify-center ${
                     tripsFilter === tab.id
-                      ? 'bg-[#FF4B00] text-white shadow-xs'
+                      ? 'bg-[#9b0000] text-white shadow-xs'
                       : 'text-stone-600 hover:text-stone-900 hover:bg-white/60'
                   }`}
                 >
@@ -1488,7 +1488,7 @@ export const TravelerProfilePage: React.FC = () => {
             {filteredTrips.length === 0 ? (
               <div className="bg-white rounded-3xl border border-stone-200 p-12 text-center space-y-4">
                 <div className="w-16 h-16 rounded-full bg-stone-100 text-stone-400 flex items-center justify-center mx-auto">
-                  <Compass className="w-8 h-8 text-[#FF4B00]" />
+                  <Compass className="w-8 h-8 text-[#9b0000]" />
                 </div>
                 <div className="space-y-1">
                   <h3 className="text-base font-black text-stone-900">No Bookings Found in this Category</h3>
@@ -1522,12 +1522,12 @@ export const TravelerProfilePage: React.FC = () => {
                   return (
                     <div
                       key={trip.id}
-                      className="bg-white rounded-3xl border border-stone-200 hover:border-[#FF4B00]/40 shadow-xs hover:shadow-md transition-all duration-200 p-5 sm:p-6 space-y-5"
+                      className="bg-white rounded-3xl border border-stone-200 hover:border-[#9b0000]/40 shadow-xs hover:shadow-md transition-all duration-200 p-5 sm:p-6 space-y-5"
                     >
                       {/* Top Header Row */}
                       <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-stone-100">
                         <div className="flex items-center gap-2">
-                          <span className="px-2.5 py-1 rounded-lg bg-orange-50 border border-orange-200 text-[#FF4B00] text-xs font-black">
+                          <span className="px-2.5 py-1 rounded-lg bg-[#FDF2F2] border border-[#F5C2C2] text-[#9b0000] text-xs font-black">
                             REF #{trip.id}
                           </span>
                           <span className="text-xs text-stone-400 font-bold">
@@ -1567,7 +1567,7 @@ export const TravelerProfilePage: React.FC = () => {
                             <div className="p-2.5 bg-stone-50 rounded-xl border border-stone-100">
                               <p className="text-[10px] font-black uppercase text-stone-400">Travel Date</p>
                               <p className="text-xs font-bold text-stone-900 mt-0.5 flex items-center gap-1">
-                                <Calendar className="w-3.5 h-3.5 text-[#FF4B00]" />
+                                <Calendar className="w-3.5 h-3.5 text-[#9b0000]" />
                                 <span>{trip.travelDate || 'Flexible 2026'}</span>
                               </p>
                             </div>
@@ -1614,7 +1614,7 @@ export const TravelerProfilePage: React.FC = () => {
                           <button
                             type="button"
                             onClick={() => handleDownloadBookingReceipt(trip, paidForTrip, remainingTripCost)}
-                            className="inline-flex items-center gap-1.5 py-2.5 px-3.5 rounded-xl bg-orange-50 hover:bg-orange-100 text-[#FF4B00] border border-[#FF4B00]/30 text-xs font-black transition cursor-pointer shadow-2xs"
+                            className="inline-flex items-center gap-1.5 py-2.5 px-3.5 rounded-xl bg-[#FDF2F2] hover:bg-[#FCE8E8] text-[#9b0000] border border-[#9b0000]/30 text-xs font-black transition cursor-pointer shadow-2xs"
                             title={remainingTripCost === 0 ? 'Download Full Payment Receipt (PDF)' : 'Download Partial / Advance Payment Receipt (PDF)'}
                           >
                             <FileText className="w-3.5 h-3.5" />
@@ -1645,7 +1645,7 @@ export const TravelerProfilePage: React.FC = () => {
                               setPaymentAmountInput(String(remainingTripCost));
                               setIsRecordPaymentModalOpen(true);
                             }}
-                            className="inline-flex items-center gap-1.5 py-2.5 px-4 rounded-xl bg-[#FF4B00] hover:bg-[#E03E00] text-white text-xs font-black transition cursor-pointer shadow-xs"
+                            className="inline-flex items-center gap-1.5 py-2.5 px-4 rounded-xl bg-[#9b0000] hover:bg-[#7D0000] text-white text-xs font-black transition cursor-pointer shadow-xs"
                             title="Record offline payment or bank deposit for this booking"
                           >
                             <CreditCard className="w-3.5 h-3.5" />
@@ -1676,7 +1676,7 @@ export const TravelerProfilePage: React.FC = () => {
             {/* Clean Header Bar */}
             <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-4 sm:p-5 rounded-2xl border border-stone-200">
               <h3 className="text-lg font-black text-stone-900 flex items-center gap-2">
-                <CreditCard className="w-5 h-5 text-[#FF4B00]" />
+                <CreditCard className="w-5 h-5 text-[#9b0000]" />
                 <span>Payments</span>
               </h3>
 
@@ -1688,7 +1688,7 @@ export const TravelerProfilePage: React.FC = () => {
                     setPaymentAmountInput('');
                     setIsRecordPaymentModalOpen(true);
                   }}
-                  className="py-2.5 px-4 rounded-xl bg-[#FF4B00] hover:bg-[#E03E00] text-white text-xs font-black transition cursor-pointer flex items-center gap-1.5 shadow-xs"
+                  className="py-2.5 px-4 rounded-xl bg-[#9b0000] hover:bg-[#7D0000] text-white text-xs font-black transition cursor-pointer flex items-center gap-1.5 shadow-xs"
                 >
                   <Plus className="w-4 h-4" />
                   <span>Record Payment</span>
@@ -1766,7 +1766,7 @@ export const TravelerProfilePage: React.FC = () => {
 
                       <div className="text-left sm:text-right">
                         <p className="text-[10px] font-black uppercase text-stone-400">Amount Acknowledged</p>
-                        <p className="text-lg font-black text-[#FF4B00]">
+                        <p className="text-lg font-black text-[#9b0000]">
                           INR {record.amountPaid.toLocaleString('en-IN')}
                         </p>
                         <p className="text-[11px] text-stone-500 font-bold">
@@ -1782,7 +1782,7 @@ export const TravelerProfilePage: React.FC = () => {
                           <button
                             type="button"
                             onClick={() => setPreviewReceiptUrl(record.proofBase64)}
-                            className="text-[#FF4B00] hover:underline font-bold inline-flex items-center gap-1 cursor-pointer"
+                            className="text-[#9b0000] hover:underline font-bold inline-flex items-center gap-1 cursor-pointer"
                           >
                             <Eye className="w-3.5 h-3.5" />
                             <span>View Proof</span>
@@ -1795,7 +1795,7 @@ export const TravelerProfilePage: React.FC = () => {
                         onClick={() => handleDownloadReceipt(record)}
                         className="py-2 px-4 rounded-xl bg-stone-900 hover:bg-black text-white text-xs font-black transition cursor-pointer flex items-center gap-1.5 shadow-sm"
                       >
-                        <Download className="w-3.5 h-3.5 text-[#FF4B00]" />
+                        <Download className="w-3.5 h-3.5 text-[#9b0000]" />
                         <span>Download Official PDF Receipt</span>
                       </button>
                     </div>
@@ -1828,7 +1828,7 @@ export const TravelerProfilePage: React.FC = () => {
                 onClick={() => setIsCoTravelerModalOpen(true)}
                 className="py-2.5 px-4 rounded-xl bg-stone-900 hover:bg-black text-white text-xs font-black transition cursor-pointer flex items-center gap-1.5 shadow-sm shrink-0"
               >
-                <UserPlus className="w-3.5 h-3.5 text-[#FF4B00]" />
+                <UserPlus className="w-3.5 h-3.5 text-[#9b0000]" />
                 <span>Add Co-Traveler</span>
               </button>
             </div>
@@ -1837,11 +1837,11 @@ export const TravelerProfilePage: React.FC = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
               
               {/* Primary User Card */}
-              <div className="bg-white rounded-2xl border-2 border-[#FF4B00]/30 p-5 space-y-3 relative">
-                <span className="absolute top-4 right-4 px-2 py-0.5 rounded-full bg-orange-100 text-[#FF4B00] text-[10px] font-black uppercase">
+              <div className="bg-white rounded-2xl border-2 border-[#9b0000]/30 p-5 space-y-3 relative">
+                <span className="absolute top-4 right-4 px-2 py-0.5 rounded-full bg-[#FCE8E8] text-[#9b0000] text-[10px] font-black uppercase">
                   Primary Traveler
                 </span>
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#FF4B00] to-orange-600 text-white font-black flex items-center justify-center">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#9b0000] to-[#7D0000] text-white font-black flex items-center justify-center">
                   {travelerUser.name.charAt(0)}
                 </div>
                 <div>
@@ -1890,7 +1890,7 @@ export const TravelerProfilePage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setIsCoTravelerModalOpen(true)}
-                className="min-h-[160px] rounded-2xl border-2 border-dashed border-stone-300 hover:border-[#FF4B00] bg-stone-50/50 hover:bg-orange-50/20 p-5 flex flex-col items-center justify-center gap-2 text-stone-500 hover:text-[#FF4B00] transition cursor-pointer"
+                className="min-h-[160px] rounded-2xl border-2 border-dashed border-stone-300 hover:border-[#9b0000] bg-stone-50/50 hover:bg-[#FDF2F2]/20 p-5 flex flex-col items-center justify-center gap-2 text-stone-500 hover:text-[#9b0000] transition cursor-pointer"
               >
                 <Plus className="w-6 h-6" />
                 <span className="text-xs font-black">Add Family or Friend</span>
@@ -1928,7 +1928,7 @@ export const TravelerProfilePage: React.FC = () => {
                 <button
                   type="button"
                   onClick={navigateToAllTours}
-                  className="py-3 px-6 rounded-xl bg-[#FF4B00] text-white text-xs font-black hover:bg-[#E03E00] transition cursor-pointer shadow-sm"
+                  className="py-3 px-6 rounded-xl bg-[#9b0000] text-white text-xs font-black hover:bg-[#7D0000] transition cursor-pointer shadow-sm"
                 >
                   Browse Tour Packages
                 </button>
@@ -1960,7 +1960,7 @@ export const TravelerProfilePage: React.FC = () => {
 
                     <div className="p-5 space-y-3 flex flex-col grow justify-between">
                       <div className="space-y-1">
-                        <p className="text-[10px] font-black uppercase tracking-wider text-[#FF4B00]">{pkg.destination}</p>
+                        <p className="text-[10px] font-black uppercase tracking-wider text-[#9b0000]">{pkg.destination}</p>
                         <h4 className="text-sm font-black text-stone-900 line-clamp-2 leading-snug">{pkg.title}</h4>
                       </div>
 
@@ -2011,7 +2011,7 @@ export const TravelerProfilePage: React.FC = () => {
                     onClick={() => setIsEditingProfile(true)}
                     className="py-2 px-4 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-800 text-xs font-extrabold transition cursor-pointer flex items-center gap-1.5"
                   >
-                    <Edit3 className="w-3.5 h-3.5 text-[#FF4B00]" />
+                    <Edit3 className="w-3.5 h-3.5 text-[#9b0000]" />
                     <span>Edit Info</span>
                   </button>
                 )}
@@ -2028,7 +2028,7 @@ export const TravelerProfilePage: React.FC = () => {
                       disabled={!isEditingProfile}
                       value={profileForm.name || ''}
                       onChange={(e) => setProfileForm({ ...profileForm, name: e.target.value })}
-                      className="w-full px-3.5 py-2.5 text-xs font-bold rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#FF4B00]/40 disabled:bg-stone-50 disabled:text-stone-600"
+                      className="w-full px-3.5 py-2.5 text-xs font-bold rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#9b0000]/40 disabled:bg-stone-50 disabled:text-stone-600"
                     />
                   </div>
 
@@ -2041,7 +2041,7 @@ export const TravelerProfilePage: React.FC = () => {
                       disabled={!isEditingProfile}
                       value={profileForm.email || ''}
                       onChange={(e) => setProfileForm({ ...profileForm, email: e.target.value })}
-                      className="w-full px-3.5 py-2.5 text-xs font-bold rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#FF4B00]/40 disabled:bg-stone-50 disabled:text-stone-600"
+                      className="w-full px-3.5 py-2.5 text-xs font-bold rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#9b0000]/40 disabled:bg-stone-50 disabled:text-stone-600"
                     />
                   </div>
 
@@ -2054,7 +2054,7 @@ export const TravelerProfilePage: React.FC = () => {
                       disabled={!isEditingProfile}
                       value={profileForm.phone || ''}
                       onChange={(e) => setProfileForm({ ...profileForm, phone: e.target.value })}
-                      className="w-full px-3.5 py-2.5 text-xs font-bold rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#FF4B00]/40 disabled:bg-stone-50 disabled:text-stone-600"
+                      className="w-full px-3.5 py-2.5 text-xs font-bold rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#9b0000]/40 disabled:bg-stone-50 disabled:text-stone-600"
                     />
                   </div>
 
@@ -2068,7 +2068,7 @@ export const TravelerProfilePage: React.FC = () => {
                       placeholder="e.g. New Delhi, Delhi"
                       value={profileForm.city || ''}
                       onChange={(e) => setProfileForm({ ...profileForm, city: e.target.value })}
-                      className="w-full px-3.5 py-2.5 text-xs font-bold rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#FF4B00]/40 disabled:bg-stone-50 disabled:text-stone-600"
+                      className="w-full px-3.5 py-2.5 text-xs font-bold rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#9b0000]/40 disabled:bg-stone-50 disabled:text-stone-600"
                     />
                   </div>
 
@@ -2084,7 +2084,7 @@ export const TravelerProfilePage: React.FC = () => {
                       placeholder="e.g. Mountain View, King Bed, Lake Facing"
                       value={profileForm.roomPreference || ''}
                       onChange={(e) => setProfileForm({ ...profileForm, roomPreference: e.target.value })}
-                      className="w-full px-3.5 py-2.5 text-xs font-bold rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#FF4B00]/40 disabled:bg-stone-50 disabled:text-stone-600"
+                      className="w-full px-3.5 py-2.5 text-xs font-bold rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#9b0000]/40 disabled:bg-stone-50 disabled:text-stone-600"
                     />
                   </div>
                 </div>
@@ -2154,8 +2154,8 @@ export const TravelerProfilePage: React.FC = () => {
             {/* Google Calendar Sync Settings */}
             <div className="bg-white p-6 sm:p-8 rounded-3xl border border-stone-200 shadow-xs space-y-4">
               <div className="flex items-center gap-3 pb-3 border-b border-stone-100">
-                <div className="w-8 h-8 rounded-lg bg-orange-50 flex items-center justify-center text-orange-600 shrink-0">
-                  <Calendar className="w-4 h-4 text-[#FF4B00]" />
+                <div className="w-8 h-8 rounded-lg bg-[#FDF2F2] flex items-center justify-center text-[#9b0000] shrink-0">
+                  <Calendar className="w-4 h-4 text-[#9b0000]" />
                 </div>
                 <div>
                   <h3 className="text-base font-black text-stone-900">Google Calendar Synchronization</h3>
@@ -2174,7 +2174,7 @@ export const TravelerProfilePage: React.FC = () => {
                   type="button"
                   onClick={handleToggleAutoSync}
                   className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                    autoSyncEnabled && googleToken ? 'bg-[#FF4B00]' : 'bg-stone-200'
+                    autoSyncEnabled && googleToken ? 'bg-[#9b0000]' : 'bg-stone-200'
                   }`}
                   role="switch"
                   aria-checked={autoSyncEnabled && !!googleToken}
@@ -2268,8 +2268,8 @@ export const TravelerProfilePage: React.FC = () => {
                 <X className="w-4 h-4" />
               </button>
               <div className="flex items-center gap-2 mb-1">
-                <CreditCard className="w-4 h-4 text-[#FF4B00]" />
-                <span className="text-[10px] font-black uppercase text-[#FF4B00] tracking-widest">Payment & Receipt Ledger</span>
+                <CreditCard className="w-4 h-4 text-[#9b0000]" />
+                <span className="text-[10px] font-black uppercase text-[#9b0000] tracking-widest">Payment & Receipt Ledger</span>
               </div>
               <h3 className="text-lg font-black text-white">Record Payment / Deposit</h3>
               <p className="text-xs text-stone-300 mt-0.5">
@@ -2286,7 +2286,7 @@ export const TravelerProfilePage: React.FC = () => {
                   required
                   value={selectedBookingId}
                   onChange={(e) => setSelectedBookingId(e.target.value)}
-                  className="w-full px-3.5 py-2.5 text-xs font-bold rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#FF4B00]/40"
+                  className="w-full px-3.5 py-2.5 text-xs font-bold rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#9b0000]/40"
                 >
                   <option value="">-- Choose a tour reservation --</option>
                   {userInquiries.map((inq) => (
@@ -2310,7 +2310,7 @@ export const TravelerProfilePage: React.FC = () => {
                     placeholder="20000"
                     value={paymentAmountInput}
                     onChange={(e) => setPaymentAmountInput(e.target.value)}
-                    className="w-full pl-8 pr-3.5 py-2.5 text-xs font-black rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#FF4B00]/40"
+                    className="w-full pl-8 pr-3.5 py-2.5 text-xs font-black rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#9b0000]/40"
                   />
                 </div>
               </div>
@@ -2322,7 +2322,7 @@ export const TravelerProfilePage: React.FC = () => {
                 <select
                   value={paymentModeInput}
                   onChange={(e) => setPaymentModeInput(e.target.value)}
-                  className="w-full px-3.5 py-2.5 text-xs font-bold rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#FF4B00]/40"
+                  className="w-full px-3.5 py-2.5 text-xs font-bold rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#9b0000]/40"
                 >
                   <option value="Google Pay / PhonePe UPI">Google Pay / PhonePe UPI</option>
                   <option value="IMPS / NEFT NetBanking">IMPS / NEFT NetBanking</option>
@@ -2341,7 +2341,7 @@ export const TravelerProfilePage: React.FC = () => {
                   placeholder="e.g. UPI Ref: 489201938102 / Bank IMPS transfer"
                   value={paymentNotesInput}
                   onChange={(e) => setPaymentNotesInput(e.target.value)}
-                  className="w-full px-3.5 py-2.5 text-xs font-bold rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#FF4B00]/40"
+                  className="w-full px-3.5 py-2.5 text-xs font-bold rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#9b0000]/40"
                 />
               </div>
 
@@ -2374,7 +2374,7 @@ export const TravelerProfilePage: React.FC = () => {
                 <button
                   type="submit"
                   disabled={isRecordingPayment}
-                  className="py-2.5 px-5 rounded-xl bg-[#FF4B00] hover:bg-[#E03E00] text-white text-xs font-black transition cursor-pointer shadow-sm flex items-center gap-1.5 disabled:opacity-50"
+                  className="py-2.5 px-5 rounded-xl bg-[#9b0000] hover:bg-[#7D0000] text-white text-xs font-black transition cursor-pointer shadow-sm flex items-center gap-1.5 disabled:opacity-50"
                 >
                   <Download className="w-3.5 h-3.5" />
                   <span>{isRecordingPayment ? 'Generating Receipt...' : 'Record & Generate Official Receipt'}</span>
@@ -2418,7 +2418,7 @@ export const TravelerProfilePage: React.FC = () => {
                   placeholder="e.g. Priya Sharma"
                   value={coTravelerForm.fullName}
                   onChange={(e) => setCoTravelerForm({ ...coTravelerForm, fullName: e.target.value })}
-                  className="w-full px-3.5 py-2.5 text-xs font-bold rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#FF4B00]/40"
+                  className="w-full px-3.5 py-2.5 text-xs font-bold rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#9b0000]/40"
                 />
               </div>
 
@@ -2430,7 +2430,7 @@ export const TravelerProfilePage: React.FC = () => {
                   <select
                     value={coTravelerForm.relationship}
                     onChange={(e) => setCoTravelerForm({ ...coTravelerForm, relationship: e.target.value as any })}
-                    className="w-full px-3.5 py-2.5 text-xs font-bold rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#FF4B00]/40"
+                    className="w-full px-3.5 py-2.5 text-xs font-bold rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#9b0000]/40"
                   >
                     <option value="Spouse">Spouse</option>
                     <option value="Child">Child</option>
@@ -2449,7 +2449,7 @@ export const TravelerProfilePage: React.FC = () => {
                   <select
                     value={coTravelerForm.gender}
                     onChange={(e) => setCoTravelerForm({ ...coTravelerForm, gender: e.target.value as any })}
-                    className="w-full px-3.5 py-2.5 text-xs font-bold rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#FF4B00]/40"
+                    className="w-full px-3.5 py-2.5 text-xs font-bold rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#9b0000]/40"
                   >
                     <option value="Female">Female</option>
                     <option value="Male">Male</option>
@@ -2469,7 +2469,7 @@ export const TravelerProfilePage: React.FC = () => {
                     max={120}
                     value={coTravelerForm.age || ''}
                     onChange={(e) => setCoTravelerForm({ ...coTravelerForm, age: Number(e.target.value) })}
-                    className="w-full px-3.5 py-2.5 text-xs font-bold rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#FF4B00]/40"
+                    className="w-full px-3.5 py-2.5 text-xs font-bold rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#9b0000]/40"
                   />
                 </div>
 
@@ -2482,7 +2482,7 @@ export const TravelerProfilePage: React.FC = () => {
                     placeholder="XXXX-XXXX-1234"
                     value={coTravelerForm.idNumber || ''}
                     onChange={(e) => setCoTravelerForm({ ...coTravelerForm, idNumber: e.target.value })}
-                    className="w-full px-3.5 py-2.5 text-xs font-bold rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#FF4B00]/40"
+                    className="w-full px-3.5 py-2.5 text-xs font-bold rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#9b0000]/40"
                   />
                 </div>
               </div>

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { GoogleLogin } from '@react-oauth/google';
 import { useTours } from '../../context/TourContext';
 import { X, ShieldCheck, AlertCircle, Loader2, Check } from 'lucide-react';
+import { BrandLogo } from '../common/BrandLogo';
 
 export const TravelerAuthModal: React.FC = () => {
   const {
@@ -76,8 +77,8 @@ export const TravelerAuthModal: React.FC = () => {
             <X className="w-4 h-4 text-white" />
           </button>
 
-          <div className="w-12 h-12 rounded-2xl bg-[#FF4B00] mx-auto flex items-center justify-center shadow-lg shadow-[#FF4B00]/30">
-            <ShieldCheck className="w-6 h-6 text-white" />
+          <div className="inline-flex items-center justify-center bg-white px-4 py-2 rounded-2xl mx-auto shadow-lg">
+            <BrandLogo size="xs" />
           </div>
 
           <h2 className="text-lg font-black tracking-tight">Traveler Sign In / Sign Up</h2>

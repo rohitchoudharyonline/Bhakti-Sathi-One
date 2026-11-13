@@ -687,7 +687,7 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
 
             <button
               onClick={() => handleSave('published')}
-              className="px-4 sm:px-5 py-2 rounded-xl bg-[#FF4B00] hover:bg-[#E03A00] text-white text-xs sm:text-sm font-bold shadow-md transition flex items-center gap-2 cursor-pointer"
+              className="px-4 sm:px-5 py-2 rounded-xl bg-[#9b0000] hover:bg-[#E03A00] text-white text-xs sm:text-sm font-bold shadow-md transition flex items-center gap-2 cursor-pointer"
             >
               <Save className="w-4 h-4" />
               <span>Save & Publish Live</span>
@@ -786,9 +786,9 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
             onClick={() => setActiveTab('group')}
             className={`flex-1 min-w-[150px] py-2.5 px-3 rounded-xl transition flex items-center justify-center gap-1.5 cursor-pointer ${
               activeTab === 'group'
-                ? 'bg-[#FF4B00] text-white shadow-xs'
+                ? 'bg-[#9b0000] text-white shadow-xs'
                 : isGroupTour
-                ? 'text-[#FF4B00] bg-orange-50/80 hover:bg-orange-100/60 border border-orange-200/60'
+                ? 'text-[#9b0000] bg-[#FDF2F2]/80 hover:bg-[#FCE8E8]/60 border border-[#F5C2C2]/60'
                 : 'text-slate-600 hover:bg-slate-200/60'
             }`}
           >
@@ -954,9 +954,9 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                     <div>
                       <label className="text-xs font-black text-slate-900 flex items-center gap-1.5">
-                        <span className="w-2 h-2 rounded-full bg-[#FF4B00]" />
+                        <span className="w-2 h-2 rounded-full bg-[#9b0000]" />
                         <span>Top Attractions & Must-Visit Landmarks Visited on this Tour</span>
-                        <span className="px-2 py-0.5 rounded-full bg-orange-100 text-[#FF4B00] text-[10px] font-black">
+                        <span className="px-2 py-0.5 rounded-full bg-[#FCE8E8] text-[#9b0000] text-[10px] font-black">
                           {selectedTempleIds.length} Selected
                         </span>
                       </label>
@@ -985,7 +985,7 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
                       value={templeSearchQuery}
                       onChange={(e) => setTempleSearchQuery(e.target.value)}
                       placeholder="Search attractions by name, location, or keyword..."
-                      className="w-full sm:w-64 text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 focus:bg-white focus:border-[#FF4B00] focus:outline-hidden"
+                      className="w-full sm:w-64 text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 focus:bg-white focus:border-[#9b0000] focus:outline-hidden"
                     />
 
                     <div className="flex items-center gap-1 overflow-x-auto w-full pb-1 scrollbar-none">
@@ -996,7 +996,7 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
                           onClick={() => setTempleCategoryFilter(cat)}
                           className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all shrink-0 cursor-pointer ${
                             templeCategoryFilter === cat
-                              ? 'bg-[#FF4B00] text-white'
+                              ? 'bg-[#9b0000] text-white'
                               : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                           }`}
                         >
@@ -1044,7 +1044,7 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
                             }}
                             className={`p-2 rounded-xl border flex items-center gap-2.5 transition-all cursor-pointer select-none ${
                               isSelected
-                                ? 'bg-orange-50 border-[#FF4B00] shadow-xs'
+                                ? 'bg-[#FDF2F2] border-[#9b0000] shadow-xs'
                                 : 'bg-white border-slate-200 hover:border-slate-300'
                             }`}
                           >
@@ -1052,7 +1052,7 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
                               type="checkbox"
                               checked={isSelected}
                               onChange={() => {}}
-                              className="w-4 h-4 rounded text-[#FF4B00] focus:ring-[#FF4B00] cursor-pointer shrink-0"
+                              className="w-4 h-4 rounded text-[#9b0000] focus:ring-[#9b0000] cursor-pointer shrink-0"
                             />
                             <div className="w-9 h-9 rounded-lg overflow-hidden bg-slate-200 shrink-0">
                               <img
@@ -2141,7 +2141,7 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
                   setImportantNotes([...DEFAULT_TRAVELER_GUIDELINES]);
                   setCancellationPolicy([...DEFAULT_CANCELLATION_TERMS]);
                 }}
-                className="self-start sm:self-auto px-3 py-1.5 bg-orange-50 hover:bg-orange-100 text-brand border border-orange-200 text-xs font-bold rounded-xl transition flex items-center gap-1.5 cursor-pointer"
+                className="self-start sm:self-auto px-3 py-1.5 bg-[#FDF2F2] hover:bg-[#FCE8E8] text-brand border border-[#F5C2C2] text-xs font-bold rounded-xl transition flex items-center gap-1.5 cursor-pointer"
               >
                 <Sparkles className="w-3.5 h-3.5" />
                 <span>Reset to Standard Defaults</span>
@@ -2338,7 +2338,7 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
             <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-2xs">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-100">
                 <div className="flex items-start gap-3">
-                  <div className="p-2.5 rounded-2xl bg-orange-50 text-[#FF4B00] border border-[#FF4B00]/20 mt-0.5">
+                  <div className="p-2.5 rounded-2xl bg-[#FDF2F2] text-[#9b0000] border border-[#9b0000]/20 mt-0.5">
                     <Users className="w-5 h-5" />
                   </div>
                   <div>
@@ -2361,7 +2361,7 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
                     }}
                     className="sr-only peer"
                   />
-                  <div className="w-13 h-7 bg-slate-200 peer-focus:outline-hidden rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[4px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-[#FF4B00]"></div>
+                  <div className="w-13 h-7 bg-slate-200 peer-focus:outline-hidden rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[4px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-[#9b0000]"></div>
                   <span className="ml-3 text-xs font-bold text-slate-900">
                     {isGroupTour ? 'Group Tour Active' : 'Disabled (Private Tour)'}
                   </span>
@@ -2507,13 +2507,13 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
                         <span className="text-stone-700">
                           {bookedSeats} / {totalSeats} Seats Booked ({Math.round(((bookedSeats || 0) / (totalSeats || 24)) * 100)}% Full)
                         </span>
-                        <span className="text-[#FF4B00]">
+                        <span className="text-[#9b0000]">
                           {Math.max(0, (totalSeats || 24) - (bookedSeats || 0))} Seats Available
                         </span>
                       </div>
                       <div className="w-full bg-stone-200 rounded-full h-2 overflow-hidden">
                         <div
-                          className="bg-[#FF4B00] h-full rounded-full transition-all duration-300"
+                          className="bg-[#9b0000] h-full rounded-full transition-all duration-300"
                           style={{
                             width: `${Math.min(100, Math.round(((bookedSeats || 0) / (totalSeats || 24)) * 100))}%`,
                           }}
@@ -2537,11 +2537,11 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
                           className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs"
                         >
                           <div className="flex items-center gap-3">
-                            <Calendar className="w-4 h-4 text-orange-500" />
+                            <Calendar className="w-4 h-4 text-[#9b0000]" />
                             <div>
                               <div className="flex items-center gap-2">
                                 <span className="font-bold text-slate-900">{b.startDate}</span>
-                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-orange-100 text-orange-800">
+                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#FCE8E8] text-[#7D0000]">
                                   {b.status}
                                 </span>
                               </div>
@@ -2626,7 +2626,7 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
                           setNewBatchDateInput('');
                           setNewBatchNameInput('');
                         }}
-                        className="py-1.5 px-3 bg-[#FF4B00] hover:bg-[#E04200] disabled:opacity-50 text-white rounded-lg text-xs font-bold transition flex items-center justify-center gap-1 cursor-pointer"
+                        className="py-1.5 px-3 bg-[#9b0000] hover:bg-[#7D0000] disabled:opacity-50 text-white rounded-lg text-xs font-bold transition flex items-center justify-center gap-1 cursor-pointer"
                       >
                         <Plus className="w-3.5 h-3.5" />
                         <span>Add Batch</span>

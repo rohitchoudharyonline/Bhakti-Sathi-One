@@ -153,7 +153,7 @@ export const TourContentStudio: React.FC<{
       <div className="w-full max-w-6xl bg-stone-50 rounded-3xl shadow-2xl overflow-hidden max-h-[92vh] flex flex-col my-auto border border-stone-200">
         {/* Header */}
         <header className="sticky top-0 z-10 bg-white border-b border-stone-200 p-4 sm:p-5 flex items-center gap-3 shrink-0">
-          <div className="w-10 h-10 rounded-xl bg-[#FC3200] text-white grid place-items-center font-black text-sm">
+          <div className="w-10 h-10 rounded-xl bg-[#9b0000] text-white grid place-items-center font-black text-sm">
             <ImagePlus className="w-5 h-5" />
           </div>
           <div className="min-w-0 flex-1">
@@ -206,7 +206,7 @@ export const TourContentStudio: React.FC<{
               <button
                 onClick={() => setMode('media')}
                 className={`px-4 py-2 rounded-lg text-xs font-black transition cursor-pointer flex items-center gap-1.5 ${
-                  mode === 'media' ? 'bg-[#FC3200] text-white shadow-xs' : 'text-stone-600'
+                  mode === 'media' ? 'bg-[#9b0000] text-white shadow-xs' : 'text-stone-600'
                 }`}
               >
                 <ImagePlus className="w-3.5 h-3.5" /> Photos Gallery ({pkg.gallery?.length ?? 0})
@@ -214,7 +214,7 @@ export const TourContentStudio: React.FC<{
               <button
                 onClick={() => setMode('reviews')}
                 className={`px-4 py-2 rounded-lg text-xs font-black transition cursor-pointer flex items-center gap-1.5 ${
-                  mode === 'reviews' ? 'bg-[#FC3200] text-white shadow-xs' : 'text-stone-600'
+                  mode === 'reviews' ? 'bg-[#9b0000] text-white shadow-xs' : 'text-stone-600'
                 }`}
               >
                 <Star className="w-3.5 h-3.5" /> Reviews ({reviews.length})
@@ -254,7 +254,7 @@ export const TourContentStudio: React.FC<{
                     type="button"
                     onClick={addMedia}
                     disabled={!mediaForm.url.trim()}
-                    className="w-full py-2.5 rounded-xl bg-[#FC3200] hover:bg-[#e02c00] text-white text-xs font-black transition flex items-center justify-center gap-1.5 shadow-xs cursor-pointer disabled:opacity-50"
+                    className="w-full py-2.5 rounded-xl bg-[#9b0000] hover:bg-[#7D0000] text-white text-xs font-black transition flex items-center justify-center gap-1.5 shadow-xs cursor-pointer disabled:opacity-50"
                   >
                     <Plus className="w-4 h-4" />
                     <span>Add to Tour Gallery</span>
@@ -362,7 +362,7 @@ export const TourContentStudio: React.FC<{
               {/* Left: Review Creator with Traveler Photo Uploader */}
               <div className="bg-white rounded-2xl border border-stone-200 p-5 space-y-4">
                 <div className="flex items-center justify-between pb-2 border-b border-stone-100">
-                  <span className="text-[10px] uppercase tracking-wider text-[#FC3200] font-black">
+                  <span className="text-[10px] uppercase tracking-wider text-[#9b0000] font-black">
                     {editingReviewId ? 'EDIT REVIEW' : 'ADD NEW REVIEW'}
                   </span>
                   {editingReviewId && (
@@ -481,7 +481,7 @@ export const TourContentStudio: React.FC<{
                           verified: e.target.checked,
                         })
                       }
-                      className="w-4 h-4 text-[#FC3200] rounded"
+                      className="w-4 h-4 text-[#9b0000] rounded"
                     />
                     <span>Verified Pilgrimage Traveler (Checked by Admin)</span>
                   </label>
@@ -489,7 +489,7 @@ export const TourContentStudio: React.FC<{
                   <button
                     type="button"
                     onClick={saveReview}
-                    className="w-full py-3 rounded-xl bg-[#FC3200] hover:bg-[#e02c00] text-white text-xs font-black transition shadow-xs cursor-pointer"
+                    className="w-full py-3 rounded-xl bg-[#9b0000] hover:bg-[#7D0000] text-white text-xs font-black transition shadow-xs cursor-pointer"
                   >
                     {editingReviewId ? 'Update Review' : 'Publish Review'}
                   </button>

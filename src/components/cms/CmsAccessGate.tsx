@@ -151,7 +151,7 @@ export const CmsAccessGate: React.FC<{ children: React.ReactNode }> = ({ childre
   if (authState === 'checking') {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-stone-950 text-white gap-3">
-        <Loader2 className="w-8 h-8 animate-spin text-orange-500" />
+        <Loader2 className="w-8 h-8 animate-spin text-[#9b0000]" />
         <span className="text-xs text-stone-400 font-medium tracking-wide">Verifying Administrator Session…</span>
       </div>
     );
@@ -199,7 +199,7 @@ export const CmsAccessGate: React.FC<{ children: React.ReactNode }> = ({ childre
     <div className="min-h-screen flex items-center justify-center bg-stone-950 p-4 text-white">
       <form onSubmit={handleLogin} className="w-full max-w-md rounded-3xl border border-stone-800 bg-stone-900 p-6 sm:p-8 space-y-4 shadow-2xl">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center text-orange-500">
+          <div className="w-10 h-10 rounded-xl bg-[#9b0000]/10 border border-[#9b0000]/20 flex items-center justify-center text-[#9b0000]">
             <ShieldCheck className="w-5 h-5" />
           </div>
           <div>
@@ -221,7 +221,7 @@ export const CmsAccessGate: React.FC<{ children: React.ReactNode }> = ({ childre
             type="email"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
-            className="w-full rounded-xl bg-stone-800 border border-stone-700 px-4 py-3 text-sm text-white focus:outline-hidden focus:border-orange-500 transition"
+            className="w-full rounded-xl bg-stone-800 border border-stone-700 px-4 py-3 text-sm text-white focus:outline-hidden focus:border-[#9b0000] transition"
             placeholder="admin@holidayshunt.com"
             required
           />
@@ -233,7 +233,7 @@ export const CmsAccessGate: React.FC<{ children: React.ReactNode }> = ({ childre
             type="password"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
-            className="w-full rounded-xl bg-stone-800 border border-stone-700 px-4 py-3 text-sm text-white focus:outline-hidden focus:border-orange-500 transition"
+            className="w-full rounded-xl bg-stone-800 border border-stone-700 px-4 py-3 text-sm text-white focus:outline-hidden focus:border-[#9b0000] transition"
             placeholder="••••••••••••"
             required
           />
@@ -242,7 +242,7 @@ export const CmsAccessGate: React.FC<{ children: React.ReactNode }> = ({ childre
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-xl bg-orange-600 hover:bg-orange-500 transition py-3 text-sm font-bold flex items-center justify-center gap-2 shadow-lg disabled:opacity-50 cursor-pointer"
+          className="w-full rounded-xl bg-[#9b0000] hover:bg-[#FDF2F2]0 transition py-3 text-sm font-bold flex items-center justify-center gap-2 shadow-lg disabled:opacity-50 cursor-pointer"
         >
           {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <LogIn className="w-4 h-4" />}
           <span>{loading ? 'Authenticating…' : 'Access CMS Dashboard'}</span>

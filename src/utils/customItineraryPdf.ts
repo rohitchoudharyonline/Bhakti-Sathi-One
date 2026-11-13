@@ -28,7 +28,7 @@ export interface CustomItineraryData {
 }
 
 async function loadBrandLogoData(): Promise<{ dataUrl: string; width: number; height: number; format: string } | null> {
-  const sources = ['/holidays-hunt-travel-logo.png', '/logo-holidays-hunt-v3.png', '/logo.png'];
+  const sources = ['/holidayshunt-logo.png', '/holidays-hunt-travel-logo.png', '/logo-holidays-hunt-v3.png', '/logo.png'];
   for (const src of sources) {
     try {
       const img = await new Promise<HTMLImageElement>((resolve, reject) => {
@@ -75,7 +75,7 @@ export async function generateCustomItineraryPdf(data: CustomItineraryData): Pro
   const contentWidth = pageWidth - margin * 2; // ~182 mm
 
   // Brand Colors matching paymentReceiptPdf.ts
-  const primaryOrange = [255, 75, 0]; // #FF4B00
+  const primaryOrange = [155, 0, 0]; // #9b0000
   const darkCharcoal = [26, 26, 26]; // #1A1A1A
   const textMuted = [115, 115, 115]; // #737373
   const cardBg = [250, 250, 249]; // #FAFAF9

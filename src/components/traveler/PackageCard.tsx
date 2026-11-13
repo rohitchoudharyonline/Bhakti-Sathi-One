@@ -38,7 +38,7 @@ export const PackageCard: React.FC<PackageCardProps> = ({ pkg, onSelect, onQuick
       case 'Best Seller':
         return 'bg-stone-900 text-white font-black shadow-xs';
       case 'Trending':
-        return 'bg-[#FF4B00] text-white font-black shadow-xs';
+        return 'bg-[#9b0000] text-white font-black shadow-xs';
       case 'Top Rated':
         return 'bg-emerald-600 text-white font-black shadow-xs';
       case 'Heritage Classic':
@@ -141,7 +141,7 @@ export const PackageCard: React.FC<PackageCardProps> = ({ pkg, onSelect, onQuick
               {pkg.durationDays}D / {pkg.durationNights}N
             </span>
 
-            <span className="flex items-center gap-1 bg-[#FF4B00] text-white px-1.5 py-0.5 rounded-md font-black">
+            <span className="flex items-center gap-1 bg-[#9b0000] text-white px-1.5 py-0.5 rounded-md font-black">
               <Star className="w-3 h-3 fill-white text-white" />
               <span>{pkg.rating.toFixed(1)}</span>
             </span>
@@ -248,7 +248,7 @@ export const PackageCard: React.FC<PackageCardProps> = ({ pkg, onSelect, onQuick
                 onClick={() => {
                   onSelect(pkg.id);
                 }}
-                className="py-2.5 px-2 rounded-xl bg-[#FF4B00] hover:bg-[#E04200] text-white border border-[#FF4B00] text-[11px] font-black transition shadow-xs flex items-center justify-center gap-1 cursor-pointer"
+                className="py-2.5 px-2 rounded-xl bg-[#9b0000] hover:bg-[#7D0000] text-white border border-[#9b0000] text-[11px] font-black transition shadow-xs flex items-center justify-center gap-1 cursor-pointer"
               >
                 <span>View Itinerary</span>
                 <ArrowRight className="w-3 h-3" />

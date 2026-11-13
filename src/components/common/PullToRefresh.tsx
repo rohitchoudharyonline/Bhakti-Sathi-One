@@ -105,7 +105,7 @@ export const PullToRefresh: React.FC<PullToRefreshProps> = ({ onRefresh, childre
         <div className="flex flex-col items-center justify-center gap-1.5 py-2">
           {pullState === 'refreshing' ? (
             <div className="flex items-center gap-2">
-              <Loader2 className="w-5 h-5 text-orange-600 animate-spin" />
+              <Loader2 className="w-5 h-5 text-[#9b0000] animate-spin" />
               <span className="text-xs font-bold text-stone-700 tracking-wide uppercase">
                 Refreshing Yatra Guides...
               </span>
@@ -116,7 +116,7 @@ export const PullToRefresh: React.FC<PullToRefreshProps> = ({ onRefresh, childre
                 animate={{ rotate: pullState === 'ready' ? 180 : 0 }}
                 transition={{ type: 'spring', stiffness: 300, damping: 20 }}
               >
-                <ArrowDown className={`w-4 h-4 ${pullState === 'ready' ? 'text-orange-600' : 'text-stone-400'}`} />
+                <ArrowDown className={`w-4 h-4 ${pullState === 'ready' ? 'text-[#9b0000]' : 'text-stone-400'}`} />
               </motion.div>
               <span className="text-[11px] font-bold text-stone-500 tracking-wider uppercase">
                 {pullState === 'ready' ? 'Release to Refresh' : 'Pull to Refresh'}

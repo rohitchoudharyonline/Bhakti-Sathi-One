@@ -136,14 +136,14 @@ export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, on
                 <div className={contactImgError ? 'max-w-3xl mx-auto w-full space-y-6' : 'lg:col-span-7 space-y-6'}>
                   <div>
                     <p className="text-sm text-stone-600 leading-relaxed font-semibold">
-                      Contact <span className="text-[#FF4B00] font-black">Holidays Hunt (a brand name of Holidays Hunt Travel and Hospitality Pvt Ltd)</span>, your premier travel partner for Family, Pilgrimage, and Honeymoon tours. We specialize in handcrafted holiday packages featuring verified hotel & resort stays, private dedicated chauffeur transfers, and 24/7 on-trip concierge assistance across Jammu & Kashmir and Himachal Pradesh. Reach out to our travel specialists today!
+                      Contact <span className="text-[#9b0000] font-black">Holidays Hunt (a brand name of Holidays Hunt Travel and Hospitality Pvt Ltd)</span>, your premier travel partner for Family, Pilgrimage, and Honeymoon tours. We specialize in handcrafted holiday packages featuring verified hotel & resort stays, private dedicated chauffeur transfers, and 24/7 on-trip concierge assistance across Jammu & Kashmir and Himachal Pradesh. Reach out to our travel specialists today!
                     </p>
                   </div>
 
                   {/* Call & WhatsApp Card */}
-                  <div className="p-5 sm:p-6 rounded-2xl bg-[#FF4B00]/5 border border-[#FF4B00]/20">
+                  <div className="p-5 sm:p-6 rounded-2xl bg-[#9b0000]/5 border border-[#9b0000]/20">
                     <div className="flex items-center gap-3 sm:gap-4">
-                      <div className="w-11 h-11 rounded-full bg-[#FF4B00] text-white flex items-center justify-center font-bold shrink-0 shadow-xs">
+                      <div className="w-11 h-11 rounded-full bg-[#9b0000] text-white flex items-center justify-center font-bold shrink-0 shadow-xs">
                         <Phone className="w-5 h-5" />
                       </div>
                       <div className="min-w-0 flex-1">
@@ -155,7 +155,7 @@ export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, on
                           href="https://wa.me/919419915255" 
                           target="_blank" 
                           rel="noreferrer" 
-                          className="text-lg sm:text-2xl font-black text-stone-900 hover:text-[#FF4B00] transition block whitespace-nowrap mt-0.5 tracking-tight"
+                          className="text-lg sm:text-2xl font-black text-stone-900 hover:text-[#9b0000] transition block whitespace-nowrap mt-0.5 tracking-tight"
                         >
                           +91 94199 15255
                         </a>
@@ -164,18 +164,18 @@ export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, on
                   </div>
 
                   {/* Email Card */}
-                  <div className="p-6 rounded-2xl bg-[#FF4B00]/5 border border-[#FF4B00]/20 space-y-4">
+                  <div className="p-6 rounded-2xl bg-[#9b0000]/5 border border-[#9b0000]/20 space-y-4">
                     <div className="flex items-start gap-3">
-                      <div className="w-10 h-10 rounded-full bg-[#FF4B00] text-white flex items-center justify-center font-bold shrink-0">
+                      <div className="w-10 h-10 rounded-full bg-[#9b0000] text-white flex items-center justify-center font-bold shrink-0">
                         <Mail className="w-5 h-5" />
                       </div>
                       <div className="space-y-1">
                         <h3 className="text-xs font-black uppercase tracking-wider text-stone-500">Email Addresses</h3>
                         <div className="flex flex-col gap-1">
-                          <a href="mailto:holidayshunt@gmail.com" className="text-base font-bold text-stone-900 hover:text-[#FF4B00] transition">
+                          <a href="mailto:holidayshunt@gmail.com" className="text-base font-bold text-stone-900 hover:text-[#9b0000] transition">
                             holidayshunt@gmail.com
                           </a>
-                          <a href="mailto:info@holidayshunt.com" className="text-sm font-medium text-stone-600 hover:text-[#FF4B00] transition">
+                          <a href="mailto:info@holidayshunt.com" className="text-sm font-medium text-stone-600 hover:text-[#9b0000] transition">
                             info@holidayshunt.com
                           </a>
                         </div>
@@ -185,7 +185,7 @@ export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, on
 
                   {/* Head Office */}
                   <div className="p-6 rounded-2xl bg-white border border-stone-200/80 space-y-3">
-                    <div className="flex items-center gap-2 text-[#FF4B00]">
+                    <div className="flex items-center gap-2 text-[#9b0000]">
                       <Building2 className="w-5 h-5" />
                       <h4 className="text-xs font-black uppercase tracking-widest">HEAD OFFICE</h4>
                     </div>
@@ -218,7 +218,7 @@ export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, on
                         href="https://facebook.com/holidayshunt" 
                         target="_blank" 
                         rel="noreferrer" 
-                        className="w-10 h-10 rounded-xl bg-stone-100 hover:bg-[#FF4B00] hover:text-white text-stone-600 transition flex items-center justify-center"
+                        className="w-10 h-10 rounded-xl bg-stone-100 hover:bg-[#9b0000] hover:text-white text-stone-600 transition flex items-center justify-center"
                         title="Facebook"
                       >
                         <Facebook className="w-5 h-5" />
@@ -227,7 +227,7 @@ export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, on
                         href="https://instagram.com/holidayshunt" 
                         target="_blank" 
                         rel="noreferrer" 
-                        className="w-10 h-10 rounded-xl bg-stone-100 hover:bg-[#FF4B00] hover:text-white text-stone-600 transition flex items-center justify-center"
+                        className="w-10 h-10 rounded-xl bg-stone-100 hover:bg-[#9b0000] hover:text-white text-stone-600 transition flex items-center justify-center"
                         title="Instagram"
                       >
                         <Instagram className="w-5 h-5" />
@@ -236,7 +236,7 @@ export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, on
                         href="https://youtube.com/holidayshunt" 
                         target="_blank" 
                         rel="noreferrer" 
-                        className="w-10 h-10 rounded-xl bg-stone-100 hover:bg-[#FF4B00] hover:text-white text-stone-600 transition flex items-center justify-center"
+                        className="w-10 h-10 rounded-xl bg-stone-100 hover:bg-[#9b0000] hover:text-white text-stone-600 transition flex items-center justify-center"
                         title="YouTube"
                       >
                         <Youtube className="w-5 h-5" />
@@ -268,7 +268,7 @@ export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, on
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-90"></div>
                       <div className="absolute bottom-4 left-4 right-4 text-white">
-                        <p className="text-[10px] font-black uppercase tracking-wider text-[#FF4B00] mb-0.5">Workspace</p>
+                        <p className="text-[10px] font-black uppercase tracking-wider text-[#9b0000] mb-0.5">Workspace</p>
                         <p className="text-sm font-bold">Holidays Hunt Executive Office</p>
                       </div>
                     </div>
@@ -288,16 +288,16 @@ export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, on
                 </p>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
-                  <div className="p-5 rounded-2xl bg-[#FF4B00]/5 border-2 border-[#FF4B00]/30 text-center space-y-1 shadow-2xs">
-                    <p className="text-2xl sm:text-3xl font-black text-[#FF4B00]">1,300+</p>
+                  <div className="p-5 rounded-2xl bg-[#9b0000]/5 border-2 border-[#9b0000]/30 text-center space-y-1 shadow-2xs">
+                    <p className="text-2xl sm:text-3xl font-black text-[#9b0000]">1,300+</p>
                     <p className="text-xs font-black text-stone-800 uppercase tracking-wider">Verified Reviews on Google</p>
                   </div>
-                  <div className="p-5 rounded-2xl bg-[#FF4B00]/5 border border-[#FF4B00]/20 text-center space-y-1">
-                    <p className="text-2xl sm:text-3xl font-black text-[#FF4B00]">100%</p>
+                  <div className="p-5 rounded-2xl bg-[#9b0000]/5 border border-[#9b0000]/20 text-center space-y-1">
+                    <p className="text-2xl sm:text-3xl font-black text-[#9b0000]">100%</p>
                     <p className="text-xs font-black text-stone-800 uppercase tracking-wider">Verified Private Cabs</p>
                   </div>
-                  <div className="p-5 rounded-2xl bg-[#FF4B00]/5 border border-[#FF4B00]/20 text-center space-y-1">
-                    <p className="text-2xl sm:text-3xl font-black text-[#FF4B00]">24x7</p>
+                  <div className="p-5 rounded-2xl bg-[#9b0000]/5 border border-[#9b0000]/20 text-center space-y-1">
+                    <p className="text-2xl sm:text-3xl font-black text-[#9b0000]">24x7</p>
                     <p className="text-xs font-black text-stone-800 uppercase tracking-wider">On-Trip Support</p>
                   </div>
                 </div>
@@ -362,12 +362,12 @@ export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, on
                           }}
                           className={`px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition cursor-pointer flex items-center gap-2 ${
                             isSelected
-                              ? 'bg-[#FF4B00] text-white shadow-sm ring-2 ring-orange-500/30'
+                              ? 'bg-[#9b0000] text-white shadow-sm ring-2 ring-[#9b0000]/30'
                               : 'bg-stone-100 hover:bg-stone-200 text-stone-700'
                           }`}
                         >
                           <span>{tab.label}</span>
-                          <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${isSelected ? 'bg-orange-900 text-orange-100' : 'bg-stone-200 text-stone-700'}`}>
+                          <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${isSelected ? 'bg-[#7D0000] text-red-100' : 'bg-stone-200 text-stone-700'}`}>
                             {count}
                           </span>
                         </button>
@@ -383,16 +383,16 @@ export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, on
                       placeholder={`Search ${activeCategory.label} FAQs (e.g. Booking, Helicopter, Meals)...`}
                       value={faqSearch}
                       onChange={(e) => setFaqSearch(e.target.value)}
-                      className="w-full pl-10 pr-4 py-3 rounded-xl bg-stone-50 border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/30 focus:border-orange-500 transition"
+                      className="w-full pl-10 pr-4 py-3 rounded-xl bg-stone-50 border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#9b0000]/30 focus:border-[#9b0000] transition"
                     />
                   </div>
 
                   {/* Active Category Header & FAQs Accordion List */}
-                  <div className="p-5 sm:p-6 rounded-2xl bg-orange-50/40 border border-orange-200/80 space-y-4">
-                    <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-orange-200/60">
+                  <div className="p-5 sm:p-6 rounded-2xl bg-[#FDF2F2]/40 border border-[#F5C2C2]/80 space-y-4">
+                    <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-[#F5C2C2]/60">
                       <div>
                         <div className="flex items-center gap-2">
-                          <Sparkles className="w-4 h-4 text-[#FF4B00]" />
+                          <Sparkles className="w-4 h-4 text-[#9b0000]" />
                           <h3 className="text-base sm:text-lg font-black text-stone-900">{activeCategory.label} FAQs</h3>
                         </div>
                         <p className="text-xs text-stone-600 mt-0.5 font-medium">{filteredFaqs.length} Verified Answers</p>
@@ -408,7 +408,7 @@ export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, on
                             setOpenFaqIndices(map);
                           }
                         }}
-                        className="text-xs font-bold text-[#FF4B00] hover:underline bg-orange-100/80 px-3 py-1.5 rounded-xl border border-orange-300 cursor-pointer"
+                        className="text-xs font-bold text-[#9b0000] hover:underline bg-[#FCE8E8]/80 px-3 py-1.5 rounded-xl border border-[#EAA8A8] cursor-pointer"
                       >
                         {Object.keys(openFaqIndices).length === categoryFaqs.length ? 'Collapse All' : 'Expand All'}
                       </button>
@@ -426,7 +426,7 @@ export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, on
                             <div
                               key={faq.id || idx}
                               className={`rounded-xl border transition overflow-hidden ${
-                                isOpen ? 'bg-white border-orange-300/80 shadow-xs ring-1 ring-orange-400/20' : 'bg-white/80 hover:bg-white border-stone-200'
+                                isOpen ? 'bg-white border-[#EAA8A8]/80 shadow-xs ring-1 ring-[#9b0000]/20' : 'bg-white/80 hover:bg-white border-stone-200'
                               }`}
                             >
                               <button
@@ -438,12 +438,12 @@ export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, on
                                 <span className="font-extrabold text-xs sm:text-sm text-stone-900 leading-snug">
                                   {faq.question}
                                 </span>
-                                <span className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 transition ${isOpen ? 'bg-[#FF4B00] text-white rotate-180' : 'bg-stone-100 text-stone-600'}`}>
+                                <span className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 transition ${isOpen ? 'bg-[#9b0000] text-white rotate-180' : 'bg-stone-100 text-stone-600'}`}>
                                   <ChevronDown className="w-3.5 h-3.5" />
                                 </span>
                               </button>
                               {isOpen && (
-                                <div className="px-3.5 pb-4 pt-1 text-xs sm:text-sm text-stone-700 leading-relaxed border-t border-stone-100 bg-orange-50/20 whitespace-pre-line font-medium">
+                                <div className="px-3.5 pb-4 pt-1 text-xs sm:text-sm text-stone-700 leading-relaxed border-t border-stone-100 bg-[#FDF2F2]/20 whitespace-pre-line font-medium">
                                   {faq.answer}
                                 </div>
                               )}
@@ -460,37 +460,37 @@ export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, on
             {/* 4. TERMS & CONDITIONS */}
             {pageSlug === 'terms' && (
               <div className="space-y-6 text-stone-700 leading-relaxed pt-2">
-                <div className="p-6 rounded-2xl bg-[#FF4B00]/5 border border-[#FF4B00]/20 space-y-3">
-                  <p className="font-extrabold text-stone-900 text-sm">Welcome to <span className="text-[#FF4B00]">Holidays Hunt</span></p>
+                <div className="p-6 rounded-2xl bg-[#9b0000]/5 border border-[#9b0000]/20 space-y-3">
+                  <p className="font-extrabold text-stone-900 text-sm">Welcome to <span className="text-[#9b0000]">Holidays Hunt</span></p>
                   <p className="text-xs sm:text-sm text-stone-600">
                     By booking a custom holiday itinerary, premium hotel stay, or private cab rental service with us, you agree to the following terms and conditions.
                   </p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="p-5 rounded-2xl bg-white border border-stone-200 hover:border-[#FF4B00]/50 transition space-y-2">
-                    <h4 className="text-xs font-black uppercase tracking-wider text-[#FF4B00]">Bookings & Payments</h4>
+                  <div className="p-5 rounded-2xl bg-white border border-stone-200 hover:border-[#9b0000]/50 transition space-y-2">
+                    <h4 className="text-xs font-black uppercase tracking-wider text-[#9b0000]">Bookings & Payments</h4>
                     <p className="text-xs text-stone-600">
                       A 25% to 30% advance deposit is required to confirm hotel reservations, houseboat inventory, and private cab booking. The balance payment must be cleared prior to the commencement of the tour or upon arrival.
                     </p>
                   </div>
 
-                  <div className="p-5 rounded-2xl bg-white border border-stone-200 hover:border-[#FF4B00]/50 transition space-y-2">
-                    <h4 className="text-xs font-black uppercase tracking-wider text-[#FF4B00]">Check-in & Checkout</h4>
+                  <div className="p-5 rounded-2xl bg-white border border-stone-200 hover:border-[#9b0000]/50 transition space-y-2">
+                    <h4 className="text-xs font-black uppercase tracking-wider text-[#9b0000]">Check-in & Checkout</h4>
                     <p className="text-xs text-stone-600">
                       Standard hotel check-in time is 2:00 PM and check-out is 11:00 AM. Early check-in is strictly subject to hotel room availability and may be subject to additional hotel fees.
                     </p>
                   </div>
 
-                  <div className="p-5 rounded-2xl bg-white border border-stone-200 hover:border-[#FF4B00]/50 transition space-y-2">
-                    <h4 className="text-xs font-black uppercase tracking-wider text-[#FF4B00]">AC Vehicle Operations</h4>
+                  <div className="p-5 rounded-2xl bg-white border border-stone-200 hover:border-[#9b0000]/50 transition space-y-2">
+                    <h4 className="text-xs font-black uppercase tracking-wider text-[#9b0000]">AC Vehicle Operations</h4>
                     <p className="text-xs text-stone-600">
                       Air conditioning in private cabs operates in plain regions and will be switched off while climbing steep mountain ghats (such as Gulmarg or Sonamarg hairpins) to prevent vehicle engine overheating.
                     </p>
                   </div>
 
-                  <div className="p-5 rounded-2xl bg-white border border-stone-200 hover:border-[#FF4B00]/50 transition space-y-2">
-                    <h4 className="text-xs font-black uppercase tracking-wider text-[#FF4B00]">Mandatory ID Verification</h4>
+                  <div className="p-5 rounded-2xl bg-white border border-stone-200 hover:border-[#9b0000]/50 transition space-y-2">
+                    <h4 className="text-xs font-black uppercase tracking-wider text-[#9b0000]">Mandatory ID Verification</h4>
                     <p className="text-xs text-stone-600">
                       All travelers must carry original government-issued photo identification (Aadhaar Card, Passport, or Voter ID) for seamless hotel check-ins and inner-line security permit clearance.
                     </p>
@@ -499,7 +499,7 @@ export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, on
 
                 <p className="p-4 rounded-xl bg-stone-50 border border-stone-200 text-xs text-stone-500 font-bold text-center">
                   For immediate assistance or booking inquiries, call our 24/7 central support helpline at{" "}
-                  <a href="tel:+919419915255" className="text-[#FF4B00] hover:underline">+91 94199 15255</a>.
+                  <a href="tel:+919419915255" className="text-[#9b0000] hover:underline">+91 94199 15255</a>.
                 </p>
               </div>
             )}
@@ -507,7 +507,7 @@ export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, on
             {/* 5. CANCELLATION POLICY */}
             {pageSlug === 'cancellation' && (
               <div className="space-y-6 text-stone-700 leading-relaxed pt-2">
-                <div className="p-6 rounded-2xl bg-[#FF4B00]/5 border border-[#FF4B00]/20 space-y-3">
+                <div className="p-6 rounded-2xl bg-[#9b0000]/5 border border-[#9b0000]/20 space-y-3">
                   <h3 className="font-extrabold text-stone-900 text-base">Cancellation Policy for Holidays Hunt:</h3>
                   <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
                     The services to be provided are booked several months in advance. Cancellation of such services earmarked for a particular departure results in the Company losing money depending upon the time of cancellation to the Supplier. Therefore, any cancellation of tour or services booked will attract cancellation charges as specified by the company.
@@ -521,9 +521,9 @@ export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, on
                 <h4 className="text-xs font-black text-stone-400 uppercase tracking-widest pt-2">Cancellation Fee Structure</h4>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {/* Card 1 */}
-                  <div className="p-5 rounded-2xl bg-white border-2 border-stone-100 hover:border-[#FF4B00]/30 transition shadow-xs flex flex-col justify-between space-y-3">
+                  <div className="p-5 rounded-2xl bg-white border-2 border-stone-100 hover:border-[#9b0000]/30 transition shadow-xs flex flex-col justify-between space-y-3">
                     <div>
-                      <span className="text-[10px] font-black uppercase tracking-wider text-[#FF4B00] bg-[#FF4B00]/10 px-2.5 py-1 rounded-full">
+                      <span className="text-[10px] font-black uppercase tracking-wider text-[#9b0000] bg-[#9b0000]/10 px-2.5 py-1 rounded-full">
                         Prior to 46 Days
                       </span>
                       <h4 className="text-sm font-extrabold text-stone-900 mt-3">Prior to 46 days from departure</h4>
@@ -531,38 +531,38 @@ export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, on
                     <div className="pt-2 border-t border-stone-100">
                       <p className="text-xs font-semibold text-stone-400 uppercase tracking-wider">Applicable Charge</p>
                       <p className="text-xs sm:text-sm font-extrabold text-stone-800 mt-0.5">
-                        Non-Refundable Booking Deposit: <span className="text-[#FF4B00]">₹30,000</span> or <span className="text-[#FF4B00]">30%</span> of total tour cost, whichever is lower
+                        Non-Refundable Booking Deposit: <span className="text-[#9b0000]">₹30,000</span> or <span className="text-[#9b0000]">30%</span> of total tour cost, whichever is lower
                       </p>
                     </div>
                   </div>
 
                   {/* Card 2 */}
-                  <div className="p-5 rounded-2xl bg-white border-2 border-stone-100 hover:border-[#FF4B00]/30 transition shadow-xs flex flex-col justify-between space-y-3">
+                  <div className="p-5 rounded-2xl bg-white border-2 border-stone-100 hover:border-[#9b0000]/30 transition shadow-xs flex flex-col justify-between space-y-3">
                     <div>
-                      <span className="text-[10px] font-black uppercase tracking-wider text-[#FF4B00] bg-[#FF4B00]/10 px-2.5 py-1 rounded-full">
+                      <span className="text-[10px] font-black uppercase tracking-wider text-[#9b0000] bg-[#9b0000]/10 px-2.5 py-1 rounded-full">
                         Between 45 – 31 Days
                       </span>
                       <h4 className="text-sm font-extrabold text-stone-900 mt-3">Between 45 to 31 days from departure</h4>
                     </div>
                     <div className="pt-2 border-t border-stone-100">
                       <p className="text-xs font-semibold text-stone-400 uppercase tracking-wider">Applicable Charge</p>
-                      <p className="text-lg font-black text-[#FF4B00] mt-0.5">
+                      <p className="text-lg font-black text-[#9b0000] mt-0.5">
                         70% of the holiday cost
                       </p>
                     </div>
                   </div>
 
                   {/* Card 3 */}
-                  <div className="p-5 rounded-2xl bg-[#FF4B00]/5 border-2 border-[#FF4B00]/20 transition shadow-xs flex flex-col justify-between space-y-3">
+                  <div className="p-5 rounded-2xl bg-[#9b0000]/5 border-2 border-[#9b0000]/20 transition shadow-xs flex flex-col justify-between space-y-3">
                     <div>
-                      <span className="text-[10px] font-black uppercase tracking-wider bg-[#FF4B00] text-white px-2.5 py-1 rounded-full">
+                      <span className="text-[10px] font-black uppercase tracking-wider bg-[#9b0000] text-white px-2.5 py-1 rounded-full">
                         30 Days or Below
                       </span>
                       <h4 className="text-sm font-extrabold text-stone-900 mt-3">Within 30 days or below from departure</h4>
                     </div>
-                    <div className="pt-2 border-t border-[#FF4B00]/20">
+                    <div className="pt-2 border-t border-[#9b0000]/20">
                       <p className="text-xs font-semibold text-stone-500 uppercase tracking-wider">Applicable Charge</p>
-                      <p className="text-lg font-black text-[#FF4B00] mt-0.5">
+                      <p className="text-lg font-black text-[#9b0000] mt-0.5">
                         100% of the holiday cost
                       </p>
                     </div>
@@ -582,12 +582,12 @@ export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, on
 
                 {/* Refund Time frame */}
                 <div className="p-6 rounded-2xl bg-white border border-stone-200/80 space-y-3">
-                  <div className="flex items-center gap-2 text-[#FF4B00]">
+                  <div className="flex items-center gap-2 text-[#9b0000]">
                     <Building2 className="w-5 h-5" />
                     <h4 className="text-xs font-black uppercase tracking-widest">HOW LONG DOES IT TAKE TO PROCESS A REFUND?</h4>
                   </div>
                   <p className="text-xs sm:text-sm text-stone-800 font-bold leading-relaxed pl-7">
-                    As per the Cancellation and Refund Policy, the applicable refund will be processed within <span className="text-[#FF4B00]">21 working days</span> of confirmation of the cancellation.
+                    As per the Cancellation and Refund Policy, the applicable refund will be processed within <span className="text-[#9b0000]">21 working days</span> of confirmation of the cancellation.
                   </p>
                 </div>
               </div>
@@ -596,25 +596,25 @@ export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, on
             {/* 6. PRIVACY POLICY */}
             {pageSlug === 'privacy' && (
               <div className="space-y-6 text-stone-700 leading-relaxed pt-2">
-                <div className="p-6 rounded-2xl bg-[#FF4B00]/5 border border-[#FF4B00]/20 space-y-3">
-                  <p className="font-extrabold text-stone-900 text-sm">Privacy Commitment at <span className="text-[#FF4B00]">Holidays Hunt</span></p>
+                <div className="p-6 rounded-2xl bg-[#9b0000]/5 border border-[#9b0000]/20 space-y-3">
+                  <p className="font-extrabold text-stone-900 text-sm">Privacy Commitment at <span className="text-[#9b0000]">Holidays Hunt</span></p>
                   <p className="text-xs sm:text-sm text-stone-600">
                     Your personal privacy is extremely important to us. We collect necessary client information (such as your full name, mobile number, email id, travel dates, and companion details) strictly for the purpose of booking verified hotels, arranging inner-line travel permits, and routing transport cabs.
                   </p>
                 </div>
 
                 <div className="p-5 rounded-2xl bg-white border border-stone-200 space-y-3">
-                  <h4 className="text-xs font-black uppercase tracking-wider text-[#FF4B00]">Zero Data Sharing Policy</h4>
+                  <h4 className="text-xs font-black uppercase tracking-wider text-[#9b0000]">Zero Data Sharing Policy</h4>
                   <p className="text-xs text-stone-600">
                     We strictly enforce a policy of never sharing, selling, or renting your private details with third-party advertising companies or marketing networks. All payment transaction gateways and online transfers are handled with bank-grade encryption security protocols.
                   </p>
                 </div>
 
-                <div className="p-5 rounded-2xl bg-[#FF4B00]/5 border border-[#FF4B00]/20 space-y-2">
+                <div className="p-5 rounded-2xl bg-[#9b0000]/5 border border-[#9b0000]/20 space-y-2">
                   <p className="text-xs text-stone-500 font-bold">Data Control Officer Contact:</p>
                   <p className="text-xs text-stone-700">
                     Should you have any questions about data deletion or our privacy practices, contact our officer directly at{" "}
-                    <a href="mailto:holidayshunt@gmail.com" className="text-[#FF4B00] font-bold hover:underline">holidayshunt@gmail.com</a>{" "}
+                    <a href="mailto:holidayshunt@gmail.com" className="text-[#9b0000] font-bold hover:underline">holidayshunt@gmail.com</a>{" "}
                     or reach us via our helpline at <span className="font-bold text-stone-900">+91 94199 15255</span>.
                   </p>
                 </div>
@@ -662,8 +662,8 @@ export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, on
               <div className="space-y-8 pt-2">
                 
                 {/* Brand introduction */}
-                <div className="p-6 sm:p-8 rounded-2xl bg-[#FF4B00]/5 border border-[#FF4B00]/20 space-y-4">
-                  <div className="flex items-center gap-3 text-[#FF4B00]">
+                <div className="p-6 sm:p-8 rounded-2xl bg-[#9b0000]/5 border border-[#9b0000]/20 space-y-4">
+                  <div className="flex items-center gap-3 text-[#9b0000]">
                     <Briefcase className="w-6 h-6" />
                     <span className="text-xs font-black uppercase tracking-widest">JOIN OUR TEAM</span>
                   </div>
@@ -671,7 +671,7 @@ export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, on
                     Start Your Hospitality Journey with Holidays Hunt
                   </h3>
                   <p className="text-stone-700 text-sm leading-relaxed">
-                    At <span className="font-extrabold text-[#FF4B00]">Holidays Hunt</span>, we believe that the magic of travel begins with the passion of our people. As one of Northern India's leading pilgrimage management companies, we craft life-long sacred memories for devotees, families, senior citizens, and pilgrims across Jammu & Kashmir, Himachal Pradesh, and beyond.
+                    At <span className="font-extrabold text-[#9b0000]">Holidays Hunt</span>, we believe that the magic of travel begins with the passion of our people. As one of Northern India's leading pilgrimage management companies, we craft life-long sacred memories for devotees, families, senior citizens, and pilgrims across Jammu & Kashmir, Himachal Pradesh, and beyond.
                   </p>
                   <p className="text-stone-600 text-xs sm:text-sm leading-relaxed">
                     Our team thrives on creative problem-solving, empathetic client care, on-ground operational integrity, and an absolute dedication to keeping our travelers safe, comfortable, and happy. If you love travel planning, guest relations, or field operations, you belong here.
@@ -683,7 +683,7 @@ export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, on
                   <h3 className="text-xs font-black uppercase tracking-wider text-stone-400 font-bold">Why Work with Us?</h3>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div className="p-5 rounded-xl border border-stone-100 bg-white shadow-xs space-y-2">
-                      <div className="w-8 h-8 rounded-lg bg-orange-100 flex items-center justify-center text-[#FF4B00]">
+                      <div className="w-8 h-8 rounded-lg bg-[#FCE8E8] flex items-center justify-center text-[#9b0000]">
                         <Sparkles className="w-4 h-4" />
                       </div>
                       <h4 className="font-bold text-sm text-stone-900">Empathetic Culture</h4>
@@ -693,7 +693,7 @@ export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, on
                     </div>
 
                     <div className="p-5 rounded-xl border border-stone-100 bg-white shadow-xs space-y-2">
-                      <div className="w-8 h-8 rounded-lg bg-orange-100 flex items-center justify-center text-[#FF4B00]">
+                      <div className="w-8 h-8 rounded-lg bg-[#FCE8E8] flex items-center justify-center text-[#9b0000]">
                         <Building2 className="w-4 h-4" />
                       </div>
                       <h4 className="font-bold text-sm text-stone-900">Regional Footprint</h4>
@@ -703,7 +703,7 @@ export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, on
                     </div>
 
                     <div className="p-5 rounded-xl border border-stone-100 bg-white shadow-xs space-y-2">
-                      <div className="w-8 h-8 rounded-lg bg-orange-100 flex items-center justify-center text-[#FF4B00]">
+                      <div className="w-8 h-8 rounded-lg bg-[#FCE8E8] flex items-center justify-center text-[#9b0000]">
                         <Users className="w-4 h-4" />
                       </div>
                       <h4 className="font-bold text-sm text-stone-900">Career Acceleration</h4>
@@ -720,14 +720,14 @@ export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, on
                     <AlertCircle className="w-6 h-6" />
                   </div>
                   <div className="space-y-1.5">
-                    <h4 className="font-extrabold text-[#FF4B00] text-sm uppercase tracking-wider">Right now no vacancy open</h4>
+                    <h4 className="font-extrabold text-[#9b0000] text-sm uppercase tracking-wider">Right now no vacancy open</h4>
                     <p className="text-stone-600 text-xs font-semibold max-w-lg mx-auto leading-relaxed">
                       All departments are currently running at full capacity. However, please keep watch on this page for upcoming open vacancies!
                     </p>
                   </div>
                   <div className="pt-2 border-t border-stone-200/60 max-w-md mx-auto">
                     <p className="text-[11px] text-stone-500 leading-normal">
-                      We are always looking for outstanding minds! Proactively send your CV or profile to <a href="mailto:holidayshunt@gmail.com" className="font-bold text-[#FF4B00] hover:underline">holidayshunt@gmail.com</a>. We will store it securely and reach out to you first when a matching slot opens.
+                      We are always looking for outstanding minds! Proactively send your CV or profile to <a href="mailto:holidayshunt@gmail.com" className="font-bold text-[#9b0000] hover:underline">holidayshunt@gmail.com</a>. We will store it securely and reach out to you first when a matching slot opens.
                     </p>
                   </div>
                 </div>
@@ -779,13 +779,13 @@ export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, on
                 <div className="space-y-8 pt-2">
                   
                   {/* Intro section with icons */}
-                  <div className="p-6 rounded-2xl bg-[#FF4B00]/5 border border-[#FF4B00]/20 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div className="p-6 rounded-2xl bg-[#9b0000]/5 border border-[#9b0000]/20 flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div className="space-y-1">
-                      <div className="flex items-center gap-2 text-[#FF4B00]">
-                        {pageSlug === 'honeymoon' && <Heart className="w-5 h-5 fill-[#FF4B00]" />}
+                      <div className="flex items-center gap-2 text-[#9b0000]">
+                        {pageSlug === 'honeymoon' && <Heart className="w-5 h-5 fill-[#9b0000]" />}
                         {pageSlug === 'family' && <Users className="w-5 h-5" />}
                         {pageSlug === 'pilgrimage' && <Sparkles className="w-5 h-5 text-amber-500 fill-amber-500" />}
-                        <span className="text-xs font-black uppercase tracking-widest text-[#FF4B00]">
+                        <span className="text-xs font-black uppercase tracking-widest text-[#9b0000]">
                           {pageSlug === 'honeymoon' ? 'ROMANTIC GETAWAYS' : pageSlug === 'family' ? 'FAMILY ADVENTURES' : 'DEVOTIONAL JOURNEYS'}
                         </span>
                       </div>
@@ -799,7 +799,7 @@ export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, on
                     </div>
                     <a
                       href="tel:+919419915255"
-                      className="shrink-0 px-5 py-3 rounded-xl bg-[#FF4B00] text-white hover:bg-opacity-90 font-bold text-xs shadow-md shadow-[#FF4B00]/10 text-center transition"
+                      className="shrink-0 px-5 py-3 rounded-xl bg-[#9b0000] text-white hover:bg-opacity-90 font-bold text-xs shadow-md shadow-[#9b0000]/10 text-center transition"
                     >
                       Speak with Expert
                     </a>
@@ -814,7 +814,7 @@ export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, on
                         onClick={() => setActiveCategoryDest('all')}
                         className={`p-4 rounded-xl text-left border-2 transition cursor-pointer ${
                           activeCategoryDest === 'all'
-                            ? 'border-[#FF4B00] bg-[#FF4B00]/5 text-stone-900 font-bold'
+                            ? 'border-[#9b0000] bg-[#9b0000]/5 text-stone-900 font-bold'
                             : 'border-stone-100 hover:border-stone-300 text-stone-600 bg-white'
                         }`}
                       >
@@ -829,7 +829,7 @@ export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, on
                           onClick={() => setActiveCategoryDest(region.slug)}
                           className={`p-4 rounded-xl text-left border-2 transition cursor-pointer ${
                             activeCategoryDest === region.slug
-                              ? 'border-[#FF4B00] bg-[#FF4B00]/5 text-stone-900 font-bold'
+                              ? 'border-[#9b0000] bg-[#9b0000]/5 text-stone-900 font-bold'
                               : 'border-stone-100 hover:border-stone-300 text-stone-600 bg-white'
                           }`}
                         >
@@ -860,19 +860,19 @@ export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, on
                         .map((pkg) => (
                           <div
                             key={pkg.id}
-                            className="p-5 rounded-2xl bg-white border border-stone-200/80 shadow-xs flex flex-col justify-between space-y-4 hover:border-[#FF4B00]/40 transition group"
+                            className="p-5 rounded-2xl bg-white border border-stone-200/80 shadow-xs flex flex-col justify-between space-y-4 hover:border-[#9b0000]/40 transition group"
                           >
                             <div className="space-y-2">
                               <div className="flex items-center justify-between">
                                 <span className="text-[10px] font-black uppercase tracking-widest bg-stone-100 text-stone-600 px-2 py-0.5 rounded-md">
                                   {pkg.durationDays}D / {pkg.durationNights}N
                                 </span>
-                                <span className="text-xs font-bold text-[#FF4B00] flex items-center gap-1">
+                                <span className="text-xs font-bold text-[#9b0000] flex items-center gap-1">
                                   <MapPin className="w-3.5 h-3.5" />
                                   {pkg.destination}
                                 </span>
                               </div>
-                              <h4 className="font-extrabold text-stone-900 text-base group-hover:text-[#FF4B00] transition">
+                              <h4 className="font-extrabold text-stone-900 text-base group-hover:text-[#9b0000] transition">
                                 {pkg.title}
                               </h4>
                               <p className="text-xs text-stone-500 line-clamp-2">
@@ -906,7 +906,7 @@ export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, on
                                   setSelectedPackageId(pkg.id);
                                   window.scrollTo({ top: 0, behavior: 'smooth' });
                                 }}
-                                className="px-4 py-2 rounded-xl bg-stone-900 text-white text-xs font-bold hover:bg-[#FF4B00] transition flex items-center gap-1 group-hover:translate-x-0.5 duration-300 cursor-pointer"
+                                className="px-4 py-2 rounded-xl bg-stone-900 text-white text-xs font-bold hover:bg-[#9b0000] transition flex items-center gap-1 group-hover:translate-x-0.5 duration-300 cursor-pointer"
                               >
                                 <span>View details</span>
                                 <ArrowRight className="w-3 h-3" />
@@ -930,7 +930,7 @@ export const InfoPageView: React.FC<InfoPageViewProps> = ({ pageSlug, onBack, on
                           </p>
                           <a
                             href="tel:+919419915255"
-                            className="mt-4 inline-block px-5 py-2 rounded-xl bg-stone-900 text-white text-xs font-bold hover:bg-[#FF4B00] transition"
+                            className="mt-4 inline-block px-5 py-2 rounded-xl bg-stone-900 text-white text-xs font-bold hover:bg-[#9b0000] transition"
                           >
                             Call +91 94199 15255
                           </a>

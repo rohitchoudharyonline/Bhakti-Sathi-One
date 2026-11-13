@@ -60,7 +60,7 @@ export const DayWiseItinerary: React.FC<DayWiseItineraryProps> = ({
       {/* Top Header */}
       <div className="p-3.5 sm:p-4 border-b border-stone-100 bg-stone-50/50 flex flex-row items-center justify-between gap-2.5 min-w-0 w-full">
         <div className="min-w-0 flex-1 flex items-center gap-2">
-          <CalendarDays className="w-4 h-4 text-[#FF4B00] shrink-0" />
+          <CalendarDays className="w-4 h-4 text-[#9b0000] shrink-0" />
           <span className="text-xs sm:text-sm font-extrabold text-stone-900 uppercase tracking-wider">
             DAY BY DAY ITINERARY
           </span>
@@ -72,7 +72,7 @@ export const DayWiseItinerary: React.FC<DayWiseItineraryProps> = ({
           onClick={allExpanded ? collapseAll : expandAll}
           className="px-3 py-1.5 rounded-xl border border-stone-200 bg-white hover:bg-stone-100 text-xs font-bold text-[#1D1C1C] transition cursor-pointer flex items-center gap-1.5 shadow-2xs shrink-0 active:scale-95"
         >
-          <Layers className="w-3.5 h-3.5 text-[#FF4B00]" />
+          <Layers className="w-3.5 h-3.5 text-[#9b0000]" />
           <span>{allExpanded ? 'Collapse All' : 'Expand All Days'}</span>
         </button>
       </div>
@@ -93,14 +93,14 @@ export const DayWiseItinerary: React.FC<DayWiseItineraryProps> = ({
                   className="inline-flex items-center gap-1.5 cursor-pointer group/badge select-none"
                   title={`Toggle Day ${day.dayNumber}`}
                 >
-                  <span className="text-[10px] font-black uppercase text-[#FF4B00] tracking-widest leading-none">
+                  <span className="text-[10px] font-black uppercase text-[#9b0000] tracking-widest leading-none">
                     DAY
                   </span>
                   <div
                     className={`w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center font-black text-xs sm:text-sm shadow-2xs transition-all duration-200 ${
                       isOpen
-                        ? 'bg-[#FF4B00] text-white ring-4 ring-[#FF4B00]/20 scale-105'
-                        : 'bg-[#FF4B00] text-white hover:bg-[#E04200]'
+                        ? 'bg-[#9b0000] text-white ring-4 ring-[#9b0000]/20 scale-105'
+                        : 'bg-[#9b0000] text-white hover:bg-[#7D0000]'
                     }`}
                   >
                     {day.dayNumber}
@@ -122,7 +122,7 @@ export const DayWiseItinerary: React.FC<DayWiseItineraryProps> = ({
                   >
                     <div className="min-w-0 flex-1">
                       {/* First Line: Main Title (e.g., Arrival in Srinagar..., Kolkata - Bhubaneshwar) */}
-                      <h3 className="text-sm sm:text-base font-extrabold text-[#1D1C1C] leading-snug group-hover/btn:text-[#FF4B00] transition-colors">
+                      <h3 className="text-sm sm:text-base font-extrabold text-[#1D1C1C] leading-snug group-hover/btn:text-[#9b0000] transition-colors">
                         {day.title || day.location}
                       </h3>
                     </div>
@@ -162,7 +162,7 @@ export const DayWiseItinerary: React.FC<DayWiseItineraryProps> = ({
                           <div className="pt-2.5 border-t border-stone-100 text-xs w-full space-y-2.5">
                             {day.stayHotel && (
                               <div className="flex items-start gap-1.5 text-stone-700 w-full">
-                                <Hotel className="w-3.5 h-3.5 text-[#FF4B00] shrink-0 mt-0.5" />
+                                <Hotel className="w-3.5 h-3.5 text-[#9b0000] shrink-0 mt-0.5" />
                                 <div className="flex flex-col min-w-0 flex-1">
                                   <span className="font-bold text-stone-900">Hotels:</span>
                                   <span className="break-words leading-relaxed text-stone-700 font-medium">{day.stayHotel}</span>
@@ -172,7 +172,7 @@ export const DayWiseItinerary: React.FC<DayWiseItineraryProps> = ({
 
                             {day.meals && day.meals.length > 0 && (
                               <div className="flex items-start gap-1.5 text-stone-700 w-full">
-                                <Utensils className="w-3.5 h-3.5 text-[#FF4B00] shrink-0 mt-0.5" />
+                                <Utensils className="w-3.5 h-3.5 text-[#9b0000] shrink-0 mt-0.5" />
                                 <div className="flex flex-col min-w-0 flex-1">
                                   <span className="font-bold text-stone-900">Meal:</span>
                                   <span className="text-stone-700 font-medium leading-relaxed">{day.meals.join(', ')}</span>

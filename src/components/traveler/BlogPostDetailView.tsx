@@ -262,8 +262,8 @@ export const BlogPostDetailView: React.FC<BlogPostDetailViewProps> = ({ slug }) 
 
           {/* Trip Planning CTA Card */}
           <div className="bg-stone-50 border border-stone-200 p-6 sm:p-8 rounded-3xl space-y-4">
-            <div className="flex items-center gap-2 text-[#FF4B00] text-xs font-bold uppercase tracking-wider">
-              <span className="p-1 bg-[#FF4B00]/10 rounded-md">🏔️</span>
+            <div className="flex items-center gap-2 text-[#9b0000] text-xs font-bold uppercase tracking-wider">
+              <span className="p-1 bg-[#9b0000]/10 rounded-md">🏔️</span>
               <span>Holidays Hunt Travel Desk</span>
             </div>
             <div>
@@ -279,7 +279,7 @@ export const BlogPostDetailView: React.FC<BlogPostDetailViewProps> = ({ slug }) 
               <button
                 type="button"
                 onClick={() => navigateToAllTours()}
-                className="px-6 py-3 bg-[#FF4B00] hover:bg-[#d43e00] text-white rounded-xl text-xs font-black tracking-wide shadow-2xs transition shrink-0 cursor-pointer flex items-center justify-center gap-2"
+                className="px-6 py-3 bg-[#9b0000] hover:bg-[#7D0000] text-white rounded-xl text-xs font-black tracking-wide shadow-2xs transition shrink-0 cursor-pointer flex items-center justify-center gap-2"
               >
                 <span>Explore Tour Packages</span>
                 <ArrowRight className="w-3.5 h-3.5" />

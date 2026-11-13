@@ -602,7 +602,7 @@ export const SettingsManager: React.FC<{ initialTab?: 'branding' | 'faqs' | 'foo
           <div className="pb-4 border-b border-slate-100 flex items-center justify-between">
             <div>
               <h3 className="text-base font-black text-slate-900 flex items-center gap-2">
-                <HelpCircle className="w-4 h-4 text-orange-600" />
+                <HelpCircle className="w-4 h-4 text-[#9b0000]" />
                 Frequently Asked Questions (FAQ) Editor
               </h3>
               <p className="text-xs text-slate-500 mt-0.5">
@@ -903,12 +903,12 @@ export const SettingsManager: React.FC<{ initialTab?: 'branding' | 'faqs' | 'foo
                                 setInlineLinkLabel('');
                                 setInlineLinkUrl('');
                               }}
-                              className="text-[10.5px] font-bold text-brand hover:text-brand-dark px-2.5 py-1 rounded-lg bg-orange-50 hover:bg-orange-100 transition cursor-pointer flex items-center gap-1"
+                              className="text-[10.5px] font-bold text-brand hover:text-brand-dark px-2.5 py-1 rounded-lg bg-[#FDF2F2] hover:bg-[#FCE8E8] transition cursor-pointer flex items-center gap-1"
                             >
                               <Plus className="w-3 h-3" />
                               Add Link
                             </button>
-                            <button type="button" onClick={() => editFooterSection(section.id)} className="text-[10.5px] font-bold text-slate-600 hover:text-brand px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-orange-50 transition cursor-pointer flex items-center gap-1" title="Edit this column"><Edit2 className="w-3 h-3" /> Edit</button>
+                            <button type="button" onClick={() => editFooterSection(section.id)} className="text-[10.5px] font-bold text-slate-600 hover:text-brand px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-[#FDF2F2] transition cursor-pointer flex items-center gap-1" title="Edit this column"><Edit2 className="w-3 h-3" /> Edit</button>
                             <button
                               type="button"
                               onClick={() => {
@@ -1078,7 +1078,7 @@ export const SettingsManager: React.FC<{ initialTab?: 'branding' | 'faqs' | 'foo
                               onClick={() => setNewNavIcon(ic.id as any)}
                               className={`p-2 rounded-xl border text-xs flex flex-col items-center gap-1 font-bold transition cursor-pointer ${
                                 newNavIcon === ic.id
-                                  ? 'border-brand bg-orange-50 text-brand'
+                                  ? 'border-brand bg-[#FDF2F2] text-brand'
                                   : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-100'
                               }`}
                             >
@@ -1231,7 +1231,7 @@ export const SettingsManager: React.FC<{ initialTab?: 'branding' | 'faqs' | 'foo
                         <button
                           type="button"
                           onClick={() => editBottomNavItem(item.id)}
-                          className="text-slate-600 hover:text-brand hover:bg-orange-50 bg-slate-50 border border-slate-200 px-3 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1 cursor-pointer"
+                          className="text-slate-600 hover:text-brand hover:bg-[#FDF2F2] bg-slate-50 border border-slate-200 px-3 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1 cursor-pointer"
                           title="Edit this bottom menu option"
                         >
                           <Edit2 className="w-3.5 h-3.5" />

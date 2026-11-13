@@ -379,7 +379,7 @@ export const DestinationsManager: React.FC = () => {
 
                   <button
                     onClick={() => setDiagnosticTarget({ url: dest.heroImage || '', title: `Image Diagnostics: ${dest.name}` })}
-                    className="p-1.5 hover:bg-orange-50 text-orange-600 rounded-lg transition cursor-pointer"
+                    className="p-1.5 hover:bg-[#FDF2F2] text-[#9b0000] rounded-lg transition cursor-pointer"
                     title="Inspect Image Diagnostics"
                   >
                     <Activity className="w-4 h-4" />

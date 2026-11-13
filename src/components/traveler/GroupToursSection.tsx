@@ -93,15 +93,15 @@ export const GroupToursSection: React.FC = () => {
       className="py-12 sm:py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto relative overflow-hidden"
     >
       {/* Background Accent Subtle Glow */}
-      <div className="absolute top-1/2 -right-32 w-80 h-80 bg-[#FF4B00]/5 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-1/2 -right-32 w-80 h-80 bg-[#9b0000]/5 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute top-10 -left-20 w-64 h-64 bg-amber-500/5 rounded-full blur-3xl pointer-events-none" />
 
       <div className="relative z-10">
         {/* Section Header */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6 sm:mb-8">
           <div>
-            <span className="text-[11px] font-black uppercase tracking-widest text-[#FF4B00] bg-[#FFF0EB] px-3.5 py-1.5 rounded-full border border-[#FF4B00]/20 inline-flex items-center gap-1.5 mb-2.5 shadow-2xs">
-              <Bus className="w-3.5 h-3.5 text-[#FF4B00]" />
+            <span className="text-[11px] font-black uppercase tracking-widest text-[#9b0000] bg-[#FDF2F2] px-3.5 py-1.5 rounded-full border border-[#9b0000]/20 inline-flex items-center gap-1.5 mb-2.5 shadow-2xs">
+              <Bus className="w-3.5 h-3.5 text-[#9b0000]" />
               <span>Fixed Departures</span>
             </span>
 
@@ -121,7 +121,7 @@ export const GroupToursSection: React.FC = () => {
               <button
                 type="button"
                 onClick={() => handleScroll('left')}
-                className="w-10 h-10 rounded-full bg-white border border-stone-200 text-stone-800 hover:bg-[#FF4B00] hover:text-white hover:border-[#FF4B00] grid place-items-center transition-all cursor-pointer shadow-2xs active:scale-95"
+                className="w-10 h-10 rounded-full bg-white border border-stone-200 text-stone-800 hover:bg-[#9b0000] hover:text-white hover:border-[#9b0000] grid place-items-center transition-all cursor-pointer shadow-2xs active:scale-95"
                 aria-label="Previous tours"
               >
                 <ChevronLeft className="w-5 h-5" />
@@ -129,7 +129,7 @@ export const GroupToursSection: React.FC = () => {
               <button
                 type="button"
                 onClick={() => handleScroll('right')}
-                className="w-10 h-10 rounded-full bg-white border border-stone-200 text-stone-800 hover:bg-[#FF4B00] hover:text-white hover:border-[#FF4B00] grid place-items-center transition-all cursor-pointer shadow-2xs active:scale-95"
+                className="w-10 h-10 rounded-full bg-white border border-stone-200 text-stone-800 hover:bg-[#9b0000] hover:text-white hover:border-[#9b0000] grid place-items-center transition-all cursor-pointer shadow-2xs active:scale-95"
                 aria-label="Next tours"
               >
                 <ChevronRight className="w-5 h-5" />
@@ -166,7 +166,7 @@ export const GroupToursSection: React.FC = () => {
                   <div
                     key={pkg.id}
                     onClick={() => handlePackageClick(pkg.id)}
-                    className="group-tour-card group shrink-0 w-[310px] sm:w-[480px] md:w-[540px] snap-start bg-white rounded-3xl border border-stone-200/90 overflow-hidden shadow-2xs hover:shadow-xl hover:border-[#FF4B00]/40 transition-all duration-300 flex flex-col sm:flex-row cursor-pointer"
+                    className="group-tour-card group shrink-0 w-[310px] sm:w-[480px] md:w-[540px] snap-start bg-white rounded-3xl border border-stone-200/90 overflow-hidden shadow-2xs hover:shadow-xl hover:border-[#9b0000]/40 transition-all duration-300 flex flex-col sm:flex-row cursor-pointer"
                   >
                     {/* Left Column: Image with Group Tour Badge */}
                     <div className="relative w-full sm:w-52 md:w-60 shrink-0 aspect-[16/10] sm:aspect-auto overflow-hidden bg-stone-100">
@@ -182,7 +182,7 @@ export const GroupToursSection: React.FC = () => {
 
                       {/* Fixed Departure Badge */}
                       <div className="absolute top-3 left-3 flex flex-col gap-1.5 items-start">
-                        <span className="bg-[#FF4B00] text-white text-[10px] font-black px-2.5 py-1 rounded-full shadow-xs uppercase tracking-wider flex items-center gap-1">
+                        <span className="bg-[#9b0000] text-white text-[10px] font-black px-2.5 py-1 rounded-full shadow-xs uppercase tracking-wider flex items-center gap-1">
                           <Bus className="w-3 h-3" />
                           <span>Fixed Departure</span>
                         </span>
@@ -212,7 +212,7 @@ export const GroupToursSection: React.FC = () => {
                         )}
 
                         <span className="bg-white/95 backdrop-blur-xs text-stone-900 text-[10px] font-black px-2 py-0.5 rounded-md ml-auto flex items-center gap-1 shadow-2xs">
-                          <Clock className="w-3 h-3 text-[#FF4B00]" />
+                          <Clock className="w-3 h-3 text-[#9b0000]" />
                           <span>{pkg.durationDays}D / {pkg.durationNights}N</span>
                         </span>
                       </div>
@@ -224,7 +224,7 @@ export const GroupToursSection: React.FC = () => {
                         {/* Top Meta: Coach Specs & Star Rating */}
                         <div className="flex items-center justify-between gap-2 mb-1.5">
                           <span className="inline-flex items-center gap-1 text-[11px] font-bold text-stone-600 bg-stone-100 px-2 py-0.5 rounded-md truncate">
-                            <Bus className="w-3 h-3 text-[#FF4B00] shrink-0" />
+                            <Bus className="w-3 h-3 text-[#9b0000] shrink-0" />
                             <span className="truncate">{grp?.coachType || '2x2 AC Pushback Coach'}</span>
                           </span>
 
@@ -236,13 +236,13 @@ export const GroupToursSection: React.FC = () => {
                         </div>
 
                         {/* Package Title */}
-                        <h3 className="text-base font-black text-stone-900 leading-snug line-clamp-2 group-hover:text-[#FF4B00] transition-colors">
+                        <h3 className="text-base font-black text-stone-900 leading-snug line-clamp-2 group-hover:text-[#9b0000] transition-colors">
                           {pkg.title}
                         </h3>
 
                         {/* Destination Route */}
                         <p className="text-xs text-stone-500 font-medium mt-1 line-clamp-1 flex items-center gap-1">
-                          <MapPin className="w-3 h-3 text-[#FF4B00] shrink-0" />
+                          <MapPin className="w-3 h-3 text-[#9b0000] shrink-0" />
                           <span>{pkg.destination}</span>
                         </p>
 
@@ -250,7 +250,7 @@ export const GroupToursSection: React.FC = () => {
                         <div className="mt-3 flex flex-wrap items-center gap-2">
                           {/* Upcoming Departure Badge */}
                           <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-amber-50/90 border border-amber-200/80 text-amber-900 text-xs font-bold shadow-2xs">
-                            <CalendarDays className="w-3.5 h-3.5 text-[#FF4B00] shrink-0" />
+                            <CalendarDays className="w-3.5 h-3.5 text-[#9b0000] shrink-0" />
                             <span className="text-stone-500 font-medium text-[11px]">Next Batch:</span>
                             <span className="text-stone-900 font-black text-xs">{departureDate}</span>
                           </div>
@@ -286,12 +286,12 @@ export const GroupToursSection: React.FC = () => {
                           </span>
                           <div className="flex items-baseline gap-1.5">
                             {isPriceOnRequest ? (
-                              <span className="text-base sm:text-lg font-black text-[#FF4B00]">
+                              <span className="text-base sm:text-lg font-black text-[#9b0000]">
                                 Price on Request
                               </span>
                             ) : (
                               <>
-                                <span className="text-lg sm:text-xl font-black text-[#FF4B00]">
+                                <span className="text-lg sm:text-xl font-black text-[#9b0000]">
                                   ₹{startingPrice.toLocaleString('en-IN')}
                                 </span>
                                 {pkg.discountedPrice && pkg.price > pkg.discountedPrice && (
@@ -312,7 +312,7 @@ export const GroupToursSection: React.FC = () => {
                             e.stopPropagation();
                             handlePackageClick(pkg.id);
                           }}
-                          className="relative group/btn inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl bg-[#FF4B00] hover:bg-[#E04200] text-white text-xs sm:text-sm font-black transition-all duration-300 transform-gpu hover:-translate-y-1 shadow-xs hover:shadow-lg hover:shadow-[#FF4B00]/30 hover:ring-4 hover:ring-[#FF4B00]/25 cursor-pointer active:scale-95 shrink-0 overflow-hidden"
+                          className="relative group/btn inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl bg-[#9b0000] hover:bg-[#7D0000] text-white text-xs sm:text-sm font-black transition-all duration-300 transform-gpu hover:-translate-y-1 shadow-xs hover:shadow-lg hover:shadow-[#9b0000]/30 hover:ring-4 hover:ring-[#9b0000]/25 cursor-pointer active:scale-95 shrink-0 overflow-hidden"
                         >
                           {/* Smooth Pulse Light Shimmer Layer */}
                           <span className="absolute inset-0 rounded-xl bg-gradient-to-r from-white/0 via-white/25 to-white/0 opacity-0 group-hover/btn:opacity-100 group-hover/btn:animate-pulse transition-opacity duration-300 pointer-events-none" />
@@ -347,7 +347,7 @@ export const GroupToursSection: React.FC = () => {
                     }}
                     aria-label={`Go to tour ${dotIdx + 1}`}
                     className={`h-1.5 rounded-full transition-all duration-300 ${
-                      activeSlideIndex === dotIdx ? 'w-6 bg-[#FF4B00]' : 'w-2 bg-stone-300 hover:bg-stone-400'
+                      activeSlideIndex === dotIdx ? 'w-6 bg-[#9b0000]' : 'w-2 bg-stone-300 hover:bg-stone-400'
                     }`}
                   />
                 ))}
@@ -355,14 +355,14 @@ export const GroupToursSection: React.FC = () => {
 
               <span className="text-[11px] font-bold text-stone-500 flex items-center gap-1">
                 <span>Swipe or use arrows for more departures</span>
-                <ArrowRight className="w-3 h-3 text-[#FF4B00]" />
+                <ArrowRight className="w-3 h-3 text-[#9b0000]" />
               </span>
             </div>
           </div>
         ) : (
           /* Empty state */
           <div className="bg-white rounded-3xl p-8 text-center border border-stone-200 shadow-2xs">
-            <Bus className="w-10 h-10 text-[#FF4B00] mx-auto mb-3" />
+            <Bus className="w-10 h-10 text-[#9b0000] mx-auto mb-3" />
             <h3 className="text-base font-black text-stone-900">Upcoming Group Batches Loading</h3>
             <p className="text-xs text-stone-600 mt-1 max-w-md mx-auto">
               We are releasing new fixed departure group tour batches.
@@ -370,7 +370,7 @@ export const GroupToursSection: React.FC = () => {
             <button
               type="button"
               onClick={() => navigateToSearch({ category: 'Pilgrimage' })}
-              className="mt-4 px-5 py-2.5 rounded-xl bg-[#FF4B00] text-white font-black text-xs inline-flex items-center gap-2 shadow-xs cursor-pointer"
+              className="mt-4 px-5 py-2.5 rounded-xl bg-[#9b0000] text-white font-black text-xs inline-flex items-center gap-2 shadow-xs cursor-pointer"
             >
               <span>Explore All Yatras</span>
               <ArrowRight className="w-4 h-4" />

@@ -467,7 +467,7 @@ export const InquiriesManager: React.FC<{
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search by Booking Number (e.g. HH76868), traveler name, email, phone, or package..."
-              className="w-full text-xs bg-white border border-stone-200 rounded-xl pl-9 pr-3 py-2 text-stone-900 focus:outline-none focus:ring-2 focus:ring-[#FC3200]/30"
+              className="w-full text-xs bg-white border border-stone-200 rounded-xl pl-9 pr-3 py-2 text-stone-900 focus:outline-none focus:ring-2 focus:ring-[#9b0000]/30"
             />
           </div>
 
@@ -479,7 +479,7 @@ export const InquiriesManager: React.FC<{
                   onClick={() => setStatusFilter(st)}
                   className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${
                     statusFilter === st
-                      ? 'bg-[#FC3200] text-white shadow-xs font-bold'
+                      ? 'bg-[#9b0000] text-white shadow-xs font-bold'
                       : 'bg-stone-100 dark:bg-stone-800 text-stone-700 hover:bg-stone-200'
                   }`}
                 >
@@ -491,7 +491,7 @@ export const InquiriesManager: React.FC<{
             <button
               type="button"
               onClick={() => setIsCreateModalOpen(true)}
-              className="px-3.5 py-1.5 rounded-xl bg-[#FC3200] hover:bg-[#e02c00] text-white text-xs font-black transition flex items-center gap-1.5 shadow-sm ml-auto sm:ml-0 cursor-pointer"
+              className="px-3.5 py-1.5 rounded-xl bg-[#9b0000] hover:bg-[#7D0000] text-white text-xs font-black transition flex items-center gap-1.5 shadow-sm ml-auto sm:ml-0 cursor-pointer"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>New Booking</span>
@@ -510,7 +510,7 @@ export const InquiriesManager: React.FC<{
                   filteredInquiries.length > 0
                 }
                 onChange={handleToggleSelectAll}
-                className="w-4 h-4 rounded border-stone-300 text-[#FC3200] focus:ring-[#FC3200] cursor-pointer"
+                className="w-4 h-4 rounded border-stone-300 text-[#9b0000] focus:ring-[#9b0000] cursor-pointer"
               />
               <span>Select All Inquiries ({filteredInquiries.length})</span>
             </label>
@@ -547,7 +547,7 @@ export const InquiriesManager: React.FC<{
                   key={inq.id}
                   className={`p-4 sm:p-5 rounded-2xl border transition space-y-4 ${
                     selectedInquiryIds.includes(inq.id)
-                      ? 'border-[#FC3200] ring-2 ring-[#FC3200]/20 bg-orange-50/30'
+                      ? 'border-[#9b0000] ring-2 ring-[#9b0000]/20 bg-[#FDF2F2]/30'
                       : 'bg-stone-50/50 border-stone-200 shadow-xs hover:shadow-md'
                   }`}
                   id={`newsletter-row-${inq.id}`}
@@ -558,11 +558,11 @@ export const InquiriesManager: React.FC<{
                         type="checkbox"
                         checked={selectedInquiryIds.includes(inq.id)}
                         onChange={() => handleToggleSelect(inq.id)}
-                        className="w-4 h-4 rounded border-stone-300 text-[#FC3200] focus:ring-[#FC3200] cursor-pointer mt-1"
+                        className="w-4 h-4 rounded border-stone-300 text-[#9b0000] focus:ring-[#9b0000] cursor-pointer mt-1"
                       />
                       <div>
                         <div className="flex flex-wrap items-center gap-2.5 mb-1.5">
-                          <span className="px-2.5 py-0.5 rounded-full bg-orange-100 text-[#FF4B00] border border-orange-200 text-[10px] font-black tracking-wider uppercase">
+                          <span className="px-2.5 py-0.5 rounded-full bg-[#FCE8E8] text-[#9b0000] border border-[#F5C2C2] text-[10px] font-black tracking-wider uppercase">
                             📬 Subscriber
                           </span>
                           <h3 className="text-base sm:text-lg font-black text-stone-900 truncate">
@@ -584,7 +584,7 @@ export const InquiriesManager: React.FC<{
                           navigator.clipboard.writeText(inq.email);
                           alert("Email copied to clipboard!");
                         }}
-                        className="p-1.5 text-stone-500 hover:text-[#FF4B00] hover:bg-orange-50 rounded-lg transition cursor-pointer"
+                        className="p-1.5 text-stone-500 hover:text-[#9b0000] hover:bg-[#FDF2F2] rounded-lg transition cursor-pointer"
                         title="Copy Email"
                       >
                         <Copy className="w-4 h-4" />
@@ -619,7 +619,7 @@ export const InquiriesManager: React.FC<{
                 key={inq.id}
                 className={`p-4 sm:p-5 rounded-2xl border transition space-y-4 ${
                   selectedInquiryIds.includes(inq.id)
-                    ? 'border-[#FC3200] ring-2 ring-[#FC3200]/20 bg-orange-50/20'
+                    ? 'border-[#9b0000] ring-2 ring-[#9b0000]/20 bg-[#FDF2F2]/20'
                     : 'bg-white border-stone-200 shadow-sm hover:shadow-md'
                 }`}
                 id={`inquiry-row-${inq.id}`}
@@ -631,7 +631,7 @@ export const InquiriesManager: React.FC<{
                       type="checkbox"
                       checked={selectedInquiryIds.includes(inq.id)}
                       onChange={() => handleToggleSelect(inq.id)}
-                      className="w-4 h-4 rounded border-stone-300 text-[#FC3200] focus:ring-[#FC3200] cursor-pointer mt-1"
+                      className="w-4 h-4 rounded border-stone-300 text-[#9b0000] focus:ring-[#9b0000] cursor-pointer mt-1"
                     />
                     <div>
                       <div className="flex flex-wrap items-center gap-2.5 mb-1.5">
@@ -663,7 +663,7 @@ export const InquiriesManager: React.FC<{
                       </span>
                     </div>
 
-                    <div className="text-xs sm:text-sm font-bold text-[#FC3200] leading-snug">
+                    <div className="text-xs sm:text-sm font-bold text-[#9b0000] leading-snug">
                       Package: {inq.packageTitle}
                     </div>
                   </div>
@@ -697,7 +697,7 @@ export const InquiriesManager: React.FC<{
                     onChange={(e) =>
                       updateInquiryStatus(inq.id, e.target.value as BookingInquiry['status'])
                     }
-                    className="text-xs font-bold bg-white border border-stone-200 rounded-lg px-2.5 py-1.5 text-stone-800 focus:border-[#FC3200] focus:ring-1 focus:ring-[#FC3200] outline-none cursor-pointer shrink-0"
+                    className="text-xs font-bold bg-white border border-stone-200 rounded-lg px-2.5 py-1.5 text-stone-800 focus:border-[#9b0000] focus:ring-1 focus:ring-[#9b0000] outline-none cursor-pointer shrink-0"
                   >
                     <option value="New">New</option>
                     <option value="Contacted">Contacted</option>
@@ -1150,7 +1150,7 @@ export const InquiriesManager: React.FC<{
                   />
                   <button
                     type="submit"
-                    className="px-3 py-1 bg-[#FC3200] text-white  rounded-lg text-xs font-semibold"
+                    className="px-3 py-1 bg-[#9b0000] text-white  rounded-lg text-xs font-semibold"
                   >
                     Post
                   </button>
@@ -1223,7 +1223,7 @@ export const InquiriesManager: React.FC<{
                     onChange={(e) =>
                       setEditingInquiry({ ...editingInquiry, travelerName: e.target.value })
                     }
-                    className="w-full px-3 py-2 text-xs font-bold rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#FC3200]/30"
+                    className="w-full px-3 py-2 text-xs font-bold rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#9b0000]/30"
                   />
                 </div>
 
@@ -1238,7 +1238,7 @@ export const InquiriesManager: React.FC<{
                     onChange={(e) =>
                       setEditingInquiry({ ...editingInquiry, phone: e.target.value })
                     }
-                    className="w-full px-3 py-2 text-xs font-bold rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#FC3200]/30"
+                    className="w-full px-3 py-2 text-xs font-bold rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#9b0000]/30"
                   />
                 </div>
               </div>
@@ -1254,7 +1254,7 @@ export const InquiriesManager: React.FC<{
                   onChange={(e) =>
                     setEditingInquiry({ ...editingInquiry, email: e.target.value })
                   }
-                  className="w-full px-3 py-2 text-xs font-bold rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#FC3200]/30"
+                  className="w-full px-3 py-2 text-xs font-bold rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#9b0000]/30"
                 />
               </div>
 
@@ -1269,7 +1269,7 @@ export const InquiriesManager: React.FC<{
                   onChange={(e) =>
                     setEditingInquiry({ ...editingInquiry, packageTitle: e.target.value })
                   }
-                  className="w-full px-3 py-2 text-xs font-bold rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#FC3200]/30"
+                  className="w-full px-3 py-2 text-xs font-bold rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#9b0000]/30"
                 />
               </div>
 
@@ -1285,7 +1285,7 @@ export const InquiriesManager: React.FC<{
                     onChange={(e) =>
                       setEditingInquiry({ ...editingInquiry, travelDate: e.target.value })
                     }
-                    className="w-full px-3 py-2 text-xs font-bold rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#FC3200]/30"
+                    className="w-full px-3 py-2 text-xs font-bold rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#9b0000]/30"
                   />
                 </div>
 
@@ -1301,7 +1301,7 @@ export const InquiriesManager: React.FC<{
                     onChange={(e) =>
                       setEditingInquiry({ ...editingInquiry, adults: Number(e.target.value) })
                     }
-                    className="w-full px-3 py-2 text-xs font-bold rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#FC3200]/30"
+                    className="w-full px-3 py-2 text-xs font-bold rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#9b0000]/30"
                   />
                 </div>
 
@@ -1316,7 +1316,7 @@ export const InquiriesManager: React.FC<{
                     onChange={(e) =>
                       setEditingInquiry({ ...editingInquiry, children: Number(e.target.value) })
                     }
-                    className="w-full px-3 py-2 text-xs font-bold rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#FC3200]/30"
+                    className="w-full px-3 py-2 text-xs font-bold rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#9b0000]/30"
                   />
                 </div>
               </div>
@@ -1333,7 +1333,7 @@ export const InquiriesManager: React.FC<{
                     onChange={(e) =>
                       setEditingInquiry({ ...editingInquiry, estimatedTotal: Number(e.target.value) })
                     }
-                    className="w-full px-3 py-2 text-xs font-bold rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#FC3200]/30"
+                    className="w-full px-3 py-2 text-xs font-bold rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#9b0000]/30"
                   />
                 </div>
 
@@ -1346,7 +1346,7 @@ export const InquiriesManager: React.FC<{
                     onChange={(e) =>
                       setEditingInquiry({ ...editingInquiry, status: e.target.value as any })
                     }
-                    className="w-full px-3 py-2 text-xs font-bold rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#FC3200]/30"
+                    className="w-full px-3 py-2 text-xs font-bold rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#9b0000]/30"
                   >
                     <option value="New">New</option>
                     <option value="Contacted">Contacted</option>
@@ -1367,7 +1367,7 @@ export const InquiriesManager: React.FC<{
                   onChange={(e) =>
                     setEditingInquiry({ ...editingInquiry, specialRequests: e.target.value })
                   }
-                  className="w-full px-3 py-2 text-xs font-medium rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#FC3200]/30"
+                  className="w-full px-3 py-2 text-xs font-medium rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#9b0000]/30"
                   placeholder="e.g. Honeymoon cake, houseboat candle-light dinner, vegetarian meal..."
                 />
               </div>
@@ -1382,7 +1382,7 @@ export const InquiriesManager: React.FC<{
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl bg-[#FC3200] hover:bg-[#e02c00] text-white text-xs font-black transition cursor-pointer shadow-sm"
+                  className="px-5 py-2 rounded-xl bg-[#9b0000] hover:bg-[#7D0000] text-white text-xs font-black transition cursor-pointer shadow-sm"
                 >
                   Save Changes
                 </button>
@@ -1396,7 +1396,7 @@ export const InquiriesManager: React.FC<{
       {isCreateModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/60 backdrop-blur-sm overflow-y-auto">
           <div className="bg-white rounded-3xl max-w-lg w-full border border-stone-200 shadow-2xl overflow-hidden my-8 animate-in fade-in zoom-in-95">
-            <div className="p-6 border-b border-stone-100 flex items-center justify-between bg-[#FC3200] text-white">
+            <div className="p-6 border-b border-stone-100 flex items-center justify-between bg-[#9b0000] text-white">
               <div>
                 <h3 className="font-black text-base flex items-center gap-2">
                   <Plus className="w-5 h-5 text-white" />
@@ -1459,7 +1459,7 @@ export const InquiriesManager: React.FC<{
                     onChange={(e) =>
                       setNewBookingForm({ ...newBookingForm, travelerName: e.target.value })
                     }
-                    className="w-full px-3 py-2 text-xs font-bold rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#FC3200]/30"
+                    className="w-full px-3 py-2 text-xs font-bold rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#9b0000]/30"
                   />
                 </div>
 
@@ -1475,7 +1475,7 @@ export const InquiriesManager: React.FC<{
                     onChange={(e) =>
                       setNewBookingForm({ ...newBookingForm, phone: e.target.value })
                     }
-                    className="w-full px-3 py-2 text-xs font-bold rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#FC3200]/30"
+                    className="w-full px-3 py-2 text-xs font-bold rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#9b0000]/30"
                   />
                 </div>
               </div>
@@ -1492,7 +1492,7 @@ export const InquiriesManager: React.FC<{
                   onChange={(e) =>
                     setNewBookingForm({ ...newBookingForm, email: e.target.value })
                   }
-                  className="w-full px-3 py-2 text-xs font-bold rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#FC3200]/30"
+                  className="w-full px-3 py-2 text-xs font-bold rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#9b0000]/30"
                 />
               </div>
 
@@ -1511,7 +1511,7 @@ export const InquiriesManager: React.FC<{
                       estimatedTotal: selPkg ? selPkg.price * newBookingForm.adults : 45000,
                     });
                   }}
-                  className="w-full px-3 py-2 text-xs font-bold rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#FC3200]/30"
+                  className="w-full px-3 py-2 text-xs font-bold rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#9b0000]/30"
                 >
                   <option value="">Custom Package Itinerary</option>
                   {packages.map((pkg) => (
@@ -1534,7 +1534,7 @@ export const InquiriesManager: React.FC<{
                     onChange={(e) =>
                       setNewBookingForm({ ...newBookingForm, travelDate: e.target.value })
                     }
-                    className="w-full px-3 py-2 text-xs font-bold rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#FC3200]/30"
+                    className="w-full px-3 py-2 text-xs font-bold rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#9b0000]/30"
                   />
                 </div>
 
@@ -1550,7 +1550,7 @@ export const InquiriesManager: React.FC<{
                     onChange={(e) =>
                       setNewBookingForm({ ...newBookingForm, adults: Number(e.target.value) })
                     }
-                    className="w-full px-3 py-2 text-xs font-bold rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#FC3200]/30"
+                    className="w-full px-3 py-2 text-xs font-bold rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#9b0000]/30"
                   />
                 </div>
 
@@ -1565,7 +1565,7 @@ export const InquiriesManager: React.FC<{
                     onChange={(e) =>
                       setNewBookingForm({ ...newBookingForm, children: Number(e.target.value) })
                     }
-                    className="w-full px-3 py-2 text-xs font-bold rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#FC3200]/30"
+                    className="w-full px-3 py-2 text-xs font-bold rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#9b0000]/30"
                   />
                 </div>
               </div>
@@ -1581,7 +1581,7 @@ export const InquiriesManager: React.FC<{
                   onChange={(e) =>
                     setNewBookingForm({ ...newBookingForm, estimatedTotal: Number(e.target.value) })
                   }
-                  className="w-full px-3 py-2 text-xs font-bold rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#FC3200]/30"
+                  className="w-full px-3 py-2 text-xs font-bold rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#9b0000]/30"
                 />
               </div>
 
@@ -1595,7 +1595,7 @@ export const InquiriesManager: React.FC<{
                   onChange={(e) =>
                     setNewBookingForm({ ...newBookingForm, specialRequests: e.target.value })
                   }
-                  className="w-full px-3 py-2 text-xs font-medium rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#FC3200]/30"
+                  className="w-full px-3 py-2 text-xs font-medium rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#9b0000]/30"
                   placeholder="Special cab requirement, hotel category, or preferences..."
                 />
               </div>
@@ -1610,7 +1610,7 @@ export const InquiriesManager: React.FC<{
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl bg-[#FC3200] hover:bg-[#e02c00] text-white text-xs font-black transition cursor-pointer shadow-sm"
+                  className="px-5 py-2 rounded-xl bg-[#9b0000] hover:bg-[#7D0000] text-white text-xs font-black transition cursor-pointer shadow-sm"
                 >
                   Create Reservation
                 </button>

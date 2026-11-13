@@ -109,7 +109,7 @@ export const AllDestinationsExplorer: React.FC = () => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search state or circuit..."
-                className="w-full pl-10 pr-9 py-2.5 rounded-xl bg-stone-50 text-stone-900 placeholder-stone-400 text-xs sm:text-sm border border-stone-200 focus:outline-none focus:ring-4 focus:ring-[#FF4B00]/10 focus:border-[#FF4B00] transition shadow-2xs"
+                className="w-full pl-10 pr-9 py-2.5 rounded-xl bg-stone-50 text-stone-900 placeholder-stone-400 text-xs sm:text-sm border border-stone-200 focus:outline-none focus:ring-4 focus:ring-[#9b0000]/10 focus:border-[#9b0000] transition shadow-2xs"
               />
               {searchQuery && (
                 <button
@@ -185,7 +185,7 @@ export const AllDestinationsExplorer: React.FC = () => {
                 >
                   <div
                     onClick={() => handleSelect(dest.slug || dest.id)}
-                    className="group relative aspect-[4/3] rounded-2xl overflow-hidden cursor-pointer border border-stone-200 hover:border-[#FF4B00] transition-all duration-300 ease-out shadow-[0_6px_20px_-6px_rgba(0,0,0,0.14)] hover:shadow-[0_22px_40px_-10px_rgba(0,0,0,0.25)] hover:scale-[1.025] hover:-translate-y-1 flex flex-col justify-between p-4 will-change-transform"
+                    className="group relative aspect-[4/3] rounded-2xl overflow-hidden cursor-pointer border border-stone-200 hover:border-[#9b0000] transition-all duration-300 ease-out shadow-[0_6px_20px_-6px_rgba(0,0,0,0.14)] hover:shadow-[0_22px_40px_-10px_rgba(0,0,0,0.25)] hover:scale-[1.025] hover:-translate-y-1 flex flex-col justify-between p-4 will-change-transform"
                   >
                     {/* Background Image */}
                     <img
@@ -200,15 +200,15 @@ export const AllDestinationsExplorer: React.FC = () => {
                     <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/40 to-transparent group-hover:from-stone-950/95 group-hover:via-stone-950/70 transition-all duration-300 pointer-events-none z-10" />
 
                     {/* Brand Color Hover Overlay */}
-                    <div className="absolute inset-0 bg-[#FF4B00]/0 group-hover:bg-[#FF4B00]/10 transition-colors duration-500 pointer-events-none z-10 mix-blend-overlay" />
+                    <div className="absolute inset-0 bg-[#9b0000]/0 group-hover:bg-[#9b0000]/10 transition-colors duration-500 pointer-events-none z-10 mix-blend-overlay" />
 
                     {/* Bottom Destination Name & Brand-colored Arrow Only */}
                     <div className="relative z-10 text-white pointer-events-none mt-auto">
                       <div className="flex items-center justify-between gap-3 pt-2">
-                        <h3 className="text-lg sm:text-xl font-black text-white group-hover:text-orange-200 transition-colors drop-shadow-md leading-tight tracking-tight">
+                        <h3 className="text-lg sm:text-xl font-black text-white group-hover:text-[#F5C2C2] transition-colors drop-shadow-md leading-tight tracking-tight">
                           {dest.displayName || dest.name}
                         </h3>
-                        <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-[#FF4B00] group-hover:bg-[#FF4B00] group-hover:text-white group-hover:scale-110 transition-all duration-300 shadow-md shrink-0">
+                        <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-[#9b0000] group-hover:bg-[#9b0000] group-hover:text-white group-hover:scale-110 transition-all duration-300 shadow-md shrink-0">
                           <ArrowRight className="w-4 h-4" />
                         </div>
                       </div>

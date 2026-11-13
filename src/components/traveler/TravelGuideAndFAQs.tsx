@@ -85,7 +85,7 @@ export const TravelGuideAndFAQs: React.FC = () => {
                 >
                   <span className="text-xs sm:text-sm font-black">{faq.q}</span>
                   <div className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 transition-colors ${
-                    isOpen ? 'bg-[#FF4B00] text-white' : 'bg-stone-200 text-stone-700'
+                    isOpen ? 'bg-[#9b0000] text-white' : 'bg-stone-200 text-stone-700'
                   }`}>
                     {isOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                   </div>
@@ -101,9 +101,9 @@ export const TravelGuideAndFAQs: React.FC = () => {
         </div>
 
         {/* Bottom Support Banner */}
-        <div className="mt-10 p-6 rounded-2xl bg-orange-50/80 border border-orange-200 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
+        <div className="mt-10 p-6 rounded-2xl bg-[#FDF2F2]/80 border border-[#F5C2C2] shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
           <div className="flex items-center gap-3.5">
-            <div className="w-12 h-12 rounded-xl bg-orange-100 text-orange-600 flex items-center justify-center shrink-0 border border-orange-200">
+            <div className="w-12 h-12 rounded-xl bg-[#FCE8E8] text-[#9b0000] flex items-center justify-center shrink-0 border border-[#F5C2C2]">
               <Phone className="w-6 h-6" />
             </div>
             <div>

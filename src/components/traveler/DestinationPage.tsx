@@ -233,7 +233,7 @@ export const DestinationPage: React.FC = () => {
       {/* 1. DESTINATION SUB-NAVBAR */}
       <div className="bg-white border-b border-stone-200 shadow-2xs">
         {/* 2px Orange Brand Color Line at Top of Header */}
-        <div className="h-[2px] w-full bg-[#FF4B00]" />
+        <div className="h-[2px] w-full bg-[#9b0000]" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <button
@@ -350,11 +350,11 @@ export const DestinationPage: React.FC = () => {
               type="button"
               onClick={() => setActiveTab('packages')}
               className={`pb-2.5 text-xs sm:text-sm font-black transition relative cursor-pointer ${
-                activeTab === 'packages' ? 'text-[#FF4B00]' : 'text-stone-500 hover:text-stone-800'
+                activeTab === 'packages' ? 'text-[#9b0000]' : 'text-stone-500 hover:text-stone-800'
               }`}
             >
               Tour Packages ({destinationPackages.length})
-              {activeTab === 'packages' && <span className="absolute bottom-0 inset-x-0 h-0.5 bg-[#FF4B00]" />}
+              {activeTab === 'packages' && <span className="absolute bottom-0 inset-x-0 h-0.5 bg-[#9b0000]" />}
             </button>
 
           </div>
@@ -382,7 +382,7 @@ export const DestinationPage: React.FC = () => {
                     onClick={() => setSelectedDuration(dur.id as any)}
                     className={`px-3 py-1 rounded-full text-xs font-bold transition cursor-pointer ${
                       selectedDuration === dur.id
-                        ? 'bg-[#FF4B00] text-white shadow-2xs'
+                        ? 'bg-[#9b0000] text-white shadow-2xs'
                         : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
                     }`}
                   >
@@ -605,7 +605,7 @@ export const DestinationPage: React.FC = () => {
                           <button
                             type="button"
                             onClick={() => navigateToPackage(pkg.id)}
-                            className="py-2.5 px-2 rounded-xl bg-[#FF4B00] hover:bg-[#E04200] text-white border border-[#FF4B00] text-xs font-black transition shadow-xs flex items-center justify-center gap-1 cursor-pointer"
+                            className="py-2.5 px-2 rounded-xl bg-[#9b0000] hover:bg-[#7D0000] text-white border border-[#9b0000] text-xs font-black transition shadow-xs flex items-center justify-center gap-1 cursor-pointer"
                           >
                             <span>View Itinerary</span>
                             <ArrowRight className="w-3.5 h-3.5" />
@@ -687,14 +687,14 @@ export const DestinationPage: React.FC = () => {
                 <div className="flex items-center justify-between gap-3 pb-3 border-b border-stone-100">
                   <div>
                     <h3 className="text-base sm:text-lg font-black text-stone-900 tracking-tight flex items-center gap-2">
-                      <Landmark className="w-5 h-5 text-[#FF4B00]" />
+                      <Landmark className="w-5 h-5 text-[#9b0000]" />
                       <span>Sacred Shrines & Holy Temples in {destinationMeta.name}</span>
                     </h3>
                     <p className="text-xs text-stone-500 font-medium mt-0.5">
                       {destinationTemples.length} revered pilgrimage sites & holy shrines in this region
                     </p>
                   </div>
-                  <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-50 text-[#FF4B00] border border-orange-200 text-xs font-bold">
+                  <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FDF2F2] text-[#9b0000] border border-[#F5C2C2] text-xs font-bold">
                     <span>Revered Shrines</span>
                   </span>
                 </div>
@@ -703,7 +703,7 @@ export const DestinationPage: React.FC = () => {
                   {destinationTemples.map((temple) => (
                     <div
                       key={temple.id}
-                      className="group rounded-2xl border border-stone-200/90 hover:border-orange-300 bg-stone-50/60 hover:bg-white overflow-hidden transition-all shadow-2xs hover:shadow-md flex flex-col justify-between"
+                      className="group rounded-2xl border border-stone-200/90 hover:border-[#9b0000]/40 bg-stone-50/60 hover:bg-white overflow-hidden transition-all shadow-2xs hover:shadow-md flex flex-col justify-between"
                     >
                       <div>
                         {temple.image && (
@@ -723,7 +723,7 @@ export const DestinationPage: React.FC = () => {
                             <span className="text-[10px] font-bold text-stone-500 uppercase tracking-wider block">
                               {temple.city}, {temple.state}
                             </span>
-                            <h4 className="text-sm font-black text-stone-900 group-hover:text-[#FF4B00] transition line-clamp-1">
+                            <h4 className="text-sm font-black text-stone-900 group-hover:text-[#9b0000] transition line-clamp-1">
                               {temple.name}
                             </h4>
                           </div>
@@ -747,7 +747,7 @@ export const DestinationPage: React.FC = () => {
                         <button
                           type="button"
                           onClick={() => navigateToTemple(temple.id)}
-                          className="w-full py-2 px-3 rounded-xl bg-stone-900 hover:bg-[#FF4B00] text-white text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
+                          className="w-full py-2 px-3 rounded-xl bg-stone-900 hover:bg-[#9b0000] text-white text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
                         >
                           <span>Explore Packages for this Shrine</span>
                           <ChevronRight className="w-3.5 h-3.5" />
@@ -770,7 +770,7 @@ export const DestinationPage: React.FC = () => {
                     {destinationMeta.guide?.topAttractions?.length || 0} key sacred places, viewpoints & heritage landmarks
                   </p>
                 </div>
-                <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-50 text-[#FF4B00] border border-orange-200 text-xs font-bold">
+                <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FDF2F2] text-[#9b0000] border border-[#F5C2C2] text-xs font-bold">
                   <MapPin className="w-3.5 h-3.5" />
                   <span>Key Pilgrimage & Sights</span>
                 </span>
@@ -780,7 +780,7 @@ export const DestinationPage: React.FC = () => {
                 {destinationMeta.guide?.topAttractions?.map((attraction, idx) => (
                   <div
                     key={idx}
-                    className="group rounded-2xl border border-stone-200/90 hover:border-orange-300 bg-stone-50/60 hover:bg-white overflow-hidden transition-all shadow-2xs hover:shadow-md flex flex-col justify-between"
+                    className="group rounded-2xl border border-stone-200/90 hover:border-[#9b0000]/40 bg-stone-50/60 hover:bg-white overflow-hidden transition-all shadow-2xs hover:shadow-md flex flex-col justify-between"
                   >
                     <div>
                       {attraction.image && (
@@ -802,10 +802,10 @@ export const DestinationPage: React.FC = () => {
                       
                       <div className="p-4 space-y-2">
                         <div className="flex items-center gap-2">
-                          <span className="w-5 h-5 rounded-lg bg-orange-100 text-[#FF4B00] font-black text-[10px] flex items-center justify-center shrink-0 border border-orange-200">
+                          <span className="w-5 h-5 rounded-lg bg-[#FCE8E8] text-[#9b0000] font-black text-[10px] flex items-center justify-center shrink-0 border border-[#F5C2C2]">
                             {String(idx + 1).padStart(2, '0')}
                           </span>
-                          <h4 className="text-xs sm:text-sm font-black text-stone-900 group-hover:text-[#FF4B00] transition">
+                          <h4 className="text-xs sm:text-sm font-black text-stone-900 group-hover:text-[#9b0000] transition">
                             {attraction.name}
                           </h4>
                         </div>
@@ -836,7 +836,7 @@ export const DestinationPage: React.FC = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                   {destinationMeta.guide.thingsToDo.map((thing, idx) => (
                     <div key={idx} className="flex items-start gap-2.5 p-3 rounded-xl bg-stone-50 border border-stone-200/70">
-                      <span className="w-2 h-2 rounded-full bg-[#FF4B00] mt-1.5 shrink-0" />
+                      <span className="w-2 h-2 rounded-full bg-[#9b0000] mt-1.5 shrink-0" />
                       <span className="text-xs text-stone-700 font-medium leading-relaxed">{thing}</span>
                     </div>
                   ))}
@@ -897,7 +897,7 @@ export const DestinationPage: React.FC = () => {
                       aria-expanded={isOpen}
                     >
                       <span className="text-xs sm:text-sm font-bold text-stone-900 leading-snug">{faq.question}</span>
-                      <ChevronRight className={`w-4 h-4 shrink-0 text-[#FF4B00] transition-transform duration-200 ${isOpen ? 'rotate-90' : ''}`} />
+                      <ChevronRight className={`w-4 h-4 shrink-0 text-[#9b0000] transition-transform duration-200 ${isOpen ? 'rotate-90' : ''}`} />
                     </button>
                     {isOpen && (
                       <div className="px-4 pb-3 -mt-0.5">
@@ -982,14 +982,14 @@ export const DestinationPage: React.FC = () => {
                 <div className="flex items-center justify-between gap-3 pb-3 border-b border-stone-100">
                   <div>
                     <h3 className="text-base sm:text-lg font-black text-stone-900 tracking-tight flex items-center gap-2">
-                      <Landmark className="w-5 h-5 text-[#FF4B00]" />
+                      <Landmark className="w-5 h-5 text-[#9b0000]" />
                       <span>Sacred Shrines & Holy Temples in {destinationMeta.name}</span>
                     </h3>
                     <p className="text-xs text-stone-500 font-medium mt-0.5">
                       {destinationTemples.length} revered pilgrimage sites & holy shrines in this region
                     </p>
                   </div>
-                  <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-50 text-[#FF4B00] border border-orange-200 text-xs font-bold">
+                  <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FDF2F2] text-[#9b0000] border border-[#F5C2C2] text-xs font-bold">
                     <span>Revered Shrines</span>
                   </span>
                 </div>
@@ -998,7 +998,7 @@ export const DestinationPage: React.FC = () => {
                   {destinationTemples.map((temple) => (
                     <div
                       key={temple.id}
-                      className="group rounded-2xl border border-stone-200/90 hover:border-orange-300 bg-stone-50/60 hover:bg-white overflow-hidden transition-all shadow-2xs hover:shadow-md flex flex-col justify-between"
+                      className="group rounded-2xl border border-stone-200/90 hover:border-[#9b0000]/40 bg-stone-50/60 hover:bg-white overflow-hidden transition-all shadow-2xs hover:shadow-md flex flex-col justify-between"
                     >
                       <div>
                         {temple.image && (
@@ -1018,7 +1018,7 @@ export const DestinationPage: React.FC = () => {
                             <span className="text-[10px] font-bold text-stone-500 uppercase tracking-wider block">
                               {temple.city}, {temple.state}
                             </span>
-                            <h4 className="text-sm font-black text-stone-900 group-hover:text-[#FF4B00] transition line-clamp-1">
+                            <h4 className="text-sm font-black text-stone-900 group-hover:text-[#9b0000] transition line-clamp-1">
                               {temple.name}
                             </h4>
                           </div>
@@ -1042,7 +1042,7 @@ export const DestinationPage: React.FC = () => {
                         <button
                           type="button"
                           onClick={() => navigateToTemple(temple.id)}
-                          className="w-full py-2 px-3 rounded-xl bg-stone-900 hover:bg-[#FF4B00] text-white text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
+                          className="w-full py-2 px-3 rounded-xl bg-stone-900 hover:bg-[#9b0000] text-white text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
                         >
                           <span>Explore Packages for this Shrine</span>
                           <ChevronRight className="w-3.5 h-3.5" />
@@ -1065,7 +1065,7 @@ export const DestinationPage: React.FC = () => {
                     {destinationMeta.guide?.topAttractions?.length || 0} key sacred places, viewpoints & heritage landmarks
                   </p>
                 </div>
-                <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-50 text-[#FF4B00] border border-orange-200 text-xs font-bold">
+                <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FDF2F2] text-[#9b0000] border border-[#F5C2C2] text-xs font-bold">
                   <MapPin className="w-3.5 h-3.5" />
                   <span>Key Pilgrimage & Sights</span>
                 </span>
@@ -1075,7 +1075,7 @@ export const DestinationPage: React.FC = () => {
                 {destinationMeta.guide?.topAttractions?.map((attraction, idx) => (
                   <div
                     key={idx}
-                    className="group rounded-2xl border border-stone-200/90 hover:border-orange-300 bg-stone-50/60 hover:bg-white overflow-hidden transition-all shadow-2xs hover:shadow-md flex flex-col justify-between"
+                    className="group rounded-2xl border border-stone-200/90 hover:border-[#9b0000]/40 bg-stone-50/60 hover:bg-white overflow-hidden transition-all shadow-2xs hover:shadow-md flex flex-col justify-between"
                   >
                     <div>
                       {attraction.image && (
@@ -1097,10 +1097,10 @@ export const DestinationPage: React.FC = () => {
                       
                       <div className="p-4 space-y-2">
                         <div className="flex items-center gap-2">
-                          <span className="w-5 h-5 rounded-lg bg-orange-100 text-[#FF4B00] font-black text-[10px] flex items-center justify-center shrink-0 border border-orange-200">
+                          <span className="w-5 h-5 rounded-lg bg-[#FCE8E8] text-[#9b0000] font-black text-[10px] flex items-center justify-center shrink-0 border border-[#F5C2C2]">
                             {String(idx + 1).padStart(2, '0')}
                           </span>
-                          <h4 className="text-xs sm:text-sm font-black text-stone-900 group-hover:text-[#FF4B00] transition">
+                          <h4 className="text-xs sm:text-sm font-black text-stone-900 group-hover:text-[#9b0000] transition">
                             {attraction.name}
                           </h4>
                         </div>
@@ -1131,7 +1131,7 @@ export const DestinationPage: React.FC = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                   {destinationMeta.guide.thingsToDo.map((thing, idx) => (
                     <div key={idx} className="flex items-start gap-2.5 p-3 rounded-xl bg-stone-50 border border-stone-200/70">
-                      <span className="w-2 h-2 rounded-full bg-[#FF4B00] mt-1.5 shrink-0" />
+                      <span className="w-2 h-2 rounded-full bg-[#9b0000] mt-1.5 shrink-0" />
                       <span className="text-xs text-stone-700 font-medium leading-relaxed">{thing}</span>
                     </div>
                   ))}
@@ -1203,7 +1203,7 @@ export const DestinationPage: React.FC = () => {
               </div>
             ) : (
               <div>
-                <span className="text-[10px] font-black uppercase text-[#FF4B00] bg-[#FFF0EB] px-2.5 py-1 rounded-full border border-[#FF4B00]/25 tracking-wider inline-block mb-1.5">
+                <span className="text-[10px] font-black uppercase text-[#9b0000] bg-[#FDF2F2] px-2.5 py-1 rounded-full border border-[#9b0000]/25 tracking-wider inline-block mb-1.5">
                   Pilgrimage Consultation
                 </span>
                 <h3 className="text-lg font-black text-stone-900">
@@ -1222,7 +1222,7 @@ export const DestinationPage: React.FC = () => {
                       placeholder="e.g. Rahul Sharma"
                       value={leadName}
                       onChange={(e) => setLeadName(e.target.value)}
-                      className="w-full text-xs font-semibold px-3 py-2.5 rounded-xl border border-stone-200 outline-none focus:border-[#FF4B00] focus:ring-2 focus:ring-[#FF4B00]/20"
+                      className="w-full text-xs font-semibold px-3 py-2.5 rounded-xl border border-stone-200 outline-none focus:border-[#9b0000] focus:ring-2 focus:ring-[#9b0000]/20"
                     />
                   </div>
 
@@ -1234,7 +1234,7 @@ export const DestinationPage: React.FC = () => {
                       placeholder="+91 98765 43210"
                       value={leadPhone}
                       onChange={(e) => setLeadPhone(e.target.value)}
-                      className="w-full text-xs font-semibold px-3 py-2.5 rounded-xl border border-stone-200 outline-none focus:border-[#FF4B00] focus:ring-2 focus:ring-[#FF4B00]/20"
+                      className="w-full text-xs font-semibold px-3 py-2.5 rounded-xl border border-stone-200 outline-none focus:border-[#9b0000] focus:ring-2 focus:ring-[#9b0000]/20"
                     />
                   </div>
 
@@ -1255,7 +1255,7 @@ export const DestinationPage: React.FC = () => {
                       type="date"
                       value={leadTravelDate}
                       onChange={(e) => setLeadTravelDate(e.target.value)}
-                      className="w-full text-xs font-semibold px-3 py-2.5 rounded-xl border border-stone-200 outline-none focus:border-[#FF4B00] focus:ring-2 focus:ring-[#FF4B00]/20"
+                      className="w-full text-xs font-semibold px-3 py-2.5 rounded-xl border border-stone-200 outline-none focus:border-[#9b0000] focus:ring-2 focus:ring-[#9b0000]/20"
                     />
                   </div>
 
@@ -1263,7 +1263,7 @@ export const DestinationPage: React.FC = () => {
                     <button
                       type="submit"
                       disabled={!isLeadFormValid}
-                      className="w-full py-3 rounded-xl bg-[#FF4B00] hover:bg-[#E04200] disabled:bg-stone-300 disabled:cursor-not-allowed text-white text-xs font-black transition shadow-md shadow-[#FF4B00]/25 mt-2 cursor-pointer"
+                      className="w-full py-3 rounded-xl bg-[#9b0000] hover:bg-[#7D0000] disabled:bg-stone-300 disabled:cursor-not-allowed text-white text-xs font-black transition shadow-md shadow-[#9b0000]/25 mt-2 cursor-pointer"
                     >
                       Request Free Custom Quote
                     </button>

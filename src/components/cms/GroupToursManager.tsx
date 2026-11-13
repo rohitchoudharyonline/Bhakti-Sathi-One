@@ -312,7 +312,7 @@ export const GroupToursManager: React.FC<GroupToursManagerProps> = ({
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">
-              <span className="p-2 rounded-xl bg-orange-50 text-[#FF4B00] border border-[#FF4B00]/20">
+              <span className="p-2 rounded-xl bg-[#FDF2F2] text-[#9b0000] border border-[#9b0000]/20">
                 <Users className="w-5 h-5" />
               </span>
               <h2 className="text-xl sm:text-2xl font-black text-stone-900 tracking-tight">
@@ -340,7 +340,7 @@ export const GroupToursManager: React.FC<GroupToursManagerProps> = ({
             <button
               type="button"
               onClick={onCreateGroupTour}
-              className="px-4 py-2 rounded-xl bg-[#FF4B00] hover:bg-[#E04200] text-white text-xs font-bold shadow-xs transition cursor-pointer flex items-center gap-1.5"
+              className="px-4 py-2 rounded-xl bg-[#9b0000] hover:bg-[#7D0000] text-white text-xs font-bold shadow-xs transition cursor-pointer flex items-center gap-1.5"
             >
               <Plus className="w-4 h-4" />
               <span>Create New Group Tour</span>
@@ -353,7 +353,7 @@ export const GroupToursManager: React.FC<GroupToursManagerProps> = ({
           <div className="bg-stone-50 rounded-xl p-3.5 border border-stone-200/80">
             <div className="flex items-center justify-between text-stone-500 text-xs font-medium">
               <span>Active Group Tours</span>
-              <Bus className="w-4 h-4 text-orange-500" />
+              <Bus className="w-4 h-4 text-[#9b0000]" />
             </div>
             <p className="text-2xl font-black text-stone-900 mt-1">{stats.totalGroupTours}</p>
             <p className="text-[11px] text-stone-500 mt-0.5">Published on storefront</p>
@@ -405,7 +405,7 @@ export const GroupToursManager: React.FC<GroupToursManagerProps> = ({
               placeholder="Search group tours, destinations, coach..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-xs font-medium text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-[#FF4B00]"
+              className="w-full pl-9 pr-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-xs font-medium text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-[#9b0000]"
             />
           </div>
 
@@ -449,7 +449,7 @@ export const GroupToursManager: React.FC<GroupToursManagerProps> = ({
                   filteredGroupPackages.length > 0
                 }
                 onChange={handleToggleSelectAll}
-                className="w-4 h-4 rounded border-stone-300 text-[#FF4B00] focus:ring-[#FF4B00] cursor-pointer"
+                className="w-4 h-4 rounded border-stone-300 text-[#9b0000] focus:ring-[#9b0000] cursor-pointer"
               />
               <span>Select All Group Tours ({filteredGroupPackages.length})</span>
             </label>
@@ -476,7 +476,7 @@ export const GroupToursManager: React.FC<GroupToursManagerProps> = ({
       {/* 3. Group Tours List / Cards */}
       {filteredGroupPackages.length === 0 ? (
         <div className="bg-white rounded-2xl border border-stone-200 p-12 text-center shadow-2xs">
-          <div className="w-14 h-14 bg-orange-50 text-[#FF4B00] rounded-2xl grid place-items-center mx-auto mb-3">
+          <div className="w-14 h-14 bg-[#FDF2F2] text-[#9b0000] rounded-2xl grid place-items-center mx-auto mb-3">
             <Users className="w-7 h-7" />
           </div>
           <h3 className="text-base font-bold text-stone-900">No Group Tours Found</h3>
@@ -496,7 +496,7 @@ export const GroupToursManager: React.FC<GroupToursManagerProps> = ({
             <button
               type="button"
               onClick={onCreateGroupTour}
-              className="px-4 py-2 rounded-xl bg-[#FF4B00] hover:bg-[#E04200] text-white text-xs font-bold transition cursor-pointer"
+              className="px-4 py-2 rounded-xl bg-[#9b0000] hover:bg-[#7D0000] text-white text-xs font-bold transition cursor-pointer"
             >
               Create Group Tour
             </button>
@@ -527,7 +527,7 @@ export const GroupToursManager: React.FC<GroupToursManagerProps> = ({
                 key={pkg.id}
                 className={`bg-white rounded-2xl border overflow-hidden shadow-2xs hover:shadow-md transition flex flex-col justify-between group relative ${
                   selectedPkgIds.includes(pkg.id)
-                    ? 'border-[#FF4B00] ring-2 ring-[#FF4B00]/20 bg-orange-50/20'
+                    ? 'border-[#9b0000] ring-2 ring-[#9b0000]/20 bg-[#FDF2F2]/20'
                     : 'border-stone-200'
                 }`}
               >
@@ -539,7 +539,7 @@ export const GroupToursManager: React.FC<GroupToursManagerProps> = ({
                       type="checkbox"
                       checked={selectedPkgIds.includes(pkg.id)}
                       onChange={() => handleToggleSelect(pkg.id)}
-                      className="w-5 h-5 rounded border-2 border-white shadow-md text-[#FF4B00] focus:ring-[#FF4B00] cursor-pointer bg-black/40"
+                      className="w-5 h-5 rounded border-2 border-white shadow-md text-[#9b0000] focus:ring-[#9b0000] cursor-pointer bg-black/40"
                     />
                   </div>
 
@@ -553,7 +553,7 @@ export const GroupToursManager: React.FC<GroupToursManagerProps> = ({
 
                   {/* Top Badges */}
                   <div className="absolute top-2.5 left-10 right-2.5 flex items-center justify-between">
-                    <span className="bg-[#FF4B00] text-white text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider shadow-sm flex items-center gap-1">
+                    <span className="bg-[#9b0000] text-white text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider shadow-sm flex items-center gap-1">
                       <Bus className="w-3 h-3" />
                       <span>Group Departure</span>
                     </span>
@@ -601,7 +601,7 @@ export const GroupToursManager: React.FC<GroupToursManagerProps> = ({
                         </span>
                         <span
                           className={`font-black ${
-                            remaining <= 6 ? 'text-[#FF4B00]' : 'text-emerald-700'
+                            remaining <= 6 ? 'text-[#9b0000]' : 'text-emerald-700'
                           }`}
                         >
                           {remaining === 0 ? 'SOLD OUT' : `${remaining} Seats Left`}
@@ -611,7 +611,7 @@ export const GroupToursManager: React.FC<GroupToursManagerProps> = ({
                       <div className="w-full bg-stone-200 rounded-full h-2 overflow-hidden">
                         <div
                           className={`h-full rounded-full transition-all duration-300 ${
-                            remaining <= 6 ? 'bg-[#FF4B00]' : 'bg-emerald-500'
+                            remaining <= 6 ? 'bg-[#9b0000]' : 'bg-emerald-500'
                           }`}
                           style={{ width: `${occupancyPct}%` }}
                         />
@@ -748,7 +748,7 @@ export const GroupToursManager: React.FC<GroupToursManagerProps> = ({
                               batch.status === 'Guaranteed Departure'
                                 ? 'bg-emerald-100 text-emerald-800'
                                 : batch.status === 'Filling Fast'
-                                ? 'bg-orange-100 text-orange-800'
+                                ? 'bg-[#FCE8E8] text-[#7D0000]'
                                 : 'bg-stone-200 text-stone-700'
                             }`}
                           >
@@ -856,7 +856,7 @@ export const GroupToursManager: React.FC<GroupToursManagerProps> = ({
                 type="button"
                 onClick={() => handleAddBatch(batchModalPkg)}
                 disabled={!newBatchDate.trim()}
-                className="w-full py-2 bg-[#FF4B00] hover:bg-[#E04200] disabled:opacity-50 text-white rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer"
+                className="w-full py-2 bg-[#9b0000] hover:bg-[#7D0000] disabled:opacity-50 text-white rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 <Plus className="w-4 h-4" />
                 <span>Save Departure Batch</span>
@@ -970,7 +970,7 @@ export const GroupToursManager: React.FC<GroupToursManagerProps> = ({
                 type="button"
                 disabled={!selectedPkgToConvert}
                 onClick={handleConvertPackage}
-                className="px-4 py-2 rounded-xl bg-[#FF4B00] hover:bg-[#E04200] disabled:opacity-50 text-white text-xs font-bold cursor-pointer flex items-center gap-1.5"
+                className="px-4 py-2 rounded-xl bg-[#9b0000] hover:bg-[#7D0000] disabled:opacity-50 text-white text-xs font-bold cursor-pointer flex items-center gap-1.5"
               >
                 <Check className="w-4 h-4" />
                 <span>Enable as Group Tour</span>

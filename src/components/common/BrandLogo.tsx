@@ -38,24 +38,16 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
     <div className={`inline-flex flex-col justify-center ${className}`}>
       {!imgError ? (
         <img
-          src="/holidays-hunt-travel-logo.png"
+          src="/holidayshunt-logo.png"
           alt="Holidays Hunt"
           onError={() => setImgError(true)}
           className={`${heightMap[size]} w-auto object-contain select-none ${imageClassName}`}
         />
       ) : (
         <div className="inline-flex items-center gap-2 select-none">
-          <img
-            src="/icon-holidays-hunt.png"
-            alt="Holidays Hunt"
-            className="w-8 h-8 rounded-xl object-contain"
-            onError={(e) => {
-              (e.currentTarget as HTMLElement).style.display = 'none';
-            }}
-          />
           <div className="inline-flex items-baseline tracking-[-0.03em] font-extrabold font-['Plus_Jakarta_Sans',sans-serif]">
-            <span className={`${textMap[size]} text-[#1A1A1A]`}>Holidays</span>
-            <span className={`${textMap[size]} text-[#FF4B00] ml-1`}>Hunt</span>
+            <span className={`${textMap[size]} text-[#9b0000]`}>holidays</span>
+            <span className={`${textMap[size]} text-[#1A1A1A]`}>hunt</span>
           </div>
         </div>
       )}

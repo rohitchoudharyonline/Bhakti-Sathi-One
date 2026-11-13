@@ -187,7 +187,7 @@ export const TourDetailsSection: React.FC<TourDetailsSectionProps> = ({
           onClick={() => setActiveTab('hotels')}
           className={`py-2.5 px-2 sm:px-4 rounded-xl text-xs sm:text-sm font-black transition-all flex items-center justify-center gap-1.5 cursor-pointer text-center ${
             activeTab === 'hotels'
-              ? 'bg-[#FF4B00] text-white shadow-xs'
+              ? 'bg-[#9b0000] text-white shadow-xs'
               : 'bg-white text-stone-700 border border-stone-200 hover:bg-stone-100'
           }`}
         >
@@ -200,7 +200,7 @@ export const TourDetailsSection: React.FC<TourDetailsSectionProps> = ({
           onClick={() => setActiveTab('reporting')}
           className={`py-2.5 px-2 sm:px-4 rounded-xl text-xs sm:text-sm font-black transition-all flex items-center justify-center gap-1.5 cursor-pointer text-center ${
             activeTab === 'reporting'
-              ? 'bg-[#FF4B00] text-white shadow-xs'
+              ? 'bg-[#9b0000] text-white shadow-xs'
               : 'bg-white text-stone-700 border border-stone-200 hover:bg-stone-100'
           }`}
         >
@@ -213,7 +213,7 @@ export const TourDetailsSection: React.FC<TourDetailsSectionProps> = ({
           onClick={() => setActiveTab('policies')}
           className={`py-2.5 px-2 sm:px-4 rounded-xl text-xs sm:text-sm font-black transition-all flex items-center justify-center gap-1.5 cursor-pointer text-center ${
             activeTab === 'policies'
-              ? 'bg-[#FF4B00] text-white shadow-xs'
+              ? 'bg-[#9b0000] text-white shadow-xs'
               : 'bg-white text-stone-700 border border-stone-200 hover:bg-stone-100'
           }`}
         >
@@ -238,13 +238,13 @@ export const TourDetailsSection: React.FC<TourDetailsSectionProps> = ({
                   {/* Header Bar: City & Country on Left, Stay Nights on Right (100% Inline on all screens) */}
                   <div className="bg-stone-50/90 border-b border-stone-200/80 px-3.5 sm:px-4 py-2.5 flex items-center justify-between gap-2">
                     <div className="flex items-center gap-1.5 min-w-0">
-                      <MapPin className="w-3.5 h-3.5 text-[#FF4B00] shrink-0" />
+                      <MapPin className="w-3.5 h-3.5 text-[#9b0000] shrink-0" />
                       <span className="font-extrabold text-stone-900 text-xs sm:text-sm tracking-tight truncate">
                         {acc.city}, {acc.country}
                       </span>
                     </div>
                     <div className="shrink-0 bg-white border border-stone-200 text-stone-800 font-extrabold text-[11px] sm:text-xs px-2.5 py-1 rounded-full shadow-2xs flex items-center gap-1.5">
-                      <Calendar className="w-3 h-3 text-[#FF4B00]" />
+                      <Calendar className="w-3 h-3 text-[#9b0000]" />
                       <span>{acc.nights} {acc.nights === 1 ? 'Night' : 'Nights'} Stay</span>
                     </div>
                   </div>
@@ -253,8 +253,8 @@ export const TourDetailsSection: React.FC<TourDetailsSectionProps> = ({
                   <div className="p-3.5 sm:p-4 space-y-3">
                     {/* Hotel Name Section */}
                     <div className="flex items-start gap-2.5">
-                      <div className="w-7 h-7 rounded-lg bg-orange-50 border border-orange-100 flex items-center justify-center shrink-0 mt-0.5">
-                        <Hotel className="w-4 h-4 text-[#FF4B00]" />
+                      <div className="w-7 h-7 rounded-lg bg-[#FDF2F2] border border-[#F8D7D7] flex items-center justify-center shrink-0 mt-0.5">
+                        <Hotel className="w-4 h-4 text-[#9b0000]" />
                       </div>
                       <div className="min-w-0 flex-1">
                         <h4 className="font-extrabold text-stone-900 text-xs sm:text-sm leading-snug">
@@ -435,7 +435,7 @@ export const TourDetailsSection: React.FC<TourDetailsSectionProps> = ({
                     <ul className="space-y-2 text-xs text-stone-700 leading-relaxed">
                       {paymentList.map((line, i) => (
                         <li key={i} className="flex items-start gap-2.5">
-                          <span className="w-1.5 h-1.5 rounded-full bg-[#FF4B00] mt-1.5 shrink-0" />
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#9b0000] mt-1.5 shrink-0" />
                           <span className="font-medium text-stone-800">{line}</span>
                         </li>
                       ))}
@@ -448,7 +448,7 @@ export const TourDetailsSection: React.FC<TourDetailsSectionProps> = ({
             {/* 2. Important Traveler Notes & Guidelines */}
             <div className="border border-stone-200 rounded-xl overflow-hidden bg-white shadow-2xs">
               <div className="bg-stone-50 border-b border-stone-200 p-3 text-xs font-black text-stone-800 uppercase tracking-wider flex items-center gap-2">
-                <FileText className="w-4 h-4 text-[#FF4B00]" />
+                <FileText className="w-4 h-4 text-[#9b0000]" />
                 <span>Important Traveler Notes & Guidelines</span>
               </div>
               <div className="p-4">
@@ -464,7 +464,7 @@ export const TourDetailsSection: React.FC<TourDetailsSectionProps> = ({
                     <ul className="space-y-2 text-xs text-stone-700 leading-relaxed">
                       {notesList.map((note, i) => (
                         <li key={i} className="flex items-start gap-2.5">
-                          <span className="w-1.5 h-1.5 rounded-full bg-[#FF4B00] mt-1.5 shrink-0" />
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#9b0000] mt-1.5 shrink-0" />
                           <span className="font-medium text-stone-800">{note}</span>
                         </li>
                       ))}
@@ -489,7 +489,7 @@ export const TourDetailsSection: React.FC<TourDetailsSectionProps> = ({
                     <ul className="space-y-2 text-xs text-stone-700 leading-relaxed">
                       {cancelList.map((line, i) => (
                         <li key={i} className="flex items-start gap-2.5">
-                          <span className="w-1.5 h-1.5 rounded-full bg-[#FF4B00] mt-1.5 shrink-0" />
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#9b0000] mt-1.5 shrink-0" />
                           <span className="font-medium text-stone-800">{line}</span>
                         </li>
                       ))}

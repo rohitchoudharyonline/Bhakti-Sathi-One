@@ -1,7 +1,7 @@
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { JapSessionRecord, JapTimeframe } from '../types/japCounter';
-import logoUrl from '../assets/images/logo-holidays-hunt-v3.png';
+import logoUrl from '../assets/images/holidayshunt-logo.png';
 
 interface PdfExportOptions {
   pilgrimName: string;
@@ -91,7 +91,7 @@ export async function generateJapSadhanaPdf(options: PdfExportOptions): Promise<
   doc.text(`Timeframe: ${timeframeLabel(timeframe)}`, pageWidth - margin, 17, { align: 'right' });
   doc.text(generatedDate, pageWidth - margin, 22, { align: 'right' });
 
-  doc.setFillColor(255, 75, 0);
+  doc.setFillColor(155, 0, 0);
   doc.rect(0, 31, pageWidth, 20, 'F');
   doc.setTextColor(255, 255, 255);
   doc.setFont('helvetica', 'bold');
@@ -101,7 +101,7 @@ export async function generateJapSadhanaPdf(options: PdfExportOptions): Promise<
   doc.setFont('helvetica', 'normal');
   doc.text('Your devotion, beautifully recorded.', pageWidth / 2, 47, { align: 'center' });
 
-  doc.setFillColor(255, 247, 237);
+  doc.setFillColor(253, 242, 242);
   doc.setDrawColor(251, 146, 60);
   doc.roundedRect(margin, 57, pageWidth - margin * 2, 12, 2, 2, 'FD');
   if (mantraImage) doc.addImage(mantraImage, 'PNG', pageWidth / 2 - 34, 59.5, 68, 7);
@@ -126,7 +126,7 @@ export async function generateJapSadhanaPdf(options: PdfExportOptions): Promise<
   const gap = 4;
   const cardWidth = (pageWidth - margin * 2 - gap * 3) / 4;
   const statCards: StatCard[] = [
-    ['TOTAL JAPA CHANTS', totalChants.toLocaleString('en-IN'), `${timeframeLabel(timeframe)} PERIOD`, [255, 240, 235], [255, 75, 0], [255, 75, 0]],
+    ['TOTAL JAPA CHANTS', totalChants.toLocaleString('en-IN'), `${timeframeLabel(timeframe)} PERIOD`, [253, 242, 242], [155, 0, 0], [155, 0, 0]],
     ['MALAS COMPLETED', `${totalMalas} Malas`, '1 MALA = 108 BEADS', [254, 243, 199], [217, 119, 6], [180, 83, 9]],
     ['DAILY STREAK', `${streakDays} Days`, 'CONTINUOUS DEVOTION', [236, 253, 245], [16, 185, 129], [5, 150, 105]],
     ['COMPLETION RATIO', '100%', 'VERIFIED JAPA LOG', [241, 245, 249], [71, 85, 105], [30, 41, 59]],
@@ -181,7 +181,7 @@ export async function generateJapSadhanaPdf(options: PdfExportOptions): Promise<
     theme: 'grid',
     margin: { left: margin, right: margin, bottom: 22 },
     styles: { font: 'helvetica', fontSize: 7.3, textColor: [51, 65, 85], cellPadding: 2.1, valign: 'middle' },
-    headStyles: { fillColor: [255, 75, 0], textColor: [255, 255, 255], fontSize: 7.2, fontStyle: 'bold' },
+    headStyles: { fillColor: [155, 0, 0], textColor: [255, 255, 255], fontSize: 7.2, fontStyle: 'bold' },
     alternateRowStyles: { fillColor: [248, 250, 252] },
     columnStyles: { 0: { cellWidth: 13 }, 1: { cellWidth: 26 }, 2: { cellWidth: 23 }, 3: { cellWidth: 39 }, 4: { cellWidth: 25 }, 5: { cellWidth: 27 }, 6: { cellWidth: 28 } },
     didDrawCell: (data) => {

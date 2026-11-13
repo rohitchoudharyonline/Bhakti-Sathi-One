@@ -3,6 +3,7 @@ import { GoogleLogin } from '@react-oauth/google';
 import { ArrowLeft, Loader2, ShieldCheck, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { useTours } from '../../context/TourContext';
 import { Navbar } from '../common/Navbar';
+import { BrandLogo } from '../common/BrandLogo';
 
 export const TravelerGoogleAuthPage: React.FC = () => {
   const { loginWithGoogleIdToken, navigateToHome } = useTours();
@@ -42,8 +43,8 @@ export const TravelerGoogleAuthPage: React.FC = () => {
 
         <section className="bg-white rounded-3xl border border-stone-200 shadow-xl overflow-hidden">
           <div className="bg-stone-950 text-white p-7 text-center">
-            <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-[#FF4B00] flex items-center justify-center">
-              <ShieldCheck className="w-7 h-7" />
+            <div className="inline-flex items-center justify-center bg-white px-4 py-2 rounded-2xl mx-auto mb-4 shadow-lg">
+              <BrandLogo size="xs" />
             </div>
             <h1 className="text-2xl font-black">Traveler Sign In / Sign Up</h1>
             <p className="mt-2 text-sm text-stone-300">Use your Google / Gmail account</p>

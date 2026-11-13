@@ -623,8 +623,8 @@ export const LuxuryHomepage: React.FC = () => {
               </div>
 
               {/* Verified Holiday Specialist Badge */}
-              <div className="inline-flex items-center gap-2 p-1 rounded-xl bg-[#FFF0EB]/95 backdrop-blur-xs border border-[#FF4B00]/30 text-xs font-bold shrink-0 self-start md:self-auto shadow-2xs">
-                <span className="px-3 py-1.5 rounded-lg bg-[#FF4B00] text-white font-black inline-flex items-center gap-1.5 shadow-xs">
+              <div className="inline-flex items-center gap-2 p-1 rounded-xl bg-[#FDF2F2]/95 backdrop-blur-xs border border-[#9b0000]/30 text-xs font-bold shrink-0 self-start md:self-auto shadow-2xs">
+                <span className="px-3 py-1.5 rounded-lg bg-[#9b0000] text-white font-black inline-flex items-center gap-1.5 shadow-xs">
                   <ShieldCheck className="w-4 h-4 text-white" />
                   Jammu &amp; Kashmir Tour Experts
                 </span>
@@ -660,7 +660,7 @@ export const LuxuryHomepage: React.FC = () => {
                     </span>
                     <div className="flex items-center justify-between gap-2 mt-0.5 sm:mt-1">
                       <div className="flex items-center gap-2 min-w-0 flex-1">
-                        <Search className="w-4 h-4 text-[#FF4B00] shrink-0" />
+                        <Search className="w-4 h-4 text-[#9b0000] shrink-0" />
                         <input
                           ref={searchQueryInputRef}
                           type="text"
@@ -716,7 +716,7 @@ export const LuxuryHomepage: React.FC = () => {
                                   <span className="text-[10px] font-extrabold uppercase tracking-wider text-stone-400">
                                     Live Search Results for &ldquo;{searchQuery}&rdquo;
                                   </span>
-                                  <span className="text-[10px] font-bold text-[#FF4B00]">
+                                  <span className="text-[10px] font-bold text-[#9b0000]">
                                     {matchedPackages.length + matchedDestinations.length + matchedTemples.length} found
                                   </span>
                                 </div>
@@ -746,11 +746,11 @@ export const LuxuryHomepage: React.FC = () => {
                                                 setOpenDropdown(null);
                                               }}
                                               className={`w-full text-left p-2.5 rounded-xl transition flex items-center justify-between gap-2 cursor-pointer group ${
-                                                isHighlighted ? 'bg-[#FFF0EB] text-[#FF4B00] font-bold border border-[#FF4B00]/20' : 'hover:bg-stone-50 text-stone-800'
+                                                isHighlighted ? 'bg-[#FDF2F2] text-[#9b0000] font-bold border border-[#9b0000]/20' : 'hover:bg-stone-50 text-stone-800'
                                               }`}
                                             >
                                               <div>
-                                                <div className="text-xs sm:text-sm font-bold text-stone-900 group-hover:text-[#FF4B00] transition-colors">
+                                                <div className="text-xs sm:text-sm font-bold text-stone-900 group-hover:text-[#9b0000] transition-colors">
                                                   {pkg.title}
                                                 </div>
                                                 <div className="text-[10px] text-stone-500 flex items-center gap-2 mt-0.5">
@@ -790,11 +790,11 @@ export const LuxuryHomepage: React.FC = () => {
                                                 setOpenDropdown(null);
                                               }}
                                               className={`w-full text-left p-2.5 rounded-xl transition flex items-center justify-between gap-2 cursor-pointer group ${
-                                                isHighlighted ? 'bg-[#FFF0EB] text-[#FF4B00] font-bold border border-[#FF4B00]/20' : 'hover:bg-stone-50 text-stone-800'
+                                                isHighlighted ? 'bg-[#FDF2F2] text-[#9b0000] font-bold border border-[#9b0000]/20' : 'hover:bg-stone-50 text-stone-800'
                                               }`}
                                             >
                                               <div>
-                                                <div className="text-xs sm:text-sm font-bold text-stone-900 group-hover:text-[#FF4B00] transition-colors">
+                                                <div className="text-xs sm:text-sm font-bold text-stone-900 group-hover:text-[#9b0000] transition-colors">
                                                   {dest.name}
                                                 </div>
                                                 <div className="text-[10px] text-stone-500">
@@ -830,11 +830,11 @@ export const LuxuryHomepage: React.FC = () => {
                                                 setOpenDropdown(null);
                                               }}
                                               className={`w-full text-left p-2.5 rounded-xl transition flex items-center justify-between gap-2 cursor-pointer group ${
-                                                isHighlighted ? 'bg-[#FFF0EB] text-[#FF4B00] font-bold border border-[#FF4B00]/20' : 'hover:bg-stone-50 text-stone-800'
+                                                isHighlighted ? 'bg-[#FDF2F2] text-[#9b0000] font-bold border border-[#9b0000]/20' : 'hover:bg-stone-50 text-stone-800'
                                               }`}
                                             >
                                               <div>
-                                                <div className="text-xs sm:text-sm font-bold text-stone-900 group-hover:text-[#FF4B00] transition-colors">
+                                                <div className="text-xs sm:text-sm font-bold text-stone-900 group-hover:text-[#9b0000] transition-colors">
                                                   {temple.name}
                                                 </div>
                                                 <div className="text-[10px] text-stone-500">
@@ -872,7 +872,7 @@ export const LuxuryHomepage: React.FC = () => {
                                 }}
                                 className={`w-full text-left p-2.5 rounded-xl transition flex items-center justify-between gap-3 cursor-pointer ${
                                   isHighlighted || isSelected
-                                    ? 'bg-[#FFF0EB] text-[#FF4B00] font-bold border border-[#FF4B00]/20'
+                                    ? 'bg-[#FDF2F2] text-[#9b0000] font-bold border border-[#9b0000]/20'
                                     : 'hover:bg-stone-50 text-stone-800'
                                 }`}
                               >
@@ -887,7 +887,7 @@ export const LuxuryHomepage: React.FC = () => {
                                     {dest.desc}
                                   </span>
                                 </div>
-                                {isSelected && <Check className="w-4 h-4 text-[#FF4B00] shrink-0" />}
+                                {isSelected && <Check className="w-4 h-4 text-[#9b0000] shrink-0" />}
                               </button>
                             );
                           })}
@@ -917,7 +917,7 @@ export const LuxuryHomepage: React.FC = () => {
                     </span>
                     <div className="flex items-center justify-between gap-2 mt-0.5 sm:mt-1">
                       <div className="flex items-center gap-2 min-w-0">
-                        <Sparkles className="w-4 h-4 text-[#FF4B00] shrink-0" />
+                        <Sparkles className="w-4 h-4 text-[#9b0000] shrink-0" />
                         <span className="text-xs sm:text-sm font-bold text-stone-900 truncate">
                           {selectedTourType === 'all'
                             ? 'All Tour Types'
@@ -962,7 +962,7 @@ export const LuxuryHomepage: React.FC = () => {
                             }}
                             className={`w-full text-left p-2.5 rounded-xl transition flex items-center justify-between gap-2 cursor-pointer ${
                               isSelected
-                                ? 'bg-[#FFF0EB] text-[#FF4B00] font-bold border border-[#FF4B00]/20'
+                                ? 'bg-[#FDF2F2] text-[#9b0000] font-bold border border-[#9b0000]/20'
                                 : 'hover:bg-stone-50 text-stone-800'
                             }`}
                           >
@@ -970,7 +970,7 @@ export const LuxuryHomepage: React.FC = () => {
                               <span className="text-xs sm:text-sm font-bold block">{t.label}</span>
                               <span className="text-[10px] text-stone-500 block truncate font-normal">{t.desc}</span>
                             </div>
-                            {isSelected && <Check className="w-4 h-4 text-[#FF4B00] shrink-0" />}
+                            {isSelected && <Check className="w-4 h-4 text-[#9b0000] shrink-0" />}
                           </button>
                         );
                       })}
@@ -1052,7 +1052,7 @@ export const LuxuryHomepage: React.FC = () => {
                   <button
                     type="submit"
                     disabled={isSearching}
-                    className="w-full h-11 sm:h-12 md:h-full min-h-[44px] md:min-h-[56px] py-2.5 px-4 sm:px-5 rounded-xl bg-[#FF4B00] hover:bg-[#E04200] disabled:bg-[#FF4B00]/90 text-white text-xs sm:text-sm font-black transition shadow-xs hover:shadow-md flex items-center justify-center gap-2 cursor-pointer active:scale-98 disabled:cursor-wait"
+                    className="w-full h-11 sm:h-12 md:h-full min-h-[44px] md:min-h-[56px] py-2.5 px-4 sm:px-5 rounded-xl bg-[#9b0000] hover:bg-[#7D0000] disabled:bg-[#9b0000]/90 text-white text-xs sm:text-sm font-black transition shadow-xs hover:shadow-md flex items-center justify-center gap-2 cursor-pointer active:scale-98 disabled:cursor-wait"
                   >
                     {isSearching ? (
                       <>
@@ -1113,7 +1113,7 @@ export const LuxuryHomepage: React.FC = () => {
             </div>
 
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-full bg-white border border-stone-200 grid place-items-center text-[#FF4B00] shrink-0">
+              <div className="w-8 h-8 rounded-full bg-white border border-stone-200 grid place-items-center text-[#9b0000] shrink-0">
                 <Headphones className="w-4 h-4" />
               </div>
               <div>
@@ -1138,7 +1138,7 @@ export const LuxuryHomepage: React.FC = () => {
         <CategoryToursCarouselSection
           id="family-tours-section"
           badgeLabel="Memorable Family Holidays"
-          badgeIcon={<Users className="w-3.5 h-3.5 text-[#FF4B00]" />}
+          badgeIcon={<Users className="w-3.5 h-3.5 text-[#9b0000]" />}
           heading="Family Tours"
           description="Handcrafted leisure holidays with spacious vehicles, child and elder-friendly accommodations, and relaxed sightseeing schedules."
           categoryFilter="Family"
@@ -1154,7 +1154,7 @@ export const LuxuryHomepage: React.FC = () => {
         <CategoryToursCarouselSection
           id="honeymoon-tours-section"
           badgeLabel="Romantic & Couples Getaways"
-          badgeIcon={<Heart className="w-3.5 h-3.5 text-[#FF4B00]" />}
+          badgeIcon={<Heart className="w-3.5 h-3.5 text-[#9b0000]" />}
           heading="Honeymoon Tours"
           description="Private scenic retreats, luxury honeymoon suites, candle-light dinners, and intimate romantic experiences designed just for couples."
           categoryFilter="Honeymoon"
@@ -1198,7 +1198,7 @@ export const LuxuryHomepage: React.FC = () => {
                   const container = document.getElementById('why-us-carousel');
                   if (container) container.scrollBy({ left: -380, behavior: 'smooth' });
                 }}
-                className="w-10 h-10 rounded-full bg-white border border-stone-200 text-stone-800 hover:bg-[#FF4B00] hover:text-white hover:border-[#FF4B00] grid place-items-center transition-all cursor-pointer shadow-xs active:scale-95"
+                className="w-10 h-10 rounded-full bg-white border border-stone-200 text-stone-800 hover:bg-[#9b0000] hover:text-white hover:border-[#9b0000] grid place-items-center transition-all cursor-pointer shadow-xs active:scale-95"
                 aria-label="Previous slide"
               >
                 <ChevronLeft className="w-5 h-5" />
@@ -1209,7 +1209,7 @@ export const LuxuryHomepage: React.FC = () => {
                   const container = document.getElementById('why-us-carousel');
                   if (container) container.scrollBy({ left: 380, behavior: 'smooth' });
                 }}
-                className="w-10 h-10 rounded-full bg-[#FF4B00] border border-[#FF4B00] text-white hover:bg-[#E04200] grid place-items-center transition-all cursor-pointer shadow-xs active:scale-95"
+                className="w-10 h-10 rounded-full bg-[#9b0000] border border-[#9b0000] text-white hover:bg-[#7D0000] grid place-items-center transition-all cursor-pointer shadow-xs active:scale-95"
                 aria-label="Next slide"
               >
                 <ChevronRight className="w-5 h-5" />
@@ -1237,7 +1237,7 @@ export const LuxuryHomepage: React.FC = () => {
                   <div>
                     {/* Monochrome Icon Badge & Subtitle Pill */}
                     <div className="flex items-center justify-between gap-3 mb-4">
-                      <div className="w-11 h-11 rounded-xl bg-[#FF4B00]/10 text-[#FF4B00] grid place-items-center shrink-0 group-hover:bg-[#FF4B00]/20 transition-colors">
+                      <div className="w-11 h-11 rounded-xl bg-[#9b0000]/10 text-[#9b0000] grid place-items-center shrink-0 group-hover:bg-[#9b0000]/20 transition-colors">
                         <IconComp className="w-5.5 h-5.5" />
                       </div>
                       <span className="text-[10px] font-black uppercase tracking-wider text-black bg-stone-100 border border-black/15 px-3 py-1 rounded-md">
@@ -1265,14 +1265,14 @@ export const LuxuryHomepage: React.FC = () => {
             CUSTOM HOLIDAY PLANNER / INSTANT CALLBACK FORM
             ======================================================== */}
         <section className="py-8 md:py-10 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
-          <div className="relative overflow-hidden bg-gradient-to-br from-[#1c1917] via-[#261e1a] to-[#1a1512] rounded-3xl p-6 md:p-8 lg:p-10 text-white shadow-xl border border-[#FF4B00]/25 flex flex-col md:flex-row items-center justify-between gap-6 md:gap-8">
+          <div className="relative overflow-hidden bg-gradient-to-br from-[#1c1917] via-[#261e1a] to-[#1a1512] rounded-3xl p-6 md:p-8 lg:p-10 text-white shadow-xl border border-[#9b0000]/25 flex flex-col md:flex-row items-center justify-between gap-6 md:gap-8">
             {/* Brand ambient glows */}
-            <div className="absolute -top-24 -right-24 w-80 h-80 bg-[#FF4B00]/15 rounded-full blur-3xl pointer-events-none" />
-            <div className="absolute -bottom-24 -left-24 w-80 h-80 bg-[#FF4B00]/10 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute -top-24 -right-24 w-80 h-80 bg-[#9b0000]/15 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute -bottom-24 -left-24 w-80 h-80 bg-[#9b0000]/10 rounded-full blur-3xl pointer-events-none" />
 
             <div className="relative max-w-xl">
-              <span className="px-3.5 py-1.5 rounded-full bg-[#FFF0EB] text-[#FF4B00] border border-[#FF4B00]/30 text-[10.5px] font-black uppercase tracking-wider mb-3 inline-flex items-center gap-1.5 shadow-xs">
-                <Sparkles className="w-3.5 h-3.5 text-[#FF4B00]" />
+              <span className="px-3.5 py-1.5 rounded-full bg-[#FDF2F2] text-[#9b0000] border border-[#9b0000]/30 text-[10.5px] font-black uppercase tracking-wider mb-3 inline-flex items-center gap-1.5 shadow-xs">
+                <Sparkles className="w-3.5 h-3.5 text-[#9b0000]" />
                 <span>Instant Callback Assistance</span>
               </span>
               <h2 className="text-2xl sm:text-3xl font-black tracking-tight leading-tight">
@@ -1284,26 +1284,26 @@ export const LuxuryHomepage: React.FC = () => {
 
               <div className="mt-6 grid grid-cols-2 gap-3 sm:gap-4 text-xs font-bold text-stone-200">
                 <div className="flex items-center gap-2">
-                  <div className="w-5 h-5 rounded-full bg-[#FFF0EB]/15 border border-[#FF4B00]/40 flex items-center justify-center shrink-0">
-                    <Check className="w-3 h-3 text-[#FF4B00]" />
+                  <div className="w-5 h-5 rounded-full bg-[#FDF2F2]/15 border border-[#9b0000]/40 flex items-center justify-center shrink-0">
+                    <Check className="w-3 h-3 text-[#9b0000]" />
                   </div>
                   <span>Callback Within 15 Minutes</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-5 h-5 rounded-full bg-[#FFF0EB]/15 border border-[#FF4B00]/40 flex items-center justify-center shrink-0">
-                    <Check className="w-3 h-3 text-[#FF4B00]" />
+                  <div className="w-5 h-5 rounded-full bg-[#FDF2F2]/15 border border-[#9b0000]/40 flex items-center justify-center shrink-0">
+                    <Check className="w-3 h-3 text-[#9b0000]" />
                   </div>
                   <span>Direct Local Chauffeurs</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-5 h-5 rounded-full bg-[#FFF0EB]/15 border border-[#FF4B00]/40 flex items-center justify-center shrink-0">
-                    <Check className="w-3 h-3 text-[#FF4B00]" />
+                  <div className="w-5 h-5 rounded-full bg-[#FDF2F2]/15 border border-[#9b0000]/40 flex items-center justify-center shrink-0">
+                    <Check className="w-3 h-3 text-[#9b0000]" />
                   </div>
                   <span>Zero Agent Commissions</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-5 h-5 rounded-full bg-[#FFF0EB]/15 border border-[#FF4B00]/40 flex items-center justify-center shrink-0">
-                    <Check className="w-3 h-3 text-[#FF4B00]" />
+                  <div className="w-5 h-5 rounded-full bg-[#FDF2F2]/15 border border-[#9b0000]/40 flex items-center justify-center shrink-0">
+                    <Check className="w-3 h-3 text-[#9b0000]" />
                   </div>
                   <span>Instant WhatsApp Itinerary</span>
                 </div>
@@ -1318,9 +1318,9 @@ export const LuxuryHomepage: React.FC = () => {
             </div>
 
             {/* Quick Callback Box with Brand Colors */}
-            <div className="relative w-full md:w-[380px] lg:w-[410px] bg-white rounded-2xl p-5 sm:p-6 text-stone-900 shadow-2xl shrink-0 border-2 border-[#FF4B00]/25 overflow-hidden">
+            <div className="relative w-full md:w-[380px] lg:w-[410px] bg-white rounded-2xl p-5 sm:p-6 text-stone-900 shadow-2xl shrink-0 border-2 border-[#9b0000]/25 overflow-hidden">
               {/* Top brand saffron banner stripe */}
-              <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#FF4B00] via-[#FF7A33] to-[#FF4B00]" />
+              <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#9b0000] via-[#C21818] to-[#9b0000]" />
 
               {leadSubmitted ? (
                 <div className="text-center py-6 animate-fade-in">
@@ -1364,8 +1364,8 @@ export const LuxuryHomepage: React.FC = () => {
                 <form onSubmit={handleCustomLeadSubmit} className="space-y-3 pt-1">
                   <div className="flex items-center justify-between pb-2.5 border-b border-stone-100">
                     <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 rounded-xl bg-[#FFF0EB] border border-[#FF4B00]/30 text-[#FF4B00] flex items-center justify-center shrink-0 shadow-xs">
-                        <PhoneCall className="w-4 h-4 text-[#FF4B00]" />
+                      <div className="w-8 h-8 rounded-xl bg-[#FDF2F2] border border-[#9b0000]/30 text-[#9b0000] flex items-center justify-center shrink-0 shadow-xs">
+                        <PhoneCall className="w-4 h-4 text-[#9b0000]" />
                       </div>
                       <div>
                         <b className="text-xs sm:text-sm font-black text-stone-900 block leading-tight">
@@ -1382,9 +1382,9 @@ export const LuxuryHomepage: React.FC = () => {
 
                   <div>
                     <label className="block text-[10.5px] font-black uppercase tracking-wider text-stone-800 mb-1 flex items-center gap-1">
-                      <User className="w-3.5 h-3.5 text-[#FF4B00]" />
+                      <User className="w-3.5 h-3.5 text-[#9b0000]" />
                       <span>Your Full Name</span>
-                      <span className="text-[#FF4B00] font-bold">*</span>
+                      <span className="text-[#9b0000] font-bold">*</span>
                     </label>
                     <input
                       type="text"
@@ -1392,16 +1392,16 @@ export const LuxuryHomepage: React.FC = () => {
                       value={leadName}
                       onChange={(e) => setLeadName(e.target.value)}
                       placeholder="e.g. Rahul Sharma"
-                      className="w-full px-3 py-2 rounded-xl bg-stone-50/80 border border-stone-200 text-xs font-semibold focus:bg-white focus:outline-none focus:border-[#FF4B00] focus:ring-2 focus:ring-[#FF4B00]/20 transition"
+                      className="w-full px-3 py-2 rounded-xl bg-stone-50/80 border border-stone-200 text-xs font-semibold focus:bg-white focus:outline-none focus:border-[#9b0000] focus:ring-2 focus:ring-[#9b0000]/20 transition"
                     />
                   </div>
 
                   <div>
                     <div className="flex items-center justify-between mb-1">
                       <label className="text-[10.5px] font-black uppercase tracking-wider text-stone-800 flex items-center gap-1">
-                        <Phone className="w-3.5 h-3.5 text-[#FF4B00]" />
+                        <Phone className="w-3.5 h-3.5 text-[#9b0000]" />
                         <span>WhatsApp / Phone Number</span>
-                        <span className="text-[#FF4B00] font-bold">*</span>
+                        <span className="text-[#9b0000] font-bold">*</span>
                       </label>
                       <span
                         className={`text-[9.5px] font-bold px-2 py-0.5 rounded-full border flex items-center gap-1 transition select-none ${
@@ -1409,7 +1409,7 @@ export const LuxuryHomepage: React.FC = () => {
                             ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
                             : leadPhone.trim().length > 0
                             ? 'bg-amber-50 text-amber-700 border-amber-300'
-                            : 'bg-[#FFF0EB] text-[#FF4B00] border-[#FF4B00]/30'
+                            : 'bg-[#FDF2F2] text-[#9b0000] border-[#9b0000]/30'
                         }`}
                       >
                         {isValidPhone(leadPhone) ? (
@@ -1436,7 +1436,7 @@ export const LuxuryHomepage: React.FC = () => {
                             ? 'border-emerald-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20'
                             : leadPhone.trim().length > 0
                             ? 'border-amber-300 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20'
-                            : 'border-stone-200 focus:border-[#FF4B00] focus:ring-2 focus:ring-[#FF4B00]/20'
+                            : 'border-stone-200 focus:border-[#9b0000] focus:ring-2 focus:ring-[#9b0000]/20'
                         }`}
                       />
                     </div>
@@ -1449,7 +1449,7 @@ export const LuxuryHomepage: React.FC = () => {
                   {/* Destination / Tour of Interest */}
                   <div>
                     <label className="block text-[10.5px] font-black uppercase tracking-wider text-stone-800 mb-1 flex items-center gap-1">
-                      <Compass className="w-3.5 h-3.5 text-[#FF4B00]" />
+                      <Compass className="w-3.5 h-3.5 text-[#9b0000]" />
                       <span>Destination / Tour of Interest</span>
                       <span className="text-stone-400 font-normal normal-case ml-1">(Optional)</span>
                     </label>
@@ -1458,14 +1458,14 @@ export const LuxuryHomepage: React.FC = () => {
                       value={leadYatra}
                       onChange={(e) => setLeadYatra(e.target.value)}
                       placeholder="e.g. Kashmir Family Holiday, Kashmir Honeymoon, Vaishno Devi, Gurez Valley..."
-                      className="w-full px-3 py-2 rounded-xl bg-stone-50/80 border border-stone-200 text-xs font-semibold focus:bg-white focus:outline-none focus:border-[#FF4B00] focus:ring-2 focus:ring-[#FF4B00]/20 transition"
+                      className="w-full px-3 py-2 rounded-xl bg-stone-50/80 border border-stone-200 text-xs font-semibold focus:bg-white focus:outline-none focus:border-[#9b0000] focus:ring-2 focus:ring-[#9b0000]/20 transition"
                     />
                   </div>
 
                   {/* Requirements / Query */}
                   <div>
                     <label className="block text-[10.5px] font-black uppercase tracking-wider text-stone-800 mb-1 flex items-center gap-1">
-                      <FileText className="w-3.5 h-3.5 text-[#FF4B00]" />
+                      <FileText className="w-3.5 h-3.5 text-[#9b0000]" />
                       <span>Your Query or Requirements</span>
                       <span className="text-stone-400 font-normal normal-case ml-1">(Optional)</span>
                     </label>
@@ -1474,7 +1474,7 @@ export const LuxuryHomepage: React.FC = () => {
                       value={leadNotes}
                       onChange={(e) => setLeadNotes(e.target.value)}
                       placeholder="e.g. Number of adults/children, honeymoon inclusions, tentative travel dates..."
-                      className="w-full px-3 py-2 rounded-xl bg-stone-50/80 border border-stone-200 text-xs font-semibold focus:bg-white focus:outline-none focus:border-[#FF4B00] focus:ring-2 focus:ring-[#FF4B00]/20 transition resize-none"
+                      className="w-full px-3 py-2 rounded-xl bg-stone-50/80 border border-stone-200 text-xs font-semibold focus:bg-white focus:outline-none focus:border-[#9b0000] focus:ring-2 focus:ring-[#9b0000]/20 transition resize-none"
                     />
                   </div>
 
@@ -1499,7 +1499,7 @@ export const LuxuryHomepage: React.FC = () => {
                       <span>Request Instant Callback on WhatsApp</span>
                     </button>
                     {!isValidPhone(leadPhone) ? (
-                      <p className="text-[10px] text-center text-[#FF4B00] mt-1.5 font-bold">
+                      <p className="text-[10px] text-center text-[#9b0000] mt-1.5 font-bold">
                         * Enter a valid 10-digit WhatsApp or Phone number to enable callback.
                       </p>
                     ) : (

@@ -262,7 +262,7 @@ export const LiveAnalyticsManager: React.FC = () => {
       <div className="bg-white rounded-2xl p-5 sm:p-6 border border-stone-200 shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#FF4B00]/10 text-[#FF4B00] flex items-center justify-center font-black">
+            <div className="w-10 h-10 rounded-xl bg-[#9b0000]/10 text-[#9b0000] flex items-center justify-center font-black">
               <Activity className="w-5 h-5 animate-pulse" />
             </div>
             <div>
@@ -330,7 +330,7 @@ export const LiveAnalyticsManager: React.FC = () => {
             href="https://analytics.google.com/"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#FF4B00] hover:bg-[#E04200] text-white text-xs font-bold shadow-xs transition"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#9b0000] hover:bg-[#7D0000] text-white text-xs font-bold shadow-xs transition"
           >
             <ExternalLink className="w-3.5 h-3.5" />
             <span>GA4 Console</span>
@@ -342,7 +342,7 @@ export const LiveAnalyticsManager: React.FC = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Card 1: Real-Time Active Users */}
         <div className="bg-gradient-to-br from-stone-900 to-stone-950 text-white p-5 rounded-2xl border border-stone-800 shadow-sm relative overflow-hidden flex flex-col justify-between">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-[#FF4B00]/15 rounded-full blur-2xl pointer-events-none" />
+          <div className="absolute top-0 right-0 w-32 h-32 bg-[#9b0000]/15 rounded-full blur-2xl pointer-events-none" />
           <div className="flex items-center justify-between relative z-10 mb-2">
             <span className="text-[11px] font-bold uppercase tracking-wider text-stone-400">
               Active Visitors Right Now
@@ -479,7 +479,7 @@ export const LiveAnalyticsManager: React.FC = () => {
                   : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100'
               }`}
             >
-              <Icon className={`w-4 h-4 ${isActive ? 'text-[#FF4B00]' : 'text-stone-400'}`} />
+              <Icon className={`w-4 h-4 ${isActive ? 'text-[#9b0000]' : 'text-stone-400'}`} />
               <span>{t.label}</span>
               {t.count !== undefined && (
                 <span
@@ -505,7 +505,7 @@ export const LiveAnalyticsManager: React.FC = () => {
               <div className="bg-white rounded-2xl p-5 border border-stone-200 shadow-xs">
                 <div className="flex items-center justify-between pb-3 border-b border-stone-100 mb-3">
                   <div className="flex items-center gap-2">
-                    <Globe className="w-4 h-4 text-[#FF4B00]" />
+                    <Globe className="w-4 h-4 text-[#9b0000]" />
                     <h3 className="text-xs font-bold text-stone-900 uppercase tracking-wider">
                       Live Active Traveler Pages
                     </h3>
@@ -537,7 +537,7 @@ export const LiveAnalyticsManager: React.FC = () => {
                       </div>
                       <div className="w-full bg-stone-100 rounded-full h-1.5 overflow-hidden">
                         <div
-                          className="bg-gradient-to-r from-[#FF4B00] to-amber-500 h-1.5 rounded-full transition-all duration-500"
+                          className="bg-gradient-to-r from-[#9b0000] to-amber-500 h-1.5 rounded-full transition-all duration-500"
                           style={{ width: `${item.percentage * 2.5}%` }}
                         />
                       </div>
@@ -590,7 +590,7 @@ export const LiveAnalyticsManager: React.FC = () => {
                   <div className="space-y-3 divide-y divide-stone-100">
                     {liveEvents.slice(0, 6).map((evt) => (
                       <div key={evt.id} className="pt-2.5 first:pt-0 flex items-start gap-3">
-                        <div className="w-2 h-2 rounded-full bg-[#FF4B00] mt-1.5 shrink-0 animate-pulse" />
+                        <div className="w-2 h-2 rounded-full bg-[#9b0000] mt-1.5 shrink-0 animate-pulse" />
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between gap-1">
                             <p className="text-xs font-bold text-stone-900 truncate">{evt.title}</p>

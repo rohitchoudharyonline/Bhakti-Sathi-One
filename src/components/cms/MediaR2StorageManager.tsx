@@ -338,7 +338,7 @@ export const MediaR2StorageManager: React.FC<MediaR2StorageManagerProps> = ({
                 onClick={() => setCustomFormat(fmt)}
                 className={`px-2.5 py-1 rounded-lg text-xs font-bold uppercase transition cursor-pointer ${
                   customFormat === fmt
-                    ? 'bg-[#FC3200] text-white shadow-xs'
+                    ? 'bg-[#9b0000] text-white shadow-xs'
                     : 'bg-white border border-stone-200 text-stone-600 hover:bg-stone-100'
                 }`}
               >

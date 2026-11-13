@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ShieldCheck, Loader2, Lock, AlertCircle, ArrowRight } from 'lucide-react';
+import { BrandLogo } from '../common/BrandLogo';
 
 interface CmsPinGateProps {
   onPinVerified: (pin: string) => void;
@@ -78,11 +79,11 @@ export const CmsPinGate: React.FC<CmsPinGateProps> = ({ onPinVerified }) => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-stone-950 p-4 sm:p-6 text-white selection:bg-[#FF4B00]">
+    <div className="min-h-screen flex items-center justify-center bg-stone-950 p-4 sm:p-6 text-white selection:bg-[#9b0000]">
       <div className="w-full max-w-md rounded-3xl border border-stone-800 bg-stone-900/95 backdrop-blur-xl p-6 sm:p-10 shadow-2xl">
         <div className="text-center mb-8">
-          <div className="w-14 h-14 rounded-2xl bg-[#FF4B00]/10 border border-[#FF4B00]/30 flex items-center justify-center mx-auto mb-4 shadow-inner">
-            <ShieldCheck className="w-7 h-7 text-[#FF4B00]" />
+          <div className="inline-flex items-center justify-center bg-white px-4 py-2 rounded-2xl shadow-lg mb-4">
+            <BrandLogo size="sm" />
           </div>
           <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight">CMS Access Gateway</h1>
           <p className="text-xs text-stone-400 font-medium mt-1">Holidays Hunt One • Secure Administrative Portal</p>
@@ -98,7 +99,7 @@ export const CmsPinGate: React.FC<CmsPinGateProps> = ({ onPinVerified }) => {
         <div className="space-y-6">
           <div>
             <label className="block text-xs font-bold text-stone-300 text-center mb-3 flex items-center justify-center gap-1.5">
-              <Lock className="w-3.5 h-3.5 text-[#FF4B00]" />
+              <Lock className="w-3.5 h-3.5 text-[#9b0000]" />
               <span>Enter 6-Digit Admin PIN</span>
             </label>
             <div className="flex justify-center gap-2 sm:gap-3" onPaste={handlePaste}>
@@ -114,7 +115,7 @@ export const CmsPinGate: React.FC<CmsPinGateProps> = ({ onPinVerified }) => {
                   onKeyDown={(e) => handleKeyDown(index, e)}
                   disabled={loading}
                   aria-label={`Admin PIN digit ${index + 1}`}
-                  className="w-11 h-14 sm:w-12 sm:h-16 text-center text-xl sm:text-2xl font-black rounded-2xl bg-stone-800/90 border border-stone-700 text-white focus:border-[#FF4B00] focus:ring-2 focus:ring-[#FF4B00]/30 focus:outline-hidden transition disabled:opacity-50 shadow-inner"
+                  className="w-11 h-14 sm:w-12 sm:h-16 text-center text-xl sm:text-2xl font-black rounded-2xl bg-stone-800/90 border border-stone-700 text-white focus:border-[#9b0000] focus:ring-2 focus:ring-[#9b0000]/30 focus:outline-hidden transition disabled:opacity-50 shadow-inner"
                   autoComplete="off"
                 />
               ))}
@@ -128,7 +129,7 @@ export const CmsPinGate: React.FC<CmsPinGateProps> = ({ onPinVerified }) => {
               const fullPin = digits.join('');
               if (fullPin.length === PIN_LENGTH) void verifyPin(fullPin);
             }}
-            className="w-full rounded-2xl bg-[#FF4B00] hover:bg-[#E04200] text-white py-4 px-4 font-black text-sm flex items-center justify-center gap-2 shadow-lg shadow-[#FF4B00]/25 transition-all cursor-pointer active:scale-98 disabled:opacity-40"
+            className="w-full rounded-2xl bg-[#9b0000] hover:bg-[#7D0000] text-white py-4 px-4 font-black text-sm flex items-center justify-center gap-2 shadow-lg shadow-[#9b0000]/25 transition-all cursor-pointer active:scale-98 disabled:opacity-40"
           >
             {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <ShieldCheck className="w-4 h-4" />}
             <span>{loading ? 'Verifying PIN…' : 'Continue to CMS Login'}</span>

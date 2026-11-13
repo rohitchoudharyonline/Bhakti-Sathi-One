@@ -24,27 +24,27 @@ export const FreeTravelInsuranceCard: React.FC<FreeTravelInsuranceCardProps> = (
         <button
           type="button"
           onClick={handleClick}
-          className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#FFF0EB] hover:bg-[#FFE0D6] border border-[#FF4B00]/30 text-[#FF4B00] text-[10px] font-black transition cursor-pointer ${className}`}
+          className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#FDF2F2] hover:bg-[#FAD5D5] border border-[#9b0000]/30 text-[#9b0000] text-[10px] font-black transition cursor-pointer ${className}`}
         >
-          <ShieldCheck className="w-3 h-3 text-[#FF4B00] shrink-0" />
+          <ShieldCheck className="w-3 h-3 text-[#9b0000] shrink-0" />
           <span>Free Insurance up to ₹200K</span>
         </button>
       ) : variant === 'compact' ? (
         <button
           type="button"
           onClick={handleClick}
-          className={`w-full group text-left px-2.5 py-1.5 rounded-lg bg-[#FFF0EB] hover:bg-[#FFE0D6] border border-[#FF4B00]/30 transition-all flex items-center justify-between gap-1.5 cursor-pointer shadow-2xs ${className}`}
+          className={`w-full group text-left px-2.5 py-1.5 rounded-lg bg-[#FDF2F2] hover:bg-[#FAD5D5] border border-[#9b0000]/30 transition-all flex items-center justify-between gap-1.5 cursor-pointer shadow-2xs ${className}`}
         >
           <div className="flex items-center gap-1.5 min-w-0">
-            <div className="w-4 h-4 rounded bg-[#FF4B00] text-white flex items-center justify-center shrink-0 shadow-2xs">
+            <div className="w-4 h-4 rounded bg-[#9b0000] text-white flex items-center justify-center shrink-0 shadow-2xs">
               <ShieldCheck className="w-2.5 h-2.5 stroke-[2.5]" />
             </div>
             <span className="text-[11px] font-extrabold text-[#1A1A1A] tracking-tight truncate">
-              Free Travel Insurance <span className="text-[#FF4B00] font-black">upto ₹200K</span>
+              Free Travel Insurance <span className="text-[#9b0000] font-black">upto ₹200K</span>
             </span>
           </div>
 
-          <div className="flex items-center gap-0.5 text-[10px] font-black text-[#FF4B00] shrink-0 group-hover:translate-x-0.5 transition-transform">
+          <div className="flex items-center gap-0.5 text-[10px] font-black text-[#9b0000] shrink-0 group-hover:translate-x-0.5 transition-transform">
             <span>Covers</span>
             <ChevronRight className="w-3 h-3" />
           </div>
@@ -52,10 +52,10 @@ export const FreeTravelInsuranceCard: React.FC<FreeTravelInsuranceCardProps> = (
       ) : (
         <div
           onClick={handleClick}
-          className={`p-2.5 sm:p-3 rounded-xl bg-[#1A1A1A] text-white border border-[#FF4B00]/40 hover:border-[#FF4B00] flex items-center justify-between gap-2.5 shadow-xs transition-all cursor-pointer group ${className}`}
+          className={`p-2.5 sm:p-3 rounded-xl bg-[#1A1A1A] text-white border border-[#9b0000]/40 hover:border-[#9b0000] flex items-center justify-between gap-2.5 shadow-xs transition-all cursor-pointer group ${className}`}
         >
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-8 h-8 rounded-xl bg-[#FF4B00] text-white flex items-center justify-center shrink-0 shadow-md">
+            <div className="w-8 h-8 rounded-xl bg-[#9b0000] text-white flex items-center justify-center shrink-0 shadow-md">
               <ShieldCheck className="w-4 h-4 stroke-[2.5]" />
             </div>
             <div className="min-w-0">
@@ -63,7 +63,7 @@ export const FreeTravelInsuranceCard: React.FC<FreeTravelInsuranceCardProps> = (
                 <span className="text-xs sm:text-sm font-black text-white leading-tight">
                   Free Travel Insurance
                 </span>
-                <span className="inline-flex items-center gap-0.5 text-[9px] font-black uppercase tracking-wider bg-[#FF4B00] text-white px-1.5 py-0.2 rounded font-mono shadow-2xs">
+                <span className="inline-flex items-center gap-0.5 text-[9px] font-black uppercase tracking-wider bg-[#9b0000] text-white px-1.5 py-0.2 rounded font-mono shadow-2xs">
                   ₹200K COVER
                 </span>
               </div>
@@ -73,7 +73,7 @@ export const FreeTravelInsuranceCard: React.FC<FreeTravelInsuranceCardProps> = (
             </div>
           </div>
 
-          <div className="shrink-0 flex items-center gap-1 text-[11px] font-black text-[#FF4B00] group-hover:text-white transition-colors">
+          <div className="shrink-0 flex items-center gap-1 text-[11px] font-black text-[#9b0000] group-hover:text-white transition-colors">
             <span className="hidden xs:inline">View Covers & Terms</span>
             <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
           </div>

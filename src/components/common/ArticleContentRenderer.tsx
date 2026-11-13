@@ -73,7 +73,7 @@ export const ArticleContentRenderer: React.FC<ArticleContentRendererProps> = ({
             href={linkMatch[2]}
             target={linkMatch[2].startsWith('http') ? '_blank' : '_self'}
             rel="noopener noreferrer"
-            className="text-[#FC3200] font-semibold underline hover:text-stone-900 transition"
+            className="text-[#9b0000] font-semibold underline hover:text-stone-900 transition"
           >
             {linkMatch[1]}
           </a>

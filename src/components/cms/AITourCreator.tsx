@@ -153,7 +153,7 @@ export const AITourCreator: React.FC<AITourCreatorProps> = ({ onCreated, onClose
       <div className="w-full max-w-2xl bg-white rounded-3xl border border-stone-200 shadow-2xl overflow-hidden">
         <div className="flex items-center justify-between px-5 py-4 border-b border-stone-100">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-orange-50 text-[#FF4B00] grid place-items-center">
+            <div className="w-9 h-9 rounded-xl bg-[#FDF2F2] text-[#9b0000] grid place-items-center">
               <Bot className="w-5 h-5" />
             </div>
             <div>
@@ -172,7 +172,7 @@ export const AITourCreator: React.FC<AITourCreatorProps> = ({ onCreated, onClose
               value={command}
               onChange={(e) => setCommand(e.target.value)}
               placeholder="Example: Create a 5 days Kashmir tour covering Srinagar, Gulmarg and Pahalgam. MAP plan, airport pickup/drop, Srinagar hotels The Azara/Karam Gold/Blanco, Pahalgam White Water Resort. Include SEO, inclusions and exclusions."
-              className="w-full min-h-36 border border-stone-200 rounded-2xl px-4 py-3 text-sm bg-stone-50 focus:bg-white focus:border-[#FF4B00] focus:outline-none resize-y"
+              className="w-full min-h-36 border border-stone-200 rounded-2xl px-4 py-3 text-sm bg-stone-50 focus:bg-white focus:border-[#9b0000] focus:outline-none resize-y"
             />
           </div>
 
@@ -184,14 +184,14 @@ export const AITourCreator: React.FC<AITourCreatorProps> = ({ onCreated, onClose
 
           <div className="flex items-center justify-between gap-3 pt-1">
             <div className="text-[11px] text-stone-500 flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-[#FF4B00]" />
+              <Sparkles className="w-3.5 h-3.5 text-[#9b0000]" />
               Gemini creates the content; you review it before publishing.
             </div>
             <button
               type="button"
               onClick={createDraft}
               disabled={isGenerating || !command.trim()}
-              className="px-4 py-2.5 rounded-xl bg-[#FF4B00] hover:bg-[#E02C00] disabled:opacity-50 text-white text-xs font-black flex items-center gap-2 cursor-pointer"
+              className="px-4 py-2.5 rounded-xl bg-[#9b0000] hover:bg-[#7D0000] disabled:opacity-50 text-white text-xs font-black flex items-center gap-2 cursor-pointer"
             >
               {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
               {isGenerating ? 'Creating Draft…' : 'Generate & Save Draft'}

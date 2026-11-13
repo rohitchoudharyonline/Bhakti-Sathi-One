@@ -32,7 +32,7 @@ import {
 const TEMPLE_CATEGORIES: { id: TempleCategory; label: string; bg: string; text: string; border: string }[] = [
   { id: 'Shaktipeeth', label: 'Shaktipeeth', bg: 'bg-rose-50', text: 'text-rose-700', border: 'border-rose-200' },
   { id: 'Jyotirlinga', label: 'Jyotirlinga', bg: 'bg-amber-50', text: 'text-amber-800', border: 'border-amber-200' },
-  { id: 'Char Dham', label: 'Char Dham', bg: 'bg-orange-50', text: 'text-orange-700', border: 'border-orange-200' },
+  { id: 'Char Dham', label: 'Char Dham', bg: 'bg-[#FDF2F2]', text: 'text-[#7D0000]', border: 'border-[#F5C2C2]' },
   { id: 'Cave Shrine', label: 'Cave Shrine', bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-200' },
   { id: 'Ancient Dham', label: 'Ancient Dham', bg: 'bg-indigo-50', text: 'text-indigo-700', border: 'border-indigo-200' },
   { id: 'Divya Desam', label: 'Divya Desam', bg: 'bg-purple-50', text: 'text-purple-700', border: 'border-purple-200' },
@@ -259,7 +259,7 @@ export const TemplesManager: React.FC = () => {
             </span>
           </div>
           <h1 className="text-2xl font-black text-stone-900 flex items-center gap-2">
-            <Landmark className="w-6 h-6 text-[#FF4B00]" />
+            <Landmark className="w-6 h-6 text-[#9b0000]" />
             <span>Temples & Sacred Places Management</span>
           </h1>
           <p className="text-xs text-stone-600 mt-1 max-w-2xl">
@@ -271,7 +271,7 @@ export const TemplesManager: React.FC = () => {
           <button
             type="button"
             onClick={handleStartCreate}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#FF4B00] hover:bg-[#E04200] text-white font-bold text-sm shadow-md transition-all active:scale-95 shrink-0"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#9b0000] hover:bg-[#7D0000] text-white font-bold text-sm shadow-md transition-all active:scale-95 shrink-0"
           >
             <Plus className="w-4 h-4" />
             <span>Add Sacred Temple / Place</span>
@@ -292,7 +292,7 @@ export const TemplesManager: React.FC = () => {
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="Search temples, deities, cities, or categories..."
-                  className="w-full pl-9 pr-4 py-2 bg-stone-50 border border-stone-200 rounded-xl text-xs font-medium text-stone-900 focus:bg-white focus:outline-none focus:border-[#FF4B00] transition-colors"
+                  className="w-full pl-9 pr-4 py-2 bg-stone-50 border border-stone-200 rounded-xl text-xs font-medium text-stone-900 focus:bg-white focus:outline-none focus:border-[#9b0000] transition-colors"
                 />
               </div>
 
@@ -319,7 +319,7 @@ export const TemplesManager: React.FC = () => {
                       onClick={() => setSelectedCategoryFilter(cat.id)}
                       className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all shrink-0 border ${
                         selectedCategoryFilter === cat.id
-                          ? 'bg-[#FF4B00] text-white border-[#FF4B00] shadow-xs'
+                          ? 'bg-[#9b0000] text-white border-[#9b0000] shadow-xs'
                           : `${cat.bg} ${cat.text} ${cat.border} hover:opacity-80`
                       }`}
                     >
@@ -341,7 +341,7 @@ export const TemplesManager: React.FC = () => {
                       filteredTemples.length > 0
                     }
                     onChange={handleToggleSelectAll}
-                    className="w-4 h-4 rounded border-stone-300 text-[#FF4B00] focus:ring-[#FF4B00] cursor-pointer"
+                    className="w-4 h-4 rounded border-stone-300 text-[#9b0000] focus:ring-[#9b0000] cursor-pointer"
                   />
                   <span>
                     Select All ({filteredTemples.length})
@@ -350,7 +350,7 @@ export const TemplesManager: React.FC = () => {
 
                 {selectedIds.length > 0 && (
                   <div className="flex items-center gap-3 animate-fade-in">
-                    <span className="font-extrabold text-[#FF4B00] bg-orange-50 px-2.5 py-1 rounded-lg border border-orange-200">
+                    <span className="font-extrabold text-[#9b0000] bg-[#FDF2F2] px-2.5 py-1 rounded-lg border border-[#F5C2C2]">
                       {selectedIds.length} Selected
                     </span>
                     <button
@@ -392,7 +392,7 @@ export const TemplesManager: React.FC = () => {
                   key={temple.id}
                   className={`bg-white rounded-2xl border overflow-hidden shadow-xs hover:shadow-md transition-all flex flex-col group relative ${
                     selectedIds.includes(temple.id)
-                      ? 'border-[#FF4B00] ring-2 ring-[#FF4B00]/20 bg-orange-50/10'
+                      ? 'border-[#9b0000] ring-2 ring-[#9b0000]/20 bg-[#FDF2F2]/10'
                       : 'border-stone-200/80'
                   }`}
                 >
@@ -402,7 +402,7 @@ export const TemplesManager: React.FC = () => {
                       type="checkbox"
                       checked={selectedIds.includes(temple.id)}
                       onChange={() => handleToggleSelect(temple.id)}
-                      className="w-5 h-5 rounded border-2 border-white shadow-md text-[#FF4B00] focus:ring-[#FF4B00] cursor-pointer bg-black/40"
+                      className="w-5 h-5 rounded border-2 border-white shadow-md text-[#9b0000] focus:ring-[#9b0000] cursor-pointer bg-black/40"
                     />
                   </div>
 
@@ -434,7 +434,7 @@ export const TemplesManager: React.FC = () => {
                   <div className="p-4 flex-1 flex flex-col justify-between space-y-3">
                     <div className="space-y-2">
                       <div className="flex items-center gap-1.5 text-xs text-stone-600 font-medium">
-                        <MapPin className="w-3.5 h-3.5 text-[#FF4B00] shrink-0" />
+                        <MapPin className="w-3.5 h-3.5 text-[#9b0000] shrink-0" />
                         <span>
                           {temple.city}, {temple.state}
                         </span>
@@ -479,7 +479,7 @@ export const TemplesManager: React.FC = () => {
                         <button
                           type="button"
                           onClick={() => setDiagnosticTarget({ url: temple.image || '', title: `Image Diagnostics: ${temple.name}` })}
-                          className="p-1.5 text-orange-600 hover:text-orange-800 hover:bg-orange-50 rounded-lg transition-colors cursor-pointer"
+                          className="p-1.5 text-[#9b0000] hover:text-[#7D0000] hover:bg-[#FDF2F2] rounded-lg transition-colors cursor-pointer"
                           title="Inspect Image Diagnostics"
                         >
                           <Activity className="w-4 h-4" />
@@ -562,7 +562,7 @@ export const TemplesManager: React.FC = () => {
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl bg-[#FF4B00] hover:bg-[#E04200] text-white text-xs font-bold shadow-md transition-all flex items-center gap-1.5"
+                  className="px-5 py-2 rounded-xl bg-[#9b0000] hover:bg-[#7D0000] text-white text-xs font-bold shadow-md transition-all flex items-center gap-1.5"
                 >
                   <Check className="w-4 h-4" />
                   <span>Save Shrine Details</span>
@@ -584,7 +584,7 @@ export const TemplesManager: React.FC = () => {
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   placeholder="e.g., Mata Vaishno Devi Bhawan"
-                  className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-medium text-stone-900 focus:bg-white focus:outline-none focus:border-[#FF4B00]"
+                  className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-medium text-stone-900 focus:bg-white focus:outline-none focus:border-[#9b0000]"
                 />
               </div>
 
@@ -598,7 +598,7 @@ export const TemplesManager: React.FC = () => {
                   value={formData.hindiName || ''}
                   onChange={(e) => setFormData({ ...formData, hindiName: e.target.value })}
                   placeholder="e.g., Mata Vaishno Devi Shrine"
-                  className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-medium text-stone-900 focus:bg-white focus:outline-none focus:border-[#FF4B00]"
+                  className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-medium text-stone-900 focus:bg-white focus:outline-none focus:border-[#9b0000]"
                 />
               </div>
 
@@ -612,7 +612,7 @@ export const TemplesManager: React.FC = () => {
                   value={formData.deity || ''}
                   onChange={(e) => setFormData({ ...formData, deity: e.target.value })}
                   placeholder="e.g., Maa Vaishno Devi (Mahalakshmi, Mahakali, Mahasaraswati)"
-                  className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-medium text-stone-900 focus:bg-white focus:outline-none focus:border-[#FF4B00]"
+                  className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-medium text-stone-900 focus:bg-white focus:outline-none focus:border-[#9b0000]"
                 />
               </div>
 
@@ -630,7 +630,7 @@ export const TemplesManager: React.FC = () => {
                   value={formData.city}
                   onChange={(e) => setFormData({ ...formData, city: e.target.value })}
                   placeholder="e.g., Katra (Trikuta Hills)"
-                  className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-medium text-stone-900 focus:bg-white focus:outline-none focus:border-[#FF4B00]"
+                  className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-medium text-stone-900 focus:bg-white focus:outline-none focus:border-[#9b0000]"
                 />
               </div>
 
@@ -646,7 +646,7 @@ export const TemplesManager: React.FC = () => {
                   value={formData.state}
                   onChange={(e) => setFormData({ ...formData, state: e.target.value })}
                   placeholder="e.g., Jammu & Kashmir"
-                  className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-medium text-stone-900 focus:bg-white focus:outline-none focus:border-[#FF4B00]"
+                  className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-medium text-stone-900 focus:bg-white focus:outline-none focus:border-[#9b0000]"
                 />
               </div>
 
@@ -658,7 +658,7 @@ export const TemplesManager: React.FC = () => {
                 <select
                   value={formData.destinationSlug || ''}
                   onChange={(e) => setFormData({ ...formData, destinationSlug: e.target.value })}
-                  className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-medium text-stone-900 focus:bg-white focus:outline-none focus:border-[#FF4B00]"
+                  className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-medium text-stone-900 focus:bg-white focus:outline-none focus:border-[#9b0000]"
                 >
                   <option value="">None (Standalone Temple)</option>
                   {destinationOptions.map((d) => (
@@ -679,7 +679,7 @@ export const TemplesManager: React.FC = () => {
                     type="number"
                     value={formData.order || 1}
                     onChange={(e) => setFormData({ ...formData, order: parseInt(e.target.value) || 1 })}
-                    className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-medium text-stone-900 focus:bg-white focus:outline-none focus:border-[#FF4B00]"
+                    className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-medium text-stone-900 focus:bg-white focus:outline-none focus:border-[#9b0000]"
                   />
                 </div>
 
@@ -689,7 +689,7 @@ export const TemplesManager: React.FC = () => {
                       type="checkbox"
                       checked={formData.featured || false}
                       onChange={(e) => setFormData({ ...formData, featured: e.target.checked })}
-                      className="w-4 h-4 rounded text-[#FF4B00] focus:ring-[#FF4B00]"
+                      className="w-4 h-4 rounded text-[#9b0000] focus:ring-[#9b0000]"
                     />
                     <span className="text-xs font-bold text-stone-800">Featured Shrine</span>
                   </label>
@@ -707,7 +707,7 @@ export const TemplesManager: React.FC = () => {
                 value={formData.tagline || ''}
                 onChange={(e) => setFormData({ ...formData, tagline: e.target.value })}
                 placeholder="e.g., Holy Trikuta Hills Divine Shrine & Miraculous Natural Pindis"
-                className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-medium text-stone-900 focus:bg-white focus:outline-none focus:border-[#FF4B00]"
+                className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-medium text-stone-900 focus:bg-white focus:outline-none focus:border-[#9b0000]"
               />
             </div>
 
@@ -720,7 +720,7 @@ export const TemplesManager: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setShowMediaModal(true)}
-                  className="text-xs font-bold text-[#FF4B00] hover:underline"
+                  className="text-xs font-bold text-[#9b0000] hover:underline"
                 >
                   Pick from Media Catalog
                 </button>
@@ -741,7 +741,7 @@ export const TemplesManager: React.FC = () => {
                     value={formData.image}
                     onChange={(e) => setFormData({ ...formData, image: e.target.value })}
                     placeholder="Or paste direct image URL here..."
-                    className="w-full px-3.5 py-2 bg-stone-50 border border-stone-200 rounded-xl text-xs font-medium text-stone-900 focus:bg-white focus:outline-none focus:border-[#FF4B00]"
+                    className="w-full px-3.5 py-2 bg-stone-50 border border-stone-200 rounded-xl text-xs font-medium text-stone-900 focus:bg-white focus:outline-none focus:border-[#9b0000]"
                   />
                 </div>
 
@@ -771,7 +771,7 @@ export const TemplesManager: React.FC = () => {
                   value={formData.darshanTimings || ''}
                   onChange={(e) => setFormData({ ...formData, darshanTimings: e.target.value })}
                   placeholder="e.g., 24 Hours Open (Aarti 5:00 AM & 6:00 PM)"
-                  className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-medium text-stone-900 focus:bg-white focus:outline-none focus:border-[#FF4B00]"
+                  className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-medium text-stone-900 focus:bg-white focus:outline-none focus:border-[#9b0000]"
                 />
               </div>
 
@@ -785,7 +785,7 @@ export const TemplesManager: React.FC = () => {
                   value={formData.dressCode || ''}
                   onChange={(e) => setFormData({ ...formData, dressCode: e.target.value })}
                   placeholder="e.g., Traditional Indian Attire"
-                  className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-medium text-stone-900 focus:bg-white focus:outline-none focus:border-[#FF4B00]"
+                  className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-medium text-stone-900 focus:bg-white focus:outline-none focus:border-[#9b0000]"
                 />
               </div>
 
@@ -799,7 +799,7 @@ export const TemplesManager: React.FC = () => {
                   value={formData.bestTimeToVisit || ''}
                   onChange={(e) => setFormData({ ...formData, bestTimeToVisit: e.target.value })}
                   placeholder="e.g., March to November & Navratris"
-                  className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-medium text-stone-900 focus:bg-white focus:outline-none focus:border-[#FF4B00]"
+                  className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-medium text-stone-900 focus:bg-white focus:outline-none focus:border-[#9b0000]"
                 />
               </div>
             </div>
@@ -814,7 +814,7 @@ export const TemplesManager: React.FC = () => {
                 value={formData.description || ''}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 placeholder="Describe the holy shrine, mythology, sacred vibrations, and pilgrimage rituals..."
-                className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-medium text-stone-900 focus:bg-white focus:outline-none focus:border-[#FF4B00]"
+                className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-medium text-stone-900 focus:bg-white focus:outline-none focus:border-[#9b0000]"
               />
             </div>
 
@@ -848,7 +848,7 @@ export const TemplesManager: React.FC = () => {
           <div className="bg-white rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-y-auto p-6 shadow-2xl space-y-4">
             <div className="flex items-center justify-between border-b border-stone-100 pb-3">
               <h3 className="text-base font-bold text-stone-900 flex items-center gap-2">
-                <Landmark className="w-5 h-5 text-[#FF4B00]" />
+                <Landmark className="w-5 h-5 text-[#9b0000]" />
                 <span>Select from Media Catalog</span>
               </h3>
               <button

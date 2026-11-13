@@ -143,7 +143,7 @@ export const TagsManager: React.FC = () => {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <Tag className="w-6 h-6 text-[#FF4B00]" />
+            <Tag className="w-6 h-6 text-[#9b0000]" />
             <h2 className="text-2xl font-black text-stone-900">Tag Manager</h2>
           </div>
           <p className="text-stone-500 text-sm mt-1">
@@ -153,7 +153,7 @@ export const TagsManager: React.FC = () => {
         <button
           type="button"
           onClick={openCreateModal}
-          className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-3 bg-[#FF4B00] active:bg-[#d43e00] text-white rounded-xl font-bold hover:bg-[#e04200] transition shadow-xs cursor-pointer text-sm"
+          className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-3 bg-[#9b0000] active:bg-[#7D0000] text-white rounded-xl font-bold hover:bg-[#7D0000] transition shadow-xs cursor-pointer text-sm"
         >
           <Plus className="w-4 h-4" />
           Add Tag
@@ -170,7 +170,7 @@ export const TagsManager: React.FC = () => {
               placeholder="Search tags..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-stone-200 rounded-xl text-sm bg-white outline-none focus:border-[#FF4B00]"
+              className="w-full pl-10 pr-4 py-2 border border-stone-200 rounded-xl text-sm bg-white outline-none focus:border-[#9b0000]"
             />
           </div>
           <span className="text-xs font-bold text-stone-500 self-end sm:self-center">
@@ -188,7 +188,7 @@ export const TagsManager: React.FC = () => {
                   selectedTagIds.length === filteredTags.length && filteredTags.length > 0
                 }
                 onChange={handleToggleSelectAll}
-                className="w-4 h-4 rounded border-stone-300 text-[#FF4B00] focus:ring-[#FF4B00] cursor-pointer"
+                className="w-4 h-4 rounded border-stone-300 text-[#9b0000] focus:ring-[#9b0000] cursor-pointer"
               />
               <span>Select All Tags ({filteredTags.length})</span>
             </label>
@@ -233,7 +233,7 @@ export const TagsManager: React.FC = () => {
                 key={`mobile-tag-${tagItem.id}`}
                 className={`border rounded-2xl p-4 space-y-3 shadow-2xs transition ${
                   selectedTagIds.includes(tagItem.id)
-                    ? 'border-[#FF4B00] ring-2 ring-[#FF4B00]/20 bg-orange-50/20'
+                    ? 'border-[#9b0000] ring-2 ring-[#9b0000]/20 bg-[#FDF2F2]/20'
                     : 'bg-white border-stone-200'
                 }`}
               >
@@ -243,11 +243,11 @@ export const TagsManager: React.FC = () => {
                       type="checkbox"
                       checked={selectedTagIds.includes(tagItem.id)}
                       onChange={() => handleToggleSelect(tagItem.id)}
-                      className="w-4 h-4 rounded border-stone-300 text-[#FF4B00] focus:ring-[#FF4B00] cursor-pointer mt-1"
+                      className="w-4 h-4 rounded border-stone-300 text-[#9b0000] focus:ring-[#9b0000] cursor-pointer mt-1"
                     />
                     <div>
                       <div className="font-bold text-stone-900 text-base flex items-center gap-1.5">
-                        <Hash className="w-4 h-4 text-[#FF4B00]" />
+                        <Hash className="w-4 h-4 text-[#9b0000]" />
                         {tagItem.name}
                       </div>
                       <div className="text-xs font-mono text-stone-500 mt-1">/tag/{tagItem.slug}</div>
@@ -271,7 +271,7 @@ export const TagsManager: React.FC = () => {
                     onClick={() => openEditModal(tagItem)}
                     className="flex-1 min-h-[44px] flex items-center justify-center gap-1.5 px-3 py-2 bg-stone-100 active:bg-stone-200 hover:bg-stone-200 text-stone-800 font-bold text-xs rounded-xl transition cursor-pointer"
                   >
-                    <Edit3 className="w-4 h-4 text-[#FF4B00]" />
+                    <Edit3 className="w-4 h-4 text-[#9b0000]" />
                     Edit
                   </button>
                   <button
@@ -303,7 +303,7 @@ export const TagsManager: React.FC = () => {
                       filteredTags.length > 0
                     }
                     onChange={handleToggleSelectAll}
-                    className="w-4 h-4 rounded border-stone-300 text-[#FF4B00] focus:ring-[#FF4B00] cursor-pointer"
+                    className="w-4 h-4 rounded border-stone-300 text-[#9b0000] focus:ring-[#9b0000] cursor-pointer"
                   />
                 </th>
                 <th className="p-4">Tag Name</th>
@@ -334,7 +334,7 @@ export const TagsManager: React.FC = () => {
                     <tr
                       key={`desktop-tag-${tagItem.id}`}
                       className={`hover:bg-stone-50/80 transition-colors ${
-                        selectedTagIds.includes(tagItem.id) ? 'bg-orange-50/30' : ''
+                        selectedTagIds.includes(tagItem.id) ? 'bg-[#FDF2F2]/30' : ''
                       }`}
                     >
                       <td className="p-4">
@@ -342,12 +342,12 @@ export const TagsManager: React.FC = () => {
                           type="checkbox"
                           checked={selectedTagIds.includes(tagItem.id)}
                           onChange={() => handleToggleSelect(tagItem.id)}
-                          className="w-4 h-4 rounded border-stone-300 text-[#FF4B00] focus:ring-[#FF4B00] cursor-pointer"
+                          className="w-4 h-4 rounded border-stone-300 text-[#9b0000] focus:ring-[#9b0000] cursor-pointer"
                         />
                       </td>
                       <td className="p-4">
                         <div className="font-bold text-stone-900 flex items-center gap-1.5">
-                          <Hash className="w-4 h-4 text-[#FF4B00]" />
+                          <Hash className="w-4 h-4 text-[#9b0000]" />
                           {tagItem.name}
                         </div>
                       </td>
@@ -371,7 +371,7 @@ export const TagsManager: React.FC = () => {
                             className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-stone-100 hover:bg-stone-200 text-stone-800 text-xs font-bold rounded-xl transition cursor-pointer"
                             title="Edit Tag"
                           >
-                            <Edit3 className="w-3.5 h-3.5 text-[#FF4B00]" />
+                            <Edit3 className="w-3.5 h-3.5 text-[#9b0000]" />
                             Edit
                           </button>
                           <button
@@ -400,7 +400,7 @@ export const TagsManager: React.FC = () => {
           <div className="bg-white rounded-2xl max-w-md w-full border border-stone-200 shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
             <div className="p-5 border-b border-stone-100 flex items-center justify-between">
               <h3 className="font-black text-stone-900 text-lg flex items-center gap-2">
-                <Tag className="w-5 h-5 text-[#FF4B00]" />
+                <Tag className="w-5 h-5 text-[#9b0000]" />
                 {editingTag ? 'Edit Tag' : 'Add New Tag'}
               </h3>
               <button
@@ -423,7 +423,7 @@ export const TagsManager: React.FC = () => {
                   placeholder="e.g. Kedarnath Helicopter"
                   value={formData.name}
                   onChange={(e) => handleNameChange(e.target.value)}
-                  className="w-full px-3.5 py-2.5 border border-stone-200 rounded-xl text-sm outline-none focus:border-[#FF4B00]"
+                  className="w-full px-3.5 py-2.5 border border-stone-200 rounded-xl text-sm outline-none focus:border-[#9b0000]"
                 />
               </div>
 
@@ -436,7 +436,7 @@ export const TagsManager: React.FC = () => {
                   placeholder="kedarnath-helicopter"
                   value={formData.slug}
                   onChange={(e) => setFormData((p) => ({ ...p, slug: e.target.value }))}
-                  className="w-full px-3.5 py-2.5 border border-stone-200 rounded-xl text-sm font-mono outline-none focus:border-[#FF4B00]"
+                  className="w-full px-3.5 py-2.5 border border-stone-200 rounded-xl text-sm font-mono outline-none focus:border-[#9b0000]"
                 />
               </div>
 
@@ -449,7 +449,7 @@ export const TagsManager: React.FC = () => {
                   placeholder="Tag description for search archives..."
                   value={formData.description}
                   onChange={(e) => setFormData((p) => ({ ...p, description: e.target.value }))}
-                  className="w-full px-3.5 py-2.5 border border-stone-200 rounded-xl text-sm outline-none focus:border-[#FF4B00] resize-none"
+                  className="w-full px-3.5 py-2.5 border border-stone-200 rounded-xl text-sm outline-none focus:border-[#9b0000] resize-none"
                 />
               </div>
 
@@ -463,7 +463,7 @@ export const TagsManager: React.FC = () => {
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-[#FF4B00] hover:bg-[#e04200] shadow-xs transition flex items-center gap-1.5 cursor-pointer"
+                  className="px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-[#9b0000] hover:bg-[#7D0000] shadow-xs transition flex items-center gap-1.5 cursor-pointer"
                 >
                   <Save className="w-4 h-4" />
                   {editingTag ? 'Update Tag' : 'Save Tag'}

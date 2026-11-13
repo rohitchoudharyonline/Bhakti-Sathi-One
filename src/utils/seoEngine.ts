@@ -613,7 +613,7 @@ export function generateBlogPostingSchema(post: BlogPost, agency: AgencySettings
       name: agency.agencyName || 'Holidays Hunt',
       logo: {
         '@type': 'ImageObject',
-        url: 'https://images.unsplash.com/photo-1598091383021-15ddea10925d?auto=format&fit=crop&w=800&q=80',
+        url: `${typeof window !== 'undefined' ? window.location.origin : 'https://holidayshunt.com'}/holidayshunt-logo.png`,
       },
     },
     articleSection: post.category,
@@ -705,7 +705,7 @@ export function generateGuideArticleSchema(
       name: agency.agencyName || 'Holidays Hunt',
       logo: {
         '@type': 'ImageObject',
-        url: 'https://images.unsplash.com/photo-1598091383021-15ddea10925d?auto=format&fit=crop&w=800&q=80',
+        url: `${origin}/holidayshunt-logo.png`,
       },
     },
     articleSection: guide.category || 'guides',

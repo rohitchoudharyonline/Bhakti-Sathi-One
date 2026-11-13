@@ -8,7 +8,7 @@ export interface ZodiacSign {
 }
 
 export const ZODIAC_SIGNS: ZodiacSign[] = [
-  { id: 'mesha', name: 'Aries (Mesha)', english: 'Aries', symbol: '♈', dates: 'Mar 21 – Apr 19', accent: '#FF4B00' },
+  { id: 'mesha', name: 'Aries (Mesha)', english: 'Aries', symbol: '♈', dates: 'Mar 21 – Apr 19', accent: '#9b0000' },
   { id: 'vrishabha', name: 'Taurus (Vrishabha)', english: 'Taurus', symbol: '♉', dates: 'Apr 20 – May 20', accent: '#B45309' },
   { id: 'mithuna', name: 'Gemini (Mithuna)', english: 'Gemini', symbol: '♊', dates: 'May 21 – Jun 20', accent: '#7C3AED' },
   { id: 'karka', name: 'Cancer (Karka)', english: 'Cancer', symbol: '♋', dates: 'Jun 21 – Jul 22', accent: '#2563EB' },

@@ -199,7 +199,7 @@ export const UsersManager: React.FC = () => {
         <title>Holidays Hunt - Registered Travelers Directory</title>
         <style>
           body { font-family: Arial, sans-serif; margin: 20px; }
-          h1 { color: #FF4B00; font-size: 20pt; }
+          h1 { color: #9b0000; font-size: 20pt; }
           table { width: 100%; border-collapse: collapse; margin-top: 15px; }
           th { background-color: #1A1A1A; color: white; padding: 10px; border: 1px solid #1A1A1A; text-align: left; }
         </style>
@@ -247,7 +247,7 @@ export const UsersManager: React.FC = () => {
     doc.setFillColor(26, 26, 26);
     doc.rect(0, 0, 297, 24, 'F');
 
-    doc.setTextColor(255, 75, 0);
+    doc.setTextColor(155, 0, 0);
     doc.setFontSize(16);
     doc.setFont('helvetica', 'bold');
     doc.text(`${agencySettings.agencyName} - Registered Travelers & Leads Directory`, 14, 15);
@@ -274,7 +274,7 @@ export const UsersManager: React.FC = () => {
       body: tableData,
       theme: 'grid',
       headStyles: {
-        fillColor: [255, 75, 0],
+        fillColor: [155, 0, 0],
         textColor: [255, 255, 255],
         fontStyle: 'bold',
         fontSize: 9,
@@ -381,7 +381,7 @@ export const UsersManager: React.FC = () => {
         <div className="bg-white p-4 sm:p-5 rounded-2xl border border-stone-200 shadow-2xs">
           <div className="flex items-center justify-between text-stone-500 mb-1">
             <span className="text-[11px] font-black uppercase tracking-wider">Total Travelers</span>
-            <Users className="w-4 h-4 text-[#FF4B00]" />
+            <Users className="w-4 h-4 text-[#9b0000]" />
           </div>
           <div className="text-2xl font-black text-stone-900">{totalUsersCount}</div>
           <div className="text-[11px] text-stone-400 mt-0.5">Signed up & Active profiles</div>
@@ -426,7 +426,7 @@ export const UsersManager: React.FC = () => {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search by Name, Email, WhatsApp Phone, City, or Booking Number (e.g. HH76868)..."
-              className="w-full text-xs font-bold bg-stone-50 border border-stone-200 rounded-xl pl-10 pr-4 py-2.5 text-stone-900 focus:outline-none focus:ring-2 focus:ring-[#FF4B00]/40 placeholder:font-medium"
+              className="w-full text-xs font-bold bg-stone-50 border border-stone-200 rounded-xl pl-10 pr-4 py-2.5 text-stone-900 focus:outline-none focus:ring-2 focus:ring-[#9b0000]/40 placeholder:font-medium"
             />
             {searchTerm && (
               <button
@@ -468,7 +468,7 @@ export const UsersManager: React.FC = () => {
             <button
               type="button"
               onClick={() => setShowExportModal(true)}
-              className="px-4 py-2.5 rounded-xl bg-[#FF4B00] hover:bg-[#E03E00] text-white text-xs font-black flex items-center gap-1.5 transition cursor-pointer shadow-xs"
+              className="px-4 py-2.5 rounded-xl bg-[#9b0000] hover:bg-[#7D0000] text-white text-xs font-black flex items-center gap-1.5 transition cursor-pointer shadow-xs"
             >
               <Download className="w-4 h-4" />
               <span>Export & Broadcast Data</span>
@@ -503,7 +503,7 @@ export const UsersManager: React.FC = () => {
                 onClick={() => setTierFilter(tier)}
                 className={`px-2.5 py-1.5 rounded-xl text-[11px] font-bold transition cursor-pointer ${
                   tierFilter === tier
-                    ? 'bg-[#FFF0EB] border border-[#FF4B00]/40 text-[#FF4B00]'
+                    ? 'bg-[#FDF2F2] border border-[#9b0000]/40 text-[#9b0000]'
                     : 'bg-stone-50 border border-stone-200 text-stone-600 hover:bg-stone-100'
                 }`}
               >
@@ -555,7 +555,7 @@ export const UsersManager: React.FC = () => {
                     selectedUserIds.length === filteredUsers.length && filteredUsers.length > 0
                   }
                   onChange={handleToggleSelectAll}
-                  className="w-4 h-4 rounded border-stone-300 text-[#FF4B00] focus:ring-[#FF4B00] cursor-pointer"
+                  className="w-4 h-4 rounded border-stone-300 text-[#9b0000] focus:ring-[#9b0000] cursor-pointer"
                 />
                 <span>Select All ({filteredUsers.length})</span>
               </label>
@@ -585,7 +585,7 @@ export const UsersManager: React.FC = () => {
                       selectedUserIds.length === filteredUsers.length && filteredUsers.length > 0
                     }
                     onChange={handleToggleSelectAll}
-                    className="w-4 h-4 rounded border-stone-300 text-[#FF4B00] focus:ring-[#FF4B00] cursor-pointer"
+                    className="w-4 h-4 rounded border-stone-300 text-[#9b0000] focus:ring-[#9b0000] cursor-pointer"
                   />
                 </th>
                 <th className="py-3.5 px-4">Traveler / Account</th>
@@ -607,7 +607,7 @@ export const UsersManager: React.FC = () => {
                     <tr
                       key={user.id}
                       className={`hover:bg-stone-50/80 transition ${
-                        selectedUserIds.includes(user.id) ? 'bg-orange-50/30' : isBlocked ? 'bg-rose-50/40 opacity-80' : ''
+                        selectedUserIds.includes(user.id) ? 'bg-[#FDF2F2]/30' : isBlocked ? 'bg-rose-50/40 opacity-80' : ''
                       }`}
                     >
                       <td className="py-4 px-4">
@@ -615,7 +615,7 @@ export const UsersManager: React.FC = () => {
                           type="checkbox"
                           checked={selectedUserIds.includes(user.id)}
                           onChange={() => handleToggleSelect(user.id)}
-                          className="w-4 h-4 rounded border-stone-300 text-[#FF4B00] focus:ring-[#FF4B00] cursor-pointer"
+                          className="w-4 h-4 rounded border-stone-300 text-[#9b0000] focus:ring-[#9b0000] cursor-pointer"
                         />
                       </td>
                       {/* Traveler Info */}
@@ -630,7 +630,7 @@ export const UsersManager: React.FC = () => {
                             <div className="font-black text-stone-900 text-sm flex items-center gap-1.5">
                               <span>{user.name}</span>
                               {user.email === 'care@holidayshunt.com' && (
-                                <span className="bg-[#FFF0EB] text-[#FF4B00] text-[9px] px-1.5 py-0.2 rounded-md uppercase font-black">
+                                <span className="bg-[#FDF2F2] text-[#9b0000] text-[9px] px-1.5 py-0.2 rounded-md uppercase font-black">
                                   Official
                                 </span>
                               )}
@@ -795,7 +795,7 @@ export const UsersManager: React.FC = () => {
           <div className="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl border border-stone-200 overflow-hidden z-10 p-6 space-y-5">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="w-10 h-10 rounded-2xl bg-[#FF4B00] text-white flex items-center justify-center font-black">
+                <div className="w-10 h-10 rounded-2xl bg-[#9b0000] text-white flex items-center justify-center font-black">
                   <Download className="w-5 h-5" />
                 </div>
                 <div>
@@ -943,7 +943,7 @@ export const UsersManager: React.FC = () => {
                   value={userFormData.name || ''}
                   onChange={(e) => setUserFormData({ ...userFormData, name: e.target.value })}
                   placeholder="e.g. Rahul Verma"
-                  className="w-full px-3.5 py-2.5 text-xs font-bold rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#FF4B00]/40"
+                  className="w-full px-3.5 py-2.5 text-xs font-bold rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#9b0000]/40"
                 />
               </div>
 
@@ -958,7 +958,7 @@ export const UsersManager: React.FC = () => {
                     value={userFormData.email || ''}
                     onChange={(e) => setUserFormData({ ...userFormData, email: e.target.value })}
                     placeholder="user@example.com"
-                    className="w-full px-3.5 py-2.5 text-xs font-bold rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#FF4B00]/40"
+                    className="w-full px-3.5 py-2.5 text-xs font-bold rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#9b0000]/40"
                   />
                 </div>
 
@@ -971,7 +971,7 @@ export const UsersManager: React.FC = () => {
                     value={userFormData.phone || ''}
                     onChange={(e) => setUserFormData({ ...userFormData, phone: e.target.value })}
                     placeholder="+91 94199 15255"
-                    className="w-full px-3.5 py-2.5 text-xs font-bold rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#FF4B00]/40"
+                    className="w-full px-3.5 py-2.5 text-xs font-bold rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#9b0000]/40"
                   />
                 </div>
               </div>
@@ -986,7 +986,7 @@ export const UsersManager: React.FC = () => {
                     value={userFormData.city || ''}
                     onChange={(e) => setUserFormData({ ...userFormData, city: e.target.value })}
                     placeholder="e.g. Srinagar"
-                    className="w-full px-3.5 py-2.5 text-xs font-bold rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#FF4B00]/40"
+                    className="w-full px-3.5 py-2.5 text-xs font-bold rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#9b0000]/40"
                   />
                 </div>
 
@@ -999,7 +999,7 @@ export const UsersManager: React.FC = () => {
                     value={userFormData.state || ''}
                     onChange={(e) => setUserFormData({ ...userFormData, state: e.target.value })}
                     placeholder="e.g. Jammu & Kashmir"
-                    className="w-full px-3.5 py-2.5 text-xs font-bold rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#FF4B00]/40"
+                    className="w-full px-3.5 py-2.5 text-xs font-bold rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#9b0000]/40"
                   />
                 </div>
               </div>
@@ -1012,7 +1012,7 @@ export const UsersManager: React.FC = () => {
                   <select
                     value={userFormData.memberTier || 'Member'}
                     onChange={(e) => setUserFormData({ ...userFormData, memberTier: e.target.value as any })}
-                    className="w-full px-3.5 py-2.5 text-xs font-bold rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#FF4B00]/40"
+                    className="w-full px-3.5 py-2.5 text-xs font-bold rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#9b0000]/40"
                   >
                     <option value="Member">Member</option>
                     <option value="Silver Explorer">Silver Explorer</option>
@@ -1028,7 +1028,7 @@ export const UsersManager: React.FC = () => {
                   <select
                     value={userFormData.status || 'active'}
                     onChange={(e) => setUserFormData({ ...userFormData, status: e.target.value as any })}
-                    className="w-full px-3.5 py-2.5 text-xs font-bold rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#FF4B00]/40"
+                    className="w-full px-3.5 py-2.5 text-xs font-bold rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#9b0000]/40"
                   >
                     <option value="active">Active (Normal Access)</option>
                     <option value="blocked">Blocked (Access Restricted)</option>
@@ -1045,7 +1045,7 @@ export const UsersManager: React.FC = () => {
                   value={userFormData.notes || ''}
                   onChange={(e) => setUserFormData({ ...userFormData, notes: e.target.value })}
                   placeholder="e.g. VIP client, preferred driver Gulzar Ahmed, vegetarian meals only."
-                  className="w-full px-3.5 py-2.5 text-xs font-medium rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#FF4B00]/40"
+                  className="w-full px-3.5 py-2.5 text-xs font-medium rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#9b0000]/40"
                 />
               </div>
 
@@ -1062,7 +1062,7 @@ export const UsersManager: React.FC = () => {
                 </button>
                 <button
                   type="submit"
-                  className="py-2.5 px-5 rounded-xl bg-[#FF4B00] hover:bg-[#E03E00] text-white text-xs font-black transition cursor-pointer shadow-xs"
+                  className="py-2.5 px-5 rounded-xl bg-[#9b0000] hover:bg-[#7D0000] text-white text-xs font-black transition cursor-pointer shadow-xs"
                 >
                   {selectedUserForEdit ? 'Save Changes' : 'Create User'}
                 </button>

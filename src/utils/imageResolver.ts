@@ -113,8 +113,9 @@ export function extractStorageKey(url?: string | null): string | null {
     if (unproxied) return unproxied;
   }
 
-  // Public static assets (e.g. /logo-holidays-hunt.png, /icon-holidays-hunt.png)
+  // Public static assets (e.g. /holidayshunt-logo.png, /logo-holidays-hunt.png, /icon-holidays-hunt.png)
   if (clean.startsWith('/') && (
+    clean.includes('holidayshunt-logo') ||
     clean.includes('logo-') ||
     clean.includes('icon-') ||
     clean.startsWith('/assets/') ||
@@ -225,6 +226,7 @@ export function diagnoseDisplayImage(
 
   // 2. Public local static assets (logos, icons, assets folder)
   if (cleanUrl.startsWith('/') && (
+    cleanUrl.includes('holidayshunt-logo') ||
     cleanUrl.includes('logo-') ||
     cleanUrl.includes('icon-') ||
     cleanUrl.startsWith('/assets/') ||

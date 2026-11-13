@@ -124,7 +124,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                   const el = document.getElementById('packages-grid');
                   if (el) el.scrollIntoView({ behavior: 'smooth' });
                 }}
-                className="w-full bg-[#FF4B00] hover:bg-[#E04200] text-white py-3 px-5 rounded-xl font-black text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md shadow-[#FF4B00]/20 transition-all cursor-pointer active:scale-[0.98]"
+                className="w-full bg-[#9b0000] hover:bg-[#7D0000] text-white py-3 px-5 rounded-xl font-black text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md shadow-[#9b0000]/20 transition-all cursor-pointer active:scale-[0.98]"
               >
                 <Search className="w-4 h-4" />
                 <span>Search Yatras</span>

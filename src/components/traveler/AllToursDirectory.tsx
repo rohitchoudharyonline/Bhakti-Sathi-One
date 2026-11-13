@@ -415,7 +415,7 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
                     {selectedTempleMeta.city && (
                       <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-xs text-white drop-shadow-md">
                         <span className="flex items-center gap-1 font-semibold">
-                          <MapPin className="w-3.5 h-3.5 text-[#FF4B00]" />
+                          <MapPin className="w-3.5 h-3.5 text-[#9b0000]" />
                           {selectedTempleMeta.city}, {selectedTempleMeta.state}
                         </span>
                       </div>
@@ -427,7 +427,7 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
                 <div className="lg:col-span-7 space-y-4">
                   <div className="space-y-2">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="text-[11px] uppercase font-black tracking-wider px-3 py-1 rounded-full bg-[#FF4B00] text-white shadow-xs">
+                      <span className="text-[11px] uppercase font-black tracking-wider px-3 py-1 rounded-full bg-[#9b0000] text-white shadow-xs">
                         Sacred Shrine
                       </span>
                       {selectedTempleMeta.city && (
@@ -469,7 +469,7 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
 
                     {selectedTempleMeta.darshanTimings && (
                       <div className="bg-white/10 backdrop-blur-md rounded-xl p-2.5 border border-white/10 flex items-start gap-2 text-xs">
-                        <Clock className="w-4 h-4 text-[#FF4B00] shrink-0 mt-0.5" />
+                        <Clock className="w-4 h-4 text-[#9b0000] shrink-0 mt-0.5" />
                         <div>
                           <span className="text-stone-400 block text-[10px] font-bold uppercase tracking-wider">Darshan Timings</span>
                           <span className="font-semibold text-white">{selectedTempleMeta.darshanTimings}</span>
@@ -506,7 +506,7 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
                       )}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="px-5 py-3 bg-[#FF4B00] hover:bg-[#E04200] text-white text-xs sm:text-sm font-bold rounded-xl transition shadow-lg shadow-orange-950/40 inline-flex items-center gap-2 cursor-pointer active:scale-95"
+                      className="px-5 py-3 bg-[#9b0000] hover:bg-[#7D0000] text-white text-xs sm:text-sm font-bold rounded-xl transition shadow-lg shadow-red-950/40 inline-flex items-center gap-2 cursor-pointer active:scale-95"
                     >
                       <MessageCircle className="w-4 h-4" />
                       <span>Custom Yatra Inquiry on WhatsApp</span>
@@ -575,7 +575,7 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
                     placeholder="Search packages (e.g. Jammu & Kashmir, 5 Days)..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-11 pr-4 py-3 bg-stone-50 border border-stone-200 rounded-xl text-xs sm:text-sm text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-4 focus:ring-[#FF4B00]/10 focus:border-[#FF4B00] transition shadow-2xs"
+                    className="w-full pl-11 pr-4 py-3 bg-stone-50 border border-stone-200 rounded-xl text-xs sm:text-sm text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-4 focus:ring-[#9b0000]/10 focus:border-[#9b0000] transition shadow-2xs"
                   />
                 </div>
               </div>
@@ -619,9 +619,9 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
               <select
                 value={selectedTempleId}
                 onChange={(e) => setSelectedTempleId(e.target.value)}
-                className={`p-2 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-[#FF4B00]/20 border ${
+                className={`p-2 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-[#9b0000]/20 border ${
                   selectedTempleId !== 'all'
-                    ? 'bg-orange-50 border-[#FF4B00] text-[#FF4B00]'
+                    ? 'bg-[#FDF2F2] border-[#9b0000] text-[#9b0000]'
                     : 'bg-stone-100 border-stone-200 text-stone-800'
                 }`}
               >
@@ -645,7 +645,7 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
                     searchQuery: searchQuery || undefined,
                   });
                 }}
-                className="p-2 bg-stone-100 border border-stone-200 rounded-xl text-xs font-semibold text-stone-800 focus:outline-none focus:ring-2 focus:ring-[#FF4B00]/20"
+                className="p-2 bg-stone-100 border border-stone-200 rounded-xl text-xs font-semibold text-stone-800 focus:outline-none focus:ring-2 focus:ring-[#9b0000]/20"
               >
                 <option value="all">All Tour Types</option>
                 <option value="pilgrimage">Pilgrimage Tours</option>
@@ -658,7 +658,7 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
               <select
                 value={selectedDuration}
                 onChange={(e) => setSelectedDuration(e.target.value)}
-                className="p-2 bg-stone-100 border border-stone-200 rounded-xl text-xs font-semibold text-stone-800 focus:outline-none focus:ring-2 focus:ring-[#FF4B00]/20"
+                className="p-2 bg-stone-100 border border-stone-200 rounded-xl text-xs font-semibold text-stone-800 focus:outline-none focus:ring-2 focus:ring-[#9b0000]/20"
               >
                 <option value="all">All Durations</option>
                 <option value="short">Short Break (2 - 4 Days)</option>
@@ -669,7 +669,7 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as any)}
-                className="p-2 bg-stone-100 border border-stone-200 rounded-xl text-xs font-semibold text-stone-800 focus:outline-none focus:ring-2 focus:ring-[#FF4B00]/20"
+                className="p-2 bg-stone-100 border border-stone-200 rounded-xl text-xs font-semibold text-stone-800 focus:outline-none focus:ring-2 focus:ring-[#9b0000]/20"
               >
                 <option value="featured">Sort: Recommended</option>
                 <option value="price-low">Price: Low to High</option>
@@ -690,45 +690,45 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
                 </span>
                 {selectedDestSlug !== 'all' && (
                   <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-white border border-stone-200 rounded-lg font-bold text-stone-900 shadow-2xs">
-                    <MapPin className="w-3 h-3 text-[#FF4B00]" />
+                    <MapPin className="w-3 h-3 text-[#9b0000]" />
                     {currentDestMeta?.name || selectedDestSlug}
-                    <button onClick={() => setSelectedDestSlug('all')} className="hover:text-[#FF4B00] ml-1 cursor-pointer">
+                    <button onClick={() => setSelectedDestSlug('all')} className="hover:text-[#9b0000] ml-1 cursor-pointer">
                       <X className="w-3 h-3" />
                     </button>
                   </span>
                 )}
                 {selectedTempleId !== 'all' && (
                   <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-white border border-stone-200 rounded-lg font-bold text-stone-900 shadow-2xs">
-                    <Landmark className="w-3 h-3 text-[#FF4B00]" />
+                    <Landmark className="w-3 h-3 text-[#9b0000]" />
                     {selectedTempleMeta?.name || selectedTempleId}
-                    <button onClick={() => setSelectedTempleId('all')} className="hover:text-[#FF4B00] ml-1 cursor-pointer">
+                    <button onClick={() => setSelectedTempleId('all')} className="hover:text-[#9b0000] ml-1 cursor-pointer">
                       <X className="w-3 h-3" />
                     </button>
                   </span>
                 )}
                 {selectedCategory !== 'all' && (
                   <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-white border border-stone-200 rounded-lg font-bold text-stone-900 shadow-2xs capitalize">
-                    <Tag className="w-3 h-3 text-[#FF4B00]" />
+                    <Tag className="w-3 h-3 text-[#9b0000]" />
                     {selectedCategory}
-                    <button onClick={() => setSelectedCategory('all')} className="hover:text-[#FF4B00] ml-1 cursor-pointer">
+                    <button onClick={() => setSelectedCategory('all')} className="hover:text-[#9b0000] ml-1 cursor-pointer">
                       <X className="w-3 h-3" />
                     </button>
                   </span>
                 )}
                 {searchQuery.trim() && (
                   <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-white border border-stone-200 rounded-lg font-bold text-stone-900 shadow-2xs">
-                    <Search className="w-3 h-3 text-[#FF4B00]" />
+                    <Search className="w-3 h-3 text-[#9b0000]" />
                     "{searchQuery}"
-                    <button onClick={() => setSearchQuery('')} className="hover:text-[#FF4B00] ml-1 cursor-pointer">
+                    <button onClick={() => setSearchQuery('')} className="hover:text-[#9b0000] ml-1 cursor-pointer">
                       <X className="w-3 h-3" />
                     </button>
                   </span>
                 )}
                 {selectedMonth !== 'any' && (
                   <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-white border border-stone-200 rounded-lg font-bold text-stone-900 shadow-2xs uppercase">
-                    <Calendar className="w-3 h-3 text-[#FF4B00]" />
+                    <Calendar className="w-3 h-3 text-[#9b0000]" />
                     Month: {selectedMonth}
-                    <button onClick={() => setSelectedMonth('any')} className="hover:text-[#FF4B00] ml-1 cursor-pointer">
+                    <button onClick={() => setSelectedMonth('any')} className="hover:text-[#9b0000] ml-1 cursor-pointer">
                       <X className="w-3 h-3" />
                     </button>
                   </span>
@@ -736,7 +736,7 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
               </div>
               <button
                 onClick={handleResetPreferences}
-                className="inline-flex items-center gap-1 text-xs font-bold text-[#FF4B00] hover:underline cursor-pointer"
+                className="inline-flex items-center gap-1 text-xs font-bold text-[#9b0000] hover:underline cursor-pointer"
               >
                 <RotateCcw className="w-3 h-3" />
                 Clear All
@@ -804,7 +804,7 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
                       <div className="space-y-1.5">
                         <h3
                           onClick={() => navigateToPackage(pkg.id)}
-                          className="text-base sm:text-lg font-bold text-black leading-snug cursor-pointer group-hover:text-[#FF4B00] transition line-clamp-2"
+                          className="text-base sm:text-lg font-bold text-black leading-snug cursor-pointer group-hover:text-[#9b0000] transition line-clamp-2"
                         >
                           {pkg.title}
                         </h3>
@@ -817,23 +817,23 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
                       <div className="pt-2 border-t border-stone-100">
                         <div className="grid grid-cols-5 items-start">
                           <div className="flex flex-col items-center justify-start gap-1 text-center">
-                            <Hotel className="w-7 h-7 text-[#FF4B00] shrink-0" strokeWidth={1.9} />
+                            <Hotel className="w-7 h-7 text-[#9b0000] shrink-0" strokeWidth={1.9} />
                             <span className="text-[11px] sm:text-xs font-medium text-stone-700 leading-tight">Hotel</span>
                           </div>
                           <div className="flex flex-col items-center justify-start gap-1 text-center">
-                            <Utensils className="w-7 h-7 text-[#FF4B00] shrink-0" strokeWidth={1.9} />
+                            <Utensils className="w-7 h-7 text-[#9b0000] shrink-0" strokeWidth={1.9} />
                             <span className="text-[11px] sm:text-xs font-medium text-stone-700 leading-tight">Meals</span>
                           </div>
                           <div className="flex flex-col items-center justify-start gap-1 text-center">
-                            <Plane className="w-7 h-7 text-[#FF4B00] shrink-0" strokeWidth={1.9} />
+                            <Plane className="w-7 h-7 text-[#9b0000] shrink-0" strokeWidth={1.9} />
                             <span className="text-[11px] sm:text-xs font-medium text-stone-700 leading-tight">Flight <span className="text-[10px] text-stone-500">(optional)</span></span>
                           </div>
                           <div className="flex flex-col items-center justify-start gap-1 text-center">
-                            <Camera className="w-7 h-7 text-[#FF4B00] shrink-0" strokeWidth={1.9} />
+                            <Camera className="w-7 h-7 text-[#9b0000] shrink-0" strokeWidth={1.9} />
                             <span className="text-[11px] sm:text-xs font-medium text-stone-700 leading-tight">Sightseeing</span>
                           </div>
                           <div className="flex flex-col items-center justify-start gap-1 text-center">
-                            <Car className="w-7 h-7 text-[#FF4B00] shrink-0" strokeWidth={1.9} />
+                            <Car className="w-7 h-7 text-[#9b0000] shrink-0" strokeWidth={1.9} />
                             <span className="text-[11px] sm:text-xs font-medium text-stone-700 leading-tight">Transport</span>
                           </div>
                         </div>
@@ -895,7 +895,7 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
 
           {sortedPackages.length === 0 && (
             <div className="py-14 text-center bg-white rounded-3xl border border-stone-200 p-8 space-y-4 max-w-xl mx-auto">
-              <Landmark className="w-12 h-12 text-[#FF4B00] mx-auto" />
+              <Landmark className="w-12 h-12 text-[#9b0000] mx-auto" />
               <h4 className="text-lg font-bold text-black">
                 {selectedTempleMeta ? `Custom Yatra to ${selectedTempleMeta.name}` : 'No packages match your criteria'}
               </h4>
@@ -911,7 +911,7 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
                   )}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-5 py-2.5 bg-[#FF4B00] hover:bg-[#E04200] text-white text-xs font-bold rounded-xl transition shadow-sm inline-flex items-center gap-1.5"
+                  className="px-5 py-2.5 bg-[#9b0000] hover:bg-[#7D0000] text-white text-xs font-bold rounded-xl transition shadow-sm inline-flex items-center gap-1.5"
                 >
                   <MessageCircle className="w-3.5 h-3.5" />
                   <span>Inquire on WhatsApp</span>

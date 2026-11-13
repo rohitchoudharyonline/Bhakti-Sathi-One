@@ -682,7 +682,7 @@ export const GuideEditor: React.FC<GuideEditorProps> = ({
                 <button
                   type="button"
                   onClick={() => setShowWpImgModal(true)}
-                  className="px-2.5 py-1 bg-[#FC3200] hover:bg-[#e02c00] text-white rounded-lg text-xs font-black flex items-center gap-1 transition cursor-pointer shadow-xs mr-1"
+                  className="px-2.5 py-1 bg-[#9b0000] hover:bg-[#7D0000] text-white rounded-lg text-xs font-black flex items-center gap-1 transition cursor-pointer shadow-xs mr-1"
                   title="WordPress-style inline image builder (Upload to R2, set alignment & caption)"
                 >
                   <ImageIcon className="w-3.5 h-3.5 text-white" />

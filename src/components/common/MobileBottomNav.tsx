@@ -75,7 +75,7 @@ export const MobileBottomNav: React.FC = () => {
 
   const renderIcon = (iconName: string, isActive: boolean) => {
     const iconClass = `w-5 h-5 transition-transform ${
-      isActive ? 'scale-110 stroke-[2.5] text-[#FF4B00]' : 'stroke-2 text-stone-500'
+      isActive ? 'scale-110 stroke-[2.5] text-[#9b0000]' : 'stroke-2 text-stone-500'
     }`;
 
     switch (iconName) {
@@ -214,19 +214,19 @@ export const MobileBottomNav: React.FC = () => {
                 isChat
                   ? 'text-emerald-600 hover:text-emerald-700 font-bold'
                   : isActive
-                  ? 'text-[#FF4B00] font-black'
+                  ? 'text-[#9b0000] font-black'
                   : 'text-stone-500 hover:text-stone-800 font-semibold'
               }`}
             >
               <div className="relative">
                 {renderIcon(item.icon, isActive)}
                 {item.actionType === 'tours' && publishedCount > 0 && (
-                  <span className="absolute -top-1 -right-2 px-1 py-0.2 bg-[#FF4B00] text-white border border-[#FF4B00]/40 text-[8px] font-black rounded-full leading-tight shadow-xs">
+                  <span className="absolute -top-1 -right-2 px-1 py-0.2 bg-[#9b0000] text-white border border-[#9b0000]/40 text-[8px] font-black rounded-full leading-tight shadow-xs">
                     {publishedCount}
                   </span>
                 )}
                 {isActive && !isChat && (
-                  <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-[#FF4B00] shadow-2xs" />
+                  <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-[#9b0000] shadow-2xs" />
                 )}
               </div>
               <span
@@ -234,7 +234,7 @@ export const MobileBottomNav: React.FC = () => {
                   isChat
                     ? 'font-black text-emerald-700'
                     : isActive
-                    ? 'font-black text-[#FF4B00]'
+                    ? 'font-black text-[#9b0000]'
                     : 'font-medium text-stone-500'
                 }`}
               >

@@ -31,6 +31,7 @@ import { GuideArticle } from '../../types/guide';
 import { PDFBrochureModal } from '../traveler/PDFBrochureModal';
 import { TourContentStudio } from './TourContentStudio';
 import { ErrorBoundary } from '../common/ErrorBoundary';
+import { BrandLogo } from '../common/BrandLogo';
 import {
   LayoutDashboard,
   BookOpen,
@@ -567,15 +568,15 @@ export const CMSDashboard: React.FC = () => {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             {/* Title & Badge */}
             <div className="flex items-center gap-3 min-w-0">
-              <div className="w-10 h-10 rounded-2xl bg-[#FF4B00] text-white flex items-center justify-center font-sans text-lg font-black shadow-xs shrink-0">
-                HH
+              <div className="px-2.5 py-1.5 rounded-2xl bg-white border border-stone-200 flex items-center justify-center shadow-xs shrink-0">
+                <BrandLogo size="xs" />
               </div>
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
                   <h1 className="text-sm sm:text-lg font-black text-stone-900 truncate font-sans tracking-tight">
                     {agencySettings.agencyName} ERP
                   </h1>
-                  <span className="hidden sm:inline-flex bg-orange-50 border border-orange-200 text-[#FF4B00] text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">
+                  <span className="hidden sm:inline-flex bg-[#FDF2F2] border border-[#F5C2C2] text-[#9b0000] text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">
                     Enterprise
                   </span>
                 </div>
@@ -601,7 +602,7 @@ export const CMSDashboard: React.FC = () => {
                 className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-800 text-[11px] sm:text-xs font-bold border border-stone-200 transition cursor-pointer"
                 title="Switch to Public Storefront"
               >
-                <Globe className="w-3.5 h-3.5 text-[#FF4B00]" />
+                <Globe className="w-3.5 h-3.5 text-[#9b0000]" />
                 <span className="hidden md:inline">Storefront</span>
                 <span className="md:hidden">Web</span>
               </button>
@@ -634,7 +635,7 @@ export const CMSDashboard: React.FC = () => {
                   type="button"
                   id="cms-create-package-btn"
                   onClick={handleStartCreate}
-                  className="px-2.5 sm:px-3.5 py-1.5 rounded-xl bg-[#FF4B00] hover:bg-[#E04200] text-white text-[11px] sm:text-xs font-bold flex items-center gap-1.5 shadow-xs transition cursor-pointer"
+                  className="px-2.5 sm:px-3.5 py-1.5 rounded-xl bg-[#9b0000] hover:bg-[#7D0000] text-white text-[11px] sm:text-xs font-bold flex items-center gap-1.5 shadow-xs transition cursor-pointer"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span className="hidden md:inline">New Tour</span>
@@ -668,13 +669,13 @@ export const CMSDashboard: React.FC = () => {
       {/* 2. Main CMS Body Container */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-5 sm:mt-6 pb-36">
         {/* Sacred Dashboard Mantra Card with Majestic Spiritual Warm Styling */}
-        <div className="bg-gradient-to-r from-amber-50 via-orange-50/80 to-amber-50 border-2 border-amber-200/90 rounded-2xl sm:rounded-3xl p-5 sm:p-7 mb-6 shadow-xs relative overflow-hidden transition-all duration-300">
+        <div className="bg-gradient-to-r from-amber-50 via-[#FDF2F2]/80 to-amber-50 border-2 border-amber-200/90 rounded-2xl sm:rounded-3xl p-5 sm:p-7 mb-6 shadow-xs relative overflow-hidden transition-all duration-300">
           <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#d97706_1px,transparent_1px)] [background-size:20px_20px] pointer-events-none" />
-          <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-72 sm:w-96 h-24 bg-[#FF4B00]/10 rounded-full blur-2xl pointer-events-none" />
+          <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-72 sm:w-96 h-24 bg-[#9b0000]/10 rounded-full blur-2xl pointer-events-none" />
 
           <div className="relative z-10 flex items-center justify-center text-center">
             <div className="text-2xl sm:text-3xl md:text-4xl lg:text-[42px] font-black tracking-[0.16em] sm:tracking-[0.26em] font-serif py-1 select-none">
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-700 via-[#FF4B00] to-orange-700 drop-shadow-xs">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-700 via-[#9b0000] to-[#7D0000] drop-shadow-xs">
                 {agencySettings?.sacredMantra || 'साम्ब सदाशिव'}
               </span>
             </div>
@@ -703,7 +704,7 @@ export const CMSDashboard: React.FC = () => {
                   }}
                   className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition cursor-pointer flex items-center gap-1.5 shrink-0 ${
                     activeWorkspace === ws.id
-                      ? 'bg-[#FF4B00] text-white shadow-xs'
+                      ? 'bg-[#9b0000] text-white shadow-xs'
                       : 'bg-stone-100 hover:bg-stone-200 text-stone-700'
                   }`}
                 >
@@ -721,7 +722,7 @@ export const CMSDashboard: React.FC = () => {
                 value={moduleSearchQuery}
                 onChange={(e) => setModuleSearchQuery(e.target.value)}
                 placeholder="Search tools... (e.g. invoice, lead, tour)"
-                className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border border-stone-300 bg-white text-stone-900 placeholder:text-stone-400 focus:border-[#FF4B00] focus:ring-1 focus:ring-[#FF4B00] outline-none"
+                className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border border-stone-300 bg-white text-stone-900 placeholder:text-stone-400 focus:border-[#9b0000] focus:ring-1 focus:ring-[#9b0000] outline-none"
               />
             </div>
           </div>
@@ -754,8 +755,8 @@ export const CMSDashboard: React.FC = () => {
                     onClick={() => setActiveCmsTab(tab.id as any)}
                     className={`relative p-3 rounded-xl text-left transition flex flex-col justify-between h-full gap-2 cursor-pointer select-none border ${
                       isActive
-                        ? 'bg-[#FF4B00] text-white border-[#FF4B00] shadow-md shadow-[#FF4B00]/25'
-                        : 'bg-white hover:bg-orange-50/60 text-stone-900 border-stone-200/90 hover:border-orange-300 shadow-2xs'
+                        ? 'bg-[#9b0000] text-white border-[#9b0000] shadow-md shadow-[#9b0000]/25'
+                        : 'bg-white hover:bg-[#FDF2F2]/60 text-stone-900 border-stone-200/90 hover:border-[#9b0000]/40 shadow-2xs'
                     }`}
                     id={`tab-${tab.id}`}
                   >
@@ -778,7 +779,7 @@ export const CMSDashboard: React.FC = () => {
                             <span
                               className={`text-[10px] px-1.5 py-0.5 rounded-full font-black ${
                                 isActive
-                                  ? 'bg-white text-[#FC3200]'
+                                  ? 'bg-white text-[#9b0000]'
                                   : 'bg-stone-100 text-stone-700 font-bold border border-stone-200/60'
                               }`}
                             >
@@ -820,7 +821,7 @@ export const CMSDashboard: React.FC = () => {
             <button
               type="button"
               onClick={() => setActiveCmsTab('dashboard')}
-              className="px-4 py-2 bg-[#FC3200] hover:bg-[#e02c00] text-white rounded-xl text-xs font-bold shadow-xs cursor-pointer mt-2"
+              className="px-4 py-2 bg-[#9b0000] hover:bg-[#7D0000] text-white rounded-xl text-xs font-bold shadow-xs cursor-pointer mt-2"
             >
               Return to Operations Hub
             </button>
@@ -830,7 +831,7 @@ export const CMSDashboard: React.FC = () => {
         {/* LOADING SKELETON / SUBTLE SPINNER STATE DURING TRANSITIONS */}
         {isTabLoading && canAccess(activeCmsTab) && (
           <div className="bg-white rounded-3xl border border-stone-200/80 p-12 text-center space-y-6 my-6 shadow-xs animate-pulse">
-            <div className="w-12 h-12 rounded-2xl bg-[#FF4B00]/10 text-[#FF4B00] flex items-center justify-center mx-auto animate-spin">
+            <div className="w-12 h-12 rounded-2xl bg-[#9b0000]/10 text-[#9b0000] flex items-center justify-center mx-auto animate-spin">
               <Sparkles className="w-6 h-6" />
             </div>
             <div className="space-y-2 max-w-sm mx-auto">
@@ -992,13 +993,13 @@ export const CMSDashboard: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setActiveCmsTab("invoices")}
-                    className="flex items-center sm:flex-col sm:items-start p-3 sm:p-4 rounded-xl bg-white hover:bg-stone-50 border border-stone-200 hover:border-[#FC3200]/30 hover:shadow-xs text-left transition-all cursor-pointer group"
+                    className="flex items-center sm:flex-col sm:items-start p-3 sm:p-4 rounded-xl bg-white hover:bg-stone-50 border border-stone-200 hover:border-[#9b0000]/30 hover:shadow-xs text-left transition-all cursor-pointer group"
                   >
                     <div className="p-2 sm:p-0 bg-stone-100 sm:bg-transparent rounded-lg border sm:border-none border-stone-200 mr-3 sm:mr-0 sm:mb-3 shrink-0">
-                      <Receipt className="w-5 h-5 sm:w-6 sm:h-6 text-[#FC3200] group-hover:scale-110 transition-transform" />
+                      <Receipt className="w-5 h-5 sm:w-6 sm:h-6 text-[#9b0000] group-hover:scale-110 transition-transform" />
                     </div>
                     <div>
-                      <p className="text-sm font-black text-stone-900 group-hover:text-[#FC3200] transition-colors">Create Tax Invoice</p>
+                      <p className="text-sm font-black text-stone-900 group-hover:text-[#9b0000] transition-colors">Create Tax Invoice</p>
                       <p className="text-[11px] text-stone-500 font-medium line-clamp-1">Bill guest & track advance</p>
                     </div>
                   </button>
@@ -1057,14 +1058,14 @@ export const CMSDashboard: React.FC = () => {
               <div className="bg-white p-5 rounded-2xl border border-stone-200 shadow-xs space-y-3">
                 <div className="flex items-center justify-between pb-2 border-b border-stone-100">
                   <h3 className="font-black text-stone-900 text-sm flex items-center gap-2">
-                    <MessageSquare className="w-4 h-4 text-[#FC3200]" />
+                    <MessageSquare className="w-4 h-4 text-[#9b0000]" />
                     Recent Traveler Inquiries & Quotes
                   </h3>
                   {canAccess('inquiries') && (
                     <button
                       type="button"
                       onClick={() => setActiveCmsTab('inquiries')}
-                      className="text-xs font-bold text-[#FC3200] hover:text-[#e02c00] cursor-pointer"
+                      className="text-xs font-bold text-[#9b0000] hover:text-[#7D0000] cursor-pointer"
                     >
                       View All ({inquiries.length})
                     </button>
@@ -1078,7 +1079,7 @@ export const CMSDashboard: React.FC = () => {
                         <p className="font-black text-stone-900">{inq.travelerName}</p>
                         <p className="text-stone-500 text-[11px]">{inq.packageTitle} • {inq.travelDate}</p>
                       </div>
-                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-[#FC3200] border border-amber-200">
+                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-[#9b0000] border border-amber-200">
                         {inq.status}
                       </span>
                     </div>
@@ -1100,7 +1101,7 @@ export const CMSDashboard: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => setActiveCmsTab('payments')}
-                      className="text-xs font-bold text-[#FC3200] hover:text-[#e02c00] cursor-pointer"
+                      className="text-xs font-bold text-[#9b0000] hover:text-[#7D0000] cursor-pointer"
                     >
                       View All ({vendorPayments.length})
                     </button>
@@ -1374,7 +1375,7 @@ export const CMSDashboard: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setIsAITourCreatorOpen(true)}
-                    className="px-3.5 py-2 rounded-xl border border-orange-200 bg-orange-50 hover:bg-orange-100 text-[#E02C00] text-xs font-black flex items-center gap-1.5 shadow-xs transition cursor-pointer"
+                    className="px-3.5 py-2 rounded-xl border border-[#F5C2C2] bg-[#FDF2F2] hover:bg-[#FCE8E8] text-[#7D0000] text-xs font-black flex items-center gap-1.5 shadow-xs transition cursor-pointer"
                     title="Create a tour draft with Gemini AI"
                   >
                     <Sparkles className="w-4 h-4" />
@@ -1383,7 +1384,7 @@ export const CMSDashboard: React.FC = () => {
                   <button
                     type="button"
                     onClick={handleStartCreate}
-                    className="px-3.5 py-2 rounded-xl bg-[#FF4B00] hover:bg-[#E02c00] text-white text-xs font-black flex items-center gap-1.5 shadow-xs transition cursor-pointer"
+                    className="px-3.5 py-2 rounded-xl bg-[#9b0000] hover:bg-[#7D0000] text-white text-xs font-black flex items-center gap-1.5 shadow-xs transition cursor-pointer"
                   >
                     <Plus className="w-4 h-4" />
                     <span>+ Create Tour Package</span>
@@ -1401,7 +1402,7 @@ export const CMSDashboard: React.FC = () => {
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="Search tour packages by destination, title, duration..."
-                  className="w-full text-xs bg-stone-50 border border-stone-300 rounded-xl pl-9 pr-3 py-2.5 text-stone-900 focus:outline-hidden focus:border-[#FC3200] font-medium"
+                  className="w-full text-xs bg-stone-50 border border-stone-300 rounded-xl pl-9 pr-3 py-2.5 text-stone-900 focus:outline-hidden focus:border-[#9b0000] font-medium"
                 />
               </div>
 
@@ -1455,7 +1456,7 @@ export const CMSDashboard: React.FC = () => {
               <div className="bg-white rounded-2xl border border-stone-200 shadow-2xs overflow-hidden">
                 <div className="sm:hidden px-4 py-2 bg-stone-50 border-b border-stone-100 flex items-center justify-between text-[11px] text-stone-500 font-medium">
                   <span>Showing {filteredPackages.length} Packages</span>
-                  <span className="text-[#FC3200] font-bold">Scroll right for actions →</span>
+                  <span className="text-[#9b0000] font-bold">Scroll right for actions →</span>
                 </div>
                 <div className="overflow-x-auto max-w-full">
                   <table className="w-full text-left text-xs text-stone-700 min-w-[760px]">
@@ -1482,14 +1483,14 @@ export const CMSDashboard: React.FC = () => {
                               />
                               <div className="min-w-0">
                                 <div
-                                  className="font-black text-stone-900 truncate hover:text-[#FC3200] cursor-pointer"
+                                  className="font-black text-stone-900 truncate hover:text-[#9b0000] cursor-pointer"
                                   onClick={() => handleStartEdit(pkg)}
                                   title={pkg.title}
                                 >
                                   {pkg.title}
                                 </div>
                                 <div className="text-[11px] text-stone-500 flex items-center gap-1 truncate font-medium">
-                                  <MapPin className="w-3 h-3 text-[#FC3200] shrink-0" />
+                                  <MapPin className="w-3 h-3 text-[#9b0000] shrink-0" />
                                   <span className="truncate">{pkg.destination}</span>
                                 </div>
                               </div>
@@ -1510,14 +1511,14 @@ export const CMSDashboard: React.FC = () => {
                               {pkg.category}
                             </span>
                             {pkg.badge && (
-                              <div className="text-[10px] font-black text-[#FC3200] mt-1">
+                              <div className="text-[10px] font-black text-[#9b0000] mt-1">
                                 {pkg.badge}
                               </div>
                             )}
                           </td>
 
                           <td className="py-3.5 px-4 whitespace-nowrap">
-                            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-black bg-amber-50 text-[#FC3200] border border-amber-200">
+                            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-black bg-amber-50 text-[#9b0000] border border-amber-200">
                               Price on Request
                             </span>
                           </td>
@@ -1560,7 +1561,7 @@ export const CMSDashboard: React.FC = () => {
                               <button
                                 type="button"
                                 onClick={() => setPdfModalPkg(pkg)}
-                                className="p-1.5 text-[#FC3200] hover:text-[#e02c00] hover:bg-amber-50 rounded-lg transition cursor-pointer"
+                                className="p-1.5 text-[#9b0000] hover:text-[#7D0000] hover:bg-amber-50 rounded-lg transition cursor-pointer"
                                 title="Download PDF Brochure"
                               >
                                 <FileText className="w-4 h-4" />
@@ -1569,7 +1570,7 @@ export const CMSDashboard: React.FC = () => {
                               <button
                                 type="button"
                                 onClick={() => handlePreviewLive(pkg.id)}
-                                className="p-1.5 text-stone-500 hover:text-[#FC3200] hover:bg-stone-100 rounded-lg transition cursor-pointer"
+                                className="p-1.5 text-stone-500 hover:text-[#9b0000] hover:bg-stone-100 rounded-lg transition cursor-pointer"
                                 title="Preview on Guest Portal"
                               >
                                 <Eye className="w-4 h-4" />
@@ -1654,7 +1655,7 @@ export const CMSDashboard: React.FC = () => {
                       </div>
 
                       <div className="pt-3 border-t border-stone-100 flex items-center justify-between">
-                        <span className="font-black text-xs text-[#FC3200] bg-amber-50 px-2.5 py-1 rounded-full border border-amber-200">
+                        <span className="font-black text-xs text-[#9b0000] bg-amber-50 px-2.5 py-1 rounded-full border border-amber-200">
                           Price on Request
                         </span>
 
@@ -1670,7 +1671,7 @@ export const CMSDashboard: React.FC = () => {
                           <button
                             type="button"
                             onClick={() => setPdfModalPkg(pkg)}
-                            className="p-1.5 text-[#FC3200] hover:text-[#e02c00] rounded-lg hover:bg-amber-50 transition cursor-pointer"
+                            className="p-1.5 text-[#9b0000] hover:text-[#7D0000] rounded-lg hover:bg-amber-50 transition cursor-pointer"
                             title="PDF Brochure"
                           >
                             <FileText className="w-4 h-4" />
@@ -1678,7 +1679,7 @@ export const CMSDashboard: React.FC = () => {
                           <button
                             type="button"
                             onClick={() => handlePreviewLive(pkg.id)}
-                            className="p-1.5 text-stone-600 hover:text-[#FC3200] rounded-lg hover:bg-stone-100 transition cursor-pointer"
+                            className="p-1.5 text-stone-600 hover:text-[#9b0000] rounded-lg hover:bg-stone-100 transition cursor-pointer"
                             title="Preview"
                           >
                             <Eye className="w-4 h-4" />

@@ -3,17 +3,17 @@
 @custom-variant dark (&:where(.never-applied-dark, .never-applied-dark *));
 
 @theme {
-  --color-brand-orange: #FF4B00;
-  --color-brand-orange-hover: #E04200;
-  --color-brand-orange-light: #FFF0EB;
+  --color-brand-orange: #9b0000;
+  --color-brand-orange-hover: #7D0000;
+  --color-brand-orange-light: #FDF2F2;
   --color-brand-dark: #1A1A1A;
   --color-brand-dark-card: #242424;
   --color-brand-dark-hover: #2A2A2A;
-  --color-brand: #FF4B00;
-  --color-brand-hover: #E04200;
-  --color-brand-gold: #FF4B00;
-  --color-brand-gold-dark: #E04200;
-  --color-brand-gold-light: #FFF0EB;
+  --color-brand: #9b0000;
+  --color-brand-hover: #7D0000;
+  --color-brand-gold: #9b0000;
+  --color-brand-gold-dark: #7D0000;
+  --color-brand-gold-light: #FDF2F2;
   --color-brand-light: #FAFAFA;
   --color-brand-subtle: #E5E5E5;
   --color-dark: #1A1A1A;
@@ -23,12 +23,12 @@
 
 @layer base {
   :root {
-    --brand-primary: #FF4B00;
-    --brand-orange: #FF4B00;
+    --brand-primary: #9b0000;
+    --brand-orange: #9b0000;
     --brand-dark: #1A1A1A;
-    --brand-gold: #FF4B00;
-    --brand-gold-dark: #E04200;
-    --brand-gold-bright: #FF5A14;
+    --brand-gold: #9b0000;
+    --brand-gold-dark: #7D0000;
+    --brand-gold-bright: #B80000;
     --brand-light: #FAFAFA;
   }
 
@@ -45,7 +45,7 @@
   }
 
   ::selection {
-    background-color: #FF4B00;
+    background-color: #9b0000;
     color: #FFFFFF;
   }
 }

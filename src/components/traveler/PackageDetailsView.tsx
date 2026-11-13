@@ -266,15 +266,15 @@ export const PackageDetailsView: React.FC<PackageDetailsViewProps> = ({ pkg, onB
           <div className="lg:col-span-8 space-y-6">
             {/* Group Tour & Fixed Departure Spotlight Card */}
             {(pkg.isGroupTour || pkg.groupTourDetails?.isGroupTour) && (
-              <div className="bg-gradient-to-br from-amber-50/70 via-white to-orange-50/60 rounded-3xl border-2 border-amber-300/80 p-5 sm:p-6 shadow-md relative overflow-hidden">
+              <div className="bg-gradient-to-br from-amber-50/70 via-white to-[#FDF2F2]/60 rounded-3xl border-2 border-amber-300/80 p-5 sm:p-6 shadow-md relative overflow-hidden">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-amber-200/60 pb-4 mb-4">
                   <div className="flex items-center gap-2.5">
-                    <div className="w-10 h-10 rounded-2xl bg-[#FF4B00] text-white flex items-center justify-center shadow-xs shrink-0">
+                    <div className="w-10 h-10 rounded-2xl bg-[#9b0000] text-white flex items-center justify-center shadow-xs shrink-0">
                       <Bus className="w-5 h-5" />
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-black uppercase tracking-wider text-[#FF4B00] bg-[#FFF0EB] px-2.5 py-0.5 rounded-full border border-[#FF4B00]/20">
+                        <span className="text-xs font-black uppercase tracking-wider text-[#9b0000] bg-[#FDF2F2] px-2.5 py-0.5 rounded-full border border-[#9b0000]/20">
                           Fixed Departure
                         </span>
                         {pkg.groupTourDetails?.perPersonSavings ? (
@@ -293,7 +293,7 @@ export const PackageDetailsView: React.FC<PackageDetailsViewProps> = ({ pkg, onB
                   {pkg.groupTourDetails?.nextDeparture && (
                     <div className="bg-white px-3 py-1.5 rounded-xl border border-amber-300/80 shadow-2xs self-start sm:self-auto">
                       <span className="text-[10px] font-bold text-stone-400 block uppercase">Next Departure</span>
-                      <span className="text-xs sm:text-sm font-black text-stone-900 flex items-center gap-1 text-[#FF4B00]">
+                      <span className="text-xs sm:text-sm font-black text-stone-900 flex items-center gap-1 text-[#9b0000]">
                         <Calendar className="w-3.5 h-3.5" />
                         <span>{pkg.groupTourDetails.nextDeparture}</span>
                       </span>
@@ -338,7 +338,7 @@ export const PackageDetailsView: React.FC<PackageDetailsViewProps> = ({ pkg, onB
                           key={pIdx}
                           className="bg-white px-2.5 py-1 rounded-lg border border-stone-200 text-stone-800 font-bold text-[11px] shadow-2xs flex items-center gap-1"
                         >
-                          <MapPin className="w-3 h-3 text-[#FF4B00]" />
+                          <MapPin className="w-3 h-3 text-[#9b0000]" />
                           <span>{pt}</span>
                         </span>
                       ))}
@@ -758,19 +758,19 @@ export const PackageDetailsView: React.FC<PackageDetailsViewProps> = ({ pkg, onB
                           <div>
                             <div className="flex items-center justify-between gap-2 pb-2 border-b border-stone-100">
                               <div className="flex items-center gap-1.5 min-w-0">
-                                <MapPin className="w-3.5 h-3.5 text-[#FF4B00] shrink-0" />
+                                <MapPin className="w-3.5 h-3.5 text-[#9b0000] shrink-0" />
                                 <span className="font-extrabold text-stone-900 text-xs sm:text-sm tracking-tight truncate">
                                   {hotel.location || hotel.city || pkg.destination}, {hotel.country || pkg.country || 'India'}
                                 </span>
                               </div>
                               <span className="shrink-0 bg-stone-100 text-stone-800 font-extrabold text-[11px] sm:text-xs px-2.5 py-0.5 rounded-full border border-stone-200 flex items-center gap-1">
-                                <Calendar className="w-3 h-3 text-[#FF4B00]" />
+                                <Calendar className="w-3 h-3 text-[#9b0000]" />
                                 <span>{hotel.nights} {hotel.nights > 1 ? 'Nights' : 'Night'} Stay</span>
                               </span>
                             </div>
 
                             <div className="flex items-start gap-2 pt-2">
-                              <Building className="w-4 h-4 text-[#FF4B00] shrink-0 mt-0.5" />
+                              <Building className="w-4 h-4 text-[#9b0000] shrink-0 mt-0.5" />
                               <div className="min-w-0 flex-1">
                                 <h4 className="text-sm sm:text-base font-extrabold text-stone-900 leading-snug">
                                   {hotel.name} {hotel.name.toLowerCase().includes('or similar') ? '' : '/ or similar'}
@@ -837,7 +837,7 @@ export const PackageDetailsView: React.FC<PackageDetailsViewProps> = ({ pkg, onB
                         <ul className="space-y-2 text-xs sm:text-sm text-stone-700 bg-stone-50 p-4 rounded-2xl border border-stone-200">
                           {paymentList.map((line, i) => (
                             <li key={i} className="flex items-start gap-2.5">
-                              <span className="w-1.5 h-1.5 rounded-full bg-[#FF4B00] mt-2 shrink-0" />
+                              <span className="w-1.5 h-1.5 rounded-full bg-[#9b0000] mt-2 shrink-0" />
                               <span className="font-medium text-stone-800 leading-relaxed">{line}</span>
                             </li>
                           ))}
@@ -849,7 +849,7 @@ export const PackageDetailsView: React.FC<PackageDetailsViewProps> = ({ pkg, onB
                   {/* 2. Important Traveler Notes & Guidelines */}
                   <div>
                     <h4 className="text-sm font-bold text-stone-900 uppercase tracking-wider mb-3 flex items-center gap-2 text-stone-800">
-                      <FileText className="w-4 h-4 text-[#FF4B00]" />
+                      <FileText className="w-4 h-4 text-[#9b0000]" />
                       <span>Important Traveler Notes & Guidelines</span>
                     </h4>
                     {(() => {
@@ -864,7 +864,7 @@ export const PackageDetailsView: React.FC<PackageDetailsViewProps> = ({ pkg, onB
                         <ul className="space-y-2 text-xs sm:text-sm text-stone-700 bg-stone-50 p-4 rounded-2xl border border-stone-200">
                           {notesList.map((note, i) => (
                             <li key={i} className="flex items-start gap-2.5">
-                              <span className="w-1.5 h-1.5 rounded-full bg-[#FF4B00] mt-2 shrink-0" />
+                              <span className="w-1.5 h-1.5 rounded-full bg-[#9b0000] mt-2 shrink-0" />
                               <span className="font-medium text-stone-800 leading-relaxed">{note}</span>
                             </li>
                           ))}

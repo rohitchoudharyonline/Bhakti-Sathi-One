@@ -356,7 +356,7 @@ export const PremiumPackageDetail: React.FC<Props> = ({ pkg, onBack }) => {
       {/* Package Action Sub-Header */}
       <div className="bg-white/95 backdrop-blur-xl border-b border-stone-200 shadow-2xs w-full">
         {/* 2px Orange Brand Color Line at Top of Header */}
-        <div className="h-[2px] w-full bg-[#FF4B00]" />
+        <div className="h-[2px] w-full bg-[#9b0000]" />
         <div className="max-w-7xl mx-auto px-3 sm:px-6 h-14 sm:h-16 flex items-center justify-between gap-2 min-w-0 w-full">
           <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
             <button
@@ -405,7 +405,7 @@ export const PremiumPackageDetail: React.FC<Props> = ({ pkg, onBack }) => {
 
             <button
               onClick={() => setShowEnquiry(true)}
-              className="px-3.5 sm:px-5 py-1.5 sm:py-2 rounded-xl bg-[#FF4B00] hover:bg-[#E04200] text-white font-black text-xs sm:text-sm transition shadow-sm cursor-pointer shrink-0"
+              className="px-3.5 sm:px-5 py-1.5 sm:py-2 rounded-xl bg-[#9b0000] hover:bg-[#7D0000] text-white font-black text-xs sm:text-sm transition shadow-sm cursor-pointer shrink-0"
             >
               Send Inquiry
             </button>
@@ -430,7 +430,7 @@ export const PremiumPackageDetail: React.FC<Props> = ({ pkg, onBack }) => {
         <div className="mb-3">
           <div className="flex items-center justify-between gap-2 mb-1.5">
             <div className="flex items-center gap-1.5">
-              <span className="px-2 py-0.5 rounded bg-[#FC3200] text-white text-[10px] sm:text-[11px] font-black uppercase tracking-wider">
+              <span className="px-2 py-0.5 rounded bg-[#9b0000] text-white text-[10px] sm:text-[11px] font-black uppercase tracking-wider">
                 {pkg.tourType || 'CUSTOM TOUR'}
               </span>
               <span className="px-2 py-0.5 rounded bg-stone-900 text-white text-[10px] sm:text-[11px] font-mono font-bold">
@@ -469,9 +469,9 @@ export const PremiumPackageDetail: React.FC<Props> = ({ pkg, onBack }) => {
             </button>
             <button
               onClick={() => openReviewsModal('reviews')}
-              className="px-2.5 py-1 rounded-md bg-[#FFF0EB] text-[#FF4B00] text-xs font-bold border border-[#FF4B00]/30 flex items-center gap-1 cursor-pointer hover:bg-[#FFE0D6] transition"
+              className="px-2.5 py-1 rounded-md bg-[#FDF2F2] text-[#9b0000] text-xs font-bold border border-[#9b0000]/30 flex items-center gap-1 cursor-pointer hover:bg-[#FAD5D5] transition"
             >
-              <Star className="w-3 h-3 fill-[#FF4B00] text-[#FF4B00]" />
+              <Star className="w-3 h-3 fill-[#9b0000] text-[#9b0000]" />
               <span>{pkg.rating} ({pkg.reviewCount || 485} reviews)</span>
             </button>
           </div>
@@ -526,7 +526,7 @@ export const PremiumPackageDetail: React.FC<Props> = ({ pkg, onBack }) => {
           <div className="pt-3">
             <button
               onClick={() => setShowEnquiry(true)}
-              className="w-full py-3 rounded-xl bg-[#FF4B00] hover:bg-[#E04200] text-white font-black text-xs sm:text-sm tracking-wider transition shadow-xs cursor-pointer flex items-center justify-center gap-2 uppercase"
+              className="w-full py-3 rounded-xl bg-[#9b0000] hover:bg-[#7D0000] text-white font-black text-xs sm:text-sm tracking-wider transition shadow-xs cursor-pointer flex items-center justify-center gap-2 uppercase"
             >
               <CalendarDays className="w-4 h-4 shrink-0" />
               <span>Send Inquiry</span>
@@ -709,7 +709,7 @@ export const PremiumPackageDetail: React.FC<Props> = ({ pkg, onBack }) => {
               <div className="space-y-2 pt-1">
                 <button
                   onClick={() => setShowEnquiry(true)}
-                  className="w-full py-3 rounded-xl bg-[#FF4B00] hover:bg-[#E04200] text-white font-black text-xs sm:text-sm shadow-sm transition cursor-pointer"
+                  className="w-full py-3 rounded-xl bg-[#9b0000] hover:bg-[#7D0000] text-white font-black text-xs sm:text-sm shadow-sm transition cursor-pointer"
                 >
                   Send Inquiry →
                 </button>
@@ -719,7 +719,7 @@ export const PremiumPackageDetail: React.FC<Props> = ({ pkg, onBack }) => {
                   disabled={downloadingPdf}
                   className="w-full py-2.5 rounded-xl border border-stone-200 hover:bg-stone-50 text-stone-900 font-bold text-xs transition flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
                 >
-                  <Download className="w-4 h-4 text-[#FF4B00]" />
+                  <Download className="w-4 h-4 text-[#9b0000]" />
                   <span>{downloadingPdf ? 'Generating PDF...' : 'Download Itinerary (PDF)'}</span>
                 </button>
 
@@ -794,7 +794,7 @@ export const PremiumPackageDetail: React.FC<Props> = ({ pkg, onBack }) => {
                 setShowPriceInfoModal(false);
                 setShowEnquiry(true);
               }}
-              className="w-full mt-4 py-2.5 bg-[#FF4B00] hover:bg-[#E04200] text-white font-black text-xs rounded-xl shadow-xs cursor-pointer"
+              className="w-full mt-4 py-2.5 bg-[#9b0000] hover:bg-[#7D0000] text-white font-black text-xs rounded-xl shadow-xs cursor-pointer"
             >
               Check Availability for My Dates
             </button>
@@ -815,10 +815,10 @@ export const PremiumPackageDetail: React.FC<Props> = ({ pkg, onBack }) => {
                 </span>
               </div>
               <div className="grid grid-cols-3 gap-2 text-center">
-                <div className={`p-2 rounded-lg text-xs transition font-black ${bookingStep === 'details' ? 'bg-[#FF4B00] text-white shadow-xs' : 'bg-emerald-50 text-emerald-800 border border-emerald-200'}`}>
+                <div className={`p-2 rounded-lg text-xs transition font-black ${bookingStep === 'details' ? 'bg-[#9b0000] text-white shadow-xs' : 'bg-emerald-50 text-emerald-800 border border-emerald-200'}`}>
                   1. Details
                 </div>
-                <div className={`p-2 rounded-lg text-xs transition font-black ${bookingStep === 'review' ? 'bg-[#FF4B00] text-white shadow-xs' : bookingStep === 'confirmation' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-white text-stone-400 border border-stone-200'}`}>
+                <div className={`p-2 rounded-lg text-xs transition font-black ${bookingStep === 'review' ? 'bg-[#9b0000] text-white shadow-xs' : bookingStep === 'confirmation' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-white text-stone-400 border border-stone-200'}`}>
                   2. Review
                 </div>
                 <div className={`p-2 rounded-lg text-xs transition font-black ${bookingStep === 'confirmation' ? 'bg-emerald-600 text-white shadow-xs' : 'bg-white text-stone-400 border border-stone-200'}`}>
@@ -846,7 +846,7 @@ export const PremiumPackageDetail: React.FC<Props> = ({ pkg, onBack }) => {
                       setBookingStep('details');
                       setSubmitted(false);
                     }}
-                    className="px-6 py-2.5 rounded-xl bg-[#FF4B00] text-white text-xs font-black hover:bg-[#E04200] transition cursor-pointer"
+                    className="px-6 py-2.5 rounded-xl bg-[#9b0000] text-white text-xs font-black hover:bg-[#7D0000] transition cursor-pointer"
                   >
                     Done & Return to Tour
                   </button>
@@ -923,7 +923,7 @@ export const PremiumPackageDetail: React.FC<Props> = ({ pkg, onBack }) => {
                       sendInquiry();
                       setBookingStep('confirmation');
                     }}
-                    className="w-2/3 py-2.5 rounded-xl bg-[#FF4B00] hover:bg-[#E04200] disabled:bg-stone-300 disabled:cursor-not-allowed text-white text-xs font-black shadow-md cursor-pointer transition flex items-center justify-center gap-1.5"
+                    className="w-2/3 py-2.5 rounded-xl bg-[#9b0000] hover:bg-[#7D0000] disabled:bg-stone-300 disabled:cursor-not-allowed text-white text-xs font-black shadow-md cursor-pointer transition flex items-center justify-center gap-1.5"
                   >
                     <ShieldCheck className="w-4 h-4 text-emerald-400" />
                     <span>Send Booking Request →</span>
@@ -934,7 +934,7 @@ export const PremiumPackageDetail: React.FC<Props> = ({ pkg, onBack }) => {
               <>
                 <div className="flex items-center justify-between pb-3 border-b border-stone-100">
                   <div>
-                    <span className="text-[10px] font-black uppercase tracking-wider text-[#FF4B00] bg-[#FFF0EB] px-2 py-0.5 rounded border border-[#FF4B00]/30">
+                    <span className="text-[10px] font-black uppercase tracking-wider text-[#9b0000] bg-[#FDF2F2] px-2 py-0.5 rounded border border-[#9b0000]/30">
                       Send Inquiry
                     </span>
                     <h3 className="text-base font-black text-stone-900 mt-1">{pkg.title}</h3>
@@ -1001,7 +1001,7 @@ export const PremiumPackageDetail: React.FC<Props> = ({ pkg, onBack }) => {
                     />
                   </div>
 
-                  <div className="p-3.5 rounded-2xl bg-orange-50/70 border-2 border-orange-200 space-y-2">
+                  <div className="p-3.5 rounded-2xl bg-[#FDF2F2]/70 border-2 border-[#F5C2C2] space-y-2">
                     <EmailVerificationInput
                       id="package-booking-email"
                       value={email}
@@ -1034,7 +1034,7 @@ export const PremiumPackageDetail: React.FC<Props> = ({ pkg, onBack }) => {
                     <button
                       disabled={!isFormValid}
                       onClick={() => setBookingStep('review')}
-                      className="w-full py-3 rounded-xl bg-[#FF4B00] hover:bg-[#E04200] disabled:bg-stone-300 disabled:cursor-not-allowed disabled:hover:bg-stone-300 text-white text-xs sm:text-sm font-black transition shadow-2xs cursor-pointer flex items-center justify-center gap-1"
+                      className="w-full py-3 rounded-xl bg-[#9b0000] hover:bg-[#7D0000] disabled:bg-stone-300 disabled:cursor-not-allowed disabled:hover:bg-stone-300 text-white text-xs sm:text-sm font-black transition shadow-2xs cursor-pointer flex items-center justify-center gap-1"
                     >
                       <span>Proceed to Review Request (Step 2) →</span>
                     </button>
@@ -1067,7 +1067,7 @@ export const PremiumPackageDetail: React.FC<Props> = ({ pkg, onBack }) => {
 
         <button
           onClick={() => setShowEnquiry(true)}
-          className="px-5 py-2.5 rounded-xl bg-[#FF4B00] hover:bg-[#E04200] text-white font-black text-xs sm:text-sm shadow-md cursor-pointer transition shrink-0"
+          className="px-5 py-2.5 rounded-xl bg-[#9b0000] hover:bg-[#7D0000] text-white font-black text-xs sm:text-sm shadow-md cursor-pointer transition shrink-0"
         >
           Send Inquiry
         </button>

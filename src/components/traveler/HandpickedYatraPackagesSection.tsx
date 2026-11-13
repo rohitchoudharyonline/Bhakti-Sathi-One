@@ -268,15 +268,15 @@ export const CategoryToursCarouselSection: React.FC<GenericToursSectionProps> = 
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6 sm:mb-8">
           <div>
             <div className="inline-flex items-center gap-2 mb-2">
-              <span className="text-[10px] sm:text-xs font-black uppercase tracking-widest text-[#FF4B00] bg-[#FF4B00]/10 px-3 py-1 rounded-full border border-[#FF4B00]/20 inline-flex items-center gap-1.5">
-                {badgeIcon || <Sparkles className="w-3.5 h-3.5 text-[#FF4B00]" />}
+              <span className="text-[10px] sm:text-xs font-black uppercase tracking-widest text-[#9b0000] bg-[#9b0000]/10 px-3 py-1 rounded-full border border-[#9b0000]/20 inline-flex items-center gap-1.5">
+                {badgeIcon || <Sparkles className="w-3.5 h-3.5 text-[#9b0000]" />}
                 <span>{badgeLabel}</span>
               </span>
             </div>
 
             <h2 className="text-2xl sm:text-3xl font-black text-stone-900 tracking-tight flex items-center gap-2">
               <span>{heading}</span>
-              <span className="hidden sm:inline-block w-8 h-1 bg-[#FF4B00] rounded-full" />
+              <span className="hidden sm:inline-block w-8 h-1 bg-[#9b0000] rounded-full" />
             </h2>
 
             <p className="text-xs sm:text-sm text-stone-600 font-medium mt-1 leading-relaxed max-w-xl">
@@ -289,10 +289,10 @@ export const CategoryToursCarouselSection: React.FC<GenericToursSectionProps> = 
             <button
               type="button"
               onClick={() => navigateToSearch({ category: viewAllCategoryName })}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-white border border-stone-300 text-stone-800 text-xs sm:text-sm font-bold hover:border-[#FF4B00] hover:text-[#FF4B00] hover:shadow-2xs transition-all cursor-pointer shadow-2xs"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-white border border-stone-300 text-stone-800 text-xs sm:text-sm font-bold hover:border-[#9b0000] hover:text-[#9b0000] hover:shadow-2xs transition-all cursor-pointer shadow-2xs"
             >
               <span>View All {viewAllCategoryName}</span>
-              <ArrowRight className="w-4 h-4 text-[#FF4B00]" />
+              <ArrowRight className="w-4 h-4 text-[#9b0000]" />
             </button>
 
             <div className="hidden sm:flex items-center gap-1.5 ml-1">
@@ -301,7 +301,7 @@ export const CategoryToursCarouselSection: React.FC<GenericToursSectionProps> = 
                 onClick={() => scrollByDirection('left')}
                 disabled={!canScrollLeft}
                 aria-label="Previous packages"
-                className="w-9 h-9 rounded-full bg-white border border-stone-300 text-stone-700 hover:bg-[#FF4B00] hover:text-white hover:border-[#FF4B00] disabled:opacity-35 disabled:hover:bg-white disabled:hover:text-stone-700 disabled:hover:border-stone-300 grid place-items-center transition-all cursor-pointer shadow-2xs disabled:cursor-not-allowed"
+                className="w-9 h-9 rounded-full bg-white border border-stone-300 text-stone-700 hover:bg-[#9b0000] hover:text-white hover:border-[#9b0000] disabled:opacity-35 disabled:hover:bg-white disabled:hover:text-stone-700 disabled:hover:border-stone-300 grid place-items-center transition-all cursor-pointer shadow-2xs disabled:cursor-not-allowed"
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
@@ -311,7 +311,7 @@ export const CategoryToursCarouselSection: React.FC<GenericToursSectionProps> = 
                 onClick={() => scrollByDirection('right')}
                 disabled={!canScrollRight}
                 aria-label="Next packages"
-                className="w-9 h-9 rounded-full bg-white border border-stone-300 text-stone-700 hover:bg-[#FF4B00] hover:text-white hover:border-[#FF4B00] disabled:opacity-35 disabled:hover:bg-white disabled:hover:text-stone-700 disabled:hover:border-stone-300 grid place-items-center transition-all cursor-pointer shadow-2xs disabled:cursor-not-allowed"
+                className="w-9 h-9 rounded-full bg-white border border-stone-300 text-stone-700 hover:bg-[#9b0000] hover:text-white hover:border-[#9b0000] disabled:opacity-35 disabled:hover:bg-white disabled:hover:text-stone-700 disabled:hover:border-stone-300 grid place-items-center transition-all cursor-pointer shadow-2xs disabled:cursor-not-allowed"
               >
                 <ChevronRight className="w-4 h-4" />
               </button>
@@ -336,7 +336,7 @@ export const CategoryToursCarouselSection: React.FC<GenericToursSectionProps> = 
                   <div
                     key={pkg.id}
                     onClick={() => handlePackageClick(pkg.id)}
-                    className="tour-package-card group w-[84vw] sm:w-[330px] md:w-[350px] lg:w-[calc(33.333%-16px)] shrink-0 snap-start bg-white rounded-2xl sm:rounded-[20px] border border-stone-200/90 shadow-2xs hover:shadow-xl hover:border-[#FF4B00]/40 transition-all duration-300 flex flex-col justify-between overflow-hidden cursor-pointer active:scale-[0.99]"
+                    className="tour-package-card group w-[84vw] sm:w-[330px] md:w-[350px] lg:w-[calc(33.333%-16px)] shrink-0 snap-start bg-white rounded-2xl sm:rounded-[20px] border border-stone-200/90 shadow-2xs hover:shadow-xl hover:border-[#9b0000]/40 transition-all duration-300 flex flex-col justify-between overflow-hidden cursor-pointer active:scale-[0.99]"
                   >
                     {/* Card Top: Image Area */}
                     <div className="relative aspect-[16/10] w-full overflow-hidden bg-stone-100">
@@ -351,7 +351,7 @@ export const CategoryToursCarouselSection: React.FC<GenericToursSectionProps> = 
                       <div className="absolute inset-0 bg-gradient-to-t from-stone-950/75 via-stone-950/15 to-transparent pointer-events-none" />
 
                       <div className="absolute top-3 left-3 right-3 flex items-center justify-between z-10">
-                        <span className="text-[10px] font-black tracking-wider text-white bg-[#FF4B00] px-2.5 py-1 rounded-full uppercase shadow-xs">
+                        <span className="text-[10px] font-black tracking-wider text-white bg-[#9b0000] px-2.5 py-1 rounded-full uppercase shadow-xs">
                           {pkg.badge || durationLabel}
                         </span>
 
@@ -388,7 +388,7 @@ export const CategoryToursCarouselSection: React.FC<GenericToursSectionProps> = 
                     {/* Card Body */}
                     <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between gap-3">
                       <div>
-                        <h3 className="text-base sm:text-[17px] font-black text-stone-900 leading-snug line-clamp-2 group-hover:text-[#FF4B00] transition-colors">
+                        <h3 className="text-base sm:text-[17px] font-black text-stone-900 leading-snug line-clamp-2 group-hover:text-[#9b0000] transition-colors">
                           {pkg.title}
                         </h3>
 
@@ -398,12 +398,12 @@ export const CategoryToursCarouselSection: React.FC<GenericToursSectionProps> = 
 
                         <div className="grid grid-cols-2 gap-2 mt-3 pt-3 border-t border-stone-100 text-[11px] font-bold text-stone-700">
                           <span className="inline-flex items-center justify-center gap-1.5 bg-stone-50 hover:bg-stone-100/80 px-2.5 py-1.5 rounded-lg border border-stone-200/80 transition-colors text-center shadow-2xs">
-                            <Hotel className="w-3.5 h-3.5 text-[#FF4B00] shrink-0" />
+                            <Hotel className="w-3.5 h-3.5 text-[#9b0000] shrink-0" />
                             <span className="truncate">Verified Stay</span>
                           </span>
 
                           <span className="inline-flex items-center justify-center gap-1.5 bg-stone-50 hover:bg-stone-100/80 px-2.5 py-1.5 rounded-lg border border-stone-200/80 transition-colors text-center shadow-2xs">
-                            <Car className="w-3.5 h-3.5 text-[#FF4B00] shrink-0" />
+                            <Car className="w-3.5 h-3.5 text-[#9b0000] shrink-0" />
                             <span className="truncate">Private Cab</span>
                           </span>
                         </div>
@@ -418,13 +418,13 @@ export const CategoryToursCarouselSection: React.FC<GenericToursSectionProps> = 
                           <div className="flex items-baseline gap-1">
                             {startingPrice > 0 && !pkg.priceOnRequest ? (
                               <>
-                                <span className="text-lg sm:text-xl font-black text-[#FF4B00]">
+                                <span className="text-lg sm:text-xl font-black text-[#9b0000]">
                                   ₹{startingPrice.toLocaleString('en-IN')}
                                 </span>
                                 <span className="text-[10px] text-stone-500 font-medium">/ person</span>
                               </>
                             ) : (
-                              <span className="text-base sm:text-lg font-black text-[#FF4B00]">
+                              <span className="text-base sm:text-lg font-black text-[#9b0000]">
                                 Price on Request
                               </span>
                             )}
@@ -437,7 +437,7 @@ export const CategoryToursCarouselSection: React.FC<GenericToursSectionProps> = 
                             e.stopPropagation();
                             handlePackageClick(pkg.id);
                           }}
-                          className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#FFF0EB] text-[#FF4B00] group-hover:bg-[#FF4B00] group-hover:text-white text-xs font-black transition-all shadow-2xs cursor-pointer"
+                          className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#FDF2F2] text-[#9b0000] group-hover:bg-[#9b0000] group-hover:text-white text-xs font-black transition-all shadow-2xs cursor-pointer"
                         >
                           <span>View Details</span>
                           <ArrowRight className="w-3.5 h-3.5" />
@@ -469,7 +469,7 @@ export const CategoryToursCarouselSection: React.FC<GenericToursSectionProps> = 
                     }}
                     aria-label={`Go to package ${dotIdx + 1}`}
                     className={`h-1.5 rounded-full transition-all duration-300 ${
-                      activeSlideIndex === dotIdx ? 'w-5 bg-[#FF4B00]' : 'w-1.5 bg-stone-300'
+                      activeSlideIndex === dotIdx ? 'w-5 bg-[#9b0000]' : 'w-1.5 bg-stone-300'
                     }`}
                   />
                 ))}
@@ -477,13 +477,13 @@ export const CategoryToursCarouselSection: React.FC<GenericToursSectionProps> = 
 
               <span className="text-[11px] font-bold text-stone-500 flex items-center gap-1">
                 <span>Swipe for more</span>
-                <ArrowRight className="w-3 h-3 text-[#FF4B00]" />
+                <ArrowRight className="w-3 h-3 text-[#9b0000]" />
               </span>
             </div>
           </div>
         ) : (
           <div className="bg-white rounded-2xl p-8 text-center border border-stone-200 shadow-2xs">
-            <ShieldCheck className="w-10 h-10 text-[#FF4B00] mx-auto mb-3" />
+            <ShieldCheck className="w-10 h-10 text-[#9b0000] mx-auto mb-3" />
             <h3 className="text-base font-black text-stone-900">Curating {heading}</h3>
             <p className="text-xs text-stone-600 mt-1 max-w-md mx-auto">
               Our travel experts are updating current schedules and hotel stays. Explore our entire directory below.
@@ -491,7 +491,7 @@ export const CategoryToursCarouselSection: React.FC<GenericToursSectionProps> = 
             <button
               type="button"
               onClick={() => navigateToSearch({ category: viewAllCategoryName })}
-              className="mt-4 px-5 py-2 rounded-xl bg-[#FF4B00] text-white font-black text-xs inline-flex items-center gap-2 shadow-xs cursor-pointer"
+              className="mt-4 px-5 py-2 rounded-xl bg-[#9b0000] text-white font-black text-xs inline-flex items-center gap-2 shadow-xs cursor-pointer"
             >
               <span>Explore All {viewAllCategoryName}</span>
               <ArrowRight className="w-4 h-4" />

@@ -1,5 +1,5 @@
 import { PanchangDay, formatLongDate } from '../data/panchangData';
-import logoUrl from '../assets/images/logo-holidays-hunt-v3.png';
+import logoUrl from '../assets/images/holidayshunt-logo.png';
 
 const FONT = 'Arial, sans-serif';
 const bilingual: Record<string, string> = {};
@@ -10,17 +10,17 @@ const card = (ctx: CanvasRenderingContext2D, x: number, y: number, w: number, la
 
 export async function sharePanchangImage(panchang: PanchangDay, cityLabel: string): Promise<'shared' | 'downloaded'> {
   const canvas = document.createElement('canvas'); canvas.width = 1080; canvas.height = 1920; const ctx = canvas.getContext('2d'); if (!ctx) throw new Error('Canvas unavailable');
-  ctx.fillStyle = '#FFFBF8'; ctx.fillRect(0, 0, 1080, 1920); ctx.fillStyle = '#FF4B00'; ctx.fillRect(0, 0, 1080, 18);
+  ctx.fillStyle = '#FDF9F9'; ctx.fillRect(0, 0, 1080, 1920); ctx.fillStyle = '#9b0000'; ctx.fillRect(0, 0, 1080, 18);
   const logo = await loadImage(logoUrl); const logoW = 280; const logoH = Math.min(logoW * logo.naturalHeight / logo.naturalWidth, 95); ctx.drawImage(logo, 55, 48, logoW, logoH); text(ctx, 'DAILY PANCHANG', 1025, 82, 21, 800, '#665E59', 'right');
-  text(ctx, 'Today\'s Panchang', 55, 210, 39, 800); text(ctx, formatLongDate(panchang.date), 55, 253, 22, 600, '#625A55'); text(ctx, `${cityLabel}`, 55, 288, 21, 600, '#625A55'); text(ctx, en(panchang.vara.name), 1025, 288, 21, 700, '#FF4B00', 'right');
+  text(ctx, 'Today\'s Panchang', 55, 210, 39, 800); text(ctx, formatLongDate(panchang.date), 55, 253, 22, 600, '#625A55'); text(ctx, `${cityLabel}`, 55, 288, 21, 600, '#625A55'); text(ctx, en(panchang.vara.name), 1025, 288, 21, 700, '#9b0000', 'right');
   const cards = [
     ['Tithi', `${en(panchang.tithi.name)}`], ['Nakshatra', `${en(panchang.nakshatra.name)} • Pada ${panchang.nakshatra.pada || '—'}`],
     ['Yoga', `${en(panchang.yoga.name)}`], ['Karana', `${en(panchang.karana.name)}`],
     ['Sunrise', panchang.sun.sunrise], ['Sunset', panchang.sun.sunset], ['Rahu Kalam', panchang.muhurta.rahuKalam || 'Not available'], ['Yamagandam', panchang.muhurta.yamagandam || 'Not available'],
     ['Abhijit Muhurtam', panchang.muhurta.abhijit || 'Not available'], ['Gulika Kalam', panchang.muhurta.gulikaKalam || 'Not available']
   ];
-  cards.forEach(([label, value], i) => card(ctx, 40, 350 + i * 137, 1000, label, value, i < 4 ? '#FF4B00' : i < 6 ? '#F59E0B' : '#7C3AED'));
-  ctx.beginPath(); ctx.roundRect(40, 1730, 1000, 110, 24); ctx.fillStyle = '#FFF0E8'; ctx.fill(); text(ctx, 'Holidays Hunt • Your Travel Partner', 540, 1798, 25, 800, '#FF4B00', 'center');
+  cards.forEach(([label, value], i) => card(ctx, 40, 350 + i * 137, 1000, label, value, i < 4 ? '#9b0000' : i < 6 ? '#F59E0B' : '#7C3AED'));
+  ctx.beginPath(); ctx.roundRect(40, 1730, 1000, 110, 24); ctx.fillStyle = '#FDF2F2'; ctx.fill(); text(ctx, 'Holidays Hunt • Your Travel Partner', 540, 1798, 25, 800, '#9b0000', 'center');
   const blob = await new Promise<Blob>((resolve, reject) => canvas.toBlob((b) => b ? resolve(b) : reject(new Error('Image export failed')), 'image/png')); const file = new File([blob], `HolidaysHunt_Panchang_${panchang.date}.png`, { type: 'image/png' });
   if (navigator.share && (!navigator.canShare || navigator.canShare({ files: [file] }))) { await navigator.share({ title: 'Holidays Hunt — Today\'s Panchang', text: `Today's Panchang • ${cityLabel}`, files: [file] }); return 'shared'; }
   const url = URL.createObjectURL(blob); const anchor = document.createElement('a'); anchor.href = url; anchor.download = file.name; document.body.appendChild(anchor); anchor.click(); anchor.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000); return 'downloaded';

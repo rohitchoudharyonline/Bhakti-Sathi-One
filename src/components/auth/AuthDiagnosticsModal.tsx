@@ -53,7 +53,7 @@ export const AuthDiagnosticsModal: React.FC<AuthDiagnosticsModalProps> = ({ isOp
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 bg-stone-950 border-b border-stone-800">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-orange-600/20 border border-orange-500/30 flex items-center justify-center text-orange-400">
+            <div className="w-9 h-9 rounded-xl bg-[#9b0000]/20 border border-[#9b0000]/30 flex items-center justify-center text-[#C94A4A]">
               <Terminal className="w-5 h-5" />
             </div>
             <div>
@@ -74,7 +74,7 @@ export const AuthDiagnosticsModal: React.FC<AuthDiagnosticsModalProps> = ({ isOp
           
           {/* Environment Summary Card */}
           <div className="bg-stone-950/80 border border-stone-800 rounded-2xl p-4 space-y-3">
-            <h3 className="text-xs font-black text-orange-400 uppercase tracking-wider flex items-center gap-2">
+            <h3 className="text-xs font-black text-[#C94A4A] uppercase tracking-wider flex items-center gap-2">
               <Shield className="w-4 h-4" /> Environment Configuration Audit
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-stone-300">

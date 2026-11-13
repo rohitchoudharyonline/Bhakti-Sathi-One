@@ -61,7 +61,7 @@ export const Navbar: React.FC = () => {
     <>
       <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-stone-200 shadow-xs transition-all">
         {/* 2px Orange Brand Color Line at Top of Header */}
-        <div className="h-[2px] w-full bg-[#FF4B00]" />
+        <div className="h-[2px] w-full bg-[#9b0000]" />
 
         {/* Main Navigation Bar */}
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-1 sm:py-1.5 flex items-center justify-between gap-2 bg-white">
@@ -73,7 +73,7 @@ export const Navbar: React.FC = () => {
                 e.stopPropagation();
                 setMobileMenuOpen(!mobileMenuOpen);
               }}
-              className="md:hidden p-1 bg-transparent border-none text-[#1A1A1A] hover:text-[#FF4B00] transition cursor-pointer shrink-0"
+              className="md:hidden p-1 bg-transparent border-none text-[#1A1A1A] hover:text-[#9b0000] transition cursor-pointer shrink-0"
               aria-label="Toggle mobile menu"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -86,7 +86,7 @@ export const Navbar: React.FC = () => {
                 onClick={navigateToHome}
                 className={`transition cursor-pointer py-1 ${
                   !isToursDirectoryOpen && !isDestinationsExplorerOpen && !isBlogHubOpen && !selectedDestinationSlug && !selectedPackageId
-                    ? 'text-[#FF4B00] font-black border-b-2 border-[#FF4B00]'
+                    ? 'text-[#9b0000] font-black border-b-2 border-[#9b0000]'
                     : 'text-[#1A1A1A]/80 hover:text-[#1A1A1A]'
                 }`}
               >
@@ -98,7 +98,7 @@ export const Navbar: React.FC = () => {
                 onClick={navigateToDestinationsExplorer}
                 className={`transition cursor-pointer py-1 ${
                   isDestinationsExplorerOpen || selectedDestinationSlug
-                    ? 'text-[#FF4B00] font-black border-b-2 border-[#FF4B00]'
+                    ? 'text-[#9b0000] font-black border-b-2 border-[#9b0000]'
                     : 'text-[#1A1A1A]/80 hover:text-[#1A1A1A]'
                 }`}
               >
@@ -110,7 +110,7 @@ export const Navbar: React.FC = () => {
                 onClick={navigateToAllTours}
                 className={`transition cursor-pointer py-1 ${
                   isToursDirectoryOpen
-                    ? 'text-[#FF4B00] font-black border-b-2 border-[#FF4B00]'
+                    ? 'text-[#9b0000] font-black border-b-2 border-[#9b0000]'
                     : 'text-[#1A1A1A]/80 hover:text-[#1A1A1A]'
                 }`}
               >
@@ -144,7 +144,7 @@ export const Navbar: React.FC = () => {
               className="w-full text-left py-2.5 px-3.5 rounded-lg text-xs font-bold text-[#1A1A1A] hover:bg-stone-50 flex items-center justify-between border border-stone-200"
             >
               <span>Explore Home</span>
-              <Sparkles className="w-4 h-4 text-[#FF4B00]" />
+              <Sparkles className="w-4 h-4 text-[#9b0000]" />
             </button>
 
             <button

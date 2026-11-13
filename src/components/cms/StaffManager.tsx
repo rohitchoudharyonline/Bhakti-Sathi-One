@@ -336,7 +336,7 @@ export const StaffManager: React.FC = () => {
                       </span>
                     )}
                     {member.permissions.canManageVendorPayments && (
-                      <span className="px-2 py-0.5 rounded-md bg-orange-50 dark:bg-orange-950/40 text-orange-700 dark:text-orange-300 text-[11px] font-medium border border-orange-100 dark:border-orange-900">
+                      <span className="px-2 py-0.5 rounded-md bg-[#FDF2F2] dark:bg-orange-950/40 text-[#7D0000] dark:text-red-300 text-[11px] font-medium border border-[#F8D7D7] dark:border-orange-900">
                         Vendor Payouts
                       </span>
                     )}

@@ -95,8 +95,8 @@ export const FaqSection: React.FC = () => {
         
         {/* Section Header */}
         <div className="text-center max-w-xl mx-auto mb-8">
-          <div className="inline-flex items-center gap-1 bg-orange-50 border border-orange-100/80 text-orange-800 text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider mb-2">
-            <ShieldCheck className="w-3 h-3 text-orange-600" />
+          <div className="inline-flex items-center gap-1 bg-[#FDF2F2] border border-[#F8D7D7]/80 text-[#7D0000] text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider mb-2">
+            <ShieldCheck className="w-3 h-3 text-[#9b0000]" />
             <span>Frequently Asked Questions</span>
           </div>
           <h2 className="text-xl sm:text-2xl font-black text-stone-900 tracking-tight">
@@ -124,7 +124,7 @@ export const FaqSection: React.FC = () => {
                   <span className="font-extrabold text-stone-800 text-xs sm:text-[13.5px] leading-snug">
                     {faq.question}
                   </span>
-                  <div className={`p-1 rounded-md bg-stone-50 text-stone-400 transition-transform duration-150 shrink-0 ${isOpen ? 'rotate-180 bg-orange-50 text-orange-600' : ''}`}>
+                  <div className={`p-1 rounded-md bg-stone-50 text-stone-400 transition-transform duration-150 shrink-0 ${isOpen ? 'rotate-180 bg-[#FDF2F2] text-[#9b0000]' : ''}`}>
                     <ChevronDown className="w-3.5 h-3.5" />
                   </div>
                 </button>

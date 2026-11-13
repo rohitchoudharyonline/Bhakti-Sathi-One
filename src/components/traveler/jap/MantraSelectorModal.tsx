@@ -38,7 +38,7 @@ export const MantraSelectorModal: React.FC<MantraSelectorModalProps> = ({
         {/* Header */}
         <div className="bg-stone-50 text-stone-900 p-5 flex items-center justify-between border-b border-stone-200">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#FF4B00] to-amber-500 text-white grid place-items-center shadow-xs">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#9b0000] to-amber-500 text-white grid place-items-center shadow-xs">
               <Sparkles className="w-5 h-5" />
             </div>
             <div>
@@ -68,7 +68,7 @@ export const MantraSelectorModal: React.FC<MantraSelectorModalProps> = ({
               onClick={() => setSelectedCategory(cat)}
               className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition cursor-pointer ${
                 selectedCategory === cat
-                  ? 'bg-[#FF4B00] text-white shadow-xs'
+                  ? 'bg-[#9b0000] text-white shadow-xs'
                   : 'bg-white text-stone-600 border border-stone-200 hover:bg-stone-50 hover:text-stone-900'
               }`}
             >
@@ -90,7 +90,7 @@ export const MantraSelectorModal: React.FC<MantraSelectorModalProps> = ({
                 }}
                 className={`p-4 rounded-2xl border transition-all cursor-pointer flex items-start justify-between gap-3 ${
                   isSelected
-                    ? 'bg-orange-50 border-[#FF4B00] ring-1 ring-[#FF4B00]/40 shadow-xs'
+                    ? 'bg-[#FDF2F2] border-[#9b0000] ring-1 ring-[#9b0000]/40 shadow-xs'
                     : 'bg-stone-50 border-stone-200 hover:border-amber-300 hover:bg-white'
                 }`}
               >
@@ -103,7 +103,7 @@ export const MantraSelectorModal: React.FC<MantraSelectorModalProps> = ({
                       {m.category}
                     </span>
                   </div>
-                  <div className="text-xs text-[#FF4B00] font-semibold italic">
+                  <div className="text-xs text-[#9b0000] font-semibold italic">
                     {m.transliteration}
                   </div>
                   <div className="text-[11px] text-stone-500 mt-1 line-clamp-2">
@@ -111,7 +111,7 @@ export const MantraSelectorModal: React.FC<MantraSelectorModalProps> = ({
                   </div>
                 </div>
                 {isSelected && (
-                  <div className="w-6 h-6 rounded-full bg-[#FF4B00] text-white grid place-items-center shrink-0 mt-0.5 shadow-xs">
+                  <div className="w-6 h-6 rounded-full bg-[#9b0000] text-white grid place-items-center shrink-0 mt-0.5 shadow-xs">
                     <Check className="w-3.5 h-3.5" />
                   </div>
                 )}
@@ -130,12 +130,12 @@ export const MantraSelectorModal: React.FC<MantraSelectorModalProps> = ({
                 value={customMantraInput}
                 onChange={(e) => setCustomMantraInput(e.target.value)}
                 placeholder="e.g. ॐ गं गणपतये नमः"
-                className="flex-1 px-3.5 py-2.5 rounded-xl border border-stone-300 text-xs font-bold text-stone-900 focus:outline-hidden focus:border-[#FF4B00] bg-white shadow-2xs"
+                className="flex-1 px-3.5 py-2.5 rounded-xl border border-stone-300 text-xs font-bold text-stone-900 focus:outline-hidden focus:border-[#9b0000] bg-white shadow-2xs"
               />
               <button
                 type="submit"
                 disabled={!customMantraInput.trim()}
-                className="px-4 py-2.5 rounded-xl bg-[#FF4B00] hover:bg-[#E04200] disabled:bg-stone-200 text-white text-xs font-bold transition flex items-center gap-1.5 cursor-pointer disabled:cursor-not-allowed shadow-2xs"
+                className="px-4 py-2.5 rounded-xl bg-[#9b0000] hover:bg-[#7D0000] disabled:bg-stone-200 text-white text-xs font-bold transition flex items-center gap-1.5 cursor-pointer disabled:cursor-not-allowed shadow-2xs"
               >
                 <Plus className="w-4 h-4" />
                 <span>Use Mantra</span>

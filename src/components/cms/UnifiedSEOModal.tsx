@@ -228,7 +228,7 @@ export const UnifiedSEOModal: React.FC<UnifiedSEOModalProps> = ({
                 {item.itemType.replace('-', ' ')}
               </span>
               {item.itemType === 'tour' && (
-                <span className="px-2.5 py-0.5 rounded-full bg-[#FF4B00]/10 text-[#FF4B00] border border-[#FF4B00]/20 text-[10px] font-black uppercase tracking-wider">
+                <span className="px-2.5 py-0.5 rounded-full bg-[#9b0000]/10 text-[#9b0000] border border-[#9b0000]/20 text-[10px] font-black uppercase tracking-wider">
                   {tourType} Tour
                 </span>
               )}
@@ -263,9 +263,9 @@ export const UnifiedSEOModal: React.FC<UnifiedSEOModalProps> = ({
         {/* Modal Body */}
         <form onSubmit={handleFormSubmit} className="p-5 sm:p-6 space-y-6 max-h-[80vh] overflow-y-auto">
           {/* AI Banner */}
-          <div className="bg-gradient-to-r from-orange-50 via-amber-50/50 to-orange-50 border border-orange-200/80 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div className="bg-gradient-to-r from-[#FDF2F2] via-amber-50/50 to-[#FDF2F2] border border-[#F5C2C2]/80 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <div className="space-y-0.5">
-              <div className="flex items-center gap-1.5 text-xs font-extrabold text-[#FF4B00]">
+              <div className="flex items-center gap-1.5 text-xs font-extrabold text-[#9b0000]">
                 <Sparkles className="w-4 h-4" />
                 Gemini AI Smart Assistant
               </div>
@@ -277,7 +277,7 @@ export const UnifiedSEOModal: React.FC<UnifiedSEOModalProps> = ({
               type="button"
               onClick={handleAiOptimize}
               disabled={generatingAi}
-              className="px-4 py-2 bg-[#FF4B00] text-white text-xs font-extrabold rounded-xl hover:bg-[#e04200] transition disabled:opacity-50 flex items-center gap-1.5 shrink-0 shadow-xs cursor-pointer active:scale-98"
+              className="px-4 py-2 bg-[#9b0000] text-white text-xs font-extrabold rounded-xl hover:bg-[#7D0000] transition disabled:opacity-50 flex items-center gap-1.5 shrink-0 shadow-xs cursor-pointer active:scale-98"
             >
               <Sparkles className="w-3.5 h-3.5" />
               {generatingAi ? 'Generating...' : '✨ Generate with Gemini'}
@@ -295,7 +295,7 @@ export const UnifiedSEOModal: React.FC<UnifiedSEOModalProps> = ({
           {item.itemType === 'tour' && (
             <div className="bg-stone-50 border border-stone-200 rounded-2xl p-4 space-y-2">
               <label className="block text-xs font-black text-stone-800 flex items-center gap-1.5 uppercase tracking-wider">
-                <Compass className="w-4 h-4 text-[#FF4B00]" />
+                <Compass className="w-4 h-4 text-[#9b0000]" />
                 Tour Type Classification
               </label>
               <p className="text-stone-500 text-xs">
@@ -311,7 +311,7 @@ export const UnifiedSEOModal: React.FC<UnifiedSEOModalProps> = ({
                       onClick={() => setTourType(t)}
                       className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${
                         isSelected
-                          ? 'bg-[#FF4B00] text-white shadow-xs'
+                          ? 'bg-[#9b0000] text-white shadow-xs'
                           : 'bg-white border border-stone-200 text-stone-700 hover:border-stone-300'
                       }`}
                     >
@@ -397,7 +397,7 @@ export const UnifiedSEOModal: React.FC<UnifiedSEOModalProps> = ({
                   <div className="flex items-start gap-3">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <div className="w-4 h-4 rounded-full bg-[#FF4B00] text-white flex items-center justify-center text-[9px] font-black">
+                        <div className="w-4 h-4 rounded-full bg-[#9b0000] text-white flex items-center justify-center text-[9px] font-black">
                           H
                         </div>
                         <div className="text-[12px] text-stone-800 leading-tight">
@@ -439,7 +439,7 @@ export const UnifiedSEOModal: React.FC<UnifiedSEOModalProps> = ({
                   /* Desktop Search Card */
                   <div>
                     <div className="flex items-center gap-2 mb-1">
-                      <div className="w-4 h-4 rounded-full bg-[#FF4B00] text-white flex items-center justify-center text-[9px] font-black">
+                      <div className="w-4 h-4 rounded-full bg-[#9b0000] text-white flex items-center justify-center text-[9px] font-black">
                         H
                       </div>
                       <div className="text-[12px] text-stone-800 leading-tight">
@@ -528,7 +528,7 @@ export const UnifiedSEOModal: React.FC<UnifiedSEOModalProps> = ({
                 value={metaTitle}
                 onChange={(e) => setMetaTitle(e.target.value)}
                 placeholder="e.g. Kashmir Paradise Luxury Houseboat Tour | Holidays Hunt"
-                className="w-full px-3.5 py-2.5 text-sm bg-stone-50 border border-stone-200 rounded-xl outline-none focus:border-[#FF4B00] font-medium"
+                className="w-full px-3.5 py-2.5 text-sm bg-stone-50 border border-stone-200 rounded-xl outline-none focus:border-[#9b0000] font-medium"
               />
             </div>
 
@@ -556,7 +556,7 @@ export const UnifiedSEOModal: React.FC<UnifiedSEOModalProps> = ({
                 value={metaDescription}
                 onChange={(e) => setMetaDescription(e.target.value)}
                 placeholder="e.g. Experience luxury shikara rides, Dal Lake houseboats, and scenic Gulmarg excursions with Holidays Hunt. 24/7 local support and verified stays."
-                className="w-full px-3.5 py-2.5 text-sm bg-stone-50 border border-stone-200 rounded-xl outline-none focus:border-[#FF4B00] font-medium"
+                className="w-full px-3.5 py-2.5 text-sm bg-stone-50 border border-stone-200 rounded-xl outline-none focus:border-[#9b0000] font-medium"
               />
             </div>
 
@@ -573,7 +573,7 @@ export const UnifiedSEOModal: React.FC<UnifiedSEOModalProps> = ({
                     value={focusKeyword}
                     onChange={(e) => setFocusKeyword(e.target.value)}
                     placeholder="e.g. kashmir tour package"
-                    className="w-full pl-8 pr-3 py-2 text-xs bg-stone-50 border border-stone-200 rounded-xl outline-none focus:border-[#FF4B00]"
+                    className="w-full pl-8 pr-3 py-2 text-xs bg-stone-50 border border-stone-200 rounded-xl outline-none focus:border-[#9b0000]"
                   />
                 </div>
               </div>
@@ -589,7 +589,7 @@ export const UnifiedSEOModal: React.FC<UnifiedSEOModalProps> = ({
                     value={canonicalUrl}
                     onChange={(e) => setCanonicalUrl(e.target.value)}
                     placeholder="https://holidayshunt.com/tours/..."
-                    className="w-full pl-8 pr-3 py-2 text-xs bg-stone-50 border border-stone-200 rounded-xl outline-none focus:border-[#FF4B00] font-mono text-[11px]"
+                    className="w-full pl-8 pr-3 py-2 text-xs bg-stone-50 border border-stone-200 rounded-xl outline-none focus:border-[#9b0000] font-mono text-[11px]"
                   />
                 </div>
               </div>
@@ -600,7 +600,7 @@ export const UnifiedSEOModal: React.FC<UnifiedSEOModalProps> = ({
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2.5 border-b border-stone-200/80">
                 <div className="space-y-0.5">
                   <div className="flex items-center gap-2">
-                    <ImageIcon className="w-4 h-4 text-[#FF4B00]" />
+                    <ImageIcon className="w-4 h-4 text-[#9b0000]" />
                     <label className="text-xs font-black text-stone-800 uppercase tracking-wider">
                       SEO &amp; OpenGraph Image (R2 Media Storage)
                     </label>
@@ -690,7 +690,7 @@ export const UnifiedSEOModal: React.FC<UnifiedSEOModalProps> = ({
                   type="checkbox"
                   checked={!noIndex}
                   onChange={(e) => setNoIndex(!e.target.checked)}
-                  className="rounded text-[#FF4B00] focus:ring-[#FF4B00]"
+                  className="rounded text-[#9b0000] focus:ring-[#9b0000]"
                 />
                 <span className="font-bold text-stone-700">Allow search engines to index this page (Index)</span>
               </label>
@@ -700,7 +700,7 @@ export const UnifiedSEOModal: React.FC<UnifiedSEOModalProps> = ({
                   type="checkbox"
                   checked={!noFollow}
                   onChange={(e) => setNoFollow(!e.target.checked)}
-                  className="rounded text-[#FF4B00] focus:ring-[#FF4B00]"
+                  className="rounded text-[#9b0000] focus:ring-[#9b0000]"
                 />
                 <span className="font-bold text-stone-700">Follow links on this page (Follow)</span>
               </label>
@@ -718,7 +718,7 @@ export const UnifiedSEOModal: React.FC<UnifiedSEOModalProps> = ({
             </button>
             <button
               type="submit"
-              className="px-6 py-2.5 bg-[#FF4B00] text-white text-xs font-black rounded-xl hover:bg-[#e04200] transition cursor-pointer shadow-xs active:scale-98"
+              className="px-6 py-2.5 bg-[#9b0000] text-white text-xs font-black rounded-xl hover:bg-[#7D0000] transition cursor-pointer shadow-xs active:scale-98"
             >
               Save SEO Changes
             </button>
