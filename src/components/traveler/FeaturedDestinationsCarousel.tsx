@@ -136,31 +136,34 @@ export const FeaturedDestinationsCarousel: React.FC<FeaturedDestinationsCarousel
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.35, delay: index * 0.08 }}
-            onClick={() => onSelectDestination(dest)}
-            className="group relative h-[250px] xs:h-[290px] sm:h-[380px] md:h-[420px] rounded-2xl sm:rounded-3xl overflow-hidden cursor-pointer border border-stone-200/90 hover:border-[#FF4B00] shadow-md hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 select-none flex flex-col justify-end p-4 sm:p-6 bg-stone-900"
           >
-            {/* Show ONLY the photo uploaded by the user while creating the destination */}
-            {dest.coverImage ? (
-              <img
-                src={dest.coverImage}
-                alt={dest.name}
-                className="absolute inset-0 w-full h-full object-cover group-hover:scale-106 transition-transform duration-700 ease-out"
-                loading="lazy"
-              />
-            ) : (
-              <div className="absolute inset-0 bg-gradient-to-br from-stone-900 via-stone-800 to-stone-950 flex items-center justify-center">
-                <MapPin className="w-12 h-12 text-stone-600" />
+            <div
+              onClick={() => onSelectDestination(dest)}
+              className="group relative h-[250px] xs:h-[290px] sm:h-[380px] md:h-[420px] rounded-2xl sm:rounded-3xl overflow-hidden cursor-pointer border border-stone-200/90 hover:border-[#FF4B00] shadow-[0_8px_24px_-6px_rgba(0,0,0,0.16)] hover:shadow-[0_22px_45px_-12px_rgba(0,0,0,0.3)] transition-all duration-300 ease-out hover:scale-[1.025] hover:-translate-y-1 select-none flex flex-col justify-end p-4 sm:p-6 bg-stone-900 will-change-transform"
+            >
+              {/* Show ONLY the photo uploaded by the user while creating the destination */}
+              {dest.coverImage ? (
+                <img
+                  src={dest.coverImage}
+                  alt={dest.name}
+                  className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+                  loading="lazy"
+                />
+              ) : (
+                <div className="absolute inset-0 bg-gradient-to-br from-stone-900 via-stone-800 to-stone-950 flex items-center justify-center">
+                  <MapPin className="w-12 h-12 text-stone-600" />
+                </div>
+              )}
+
+              {/* Bottom Gradient Scrim for Name Readability */}
+              <div className="absolute inset-0 bg-gradient-to-t from-stone-950/90 via-stone-950/25 to-transparent pointer-events-none" />
+
+              {/* Only Destination Name */}
+              <div className="relative z-10 text-white">
+                <h3 className="text-base xs:text-lg sm:text-2xl md:text-3xl font-black text-white tracking-tight leading-snug drop-shadow-md">
+                  {dest.name}
+                </h3>
               </div>
-            )}
-
-            {/* Bottom Gradient Scrim for Name Readability */}
-            <div className="absolute inset-0 bg-gradient-to-t from-stone-950/90 via-stone-950/25 to-transparent pointer-events-none" />
-
-            {/* Only Destination Name */}
-            <div className="relative z-10 text-white">
-              <h3 className="text-base xs:text-lg sm:text-2xl md:text-3xl font-black text-white tracking-tight leading-snug drop-shadow-md">
-                {dest.name}
-              </h3>
             </div>
           </motion.div>
         ))}

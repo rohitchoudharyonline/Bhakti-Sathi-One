@@ -182,32 +182,35 @@ export const AllDestinationsExplorer: React.FC = () => {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.4, delay: index * 0.05 }}
-                  onClick={() => handleSelect(dest.slug || dest.id)}
-                  className="group relative aspect-[4/3] rounded-2xl overflow-hidden cursor-pointer border border-stone-200 hover:border-[#FF4B00] transition-all duration-300 shadow-sm hover:shadow-[0_20px_25px_-5px_rgba(255,75,0,0.2)] hover:-translate-y-1 flex flex-col justify-between p-4"
                 >
-                  {/* Background Image */}
-                  <img
-                    src={resolveDisplayImage(dest.heroImage, mediaAssets)}
-                    alt={dest.displayName || dest.name}
-                    onError={(e) => handleImageError(e, dest.heroImage, mediaAssets)}
-                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-108 transition-transform duration-700 ease-out"
-                    loading="lazy"
-                  />
+                  <div
+                    onClick={() => handleSelect(dest.slug || dest.id)}
+                    className="group relative aspect-[4/3] rounded-2xl overflow-hidden cursor-pointer border border-stone-200 hover:border-[#FF4B00] transition-all duration-300 ease-out shadow-[0_6px_20px_-6px_rgba(0,0,0,0.14)] hover:shadow-[0_22px_40px_-10px_rgba(0,0,0,0.25)] hover:scale-[1.025] hover:-translate-y-1 flex flex-col justify-between p-4 will-change-transform"
+                  >
+                    {/* Background Image */}
+                    <img
+                      src={resolveDisplayImage(dest.heroImage, mediaAssets)}
+                      alt={dest.displayName || dest.name}
+                      onError={(e) => handleImageError(e, dest.heroImage, mediaAssets)}
+                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+                      loading="lazy"
+                    />
 
-                  {/* Scrim Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/40 to-transparent group-hover:from-stone-950/95 group-hover:via-stone-950/70 transition-all duration-300 pointer-events-none z-10" />
+                    {/* Scrim Overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/40 to-transparent group-hover:from-stone-950/95 group-hover:via-stone-950/70 transition-all duration-300 pointer-events-none z-10" />
 
-                  {/* Brand Color Hover Overlay */}
-                  <div className="absolute inset-0 bg-[#FF4B00]/0 group-hover:bg-[#FF4B00]/10 transition-colors duration-500 pointer-events-none z-10 mix-blend-overlay" />
+                    {/* Brand Color Hover Overlay */}
+                    <div className="absolute inset-0 bg-[#FF4B00]/0 group-hover:bg-[#FF4B00]/10 transition-colors duration-500 pointer-events-none z-10 mix-blend-overlay" />
 
-                  {/* Bottom Destination Name & Brand-colored Arrow Only */}
-                  <div className="relative z-10 text-white pointer-events-none mt-auto">
-                    <div className="flex items-center justify-between gap-3 pt-2">
-                      <h3 className="text-lg sm:text-xl font-black text-white group-hover:text-orange-200 transition-colors drop-shadow-md leading-tight tracking-tight">
-                        {dest.displayName || dest.name}
-                      </h3>
-                      <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-[#FF4B00] group-hover:bg-[#FF4B00] group-hover:text-white group-hover:scale-110 transition-all duration-300 shadow-md shrink-0">
-                        <ArrowRight className="w-4 h-4" />
+                    {/* Bottom Destination Name & Brand-colored Arrow Only */}
+                    <div className="relative z-10 text-white pointer-events-none mt-auto">
+                      <div className="flex items-center justify-between gap-3 pt-2">
+                        <h3 className="text-lg sm:text-xl font-black text-white group-hover:text-orange-200 transition-colors drop-shadow-md leading-tight tracking-tight">
+                          {dest.displayName || dest.name}
+                        </h3>
+                        <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-[#FF4B00] group-hover:bg-[#FF4B00] group-hover:text-white group-hover:scale-110 transition-all duration-300 shadow-md shrink-0">
+                          <ArrowRight className="w-4 h-4" />
+                        </div>
                       </div>
                     </div>
                   </div>
