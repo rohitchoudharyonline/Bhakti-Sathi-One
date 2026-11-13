@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { updateDocumentSEO } from '../../utils/seoHelper';
-import { TourPackage, MealType, DEFAULT_TRAVELER_GUIDELINES, DEFAULT_CANCELLATION_TERMS, DEFAULT_PAYMENT_TERMS } from '../../types/tour';
+import { TourPackage, MealType, resolveTourPolicies } from '../../types/tour';
 import { useTours } from '../../context/TourContext';
 import { PDFBrochureModal } from './PDFBrochureModal';
 import { Footer } from './Footer';
@@ -820,84 +820,59 @@ export const PackageDetailsView: React.FC<PackageDetailsViewProps> = ({ pkg, onB
             )}
 
             {/* TAB 4: POLICIES & GUIDELINES */}
-            {activeTab === 'policies' && (
-              <div className="space-y-6">
-                <div className="bg-white rounded-3xl p-6 border border-stone-200 shadow-xs space-y-6">
-                  {/* 1. Payment Terms (Above Both Policies) */}
-                  <div>
-                    <h4 className="text-sm font-bold text-stone-900 uppercase tracking-wider mb-3 flex items-center gap-2 text-stone-800">
-                      <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                      <span>Payment & Booking Terms</span>
-                    </h4>
-                    {(() => {
-                      const paymentList = (pkg.policies?.paymentPolicy && pkg.policies.paymentPolicy.length > 0)
-                        ? pkg.policies.paymentPolicy
-                        : DEFAULT_PAYMENT_TERMS;
-                      return (
-                        <ul className="space-y-2 text-xs sm:text-sm text-stone-700 bg-stone-50 p-4 rounded-2xl border border-stone-200">
-                          {paymentList.map((line, i) => (
+            {activeTab === 'policies' && (() => {
+              const { importantNotes, cancellationPolicy } = resolveTourPolicies(pkg);
+              return (
+                <div className="space-y-6">
+                  <div className="bg-white rounded-3xl p-6 border border-stone-200 shadow-xs space-y-6">
+                    {/* 1. Important Traveler Notes & Guidelines */}
+                    <div>
+                      <h4 className="text-sm font-bold text-stone-900 uppercase tracking-wider mb-3 flex items-center gap-2 text-stone-800">
+                        <FileText className="w-4 h-4 text-[#9b0000]" />
+                        <span>Important Traveler Notes & Guidelines</span>
+                      </h4>
+                      <ul className="space-y-2.5 text-xs sm:text-sm text-stone-700 bg-stone-50 p-4 rounded-2xl border border-stone-200">
+                        {importantNotes.map((note, i) => (
+                          <li key={i} className="flex items-start gap-2.5">
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#9b0000] mt-2 shrink-0" />
+                            <span className="font-medium text-stone-800 leading-relaxed">{note}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    {/* 2. Cancellation & Refund Terms */}
+                    <div>
+                      <h4 className="text-sm font-bold text-stone-900 uppercase tracking-wider mb-3 flex items-center gap-2 text-[#9b0000]">
+                        <AlertTriangle className="w-4 h-4" />
+                        <span>Cancellation & Refund Terms</span>
+                      </h4>
+                      <ul className="space-y-2.5 text-xs sm:text-sm text-stone-700 bg-[#FDF2F2]/60 p-4 rounded-2xl border border-[#F5C2C2]">
+                        {cancellationPolicy.map((line, i) => {
+                          const colonIdx = line.indexOf(':');
+                          const hasPrefix = colonIdx > 0 && colonIdx < 35;
+                          return (
                             <li key={i} className="flex items-start gap-2.5">
                               <span className="w-1.5 h-1.5 rounded-full bg-[#9b0000] mt-2 shrink-0" />
-                              <span className="font-medium text-stone-800 leading-relaxed">{line}</span>
+                              <span className="font-medium text-stone-800 leading-relaxed">
+                                {hasPrefix ? (
+                                  <>
+                                    <strong className="font-bold text-stone-900">{line.slice(0, colonIdx + 1)}</strong>
+                                    {line.slice(colonIdx + 1)}
+                                  </>
+                                ) : (
+                                  line
+                                )}
+                              </span>
                             </li>
-                          ))}
-                        </ul>
-                      );
-                    })()}
-                  </div>
-
-                  {/* 2. Important Traveler Notes & Guidelines */}
-                  <div>
-                    <h4 className="text-sm font-bold text-stone-900 uppercase tracking-wider mb-3 flex items-center gap-2 text-stone-800">
-                      <FileText className="w-4 h-4 text-[#9b0000]" />
-                      <span>Important Traveler Notes & Guidelines</span>
-                    </h4>
-                    {(() => {
-                      const notesList = (pkg.importantNotes && pkg.importantNotes.length > 0)
-                        ? pkg.importantNotes
-                        : (pkg.policies?.importantNotes && pkg.policies.importantNotes.length > 0)
-                        ? pkg.policies.importantNotes
-                        : (pkg.policies?.termsAndConditions && pkg.policies.termsAndConditions.length > 0 && !pkg.policies.termsAndConditions[0].includes('All bookings subject'))
-                        ? pkg.policies.termsAndConditions
-                        : DEFAULT_TRAVELER_GUIDELINES;
-                      return (
-                        <ul className="space-y-2 text-xs sm:text-sm text-stone-700 bg-stone-50 p-4 rounded-2xl border border-stone-200">
-                          {notesList.map((note, i) => (
-                            <li key={i} className="flex items-start gap-2.5">
-                              <span className="w-1.5 h-1.5 rounded-full bg-[#9b0000] mt-2 shrink-0" />
-                              <span className="font-medium text-stone-800 leading-relaxed">{note}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      );
-                    })()}
-                  </div>
-
-                  {/* 3. Cancellation Policy */}
-                  <div>
-                    <h4 className="text-sm font-bold text-stone-900 uppercase tracking-wider mb-3 flex items-center gap-2 text-rose-700">
-                      <AlertTriangle className="w-4 h-4" />
-                      <span>Cancellation & Refund Terms</span>
-                    </h4>
-                    {(() => {
-                      const cancelList = (pkg.policies?.cancellationPolicy && pkg.policies.cancellationPolicy.length > 0)
-                        ? pkg.policies.cancellationPolicy
-                        : DEFAULT_CANCELLATION_TERMS;
-                      return (
-                        <ul className="space-y-2 text-xs sm:text-sm text-stone-700 bg-rose-50/60 p-4 rounded-2xl border border-rose-200">
-                          {cancelList.map((line, i) => (
-                            <li key={i} className="flex items-start gap-2.5">
-                              <span className="w-1.5 h-1.5 rounded-full bg-rose-600 mt-2 shrink-0" />
-                              <span className="font-medium text-stone-800 leading-relaxed">{line}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      );
-                    })()}
+                          );
+                        })}
+                      </ul>
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
+              );
+            })()}
 
             {/* TAB 5: GALLERY */}
             {activeTab === 'gallery' && (

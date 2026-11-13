@@ -129,6 +129,82 @@ export interface PackagePolicies {
   termsAndConditions: string[];
   paymentPolicy: string[];
   importantNotes?: string[];
+  customPoliciesEdited?: boolean;
+}
+
+const isLegacyTravelerNote = (note: string): boolean => {
+  const n = note.trim().toLowerCase();
+  if (!n) return true;
+  if (DEFAULT_TRAVELER_GUIDELINES.some((d) => d.toLowerCase() === n)) return true;
+  return (
+    (n.includes('valid government') && n.includes('photo id')) ||
+    (n.includes('check-in') && n.includes('check-out') && n.includes('2:00 pm')) ||
+    n.includes('all bookings subject') ||
+    n.includes('ac will be switched off on hilly')
+  );
+};
+
+const isLegacyCancellationRule = (rule: string): boolean => {
+  const r = rule.trim().toLowerCase();
+  if (!r) return true;
+  if (DEFAULT_CANCELLATION_TERMS.some((d) => d.toLowerCase() === r)) return true;
+  return (
+    r.startsWith('cancellation policy:') ||
+    r.includes('cancellations made within 30 days') ||
+    r.includes('30 days or more before travel:') ||
+    r.includes('15 to 29 days before travel:') ||
+    r.includes('7 to 14 days before departure:') ||
+    r.includes('less than 7 days:') ||
+    r.includes('20 days prior:') ||
+    r.includes('10 to 19 days:') ||
+    r.includes('under 7 days:')
+  );
+};
+
+export function resolveTourPolicies(pkg?: Partial<TourPackage> | null): {
+  importantNotes: string[];
+  cancellationPolicy: string[];
+} {
+  if (!pkg) {
+    return {
+      importantNotes: [...DEFAULT_TRAVELER_GUIDELINES],
+      cancellationPolicy: [...DEFAULT_CANCELLATION_TERMS],
+    };
+  }
+
+  const rawNotes =
+    pkg.importantNotes && pkg.importantNotes.length > 0
+      ? pkg.importantNotes
+      : pkg.policies?.importantNotes && pkg.policies.importantNotes.length > 0
+      ? pkg.policies.importantNotes
+      : pkg.policies?.termsAndConditions && pkg.policies.termsAndConditions.length > 0
+      ? pkg.policies.termsAndConditions
+      : [];
+
+  const rawCancel =
+    pkg.policies?.cancellationPolicy && pkg.policies.cancellationPolicy.length > 0
+      ? pkg.policies.cancellationPolicy
+      : [];
+
+  if (pkg.policies?.customPoliciesEdited) {
+    return {
+      importantNotes: rawNotes.length > 0 ? rawNotes : [...DEFAULT_TRAVELER_GUIDELINES],
+      cancellationPolicy: rawCancel.length > 0 ? rawCancel : [...DEFAULT_CANCELLATION_TERMS],
+    };
+  }
+
+  const extraNotes = rawNotes
+    .map((s) => String(s || '').trim())
+    .filter((s) => s && !isLegacyTravelerNote(s));
+
+  const extraCancel = rawCancel
+    .map((s) => String(s || '').trim())
+    .filter((s) => s && !isLegacyCancellationRule(s));
+
+  return {
+    importantNotes: [...DEFAULT_TRAVELER_GUIDELINES, ...extraNotes],
+    cancellationPolicy: [...DEFAULT_CANCELLATION_TERMS, ...extraCancel],
+  };
 }
 
 export type TourInclusionIconType =

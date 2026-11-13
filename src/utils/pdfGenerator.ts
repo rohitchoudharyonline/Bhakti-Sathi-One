@@ -1,5 +1,5 @@
 import { jsPDF } from 'jspdf';
-import { TourPackage, AgencySettings, Invoice, VendorPayment, Vendor, BookingInquiry, InquiryQuotation, PricingTiers, DEFAULT_TRAVELER_GUIDELINES, DEFAULT_CANCELLATION_TERMS, DEFAULT_PAYMENT_TERMS } from '../types/tour';
+import { TourPackage, AgencySettings, Invoice, VendorPayment, Vendor, BookingInquiry, InquiryQuotation, PricingTiers, resolveTourPolicies } from '../types/tour';
 
 const GOLD:[number,number,number]=[155,0,0], GOLD_DARK:[number,number,number]=[125,0,0], INK:[number,number,number]=[10,10,10], BODY:[number,number,number]=[68,64,60], MUTED:[number,number,number]=[120,113,108], LINE:[number,number,number]=[231,229,228], SOFT:[number,number,number]=[255,255,255], CREAM:[number,number,number]=[250,248,245], GREEN:[number,number,number]=[13,148,136];
 
@@ -28,18 +28,20 @@ const clean=(v:unknown)=>{
 };
 const money=(v:number,c='INR')=>`${c} ${Math.round(v||0).toLocaleString('en-IN')}`;
 const getHotelLocation = (hotel: any, pkg: any) => {
-  let resolvedLoc = hotel.location || hotel.city || '';
-  const hNameLower = (hotel.name || '').toLowerCase();
-  if (hNameLower.includes('white water') || hNameLower.includes('pahalgam') || hNameLower.includes('lidder') || hNameLower.includes('chinar')) {
-    resolvedLoc = 'Pahalgam';
-  } else if (hNameLower.includes('gulmarg') || hNameLower.includes('snowland') || hNameLower.includes('pine palace')) {
-    resolvedLoc = 'Gulmarg';
-  } else if (hNameLower.includes('sonmarg') || hNameLower.includes('thajwas')) {
-    resolvedLoc = 'Sonmarg';
-  } else if (hNameLower.includes('katra') || hNameLower.includes('vaishno') || hNameLower.includes('white coral')) {
-    resolvedLoc = 'Katra';
-  } else if (hNameLower.includes('houseboat') || hNameLower.includes('srinagar') || hNameLower.includes('dal lake') || hNameLower.includes('blanco') || hNameLower.includes('grand kaiser')) {
-    resolvedLoc = 'Srinagar';
+  let resolvedLoc = (hotel.location || hotel.city || '').trim();
+  if (!resolvedLoc) {
+    const hNameLower = (hotel.name || '').toLowerCase();
+    if (hNameLower.includes('white water') || hNameLower.includes('pahalgam') || hNameLower.includes('lidder') || hNameLower.includes('chinar')) {
+      resolvedLoc = 'Pahalgam';
+    } else if (hNameLower.includes('gulmarg') || hNameLower.includes('snowland') || hNameLower.includes('pine palace')) {
+      resolvedLoc = 'Gulmarg';
+    } else if (hNameLower.includes('sonmarg') || hNameLower.includes('thajwas')) {
+      resolvedLoc = 'Sonmarg';
+    } else if (hNameLower.includes('katra') || hNameLower.includes('vaishno') || hNameLower.includes('white coral')) {
+      resolvedLoc = 'Katra';
+    } else if (hNameLower.includes('houseboat') || hNameLower.includes('srinagar') || hNameLower.includes('dal lake') || hNameLower.includes('blanco') || hNameLower.includes('grand kaiser')) {
+      resolvedLoc = 'Srinagar';
+    }
   }
   return clean(resolvedLoc || hotel.country || pkg.destination);
 };
@@ -1324,7 +1326,17 @@ export async function generateTourPDF(pkg:TourPackage,a:AgencySettings,onProgres
   calcY += overviewLines.length * 16 + 24;
 
   calcY += 200 + 24; // Snapshot card (2x2 grid, conservative dynamic max)
-  calcY += 24 + 140 + 24; // Selected Tier card (conservative dynamic max)
+  tempD.setFont('helvetica','normal');
+  tempD.setFontSize(11);
+  const hotelSummaryNamesCalc = pkg.hotels && pkg.hotels.length > 0
+    ? pkg.hotels.map(h => `${h.name} (${getHotelLocation(h, pkg)})`).join(', ')
+    : 'Verified Accommodations & Stays';
+  const hLinesCalc = tempD.splitTextToSize(`Hotels: ${clean(hotelSummaryNamesCalc)}`, contentWidth - 52);
+  const mLinesCalc = tempD.splitTextToSize(`Meals: ${clean(pkg.hotels?.[0]?.mealPlan || 'Daily Breakfast & Dinner Included')}`, contentWidth - 52);
+  const hasCabCalc = Boolean(pkg.transportation && String(pkg.transportation).trim() && !/none|not included|no cab|without cab/i.test(String(pkg.transportation)));
+  const cLinesCalc = hasCabCalc ? tempD.splitTextToSize(`Cab: ${clean(pkg.transportation)}`, contentWidth - 52) : [];
+  const detailsCardHCalc = 40 + 18 + (hLinesCalc.length * 14.5 + 8) + (mLinesCalc.length * 14.5 + 8) + (cLinesCalc.length > 0 ? (cLinesCalc.length * 14.5 + 8) : 0) + 14;
+  calcY += 24 + detailsCardHCalc + 24; // Pricing & Inclusions card
 
   if (pkg.hotels && pkg.hotels.length > 0) {
     calcY += 24;
@@ -1334,9 +1346,11 @@ export async function generateTourPDF(pkg:TourPackage,a:AgencySettings,onProgres
       const nameLines = tempD.splitTextToSize(clean(hotel.name), contentWidth - 32);
 
       const locText = getHotelLocation(hotel, pkg);
-      const stayText = `Stay & Location: ${locText} • ${clean(hotel.roomType || 'Deluxe Room')} (${hotel.nights} ${hotel.nights === 1 ? 'Night' : 'Nights'})`;
-      const mealText = `Meal Plan: ${clean(hotel.mealPlan || 'Daily Breakfast & Dinner Included')}`;
-      const hotelBullets = [stayText, mealText];
+      const hotelBullets = [
+        `Location & Stay: ${locText} (${hotel.nights} ${hotel.nights === 1 ? 'Night' : 'Nights'})`,
+        `Room Type: ${clean(hotel.roomType || 'Deluxe Room')}`,
+        `Meal Plan: ${clean(hotel.mealPlan || 'Daily Breakfast & Dinner Included')}`,
+      ];
       if (hotel.amenities && hotel.amenities.length > 0) {
         hotelBullets.push(`Amenities: ${clean(hotel.amenities.join(', '))}`);
       }
@@ -1345,10 +1359,10 @@ export async function generateTourPDF(pkg:TourPackage,a:AgencySettings,onProgres
       tempD.setFontSize(10.5);
       let bulletsH = 0;
       hotelBullets.forEach(b => {
-        const bLines = tempD.splitTextToSize(b, contentWidth - 44);
-        bulletsH += bLines.length * 13 + 6;
+        const bLines = tempD.splitTextToSize(b, contentWidth - 52);
+        bulletsH += bLines.length * 14.5 + 8;
       });
-      const hCardH = 16 + (nameLines.length * 15) + 8 + bulletsH + 12;
+      const hCardH = 18 + (nameLines.length * 15.5) + 10 + bulletsH + 12;
       calcY += hCardH + 16;
     }
     calcY += 12;
@@ -1397,36 +1411,23 @@ export async function generateTourPDF(pkg:TourPackage,a:AgencySettings,onProgres
   }
 
   calcY += 24; // Policies header
-  const paymentPolicy = (pkg.policies?.paymentPolicy && pkg.policies.paymentPolicy.length > 0)
-    ? pkg.policies.paymentPolicy
-    : DEFAULT_PAYMENT_TERMS;
-  const travelerGuidelines = (pkg.importantNotes && pkg.importantNotes.length > 0)
-    ? pkg.importantNotes
-    : (pkg.policies?.importantNotes && pkg.policies.importantNotes.length > 0)
-    ? pkg.policies.importantNotes
-    : (pkg.policies?.termsAndConditions && pkg.policies.termsAndConditions.length > 0 && !pkg.policies.termsAndConditions[0].includes('All bookings subject'))
-    ? pkg.policies.termsAndConditions
-    : DEFAULT_TRAVELER_GUIDELINES;
-  const cancellationPolicy = (pkg.policies?.cancellationPolicy && pkg.policies.cancellationPolicy.length > 0)
-    ? pkg.policies.cancellationPolicy
-    : DEFAULT_CANCELLATION_TERMS;
+  const { importantNotes: travelerGuidelines, cancellationPolicy } = resolveTourPolicies(pkg);
 
   const getPolicyBoxH = (arr: string[]) => {
     tempD.setFont('helvetica', 'normal');
     tempD.setFontSize(10.5);
-    let h = 34;
+    let h = 40;
     arr.forEach(item => {
-      const lines = tempD.splitTextToSize(clean(item), contentWidth - 44);
-      h += lines.length * 14 + 8;
+      const lines = tempD.splitTextToSize(clean(item), contentWidth - 52);
+      h += lines.length * 14.5 + 10;
     });
-    return h + 10 + 16;
+    return h + 12 + 16;
   };
 
-  calcY += getPolicyBoxH(paymentPolicy);
   calcY += getPolicyBoxH(travelerGuidelines);
   calcY += getPolicyBoxH(cancellationPolicy);
 
-  const totalHeight = calcY + 400; // Generous extra space to ensure no clipping
+  const totalHeight = calcY + 260; // Clean bottom margin without excess whitespace
 
   // 2. Initialize final continuous mobile PDF document
   const d = new jsPDF({ orientation: 'portrait', unit: 'pt', format: [w, totalHeight], compress: true });
@@ -1548,15 +1549,15 @@ export async function generateTourPDF(pkg:TourPackage,a:AgencySettings,onProgres
   const hotelSummaryNames = pkg.hotels && pkg.hotels.length > 0 
     ? pkg.hotels.map(h => `${h.name} (${getHotelLocation(h, pkg)})`).join(', ')
     : 'Verified Accommodations & Stays';
-  const hLines = d.splitTextToSize(`Hotels: ${clean(hotelSummaryNames)}`, contentWidth - 40);
-  const mLines = d.splitTextToSize(`Meals: ${clean(pkg.hotels?.[0]?.mealPlan || 'Daily Breakfast & Dinner Included')}`, contentWidth - 40);
+  const hLines = d.splitTextToSize(`Hotels: ${clean(hotelSummaryNames)}`, contentWidth - 52);
+  const mLines = d.splitTextToSize(`Meals: ${clean(pkg.hotels?.[0]?.mealPlan || 'Daily Breakfast & Dinner Included')}`, contentWidth - 52);
   
   const hasCab = Boolean(pkg.transportation && String(pkg.transportation).trim() && !/none|not included|no cab|without cab/i.test(String(pkg.transportation)));
   const cabText = hasCab ? `Cab: ${clean(pkg.transportation)}` : '';
-  const cLines = cabText ? d.splitTextToSize(cabText, contentWidth - 40) : [];
+  const cLines = cabText ? d.splitTextToSize(cabText, contentWidth - 52) : [];
   
   // Calculate dynamic height for details card
-  const detailsCardH = 40 + 20 + (hLines.length * 14) + (mLines.length * 14) + (cLines.length > 0 ? (cLines.length * 14) : 0) + 16;
+  const detailsCardH = 40 + 18 + (hLines.length * 14.5 + 8) + (mLines.length * 14.5 + 8) + (cLines.length > 0 ? (cLines.length * 14.5 + 8) : 0) + 14;
   
   const isPor = pkg.priceOnRequest || (!pkg.price && !pkg.discountedPrice) || ((pkg.price || 0) <= 0 && (!pkg.discountedPrice || pkg.discountedPrice <= 0));
   const effectivePrice = pkg.discountedPrice && pkg.discountedPrice > 0 ? pkg.discountedPrice : (pkg.price || 0);
@@ -1571,13 +1572,14 @@ export async function generateTourPDF(pkg:TourPackage,a:AgencySettings,onProgres
   d.setFont('helvetica','normal');
   d.setFontSize(11);
   d.setTextColor(...BODY);
-  d.text(hLines, margin + 20, y + 54);
-  let nextY = y + 54 + (hLines.length * 14);
-  d.text(mLines, margin + 20, nextY);
-  nextY += (mLines.length * 14);
-  if (cLines.length > 0) {
-    d.text(cLines, margin + 20, nextY);
-  }
+  let nextY = y + 56;
+  const pricingBullets = [hLines, mLines, ...(cLines.length > 0 ? [cLines] : [])];
+  pricingBullets.forEach((pLines) => {
+    d.setFillColor(...GOLD);
+    d.circle(margin + 22, nextY - 3.5, 2.5, 'F');
+    d.text(pLines, margin + 32, nextY, { lineHeightFactor: 1.32 });
+    nextY += pLines.length * 14.5 + 8;
+  });
   y += detailsCardH + 24;
 
   // Verified Accommodation & Stays
@@ -1589,9 +1591,11 @@ export async function generateTourPDF(pkg:TourPackage,a:AgencySettings,onProgres
       const nameLines = d.splitTextToSize(clean(hotel.name), contentWidth - 32);
 
       const locText = getHotelLocation(hotel, pkg);
-      const stayText = `Stay & Location: ${locText} • ${clean(hotel.roomType || 'Deluxe Room')} (${hotel.nights} ${hotel.nights === 1 ? 'Night' : 'Nights'})`;
-      const mealText = `Meal Plan: ${clean(hotel.mealPlan || 'Daily Breakfast & Dinner Included')}`;
-      const hotelBullets = [stayText, mealText];
+      const hotelBullets = [
+        `Location & Stay: ${locText} (${hotel.nights} ${hotel.nights === 1 ? 'Night' : 'Nights'})`,
+        `Room Type: ${clean(hotel.roomType || 'Deluxe Room')}`,
+        `Meal Plan: ${clean(hotel.mealPlan || 'Daily Breakfast & Dinner Included')}`,
+      ];
       if (hotel.amenities && hotel.amenities.length > 0) {
         hotelBullets.push(`Amenities: ${clean(hotel.amenities.join(', '))}`);
       }
@@ -1601,22 +1605,22 @@ export async function generateTourPDF(pkg:TourPackage,a:AgencySettings,onProgres
       let bulletsH = 0;
       const parsedBullets: string[][] = [];
       hotelBullets.forEach(b => {
-        const bLines = d.splitTextToSize(b, contentWidth - 44);
+        const bLines = d.splitTextToSize(b, contentWidth - 52);
         parsedBullets.push(bLines);
-        bulletsH += bLines.length * 13 + 6;
+        bulletsH += bLines.length * 14.5 + 8;
       });
 
-      const hCardH = 16 + (nameLines.length * 15) + 8 + bulletsH + 12;
+      const hCardH = 18 + (nameLines.length * 15.5) + 10 + bulletsH + 12;
       drawCard(d, margin, y, contentWidth, hCardH, [255, 255, 255], LINE, true);
 
       // Hotel Title
       d.setFont('helvetica','bold');
       d.setFontSize(12.5);
       d.setTextColor(...INK);
-      d.text(nameLines, margin + 16, y + 20);
+      d.text(nameLines, margin + 16, y + 22);
 
       // Hotel Bullets
-      let curHY = y + 20 + (nameLines.length * 15) + 6;
+      let curHY = y + 22 + (nameLines.length * 15.5) + 8;
       d.setFont('helvetica','normal');
       d.setFontSize(10.5);
       d.setTextColor(...BODY);
@@ -1624,8 +1628,8 @@ export async function generateTourPDF(pkg:TourPackage,a:AgencySettings,onProgres
       parsedBullets.forEach((bLines) => {
         d.setFillColor(...GOLD);
         d.circle(margin + 20, curHY - 3.5, 2.5, 'F');
-        d.text(bLines, margin + 28, curHY, { lineHeightFactor: 1.3 });
-        curHY += bLines.length * 13 + 6;
+        d.text(bLines, margin + 32, curHY, { lineHeightFactor: 1.35 });
+        curHY += bLines.length * 14.5 + 8;
       });
 
       y += hCardH + 16;
@@ -1748,11 +1752,11 @@ export async function generateTourPDF(pkg:TourPackage,a:AgencySettings,onProgres
     let contentH = 0;
     const itemLinesList: string[][] = [];
     contentArray.forEach(item => {
-      const lines = d.splitTextToSize(clean(item), contentWidth - 44);
+      const lines = d.splitTextToSize(clean(item), contentWidth - 52);
       itemLinesList.push(lines);
-      contentH += lines.length * 14 + 8;
+      contentH += lines.length * 14.5 + 10;
     });
-    const boxH = 34 + contentH + 10;
+    const boxH = 40 + contentH + 12;
 
     drawCard(d, margin, y, contentWidth, boxH, isGold ? CREAM : [255, 255, 255], isGold ? GOLD : LINE, true);
 
@@ -1760,10 +1764,10 @@ export async function generateTourPDF(pkg:TourPackage,a:AgencySettings,onProgres
     d.setFont('helvetica', 'bold');
     d.setFontSize(11.5);
     d.setTextColor(isGold ? GOLD[0] : INK[0], isGold ? GOLD[1] : INK[1], isGold ? GOLD[2] : INK[2]);
-    d.text(clean(titleText), margin + 16, y + 22);
+    d.text(clean(titleText), margin + 16, y + 24);
 
     // Bullet Items
-    let curItemY = y + 40;
+    let curItemY = y + 46;
     d.setFont('helvetica', 'normal');
     d.setFontSize(10.5);
     d.setTextColor(...BODY);
@@ -1771,21 +1775,18 @@ export async function generateTourPDF(pkg:TourPackage,a:AgencySettings,onProgres
     itemLinesList.forEach((lines) => {
       d.setFillColor(...GOLD);
       d.circle(margin + 20, curItemY - 3.5, 2.5, 'F');
-      d.text(lines, margin + 28, curItemY, { lineHeightFactor: 1.35 });
-      curItemY += lines.length * 14 + 8;
+      d.text(lines, margin + 32, curItemY, { lineHeightFactor: 1.35 });
+      curItemY += lines.length * 14.5 + 10;
     });
 
     y += boxH + 16;
   };
 
-  // 1. Payment & Booking Terms (Above Both Policies)
-  addPolicyBlock('Payment & Booking Terms:', paymentPolicy, false);
+  // 1. Important Traveler Notes & Guidelines
+  addPolicyBlock('Important Traveler Notes & Guidelines', travelerGuidelines, true);
 
-  // 2. Important Traveler Notes & Guidelines
-  addPolicyBlock('Important Traveler Notes & Guidelines:', travelerGuidelines, true);
-
-  // 3. Cancellation & Refund Terms
-  addPolicyBlock('Cancellation & Refund Terms:', cancellationPolicy, false);
+  // 2. Cancellation & Refund Terms
+  addPolicyBlock('Cancellation & Refund Terms', cancellationPolicy, false);
 
   // Bottom Footer with Contact Details Only
   d.setFont('helvetica', 'bold');

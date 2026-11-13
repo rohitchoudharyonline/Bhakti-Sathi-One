@@ -200,7 +200,7 @@ export const AllToursDirectory: React.FC<AllToursDirectoryProps> = ({
 
     // Destination
     if (selectedDestSlug !== 'all') {
-      const match = matchPackageToDestination(pkg, selectedDestSlug);
+      const match = matchPackageToDestination(pkg, selectedDestSlug, currentDestMeta);
       if (!match) return false;
     }
 

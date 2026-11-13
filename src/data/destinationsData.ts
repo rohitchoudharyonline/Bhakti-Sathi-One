@@ -384,52 +384,224 @@ export function getDestinationBySlug(slug?: string | null): DestinationMeta | un
   return foundKey ? DESTINATIONS_REGISTRY[foundKey] : undefined;
 }
 
-export function matchPackageToDestination(pkg: any, destSlug: string): boolean {
+const normalizeDestinationKey = (value?: string | null): string =>
+  String(value || '')
+    .toLowerCase()
+    .trim()
+    .replace(/[&/]+/g, ' ')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+
+const hasWholeWordOrPhrase = (text: string, terms: string[]): boolean => {
+  if (!text) return false;
+  return terms.some((term) => {
+    const clean = term.trim().toLowerCase();
+    if (!clean) return false;
+    const escaped = clean.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '[\\s\\-_]+');
+    const regex = new RegExp(`(?:^|[^a-z0-9])${escaped}(?:$|[^a-z0-9])`, 'i');
+    return regex.test(text);
+  });
+};
+
+const GENERIC_PLACE_NAMES = new Set(['city center', 'old town', 'valley point', 'snow peak']);
+
+export function matchPackageToDestination(
+  pkg: any,
+  destSlug: string,
+  destinationMeta?: Partial<DestinationMeta>
+): boolean {
   if (!pkg || !destSlug) return false;
+
   const target = destSlug.toLowerCase().trim();
+  const normalizedTarget = normalizeDestinationKey(destSlug);
 
-  const destStr = (pkg.destination || '').toLowerCase();
-  const titleStr = (pkg.title || '').toLowerCase();
-  const slugStr = (pkg.slug || '').toLowerCase();
-  const locStr = (pkg.location || '').toLowerCase();
-  const tagStr = (pkg.destinationTag || '').toLowerCase();
+  const candidateKeys = new Set<string>(
+    [
+      normalizedTarget,
+      normalizeDestinationKey(destinationMeta?.slug),
+      normalizeDestinationKey(destinationMeta?.id),
+      normalizeDestinationKey(destinationMeta?.name),
+      normalizeDestinationKey(destinationMeta?.displayName),
+    ].filter(Boolean)
+  );
 
-  // Holidays Hunt currently operates only in Jammu & Kashmir.
-  if (
-    target === 'jammu-kashmir' ||
-    target === 'jammu' ||
-    target === 'kashmir' ||
-    target === 'jammu-and-kashmir' ||
-    target === 'jammu_kashmir'
-  ) {
+  const rawCandidates = [
+    target,
+    String(destinationMeta?.slug || '').toLowerCase().trim(),
+    String(destinationMeta?.id || '').toLowerCase().trim(),
+    String(destinationMeta?.name || '').toLowerCase().trim(),
+    String(destinationMeta?.displayName || '').toLowerCase().trim(),
+  ].filter(Boolean);
+
+  const destStr = String(pkg.destination || '').toLowerCase();
+  const titleStr = String(pkg.title || '').toLowerCase();
+  const slugStr = String(pkg.slug || '').toLowerCase();
+  const locStr = String(pkg.location || '').toLowerCase();
+  const tagStr = String(pkg.destinationTag || '').toLowerCase().trim();
+  const countryStr = String(pkg.country || '').toLowerCase();
+  const startStr = String(pkg.startLocation || '').toLowerCase();
+  const endStr = String(pkg.endLocation || '').toLowerCase();
+
+  const normalizedTag = normalizeDestinationKey(pkg.destinationTag);
+  const normalizedDest = normalizeDestinationKey(pkg.destination);
+
+  // 1. Direct normalized tag / destination name match (covers all CMS-created destinations & custom slugs/ids)
+  if (normalizedTag && candidateKeys.has(normalizedTag)) return true;
+  if (normalizedDest && candidateKeys.has(normalizedDest)) return true;
+
+  // Also check if package's destinationTag matches normalized popular aliases in the same region
+  const combinedPkgText = [destStr, titleStr, slugStr, locStr, tagStr, startStr, endStr]
+    .filter(Boolean)
+    .join(' ');
+
+  const isJammuKashmirTarget =
+    candidateKeys.has('jammu-kashmir') ||
+    candidateKeys.has('jammu') ||
+    candidateKeys.has('kashmir') ||
+    candidateKeys.has('jammu-and-kashmir') ||
+    candidateKeys.has('jk') ||
+    candidateKeys.has('j-k') ||
+    rawCandidates.some((c) => c.includes('jammu') || c.includes('kashmir'));
+
+  const isHimachalTarget =
+    candidateKeys.has('himachal') ||
+    candidateKeys.has('himachal-pradesh') ||
+    candidateKeys.has('hp') ||
+    candidateKeys.has('h') ||
+    candidateKeys.has('shimla') ||
+    candidateKeys.has('manali') ||
+    candidateKeys.has('dharamshala') ||
+    candidateKeys.has('dalhousie') ||
+    candidateKeys.has('spiti') ||
+    rawCandidates.some((c) => c.includes('himachal'));
+
+  const isLadakhTarget =
+    candidateKeys.has('ladakh') ||
+    candidateKeys.has('leh') ||
+    candidateKeys.has('leh-ladakh') ||
+    candidateKeys.has('pangong') ||
+    rawCandidates.some((c) => c.includes('ladakh'));
+
+  if (isJammuKashmirTarget) {
+    const jkKeywords = [
+      'jammu',
+      'katra',
+      'vaishno',
+      'kashmir',
+      'srinagar',
+      'gulmarg',
+      'pahalgam',
+      'patnitop',
+      'shivkhori',
+      'shiv khori',
+      'sonmarg',
+      'sonamarg',
+      'doodhpathri',
+      'gurez',
+      'bhaderwah',
+      'sanasar',
+      'amarnath',
+    ];
     return (
-      destStr.includes('jammu') ||
-      destStr.includes('katra') ||
-      destStr.includes('vaishno') ||
-      destStr.includes('kashmir') ||
-      destStr.includes('srinagar') ||
-      destStr.includes('gulmarg') ||
-      destStr.includes('pahalgam') ||
-      destStr.includes('patnitop') ||
-      destStr.includes('shivkhori') ||
-      destStr.includes('sonmarg') ||
-      titleStr.includes('jammu') ||
-      titleStr.includes('katra') ||
-      titleStr.includes('vaishno') ||
-      titleStr.includes('kashmir') ||
-      titleStr.includes('srinagar') ||
-      titleStr.includes('gulmarg') ||
-      titleStr.includes('pahalgam') ||
-      slugStr.includes('jammu') ||
-      slugStr.includes('katra') ||
-      slugStr.includes('kashmir') ||
-      locStr.includes('jammu') ||
-      locStr.includes('kashmir') ||
-      locStr.includes('katra') ||
-      locStr.includes('srinagar') ||
       tagStr.includes('jammu') ||
-      tagStr.includes('kashmir')
+      tagStr.includes('kashmir') ||
+      destStr.includes('jammu') ||
+      destStr.includes('kashmir') ||
+      titleStr.includes('jammu') ||
+      titleStr.includes('kashmir') ||
+      hasWholeWordOrPhrase(combinedPkgText, jkKeywords)
     );
+  }
+
+  if (isHimachalTarget) {
+    if (normalizedTag === 'hp' || normalizedTag === 'h' || normalizedTag.includes('himachal')) {
+      return true;
+    }
+    const himachalKeywords = [
+      'himachal',
+      'himachal pradesh',
+      'shimla',
+      'simla',
+      'manali',
+      'dharamshala',
+      'dharmshala',
+      'mcleodganj',
+      'mcleod ganj',
+      'dalhousie',
+      'khajjiar',
+      'kullu',
+      'kasol',
+      'spiti',
+      'kaza',
+      'kinnaur',
+      'kalpa',
+      'chitkul',
+      'kufri',
+      'rohtang',
+      'atal tunnel',
+      'solang',
+      'chamba',
+      'palampur',
+      'kangra',
+      'chintpurni',
+      'jwalamukhi',
+      'jwalaji',
+      'naina devi',
+      'baglamukhi',
+      'chamunda',
+      'bir billing',
+      'jibhi',
+      'tirthan',
+      'narkanda',
+      'kasauli',
+      'barog',
+      'chail',
+      'sangla',
+      'sissu',
+      'keylong',
+      'jispa',
+    ];
+    return (
+      tagStr.includes('himachal') ||
+      destStr.includes('himachal') ||
+      titleStr.includes('himachal') ||
+      slugStr.includes('himachal') ||
+      countryStr.includes('himachal') ||
+      hasWholeWordOrPhrase(combinedPkgText, himachalKeywords)
+    );
+  }
+
+  if (isLadakhTarget) {
+    const ladakhKeywords = [
+      'ladakh',
+      'leh',
+      'pangong',
+      'nubra',
+      'khardung',
+      'zanskar',
+      'tso moriri',
+      'diskit',
+      'hanle',
+    ];
+    return (
+      tagStr.includes('ladakh') ||
+      destStr.includes('ladakh') ||
+      titleStr.includes('ladakh') ||
+      slugStr.includes('ladakh') ||
+      hasWholeWordOrPhrase(combinedPkgText, ladakhKeywords)
+    );
+  }
+
+  // 2. Generic matching for any other custom CMS-created destination
+  const meaningfulTerms = [
+    ...rawCandidates.filter((c) => c.length >= 3),
+    ...((destinationMeta?.popularCities || [])
+      .map((city) => String(city || '').split('(')[0].trim().toLowerCase())
+      .filter((city) => city.length >= 3 && !GENERIC_PLACE_NAMES.has(city))),
+  ];
+
+  if (meaningfulTerms.length > 0 && hasWholeWordOrPhrase(combinedPkgText, meaningfulTerms)) {
+    return true;
   }
 
   return false;

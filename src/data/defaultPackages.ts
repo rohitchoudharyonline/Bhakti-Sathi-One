@@ -1,4 +1,4 @@
-import { TourPackage, AgencySettings, MobileBottomNavItem } from '../types/tour';
+import { TourPackage, AgencySettings, MobileBottomNavItem, DEFAULT_TRAVELER_GUIDELINES, DEFAULT_CANCELLATION_TERMS } from '../types/tour';
 
 export const DEFAULT_BOTTOM_NAV_ITEMS: MobileBottomNavItem[] = [
   { id: 'bnav-explore', label: 'Explore', icon: 'home', actionType: 'home', enabled: true },
@@ -335,21 +335,12 @@ const DEFAULT_PACKAGES_BASE: TourPackage[] = [
         amenities: ['Traditional Khatamband Ceilings', 'Attached Bath with Tub', 'Shikara Crossings Included'],
       },
     ],
+    importantNotes: [...DEFAULT_TRAVELER_GUIDELINES],
     policies: {
-      cancellationPolicy: [
-        '30 days or more before travel: 100% refund minus 10% administrative processing fee.',
-        '15 to 29 days before travel: 25% cancellation charges.',
-        '7 to 14 days before departure: 50% cancellation charges.',
-        'Less than 7 days: Non-refundable.',
-      ],
-      termsAndConditions: [
-        'Valid Government photo ID (Aadhaar / Passport) is mandatory for hotel check-ins and Gondola bookings.',
-        'AC will be switched off on hilly terrains for vehicle cooling and engine safety.',
-      ],
-      paymentPolicy: [
-        '25% Advance payment to confirm hotel bookings.',
-        '75% Balance upon arrival in Srinagar or 7 days prior to travel date.',
-      ],
+      cancellationPolicy: [...DEFAULT_CANCELLATION_TERMS],
+      termsAndConditions: [...DEFAULT_TRAVELER_GUIDELINES],
+      importantNotes: [...DEFAULT_TRAVELER_GUIDELINES],
+      paymentPolicy: [],
     },
   },
   {
@@ -582,10 +573,12 @@ const DEFAULT_PACKAGES_BASE: TourPackage[] = [
         amenities: ['Riverfront Lawn', 'Multi-Cuisine Dining', 'Heated Bedding'],
       },
     ],
+    importantNotes: [...DEFAULT_TRAVELER_GUIDELINES, 'Yatra RFID registration is mandatory for all pilgrims.'],
     policies: {
-      cancellationPolicy: ['20 days prior: 90% refund.', '10 to 19 days: 50% refund.', 'Under 7 days: non-refundable.'],
-      termsAndConditions: ['Yatra RFID registration is mandatory for all pilgrims.'],
-      paymentPolicy: ['25% Advance deposit to confirm booking.'],
+      cancellationPolicy: [...DEFAULT_CANCELLATION_TERMS],
+      termsAndConditions: [...DEFAULT_TRAVELER_GUIDELINES, 'Yatra RFID registration is mandatory for all pilgrims.'],
+      importantNotes: [...DEFAULT_TRAVELER_GUIDELINES, 'Yatra RFID registration is mandatory for all pilgrims.'],
+      paymentPolicy: [],
     },
   },
 ];

@@ -60,11 +60,25 @@ export const DestinationPage: React.FC = () => {
   } = useTours();
 
   const currentSlug = selectedDestinationSlug || 'kashmir';
+  const normalizeDestMatch = (val?: string | null) =>
+    String(val || '').toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+  const normalizedCurrentSlug = normalizeDestMatch(currentSlug);
+  const destinationList = Object.values(destinations || {}) as DestinationMeta[];
   const destinationMeta: any =
     destinations?.[currentSlug] ||
-    (Object.values(destinations || {}) as DestinationMeta[]).find(d => d.slug === currentSlug || d.id === currentSlug) ||
+    destinationList.find((d) => d.slug === currentSlug || d.id === currentSlug) ||
+    destinationList.find(
+      (d) =>
+        normalizeDestMatch(d.slug) === normalizedCurrentSlug ||
+        normalizeDestMatch(d.id) === normalizedCurrentSlug ||
+        normalizeDestMatch(d.name) === normalizedCurrentSlug ||
+        (normalizedCurrentSlug.includes('himachal') &&
+          (normalizeDestMatch(d.slug).includes('himachal') || normalizeDestMatch(d.name).includes('himachal'))) ||
+        ((normalizedCurrentSlug.includes('jammu') || normalizedCurrentSlug.includes('kashmir')) &&
+          (normalizeDestMatch(d.slug).includes('jammu') || normalizeDestMatch(d.slug).includes('kashmir')))
+    ) ||
     DESTINATIONS_REGISTRY[currentSlug] ||
-    (Object.values(destinations || {}) as DestinationMeta[])[0] ||
+    destinationList[0] ||
     DESTINATIONS_REGISTRY['kashmir'];
 
   const destinationSeoIntro = destinationMeta?.tourPackagesDescription?.trim() || generateDestinationSeoIntroduction(destinationMeta || {});
@@ -120,9 +134,9 @@ export const DestinationPage: React.FC = () => {
   const destinationPackages = useMemo(() => {
     return packages.filter((pkg) => {
       if (pkg.status && pkg.status !== 'published') return false;
-      return matchPackageToDestination(pkg, currentSlug);
+      return matchPackageToDestination(pkg, currentSlug, destinationMeta);
     });
-  }, [packages, currentSlug]);
+  }, [packages, currentSlug, destinationMeta]);
 
   // Apply filters and sorting
   const filteredPackages = useMemo(() => {

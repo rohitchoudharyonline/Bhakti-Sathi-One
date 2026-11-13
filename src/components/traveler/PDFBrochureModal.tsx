@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { TourPackage } from '../../types/tour';
+import { TourPackage, resolveTourPolicies } from '../../types/tour';
 import { useTours } from '../../context/TourContext';
 import { generateTourPDF } from '../../utils/pdfGenerator';
 import {
@@ -328,7 +328,7 @@ export const PDFBrochureModal: React.FC<PDFBrochureModalProps> = ({
                     >
                       <div>
                         <div className="font-bold text-slate-900">
-                          {h.name} <span className="text-brand">{'★'.repeat(h.starRating)}</span>
+                          {h.name} <span className="text-brand">{'★'.repeat(h.starRating || 3)}</span>
                         </div>
                         <div className="text-[11px] text-slate-500">
                           {h.location} • {h.roomType}
@@ -342,6 +342,44 @@ export const PDFBrochureModal: React.FC<PDFBrochureModalProps> = ({
                 </div>
               </div>
             )}
+
+            {/* Policies & Traveler Guidelines */}
+            {(() => {
+              const { importantNotes, cancellationPolicy } = resolveTourPolicies(pkg);
+              return (
+                <div className="space-y-3">
+                  <div className="p-4 bg-white border border-slate-200 rounded-2xl space-y-2.5">
+                    <h4 className="text-xs font-black text-slate-900 uppercase tracking-wide flex items-center gap-1.5">
+                      <FileText className="w-4 h-4 text-[#9b0000]" />
+                      Important Traveler Notes & Guidelines
+                    </h4>
+                    <ul className="space-y-1.5 text-xs text-slate-700">
+                      {importantNotes.map((note, idx) => (
+                        <li key={idx} className="flex items-start gap-2">
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#9b0000] mt-1.5 shrink-0" />
+                          <span>{note}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div className="p-4 bg-white border border-[#F5C2C2] rounded-2xl space-y-2.5">
+                    <h4 className="text-xs font-black text-[#9b0000] uppercase tracking-wide flex items-center gap-1.5">
+                      <AlertCircle className="w-4 h-4 text-[#9b0000]" />
+                      Cancellation & Refund Terms
+                    </h4>
+                    <ul className="space-y-1.5 text-xs text-slate-700">
+                      {cancellationPolicy.map((term, idx) => (
+                        <li key={idx} className="flex items-start gap-2">
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#9b0000] mt-1.5 shrink-0" />
+                          <span>{term}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              );
+            })()}
 
             {/* Footer Notice */}
             <div className="pt-4 border-t-2 border-slate-900 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
