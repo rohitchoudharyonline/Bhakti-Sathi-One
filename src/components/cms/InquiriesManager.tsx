@@ -273,7 +273,7 @@ export const InquiriesManager: React.FC<{
       setQuoteCab(q.cabType || formatCabType(inq, matchedPkg));
       setQuoteInclusions(Array.isArray(q.inclusions) ? q.inclusions.join('\n') : (q.inclusions || ''));
       setQuoteExclusions(Array.isArray(q.exclusions) ? q.exclusions.join('\n') : (q.exclusions || ''));
-      setQuoteNotes(q.notes || (matchedPkg?.importantNotes?.length ? matchedPkg.importantNotes.join('; ') : 'Customized tailored proposal prepared with verified stays and 24/7 on-trip concierge assistance.'));
+      setQuoteNotes(q.notes || 'Customized tailored proposal prepared with verified stays and 24/7 on-trip concierge assistance.');
     } else {
       setQuotePackageId(matchedPkg?.id || '');
       setQuotePackageTitle(matchedPkg?.title || inq.packageTitle || 'Custom Tour Proposal');
@@ -295,11 +295,7 @@ export const InquiriesManager: React.FC<{
           ? matchedPkg.exclusions.join('\n')
           : 'Airfare / Train tickets\nPersonal expenses, laundry, and mini-bar\nCamera / Video fees and monument entry charges\nTips and gratuities for driver and local guides'
       );
-      setQuoteNotes(
-        matchedPkg?.importantNotes?.length
-          ? matchedPkg.importantNotes.join('; ')
-          : 'Customized tailored proposal prepared with verified stays and 24/7 on-trip concierge assistance.'
-      );
+      setQuoteNotes('Customized tailored proposal prepared with verified stays and 24/7 on-trip concierge assistance.');
     }
   };
 
@@ -364,7 +360,7 @@ export const InquiriesManager: React.FC<{
         'Camera / Video fees and monument entry charges',
         'Tips and gratuities for driver and local guides',
       ],
-      notes: matchedPkg?.importantNotes?.length ? matchedPkg.importantNotes.join('; ') : 'Customized tailored proposal prepared with verified stays and 24/7 on-trip concierge assistance.',
+      notes: 'Customized tailored proposal prepared with verified stays and 24/7 on-trip concierge assistance.',
       createdAt: new Date().toISOString(),
     };
     generateQuotationPDF(inq, matchedPkg, quotation, agencySettings);

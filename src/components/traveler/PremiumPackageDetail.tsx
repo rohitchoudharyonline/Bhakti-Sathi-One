@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { useTours } from '../../context/TourContext';
-import { TourPackage, HotelStarCategory } from '../../types/tour';
+import { TourPackage, HotelStarCategory, HOTEL_CATEGORY_OPTIONS, HotelTierKey } from '../../types/tour';
 import { TourDetailsSection } from './TourDetailsSection';
 import { DayWiseItinerary } from './DayWiseItinerary';
 import { formatPackagePrice } from '../../utils/priceHelper';
@@ -54,19 +54,29 @@ interface Props {
 export const PremiumPackageDetail: React.FC<Props> = ({ pkg, onBack }) => {
   const { submitInquiry, toggleWishlist, isWishlisted, agencySettings, mediaAssets, travelerUser, setTravelerUser } = useTours();
 
-  const getInitialTier = (): HotelStarCategory => {
-    const hasTierPrice = (tier: any) =>
-      !!tier &&
-      tier.priceOnRequest !== true &&
-      (Number(tier.discountedPrice || 0) > 0 || Number(tier.price || 0) > 0);
+  const computePackageTierOptions = useMemo(() => {
+    const isExplicitTierConfigured = (tier: any) => {
+      if (!tier || tier.enabled === false) return false;
+      return (
+        tier.enabled === true ||
+        tier.priceOnRequest === true ||
+        Number(tier.discountedPrice || 0) > 0 ||
+        Number(tier.price || 0) > 0
+      );
+    };
 
-    if (hasTierPrice(pkg.pricingTiers?.star3)) return '3-star';
-    if (hasTierPrice(pkg.pricingTiers?.star4)) return '4-star';
-    if (hasTierPrice(pkg.pricingTiers?.star5)) return '5-star';
-    return '3-star';
-  };
+    return HOTEL_CATEGORY_OPTIONS.filter((opt) => {
+      const hasConfiguredTier = isExplicitTierConfigured(pkg.pricingTiers?.[opt.key]);
+      const hasTaggedHotel = Boolean(
+        pkg.hotels?.some((h) => Number(h.starRating) === opt.starRating)
+      );
+      return hasConfiguredTier || hasTaggedHotel;
+    });
+  }, [pkg.pricingTiers, pkg.hotels]);
 
-  const [selectedTier, setSelectedTier] = useState<HotelStarCategory>(getInitialTier);
+  const [selectedTier, setSelectedTier] = useState<HotelStarCategory | null>(
+    () => computePackageTierOptions[0]?.value || null
+  );
 
   const [showEnquiry, setShowEnquiry] = useState(false);
   const [bookingStep, setBookingStep] = useState<'details' | 'review' | 'confirmation'>('details');
@@ -164,81 +174,65 @@ export const PremiumPackageDetail: React.FC<Props> = ({ pkg, onBack }) => {
   const isBasePriceOnRequest = pkg.priceOnRequest || !pkg.price || pkg.price <= 0;
   const basePrice = isBasePriceOnRequest ? 0 : (pkg.discountedPrice ?? pkg.price);
 
-  const tierOptions = useMemo(() => {
-    const known: Array<{ value: HotelStarCategory; key: 'star3' | 'star4' | 'star5'; label: string }> = [
-      { value: '3-star', key: 'star3', label: '3-Star' },
-      { value: '4-star', key: 'star4', label: '4-Star' },
-      { value: '5-star', key: 'star5', label: '5-Star' },
-    ];
-    const hasPrice = (tier: any) =>
-      !!tier &&
-      tier.priceOnRequest !== true &&
-      (Number(tier.discountedPrice || 0) > 0 || Number(tier.price || 0) > 0);
-
-    return known.filter(({ key }) => hasPrice(pkg.pricingTiers?.[key]));
-  }, [pkg.pricingTiers]);
+  const tierOptions = computePackageTierOptions;
 
   useEffect(() => {
-    if (tierOptions.length && !tierOptions.some((option) => option.value === selectedTier)) {
+    if (tierOptions.length === 0) {
+      if (selectedTier !== null) setSelectedTier(null);
+      return;
+    }
+    if (!selectedTier || !tierOptions.some((option) => option.value === selectedTier)) {
       setSelectedTier(tierOptions[0].value);
     }
   }, [tierOptions, selectedTier]);
 
+  const activeTierOption = useMemo(
+    () => (selectedTier ? tierOptions.find((opt) => opt.value === selectedTier) || null : null),
+    [selectedTier, tierOptions]
+  );
+
   const currentTierInfo = useMemo(() => {
-    if (pkg.pricingTiers) {
-      if (selectedTier === '3-star' && pkg.pricingTiers.star3) return pkg.pricingTiers.star3;
-      if (selectedTier === '4-star' && pkg.pricingTiers.star4) return pkg.pricingTiers.star4;
-      if (selectedTier === '5-star' && pkg.pricingTiers.star5) return pkg.pricingTiers.star5;
+    if (!activeTierOption) {
+      return {
+        key: undefined as HotelTierKey | undefined,
+        starRating: null as number | null,
+        tierName: '',
+        price: isBasePriceOnRequest ? 0 : (pkg.price || 0),
+        discountedPrice: isBasePriceOnRequest ? undefined : pkg.discountedPrice,
+        priceOnRequest: isBasePriceOnRequest,
+        mealPlan: '',
+        cabType: '',
+      };
     }
 
-    // Default fallbacks
-    switch (selectedTier) {
-      case '3-star':
-        return {
-          starRating: 3 as const,
-          tierName: 'Deluxe (3-Star)',
-          price: isBasePriceOnRequest ? 0 : Math.round(basePrice * 1.15),
-          discountedPrice: isBasePriceOnRequest ? 0 : basePrice,
-          priceOnRequest: isBasePriceOnRequest,
-          hotelNames: '3-Star Premium Deluxe Hotels & Resorts',
-          mealPlan: 'MAP (Breakfast & Dinner)',
-          cabType: 'Dedicated AC Sedan / Ertiga SUV',
-        };
-      case '4-star':
-        return {
-          starRating: 4 as const,
-          tierName: 'Super Deluxe (4-Star)',
-          price: isBasePriceOnRequest ? 0 : Math.round(basePrice * 1.55),
-          discountedPrice: isBasePriceOnRequest ? 0 : Math.round(basePrice * 1.4),
-          priceOnRequest: isBasePriceOnRequest,
-          hotelNames: '4-Star Luxury Resorts & Heritage Stays',
-          mealPlan: 'MAP (Lavish Buffet Breakfast & Dinner)',
-          cabType: 'Toyota Innova Crysta SUV',
-        };
-      case '5-star':
-        return {
-          starRating: 5 as const,
-          tierName: 'Luxury Heritage (5-Star)',
-          price: isBasePriceOnRequest ? 0 : Math.round(basePrice * 2.3),
-          discountedPrice: isBasePriceOnRequest ? 0 : Math.round(basePrice * 2.05),
-          priceOnRequest: isBasePriceOnRequest,
-          hotelNames: '5-Star Grand Luxury / Palace / Heritage Stays',
-          mealPlan: 'AP (All Meals: Breakfast, Lunch, Dinner)',
-          cabType: 'Chauffeur Driven Luxury SUV',
-        };
-      default:
-        return {
-          starRating: 3 as const,
-          tierName: 'Deluxe (3-Star)',
-          price: basePrice,
-          discountedPrice: basePrice,
-          priceOnRequest: isBasePriceOnRequest,
-          hotelNames: 'Verified Hotels',
-          mealPlan: 'MAP',
-          cabType: 'AC Cab',
-        };
+    const tierObj = pkg.pricingTiers?.[activeTierOption.key];
+    if (tierObj && tierObj.enabled !== false) {
+      const tierHasPrice =
+        Number(tierObj.discountedPrice || 0) > 0 || Number(tierObj.price || 0) > 0;
+      const tierPor = tierObj.priceOnRequest === true || (!tierHasPrice && isBasePriceOnRequest);
+      return {
+        key: activeTierOption.key,
+        starRating: activeTierOption.starRating,
+        tierName: tierObj.tierName || activeTierOption.label,
+        price: tierPor ? 0 : Number(tierObj.price || pkg.price || 0),
+        discountedPrice: tierPor ? undefined : (tierObj.discountedPrice ?? (!tierHasPrice ? pkg.discountedPrice : undefined)),
+        priceOnRequest: tierPor,
+        mealPlan: tierObj.mealPlan || '',
+        cabType: tierObj.cabType || '',
+      };
     }
-  }, [selectedTier, pkg.pricingTiers, basePrice, isBasePriceOnRequest]);
+
+    return {
+      key: activeTierOption.key,
+      starRating: activeTierOption.starRating,
+      tierName: activeTierOption.label,
+      price: isBasePriceOnRequest ? 0 : (pkg.price || 0),
+      discountedPrice: isBasePriceOnRequest ? undefined : pkg.discountedPrice,
+      priceOnRequest: isBasePriceOnRequest,
+      mealPlan: '',
+      cabType: '',
+    };
+  }, [activeTierOption, pkg.pricingTiers, pkg.price, pkg.discountedPrice, isBasePriceOnRequest]);
 
   // Compute active price using priceHelper
   const activePriceResult = formatPackagePrice(
@@ -267,16 +261,21 @@ export const PremiumPackageDetail: React.FC<Props> = ({ pkg, onBack }) => {
 
     const trimmedEmail = email.trim().toLowerCase();
 
+    const tierTitleSuffix = currentTierInfo.tierName ? ` [${currentTierInfo.tierName}]` : '';
+    const tierRequestText = currentTierInfo.tierName
+      ? `Selected Hotel Category: ${currentTierInfo.tierName}. `
+      : '';
+
     submitInquiry({
       packageId: pkg.id,
-      packageTitle: `${pkg.title} [${currentTierInfo.tierName}]`,
+      packageTitle: `${pkg.title}${tierTitleSuffix}`,
       travelerName: name.trim(),
       email: trimmedEmail,
       phone: phone.trim(),
       travelDate: date,
       adults,
       children,
-      specialRequests: `Selected Hotel Tier: ${currentTierInfo.tierName} (${currentTierInfo.starRating}-Star). Rate: ${rateText}. Notes: ${message}`,
+      specialRequests: `${tierRequestText}Rate: ${rateText}. Notes: ${message}`,
       estimatedTotal: activePriceResult.isPriceOnRequest
         ? 0
         : activePriceResult.rawPrice * Math.max(1, adults + children),
@@ -293,7 +292,7 @@ export const PremiumPackageDetail: React.FC<Props> = ({ pkg, onBack }) => {
     setSubmitted(true);
 
     // Open WhatsApp with complete booking inquiry message
-    const confirmMsg = `*New Booking Request* 🛎️\n\n*Package:* ${pkg.title} (${currentTierInfo.tierName})\n*Traveler:* ${name}\n*Email:* ${trimmedEmail}\n*Phone:* ${phone}\n*Travel Date:* ${date}\n*Guests:* ${adults} Adults${children > 0 ? `, ${children} Children` : ''}\n*Rate:* ${rateText}\n*Special Requests:* ${message || 'None'}\n\nPlease check hotel availability and share the confirmed customized itinerary quote!`;
+    const confirmMsg = `*New Booking Request* 🛎️\n\n*Package:* ${pkg.title}${currentTierInfo.tierName ? ` (${currentTierInfo.tierName})` : ''}\n*Traveler:* ${name}\n*Email:* ${trimmedEmail}\n*Phone:* ${phone}\n*Travel Date:* ${date}\n*Guests:* ${adults} Adults${children > 0 ? `, ${children} Children` : ''}\n*Rate:* ${rateText}\n*Special Requests:* ${message || 'None'}\n\nPlease check hotel availability and share the confirmed customized itinerary quote!`;
     const waUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(confirmMsg)}`;
     window.open(waUrl, '_blank');
   };
@@ -301,7 +300,7 @@ export const PremiumPackageDetail: React.FC<Props> = ({ pkg, onBack }) => {
   const handleDownloadPDF = async () => {
     try {
       setDownloadingPdf(true);
-      await generateTourPDF(pkg, agencySettings, undefined, selectedTier === '3-star' ? 'star3' : selectedTier === '4-star' ? 'star4' : 'star5');
+      await generateTourPDF(pkg, agencySettings, undefined, currentTierInfo.key);
     } catch (err) {
       console.error(err);
     } finally {
@@ -310,7 +309,7 @@ export const PremiumPackageDetail: React.FC<Props> = ({ pkg, onBack }) => {
   };
 
   const whatsappInquiryUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(
-    `Hello Holidays Hunt! I am interested in booking *${pkg.title}* with *${currentTierInfo.tierName}* (${activePriceResult.isPriceOnRequest ? 'Price on Request' : `${activePriceResult.displayPrice}/person`}) for ${pkg.durationDays}D/${pkg.durationNights}N. Please confirm hotel details, dates, and pricing.`
+    `Hello Holidays Hunt! I am interested in booking *${pkg.title}*${currentTierInfo.tierName ? ` with *${currentTierInfo.tierName}*` : ''} (${activePriceResult.isPriceOnRequest ? 'Price on Request' : `${activePriceResult.displayPrice}/person`}) for ${pkg.durationDays}D/${pkg.durationNights}N. Please confirm hotel details, dates, and pricing.`
   )}`;
 
   const openReviewsModal = (tab: 'reviews' | 'gallery') => {
@@ -489,40 +488,33 @@ export const PremiumPackageDetail: React.FC<Props> = ({ pkg, onBack }) => {
           </div>
         </section>
 
-        {/* Pricing Card below Gallery (Matching Screenshot 1 & 2) */}
+        {/* Pricing Card below Gallery */}
         <section className="mb-4 bg-white rounded-2xl border border-stone-200 p-3.5 sm:p-5 shadow-xs">
-          <div className="flex items-center justify-between gap-4 pb-3 border-b border-stone-100">
-            <div>
-              <div className="text-[10px] sm:text-[11px] text-stone-500 font-extrabold uppercase tracking-wider flex items-center gap-1">
-                <span>{activePriceResult.isPriceOnRequest ? 'Tour Pricing' : 'Package Price per person'}</span>
-                <button onClick={() => setShowPriceInfoModal(true)} className="text-stone-400 hover:text-stone-700 cursor-pointer" title="View pricing details">
-                  <HelpCircle className="w-3.5 h-3.5" />
-                </button>
-              </div>
-              <div className="flex items-baseline gap-1.5 mt-0.5">
-                <div className="text-2xl sm:text-3xl font-black text-stone-950 tracking-tight">
-                  {activePriceResult.isPriceOnRequest ? 'Price on Request' : activePriceResult.displayPrice}
-                </div>
-                {activePriceResult.originalPrice && !activePriceResult.isPriceOnRequest && (
-                  <span className="text-xs sm:text-sm text-stone-400 line-through font-medium">
-                    {activePriceResult.originalPrice}
-                  </span>
-                )}
-              </div>
+          <div className="pb-3 border-b border-stone-100">
+            <div className="text-[10px] sm:text-[11px] text-stone-500 font-extrabold uppercase tracking-wider flex items-center gap-1">
+              <span>{activePriceResult.isPriceOnRequest ? 'Package Pricing' : 'Package Price per person'}</span>
+              <button onClick={() => setShowPriceInfoModal(true)} className="text-stone-400 hover:text-stone-700 cursor-pointer" title="View pricing details">
+                <HelpCircle className="w-3.5 h-3.5" />
+              </button>
             </div>
-
-            <div className="text-right">
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-[10px] sm:text-xs font-bold">
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                Private Tour
-              </span>
-              <span className="text-[10px] text-stone-500 block mt-1 font-bold">
-                {currentTierInfo.tierName}
-              </span>
+            <div className="flex items-baseline gap-2 mt-1">
+              <div className="text-2xl sm:text-3xl font-black text-stone-950 tracking-tight">
+                {activePriceResult.isPriceOnRequest ? 'Price on Request' : activePriceResult.displayPrice}
+              </div>
+              {activePriceResult.originalPrice && !activePriceResult.isPriceOnRequest && (
+                <span className="text-xs sm:text-sm text-stone-400 line-through font-medium">
+                  {activePriceResult.originalPrice}
+                </span>
+              )}
             </div>
+            {!activePriceResult.isPriceOnRequest && (
+              <p className="text-[11px] text-stone-500 mt-1 leading-snug">
+                Price is based on 2 adults travelling together. The displayed amount is the per-person rate on twin sharing. Single-occupancy pricing may vary.
+              </p>
+            )}
           </div>
 
-          {/* Full-width Compact Brand Yellow/Gold CTA Button */}
+          {/* Full-width Send Inquiry CTA Button */}
           <div className="pt-3">
             <button
               onClick={() => setShowEnquiry(true)}
@@ -533,8 +525,27 @@ export const PremiumPackageDetail: React.FC<Props> = ({ pkg, onBack }) => {
             </button>
           </div>
 
+          {/* Dynamic Hotel Category Selector (only shows categories added in this package) */}
+          {tierOptions.length > 0 && (
+            <div className="pt-2.5 flex items-center justify-between gap-3">
+              <label htmlFor="hh-mobile-hotel-tier" className="text-[11px] font-extrabold uppercase tracking-wider text-stone-500 whitespace-nowrap">
+                Hotel Category
+              </label>
+              <select
+                id="hh-mobile-hotel-tier"
+                value={selectedTier || ''}
+                onChange={(e) => setSelectedTier(e.target.value as HotelStarCategory)}
+                className="min-w-[140px] max-w-[210px] flex-1 rounded-xl border border-stone-300 bg-white px-3 py-2 text-xs font-bold text-stone-900 outline-none focus:border-[#9b0000] cursor-pointer"
+              >
+                {tierOptions.map((option) => (
+                  <option key={option.key} value={option.value}>{option.label}</option>
+                ))}
+              </select>
+            </div>
+          )}
+
           {/* Two-column side-by-side sleeker action widgets for Download PDF and Free Insurance */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2 pt-2 border-t border-stone-100">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2.5 pt-2.5 border-t border-stone-100">
             {/* Download PDF Elegant Compact Row */}
             <button 
               onClick={handleDownloadPDF}
@@ -642,7 +653,7 @@ export const PremiumPackageDetail: React.FC<Props> = ({ pkg, onBack }) => {
 
             {/* Tour details: Flight Details | Accommodation Details | Reporting & Dropping */}
             <div id="tour-details" className="w-full min-w-0 max-w-full">
-              <TourDetailsSection pkg={pkg} />
+              <TourDetailsSection pkg={pkg} selectedStarRating={currentTierInfo.starRating} />
             </div>
           </div>
 
@@ -650,12 +661,14 @@ export const PremiumPackageDetail: React.FC<Props> = ({ pkg, onBack }) => {
           <aside className="hidden lg:block lg:sticky lg:top-20 space-y-3">
             <div className="bg-white border border-stone-300 rounded-2xl shadow-xs p-4 sm:p-5 relative overflow-hidden">
               <div className="flex items-center justify-between pb-2.5 border-b border-stone-100">
-                <span className="px-2 py-0.5 rounded-md bg-stone-100 text-stone-900 text-[10px] font-black uppercase border border-stone-200">
-                  {currentTierInfo.tierName || 'Selected Tier'}
+                <span className="text-[10px] text-stone-500 font-extrabold uppercase tracking-wider">
+                  {activePriceResult.isPriceOnRequest ? 'Package Pricing' : 'Package Price Per Person'}
                 </span>
-                <span className="text-[10px] text-stone-400 font-bold">
-                  {activePriceResult.isPriceOnRequest ? 'Quotation' : 'Per Person'}
-                </span>
+                {currentTierInfo.tierName && (
+                  <span className="px-2 py-0.5 rounded-md bg-stone-100 text-stone-900 text-[10px] font-black uppercase border border-stone-200">
+                    {currentTierInfo.tierName}
+                  </span>
+                )}
               </div>
 
               <div className="flex items-baseline gap-1.5 mt-2.5">
@@ -669,7 +682,7 @@ export const PremiumPackageDetail: React.FC<Props> = ({ pkg, onBack }) => {
                       {activePriceResult.displayPrice}
                     </b>
                     {activePriceResult.originalPrice && (
-                      <span className="text-xs text-stone-400 line-through">
+                      <span className="text-xs sm:text-sm text-stone-400 line-through">
                         {activePriceResult.originalPrice}
                       </span>
                     )}
@@ -685,9 +698,9 @@ export const PremiumPackageDetail: React.FC<Props> = ({ pkg, onBack }) => {
                     </label>
                     <select
                       id="hh-hotel-tier"
-                      value={selectedTier}
+                      value={selectedTier || ''}
                       onChange={(e) => setSelectedTier(e.target.value as HotelStarCategory)}
-                      className="min-w-0 flex-1 max-w-[170px] rounded-lg border border-stone-300 bg-white px-2.5 py-1.5 text-[11px] font-bold text-stone-900 outline-none focus:border-stone-900"
+                      className="min-w-0 flex-1 max-w-[170px] rounded-lg border border-stone-300 bg-white px-2.5 py-1.5 text-[11px] font-bold text-stone-900 outline-none focus:border-stone-900 cursor-pointer"
                     >
                       {tierOptions.map((option) => (
                         <option key={option.key} value={option.value}>{option.label}</option>
@@ -697,11 +710,17 @@ export const PremiumPackageDetail: React.FC<Props> = ({ pkg, onBack }) => {
                 </div>
               )}
 
-              {/* Dynamic Inclusions based on Selected Tier */}
+              {/* Dynamic Summary */}
               <div className="border-t border-stone-100 my-3 pt-2.5 space-y-1.5 text-xs">
-                <Mini label="Hotel Standard" value={`${currentTierInfo.starRating}★ Verified`} />
-                <Mini label="Meal Plan" value={currentTierInfo.mealPlan || 'MAP (Breakfast + Dinner)'} />
-                <Mini label="Private Cab" value={currentTierInfo.cabType || 'Dedicated AC Car'} />
+                {currentTierInfo.starRating && (
+                  <Mini label="Hotel Category" value={currentTierInfo.tierName} />
+                )}
+                {currentTierInfo.mealPlan && (
+                  <Mini label="Meal Plan" value={currentTierInfo.mealPlan} />
+                )}
+                {currentTierInfo.cabType && (
+                  <Mini label="Transport" value={currentTierInfo.cabType} />
+                )}
                 <Mini label="Duration" value={`${pkg.durationDays}D / ${pkg.durationNights}N`} />
                 <Mini label="Pick-up" value={pkg.startLocation} />
               </div>
@@ -950,11 +969,13 @@ export const PremiumPackageDetail: React.FC<Props> = ({ pkg, onBack }) => {
                 <div className="space-y-3.5 mt-3">
                   <div className="p-2.5 rounded-xl bg-stone-50 border border-stone-200 flex items-center justify-between text-xs">
                     <div>
-                      <span className="text-[10px] text-stone-400 uppercase font-black block">Selected Hotel Tier</span>
-                      <b className="text-stone-900">{currentTierInfo.tierName}</b>
+                      <span className="text-[10px] text-stone-400 uppercase font-black block">
+                        {currentTierInfo.tierName ? 'Selected Hotel Category' : 'Package Rate'}
+                      </span>
+                      <b className="text-stone-900">{currentTierInfo.tierName || pkg.durationDays + 'D / ' + pkg.durationNights + 'N'}</b>
                     </div>
                     <span className="text-xs font-black text-stone-900">
-                      {activePriceResult.displayPrice}/person
+                      {activePriceResult.isPriceOnRequest ? 'Price on Request' : `${activePriceResult.displayPrice}/person`}
                     </span>
                   </div>
 

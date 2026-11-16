@@ -10,6 +10,7 @@ import {
   TourInclusionItem,
   TourInclusionIconType,
   PricingTiers,
+  HOTEL_CATEGORY_OPTIONS,
   GroupTourBatch,
   GroupTourDetails,
   DEFAULT_TRAVELER_GUIDELINES,
@@ -315,7 +316,6 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
       {
         id: 'h-1',
         name: 'Grand Royal Resort & Spa',
-        starRating: 5,
         location: 'City Center / Riverfront',
         roomType: 'Deluxe Premier Suite with View',
         nights: 4,
@@ -1388,45 +1388,91 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
 
             {/* Hotel Category Tiers */}
             <div className="pt-6 border-t border-slate-100">
-              <h4 className="text-sm font-black text-slate-900 mb-4">Hotel Category Pricing Tiers</h4>
+              <h4 className="text-sm font-black text-slate-900 mb-1">Hotel Category Pricing Tiers</h4>
+              <p className="text-xs text-slate-500 mb-4">
+                Enable only the hotel categories available for this package (2★ Budget Hotels, 3★, 4★, 5★). Only enabled categories are shown to travelers.
+              </p>
               <div className="grid gap-4">
-                {(['star3', 'star4', 'star5'] as const).map((tierKey) => {
-                  const starNum = tierKey === 'star3' ? 3 : tierKey === 'star4' ? 4 : 5;
-                  const label = tierKey === 'star3' ? '3★ Deluxe' : tierKey === 'star4' ? '4★ Premium' : '5★ Luxury';
-                  const tierData = pricingTiers[tierKey] || {
-                    starRating: starNum, tierName: label, price: price, priceOnRequest: false
+                {HOTEL_CATEGORY_OPTIONS.map((opt) => {
+                  const tierKey = opt.key;
+                  const existingTier = pricingTiers[tierKey];
+                  const isEnabled = Boolean(existingTier && existingTier.enabled !== false);
+                  const tierData = existingTier || {
+                    enabled: false,
+                    starRating: opt.starRating,
+                    tierName: opt.tierName,
+                    price: price,
+                    discountedPrice: discountedPrice,
+                    priceOnRequest: priceOnRequest,
                   };
                   return (
-                    <div key={tierKey} className="bg-slate-50 border border-slate-200 rounded-xl p-4 grid grid-cols-1 sm:grid-cols-4 gap-4 items-end">
+                    <div
+                      key={tierKey}
+                      className={`border rounded-xl p-4 grid grid-cols-1 sm:grid-cols-4 gap-4 items-end transition ${
+                        isEnabled ? 'bg-slate-50 border-slate-300' : 'bg-white border-slate-200/80 opacity-80'
+                      }`}
+                    >
                       <div>
-                        <span className="text-xs font-black text-slate-800 block mb-1">{label} Tier</span>
-                        <label className="flex items-center gap-2 mt-2">
+                        <label className="flex items-center gap-2 cursor-pointer">
                           <input
                             type="checkbox"
-                            checked={tierData.priceOnRequest || false}
+                            checked={isEnabled}
                             onChange={(e) => {
-                              setPricingTiers(prev => ({
-                                ...prev,
-                                [tierKey]: { ...tierData, priceOnRequest: e.target.checked }
-                              }));
+                              if (e.target.checked) {
+                                setPricingTiers((prev) => ({
+                                  ...prev,
+                                  [tierKey]: {
+                                    ...tierData,
+                                    enabled: true,
+                                    starRating: opt.starRating,
+                                    tierName: opt.tierName,
+                                    price: Number(tierData.price ?? price ?? 0),
+                                    discountedPrice: tierData.discountedPrice,
+                                    priceOnRequest: Boolean(tierData.priceOnRequest ?? priceOnRequest),
+                                  },
+                                }));
+                              } else {
+                                setPricingTiers((prev) => {
+                                  const next = { ...prev };
+                                  delete next[tierKey];
+                                  return next;
+                                });
+                              }
                             }}
-                            className="w-4 h-4 text-brand bg-white border-slate-300 rounded focus:ring-brand"
+                            className="w-4 h-4 text-[#9b0000] bg-white border-slate-300 rounded focus:ring-[#9b0000]"
                           />
-                          <span className="text-xs font-bold text-slate-700 cursor-pointer">Price on Request</span>
+                          <span className="text-xs font-black text-slate-900">{opt.cmsLabel}</span>
                         </label>
+
+                        {isEnabled && (
+                          <label className="flex items-center gap-2 mt-2.5 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={Boolean(tierData.priceOnRequest)}
+                              onChange={(e) => {
+                                setPricingTiers((prev) => ({
+                                  ...prev,
+                                  [tierKey]: { ...tierData, enabled: true, starRating: opt.starRating, tierName: opt.tierName, priceOnRequest: e.target.checked },
+                                }));
+                              }}
+                              className="w-4 h-4 text-[#9b0000] bg-white border-slate-300 rounded focus:ring-[#9b0000]"
+                            />
+                            <span className="text-xs font-bold text-slate-700">Price on Request</span>
+                          </label>
+                        )}
                       </div>
-                      
-                      {!tierData.priceOnRequest && (
+
+                      {isEnabled && !tierData.priceOnRequest && (
                         <>
                           <div>
                             <label className="text-xs font-bold text-slate-700 block mb-1">Tier Price</label>
                             <input
                               type="number"
-                              value={tierData.price}
+                              value={tierData.price ?? 0}
                               onChange={(e) => {
-                                setPricingTiers(prev => ({
+                                setPricingTiers((prev) => ({
                                   ...prev,
-                                  [tierKey]: { ...tierData, price: Number(e.target.value) }
+                                  [tierKey]: { ...tierData, enabled: true, starRating: opt.starRating, tierName: opt.tierName, price: Number(e.target.value) },
                                 }));
                               }}
                               className="w-full text-xs font-bold bg-white border border-slate-200 rounded-xl px-3 py-2 focus:border-brand focus:outline-hidden"
@@ -1438,9 +1484,9 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
                               type="number"
                               value={tierData.discountedPrice || ''}
                               onChange={(e) => {
-                                setPricingTiers(prev => ({
+                                setPricingTiers((prev) => ({
                                   ...prev,
-                                  [tierKey]: { ...tierData, discountedPrice: e.target.value ? Number(e.target.value) : undefined }
+                                  [tierKey]: { ...tierData, enabled: true, starRating: opt.starRating, tierName: opt.tierName, discountedPrice: e.target.value ? Number(e.target.value) : undefined },
                                 }));
                               }}
                               className="w-full text-xs font-bold bg-white border border-slate-200 rounded-xl px-3 py-2 focus:border-brand focus:outline-hidden"
@@ -2040,7 +2086,7 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 text-xs">
-                      <div className="sm:col-span-9">
+                      <div className="sm:col-span-6">
                         <label className="font-bold text-slate-700 block mb-1">Hotel Name *</label>
                         <input
                           type="text"
@@ -2049,6 +2095,25 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
                           placeholder="e.g. Radisson Blu Resort & Spa"
                           className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 focus:border-brand focus:outline-hidden font-semibold"
                         />
+                      </div>
+
+                      <div className="sm:col-span-3">
+                        <label className="font-bold text-slate-700 block mb-1">Hotel Category</label>
+                        <select
+                          value={hotel.starRating ? String(hotel.starRating) : ''}
+                          onChange={(e) =>
+                            handleUpdateHotel(hotel.id, {
+                              starRating: e.target.value ? Number(e.target.value) : undefined,
+                            })
+                          }
+                          className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 focus:border-brand focus:outline-hidden font-semibold text-slate-800"
+                        >
+                          <option value="">Not Specified</option>
+                          <option value="2">2-Star (Budget Hotels)</option>
+                          <option value="3">3-Star</option>
+                          <option value="4">4-Star</option>
+                          <option value="5">5-Star</option>
+                        </select>
                       </div>
 
                       <div className="sm:col-span-3">

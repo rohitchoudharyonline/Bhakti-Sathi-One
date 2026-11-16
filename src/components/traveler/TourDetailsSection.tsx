@@ -17,6 +17,7 @@ import {
 interface TourDetailsSectionProps {
   pkg: TourPackage;
   className?: string;
+  selectedStarRating?: number | null;
 }
 
 // Smart clean city extractor
@@ -55,13 +56,19 @@ const extractCleanCity = (location: string, pkgDest: string): string => {
 export const TourDetailsSection: React.FC<TourDetailsSectionProps> = ({
   pkg,
   className = '',
+  selectedStarRating = null,
 }) => {
   const [activeTab, setActiveTab] = useState<'hotels' | 'reporting' | 'policies'>('hotels');
 
   // Build clean accommodation list from pkg.hotels or itinerary fallback
   const accommodationList = useMemo(() => {
     if (pkg.hotels && pkg.hotels.length > 0) {
-      return pkg.hotels.map((h, idx) => {
+      const matchingHotels = selectedStarRating
+        ? pkg.hotels.filter((h) => Number(h.starRating) === Number(selectedStarRating))
+        : [];
+      const sourceHotels = matchingHotels.length > 0 ? matchingHotels : pkg.hotels;
+
+      return sourceHotels.map((h, idx) => {
         const cityPart = (h.location && h.location.trim()) || (h.city && h.city.trim()) || extractCleanCity(h.location || '', pkg.destination);
         const countryPart = h.country || pkg.country || 'India';
         const hotelNameStr =
@@ -166,7 +173,7 @@ export const TourDetailsSection: React.FC<TourDetailsSectionProps> = ({
         amenities: ['24/7 Hot Water', 'Free Wi-Fi', 'Room Heating / Geyser', 'Breakfast & Dinner'],
       },
     ];
-  }, [pkg]);
+  }, [pkg, selectedStarRating]);
 
   return (
     <div className={`bg-white rounded-2xl border border-stone-200 shadow-xs overflow-hidden w-full max-w-full min-w-0 ${className}`}>

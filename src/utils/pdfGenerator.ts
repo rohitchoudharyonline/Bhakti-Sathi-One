@@ -533,13 +533,94 @@ export async function generateQuotationPDF(inq:BookingInquiry,pkg:TourPackage|un
     }
   }
   
-  if(y+140>maxPageHeight){
-    p++;
-    y=next(d,a,'Travel Proposal - Notes',p, logoData, SOFT);
+  const { importantNotes: travelerGuidelines, cancellationPolicy } = resolveTourPolicies(pkg);
+
+  const isLegacyOrDuplicateProposalNote = (line: string): boolean => {
+    const norm = line.trim().toLowerCase();
+    if (!norm) return true;
+    if (travelerGuidelines.some((g) => g.trim().toLowerCase() === norm)) return true;
+    if (cancellationPolicy.some((c) => c.trim().toLowerCase() === norm)) return true;
+    if (
+      (norm.includes('valid government') && norm.includes('photo id')) ||
+      (norm.includes('check-in') && norm.includes('check-out') && norm.includes('2:00 pm')) ||
+      norm.includes('all bookings subject') ||
+      norm.includes('ac will be switched off on hilly')
+    ) {
+      return true;
+    }
+    return false;
+  };
+
+  const extraProposalNotes = String(q.notes || '')
+    .split(/[;\r\n]+/)
+    .map((s) => s.trim())
+    .filter((s) => s && !isLegacyOrDuplicateProposalNote(s));
+
+  if (extraProposalNotes.length > 0) {
+    if (y + 80 > maxPageHeight) {
+      p++;
+      y = next(d, a, 'Travel Proposal - Notes', p, logoData, SOFT);
+    }
+    y = drawSecHeader(d, 'Proposal notes', y);
+    y = para(d, extraProposalNotes.join(' '), y, contentWidth, 9.5) + 12;
   }
-  y=drawSecHeader(d,'Important notes',y);
-  y=para(d,q.notes||'This proposal is prepared exclusively for the traveller named above and is subject to availability.',y,539,9.5)+10;
-  
+
+  // Policies & Cancellation Terms (matching Tour Brochure policies)
+  if (y + 120 > maxPageHeight) {
+    p++;
+    y = next(d, a, 'Travel Proposal - Policies', p, logoData, SOFT);
+  }
+  y = drawSecHeader(d, 'Policies & Terms', y);
+
+  const drawProposalPolicyBlock = (titleText: string, contentArray: string[], isHighlight = false) => {
+    if (!contentArray || contentArray.length === 0) return;
+    d.setFont('helvetica', 'normal');
+    d.setFontSize(9.5);
+    let contentH = 0;
+    const itemLinesList: string[][] = [];
+    contentArray.forEach((item) => {
+      const lines = d.splitTextToSize(clean(item), contentWidth - 46);
+      itemLinesList.push(lines);
+      contentH += lines.length * 13 + 8;
+    });
+    const boxH = 36 + contentH + 10;
+
+    if (y + boxH > maxPageHeight) {
+      p++;
+      y = next(d, a, 'Travel Proposal - Policies', p, logoData, SOFT);
+      y = drawSecHeader(d, 'Policies & Terms (Cont.)', y);
+    }
+
+    drawCard(d, margin, y, contentWidth, boxH, isHighlight ? CREAM : SOFT, isHighlight ? GOLD : LINE);
+
+    d.setFont('helvetica', 'bold');
+    d.setFontSize(10.5);
+    d.setTextColor(isHighlight ? GOLD[0] : INK[0], isHighlight ? GOLD[1] : INK[1], isHighlight ? GOLD[2] : INK[2]);
+    d.text(clean(titleText), margin + 14, y + 22);
+
+    let curItemY = y + 40;
+    d.setFont('helvetica', 'normal');
+    d.setFontSize(9.5);
+    d.setTextColor(...BODY);
+
+    itemLinesList.forEach((lines) => {
+      d.setFillColor(...GOLD);
+      d.circle(margin + 18, curItemY - 3, 2.2, 'F');
+      d.text(lines, margin + 28, curItemY, { lineHeightFactor: 1.35 });
+      curItemY += lines.length * 13 + 8;
+    });
+
+    y += boxH + 16;
+  };
+
+  drawProposalPolicyBlock('Important Traveler Notes & Guidelines', travelerGuidelines, true);
+  drawProposalPolicyBlock('Cancellation & Refund Terms', cancellationPolicy, false);
+
+  if (y + 84 > maxPageHeight) {
+    p++;
+    y = next(d, a, 'Travel Proposal', p, logoData, SOFT);
+  }
+
   drawCard(d, margin, y, contentWidth, 76, CREAM, GOLD);
   d.setFont('helvetica','bold');
   d.setFontSize(9.5);
@@ -1242,12 +1323,22 @@ async function loadBrandLogoData(): Promise<{ dataUrl: string; width: number; he
   return null;
 }
 
-export async function generateTourPDF(pkg:TourPackage,a:AgencySettings,onProgress?:(status:string)=>void, selectedTierKey?: 'star3' | 'star4' | 'star5'):Promise<void>{
+export async function generateTourPDF(pkg:TourPackage,a:AgencySettings,onProgress?:(status:string)=>void, selectedTierKey?: 'star2' | 'star3' | 'star4' | 'star5'):Promise<void>{
   onProgress?.('Preparing official mobile tour brochure...');
   
   const w = 430;
   const margin = 18;
   const contentWidth = w - (margin * 2);
+
+  const selectedTierStarMap: Record<string, number> = { star2: 2, star3: 3, star4: 4, star5: 5 };
+  const targetStar = selectedTierKey ? selectedTierStarMap[selectedTierKey] : undefined;
+  const selectedTierObj = selectedTierKey ? pkg.pricingTiers?.[selectedTierKey] : undefined;
+  const activeHotels = (() => {
+    const allHotels = pkg.hotels || [];
+    if (!targetStar || allHotels.length === 0) return allHotels;
+    const matched = allHotels.filter((h) => Number(h.starRating) === targetStar);
+    return matched.length > 0 ? matched : allHotels;
+  })();
 
   // Load brand logo if available
   const logoData = await loadBrandLogoData();
@@ -1328,19 +1419,19 @@ export async function generateTourPDF(pkg:TourPackage,a:AgencySettings,onProgres
   calcY += 200 + 24; // Snapshot card (2x2 grid, conservative dynamic max)
   tempD.setFont('helvetica','normal');
   tempD.setFontSize(11);
-  const hotelSummaryNamesCalc = pkg.hotels && pkg.hotels.length > 0
-    ? pkg.hotels.map(h => `${h.name} (${getHotelLocation(h, pkg)})`).join(', ')
+  const hotelSummaryNamesCalc = activeHotels.length > 0
+    ? activeHotels.map(h => `${h.name} (${getHotelLocation(h, pkg)})`).join(', ')
     : 'Verified Accommodations & Stays';
   const hLinesCalc = tempD.splitTextToSize(`Hotels: ${clean(hotelSummaryNamesCalc)}`, contentWidth - 52);
-  const mLinesCalc = tempD.splitTextToSize(`Meals: ${clean(pkg.hotels?.[0]?.mealPlan || 'Daily Breakfast & Dinner Included')}`, contentWidth - 52);
+  const mLinesCalc = tempD.splitTextToSize(`Meals: ${clean(activeHotels[0]?.mealPlan || 'Daily Breakfast & Dinner Included')}`, contentWidth - 52);
   const hasCabCalc = Boolean(pkg.transportation && String(pkg.transportation).trim() && !/none|not included|no cab|without cab/i.test(String(pkg.transportation)));
   const cLinesCalc = hasCabCalc ? tempD.splitTextToSize(`Cab: ${clean(pkg.transportation)}`, contentWidth - 52) : [];
   const detailsCardHCalc = 40 + 18 + (hLinesCalc.length * 14.5 + 8) + (mLinesCalc.length * 14.5 + 8) + (cLinesCalc.length > 0 ? (cLinesCalc.length * 14.5 + 8) : 0) + 14;
   calcY += 24 + detailsCardHCalc + 24; // Pricing & Inclusions card
 
-  if (pkg.hotels && pkg.hotels.length > 0) {
+  if (activeHotels.length > 0) {
     calcY += 24;
-    for (const hotel of pkg.hotels) {
+    for (const hotel of activeHotels) {
       tempD.setFont('helvetica', 'bold');
       tempD.setFontSize(12.5);
       const nameLines = tempD.splitTextToSize(clean(hotel.name), contentWidth - 32);
@@ -1546,11 +1637,11 @@ export async function generateTourPDF(pkg:TourPackage,a:AgencySettings,onProgres
   y = drawSecHeader(d, 'Package Pricing & Inclusions', y);
   d.setFont('helvetica','normal');
   d.setFontSize(11);
-  const hotelSummaryNames = pkg.hotels && pkg.hotels.length > 0 
-    ? pkg.hotels.map(h => `${h.name} (${getHotelLocation(h, pkg)})`).join(', ')
+  const hotelSummaryNames = activeHotels.length > 0 
+    ? activeHotels.map(h => `${h.name} (${getHotelLocation(h, pkg)})`).join(', ')
     : 'Verified Accommodations & Stays';
   const hLines = d.splitTextToSize(`Hotels: ${clean(hotelSummaryNames)}`, contentWidth - 52);
-  const mLines = d.splitTextToSize(`Meals: ${clean(pkg.hotels?.[0]?.mealPlan || 'Daily Breakfast & Dinner Included')}`, contentWidth - 52);
+  const mLines = d.splitTextToSize(`Meals: ${clean(activeHotels[0]?.mealPlan || 'Daily Breakfast & Dinner Included')}`, contentWidth - 52);
   
   const hasCab = Boolean(pkg.transportation && String(pkg.transportation).trim() && !/none|not included|no cab|without cab/i.test(String(pkg.transportation)));
   const cabText = hasCab ? `Cab: ${clean(pkg.transportation)}` : '';
@@ -1559,8 +1650,15 @@ export async function generateTourPDF(pkg:TourPackage,a:AgencySettings,onProgres
   // Calculate dynamic height for details card
   const detailsCardH = 40 + 18 + (hLines.length * 14.5 + 8) + (mLines.length * 14.5 + 8) + (cLines.length > 0 ? (cLines.length * 14.5 + 8) : 0) + 14;
   
-  const isPor = pkg.priceOnRequest || (!pkg.price && !pkg.discountedPrice) || ((pkg.price || 0) <= 0 && (!pkg.discountedPrice || pkg.discountedPrice <= 0));
-  const effectivePrice = pkg.discountedPrice && pkg.discountedPrice > 0 ? pkg.discountedPrice : (pkg.price || 0);
+  const tierRawPrice = Number(selectedTierObj?.price || 0);
+  const tierDiscountedPrice = Number(selectedTierObj?.discountedPrice || 0);
+  const tierHasOwnPrice = Boolean(selectedTierObj && (tierRawPrice > 0 || tierDiscountedPrice > 0));
+  const isPor = selectedTierObj
+    ? (selectedTierObj.priceOnRequest === true || (!tierHasOwnPrice && (pkg.priceOnRequest || (!pkg.price && !pkg.discountedPrice) || ((pkg.price || 0) <= 0 && (!pkg.discountedPrice || pkg.discountedPrice <= 0)))))
+    : (pkg.priceOnRequest || (!pkg.price && !pkg.discountedPrice) || ((pkg.price || 0) <= 0 && (!pkg.discountedPrice || pkg.discountedPrice <= 0)));
+  const effectivePrice = tierHasOwnPrice
+    ? (tierDiscountedPrice > 0 ? tierDiscountedPrice : tierRawPrice)
+    : (pkg.discountedPrice && pkg.discountedPrice > 0 ? pkg.discountedPrice : (pkg.price || 0));
   const priceDisplayStr = isPor ? 'Price on Request' : money(effectivePrice);
   const priceFontSize = isPor ? 15 : 20;
 
@@ -1583,9 +1681,9 @@ export async function generateTourPDF(pkg:TourPackage,a:AgencySettings,onProgres
   y += detailsCardH + 24;
 
   // Verified Accommodation & Stays
-  if (pkg.hotels && pkg.hotels.length > 0) {
+  if (activeHotels.length > 0) {
     y = drawSecHeader(d, 'Accommodation & Stays', y);
-    for (const hotel of pkg.hotels) {
+    for (const hotel of activeHotels) {
       d.setFont('helvetica','bold');
       d.setFontSize(12.5);
       const nameLines = d.splitTextToSize(clean(hotel.name), contentWidth - 32);

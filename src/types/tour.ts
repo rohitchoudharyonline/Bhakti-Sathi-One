@@ -87,9 +87,44 @@ export interface HotelStay {
   notes?: string;
 }
 
-export type HotelStarCategory = '3-star' | '4-star' | '5-star';
+export type HotelStarCategory = '2-star' | '3-star' | '4-star' | '5-star';
+
+export type HotelTierKey = 'star2' | 'star3' | 'star4' | 'star5';
+
+export const HOTEL_CATEGORY_OPTIONS: Array<{
+  key: HotelTierKey;
+  value: HotelStarCategory;
+  starRating: 2 | 3 | 4 | 5;
+  label: string;
+  cmsLabel: string;
+  tierName: string;
+}> = [
+  { key: 'star2', value: '2-star', starRating: 2, label: '2-Star (Budget)', cmsLabel: '2★ Budget Hotels', tierName: '2-Star (Budget)' },
+  { key: 'star3', value: '3-star', starRating: 3, label: '3-Star', cmsLabel: '3★ Deluxe', tierName: '3-Star' },
+  { key: 'star4', value: '4-star', starRating: 4, label: '4-Star', cmsLabel: '4★ Premium', tierName: '4-Star' },
+  { key: 'star5', value: '5-star', starRating: 5, label: '5-Star', cmsLabel: '5★ Luxury', tierName: '5-Star' },
+];
+
+export interface PricingTierConfig {
+  enabled?: boolean;
+  starRating?: number;
+  tierName?: string;
+  price?: number;
+  discountedPrice?: number;
+  priceOnRequest?: boolean;
+  hotelNames?: string;
+  roomType?: string;
+  mealPlan?: string;
+  cabType?: string;
+  keyHighlights?: string[];
+  hotels?: string[];
+}
 
 export interface PricingTiers {
+  star2?: PricingTierConfig;
+  star3?: PricingTierConfig;
+  star4?: PricingTierConfig;
+  star5?: PricingTierConfig;
   standard?: { price: number; hotels?: string[] };
   deluxe?: { price: number; hotels?: string[] };
   luxury?: { price: number; hotels?: string[] };
