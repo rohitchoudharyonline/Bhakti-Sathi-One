@@ -63,10 +63,17 @@ export const TourDetailsSection: React.FC<TourDetailsSectionProps> = ({
   // Build clean accommodation list from pkg.hotels or itinerary fallback
   const accommodationList = useMemo(() => {
     if (pkg.hotels && pkg.hotels.length > 0) {
-      const matchingHotels = selectedStarRating
-        ? pkg.hotels.filter((h) => Number(h.starRating) === Number(selectedStarRating))
-        : [];
-      const sourceHotels = matchingHotels.length > 0 ? matchingHotels : pkg.hotels;
+      const normalizeStar = (val: unknown): number | null => {
+        const n = Number(val);
+        if (!Number.isFinite(n) || n <= 0) return null;
+        return Math.min(5, Math.max(2, Math.round(n)));
+      };
+      const hasTaggedHotels = pkg.hotels.some((h) => normalizeStar(h.starRating) !== null);
+      const targetStar = normalizeStar(selectedStarRating);
+      const sourceHotels =
+        targetStar && hasTaggedHotels
+          ? pkg.hotels.filter((h) => normalizeStar(h.starRating) === targetStar)
+          : pkg.hotels;
 
       return sourceHotels.map((h, idx) => {
         const cityPart = (h.location && h.location.trim()) || (h.city && h.city.trim()) || extractCleanCity(h.location || '', pkg.destination);

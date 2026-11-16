@@ -118,10 +118,10 @@ export default {
     const url = new URL(request.url), pathname = url.pathname;
     if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: publicHeaders(env, request) });
 
-    // Safely retrieve or generate random fallbacks for edge runtime
-    const cmsSecret = (env.CMS_SESSION_SECRET && String(env.CMS_SESSION_SECRET).trim().length >= 32) 
-      ? String(env.CMS_SESSION_SECRET).trim() 
-      : crypto.randomUUID().replace(/-/g, '') + crypto.randomUUID().replace(/-/g, ''); // Generate 64 char random fallback
+    // Safely retrieve or use deterministic fallback matching cms-auth-wrapper when CMS_SESSION_SECRET is not configured
+    const cmsSecret = (env.CMS_SESSION_SECRET && String(env.CMS_SESSION_SECRET).trim().length >= 32)
+      ? String(env.CMS_SESSION_SECRET).trim()
+      : 'bhakti-bharat-yatra-cms-secret-session-key-32-chars-ok';
 
     const defaultEmails = ['rohitchoudharyonline@gmail.com', 'holidayshunt@gmail.com', 'admin@example.com', 'staff@bhaktibharatyatra.com'];
     const cmsEmails = new Set([...defaultEmails, ...String(env.CMS_STAFF_EMAILS || '').split(',').map(text).map((x) => x.toLowerCase()).filter(Boolean)]);
@@ -206,7 +206,7 @@ export default {
           if (Array.isArray(packages)) for (const pkg of packages) {
             const id = String(pkg?.id || '').trim().toLowerCase();
             const slug = String(pkg?.slug || '').trim().toLowerCase();
-            if (!id || !slug || deleted.has(id) || deleted.has(slug)) continue;
+            if (!id || !slug || deleted.has(id)) continue;
             add(`/tours/${encodeURIComponent(slug)}`, 'weekly', '0.9', pkg?.updatedAt || pkg?.updated_at || today);
           }
 
@@ -917,8 +917,7 @@ export default {
 
                 const isDeleted = (pkg: any) => {
                   const pkgId = String(pkg?.id || '').trim().toLowerCase();
-                  const pkgSlug = String(pkg?.slug || '').trim().toLowerCase();
-                  return (pkgId && deletedSet.has(pkgId)) || (pkgSlug && deletedSet.has(pkgSlug));
+                  return Boolean(pkgId && deletedSet.has(pkgId));
                 };
 
                 const incoming = incomingRaw.filter((pkg: any) => !isDeleted(pkg));
@@ -936,18 +935,14 @@ export default {
                         ? JSON.parse(existingStructured.value)
                         : existingStructured?.value;
                       const existingTours = Array.isArray(existingValue) ? existingValue : [];
-                      const incomingIds = new Set(incoming.map((pkg: any) => String(pkg?.id || '')));
-                      const incomingSlugs = new Set(incoming.map((pkg: any) => String(pkg?.slug || '').trim().toLowerCase()));
+                      const incomingIds = new Set(incoming.map((pkg: any) => String(pkg?.id || '').trim().toLowerCase()).filter(Boolean));
                       const merged = [
                         ...incoming,
                         ...existingTours.filter((pkg: any) => {
                           const pkgId = String(pkg?.id || '').trim().toLowerCase();
-                          const pkgSlug = String(pkg?.slug || '').trim().toLowerCase();
-                          const id = String(pkg?.id || '');
-                          return id &&
+                          return pkgId &&
                             !isDeleted(pkg) &&
-                            !incomingIds.has(id) &&
-                            (!pkgSlug || !incomingSlugs.has(pkgSlug));
+                            !incomingIds.has(pkgId);
                         }),
                       ];
                       b.structured_content = {

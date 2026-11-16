@@ -248,7 +248,35 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
   const [priceOnRequest, setPriceOnRequest] = useState<boolean>(
     initialPackage?.priceOnRequest ?? (initialPackage?.price === 0)
   );
-  const [pricingTiers, setPricingTiers] = useState<PricingTiers>(initialPackage?.pricingTiers || {});
+  const [pricingTiers, setPricingTiers] = useState<PricingTiers>(() => {
+    const raw = initialPackage?.pricingTiers;
+    if (!raw || typeof raw !== 'object') return {};
+    const taggedStars = new Set<number>(
+      (initialPackage?.hotels || [])
+        .map((h) => {
+          const n = Number(h.starRating);
+          return Number.isFinite(n) && n > 0 ? Math.min(5, Math.max(2, Math.round(n))) : null;
+        })
+        .filter((s): s is number => s !== null)
+    );
+    const cleaned: PricingTiers = {};
+    for (const opt of HOTEL_CATEGORY_OPTIONS) {
+      const t = raw[opt.key];
+      if (!t || t.enabled === false) continue;
+      const hasTaggedHotel = taggedStars.has(opt.starRating);
+      const hasLegacyNamedPrice = Boolean(
+        typeof t.hotelNames === 'string' &&
+        t.hotelNames.trim().length > 0 &&
+        (Number(t.price || 0) > 0 || Number(t.discountedPrice || 0) > 0)
+      );
+      if (t.enabled === true || hasTaggedHotel || hasLegacyNamedPrice) {
+        if (taggedStars.size === 0 || hasTaggedHotel || (t.enabled === true && Boolean(t.hotelNames?.trim()))) {
+          cleaned[opt.key] = { ...t, enabled: true, starRating: opt.starRating, tierName: t.tierName || opt.tierName };
+        }
+      }
+    }
+    return cleaned;
+  });
   const [currency, setCurrency] = useState(initialPackage?.currency || agencySettings.currencySymbol);
   const [status, setStatus] = useState<'published' | 'draft'>(initialPackage?.status || 'published');
   const [featured, setFeatured] = useState<boolean>(initialPackage?.featured ?? true);
@@ -433,7 +461,16 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
       price: Number(price) || 0,
       discountedPrice: discountedPrice && Number(discountedPrice) > 0 ? Number(discountedPrice) : undefined,
       priceOnRequest: priceOnRequest || Number(price) <= 0,
-      pricingTiers,
+      pricingTiers: (() => {
+        const cleaned: PricingTiers = {};
+        for (const opt of HOTEL_CATEGORY_OPTIONS) {
+          const t = pricingTiers?.[opt.key];
+          if (t && t.enabled === true) {
+            cleaned[opt.key] = { ...t, enabled: true, starRating: opt.starRating, tierName: t.tierName || opt.tierName };
+          }
+        }
+        return cleaned;
+      })(),
       currency: currency || agencySettings.currencySymbol,
       rating: initialPackage?.rating || 4.9,
       reviewCount: initialPackage?.reviewCount || 24,
@@ -1398,7 +1435,7 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
                 {HOTEL_CATEGORY_OPTIONS.map((opt) => {
                   const tierKey = opt.key;
                   const existingTier = pricingTiers[tierKey];
-                  const isEnabled = Boolean(existingTier && existingTier.enabled !== false);
+                  const isEnabled = Boolean(existingTier && existingTier.enabled === true);
                   const tierData = existingTier || {
                     enabled: false,
                     starRating: opt.starRating,

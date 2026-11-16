@@ -148,6 +148,48 @@ const inFlightPushes = new Map<string, Promise<boolean>>();
 const pendingSyncQueue = new Map<string, { value: string; options: { allowMediaDeletion?: boolean; allowTourDeletion?: boolean } }>();
 const lastSyncedTimestamps = new Map<string, number>();
 
+const PENDING_TOUR_SYNC_KEY = 'hh_pending_tour_sync_ids';
+
+export function getPendingTourSyncIds(): string[] {
+  if (typeof window === 'undefined') return [];
+  try {
+    const raw = window.localStorage.getItem(PENDING_TOUR_SYNC_KEY);
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed.map((x) => String(x || '').trim()).filter(Boolean) : [];
+  } catch {
+    return [];
+  }
+}
+
+export function markTourPackagesPendingSync(ids: string[]): void {
+  if (typeof window === 'undefined' || !Array.isArray(ids) || ids.length === 0) return;
+  try {
+    const current = new Set(getPendingTourSyncIds());
+    for (const id of ids) {
+      const clean = String(id || '').trim();
+      if (clean) current.add(clean);
+    }
+    window.localStorage.setItem(PENDING_TOUR_SYNC_KEY, JSON.stringify(Array.from(current)));
+  } catch {}
+}
+
+export function clearPendingTourSyncIds(ids?: string[]): void {
+  if (typeof window === 'undefined') return;
+  try {
+    if (!ids) {
+      window.localStorage.removeItem(PENDING_TOUR_SYNC_KEY);
+      return;
+    }
+    const removeSet = new Set(ids.map((x) => String(x || '').trim().toLowerCase()).filter(Boolean));
+    const remaining = getPendingTourSyncIds().filter((id) => !removeSet.has(id.toLowerCase()));
+    if (remaining.length === 0) {
+      window.localStorage.removeItem(PENDING_TOUR_SYNC_KEY);
+    } else {
+      window.localStorage.setItem(PENDING_TOUR_SYNC_KEY, JSON.stringify(remaining));
+    }
+  } catch {}
+}
+
 /**
  * Extracts rows from different possible backend envelope formats:
  * { data: [...] }, { contents: [...] }, { results: [...] }, or direct array [...].
@@ -353,6 +395,23 @@ export async function loadAuthoritativeServerContent(): Promise<boolean> {
       }
     } catch {}
 
+    // Preserve any locally created/edited tour packages that have not yet been
+    // confirmed by D1 so an interrupted sync or page reload cannot lose them.
+    let pendingLocalPackages: any[] = [];
+    try {
+      const pendingIds = new Set(getPendingTourSyncIds().map((x) => x.toLowerCase()));
+      const rawPkgs = window.localStorage.getItem('hh_tour_packages_v2');
+      if (rawPkgs && pendingIds.size > 0) {
+        const parsedPkgs = JSON.parse(rawPkgs);
+        if (Array.isArray(parsedPkgs)) {
+          pendingLocalPackages = parsedPkgs.filter((pkg: any) => {
+            const id = String(pkg?.id || '').trim().toLowerCase();
+            return id && pendingIds.has(id) && !DISALLOWED_DUMMY_PACKAGE_IDS.has(String(pkg?.id || ''));
+          });
+        }
+      }
+    } catch {}
+
     // Purge stale browser copies first so legacy/dummy content cannot flash or be pushed back.
     clearSharedRegistryCache();
 
@@ -372,6 +431,24 @@ export async function loadAuthoritativeServerContent(): Promise<boolean> {
       }
       if (localGuideCategoriesForMigration) {
         try { window.localStorage.setItem('hh_guide_categories_v2', localGuideCategoriesForMigration); } catch {}
+      }
+      if (pendingLocalPackages.length > 0) {
+        try {
+          const rawCurrent = window.localStorage.getItem('hh_tour_packages_v2');
+          const current = rawCurrent ? JSON.parse(rawCurrent) : [];
+          const mergedMap = new Map<string, any>();
+          for (const pkg of pendingLocalPackages) {
+            const id = String(pkg?.id || '').trim();
+            if (id) mergedMap.set(id.toLowerCase(), pkg);
+          }
+          if (Array.isArray(current)) {
+            for (const pkg of current) {
+              const id = String(pkg?.id || '').trim();
+              if (id && !mergedMap.has(id.toLowerCase())) mergedMap.set(id.toLowerCase(), pkg);
+            }
+          }
+          window.localStorage.setItem('hh_tour_packages_v2', JSON.stringify(Array.from(mergedMap.values())));
+        } catch {}
       }
       return false;
     }
@@ -393,6 +470,26 @@ export async function loadAuthoritativeServerContent(): Promise<boolean> {
         try {
           window.localStorage.setItem('hh_guide_categories_v2', localGuideCategoriesForMigration);
           void syncRegistryToServer('hh_guide_categories_v2', localGuideCategoriesForMigration);
+        } catch {}
+      }
+      if (pendingLocalPackages.length > 0) {
+        try {
+          const rawCurrent = window.localStorage.getItem('hh_tour_packages_v2');
+          const current = rawCurrent ? JSON.parse(rawCurrent) : [];
+          const mergedMap = new Map<string, any>();
+          for (const pkg of pendingLocalPackages) {
+            const id = String(pkg?.id || '').trim();
+            if (id) mergedMap.set(id.toLowerCase(), pkg);
+          }
+          if (Array.isArray(current)) {
+            for (const pkg of current) {
+              const id = String(pkg?.id || '').trim();
+              if (id && !mergedMap.has(id.toLowerCase())) mergedMap.set(id.toLowerCase(), pkg);
+            }
+          }
+          const serialized = JSON.stringify(Array.from(mergedMap.values()));
+          window.localStorage.setItem('hh_tour_packages_v2', serialized);
+          void syncRegistryToServer('hh_tour_packages_v2', serialized);
         } catch {}
       }
       return false;
@@ -596,18 +693,58 @@ export async function loadAuthoritativeServerContent(): Promise<boolean> {
       }
     } catch {}
 
+    let packagesNeedRetrySync = false;
     const packageItemForDeletion = serverItemsByKey.get('hh_tour_packages_v2');
     if (packageItemForDeletion) {
       try {
         const parsed = JSON.parse(packageItemForDeletion.value);
-        if (Array.isArray(parsed) && deletedPackageIds.size > 0) {
-          packageItemForDeletion.value = JSON.stringify(parsed.filter((pkg: any) => {
-            const id = String(pkg?.id || '').trim().toLowerCase();
-            const slug = String(pkg?.slug || '').trim().toLowerCase();
-            return id && !deletedPackageIds.has(id) && !deletedPackageIds.has(slug);
-          }));
+        if (Array.isArray(parsed)) {
+          let filtered = deletedPackageIds.size > 0
+            ? parsed.filter((pkg: any) => {
+                const id = String(pkg?.id || '').trim().toLowerCase();
+                return id && !deletedPackageIds.has(id);
+              })
+            : parsed;
+
+          if (pendingLocalPackages.length > 0) {
+            const activePending = pendingLocalPackages.filter((pkg: any) => {
+              const id = String(pkg?.id || '').trim().toLowerCase();
+              return id && !deletedPackageIds.has(id);
+            });
+            if (activePending.length > 0) {
+              const pendingById = new Map<string, any>();
+              for (const pkg of activePending) {
+                pendingById.set(String(pkg.id).trim().toLowerCase(), pkg);
+              }
+              const merged = [
+                ...activePending,
+                ...filtered.filter((pkg: any) => {
+                  const id = String(pkg?.id || '').trim().toLowerCase();
+                  return id && !pendingById.has(id);
+                }),
+              ];
+              filtered = merged;
+              packagesNeedRetrySync = true;
+            }
+          }
+
+          packageItemForDeletion.value = JSON.stringify(filtered);
         }
       } catch {}
+    } else if (pendingLocalPackages.length > 0) {
+      const activePending = pendingLocalPackages.filter((pkg: any) => {
+        const id = String(pkg?.id || '').trim().toLowerCase();
+        return id && !deletedPackageIds.has(id);
+      });
+      if (activePending.length > 0) {
+        serverItemsByKey.set('hh_tour_packages_v2', {
+          id: 'registry-packages',
+          storageKey: 'hh_tour_packages_v2',
+          value: JSON.stringify(activePending),
+          updatedAt: new Date().toISOString(),
+        });
+        packagesNeedRetrySync = true;
+      }
     }
 
     // Merge guide deletion tombstones from localStorage with the server copy.
@@ -745,6 +882,13 @@ export async function loadAuthoritativeServerContent(): Promise<boolean> {
       void syncRegistryToServer(
         'hh_media_assets_v2',
         serverItemsByKey.get('hh_media_assets_v2')!.value
+      );
+    }
+
+    if (packagesNeedRetrySync && serverItemsByKey.has('hh_tour_packages_v2')) {
+      void syncRegistryToServer(
+        'hh_tour_packages_v2',
+        serverItemsByKey.get('hh_tour_packages_v2')!.value
       );
     }
 
@@ -907,6 +1051,14 @@ export async function syncRegistryToServer(
         const now = Date.now();
         lastSyncedTimestamps.set(key, now);
         window.localStorage.setItem(`_sync_time_${key}`, String(now));
+        if (key === 'hh_tour_packages_v2') {
+          try {
+            const pushed = JSON.parse(value);
+            if (Array.isArray(pushed)) {
+              clearPendingTourSyncIds(pushed.map((p: any) => String(p?.id || '')).filter(Boolean));
+            }
+          } catch {}
+        }
         return true;
       }
 
@@ -924,8 +1076,31 @@ export async function syncRegistryToServer(
           const now = Date.now();
           lastSyncedTimestamps.set(key, now);
           window.localStorage.setItem(`_sync_time_${key}`, String(now));
+          if (key === 'hh_tour_packages_v2') {
+            try {
+              const pushed = JSON.parse(value);
+              if (Array.isArray(pushed)) {
+                clearPendingTourSyncIds(pushed.map((p: any) => String(p?.id || '')).filter(Boolean));
+              }
+            } catch {}
+          }
           return true;
         }
+      }
+
+      if (key === 'hh_tour_packages_v2') {
+        const status = putRes?.status || 0;
+        console.warn(`[ContentSync] Failed to push tour packages to server (status ${status}).`);
+        try {
+          window.dispatchEvent(new CustomEvent('holidayshunt_tour_sync_error', {
+            detail: {
+              status,
+              message: status === 401
+                ? 'CMS session expired or unauthorized on server. Please log out and log in again so your tour saves for all visitors.'
+                : 'Could not confirm tour save with server database. Please check connection and save again.',
+            },
+          }));
+        } catch {}
       }
 
       // If unauthenticated or offline, do not overwrite or crash

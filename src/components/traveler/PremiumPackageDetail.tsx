@@ -55,22 +55,36 @@ export const PremiumPackageDetail: React.FC<Props> = ({ pkg, onBack }) => {
   const { submitInquiry, toggleWishlist, isWishlisted, agencySettings, mediaAssets, travelerUser, setTravelerUser } = useTours();
 
   const computePackageTierOptions = useMemo(() => {
-    const isExplicitTierConfigured = (tier: any) => {
-      if (!tier || tier.enabled === false) return false;
-      return (
-        tier.enabled === true ||
-        tier.priceOnRequest === true ||
-        Number(tier.discountedPrice || 0) > 0 ||
-        Number(tier.price || 0) > 0
-      );
+    const normalizeStar = (val: unknown): number | null => {
+      const n = Number(val);
+      if (!Number.isFinite(n) || n <= 0) return null;
+      return Math.min(5, Math.max(2, Math.round(n)));
     };
 
-    return HOTEL_CATEGORY_OPTIONS.filter((opt) => {
-      const hasConfiguredTier = isExplicitTierConfigured(pkg.pricingTiers?.[opt.key]);
-      const hasTaggedHotel = Boolean(
-        pkg.hotels?.some((h) => Number(h.starRating) === opt.starRating)
+    const taggedHotelStars = new Set<number>(
+      (pkg.hotels || [])
+        .map((h) => normalizeStar(h.starRating))
+        .filter((s): s is number => s !== null)
+    );
+
+    const isLegacyNamedTier = (tier: any) =>
+      Boolean(
+        tier &&
+        tier.enabled !== false &&
+        typeof tier.hotelNames === 'string' &&
+        tier.hotelNames.trim().length > 0 &&
+        (Number(tier.discountedPrice || 0) > 0 || Number(tier.price || 0) > 0)
       );
-      return hasConfiguredTier || hasTaggedHotel;
+
+    return HOTEL_CATEGORY_OPTIONS.filter((opt) => {
+      const tier = pkg.pricingTiers?.[opt.key];
+      if (taggedHotelStars.size > 0) {
+        return (
+          taggedHotelStars.has(opt.starRating) ||
+          Boolean(tier && tier.enabled === true && typeof tier.hotelNames === 'string' && tier.hotelNames.trim().length > 0)
+        );
+      }
+      return Boolean(tier && tier.enabled === true) || isLegacyNamedTier(tier);
     });
   }, [pkg.pricingTiers, pkg.hotels]);
 

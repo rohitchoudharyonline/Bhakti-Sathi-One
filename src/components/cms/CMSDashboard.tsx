@@ -284,6 +284,21 @@ export const CMSDashboard: React.FC = () => {
   };
 
   const [invoiceInquiry, setInvoiceInquiry] = useState<BookingInquiry | null>(null);
+  const [tourSyncError, setTourSyncError] = useState<string>('');
+
+  useEffect(() => {
+    const onSyncError = (ev: Event) => {
+      const detail = (ev as CustomEvent<{ message?: string }>).detail;
+      if (detail?.message) setTourSyncError(detail.message);
+    };
+    const onSynced = () => setTourSyncError('');
+    window.addEventListener('holidayshunt_tour_sync_error', onSyncError);
+    window.addEventListener('holidayshunt_content_synced', onSynced);
+    return () => {
+      window.removeEventListener('holidayshunt_tour_sync_error', onSyncError);
+      window.removeEventListener('holidayshunt_content_synced', onSynced);
+    };
+  }, []);
 
   const handleConvertInquiryToInvoice = (inquiry: BookingInquiry) => {
     setInvoiceInquiry(inquiry);
@@ -1355,6 +1370,18 @@ export const CMSDashboard: React.FC = () => {
         {/* TAB 9: PACKAGES CATALOG */}
         {activeCmsTab === 'packages' && canAccess('packages') && !isTabLoading && (
           <div className="space-y-6">
+            {tourSyncError && (
+              <div className="bg-rose-50 border border-rose-200 text-rose-800 px-4 py-3 rounded-2xl text-xs font-bold flex items-center justify-between gap-3">
+                <span>⚠️ {tourSyncError}</span>
+                <button
+                  type="button"
+                  onClick={() => setTourSyncError('')}
+                  className="text-rose-600 hover:text-rose-900 font-black cursor-pointer shrink-0"
+                >
+                  Dismiss
+                </button>
+              </div>
+            )}
             {/* Packages Management Action Bar */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-stone-200 shadow-2xs">
               <div>

@@ -1336,8 +1336,14 @@ export async function generateTourPDF(pkg:TourPackage,a:AgencySettings,onProgres
   const activeHotels = (() => {
     const allHotels = pkg.hotels || [];
     if (!targetStar || allHotels.length === 0) return allHotels;
-    const matched = allHotels.filter((h) => Number(h.starRating) === targetStar);
-    return matched.length > 0 ? matched : allHotels;
+    const normalizeStar = (val: unknown): number | null => {
+      const n = Number(val);
+      if (!Number.isFinite(n) || n <= 0) return null;
+      return Math.min(5, Math.max(2, Math.round(n)));
+    };
+    const hasTaggedHotels = allHotels.some((h) => normalizeStar(h.starRating) !== null);
+    if (!hasTaggedHotels) return allHotels;
+    return allHotels.filter((h) => normalizeStar(h.starRating) === targetStar);
   })();
 
   // Load brand logo if available
@@ -1421,7 +1427,7 @@ export async function generateTourPDF(pkg:TourPackage,a:AgencySettings,onProgres
   tempD.setFontSize(11);
   const hotelSummaryNamesCalc = activeHotels.length > 0
     ? activeHotels.map(h => `${h.name} (${getHotelLocation(h, pkg)})`).join(', ')
-    : 'Verified Accommodations & Stays';
+    : (selectedTierObj?.hotelNames?.trim() || 'Verified Accommodations & Stays');
   const hLinesCalc = tempD.splitTextToSize(`Hotels: ${clean(hotelSummaryNamesCalc)}`, contentWidth - 52);
   const mLinesCalc = tempD.splitTextToSize(`Meals: ${clean(activeHotels[0]?.mealPlan || 'Daily Breakfast & Dinner Included')}`, contentWidth - 52);
   const hasCabCalc = Boolean(pkg.transportation && String(pkg.transportation).trim() && !/none|not included|no cab|without cab/i.test(String(pkg.transportation)));
@@ -1639,7 +1645,7 @@ export async function generateTourPDF(pkg:TourPackage,a:AgencySettings,onProgres
   d.setFontSize(11);
   const hotelSummaryNames = activeHotels.length > 0 
     ? activeHotels.map(h => `${h.name} (${getHotelLocation(h, pkg)})`).join(', ')
-    : 'Verified Accommodations & Stays';
+    : (selectedTierObj?.hotelNames?.trim() || 'Verified Accommodations & Stays');
   const hLines = d.splitTextToSize(`Hotels: ${clean(hotelSummaryNames)}`, contentWidth - 52);
   const mLines = d.splitTextToSize(`Meals: ${clean(activeHotels[0]?.mealPlan || 'Daily Breakfast & Dinner Included')}`, contentWidth - 52);
   

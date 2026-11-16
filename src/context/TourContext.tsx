@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import {
   TourPackage,
   BookingInquiry,
@@ -31,7 +31,7 @@ import { DEFAULT_PAGE_SEO_CONFIGS } from '../data/defaultPageSeoData';
 import { DEFAULT_PUSH_NOTIFICATIONS, DEFAULT_PUSH_SUBSCRIBERS, DEFAULT_PUSH_SETTINGS } from '../data/defaultPushData';
 import { DEFAULT_TEMPLES_DATA, TemplePlace } from '../data/templesData';
 import { initMediaStorage, saveMediaAssetToDb, saveAllMediaAssetsToDb, deleteMediaAssetFromDb } from '../utils/mediaStorage';
-import { fetchDestinationsFromServer, saveDestinationToServer, deleteDestinationFromServer, loadAuthoritativeServerContent, syncRegistryToServer } from '../services/contentSyncService';
+import { fetchDestinationsFromServer, saveDestinationToServer, deleteDestinationFromServer, loadAuthoritativeServerContent, syncRegistryToServer, markTourPackagesPendingSync, clearPendingTourSyncIds } from '../services/contentSyncService';
 
 export interface SystemSearchParams {
   destinationSlug?: string;
@@ -407,8 +407,10 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Helper to unmark entity when created or re-added
   const unmarkItemDeleted = (key: string, idOrSlug: string) => {
     try {
+      const target = String(idOrSlug || '').trim().toLowerCase();
+      if (!target) return;
       const items = getDeletedItems(key);
-      const filtered = items.filter((x) => x !== idOrSlug);
+      const filtered = items.filter((x) => String(x || '').trim().toLowerCase() !== target);
       localStorage.setItem(key, JSON.stringify(filtered));
     } catch {}
   };
@@ -462,8 +464,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return parsed
         .filter((pkg: TourPackage) => {
           const id = String(pkg?.id || '').trim().toLowerCase();
-          const slug = String(pkg?.slug || '').trim().toLowerCase();
-          return !DISALLOWED_DUMMY_PKG_IDS.has(String(pkg?.id || '')) && !deletedPkgIds.has(id) && !deletedPkgIds.has(slug);
+          return id && !DISALLOWED_DUMMY_PKG_IDS.has(String(pkg?.id || '')) && !deletedPkgIds.has(id);
         })
         .map((pkg: TourPackage) => {
           const cat = normalizePackageCategory(pkg.category || pkg.tourType);
@@ -1859,6 +1860,9 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => window.removeEventListener('popstate', parseUrl);
   }, []);
 
+  const packagesRef = useRef<TourPackage[]>(packages);
+  packagesRef.current = packages;
+
   // Sync to LocalStorage
   useEffect(() => {
     try {
@@ -2051,12 +2055,11 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setDestinations(clean);
           }
         } else if (e.key === STORAGE_KEYS.PACKAGES && e.newValue) {
-          const deletedPkgIds = getDeletedItems('hh_deleted_package_ids').map((id) => String(id).trim().toLowerCase());
+          const deletedPkgIds = new Set(getDeletedItems('hh_deleted_package_ids').map((id) => String(id).trim().toLowerCase()));
           const parsed = JSON.parse(e.newValue);
           if (Array.isArray(parsed)) setPackages(parsed.filter((p: TourPackage) => {
             const id = String(p?.id || '').trim().toLowerCase();
-            const slug = String(p?.slug || '').trim().toLowerCase();
-            return !DISALLOWED_DUMMY_PKG_IDS.has(String(p?.id || '')) && !deletedPkgIds.includes(id) && !deletedPkgIds.includes(slug);
+            return id && !DISALLOWED_DUMMY_PKG_IDS.has(String(p?.id || '')) && !deletedPkgIds.has(id);
           }));
         } else if (e.key === STORAGE_KEYS.BLOG_POSTS && e.newValue) {
           const deletedBlogIds = getDeletedItems('hh_deleted_blog_post_ids');
@@ -2133,12 +2136,11 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
           if (Array.isArray(parsed)) {
             // Server content is authoritative: if a tour exists in D1, restore it
             // even if an old browser tombstone still contains its package ID.
-            const deletedPkgIds = getDeletedItems('hh_deleted_package_ids').map((id) => String(id).trim().toLowerCase());
+            const deletedPkgIds = new Set(getDeletedItems('hh_deleted_package_ids').map((id) => String(id).trim().toLowerCase()));
             const cleaned = parsed
               .filter((item: TourPackage) => {
                 const id = String(item?.id || '').trim().toLowerCase();
-                const slug = String(item?.slug || '').trim().toLowerCase();
-                return !DISALLOWED_DUMMY_PKG_IDS.has(String(item?.id || '')) && !deletedPkgIds.includes(id) && !deletedPkgIds.includes(slug);
+                return id && !DISALLOWED_DUMMY_PKG_IDS.has(String(item?.id || '')) && !deletedPkgIds.has(id);
               })
               .map((item: TourPackage) => {
                 const cat = normalizePackageCategory(item.category || item.tourType);
@@ -2561,65 +2563,70 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
       createdAt: new Date().toISOString(),
     };
     unmarkItemDeleted('hh_deleted_package_ids', id);
-    setPackages((prev) => {
-      const next = [pkgWithId, ...prev.filter(p => p.id !== id && !DISALLOWED_DUMMY_PKG_IDS.has(p.id))];
-      try {
-        localStorage.setItem(STORAGE_KEYS.PACKAGES, JSON.stringify(next));
-      } catch {}
-      void syncRegistryToServer(STORAGE_KEYS.PACKAGES, JSON.stringify(next));
-      return next;
-    });
+    if (pkgWithId.slug) unmarkItemDeleted('hh_deleted_package_ids', pkgWithId.slug);
+    markTourPackagesPendingSync([id]);
+    const next = [pkgWithId, ...packagesRef.current.filter((p) => p.id !== id && !DISALLOWED_DUMMY_PKG_IDS.has(p.id))];
+    packagesRef.current = next;
+    setPackages(next);
+    const serialized = JSON.stringify(next);
+    try {
+      localStorage.setItem(STORAGE_KEYS.PACKAGES, serialized);
+    } catch {}
+    void syncRegistryToServer(STORAGE_KEYS.PACKAGES, serialized);
     return id;
   };
 
   const updatePackage = (updatedPkg: TourPackage) => {
     unmarkItemDeleted('hh_deleted_package_ids', updatedPkg.id);
+    if (updatedPkg.slug) unmarkItemDeleted('hh_deleted_package_ids', updatedPkg.slug);
     const cleanCat = normalizePackageCategory(updatedPkg.category || updatedPkg.tourType);
     const sanitizedPkg: TourPackage = {
       ...updatedPkg,
       category: cleanCat,
       tourType: cleanCat,
     };
-    setPackages((prev) => {
-      const next = prev
-        .filter(p => !DISALLOWED_DUMMY_PKG_IDS.has(p.id))
-        .map((pkg) => (pkg.id === sanitizedPkg.id ? sanitizedPkg : pkg));
-      try {
-        localStorage.setItem(STORAGE_KEYS.PACKAGES, JSON.stringify(next));
-      } catch {}
-      void syncRegistryToServer(STORAGE_KEYS.PACKAGES, JSON.stringify(next));
-      return next;
-    });
+    markTourPackagesPendingSync([sanitizedPkg.id]);
+    const next = packagesRef.current
+      .filter((p) => !DISALLOWED_DUMMY_PKG_IDS.has(p.id))
+      .map((pkg) => (pkg.id === sanitizedPkg.id ? sanitizedPkg : pkg));
+    packagesRef.current = next;
+    setPackages(next);
+    const serialized = JSON.stringify(next);
+    try {
+      localStorage.setItem(STORAGE_KEYS.PACKAGES, serialized);
+    } catch {}
+    void syncRegistryToServer(STORAGE_KEYS.PACKAGES, serialized);
   };
 
   const deletePackage = (id: string) => {
     // Explicit CMS deletion is always allowed, including protected tours.
     // Protection only prevents stale sync/hydration from resurrecting the record.
     markItemDeleted('hh_deleted_package_ids', id);
+    clearPendingTourSyncIds([id]);
     const deletedIds = getDeletedItems('hh_deleted_package_ids');
     const deletionSync = syncRegistryToServer(
       'hh_deleted_package_ids',
       JSON.stringify(deletedIds)
     );
-    setPackages((prev) => {
-      const next = prev.filter((pkg) => pkg.id !== id);
-      try {
-        localStorage.setItem(STORAGE_KEYS.PACKAGES, JSON.stringify(next));
-      } catch {}
-      // Persist the deletion record first. Then replace the tour registry.
-      void deletionSync.finally(() => {
-        void syncRegistryToServer(
-          STORAGE_KEYS.PACKAGES,
-          JSON.stringify(next),
-          { allowTourDeletion: true }
-        );
-      });
-      return next;
+    const next = packagesRef.current.filter((pkg) => pkg.id !== id);
+    packagesRef.current = next;
+    setPackages(next);
+    const serialized = JSON.stringify(next);
+    try {
+      localStorage.setItem(STORAGE_KEYS.PACKAGES, serialized);
+    } catch {}
+    // Persist the deletion record first. Then replace the tour registry.
+    void deletionSync.finally(() => {
+      void syncRegistryToServer(
+        STORAGE_KEYS.PACKAGES,
+        serialized,
+        { allowTourDeletion: true }
+      );
     });
   };
 
   const duplicatePackage = (id: string) => {
-    const original = packages.find((p) => p.id === id);
+    const original = packagesRef.current.find((p) => p.id === id);
     if (!original) return;
     const newId = `pkg-${Date.now()}`;
     const cleanCat = normalizePackageCategory(original.category || original.tourType);
@@ -2635,39 +2642,44 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
       createdAt: new Date().toISOString(),
     };
     unmarkItemDeleted('hh_deleted_package_ids', newId);
-    setPackages((prev) => {
-      const next = [duplicated, ...prev.filter(p => p.id !== newId && !DISALLOWED_DUMMY_PKG_IDS.has(p.id))];
-      try {
-        localStorage.setItem(STORAGE_KEYS.PACKAGES, JSON.stringify(next));
-      } catch {}
-      void syncRegistryToServer(STORAGE_KEYS.PACKAGES, JSON.stringify(next));
-      return next;
-    });
+    if (duplicated.slug) unmarkItemDeleted('hh_deleted_package_ids', duplicated.slug);
+    markTourPackagesPendingSync([newId]);
+    const next = [duplicated, ...packagesRef.current.filter((p) => p.id !== newId && !DISALLOWED_DUMMY_PKG_IDS.has(p.id))];
+    packagesRef.current = next;
+    setPackages(next);
+    const serialized = JSON.stringify(next);
+    try {
+      localStorage.setItem(STORAGE_KEYS.PACKAGES, serialized);
+    } catch {}
+    void syncRegistryToServer(STORAGE_KEYS.PACKAGES, serialized);
   };
 
   const togglePublishStatus = (id: string) => {
-    setPackages((prev) => {
-      const next = prev.map((pkg) =>
-        pkg.id === id
-          ? { ...pkg, status: (pkg.status === 'published' ? 'draft' : 'published') as 'published' | 'draft' }
-          : pkg
-      );
-      try {
-        localStorage.setItem(STORAGE_KEYS.PACKAGES, JSON.stringify(next));
-      } catch {}
-      void syncRegistryToServer(STORAGE_KEYS.PACKAGES, JSON.stringify(next));
-      return next;
-    });
+    markTourPackagesPendingSync([id]);
+    const next = packagesRef.current.map((pkg) =>
+      pkg.id === id
+        ? { ...pkg, status: (pkg.status === 'published' ? 'draft' : 'published') as 'published' | 'draft' }
+        : pkg
+    );
+    packagesRef.current = next;
+    setPackages(next);
+    const serialized = JSON.stringify(next);
+    try {
+      localStorage.setItem(STORAGE_KEYS.PACKAGES, serialized);
+    } catch {}
+    void syncRegistryToServer(STORAGE_KEYS.PACKAGES, serialized);
   };
 
   const toggleFeatured = (id: string) => {
-    setPackages((prev) => {
-      const next = prev.map((pkg) => (pkg.id === id ? { ...pkg, featured: !pkg.featured } : pkg));
-      try {
-        localStorage.setItem(STORAGE_KEYS.PACKAGES, JSON.stringify(next));
-      } catch {}
-      return next;
-    });
+    markTourPackagesPendingSync([id]);
+    const next = packagesRef.current.map((pkg) => (pkg.id === id ? { ...pkg, featured: !pkg.featured } : pkg));
+    packagesRef.current = next;
+    setPackages(next);
+    const serialized = JSON.stringify(next);
+    try {
+      localStorage.setItem(STORAGE_KEYS.PACKAGES, serialized);
+    } catch {}
+    void syncRegistryToServer(STORAGE_KEYS.PACKAGES, serialized);
   };
 
   // Destinations Operations
