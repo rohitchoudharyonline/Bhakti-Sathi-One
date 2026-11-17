@@ -5,6 +5,7 @@ import { ArticleContentRenderer } from '../common/ArticleContentRenderer';
 import { resolveDisplayImage, handleImageError } from '../../utils/imageResolver';
 import { GlobalFooter } from './GlobalFooter';
 import { Navbar } from '../common/Navbar';
+import { updatePageSeo } from '../../utils/seo';
 import {
   generateGuideArticleSchema,
   generateFAQPageSchema,
@@ -113,28 +114,27 @@ export const GuideDetailView: React.FC<GuideDetailViewProps> = ({ slug }) => {
   useEffect(() => {
     if (!guide) return;
 
-    // 1. Title & Meta Description
     const metaTitle = guide.seo?.metaTitle || guide.title;
     const metaDesc = guide.seo?.metaDescription || guide.excerpt;
-    document.title = `${metaTitle} | Holidays Hunt`;
-
-    let descEl = document.querySelector('meta[name="description"]');
-    if (!descEl) {
-      descEl = document.createElement('meta');
-      descEl.setAttribute('name', 'description');
-      document.head.appendChild(descEl);
-    }
-    descEl.setAttribute('content', metaDesc);
-
-    // 2. Canonical Tag
     const canonicalUrl = guide.seo?.canonicalUrl || `https://holidayshunt.com/guides/${guide.slug}`;
-    let canonEl = document.querySelector('link[rel="canonical"]');
-    if (!canonEl) {
-      canonEl = document.createElement('link');
-      canonEl.setAttribute('rel', 'canonical');
-      document.head.appendChild(canonEl);
-    }
-    canonEl.setAttribute('href', canonicalUrl);
+    const seoKeywords = [
+      guide.seo?.primaryKeyword,
+      ...(guide.seo?.secondaryKeywords || []),
+    ]
+      .filter(Boolean)
+      .join(', ');
+
+    updatePageSeo({
+      title: `${metaTitle} | Holidays Hunt`,
+      description: metaDesc,
+      keywords: seoKeywords || undefined,
+      ogTitle: guide.seo?.ogTitle || metaTitle,
+      ogDescription: guide.seo?.ogDescription || metaDesc,
+      ogImage: guide.seo?.ogImage || guide.featuredImage,
+      canonicalUrl,
+      type: 'article',
+      noIndex: guide.seo?.noIndex,
+    });
 
     // 3. Inject Article Schema
     const articleSchema = generateGuideArticleSchema(guide, agencySettings);

@@ -122,7 +122,7 @@ export const TourDetailsSection: React.FC<TourDetailsSectionProps> = ({
 
     if (pkg.itinerary && pkg.itinerary.length > 0) {
       pkg.itinerary.forEach((day) => {
-        const stay = day.stayHotel || 'Selected Category Hotel';
+        const stay = 'Selected Category Hotel';
         if (stay.toLowerCase().includes('departure') || stay.toLowerCase().includes('no hotel')) {
           return;
         }

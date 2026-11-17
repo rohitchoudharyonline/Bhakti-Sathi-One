@@ -1,3 +1,5 @@
+import { toPublicSeoImageUrl } from './seo';
+
 export interface SEOData {
   seoMetaTitle: string;
   seoMetaDescription: string;
@@ -107,7 +109,12 @@ export function generateAutoSEO(
 /**
   Dynamically applies SEO tags to HTML document
  */
-export function updateDocumentSEO(title?: string, description?: string, keywords?: string) {
+export function updateDocumentSEO(
+  title?: string,
+  description?: string,
+  keywords?: string,
+  ogImage?: string
+) {
   if (typeof document === 'undefined') return;
 
   const defaultTitle = 'Holidays Hunt — All India Sacred Pilgrimage & Yatra Tour Packages';
@@ -130,6 +137,23 @@ export function updateDocumentSEO(title?: string, description?: string, keywords
 
   let ogDesc = document.querySelector('meta[property="og:description"]');
   if (ogDesc) ogDesc.setAttribute('content', description || defaultDesc);
+
+  const resolvedImg = toPublicSeoImageUrl(ogImage);
+  if (resolvedImg) {
+    for (const [attr, key] of [
+      ['property', 'og:image'],
+      ['name', 'twitter:image'],
+      ['name', 'thumbnail'],
+    ] as const) {
+      let imgMeta = document.querySelector(`meta[${attr}="${key}"]`);
+      if (!imgMeta) {
+        imgMeta = document.createElement('meta');
+        imgMeta.setAttribute(attr, key);
+        document.head.appendChild(imgMeta);
+      }
+      imgMeta.setAttribute('content', resolvedImg);
+    }
+  }
 
   // Keywords
   if (keywords) {

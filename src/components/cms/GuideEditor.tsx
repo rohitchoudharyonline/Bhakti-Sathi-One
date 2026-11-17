@@ -85,6 +85,10 @@ export const GuideEditor: React.FC<GuideEditorProps> = ({
   const [secondaryKeywords, setSecondaryKeywords] = useState<string[]>(
     initialGuide?.seo?.secondaryKeywords || []
   );
+  const [canonicalUrl, setCanonicalUrl] = useState(initialGuide?.seo?.canonicalUrl || '');
+  const [ogTitle, setOgTitle] = useState(initialGuide?.seo?.ogTitle || '');
+  const [ogDescription, setOgDescription] = useState(initialGuide?.seo?.ogDescription || '');
+  const [ogImage, setOgImage] = useState(initialGuide?.seo?.ogImage || '');
   const [newSecondaryKeyword, setNewSecondaryKeyword] = useState('');
 
   // FAQs State
@@ -349,7 +353,10 @@ export const GuideEditor: React.FC<GuideEditorProps> = ({
         metaDescription: metaDescription.trim() || excerpt.trim(),
         primaryKeyword: primaryKeyword.trim(),
         secondaryKeywords,
-        canonicalUrl: `https://holidayshunt.com/guides/${cleanSlug}`,
+        canonicalUrl: canonicalUrl.trim() || `https://holidayshunt.com/guides/${cleanSlug}`,
+        ogTitle: ogTitle.trim() || undefined,
+        ogDescription: ogDescription.trim() || undefined,
+        ogImage: ogImage.trim() || undefined,
       },
       faqs,
       createdAt: initialGuide?.createdAt || new Date().toISOString(),
@@ -839,20 +846,27 @@ export const GuideEditor: React.FC<GuideEditorProps> = ({
               <span className="text-[11px] text-stone-400">Real-time Serp Rendering</span>
             </div>
 
-            <div className="bg-stone-50 p-4 rounded-xl border border-stone-200/80 max-w-2xl space-y-1">
-              <div className="flex items-center gap-1.5 text-xs text-stone-600">
-                <span className="font-semibold text-stone-800">Holidays Hunt</span>
-                <span>›</span>
-                <span>guide</span>
-                <span>›</span>
-                <span className="text-stone-500 font-mono text-[11px]">{slug || 'article-slug'}</span>
+            <div className="bg-stone-50 p-4 rounded-xl border border-stone-200/80 max-w-2xl flex items-start justify-between gap-4">
+              <div className="min-w-0 flex-1 space-y-1">
+                <div className="flex items-center gap-1.5 text-xs text-stone-600">
+                  <span className="font-semibold text-stone-800">Holidays Hunt</span>
+                  <span>›</span>
+                  <span>guide</span>
+                  <span>›</span>
+                  <span className="text-stone-500 font-mono text-[11px]">{slug || 'article-slug'}</span>
+                </div>
+                <h4 className="text-base sm:text-lg font-medium text-blue-800 hover:underline cursor-pointer line-clamp-1">
+                  {metaTitle || title || 'Guide Title Preview'}
+                </h4>
+                <p className="text-xs text-stone-600 line-clamp-2">
+                  {metaDescription || excerpt || 'Guide meta description preview will appear here on Google searches.'}
+                </p>
               </div>
-              <h4 className="text-base sm:text-lg font-medium text-blue-800 hover:underline cursor-pointer line-clamp-1">
-                {metaTitle || title || 'Guide Title Preview'}
-              </h4>
-              <p className="text-xs text-stone-600 line-clamp-2">
-                {metaDescription || excerpt || 'Guide meta description preview will appear here on Google searches.'}
-              </p>
+              {(ogImage || featuredImage) && (
+                <div className="w-20 h-20 rounded-xl overflow-hidden border border-stone-200 bg-stone-100 shrink-0">
+                  <img src={ogImage || featuredImage} alt="SEO preview thumbnail" className="w-full h-full object-cover" />
+                </div>
+              )}
             </div>
           </div>
 
@@ -864,15 +878,27 @@ export const GuideEditor: React.FC<GuideEditorProps> = ({
             seoMetaTitle={metaTitle}
             seoMetaDescription={metaDescription}
             seoKeywords={primaryKeyword}
+            canonicalUrl={canonicalUrl}
+            ogTitle={ogTitle}
+            ogDescription={ogDescription}
+            ogImage={ogImage}
+            defaultFallbackImage={featuredImage}
             onChange={(field, val) => {
               if (field === 'seoMetaTitle') setMetaTitle(val);
               if (field === 'seoMetaDescription') setMetaDescription(val);
               if (field === 'seoKeywords') setPrimaryKeyword(val);
+              if (field === 'canonicalUrl') setCanonicalUrl(val);
+              if (field === 'ogTitle') setOgTitle(val);
+              if (field === 'ogDescription') setOgDescription(val);
+              if (field === 'ogImage') setOgImage(val);
             }}
             onApplyAll={(seoData) => {
               setMetaTitle(seoData.seoMetaTitle);
               setMetaDescription(seoData.seoMetaDescription);
               setPrimaryKeyword(seoData.seoKeywords);
+              if (seoData.ogTitle !== undefined) setOgTitle(seoData.ogTitle);
+              if (seoData.ogDescription !== undefined) setOgDescription(seoData.ogDescription);
+              if (seoData.ogImage !== undefined) setOgImage(seoData.ogImage);
             }}
           />
 

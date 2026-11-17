@@ -29,6 +29,10 @@ export interface TemplePlace {
   seoMetaTitle?: string;
   seoMetaDescription?: string;
   seoKeywords?: string;
+  ogImage?: string;
+  ogTitle?: string;
+  ogDescription?: string;
+  canonicalUrl?: string;
 }
 
 export const DEFAULT_TEMPLES_DATA: TemplePlace[] = [

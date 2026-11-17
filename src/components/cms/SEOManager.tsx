@@ -319,10 +319,10 @@ export const SEOManager: React.FC = () => {
           seoKeywords: updated.focusKeyword,
           seoTitle: updated.metaTitle,
           metaDescription: updated.metaDescription,
-          coverImage: updated.ogImage || existing.coverImage,
-          ...((updated.ogImage ? { ogImage: updated.ogImage } : {}) as any),
-          ...((updated.ogTitle ? { ogTitle: updated.ogTitle } : {}) as any),
-          ...((updated.ogDescription ? { ogDescription: updated.ogDescription } : {}) as any),
+          ogImage: updated.ogImage || undefined,
+          ogTitle: updated.ogTitle || undefined,
+          ogDescription: updated.ogDescription || undefined,
+          canonicalUrl: updated.canonicalUrl || undefined,
         });
       }
     } else if (updated.itemType === 'page') {
@@ -351,8 +351,10 @@ export const SEOManager: React.FC = () => {
           seoMetaTitle: updated.metaTitle,
           seoMetaDescription: updated.metaDescription,
           seoKeywords: updated.focusKeyword,
-          heroImage: updated.ogImage || existing.heroImage,
-          ...((updated.ogImage ? { ogImage: updated.ogImage } : {}) as any),
+          ogImage: updated.ogImage || undefined,
+          ogTitle: updated.ogTitle || undefined,
+          ogDescription: updated.ogDescription || undefined,
+          canonicalUrl: updated.canonicalUrl || undefined,
         });
       }
     } else if (updated.itemType === 'guide') {
@@ -360,15 +362,15 @@ export const SEOManager: React.FC = () => {
       if (existing) {
         updateGuide({
           ...existing,
-          featuredImage: updated.ogImage || existing.featuredImage,
           seo: {
             ...existing.seo,
             metaTitle: updated.metaTitle || '',
             metaDescription: updated.metaDescription || '',
             primaryKeyword: updated.focusKeyword || '',
-            ogImage: updated.ogImage || existing.seo?.ogImage,
-            ogTitle: updated.ogTitle || existing.seo?.ogTitle,
-            ogDescription: updated.ogDescription || existing.seo?.ogDescription,
+            canonicalUrl: updated.canonicalUrl || existing.seo?.canonicalUrl,
+            ogImage: updated.ogImage || undefined,
+            ogTitle: updated.ogTitle || undefined,
+            ogDescription: updated.ogDescription || undefined,
           },
         });
       }
@@ -377,13 +379,14 @@ export const SEOManager: React.FC = () => {
       if (existing) {
         updateCustomPage({
           ...existing,
-          heroImage: updated.ogImage || existing.heroImage,
           seo: {
             ...existing.seo,
             focusKeyword: updated.focusKeyword || '',
             metaTitle: updated.metaTitle || '',
             metaDescription: updated.metaDescription || '',
-            ogImage: updated.ogImage || existing.seo?.ogImage,
+            ogImage: updated.ogImage || undefined,
+            ogTitle: updated.ogTitle || undefined,
+            ogDescription: updated.ogDescription || undefined,
           },
         });
       }

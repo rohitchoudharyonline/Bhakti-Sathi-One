@@ -292,7 +292,7 @@ const DEFAULT_PACKAGES_BASE: TourPackage[] = [
       },
     ],
     inclusions: [
-      '5 Nights accommodation in selected category hotel & luxury houseboat (2★, 3★, 4★, or 5★)',
+      '5 Nights accommodation in selected category hotel & luxury houseboat (Budget, 3★, 4★, or 5★)',
       'Daily Breakfast and Dinner as per meal plan (MAP/CP/AP)',
       '1-Hour complimentary Shikara ride on Dal Lake for all guests',
       'Private dedicated AC Sedan / SUV / Innova Crysta for all transfers and sightseeing',

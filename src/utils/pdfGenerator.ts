@@ -1496,7 +1496,7 @@ export async function generateTourPDF(pkg:TourPackage,a:AgencySettings,onProgres
       tempD.setFontSize(11.5);
       const descLines = tempD.splitTextToSize(clean(day.description || ''), contentWidth - 32);
       
-      const hotelStayText = day.stayHotel ? `Stay: ${day.stayHotel}${day.meals?.length ? ` | Meals: ${day.meals.join(', ')}` : ''}` : (day.meals?.length ? `Meals: ${day.meals.join(', ')}` : '');
+      const hotelStayText = day.meals?.length ? `Meals: ${day.meals.join(', ')}` : '';
       tempD.setFont('helvetica', 'italic');
       tempD.setFontSize(10.5);
       const stayLines = hotelStayText ? tempD.splitTextToSize(hotelStayText, contentWidth - 32) : [];
@@ -1803,7 +1803,7 @@ export async function generateTourPDF(pkg:TourPackage,a:AgencySettings,onProgres
       d.setFontSize(11.5);
       const descLines = d.splitTextToSize(clean(day.description || ''), contentWidth - 32);
       
-      const hotelStayText = day.stayHotel ? `Stay: ${day.stayHotel}${day.meals?.length ? ` | Meals: ${day.meals.join(', ')}` : ''}` : (day.meals?.length ? `Meals: ${day.meals.join(', ')}` : '');
+      const hotelStayText = day.meals?.length ? `Meals: ${day.meals.join(', ')}` : '';
       d.setFont('helvetica','italic');
       d.setFontSize(10.5);
       const stayLines = hotelStayText ? d.splitTextToSize(hotelStayText, contentWidth - 32) : [];

@@ -171,8 +171,8 @@ export const UniversalImageUploader: React.FC<UniversalImageUploaderProps> = ({
     if (file) void processFile(file);
   };
 
-  const handleManualUrlSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleManualUrlSubmit = (e?: React.FormEvent | React.KeyboardEvent) => {
+    if (e) e.preventDefault();
     if (!manualUrl.trim()) return;
     onImageSelected(manualUrl.trim());
     setManualUrl('');
@@ -318,21 +318,28 @@ export const UniversalImageUploader: React.FC<UniversalImageUploaderProps> = ({
 
         {/* Manual URL Input dropdown */}
         {showUrlInput && (
-          <form onSubmit={handleManualUrlSubmit} className="flex gap-2 pt-1">
+          <div className="flex gap-2 pt-1">
             <input
               type="url"
               value={manualUrl}
               onChange={(e) => setManualUrl(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  handleManualUrlSubmit();
+                }
+              }}
               placeholder="https://..."
               className="flex-1 text-xs px-3 py-1.5 bg-white border border-stone-200 rounded-lg focus:outline-hidden focus:border-[#9b0000]"
             />
             <button
-              type="submit"
-              className="px-3 py-1.5 bg-stone-900 text-white rounded-lg text-xs font-bold"
+              type="button"
+              onClick={() => handleManualUrlSubmit()}
+              className="px-3 py-1.5 bg-stone-900 text-white rounded-lg text-xs font-bold cursor-pointer"
             >
               Set URL
             </button>
-          </form>
+          </div>
         )}
 
         {/* R2 Media Modal */}
@@ -542,21 +549,28 @@ export const UniversalImageUploader: React.FC<UniversalImageUploaderProps> = ({
 
       {/* Manual URL Form */}
       {showUrlInput && (
-        <form onSubmit={handleManualUrlSubmit} className="flex gap-2">
+        <div className="flex gap-2">
           <input
             type="url"
             value={manualUrl}
             onChange={(e) => setManualUrl(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                handleManualUrlSubmit();
+              }
+            }}
             placeholder="Paste direct image URL (https://images.unsplash.com/...)"
             className="flex-1 text-xs px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl focus:bg-white focus:outline-hidden focus:border-[#9b0000]"
           />
           <button
-            type="submit"
+            type="button"
+            onClick={() => handleManualUrlSubmit()}
             className="px-4 py-2 bg-stone-900 text-white rounded-xl text-xs font-black hover:bg-black transition cursor-pointer"
           >
             Apply URL
           </button>
-        </form>
+        </div>
       )}
 
       {/* Live Compression Result Banner */}

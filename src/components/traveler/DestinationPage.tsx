@@ -94,7 +94,8 @@ export const DestinationPage: React.FC = () => {
         ...(destinationMeta.popularCities || []).slice(0, 4).map((place: string) => `${place} tour packages`),
         'Holidays Hunt',
       ].join(', ');
-      updateDocumentSEO(title, description, keywords);
+      const seoImg = (destinationMeta as any).ogImage || destinationMeta.heroImage;
+      updateDocumentSEO(title, description, keywords, seoImg);
     }
   }, [destinationMeta]);
 

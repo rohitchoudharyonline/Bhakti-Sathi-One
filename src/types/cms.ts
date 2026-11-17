@@ -21,6 +21,8 @@ export interface BlogPostSeo {
   metaDescription: string;
   canonicalUrl?: string;
   ogImage?: string;
+  ogTitle?: string;
+  ogDescription?: string;
   schemaType?: 'BlogPosting' | 'Article' | 'NewsArticle' | 'TouristTrip';
   noIndex?: boolean;
 }

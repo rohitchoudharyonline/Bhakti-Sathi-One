@@ -1220,6 +1220,493 @@ ${command}`;
         return json({error:'API endpoint not found'},404,publicHeaders(env,request));
       } catch(e:any) { console.error('Worker error',e); return json({error:'Internal server error'},500,privateHeaders(env,request)); }
     }
-    try{const asset=await env.ASSETS.fetch(request);if(asset.status!==404)return asset;return env.ASSETS.fetch(new Request(new URL('/',request.url),request));}catch{return new Response('Asset fetch error',{status:500});}
+    const escHtml = (value: unknown) =>
+      String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+
+    const toPublicWorkerImageUrl = (rawUrl: unknown, origin: string): string => {
+      const clean = String(rawUrl ?? '').trim();
+      if (!clean || clean.startsWith('data:') || clean.startsWith('blob:')) return '';
+      const baseOrigin = origin.replace(/\/$/, '');
+
+      let storageKey = '';
+      if (clean.startsWith('/api/files/')) {
+        storageKey = clean.slice('/api/files/'.length);
+      } else if (clean.startsWith('r2://')) {
+        storageKey = clean.slice('r2://'.length);
+      } else if (/^https?:\/\/[^/]+\/api\/files\//i.test(clean)) {
+        storageKey = clean.replace(/^https?:\/\/[^/]+\/api\/files\//i, '');
+      } else if (/^https?:\/\/media\.holidayshunt\.com\//i.test(clean)) {
+        storageKey = clean.replace(/^https?:\/\/media\.holidayshunt\.com\//i, '');
+      }
+
+      if (storageKey) {
+        const cleanKey = storageKey.split('?')[0].replace(/^\/+/, '');
+        const encoded = cleanKey
+          .split('/')
+          .filter(Boolean)
+          .map((seg) => {
+            try {
+              return encodeURIComponent(decodeURIComponent(seg));
+            } catch {
+              return encodeURIComponent(seg);
+            }
+          })
+          .join('/');
+        return `${baseOrigin}/api/files/${encoded}`;
+      }
+
+      if (clean.startsWith('/')) return `${baseOrigin}${clean}`;
+      return clean;
+    };
+
+    const resolveDynamicPageSeo = async (reqUrl: URL): Promise<{
+      title: string;
+      description: string;
+      keywords?: string;
+      ogTitle: string;
+      ogDescription: string;
+      ogImage?: string;
+      ogType?: string;
+      canonicalUrl: string;
+      robots?: string;
+      jsonLd?: Record<string, any>;
+    } | null> => {
+      const normPath = reqUrl.pathname.toLowerCase().replace(/\/+$/, '') || '/';
+      if (normPath === '/admin-rudra-0712' || normPath.startsWith('/admin-rudra-0712/')) {
+        return {
+          title: 'Holidays Hunt Admin',
+          description: 'Restricted CMS area',
+          ogTitle: 'Holidays Hunt Admin',
+          ogDescription: 'Restricted CMS area',
+          canonicalUrl: `${reqUrl.origin}/`,
+          robots: 'noindex, nofollow',
+        };
+      }
+
+      if (!env.DB) return null;
+
+      const origin = reqUrl.origin.startsWith('http') ? reqUrl.origin : 'https://holidayshunt.com';
+      const registryIds = [
+        'registry-packages',
+        'registry-deleted-packages',
+        'registry-destinations',
+        'registry-guides-v2',
+        'registry-blog-posts-v2',
+        'registry-custom-pages-v2',
+      ];
+      const placeholders = registryIds.map(() => '?').join(',');
+      const rows = (
+        await env.DB.prepare(
+          `SELECT id, structured_content FROM contents WHERE status=? AND id IN (${placeholders})`
+        )
+          .bind('published', ...registryIds)
+          .all()
+      ).results || [];
+
+      const byId = new Map<string, any>();
+      for (const row of rows) {
+        try {
+          const structured = row.structured_content ? JSON.parse(String(row.structured_content)) : {};
+          const raw = structured?.value;
+          byId.set(String(row.id), typeof raw === 'string' ? JSON.parse(raw) : raw);
+        } catch {
+          byId.set(String(row.id), null);
+        }
+      }
+
+      const deletedRaw = byId.get('registry-deleted-packages');
+      const deletedIds = new Set<string>(
+        Array.isArray(deletedRaw) ? deletedRaw.map((x: any) => String(x).trim().toLowerCase()).filter(Boolean) : []
+      );
+      const packages = (Array.isArray(byId.get('registry-packages')) ? byId.get('registry-packages') : []).filter(
+        (p: any) => p && p.id && !deletedIds.has(String(p.id).trim().toLowerCase())
+      );
+      const destinations = getDestinationMap(byId.get('registry-destinations'));
+      const guides = Array.isArray(byId.get('registry-guides-v2')) ? byId.get('registry-guides-v2') : [];
+      const blogPosts = Array.isArray(byId.get('registry-blog-posts-v2')) ? byId.get('registry-blog-posts-v2') : [];
+      const customPages = Array.isArray(byId.get('registry-custom-pages-v2')) ? byId.get('registry-custom-pages-v2') : [];
+
+      const slugifyTitle = (s: unknown) =>
+        String(s ?? '')
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/(^-|-$)/g, '');
+
+      const findPackage = (seg: string) =>
+        packages.find(
+          (p: any) =>
+            String(p?.id || '').toLowerCase() === seg ||
+            String(p?.slug || '').toLowerCase() === seg ||
+            slugifyTitle(p?.title) === seg
+        );
+
+      const findDestination = (seg: string) => {
+        if (destinations[seg]) return destinations[seg];
+        return Object.values(destinations).find(
+          (d: any) =>
+            String(d?.slug || '').toLowerCase() === seg ||
+            String(d?.id || '').toLowerCase() === seg ||
+            slugifyTitle(d?.name) === seg
+        );
+      };
+
+      const tourCategories = new Set(['pilgrimage', 'family', 'honeymoon', 'group', 'luxury']);
+      let matchedPkg: any = null;
+      let matchedDest: any = null;
+      let matchedGuide: any = null;
+      let matchedPost: any = null;
+      let matchedPage: any = null;
+      let routeSeg = '';
+
+      if (normPath.startsWith('/tours/')) {
+        routeSeg = decodeURIComponent(normPath.slice('/tours/'.length).split('/')[0] || '').toLowerCase();
+        if (routeSeg && !tourCategories.has(routeSeg)) {
+          matchedPkg = findPackage(routeSeg);
+          if (!matchedPkg) matchedDest = findDestination(routeSeg);
+        }
+      } else if (normPath.includes('/package/')) {
+        routeSeg = decodeURIComponent(normPath.split('/package/')[1]?.split('/')[0] || '').toLowerCase();
+        if (routeSeg) matchedPkg = findPackage(routeSeg);
+      } else if (normPath.startsWith('/destination/') || normPath.startsWith('/destinations/') || normPath.startsWith('/holidays/')) {
+        routeSeg = decodeURIComponent(
+          normPath.replace(/^\/(destinations?|holidays)\//, '').split('/')[0] || ''
+        ).toLowerCase();
+        if (routeSeg) matchedDest = findDestination(routeSeg);
+      } else if (normPath.startsWith('/guides/') || normPath.startsWith('/guide/')) {
+        routeSeg = decodeURIComponent(normPath.replace(/^\/guides?\//, '').split('/')[0] || '').toLowerCase();
+        if (routeSeg) {
+          matchedGuide = guides.find(
+            (g: any) =>
+              g?.status === 'published' &&
+              (String(g?.slug || '').toLowerCase() === routeSeg || String(g?.id || '').toLowerCase() === routeSeg)
+          );
+        }
+      } else if (normPath.startsWith('/travel-blog/') || normPath.startsWith('/blog/')) {
+        routeSeg = decodeURIComponent(normPath.replace(/^\/(travel-blog|blog)\//, '').split('/')[0] || '').toLowerCase();
+        if (routeSeg) {
+          matchedPost = blogPosts.find(
+            (p: any) =>
+              p?.status === 'published' &&
+              (String(p?.slug || '').toLowerCase() === routeSeg || String(p?.id || '').toLowerCase() === routeSeg)
+          );
+          if (!matchedPost) {
+            matchedGuide = guides.find(
+              (g: any) =>
+                g?.status === 'published' &&
+                (String(g?.slug || '').toLowerCase() === routeSeg || String(g?.id || '').toLowerCase() === routeSeg)
+            );
+          }
+        }
+      } else if (normPath.startsWith('/page/')) {
+        routeSeg = decodeURIComponent(normPath.slice('/page/'.length).split('/')[0] || '').toLowerCase();
+        if (routeSeg) {
+          matchedPage = customPages.find(
+            (p: any) =>
+              p?.status === 'published' &&
+              (String(p?.slug || '').toLowerCase() === routeSeg || String(p?.id || '').toLowerCase() === routeSeg)
+          );
+        }
+      }
+
+      if (matchedPkg) {
+        const title = text(matchedPkg.seoMetaTitle || matchedPkg.seoTitle || `${matchedPkg.title} | Holidays Hunt`, 160);
+        const description = text(matchedPkg.seoMetaDescription || matchedPkg.metaDescription || matchedPkg.tagline || matchedPkg.overview, 300);
+        const keywords = text(matchedPkg.seoKeywords, 400);
+        const ogTitle = text(matchedPkg.ogTitle || title, 160);
+        const ogDescription = text(matchedPkg.ogDescription || description, 300);
+        const canonicalUrl = text(matchedPkg.canonicalUrl, 500) || `${origin}/tours/${encodeURIComponent(matchedPkg.slug || routeSeg)}`;
+        const ogImage = toPublicWorkerImageUrl(matchedPkg.ogImage || matchedPkg.coverImage, origin);
+        return {
+          title,
+          description,
+          keywords,
+          ogTitle,
+          ogDescription,
+          ogImage: ogImage || undefined,
+          ogType: 'product',
+          canonicalUrl,
+          jsonLd: {
+            '@context': 'https://schema.org',
+            '@type': 'TouristTrip',
+            name: matchedPkg.title,
+            description,
+            url: canonicalUrl,
+            ...(ogImage ? { image: [ogImage] } : {}),
+            provider: {
+              '@type': 'TravelAgency',
+              name: 'Holidays Hunt',
+              url: origin,
+              telephone: '+919419915255',
+            },
+            ...(matchedPkg.startingPrice
+              ? {
+                  offers: {
+                    '@type': 'Offer',
+                    priceCurrency: 'INR',
+                    price: matchedPkg.startingPrice,
+                    availability: 'https://schema.org/InStock',
+                    url: canonicalUrl,
+                  },
+                }
+              : {}),
+          },
+        };
+      }
+
+      if (matchedDest) {
+        const title = text(matchedDest.seoMetaTitle || `${matchedDest.name} Tour Packages & Yatra Guide | Holidays Hunt`, 160);
+        const description = text(matchedDest.seoMetaDescription || matchedDest.tourPackagesDescription || matchedDest.tagline, 300);
+        const keywords = text(matchedDest.seoKeywords, 400);
+        const ogTitle = text(matchedDest.ogTitle || title, 160);
+        const ogDescription = text(matchedDest.ogDescription || description, 300);
+        const canonicalUrl = text(matchedDest.canonicalUrl, 500) || `${origin}/destination/${encodeURIComponent(matchedDest.slug || routeSeg)}`;
+        const ogImage = toPublicWorkerImageUrl(matchedDest.ogImage || matchedDest.heroImage, origin);
+        return {
+          title,
+          description,
+          keywords,
+          ogTitle,
+          ogDescription,
+          ogImage: ogImage || undefined,
+          ogType: 'website',
+          canonicalUrl,
+          jsonLd: {
+            '@context': 'https://schema.org',
+            '@type': 'TouristDestination',
+            name: matchedDest.name,
+            description,
+            url: canonicalUrl,
+            ...(ogImage ? { image: [ogImage] } : {}),
+          },
+        };
+      }
+
+      if (matchedGuide) {
+        const title = text(matchedGuide.seo?.metaTitle || matchedGuide.seo?.seoTitle || `${matchedGuide.title} | Holidays Hunt`, 160);
+        const description = text(matchedGuide.seo?.metaDescription || matchedGuide.excerpt, 300);
+        const keywords = text(
+          [matchedGuide.seo?.primaryKeyword, ...(Array.isArray(matchedGuide.seo?.secondaryKeywords) ? matchedGuide.seo.secondaryKeywords : [])]
+            .filter(Boolean)
+            .join(', '),
+          400
+        );
+        const ogTitle = text(matchedGuide.seo?.ogTitle || title, 160);
+        const ogDescription = text(matchedGuide.seo?.ogDescription || description, 300);
+        const canonicalUrl = text(matchedGuide.seo?.canonicalUrl, 500) || `${origin}/guides/${encodeURIComponent(matchedGuide.slug || routeSeg)}`;
+        const ogImage = toPublicWorkerImageUrl(matchedGuide.seo?.ogImage || matchedGuide.featuredImage, origin);
+        return {
+          title,
+          description,
+          keywords,
+          ogTitle,
+          ogDescription,
+          ogImage: ogImage || undefined,
+          ogType: 'article',
+          canonicalUrl,
+          robots: matchedGuide.seo?.noIndex ? 'noindex, follow' : undefined,
+          jsonLd: {
+            '@context': 'https://schema.org',
+            '@type': 'Article',
+            headline: matchedGuide.title,
+            description,
+            mainEntityOfPage: canonicalUrl,
+            ...(ogImage ? { image: [ogImage] } : {}),
+            datePublished: matchedGuide.publishedAt || matchedGuide.createdAt,
+            dateModified: matchedGuide.updatedAt || matchedGuide.publishedAt || matchedGuide.createdAt,
+            author: { '@type': 'Organization', name: matchedGuide.authorName || 'Holidays Hunt' },
+            publisher: {
+              '@type': 'Organization',
+              name: 'Holidays Hunt',
+              logo: { '@type': 'ImageObject', url: `${origin}/holidayshunt-logo.png` },
+            },
+          },
+        };
+      }
+
+      if (matchedPost) {
+        const title = text(matchedPost.seo?.metaTitle || `${matchedPost.title} | Holidays Hunt`, 160);
+        const description = text(matchedPost.seo?.metaDescription || matchedPost.excerpt, 300);
+        const keywords = text(
+          matchedPost.seo?.focusKeyword || (Array.isArray(matchedPost.tags) ? matchedPost.tags.join(', ') : ''),
+          400
+        );
+        const ogTitle = text(matchedPost.seo?.ogTitle || title, 160);
+        const ogDescription = text(matchedPost.seo?.ogDescription || description, 300);
+        const canonicalUrl = text(matchedPost.seo?.canonicalUrl, 500) || `${origin}/travel-blog/${encodeURIComponent(matchedPost.slug || routeSeg)}`;
+        const ogImage = toPublicWorkerImageUrl(matchedPost.seo?.ogImage || matchedPost.featuredImage, origin);
+        return {
+          title,
+          description,
+          keywords,
+          ogTitle,
+          ogDescription,
+          ogImage: ogImage || undefined,
+          ogType: 'article',
+          canonicalUrl,
+          jsonLd: {
+            '@context': 'https://schema.org',
+            '@type': matchedPost.seo?.schemaType || 'BlogPosting',
+            headline: matchedPost.title,
+            description,
+            mainEntityOfPage: canonicalUrl,
+            ...(ogImage ? { image: [ogImage] } : {}),
+            datePublished: matchedPost.publishedAt,
+            dateModified: matchedPost.updatedAt || matchedPost.publishedAt,
+            author: { '@type': 'Person', name: matchedPost.author?.name || 'Holidays Hunt Editorial Team' },
+            publisher: {
+              '@type': 'Organization',
+              name: 'Holidays Hunt',
+              logo: { '@type': 'ImageObject', url: `${origin}/holidayshunt-logo.png` },
+            },
+          },
+        };
+      }
+
+      if (matchedPage) {
+        const title = text(matchedPage.seo?.metaTitle || `${matchedPage.title} | Holidays Hunt`, 160);
+        const description = text(matchedPage.seo?.metaDescription || matchedPage.subtitle || matchedPage.content, 300);
+        const keywords = text(matchedPage.seo?.focusKeyword, 400);
+        const ogTitle = text(matchedPage.seo?.ogTitle || title, 160);
+        const ogDescription = text(matchedPage.seo?.ogDescription || description, 300);
+        const canonicalUrl = `${origin}/page/${encodeURIComponent(matchedPage.slug || routeSeg)}`;
+        const ogImage = toPublicWorkerImageUrl(matchedPage.seo?.ogImage || matchedPage.heroImage, origin);
+        return {
+          title,
+          description,
+          keywords,
+          ogTitle,
+          ogDescription,
+          ogImage: ogImage || undefined,
+          ogType: 'website',
+          canonicalUrl,
+          jsonLd: {
+            '@context': 'https://schema.org',
+            '@type': 'WebPage',
+            name: title,
+            description,
+            url: canonicalUrl,
+            ...(ogImage ? { primaryImageOfPage: ogImage, image: [ogImage] } : {}),
+          },
+        };
+      }
+
+      return null;
+    };
+
+    const injectSeoIntoHtml = async (htmlResponse: Response, reqUrl: URL): Promise<Response> => {
+      try {
+        const seo = await resolveDynamicPageSeo(reqUrl);
+        if (!seo) return htmlResponse;
+
+        let html = await htmlResponse.text();
+        html = html.replace(/<title>[\s\S]*?<\/title>/i, `<title>${escHtml(seo.title)}</title>`);
+        if (seo.description) {
+          html = html.replace(
+            /<meta\s+name="description"\s+content="[^"]*"\s*\/?>/i,
+            `<meta name="description" content="${escHtml(seo.description)}" />`
+          );
+        }
+        if (seo.keywords) {
+          html = html.replace(
+            /<meta\s+name="keywords"\s+content="[^"]*"\s*\/?>/i,
+            `<meta name="keywords" content="${escHtml(seo.keywords)}" />`
+          );
+        }
+        html = html.replace(
+          /<link\s+rel="canonical"\s+href="[^"]*"\s*\/?>/i,
+          `<link rel="canonical" href="${escHtml(seo.canonicalUrl)}" />`
+        );
+        html = html.replace(
+          /<meta\s+property="og:type"\s+content="[^"]*"\s*\/?>/i,
+          `<meta property="og:type" content="${escHtml(seo.ogType || 'website')}" />`
+        );
+        html = html.replace(
+          /<meta\s+property="og:title"\s+content="[^"]*"\s*\/?>/i,
+          `<meta property="og:title" content="${escHtml(seo.ogTitle)}" />`
+        );
+        if (seo.ogDescription) {
+          html = html.replace(
+            /<meta\s+property="og:description"\s+content="[^"]*"\s*\/?>/i,
+            `<meta property="og:description" content="${escHtml(seo.ogDescription)}" />`
+          );
+        }
+        html = html.replace(
+          /<meta\s+property="og:url"\s+content="[^"]*"\s*\/?>/i,
+          `<meta property="og:url" content="${escHtml(seo.canonicalUrl)}" />`
+        );
+        html = html.replace(
+          /<meta\s+name="twitter:title"\s+content="[^"]*"\s*\/?>/i,
+          `<meta name="twitter:title" content="${escHtml(seo.ogTitle)}" />`
+        );
+        if (seo.ogDescription) {
+          html = html.replace(
+            /<meta\s+name="twitter:description"\s+content="[^"]*"\s*\/?>/i,
+            `<meta name="twitter:description" content="${escHtml(seo.ogDescription)}" />`
+          );
+        }
+        if (seo.ogImage) {
+          html = html.replace(
+            /<meta\s+property="og:image"\s+content="[^"]*"\s*\/?>/i,
+            `<meta property="og:image" content="${escHtml(seo.ogImage)}" />`
+          );
+          html = html.replace(
+            /<meta\s+property="og:image:alt"\s+content="[^"]*"\s*\/?>/i,
+            `<meta property="og:image:alt" content="${escHtml(seo.ogTitle)}" />`
+          );
+          html = html.replace(
+            /<meta\s+name="twitter:image"\s+content="[^"]*"\s*\/?>/i,
+            `<meta name="twitter:image" content="${escHtml(seo.ogImage)}" />`
+          );
+        }
+
+        const extraTags: string[] = [];
+        extraTags.push(
+          `<meta name="robots" content="${escHtml(seo.robots || 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1')}" />`
+        );
+        if (seo.ogImage) {
+          extraTags.push(`<meta name="thumbnail" content="${escHtml(seo.ogImage)}" />`);
+        }
+        html = html.replace(/<\/head>/i, `    ${extraTags.join('\n    ')}\n  </head>`);
+
+        if (seo.jsonLd) {
+          const safeJson = JSON.stringify(seo.jsonLd).replace(/<\/script/gi, '<\\/script');
+          if (/<script\s+type="application\/ld\+json">[\s\S]*?<\/script>/i.test(html)) {
+            html = html.replace(
+              /<script\s+type="application\/ld\+json">[\s\S]*?<\/script>/i,
+              `<script type="application/ld+json">${safeJson}</script>`
+            );
+          } else {
+            html = html.replace(/<\/head>/i, `    <script type="application/ld+json">${safeJson}</script>\n  </head>`);
+          }
+        }
+
+        const headers = new Headers(htmlResponse.headers);
+        headers.delete('content-length');
+        headers.set('Cache-Control', 'no-cache');
+        return new Response(html, { status: htmlResponse.status, headers });
+      } catch (err) {
+        console.error('SSR SEO injection notice:', err);
+        return htmlResponse;
+      }
+    };
+
+    try {
+      let asset = await env.ASSETS.fetch(request);
+      if (asset.status === 404) {
+        asset = await env.ASSETS.fetch(new Request(new URL('/', request.url), request));
+      }
+      const contentType = asset.headers.get('content-type') || '';
+      if ((request.method === 'GET' || request.method === 'HEAD') && contentType.includes('text/html')) {
+        return await injectSeoIntoHtml(asset, url);
+      }
+      return asset;
+    } catch {
+      return new Response('Asset fetch error', { status: 500 });
+    }
   }
 };

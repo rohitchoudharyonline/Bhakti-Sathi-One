@@ -1098,7 +1098,7 @@ export const LuxuryHomepage: React.FC = () => {
               </div>
               <div>
                 <b className="text-xs font-bold text-stone-900 block">Verified Hotels</b>
-                <span className="text-[10px] text-stone-500">2★ to 5★ inspected hotels</span>
+                <span className="text-[10px] text-stone-500">Budget to 5★ inspected hotels</span>
               </div>
             </div>
 

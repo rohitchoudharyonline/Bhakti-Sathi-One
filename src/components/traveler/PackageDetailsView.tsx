@@ -70,7 +70,8 @@ export const PackageDetailsView: React.FC<PackageDetailsViewProps> = ({ pkg, onB
       const title = pkg.seoMetaTitle || pkg.seoTitle || `${pkg.title} | Holidays Hunt`;
       const description = pkg.seoMetaDescription || pkg.metaDescription || `Book ${pkg.title} (${pkg.durationDays}D/${pkg.durationNights}N). Includes hotels, transfers & guide with Holidays Hunt.`;
       const keywords = pkg.seoKeywords || `${pkg.title}, tour package, yatra, Holidays Hunt`;
-      updateDocumentSEO(title, description, keywords);
+      const seoImg = pkg.ogImage || pkg.coverImage;
+      updateDocumentSEO(title, description, keywords, seoImg);
     }
   }, [pkg]);
 
@@ -606,22 +607,6 @@ export const PackageDetailsView: React.FC<PackageDetailsViewProps> = ({ pkg, onB
                                     </div>
                                   )}
 
-                                  {/* Accommodation Stay */}
-                                  {day.stayHotel && (
-                                    <div className="bg-stone-50 p-3.5 rounded-xl border border-stone-200">
-                                      <span className="block text-[11px] font-black text-stone-800 mb-2 uppercase tracking-wider flex items-center gap-1">
-                                        <Building className="w-3.5 h-3.5 text-blue-700" />
-                                        <span>Night Stay</span>
-                                      </span>
-                                      <p className="text-xs font-bold text-stone-900 leading-snug">
-                                        {day.stayHotel}
-                                      </p>
-                                      <span className="inline-block mt-2 text-[10px] font-semibold bg-blue-50 text-blue-800 px-2 py-0.5 rounded border border-blue-200">
-                                        Verified Clean Stay
-                                      </span>
-                                    </div>
-                                  )}
-
                                   {/* Meals Included */}
                                   {day.meals && day.meals.length > 0 && (
                                     <div className="bg-stone-50 p-3.5 rounded-xl border border-stone-200">
@@ -747,8 +732,9 @@ export const PackageDetailsView: React.FC<PackageDetailsViewProps> = ({ pkg, onB
                         {hotel.image && (
                           <div className="sm:col-span-4 rounded-xl overflow-hidden aspect-[4/3] bg-stone-100">
                             <img
-                              src={hotel.image}
+                              src={resolveDisplayImage(hotel.image, mediaAssets)}
                               alt={hotel.name}
+                              onError={(e) => handleImageError(e, hotel.image, mediaAssets)}
                               className="w-full h-full object-cover"
                             />
                           </div>

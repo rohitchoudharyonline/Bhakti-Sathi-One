@@ -23,7 +23,7 @@ const normalizeAiTour = (raw: any): Omit<TourPackage, 'id' | 'createdAt'> => {
         location: String(d?.location || destination),
         description: String(d?.description || ''),
         meals: Array.isArray(d?.meals) ? d.meals : [],
-        stayHotel: String(d?.stayHotel || ''),
+        stayHotel: '',
         activities: Array.isArray(d?.activities) ? d.activities.map(String) : [],
         highlights: Array.isArray(d?.highlights) ? d.highlights.map(String) : [],
       }))

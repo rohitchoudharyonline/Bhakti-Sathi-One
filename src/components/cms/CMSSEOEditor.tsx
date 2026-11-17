@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
-import { Sparkles, Globe, Search, Link as LinkIcon, RefreshCw, Bot } from 'lucide-react';
+import { Sparkles, Globe, Search, Link as LinkIcon, RefreshCw, Bot, Image as ImageIcon } from 'lucide-react';
 import { generateAutoSEO, SEOData } from '../../utils/seoHelper';
+import { UniversalImageUploader } from './UniversalImageUploader';
+import { useTours } from '../../context/TourContext';
+import { resolveDisplayImage, handleImageError } from '../../utils/imageResolver';
 
 interface CMSSEOEditorProps {
   type: 'destination' | 'temple' | 'package' | 'blog' | 'guide' | 'custom_page' | 'website_page';
@@ -19,8 +22,18 @@ interface CMSSEOEditorProps {
   canonicalUrl?: string;
   ogTitle?: string;
   ogDescription?: string;
+  ogImage?: string;
+  defaultFallbackImage?: string;
   onChange: (field: string, value: string) => void;
-  onApplyAll: (data: SEOData & { slug?: string; canonicalUrl?: string; ogTitle?: string; ogDescription?: string }) => void;
+  onApplyAll: (
+    data: SEOData & {
+      slug?: string;
+      canonicalUrl?: string;
+      ogTitle?: string;
+      ogDescription?: string;
+      ogImage?: string;
+    }
+  ) => void;
 }
 
 export const CMSSEOEditor: React.FC<CMSSEOEditorProps> = ({
@@ -34,9 +47,12 @@ export const CMSSEOEditor: React.FC<CMSSEOEditorProps> = ({
   canonicalUrl = '',
   ogTitle = '',
   ogDescription = '',
+  ogImage = '',
+  defaultFallbackImage = '',
   onChange,
   onApplyAll,
 }) => {
+  const { mediaAssets } = useTours();
   const [isGeneratingGemini, setIsGeneratingGemini] = useState(false);
   const [geminiStatus, setGeminiStatus] = useState<'idle' | 'success' | 'error'>('idle');
 
@@ -54,9 +70,10 @@ export const CMSSEOEditor: React.FC<CMSSEOEditorProps> = ({
     onApplyAll({
       ...autoData,
       slug: generatedSlug,
-      canonicalUrl: canonicalUrl || `https://holidayshunt.com/${type}/${generatedSlug}`,
+      canonicalUrl: canonicalUrl || `https://holidayshunt.com/${type === 'package' ? 'tours' : type}/${generatedSlug}`,
       ogTitle: autoData.seoMetaTitle,
       ogDescription: autoData.seoMetaDescription,
+      ogImage: ogImage || defaultFallbackImage || '',
     });
   };
 
@@ -85,14 +102,16 @@ export const CMSSEOEditor: React.FC<CMSSEOEditorProps> = ({
 
       const data = await response.json();
 
+      const nextSlug = data.slug || itemName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
       onApplyAll({
         seoMetaTitle: data.seoTitle || `${itemName} Tour Packages | Holidays Hunt`,
         seoMetaDescription: data.metaDescription || `Book customized holiday packages for ${itemName} with Holidays Hunt. Verified stays, private cabs, 24/7 travel support.`,
         seoKeywords: data.keywords || `${itemName}, tour packages, holidays hunt`,
-        slug: data.slug || itemName.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
-        canonicalUrl: `https://holidayshunt.com/${type}/${data.slug || itemName.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`,
+        slug: nextSlug,
+        canonicalUrl: `https://holidayshunt.com/${type === 'package' ? 'tours' : type}/${nextSlug}`,
         ogTitle: data.ogTitle || data.seoTitle,
         ogDescription: data.ogDescription || data.metaDescription,
+        ogImage: ogImage || defaultFallbackImage || '',
       });
 
       setGeminiStatus('success');
@@ -113,7 +132,7 @@ export const CMSSEOEditor: React.FC<CMSSEOEditorProps> = ({
       .replace(/^-+|-+$/g, '');
     onChange('slug', clean);
     if (!canonicalUrl) {
-      onChange('canonicalUrl', `https://holidayshunt.com/${type}/${clean}`);
+      onChange('canonicalUrl', `https://holidayshunt.com/${type === 'package' ? 'tours' : type}/${clean}`);
     }
   };
 
@@ -121,6 +140,8 @@ export const CMSSEOEditor: React.FC<CMSSEOEditorProps> = ({
   const descLength = seoMetaDescription.length;
 
   const currentSlug = slug || itemName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  const activeSeoPreviewImage = ogImage || defaultFallbackImage || '';
+  const pathSegment = type === 'package' ? 'tours' : `${type}s`;
 
   return (
     <div className="space-y-5 bg-white p-5 sm:p-6 rounded-2xl border border-stone-200 shadow-2xs">
@@ -138,7 +159,7 @@ export const CMSSEOEditor: React.FC<CMSSEOEditorProps> = ({
               </span>
             </h4>
             <p className="text-xs text-stone-600 font-medium">
-              Optimize titles, meta descriptions, slugs, canonical URLs, and Open Graph cards.
+              Optimize titles, meta descriptions, slugs, canonical URLs, SEO image, and Open Graph cards.
             </p>
           </div>
         </div>
@@ -286,7 +307,7 @@ export const CMSSEOEditor: React.FC<CMSSEOEditorProps> = ({
               type="text"
               value={canonicalUrl}
               onChange={(e) => onChange('canonicalUrl', e.target.value)}
-              placeholder={`https://holidayshunt.com/${type}/${currentSlug}`}
+              placeholder={`https://holidayshunt.com/${type === 'package' ? 'tours' : type}/${currentSlug}`}
               className="w-full px-3.5 py-2 rounded-xl border border-stone-300 focus:ring-2 focus:ring-[#9b0000] text-xs font-mono text-stone-800 bg-stone-50/50"
             />
           </div>
@@ -320,6 +341,38 @@ export const CMSSEOEditor: React.FC<CMSSEOEditorProps> = ({
             />
           </div>
         </div>
+
+        {/* SEO & Search Engine Image Uploader (R2) */}
+        <div className="bg-stone-50/80 border border-stone-200 rounded-2xl p-4 space-y-3">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+              <label className="text-xs font-black text-stone-900 flex items-center gap-1.5">
+                <ImageIcon className="w-4 h-4 text-[#9b0000]" />
+                <span>SEO & Search Engine Preview Image (R2 Upload)</span>
+              </label>
+              <p className="text-[11px] text-stone-500 mt-0.5">
+                Recommended 1200×630px. Shown in Google Search thumbnails, Rich Snippets, WhatsApp, and social share cards. If empty, defaults to Cover Photo.
+              </p>
+            </div>
+            {ogImage && (
+              <span className="self-start text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200 shrink-0">
+                Custom SEO Pic Active
+              </span>
+            )}
+          </div>
+
+          <UniversalImageUploader
+            variant="compact"
+            label="Upload SEO Image to Cloudflare R2"
+            buttonLabel="Upload SEO Pic (R2)"
+            folder="seo"
+            defaultWidth={1200}
+            defaultFormat="webp"
+            showR2LibraryPicker={true}
+            currentUrl={ogImage}
+            onImageSelected={(url) => onChange('ogImage', url)}
+          />
+        </div>
       </div>
 
       {/* Google Live SERP Preview Box */}
@@ -329,18 +382,31 @@ export const CMSSEOEditor: React.FC<CMSSEOEditorProps> = ({
           <span>Live Google SERP Preview Box</span>
         </h5>
 
-        <div className="bg-stone-50 p-4 rounded-xl border border-stone-200 font-sans space-y-1 shadow-2xs">
-          <div className="flex items-center gap-2 text-xs text-emerald-800 font-medium">
-            <Globe className="w-3.5 h-3.5 text-stone-400" />
-            <span className="truncate">https://holidayshunt.com › {type}s › {currentSlug}</span>
+        <div className="bg-stone-50 p-4 rounded-xl border border-stone-200 font-sans shadow-2xs flex items-start justify-between gap-4">
+          <div className="min-w-0 flex-1 space-y-1">
+            <div className="flex items-center gap-2 text-xs text-emerald-800 font-medium">
+              <Globe className="w-3.5 h-3.5 text-stone-400 shrink-0" />
+              <span className="truncate">https://holidayshunt.com › {pathSegment} › {currentSlug}</span>
+            </div>
+            <h3 className="text-blue-700 text-base font-bold hover:underline cursor-pointer line-clamp-1 leading-snug">
+              {seoMetaTitle || `${itemName || 'Page Title'} | Holidays Hunt`}
+            </h3>
+            <p className="text-xs text-stone-600 line-clamp-2 leading-relaxed font-normal">
+              {seoMetaDescription ||
+                'Book customized holiday and tour packages across India with Holidays Hunt. Verified hotels, private cabs & 24/7 concierge support.'}
+            </p>
           </div>
-          <h3 className="text-blue-700 text-base font-bold hover:underline cursor-pointer line-clamp-1 leading-snug">
-            {seoMetaTitle || `${itemName || 'Page Title'} | Holidays Hunt`}
-          </h3>
-          <p className="text-xs text-stone-600 line-clamp-2 leading-relaxed font-normal">
-            {seoMetaDescription ||
-              'Book customized holiday and tour packages across India with Holidays Hunt. Verified hotels, private cabs & 24/7 concierge support.'}
-          </p>
+
+          {activeSeoPreviewImage && (
+            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl overflow-hidden border border-stone-200 bg-white shrink-0 shadow-2xs">
+              <img
+                src={resolveDisplayImage(activeSeoPreviewImage, mediaAssets)}
+                alt="Google Search Snippet Thumbnail"
+                onError={(e) => handleImageError(e, activeSeoPreviewImage, mediaAssets)}
+                className="w-full h-full object-cover"
+              />
+            </div>
+          )}
         </div>
       </div>
     </div>

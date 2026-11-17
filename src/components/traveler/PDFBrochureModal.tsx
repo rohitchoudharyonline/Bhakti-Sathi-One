@@ -261,20 +261,13 @@ export const PDFBrochureModal: React.FC<PDFBrochureModalProps> = ({
                       </div>
                     )}
 
-                    <div className="flex items-center justify-between text-[11px] text-slate-500 pt-1.5 border-t border-slate-100">
-                      {day.stayHotel ? (
-                        <span>
-                          <strong>Hotel:</strong> {day.stayHotel}
-                        </span>
-                      ) : (
-                        <span></span>
-                      )}
-                      {day.meals && day.meals.length > 0 && (
+                    {day.meals && day.meals.length > 0 && (
+                      <div className="flex items-center justify-end text-[11px] text-slate-500 pt-1.5 border-t border-slate-100">
                         <span>
                           <strong>Meals:</strong> {day.meals.join(', ')}
                         </span>
-                      )}
-                    </div>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>

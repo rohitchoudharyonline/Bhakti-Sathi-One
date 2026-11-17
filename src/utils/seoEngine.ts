@@ -1,6 +1,7 @@
 import { TourPackage, AgencySettings } from '../types/tour';
 import { BlogPost, CustomPage, YoastSeoAuditResult, YoastSeoCheckItem } from '../types/cms';
 import { DestinationMeta } from '../data/destinationsData';
+import { toPublicSeoImageUrl } from './seo';
 
 /**
  * Yoast / RankMath Style On-Page SEO Engine
@@ -391,7 +392,8 @@ function escapeRegExp(string: string) {
  */
 export function generateTouristTripSchema(pkg: TourPackage, agency: AgencySettings) {
   const origin = typeof window !== 'undefined' ? window.location.origin : 'https://holidayshunt.com';
-  const pkgUrl = `${origin}/tours/${pkg.destinationTag || 'india'}/${pkg.slug || pkg.id}`;
+  const pkgUrl = pkg.canonicalUrl || `${origin}/tours/${pkg.slug || pkg.id}`;
+  const seoImg = toPublicSeoImageUrl(pkg.ogImage || pkg.coverImage, origin) || pkg.ogImage || pkg.coverImage;
 
   const ratingVal = pkg.rating || 4.9;
   const reviewTotal = pkg.reviewCount || 485;
@@ -448,11 +450,11 @@ export function generateTouristTripSchema(pkg: TourPackage, agency: AgencySettin
       '@context': 'https://schema.org',
       '@type': 'TouristTrip',
       '@id': `${pkgUrl}#trip`,
-      name: pkg.title,
-      description: pkg.overview || pkg.tagline,
+      name: pkg.seoMetaTitle || pkg.seoTitle || pkg.title,
+      description: pkg.seoMetaDescription || pkg.metaDescription || pkg.overview || pkg.tagline,
       touristType: ['Family', 'Couples', 'Holiday Travelers', 'Senior Travelers'],
       url: pkgUrl,
-      image: pkg.coverImage,
+      image: seoImg,
       offers: {
         '@type': 'Offer',
         price: pkg.discountedPrice || pkg.price,
@@ -500,9 +502,9 @@ export function generateTouristTripSchema(pkg: TourPackage, agency: AgencySettin
       '@context': 'https://schema.org',
       '@type': 'Product',
       '@id': `${pkgUrl}#product`,
-      name: pkg.title,
-      description: pkg.overview || pkg.tagline,
-      image: pkg.coverImage,
+      name: pkg.seoMetaTitle || pkg.seoTitle || pkg.title,
+      description: pkg.seoMetaDescription || pkg.metaDescription || pkg.overview || pkg.tagline,
+      image: seoImg,
       category: 'Travel Package / Vacation Tour',
       offers: {
         '@type': 'Offer',
@@ -561,15 +563,16 @@ export function generateAgencyReviewSchema(agency: AgencySettings) {
  */
 export function generateTouristDestinationSchema(dest: DestinationMeta, agency: AgencySettings) {
   const origin = typeof window !== 'undefined' ? window.location.origin : 'https://holidayshunt.com';
-  const destUrl = `${origin}/destinations/${dest.slug}`;
+  const destUrl = `${origin}/destination/${dest.slug}`;
+  const destImg = toPublicSeoImageUrl((dest as any).ogImage || dest.heroImage, origin) || dest.heroImage;
 
   return {
     '@context': 'https://schema.org',
     '@type': 'TouristDestination',
     name: dest.name,
-    description: dest.guide?.overview || dest.tagline,
+    description: dest.seoMetaDescription || dest.guide?.overview || dest.tagline,
     url: destUrl,
-    image: dest.heroImage,
+    image: destImg,
     touristType: ['Honeymoon', 'Family Holiday', 'Spiritual Yatra', 'Adventure'],
     containedInPlace: {
       '@type': 'AdministrativeArea',
@@ -579,7 +582,7 @@ export function generateTouristDestinationSchema(dest: DestinationMeta, agency: 
       '@type': 'TouristAttraction',
       name: a.name,
       description: a.description,
-      image: a.image,
+      image: toPublicSeoImageUrl(a.image, origin) || a.image,
     })) || [],
   };
 }
@@ -590,6 +593,7 @@ export function generateTouristDestinationSchema(dest: DestinationMeta, agency: 
 export function generateBlogPostingSchema(post: BlogPost, agency: AgencySettings) {
   const origin = typeof window !== 'undefined' ? window.location.origin : 'https://holidayshunt.com';
   const postUrl = `${origin}/travel-blog/${post.slug}`;
+  const postImg = toPublicSeoImageUrl(post.seo?.ogImage || post.featuredImage, origin) || post.seo?.ogImage || post.featuredImage;
 
   return {
     '@context': 'https://schema.org',
@@ -600,7 +604,7 @@ export function generateBlogPostingSchema(post: BlogPost, agency: AgencySettings
     },
     headline: post.title,
     description: post.excerpt,
-    image: [post.featuredImage],
+    image: postImg ? [postImg] : [],
     datePublished: post.publishedAt,
     dateModified: post.updatedAt || post.publishedAt,
     author: {
@@ -670,12 +674,13 @@ export function generateGuideArticleSchema(
     authorName?: string;
     category?: string;
     tags?: string[];
-    seo?: { primaryKeyword?: string };
+    seo?: { primaryKeyword?: string; ogImage?: string };
   },
   agency: AgencySettings
 ) {
   const origin = typeof window !== 'undefined' ? window.location.origin : 'https://holidayshunt.com';
   const guideUrl = `${origin}/guide/${guide.slug}`;
+  const guideImg = toPublicSeoImageUrl(guide.seo?.ogImage || guide.featuredImage, origin) || guide.seo?.ogImage || guide.featuredImage;
 
   return {
     '@context': 'https://schema.org',
@@ -688,7 +693,7 @@ export function generateGuideArticleSchema(
     },
     headline: guide.title,
     description: guide.excerpt,
-    image: guide.featuredImage ? [guide.featuredImage] : undefined,
+    image: guideImg ? [guideImg] : undefined,
     datePublished: guide.publishedAt || new Date().toISOString(),
     dateModified: guide.updatedAt || guide.publishedAt || new Date().toISOString(),
     mainEntityOfPage: {

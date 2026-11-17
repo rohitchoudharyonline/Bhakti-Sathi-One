@@ -62,7 +62,13 @@ export const BlogPostDetailView: React.FC<BlogPostDetailViewProps> = ({ slug }) 
     updatePageSeo({
       title: post.seo?.metaTitle || `${post.title} | Holidays Hunt`,
       description: post.seo?.metaDescription || post.excerpt,
+      keywords: post.seo?.focusKeyword || post.tags?.join(', '),
+      ogTitle: post.seo?.ogTitle || post.seo?.metaTitle || post.title,
+      ogDescription: post.seo?.ogDescription || post.seo?.metaDescription || post.excerpt,
+      ogImage: post.seo?.ogImage || post.featuredImage,
+      canonicalUrl: post.seo?.canonicalUrl,
       canonicalPath: `/travel-blog/${post.slug}`,
+      type: 'article',
       schemaData: [breadcrumbs, blogSchema],
     });
 

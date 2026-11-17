@@ -29,6 +29,10 @@ export const CustomPageDetailView: React.FC<CustomPageDetailViewProps> = ({ slug
     updatePageSeo({
       title: page.seo?.metaTitle || `${page.title} | Holidays Hunt Travel`,
       description: page.seo?.metaDescription || page.subtitle || page.content.slice(0, 150),
+      keywords: page.seo?.focusKeyword,
+      ogTitle: page.seo?.ogTitle || page.seo?.metaTitle || page.title,
+      ogDescription: page.seo?.ogDescription || page.seo?.metaDescription || page.subtitle,
+      ogImage: page.seo?.ogImage || page.heroImage,
       canonicalPath: `/page/${page.slug}`,
       schemaData: breadcrumbs,
     });

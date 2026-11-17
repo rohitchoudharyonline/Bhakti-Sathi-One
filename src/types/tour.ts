@@ -63,7 +63,7 @@ export interface ItineraryDay {
   location: string;
   description: string;
   meals: MealType[];
-  stayHotel: string;
+  stayHotel?: string;
   activities: string[];
   highlights?: string[];
 }
@@ -87,7 +87,7 @@ export interface HotelStay {
   notes?: string;
 }
 
-export type HotelStarCategory = '2-star' | '3-star' | '4-star' | '5-star';
+export type HotelStarCategory = 'budget' | '2-star' | '3-star' | '4-star' | '5-star';
 
 export type HotelTierKey = 'star2' | 'star3' | 'star4' | 'star5';
 
@@ -99,7 +99,7 @@ export const HOTEL_CATEGORY_OPTIONS: Array<{
   cmsLabel: string;
   tierName: string;
 }> = [
-  { key: 'star2', value: '2-star', starRating: 2, label: '2-Star (Budget)', cmsLabel: '2★ Budget Hotels', tierName: '2-Star (Budget)' },
+  { key: 'star2', value: 'budget', starRating: 2, label: 'Budget', cmsLabel: 'Budget Hotels', tierName: 'Budget' },
   { key: 'star3', value: '3-star', starRating: 3, label: '3-Star', cmsLabel: '3★ Deluxe', tierName: '3-Star' },
   { key: 'star4', value: '4-star', starRating: 4, label: '4-Star', cmsLabel: '4★ Premium', tierName: '4-Star' },
   { key: 'star5', value: '5-star', starRating: 5, label: '5-Star', cmsLabel: '5★ Luxury', tierName: '5-Star' },
@@ -336,6 +336,10 @@ export interface TourPackage {
   seoMetaDescription?: string;
   seoKeywords?: string;
   metaDescription?: string;
+  canonicalUrl?: string;
+  ogTitle?: string;
+  ogDescription?: string;
+  ogImage?: string;
   templeIds?: string[];
   temples?: string[];
   places?: string[];

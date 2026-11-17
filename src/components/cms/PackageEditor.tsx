@@ -227,6 +227,10 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
   const [seoTitle, setSeoTitle] = useState(initialPackage?.seoTitle || initialPackage?.seoMetaTitle || '');
   const [metaDescription, setMetaDescription] = useState(initialPackage?.metaDescription || initialPackage?.seoMetaDescription || '');
   const [seoKeywords, setSeoKeywords] = useState(initialPackage?.seoKeywords || '');
+  const [canonicalUrl, setCanonicalUrl] = useState(initialPackage?.canonicalUrl || '');
+  const [ogTitle, setOgTitle] = useState(initialPackage?.ogTitle || '');
+  const [ogDescription, setOgDescription] = useState(initialPackage?.ogDescription || '');
+  const [ogImage, setOgImage] = useState(initialPackage?.ogImage || '');
   const [isGeneratingSeo, setIsGeneratingSeo] = useState(false);
 
   // Gallery
@@ -271,7 +275,8 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
       );
       if (t.enabled === true || hasTaggedHotel || hasLegacyNamedPrice) {
         if (taggedStars.size === 0 || hasTaggedHotel || (t.enabled === true && Boolean(t.hotelNames?.trim()))) {
-          cleaned[opt.key] = { ...t, enabled: true, starRating: opt.starRating, tierName: t.tierName || opt.tierName };
+          const cleanTierName = t.tierName && !/2[\s-]*star/i.test(String(t.tierName)) ? t.tierName : opt.tierName;
+          cleaned[opt.key] = { ...t, enabled: true, starRating: opt.starRating, tierName: cleanTierName };
         }
       }
     }
@@ -291,7 +296,7 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
         location: 'Destination City',
         description: 'Meet and greet by our private chauffeur at the airport. Transfer to the hotel with welcome drink. Evening at leisure.',
         meals: ['Dinner'],
-        stayHotel: 'Grand Luxury 5-Star Resort',
+        stayHotel: '',
         activities: ['Airport VIP Transfer', 'Welcome Dinner', 'Evening City Walk'],
       },
       {
@@ -301,7 +306,7 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
         location: 'Historic / Scenic Quarter',
         description: 'Guided tour covering the premier landmarks, viewpoints, and cultural heritage monuments with lunch.',
         meals: ['Breakfast', 'Dinner'],
-        stayHotel: 'Grand Luxury 5-Star Resort',
+        stayHotel: '',
         activities: ['Guided Landmark Visit', 'Scenic Viewpoint', 'Local Market Stroll'],
       },
     ]
@@ -466,7 +471,8 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
         for (const opt of HOTEL_CATEGORY_OPTIONS) {
           const t = pricingTiers?.[opt.key];
           if (t && t.enabled === true) {
-            cleaned[opt.key] = { ...t, enabled: true, starRating: opt.starRating, tierName: t.tierName || opt.tierName };
+            const cleanTierName = t.tierName && !/2[\s-]*star/i.test(String(t.tierName)) ? t.tierName : opt.tierName;
+            cleaned[opt.key] = { ...t, enabled: true, starRating: opt.starRating, tierName: cleanTierName };
           }
         }
         return cleaned;
@@ -512,7 +518,7 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
             batches,
           }
         : undefined,
-      itinerary,
+      itinerary: itinerary.map(({ stayHotel: _removedStayHotel, ...rest }) => ({ ...rest, stayHotel: '' })),
       inclusions,
       exclusions,
       includedIcons,
@@ -532,6 +538,10 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
       metaDescription: metaDescription.trim(),
       seoMetaDescription: metaDescription.trim(),
       seoKeywords: seoKeywords.trim(),
+      canonicalUrl: canonicalUrl.trim() || undefined,
+      ogTitle: ogTitle.trim() || undefined,
+      ogDescription: ogDescription.trim() || undefined,
+      ogImage: ogImage.trim() || undefined,
     };
 
     if (initialPackage?.id) {
@@ -557,7 +567,7 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
       location: destination || 'City Highlights',
       description: 'Morning guided sightseeing followed by afternoon excursion and scenic photo points.',
       meals: ['Breakfast'],
-      stayHotel: hotels[0]?.name || 'Luxury 4/5-Star Hotel',
+      stayHotel: '',
       activities: ['Scenic Excursion', 'Photography Stop', 'Leisure Walk'],
     };
     setItinerary([...itinerary, newDay]);
@@ -602,7 +612,7 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
       location: destination || 'City Center',
       roomType: 'Deluxe Room with Breakfast',
       nights: 2,
-      image: SAMPLE_COVERS[1].url,
+      image: '',
       amenities: ['Free WiFi', 'Breakfast Included', 'Swimming Pool'],
     };
     setHotels([...hotels, newH]);
@@ -1429,7 +1439,7 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
             <div className="pt-6 border-t border-slate-100">
               <h4 className="text-sm font-black text-slate-900 mb-1">Hotel Category Pricing Tiers</h4>
               <p className="text-xs text-slate-500 mb-4">
-                Enable only the hotel categories available for this package (2★ Budget Hotels, 3★, 4★, 5★). Only enabled categories are shown to travelers.
+                Enable only the hotel categories available for this package (Budget, 3★, 4★, 5★). Only enabled categories are shown to travelers.
               </p>
               <div className="grid gap-4">
                 {HOTEL_CATEGORY_OPTIONS.map((opt) => {
@@ -1552,7 +1562,7 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
                     Day-Wise Itinerary Builder ({itinerary.length} Days)
                   </h3>
                   <p className="text-xs text-slate-500">
-                    Add narrative plans, meal inclusions, overnight stays, and sightseeing tags for each day
+                    Add narrative plans, meal inclusions, and sightseeing tags for each day
                   </p>
                 </div>
 
@@ -1630,22 +1640,8 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
                         />
                       </div>
 
-                      {/* Stay Hotel */}
-                      <div className="sm:col-span-6">
-                        <label className="text-[11px] font-bold text-slate-700 block mb-1">
-                          Overnight Stay Hotel / Resort
-                        </label>
-                        <input
-                          type="text"
-                          value={day.stayHotel || ''}
-                          onChange={(e) => handleUpdateDay(day.id, { stayHotel: e.target.value })}
-                          placeholder="e.g. Royal Heritage Luxury Houseboat"
-                          className="w-full text-xs bg-white border border-slate-200 rounded-xl px-3 py-2 focus:border-brand focus:outline-hidden"
-                        />
-                      </div>
-
                       {/* Meals toggles */}
-                      <div className="sm:col-span-6">
+                      <div className="sm:col-span-12">
                         <label className="text-[11px] font-bold text-slate-700 block mb-1">
                           Included Meals on Day {day.dayNumber}
                         </label>
@@ -2162,7 +2158,7 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
                           <option value="">Not Specified</option>
                           {HOTEL_CATEGORY_OPTIONS.map((opt) => (
                             <option key={opt.key} value={String(opt.starRating)}>
-                              {opt.starRating === 2 ? '2-Star (Budget Hotels)' : opt.label}
+                              {opt.label}
                             </option>
                           ))}
                         </select>
@@ -2204,18 +2200,7 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
                         />
                       </div>
 
-                      <div className="sm:col-span-4">
-                        <label className="font-bold text-slate-700 block mb-1">Hotel Image URL</label>
-                        <input
-                          type="url"
-                          value={hotel.image}
-                          onChange={(e) => handleUpdateHotel(hotel.id, { image: e.target.value })}
-                          placeholder="https://..."
-                          className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 focus:border-brand focus:outline-hidden"
-                        />
-                      </div>
-
-                      <div className="sm:col-span-12">
+                      <div className="sm:col-span-8">
                         <label className="font-bold text-slate-700 block mb-1">Amenities (comma separated)</label>
                         <input
                           type="text"
@@ -2223,6 +2208,20 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
                           onChange={(e) => handleUpdateHotel(hotel.id, { amenities: e.target.value.split(',').map(s => s.trim()).filter(Boolean) })}
                           placeholder="WiFi, Pool, Spa..."
                           className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 focus:border-brand focus:outline-hidden"
+                        />
+                      </div>
+
+                      <div className="sm:col-span-12 bg-white rounded-xl border border-slate-200 p-3">
+                        <UniversalImageUploader
+                          variant="compact"
+                          label="Hotel Photo (Upload directly to Cloudflare R2)"
+                          buttonLabel="Upload Hotel Pic (R2)"
+                          folder="hotels"
+                          defaultWidth={1000}
+                          defaultFormat="webp"
+                          showR2LibraryPicker={true}
+                          currentUrl={hotel.image}
+                          onImageSelected={(url) => handleUpdateHotel(hotel.id, { image: url })}
                         />
                       </div>
                     </div>
@@ -2520,17 +2519,30 @@ export const PackageEditor: React.FC<PackageEditorProps> = ({
             seoMetaTitle={seoTitle}
             seoMetaDescription={metaDescription}
             seoKeywords={seoKeywords}
+            canonicalUrl={canonicalUrl}
+            ogTitle={ogTitle}
+            ogDescription={ogDescription}
+            ogImage={ogImage}
+            defaultFallbackImage={coverImage}
             onChange={(field, val) => {
               if (field === 'slug') setSlug(val);
               if (field === 'seoMetaTitle') setSeoTitle(val);
               if (field === 'seoMetaDescription') setMetaDescription(val);
               if (field === 'seoKeywords') setSeoKeywords(val);
+              if (field === 'canonicalUrl') setCanonicalUrl(val);
+              if (field === 'ogTitle') setOgTitle(val);
+              if (field === 'ogDescription') setOgDescription(val);
+              if (field === 'ogImage') setOgImage(val);
             }}
             onApplyAll={(data) => {
               if (data.slug) setSlug(data.slug);
               setSeoTitle(data.seoMetaTitle);
               setMetaDescription(data.seoMetaDescription);
               setSeoKeywords(data.seoKeywords);
+              if (data.canonicalUrl !== undefined) setCanonicalUrl(data.canonicalUrl);
+              if (data.ogTitle !== undefined) setOgTitle(data.ogTitle);
+              if (data.ogDescription !== undefined) setOgDescription(data.ogDescription);
+              if (data.ogImage !== undefined) setOgImage(data.ogImage);
             }}
           />
         )}

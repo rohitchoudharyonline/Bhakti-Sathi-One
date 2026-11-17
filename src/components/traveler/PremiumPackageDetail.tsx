@@ -120,20 +120,25 @@ export const PremiumPackageDetail: React.FC<Props> = ({ pkg, onBack }) => {
     try {
       const tripSchemas = generateTouristTripSchema(pkg, agencySettings);
       const origin = typeof window !== 'undefined' ? window.location.origin : 'https://holidayshunt.com';
+      const canonicalPath = `/tours/${pkg.slug || pkg.id}`;
       const breadcrumbSchema = generateBreadcrumbSchema([
         { name: 'Home', url: origin },
         { name: 'Tours', url: `${origin}/tours` },
         { name: pkg.destination || 'Holiday Package', url: `${origin}/tours/${pkg.destinationTag || 'india'}` },
-        { name: pkg.title, url: `${origin}/tours/${pkg.destinationTag || 'india'}/${pkg.slug || pkg.id}` },
+        { name: pkg.title, url: `${origin}${canonicalPath}` },
       ]);
 
       const allSchemas = Array.isArray(tripSchemas) ? [...tripSchemas, breadcrumbSchema] : [tripSchemas, breadcrumbSchema];
 
       updatePageSeo({
-        title: `${pkg.title} | Holidays Hunt Sacred Yatra`,
-        description: pkg.overview || pkg.tagline || `Book ${pkg.title} (${pkg.durationDays} Days / ${pkg.durationNights} Nights) with verified deluxe hotels and private chauffeur cab transfers.`,
-        canonicalPath: `/tours/${pkg.destinationTag || 'india'}/${pkg.slug || pkg.id}`,
-        ogImage: pkg.coverImage,
+        title: pkg.seoMetaTitle || pkg.seoTitle || `${pkg.title} | Holidays Hunt`,
+        description: pkg.seoMetaDescription || pkg.metaDescription || pkg.overview || pkg.tagline || `Book ${pkg.title} (${pkg.durationDays} Days / ${pkg.durationNights} Nights) with verified deluxe hotels and private chauffeur cab transfers.`,
+        keywords: pkg.seoKeywords,
+        ogTitle: pkg.ogTitle || pkg.seoMetaTitle || pkg.seoTitle || `${pkg.title} | Holidays Hunt`,
+        ogDescription: pkg.ogDescription || pkg.seoMetaDescription || pkg.metaDescription || pkg.tagline || pkg.overview,
+        canonicalPath,
+        canonicalUrl: pkg.canonicalUrl || undefined,
+        ogImage: pkg.ogImage || pkg.coverImage,
         schemaData: allSchemas,
         type: 'product',
       });
@@ -224,10 +229,14 @@ export const PremiumPackageDetail: React.FC<Props> = ({ pkg, onBack }) => {
       const tierHasPrice =
         Number(tierObj.discountedPrice || 0) > 0 || Number(tierObj.price || 0) > 0;
       const tierPor = tierObj.priceOnRequest === true || (!tierHasPrice && isBasePriceOnRequest);
+      const normalizedTierName =
+        tierObj.tierName && !/2[\s-]*star/i.test(String(tierObj.tierName))
+          ? tierObj.tierName
+          : activeTierOption.label;
       return {
         key: activeTierOption.key,
         starRating: activeTierOption.starRating,
-        tierName: tierObj.tierName || activeTierOption.label,
+        tierName: normalizedTierName,
         price: tierPor ? 0 : Number(tierObj.price || pkg.price || 0),
         discountedPrice: tierPor ? undefined : (tierObj.discountedPrice ?? (!tierHasPrice ? pkg.discountedPrice : undefined)),
         priceOnRequest: tierPor,

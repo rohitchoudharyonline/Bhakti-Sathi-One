@@ -834,6 +834,11 @@ export const TemplesManager: React.FC = () => {
                 seoMetaTitle={formData.seoMetaTitle}
                 seoMetaDescription={formData.seoMetaDescription}
                 seoKeywords={formData.seoKeywords}
+                canonicalUrl={formData.canonicalUrl}
+                ogTitle={formData.ogTitle}
+                ogDescription={formData.ogDescription}
+                ogImage={formData.ogImage}
+                defaultFallbackImage={formData.image}
                 onChange={(field, val) => setFormData({ ...formData, [field]: val })}
                 onApplyAll={(data) => setFormData({ ...formData, ...data })}
               />

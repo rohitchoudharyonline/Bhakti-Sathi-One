@@ -2,13 +2,10 @@ import React, { useState } from 'react';
 import { ItineraryDay } from '../../types/tour';
 import {
   CalendarDays,
-  Hotel,
   Utensils,
   ChevronDown,
   ChevronUp,
-  Sparkles,
   Layers,
-  CheckCircle2,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -158,19 +155,9 @@ export const DayWiseItinerary: React.FC<DayWiseItineraryProps> = ({
                             {day.description}
                           </p>
 
-                          {/* Footer: Stay & Meals stacked vertically */}
-                          <div className="pt-2.5 border-t border-stone-100 text-xs w-full space-y-2.5">
-                            {day.stayHotel && (
-                              <div className="flex items-start gap-1.5 text-stone-700 w-full">
-                                <Hotel className="w-3.5 h-3.5 text-[#9b0000] shrink-0 mt-0.5" />
-                                <div className="flex flex-col min-w-0 flex-1">
-                                  <span className="font-bold text-stone-900">Hotels:</span>
-                                  <span className="break-words leading-relaxed text-stone-700 font-medium">{day.stayHotel}</span>
-                                </div>
-                              </div>
-                            )}
-
-                            {day.meals && day.meals.length > 0 && (
+                          {/* Footer: Meals */}
+                          {day.meals && day.meals.length > 0 && (
+                            <div className="pt-2.5 border-t border-stone-100 text-xs w-full space-y-2.5">
                               <div className="flex items-start gap-1.5 text-stone-700 w-full">
                                 <Utensils className="w-3.5 h-3.5 text-[#9b0000] shrink-0 mt-0.5" />
                                 <div className="flex flex-col min-w-0 flex-1">
@@ -178,8 +165,8 @@ export const DayWiseItinerary: React.FC<DayWiseItineraryProps> = ({
                                   <span className="text-stone-700 font-medium leading-relaxed">{day.meals.join(', ')}</span>
                                 </div>
                               </div>
-                            )}
-                          </div>
+                            </div>
+                          )}
                         </div>
                       </motion.div>
                     )}

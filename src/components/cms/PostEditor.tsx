@@ -150,6 +150,10 @@ export const PostEditor: React.FC<PostEditorProps> = ({
     focusKeyword: string;
     metaTitle: string;
     metaDescription: string;
+    canonicalUrl: string;
+    ogTitle: string;
+    ogDescription: string;
+    ogImage: string;
     schemaType: 'BlogPosting' | 'Article';
     isFeatured: boolean;
   }>({
@@ -169,6 +173,10 @@ export const PostEditor: React.FC<PostEditorProps> = ({
     focusKeyword: '',
     metaTitle: '',
     metaDescription: '',
+    canonicalUrl: '',
+    ogTitle: '',
+    ogDescription: '',
+    ogImage: '',
     schemaType: 'BlogPosting',
     isFeatured: false,
   });
@@ -194,6 +202,10 @@ export const PostEditor: React.FC<PostEditorProps> = ({
         focusKeyword: initialPost.seo?.focusKeyword || '',
         metaTitle: initialPost.seo?.metaTitle || '',
         metaDescription: initialPost.seo?.metaDescription || '',
+        canonicalUrl: initialPost.seo?.canonicalUrl || '',
+        ogTitle: initialPost.seo?.ogTitle || '',
+        ogDescription: initialPost.seo?.ogDescription || '',
+        ogImage: initialPost.seo?.ogImage || '',
         schemaType: (initialPost.seo?.schemaType as any) || 'BlogPosting',
         isFeatured: initialPost.featured || false,
       });
@@ -239,6 +251,10 @@ Carry layered clothing, comfortable walking footwear, and keep valid ID proofs h
         focusKeyword: '',
         metaTitle: '',
         metaDescription: '',
+        canonicalUrl: '',
+        ogTitle: '',
+        ogDescription: '',
+        ogImage: '',
         schemaType: 'BlogPosting',
         isFeatured: true,
       });
@@ -553,6 +569,10 @@ Carry layered clothing, comfortable walking footwear, and keep valid ID proofs h
         focusKeyword: formData.focusKeyword,
         metaTitle: formData.metaTitle || formData.title,
         metaDescription: formData.metaDescription || formData.excerpt,
+        canonicalUrl: formData.canonicalUrl.trim() || undefined,
+        ogTitle: formData.ogTitle.trim() || undefined,
+        ogDescription: formData.ogDescription.trim() || undefined,
+        ogImage: formData.ogImage.trim() || undefined,
         schemaType: formData.schemaType,
       },
     };
@@ -1237,10 +1257,19 @@ Carry layered clothing, comfortable walking footwear, and keep valid ID proofs h
               seoMetaTitle={formData.metaTitle}
               seoMetaDescription={formData.metaDescription}
               seoKeywords={formData.focusKeyword}
+              canonicalUrl={formData.canonicalUrl}
+              ogTitle={formData.ogTitle}
+              ogDescription={formData.ogDescription}
+              ogImage={formData.ogImage}
+              defaultFallbackImage={formData.featuredImage}
               onChange={(field, val) => {
                 if (field === 'seoMetaTitle') setFormData((prev) => ({ ...prev, metaTitle: val }));
                 if (field === 'seoMetaDescription') setFormData((prev) => ({ ...prev, metaDescription: val }));
                 if (field === 'seoKeywords') setFormData((prev) => ({ ...prev, focusKeyword: val }));
+                if (field === 'canonicalUrl') setFormData((prev) => ({ ...prev, canonicalUrl: val }));
+                if (field === 'ogTitle') setFormData((prev) => ({ ...prev, ogTitle: val }));
+                if (field === 'ogDescription') setFormData((prev) => ({ ...prev, ogDescription: val }));
+                if (field === 'ogImage') setFormData((prev) => ({ ...prev, ogImage: val }));
               }}
               onApplyAll={(seoData) => {
                 setFormData((prev) => ({
@@ -1248,6 +1277,9 @@ Carry layered clothing, comfortable walking footwear, and keep valid ID proofs h
                   metaTitle: seoData.seoMetaTitle,
                   metaDescription: seoData.seoMetaDescription,
                   focusKeyword: seoData.seoKeywords,
+                  ...(seoData.ogTitle !== undefined ? { ogTitle: seoData.ogTitle } : {}),
+                  ...(seoData.ogDescription !== undefined ? { ogDescription: seoData.ogDescription } : {}),
+                  ...(seoData.ogImage !== undefined ? { ogImage: seoData.ogImage } : {}),
                 }));
               }}
             />
@@ -1258,17 +1290,24 @@ Carry layered clothing, comfortable walking footwear, and keep valid ID proofs h
                 Google Search Result Snippet Preview
               </span>
 
-              <div className="bg-white p-4 rounded-xl border border-stone-200 space-y-1">
-                <div className="flex items-center gap-1.5 text-xs text-stone-600 font-mono">
-                  <span className="font-black text-stone-900">holidayshunt.com</span>
-                  <span>› travel-blog › {formData.slug || 'article-slug'}</span>
+              <div className="bg-white p-4 rounded-xl border border-stone-200 flex items-start justify-between gap-4">
+                <div className="min-w-0 flex-1 space-y-1">
+                  <div className="flex items-center gap-1.5 text-xs text-stone-600 font-mono">
+                    <span className="font-black text-stone-900">holidayshunt.com</span>
+                    <span>› travel-blog › {formData.slug || 'article-slug'}</span>
+                  </div>
+                  <h4 className="text-blue-800 text-sm sm:text-base font-medium hover:underline cursor-pointer line-clamp-1">
+                    {formData.metaTitle || formData.title || 'Untitled Article Title - Holidays Hunt'}
+                  </h4>
+                  <p className="text-xs text-stone-600 line-clamp-2">
+                    {formData.metaDescription || formData.excerpt || 'Read this comprehensive travel guide to plan your dream vacation.'}
+                  </p>
                 </div>
-                <h4 className="text-blue-800 text-sm sm:text-base font-medium hover:underline cursor-pointer line-clamp-1">
-                  {formData.metaTitle || formData.title || 'Untitled Article Title - Holidays Hunt'}
-                </h4>
-                <p className="text-xs text-stone-600 line-clamp-2">
-                  {formData.metaDescription || formData.excerpt || 'Read this comprehensive travel guide to plan your dream vacation.'}
-                </p>
+                {(formData.ogImage || formData.featuredImage) && (
+                  <div className="w-20 h-20 rounded-xl overflow-hidden border border-stone-200 bg-stone-100 shrink-0">
+                    <img src={formData.ogImage || formData.featuredImage} alt="SEO preview thumbnail" className="w-full h-full object-cover" />
+                  </div>
+                )}
               </div>
             </div>
 
