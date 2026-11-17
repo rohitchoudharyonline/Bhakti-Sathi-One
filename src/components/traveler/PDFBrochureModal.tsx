@@ -1,7 +1,13 @@
-import React, { useState } from 'react';
-import { TourPackage, resolveTourPolicies } from '../../types/tour';
+import React, { useEffect, useMemo, useState } from 'react';
+import { HotelTierKey, TourPackage, resolveTourPolicies } from '../../types/tour';
 import { useTours } from '../../context/TourContext';
 import { generateTourPDF } from '../../utils/pdfGenerator';
+import {
+  formatHotelCategoryLabel,
+  getHotelsForTier,
+  getPackageAvailableTiers,
+  getTierUnitPrice,
+} from '../../utils/hotelCategories';
 import {
   X,
   Download,
@@ -20,24 +26,56 @@ interface PDFBrochureModalProps {
   pkg: TourPackage;
   isOpen: boolean;
   onClose: () => void;
+  initialTierKey?: HotelTierKey;
 }
 
 export const PDFBrochureModal: React.FC<PDFBrochureModalProps> = ({
   pkg,
   isOpen,
   onClose,
+  initialTierKey,
 }) => {
   const { agencySettings } = useTours();
   const [isGenerating, setIsGenerating] = useState(false);
   const [statusMsg, setStatusMsg] = useState('');
-  const [selectedTier, setSelectedTier] = useState<string>('3_star');
+
+  const availableTiers = useMemo(() => getPackageAvailableTiers(pkg), [pkg]);
+
+  const [selectedTierKey, setSelectedTierKey] = useState<HotelTierKey | undefined>(
+    () => initialTierKey || availableTiers[0]?.key
+  );
+
+  useEffect(() => {
+    if (availableTiers.length === 0) {
+      setSelectedTierKey(undefined);
+      return;
+    }
+    if (initialTierKey && availableTiers.some((t) => t.key === initialTierKey)) {
+      setSelectedTierKey(initialTierKey);
+      return;
+    }
+    if (!selectedTierKey || !availableTiers.some((t) => t.key === selectedTierKey)) {
+      setSelectedTierKey(availableTiers[0].key);
+    }
+  }, [pkg.id, availableTiers, initialTierKey]);
+
+  const filteredHotels = useMemo(
+    () => getHotelsForTier(pkg, selectedTierKey),
+    [pkg, selectedTierKey]
+  );
+
+  const activeCategoryLabel = selectedTierKey ? formatHotelCategoryLabel(selectedTierKey) : '';
+  const { unitPrice, isPriceOnRequest } = useMemo(
+    () => getTierUnitPrice(pkg, selectedTierKey),
+    [pkg, selectedTierKey]
+  );
 
   if (!isOpen) return null;
 
   const handleDownloadPDF = async () => {
     try {
       setIsGenerating(true);
-      await generateTourPDF(pkg, agencySettings, (msg) => setStatusMsg(msg));
+      await generateTourPDF(pkg, agencySettings, (msg) => setStatusMsg(msg), selectedTierKey);
       setTimeout(() => {
         setIsGenerating(false);
         setStatusMsg('');
@@ -185,19 +223,52 @@ export const PDFBrochureModal: React.FC<PDFBrochureModalProps> = ({
                   </div>
                 </div>
 
-                {/* Price on Request Callout Box */}
-                <div className="bg-white text-slate-900 rounded-xl p-4 sm:p-5 text-center min-w-[190px] border-2 border-brand shadow-xs">
+                {/* Price & Category Callout Box */}
+                <div className="bg-white text-slate-900 rounded-xl p-4 sm:p-5 text-center min-w-[195px] border-2 border-brand shadow-xs">
                   <span className="text-[9px] font-extrabold uppercase tracking-wider text-slate-400 block">
-                    OFFICIAL QUOTE
+                    {activeCategoryLabel ? `${activeCategoryLabel} CATEGORY` : 'OFFICIAL QUOTE'}
                   </span>
                   <div className="text-lg sm:text-xl font-black text-brand my-1">
-                    Price on Request
+                    {isPriceOnRequest || unitPrice <= 0
+                      ? 'Price on Request'
+                      : `₹${unitPrice.toLocaleString('en-IN')}`}
                   </div>
                   <p className="text-[10px] text-slate-500 leading-tight">
-                    Customized to your travel dates, group size & hotel category
+                    {isPriceOnRequest || unitPrice <= 0
+                      ? 'Customized to your travel dates, group size & hotel category'
+                      : 'Per person on twin sharing'}
                   </p>
                 </div>
               </div>
+
+              {/* Interactive Hotel Category Selector (only categories configured in this package) */}
+              {availableTiers.length > 0 && (
+                <div className="mt-4 pt-3.5 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2">
+                  <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+                    <Building className="w-3.5 h-3.5 text-brand" />
+                    <span>Select Hotel Category for Brochure PDF:</span>
+                  </span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {availableTiers.map((tierOpt) => {
+                      const isActive = selectedTierKey === tierOpt.key;
+                      return (
+                        <button
+                          key={tierOpt.key}
+                          type="button"
+                          onClick={() => setSelectedTierKey(tierOpt.key)}
+                          className={`px-3 py-1 rounded-lg text-xs font-bold border transition cursor-pointer ${
+                            isActive
+                              ? 'bg-[#9b0000] text-white border-[#9b0000] shadow-xs'
+                              : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
+                          }`}
+                        >
+                          {tierOpt.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Tour Overview */}
@@ -306,33 +377,65 @@ export const PDFBrochureModal: React.FC<PDFBrochureModalProps> = ({
               </div>
             </div>
 
-            {/* Hotel Stays */}
-            {pkg.hotels.length > 0 && (
+            {/* Hotel Stays (Filtered by Selected Category) */}
+            {(filteredHotels.length > 0 || (selectedTierKey && pkg.pricingTiers?.[selectedTierKey]?.hotelNames)) && (
               <div className="p-4 bg-white border border-slate-200 rounded-2xl space-y-3">
-                <h4 className="text-xs font-black text-slate-900 uppercase flex items-center gap-1.5">
-                  <Building className="w-4 h-4 text-brand" />
-                  Verified Star Accommodations
-                </h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {pkg.hotels.map((h) => (
-                    <div
-                      key={h.id}
-                      className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs flex justify-between items-center"
-                    >
-                      <div>
-                        <div className="font-bold text-slate-900">
-                          {h.name} <span className="text-brand">{'★'.repeat(h.starRating || 3)}</span>
-                        </div>
-                        <div className="text-[11px] text-slate-500">
-                          {h.location} • {h.roomType}
-                        </div>
-                      </div>
-                      <span className="text-[11px] font-bold text-slate-700 bg-white border border-slate-200 px-2 py-1 rounded-md">
-                        {h.nights}N
-                      </span>
-                    </div>
-                  ))}
+                <div className="flex items-center justify-between gap-2">
+                  <h4 className="text-xs font-black text-slate-900 uppercase flex items-center gap-1.5">
+                    <Building className="w-4 h-4 text-brand" />
+                    <span>Verified Accommodations & Stays</span>
+                  </h4>
+                  {activeCategoryLabel && (
+                    <span className="px-2.5 py-0.5 rounded-full bg-red-50 text-[#9b0000] border border-[#9b0000]/25 text-[10px] font-black uppercase tracking-wider">
+                      {activeCategoryLabel}
+                    </span>
+                  )}
                 </div>
+
+                {filteredHotels.length > 0 ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    {filteredHotels.map((h) => {
+                      const catLabel = formatHotelCategoryLabel(h.starRating) || activeCategoryLabel;
+                      return (
+                        <div
+                          key={h.id}
+                          className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs flex justify-between items-start gap-2"
+                        >
+                          <div className="min-w-0 space-y-0.5">
+                            <div className="font-bold text-slate-900 flex flex-wrap items-center gap-1.5">
+                              <span>{h.name}</span>
+                              {catLabel && (
+                                <span className="px-1.5 py-0.5 rounded bg-red-50 text-[#9b0000] border border-[#9b0000]/20 text-[10px] font-extrabold">
+                                  {catLabel}
+                                </span>
+                              )}
+                            </div>
+                            {h.alternativeHotel && (
+                              <div className="text-[11px] text-slate-500">
+                                Alternative: {h.alternativeHotel}
+                              </div>
+                            )}
+                            <div className="text-[11px] text-slate-600">
+                              {h.location || h.city || pkg.destination} • {h.roomType || 'Deluxe Room'}
+                            </div>
+                            {h.mealPlan && (
+                              <div className="text-[10px] text-slate-500 font-medium">
+                                {h.mealPlan}
+                              </div>
+                            )}
+                          </div>
+                          <span className="shrink-0 text-[11px] font-bold text-slate-700 bg-white border border-slate-200 px-2 py-1 rounded-md">
+                            {h.nights}N
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-800 font-medium">
+                    {pkg.pricingTiers?.[selectedTierKey!]?.hotelNames}
+                  </div>
+                )}
               </div>
             )}
 

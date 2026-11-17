@@ -1,5 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import { TourPackage, resolveTourPolicies } from '../../types/tour';
+import { useTours } from '../../context/TourContext';
+import { resolveDisplayImage, handleImageError } from '../../utils/imageResolver';
+import { formatHotelCategoryLabel, normalizeHotelStar } from '../../utils/hotelCategories';
 import {
   Hotel,
   Building2,
@@ -58,21 +61,17 @@ export const TourDetailsSection: React.FC<TourDetailsSectionProps> = ({
   className = '',
   selectedStarRating = null,
 }) => {
+  const { mediaAssets } = useTours();
   const [activeTab, setActiveTab] = useState<'hotels' | 'reporting' | 'policies'>('hotels');
 
   // Build clean accommodation list from pkg.hotels or itinerary fallback
   const accommodationList = useMemo(() => {
     if (pkg.hotels && pkg.hotels.length > 0) {
-      const normalizeStar = (val: unknown): number | null => {
-        const n = Number(val);
-        if (!Number.isFinite(n) || n <= 0) return null;
-        return Math.min(5, Math.max(2, Math.round(n)));
-      };
-      const hasTaggedHotels = pkg.hotels.some((h) => normalizeStar(h.starRating) !== null);
-      const targetStar = normalizeStar(selectedStarRating);
+      const hasTaggedHotels = pkg.hotels.some((h) => normalizeHotelStar(h.starRating) !== null);
+      const targetStar = normalizeHotelStar(selectedStarRating);
       const sourceHotels =
         targetStar && hasTaggedHotels
-          ? pkg.hotels.filter((h) => normalizeStar(h.starRating) === targetStar)
+          ? pkg.hotels.filter((h) => normalizeHotelStar(h.starRating) === targetStar)
           : pkg.hotels;
 
       return sourceHotels.map((h, idx) => {
@@ -82,6 +81,7 @@ export const TourDetailsSection: React.FC<TourDetailsSectionProps> = ({
           h.name.includes('/or similar') || h.name.includes('/ similar')
             ? h.name
             : `${h.name} /or similar`;
+        const categoryLabel = formatHotelCategoryLabel(h.starRating ?? targetStar);
 
         return {
           id: h.id || `acc-${idx}`,
@@ -89,6 +89,8 @@ export const TourDetailsSection: React.FC<TourDetailsSectionProps> = ({
           country: countryPart,
           hotelName: hotelNameStr,
           alternativeHotel: h.alternativeHotel,
+          categoryLabel,
+          image: h.image,
           nights: h.nights || 1,
           roomType: h.roomType || 'Deluxe Room',
           mealPlan: h.mealPlan || 'As per package inclusion',
@@ -100,6 +102,8 @@ export const TourDetailsSection: React.FC<TourDetailsSectionProps> = ({
       });
     }
 
+    const selectedCategoryLabel = formatHotelCategoryLabel(selectedStarRating);
+
     // Fallback if pkg.hotels is empty: Extract stays from itinerary
     const staysFromItinerary: Array<{
       id: string;
@@ -107,6 +111,8 @@ export const TourDetailsSection: React.FC<TourDetailsSectionProps> = ({
       country: string;
       hotelName: string;
       alternativeHotel?: string;
+      categoryLabel?: string;
+      image?: string;
       nights: number;
       roomType: string;
       mealPlan: string;
@@ -137,6 +143,7 @@ export const TourDetailsSection: React.FC<TourDetailsSectionProps> = ({
               city: cityClean,
               country: pkg.country || 'India',
               hotelName: `${currentStayName} /or similar`,
+              categoryLabel: selectedCategoryLabel,
               nights: currentCount,
               roomType: 'Deluxe Room',
               mealPlan: 'As per package inclusion',
@@ -156,6 +163,7 @@ export const TourDetailsSection: React.FC<TourDetailsSectionProps> = ({
           city: cityClean,
           country: pkg.country || 'India',
           hotelName: `${currentStayName} /or similar`,
+          categoryLabel: selectedCategoryLabel,
           nights: currentCount,
           roomType: 'Deluxe Room',
           mealPlan: 'As per package inclusion',
@@ -174,6 +182,7 @@ export const TourDetailsSection: React.FC<TourDetailsSectionProps> = ({
         city: extractCleanCity('', pkg.destination),
         country: pkg.country || 'India',
         hotelName: 'Selected Verified Hotel / Resort /or similar',
+        categoryLabel: selectedCategoryLabel,
         nights: pkg.durationNights || 4,
         roomType: 'Deluxe Room',
         mealPlan: 'As per package inclusion',
@@ -265,15 +274,33 @@ export const TourDetailsSection: React.FC<TourDetailsSectionProps> = ({
 
                   {/* Body Content */}
                   <div className="p-3.5 sm:p-4 space-y-3">
+                    {acc.image && (
+                      <div className="rounded-xl overflow-hidden border border-stone-200 aspect-[16/9] max-h-48 bg-stone-100">
+                        <img
+                          src={resolveDisplayImage(acc.image, mediaAssets) || acc.image}
+                          alt={acc.hotelName}
+                          onError={(e) => handleImageError(e, acc.image, mediaAssets)}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    )}
+
                     {/* Hotel Name Section */}
                     <div className="flex items-start gap-2.5">
                       <div className="w-7 h-7 rounded-lg bg-[#FDF2F2] border border-[#F8D7D7] flex items-center justify-center shrink-0 mt-0.5">
                         <Hotel className="w-4 h-4 text-[#9b0000]" />
                       </div>
                       <div className="min-w-0 flex-1">
-                        <h4 className="font-extrabold text-stone-900 text-xs sm:text-sm leading-snug">
-                          {acc.hotelName}
-                        </h4>
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          <h4 className="font-extrabold text-stone-900 text-xs sm:text-sm leading-snug">
+                            {acc.hotelName}
+                          </h4>
+                          {acc.categoryLabel && (
+                            <span className="px-2 py-0.5 rounded bg-[#FDF2F2] text-[#9b0000] border border-[#F8D7D7] text-[10px] font-black uppercase tracking-wide">
+                              {acc.categoryLabel}
+                            </span>
+                          )}
+                        </div>
                         {acc.alternativeHotel && (
                           <p className="text-[11px] text-stone-500 font-medium mt-0.5">
                             <span className="text-stone-400 font-semibold">Alternative:</span>{' '}

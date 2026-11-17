@@ -542,6 +542,8 @@ export interface InquiryQuotation {
   packageTitle?: string;
   destination?: string;
   duration?: string;
+  hotelTierKey?: HotelTierKey;
+  hotelCategory?: string;
   basePrice?: number;
   customPrice?: number;
   discount: number;

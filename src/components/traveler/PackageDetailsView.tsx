@@ -1,11 +1,17 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { updateDocumentSEO } from '../../utils/seoHelper';
-import { TourPackage, MealType, resolveTourPolicies } from '../../types/tour';
+import { HotelTierKey, TourPackage, MealType, resolveTourPolicies } from '../../types/tour';
 import { useTours } from '../../context/TourContext';
 import { PDFBrochureModal } from './PDFBrochureModal';
 import { Footer } from './Footer';
 import { getPackageGalleryPhotos } from '../../data/tourReviewsData';
 import { resolveDisplayImage, handleImageError } from '../../utils/imageResolver';
+import {
+  formatHotelCategoryLabel,
+  getHotelsForTier,
+  getPackageAvailableTiers,
+  getTierUnitPrice,
+} from '../../utils/hotelCategories';
 import {
   ArrowLeft,
   Clock,
@@ -62,7 +68,38 @@ export const PackageDetailsView: React.FC<PackageDetailsViewProps> = ({ pkg, onB
   const [calcDate, setCalcDate] = useState(
     new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
   );
-  const [hotelPref, setHotelPref] = useState('4-Star Luxury & VIP Bhawan Stays');
+  const tierOptions = useMemo(() => getPackageAvailableTiers(pkg), [pkg]);
+  const [selectedTierKey, setSelectedTierKey] = useState<HotelTierKey | undefined>(
+    () => tierOptions[0]?.key
+  );
+
+  useEffect(() => {
+    if (tierOptions.length === 0) {
+      setSelectedTierKey(undefined);
+      return;
+    }
+    if (!selectedTierKey || !tierOptions.some((t) => t.key === selectedTierKey)) {
+      setSelectedTierKey(tierOptions[0].key);
+    }
+  }, [pkg.id, tierOptions, selectedTierKey]);
+
+  const filteredHotels = useMemo(
+    () => getHotelsForTier(pkg, selectedTierKey),
+    [pkg, selectedTierKey]
+  );
+
+  const activeCategoryLabel = selectedTierKey ? formatHotelCategoryLabel(selectedTierKey) : '';
+  const activeTierPricing = useMemo(
+    () => getTierUnitPrice(pkg, selectedTierKey),
+    [pkg, selectedTierKey]
+  );
+
+  const [hotelPref, setHotelPref] = useState(() => tierOptions[0]?.label || 'Standard Category Stays');
+  useEffect(() => {
+    if (activeCategoryLabel) {
+      setHotelPref(activeCategoryLabel);
+    }
+  }, [activeCategoryLabel]);
   const [copiedLink, setCopiedLink] = useState(false);
 
   useEffect(() => {
@@ -713,18 +750,40 @@ export const PackageDetailsView: React.FC<PackageDetailsViewProps> = ({ pkg, onB
             {activeTab === 'hotels' && (
               <div className="space-y-6">
                 <div className="bg-white rounded-3xl p-6 border border-stone-200 shadow-xs">
-                  <div className="mb-6">
-                    <h3 className="text-lg font-black text-stone-900 flex items-center gap-2">
-                      <Building className="w-5 h-5 text-stone-900" />
-                      <span>Verified Hotels & Accommodations</span>
-                    </h3>
-                    <p className="text-xs text-stone-500 mt-1">
-                      Handpicked premium hotels offering 24/7 hot water, hotel dining, room heating, and proximity to sacred shrines
-                    </p>
+                  <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div>
+                      <h3 className="text-lg font-black text-stone-900 flex items-center gap-2">
+                        <Building className="w-5 h-5 text-stone-900" />
+                        <span>Verified Hotels & Accommodations</span>
+                      </h3>
+                      <p className="text-xs text-stone-500 mt-1">
+                        Handpicked accommodations offering hot water, hotel dining, heating, and comfort.
+                      </p>
+                    </div>
+                    {tierOptions.length > 0 && (
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        {tierOptions.map((opt) => (
+                          <button
+                            key={opt.key}
+                            type="button"
+                            onClick={() => setSelectedTierKey(opt.key)}
+                            className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition cursor-pointer ${
+                              selectedTierKey === opt.key
+                                ? 'bg-[#9b0000] text-white border-[#9b0000] shadow-xs'
+                                : 'bg-stone-50 text-stone-700 border-stone-200 hover:bg-stone-100'
+                            }`}
+                          >
+                            {opt.label}
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
 
                   <div className="space-y-4">
-                    {pkg.hotels.map((hotel, idx) => (
+                    {filteredHotels.map((hotel, idx) => {
+                      const hotelCategoryBadge = formatHotelCategoryLabel(hotel.starRating) || activeCategoryLabel;
+                      return (
                       <div
                         key={hotel.id || idx}
                         className="bg-white rounded-2xl border border-stone-200 overflow-hidden grid grid-cols-1 sm:grid-cols-12 gap-4 items-center p-3.5 sm:p-4 hover:border-stone-400 transition shadow-xs"
@@ -758,9 +817,16 @@ export const PackageDetailsView: React.FC<PackageDetailsViewProps> = ({ pkg, onB
                             <div className="flex items-start gap-2 pt-2">
                               <Building className="w-4 h-4 text-[#9b0000] shrink-0 mt-0.5" />
                               <div className="min-w-0 flex-1">
-                                <h4 className="text-sm sm:text-base font-extrabold text-stone-900 leading-snug">
-                                  {hotel.name} {hotel.name.toLowerCase().includes('or similar') ? '' : '/ or similar'}
-                                </h4>
+                                <div className="flex flex-wrap items-center gap-1.5">
+                                  <h4 className="text-sm sm:text-base font-extrabold text-stone-900 leading-snug">
+                                    {hotel.name} {hotel.name.toLowerCase().includes('or similar') ? '' : '/ or similar'}
+                                  </h4>
+                                  {hotelCategoryBadge && (
+                                    <span className="px-2 py-0.5 rounded bg-[#FDF2F2] text-[#9b0000] border border-[#F5C2C2] text-[10px] font-black uppercase">
+                                      {hotelCategoryBadge}
+                                    </span>
+                                  )}
+                                </div>
                                 {hotel.alternativeHotel && (
                                   <div className="text-[11px] text-stone-500 font-medium mt-0.5">
                                     <span className="text-stone-400 font-semibold">Alternative:</span> {hotel.alternativeHotel}
@@ -799,7 +865,8 @@ export const PackageDetailsView: React.FC<PackageDetailsViewProps> = ({ pkg, onB
                           )}
                         </div>
                       </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               </div>
@@ -928,26 +995,21 @@ export const PackageDetailsView: React.FC<PackageDetailsViewProps> = ({ pkg, onB
                   </span>
                 </div>
                 <div className="mt-2 flex items-baseline gap-2">
-                  {pkg.priceOnRequest || (!pkg.price && !pkg.discountedPrice) || (pkg.price <= 0) ? (
+                  {activeTierPricing.isPriceOnRequest || activeTierPricing.unitPrice <= 0 ? (
                     <span className="text-2xl sm:text-3xl font-black text-stone-900">
                       Price on Request
                     </span>
                   ) : (
                     <>
                       <span className="text-3xl sm:text-4xl font-black text-stone-900">
-                        {pkg.currency}{pkg.discountedPrice ? pkg.discountedPrice.toLocaleString() : pkg.price.toLocaleString()}
+                        {pkg.currency || '₹'}{activeTierPricing.unitPrice.toLocaleString('en-IN')}
                       </span>
-                      {pkg.discountedPrice && pkg.price > pkg.discountedPrice && (
-                        <span className="text-sm font-bold text-stone-400 line-through">
-                          {pkg.currency}{pkg.price.toLocaleString()}
-                        </span>
-                      )}
                       <span className="text-xs text-stone-500 font-medium">/ person</span>
                     </>
                   )}
                 </div>
                 <p className="text-xs text-stone-500 mt-1">
-                  All-inclusive for {pkg.durationDays} Days / {pkg.durationNights} Nights with Darshan Assistance, 4-Star Stays, AC Vehicle & Hotel Meals.
+                  All-inclusive for {pkg.durationDays} Days / {pkg.durationNights} Nights{activeCategoryLabel ? ` with ${activeCategoryLabel} Stays` : ''}, AC Vehicle & Hotel Meals.
                 </p>
                 <p className="text-xs text-emerald-700 font-bold mt-2 flex items-center gap-1">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600" />
@@ -1016,25 +1078,28 @@ export const PackageDetailsView: React.FC<PackageDetailsViewProps> = ({ pkg, onB
                   </div>
                 </div>
 
-                {/* Hotel Preference */}
-                <div>
-                  <label className="text-[11px] font-semibold text-stone-600 block mb-1">
-                    Accommodation Tier
-                  </label>
-                  <select
-                    value={hotelPref}
-                    onChange={(e) => setHotelPref(e.target.value)}
-                    className="w-full text-xs bg-white border border-stone-300 rounded-xl px-2 py-2 focus:border-stone-900 focus:outline-hidden font-medium"
-                  >
-                    <option value="4-Star Luxury & Premium Bhawan Stays">4-Star Luxury & Premium Bhawan Stays</option>
-                    <option value="5-Star Deluxe Pilgrim Resorts">5-Star Deluxe Pilgrim Resorts</option>
-                    <option value="3-Star Clean Standard Stays">3-Star Clean Standard Stays</option>
-                    <option value="Helicopter + Luxury Suite Package">Helicopter + Luxury Suite Package</option>
-                  </select>
-                </div>
+                {/* Hotel Category (Strictly Categories Configured on Package) */}
+                {tierOptions.length > 0 && (
+                  <div>
+                    <label className="text-[11px] font-semibold text-stone-600 block mb-1">
+                      Hotel Category
+                    </label>
+                    <select
+                      value={selectedTierKey || ''}
+                      onChange={(e) => setSelectedTierKey(e.target.value as HotelTierKey)}
+                      className="w-full text-xs bg-white border border-stone-300 rounded-xl px-2 py-2 focus:border-stone-900 focus:outline-hidden font-medium"
+                    >
+                      {tierOptions.map((opt) => (
+                        <option key={opt.key} value={opt.key}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
 
                 <div className="pt-2 border-t border-stone-200 text-[11px] text-stone-600">
-                  <span>Selected: <strong>{calcAdults} Pilgrims{calcChildren > 0 ? `, ${calcChildren} Kids` : ''}</strong> • <strong>{hotelPref}</strong></span>
+                  <span>Selected: <strong>{calcAdults} Pilgrims{calcChildren > 0 ? `, ${calcChildren} Kids` : ''}</strong>{activeCategoryLabel ? <> • <strong>{activeCategoryLabel}</strong></> : null}</span>
                 </div>
               </div>
 
@@ -1101,6 +1166,7 @@ export const PackageDetailsView: React.FC<PackageDetailsViewProps> = ({ pkg, onB
         pkg={pkg}
         isOpen={isPdfModalOpen}
         onClose={() => setIsPdfModalOpen(false)}
+        initialTierKey={selectedTierKey}
       />
 
       {/* Footer */}

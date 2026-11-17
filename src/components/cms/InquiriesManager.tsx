@@ -1,8 +1,16 @@
 import React, { useState } from 'react';
 import { useTours } from '../../context/TourContext';
-import { BookingInquiry, InquiryQuotation } from '../../types/tour';
+import { BookingInquiry, HotelTierKey, InquiryQuotation } from '../../types/tour';
 import { generateQuotationPDF } from '../../utils/pdfGenerator';
 import { formatBookingNumber, generateBookingNumber } from '../../utils/bookingHelper';
+import {
+  detectTierFromInquiry,
+  formatHotelCategoryLabel,
+  formatHotelsTextForTier,
+  getHotelsForTier,
+  getPackageAvailableTiers,
+  getTierUnitPrice,
+} from '../../utils/hotelCategories';
 import {
   MessageSquare,
   Users,
@@ -29,6 +37,7 @@ import {
   Check,
   Edit,
   Edit3,
+  Building2,
 } from 'lucide-react';
 
 export const InquiriesManager: React.FC<{
@@ -77,6 +86,8 @@ export const InquiriesManager: React.FC<{
 
   // Quotation form state
   const [quotePackageId, setQuotePackageId] = useState<string>('');
+  const [quoteHotelTierKey, setQuoteHotelTierKey] = useState<HotelTierKey | ''>('');
+  const [quoteHotelCategory, setQuoteHotelCategory] = useState<string>('');
   const [quotePackageTitle, setQuotePackageTitle] = useState<string>('Custom Tour Proposal');
   const [quoteDestination, setQuoteDestination] = useState<string>('Jammu & Kashmir');
   const [quoteDuration, setQuoteDuration] = useState<string>('6 Days / 5 Nights');
@@ -97,28 +108,13 @@ export const InquiriesManager: React.FC<{
     'Customized tailored proposal prepared with verified stays and 24/7 on-trip concierge assistance.'
   );
 
-  const formatPackageHotels = (pkg?: any): string => {
-    if (!pkg) return 'Handpicked Deluxe Hotels with Mountain View\n1 Night Luxury Houseboat Stay';
-    if (pkg.hotels && Array.isArray(pkg.hotels) && pkg.hotels.length > 0) {
-      return pkg.hotels
-        .map((h: any) => {
-          const loc = h.location || h.city || '';
-          const alt = h.alternativeHotel ? ` / ${h.alternativeHotel}` : '';
-          const star = h.starRating ? ` (${h.starRating}-Star)` : '';
-          return `${loc ? loc + ': ' : ''}${h.name}${alt}${star}`;
-        })
-        .join('\n');
-    }
-    if (pkg.pricingTiers) {
-      const tier = pkg.pricingTiers.deluxe || pkg.pricingTiers.standard || pkg.pricingTiers.luxury;
-      if (tier?.hotels?.length) {
-        return tier.hotels.join('\n');
-      }
-    }
-    return '3-Star / 4-Star Handpicked Deluxe Stays with Mountain View\n1 Night Luxury Houseboat Stay';
+  const formatPackageHotels = (pkg?: any, tierKey?: HotelTierKey | ''): string => {
+    return formatHotelsTextForTier(pkg, tierKey || undefined);
   };
 
-  const formatCabType = (inq: Partial<BookingInquiry>, pkg?: any): string => {
+  const formatCabType = (inq: Partial<BookingInquiry>, pkg?: any, tierKey?: HotelTierKey | ''): string => {
+    const tierCab = tierKey && pkg?.pricingTiers?.[tierKey]?.cabType;
+    if (tierCab && String(tierCab).trim()) return String(tierCab).trim();
     if (pkg?.transportation) return pkg.transportation;
     const totalPax = ((inq.adults as number) || 0) + ((inq.children as number) || 0);
     if (totalPax > 6) return '12 Seater Dedicated AC Tempo Traveller for all transfers & sightseeing';
@@ -126,18 +122,43 @@ export const InquiriesManager: React.FC<{
     return 'Dedicated Private AC Sedan (Dzire / Etios) with Professional Chauffeur';
   };
 
-  const handleAutoFillFromPackage = (pkgId: string) => {
+  const handleSelectHotelCategory = (tierKey: HotelTierKey | '') => {
+    const pkg = packages.find((p) => p.id === quotePackageId);
+    setQuoteHotelTierKey(tierKey);
+    const label = tierKey ? formatHotelCategoryLabel(tierKey) : '';
+    setQuoteHotelCategory(label);
+    if (!pkg) return;
+
+    setQuoteHotels(formatHotelsTextForTier(pkg, tierKey || undefined));
+    const pax = selectedInquiryForQuote ? (selectedInquiryForQuote.adults || 2) : 2;
+    const { unitPrice } = getTierUnitPrice(pkg, tierKey || undefined);
+    if (unitPrice > 0) {
+      setQuotePrice(unitPrice * pax);
+    }
+    setQuoteCab(formatCabType(selectedInquiryForQuote || {}, pkg, tierKey));
+  };
+
+  const handleAutoFillFromPackage = (pkgId: string, overrideTierKey?: HotelTierKey | '') => {
     const pkg = packages.find((p) => p.id === pkgId);
     if (!pkg) return;
+
+    const availableTiers = getPackageAvailableTiers(pkg);
+    const chosenTier: HotelTierKey | '' =
+      overrideTierKey && availableTiers.some((t) => t.key === overrideTierKey)
+        ? overrideTierKey
+        : detectTierFromInquiry(selectedInquiryForQuote, pkg) || availableTiers[0]?.key || '';
+
     setQuotePackageId(pkg.id);
+    setQuoteHotelTierKey(chosenTier);
+    setQuoteHotelCategory(chosenTier ? formatHotelCategoryLabel(chosenTier) : '');
     setQuotePackageTitle(pkg.title);
     setQuoteDestination(pkg.destination || 'Jammu & Kashmir');
     setQuoteDuration(`${pkg.durationDays} Days / ${pkg.durationNights} Nights`);
     const pax = selectedInquiryForQuote ? (selectedInquiryForQuote.adults || 2) : 2;
-    const calculatedPrice = (pkg.discountedPrice || pkg.price || 15000) * pax;
-    setQuotePrice(calculatedPrice);
-    setQuoteHotels(formatPackageHotels(pkg));
-    setQuoteCab(formatCabType(selectedInquiryForQuote || {}, pkg));
+    const { unitPrice } = getTierUnitPrice(pkg, chosenTier || undefined);
+    setQuotePrice((unitPrice > 0 ? unitPrice : 15000) * pax);
+    setQuoteHotels(formatHotelsTextForTier(pkg, chosenTier || undefined));
+    setQuoteCab(formatCabType(selectedInquiryForQuote || {}, pkg, chosenTier));
     setQuoteInclusions(
       pkg.inclusions && pkg.inclusions.length > 0
         ? pkg.inclusions.join('\n')
@@ -258,33 +279,54 @@ export const InquiriesManager: React.FC<{
 
   const handleOpenQuoteModal = (inq: BookingInquiry) => {
     setSelectedInquiryForQuote(inq);
-    const matchedPkg = packages.find((p) => p.id === inq.packageId || p.title.toLowerCase() === (inq.packageTitle || '').toLowerCase()) || packages[0];
-    
+    const cleanedInqTitle = (inq.packageTitle || '').replace(/\s*\[[^\]]+\]\s*$/, '').trim().toLowerCase();
+    const matchedPkg =
+      packages.find(
+        (p) =>
+          p.id === inq.quotation?.packageId ||
+          p.id === inq.packageId ||
+          p.title.toLowerCase() === cleanedInqTitle ||
+          p.title.toLowerCase() === (inq.packageTitle || '').toLowerCase()
+      ) || packages[0];
+
+    const availableTiers = getPackageAvailableTiers(matchedPkg);
+    const detectedTier = detectTierFromInquiry(inq, matchedPkg) || availableTiers[0]?.key || '';
+
     if (inq.quotation) {
       const q = inq.quotation;
+      const savedTier: HotelTierKey | '' =
+        q.hotelTierKey && availableTiers.some((t) => t.key === q.hotelTierKey)
+          ? q.hotelTierKey
+          : detectedTier;
       setQuotePackageId(q.packageId || matchedPkg?.id || '');
+      setQuoteHotelTierKey(savedTier);
+      setQuoteHotelCategory(q.hotelCategory || (savedTier ? formatHotelCategoryLabel(savedTier) : ''));
       setQuotePackageTitle(q.packageTitle || inq.packageTitle || matchedPkg?.title || 'Custom Tour Proposal');
       setQuoteDestination(q.destination || matchedPkg?.destination || 'Jammu & Kashmir');
       setQuoteDuration(q.duration || (matchedPkg ? `${matchedPkg.durationDays} Days / ${matchedPkg.durationNights} Nights` : '6 Days / 5 Nights'));
-      setQuotePrice(q.basePrice || q.finalPrice || (matchedPkg ? (matchedPkg.discountedPrice || matchedPkg.price) * (inq.adults || 2) : 15000));
+      const { unitPrice } = getTierUnitPrice(matchedPkg, savedTier || undefined);
+      setQuotePrice(q.basePrice || q.finalPrice || (unitPrice > 0 ? unitPrice * (inq.adults || 2) : 15000));
       setQuoteDiscount(q.discount || 0);
       setQuoteValidity(q.validUntil || new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0]);
-      setQuoteHotels(q.hotels || formatPackageHotels(matchedPkg));
-      setQuoteCab(q.cabType || formatCabType(inq, matchedPkg));
+      setQuoteHotels(q.hotels || formatPackageHotels(matchedPkg, savedTier));
+      setQuoteCab(q.cabType || formatCabType(inq, matchedPkg, savedTier));
       setQuoteInclusions(Array.isArray(q.inclusions) ? q.inclusions.join('\n') : (q.inclusions || ''));
       setQuoteExclusions(Array.isArray(q.exclusions) ? q.exclusions.join('\n') : (q.exclusions || ''));
       setQuoteNotes(q.notes || 'Customized tailored proposal prepared with verified stays and 24/7 on-trip concierge assistance.');
     } else {
       setQuotePackageId(matchedPkg?.id || '');
+      setQuoteHotelTierKey(detectedTier);
+      setQuoteHotelCategory(detectedTier ? formatHotelCategoryLabel(detectedTier) : '');
       setQuotePackageTitle(matchedPkg?.title || inq.packageTitle || 'Custom Tour Proposal');
       setQuoteDestination(matchedPkg?.destination || 'Jammu & Kashmir');
       setQuoteDuration(matchedPkg ? `${matchedPkg.durationDays} Days / ${matchedPkg.durationNights} Nights` : '6 Days / 5 Nights');
-      const baseP = matchedPkg ? (matchedPkg.discountedPrice || matchedPkg.price) * (inq.adults || 2) : 15000;
+      const { unitPrice } = getTierUnitPrice(matchedPkg, detectedTier || undefined);
+      const baseP = unitPrice > 0 ? unitPrice * (inq.adults || 2) : 15000;
       setQuotePrice(baseP);
       setQuoteDiscount(0);
       setQuoteValidity(new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0]);
-      setQuoteHotels(formatPackageHotels(matchedPkg));
-      setQuoteCab(formatCabType(inq, matchedPkg));
+      setQuoteHotels(formatPackageHotels(matchedPkg, detectedTier));
+      setQuoteCab(formatCabType(inq, matchedPkg, detectedTier));
       setQuoteInclusions(
         matchedPkg?.inclusions && matchedPkg.inclusions.length > 0
           ? matchedPkg.inclusions.join('\n')
@@ -317,6 +359,8 @@ export const InquiriesManager: React.FC<{
       packageTitle: quotePackageTitle,
       destination: quoteDestination,
       duration: quoteDuration,
+      hotelTierKey: quoteHotelTierKey || undefined,
+      hotelCategory: quoteHotelCategory || undefined,
       basePrice: quotePrice,
       discount: quoteDiscount,
       finalPrice: Math.max(0, quotePrice - quoteDiscount),
@@ -335,19 +379,28 @@ export const InquiriesManager: React.FC<{
   };
 
   const handleDownloadQuotationPDF = (inq: BookingInquiry) => {
-    const matchedPkg = packages.find((p) => p.id === inq.packageId) || packages.find((p) => p.id === inq.quotation?.packageId) || packages[0];
+    const matchedPkg =
+      packages.find((p) => p.id === inq.quotation?.packageId) ||
+      packages.find((p) => p.id === inq.packageId) ||
+      packages[0];
+    const detectedTier = detectTierFromInquiry(inq, matchedPkg);
+    const { unitPrice } = getTierUnitPrice(matchedPkg, detectedTier);
+    const defaultTotal = unitPrice > 0 ? unitPrice * (inq.adults || 2) : 15000;
+
     const quotation: InquiryQuotation = inq.quotation || {
       id: `quote-std-${inq.id}`,
       packageId: matchedPkg?.id,
       packageTitle: matchedPkg?.title || inq.packageTitle || 'Custom Holiday Proposal',
       destination: matchedPkg?.destination || 'Jammu & Kashmir',
       duration: matchedPkg ? `${matchedPkg.durationDays} Days / ${matchedPkg.durationNights} Nights` : '6 Days / 5 Nights',
-      basePrice: matchedPkg ? (matchedPkg.discountedPrice || matchedPkg.price) * (inq.adults || 2) : 15000,
+      hotelTierKey: detectedTier,
+      hotelCategory: detectedTier ? formatHotelCategoryLabel(detectedTier) : undefined,
+      basePrice: defaultTotal,
       discount: 0,
-      finalPrice: matchedPkg ? (matchedPkg.discountedPrice || matchedPkg.price) * (inq.adults || 2) : 15000,
+      finalPrice: defaultTotal,
       validUntil: new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0],
-      hotels: formatPackageHotels(matchedPkg),
-      cabType: formatCabType(inq, matchedPkg),
+      hotels: formatPackageHotels(matchedPkg, detectedTier),
+      cabType: formatCabType(inq, matchedPkg, detectedTier),
       inclusions: matchedPkg?.inclusions && matchedPkg.inclusions.length > 0 ? matchedPkg.inclusions : [
         'Exclusive Private Chauffeur vehicle for all transfers and sightseeing',
         'All toll taxes, parking fees, driver allowance, and fuel',
@@ -756,8 +809,15 @@ export const InquiriesManager: React.FC<{
                 {inq.quotation && (
                   <div className="p-3 sm:p-4 bg-purple-50 rounded-xl border border-purple-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs sm:text-sm">
                     <div>
-                      <div className="font-bold text-purple-900">
-                        Official Proposal Issued: <span className="text-lg">${inq.quotation.finalPrice}</span>
+                      <div className="font-bold text-purple-900 flex flex-wrap items-center gap-2">
+                        <span>
+                          Official Proposal Issued: <span className="text-lg">₹{Number(inq.quotation.finalPrice || 0).toLocaleString('en-IN')}</span>
+                        </span>
+                        {inq.quotation.hotelCategory && (
+                          <span className="px-2 py-0.5 rounded-full bg-purple-200/80 text-purple-900 text-[10px] font-black uppercase tracking-wider">
+                            {inq.quotation.hotelCategory}
+                          </span>
+                        )}
                       </div>
                       <div className="text-purple-600/80 font-medium mt-0.5">
                         (Valid until {inq.quotation.validUntil})
@@ -867,37 +927,113 @@ export const InquiriesManager: React.FC<{
             </div>
 
             <form onSubmit={handleSaveQuotation} className="p-5 sm:p-6 space-y-4 max-h-[78vh] overflow-y-auto">
-              {/* Tour Package Template Selector */}
-              <div className="bg-purple-50/60 border border-purple-100 p-3.5 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                <div className="flex-1 w-full">
-                  <label className="block text-[11px] font-bold text-purple-900 uppercase tracking-wider mb-1">
-                    Select Tour Package Template
-                  </label>
-                  <select
-                    value={quotePackageId}
-                    onChange={(e) => {
-                      setQuotePackageId(e.target.value);
-                      handleAutoFillFromPackage(e.target.value);
-                    }}
-                    className="w-full px-3 py-1.5 rounded-lg border border-purple-200 bg-white text-xs font-semibold text-stone-800"
-                  >
-                    <option value="">-- Choose Package to Auto-populate --</option>
-                    {packages.map((pkg) => (
-                      <option key={pkg.id} value={pkg.id}>
-                        {pkg.title} ({pkg.durationDays}D/{pkg.durationNights}N) - ₹{pkg.discountedPrice || pkg.price}/pax
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => handleAutoFillFromPackage(quotePackageId || packages[0]?.id)}
-                  className="px-3.5 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-xs font-bold transition flex items-center gap-1.5 self-end sm:self-auto cursor-pointer shadow-xs whitespace-nowrap"
-                >
-                  <Sparkles className="w-3.5 h-3.5" />
-                  Auto-fill Package Details
-                </button>
-              </div>
+              {/* Tour Package Template & Hotel Category Selector */}
+              {(() => {
+                const activeQuotePkg = packages.find((p) => p.id === quotePackageId);
+                const availableQuoteTiers = getPackageAvailableTiers(activeQuotePkg);
+                const matchedTierHotels = getHotelsForTier(activeQuotePkg, quoteHotelTierKey || undefined);
+                return (
+                  <div className="bg-purple-50/70 border border-purple-200/80 p-3.5 rounded-xl space-y-3">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-3">
+                      <div className="flex-1 w-full">
+                        <label className="block text-[11px] font-bold text-purple-900 uppercase tracking-wider mb-1">
+                          Select Tour Package Template
+                        </label>
+                        <select
+                          value={quotePackageId}
+                          onChange={(e) => {
+                            setQuotePackageId(e.target.value);
+                            handleAutoFillFromPackage(e.target.value);
+                          }}
+                          className="w-full px-3 py-2 rounded-lg border border-purple-200 bg-white text-xs font-semibold text-stone-800"
+                        >
+                          <option value="">-- Choose Package to Auto-populate --</option>
+                          {packages.map((pkg) => (
+                            <option key={pkg.id} value={pkg.id}>
+                              {pkg.title} ({pkg.durationDays}D/{pkg.durationNights}N)
+                              {pkg.priceOnRequest || !(pkg.discountedPrice || pkg.price)
+                                ? ' - Price on Request'
+                                : ` - ₹${(pkg.discountedPrice || pkg.price).toLocaleString('en-IN')}/pax`}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleAutoFillFromPackage(quotePackageId || packages[0]?.id, quoteHotelTierKey)}
+                        className="px-3.5 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-xs font-bold transition flex items-center gap-1.5 self-end sm:self-auto cursor-pointer shadow-xs whitespace-nowrap"
+                      >
+                        <Sparkles className="w-3.5 h-3.5" />
+                        Auto-fill Package Details
+                      </button>
+                    </div>
+
+                    {/* Hotel Category Selector (Strictly from Categories Configured in Package) */}
+                    <div className="pt-2.5 border-t border-purple-200/70 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                      <div className="flex items-center gap-2">
+                        <Building2 className="w-4 h-4 text-purple-700 shrink-0" />
+                        <div>
+                          <div className="text-[11px] font-bold text-purple-950 uppercase tracking-wider">
+                            Hotel Category in Package
+                          </div>
+                          <div className="text-[10px] text-purple-700">
+                            {availableQuoteTiers.length > 0
+                              ? 'Select which hotel category to quote — updates hotels & price automatically.'
+                              : 'No separate star categories configured on this package.'}
+                          </div>
+                        </div>
+                      </div>
+
+                      {availableQuoteTiers.length > 0 ? (
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          {availableQuoteTiers.map((tierOpt) => {
+                            const isSelected = quoteHotelTierKey === tierOpt.key;
+                            const { unitPrice, isPriceOnRequest } = getTierUnitPrice(activeQuotePkg, tierOpt.key);
+                            return (
+                              <button
+                                key={tierOpt.key}
+                                type="button"
+                                onClick={() => handleSelectHotelCategory(tierOpt.key)}
+                                className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition cursor-pointer flex items-center gap-1.5 ${
+                                  isSelected
+                                    ? 'bg-purple-700 text-white border-purple-700 shadow-xs'
+                                    : 'bg-white text-stone-800 border-purple-200 hover:bg-purple-100/70'
+                                }`}
+                              >
+                                <span>{tierOpt.label}</span>
+                                {!isPriceOnRequest && unitPrice > 0 && (
+                                  <span className={`text-[10px] ${isSelected ? 'text-purple-100' : 'text-stone-500'}`}>
+                                    (₹{unitPrice.toLocaleString('en-IN')})
+                                  </span>
+                                )}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      ) : (
+                        <span className="px-2.5 py-1 rounded-lg bg-white border border-purple-200 text-[11px] font-semibold text-stone-600">
+                          Standard Package Hotels
+                        </span>
+                      )}
+                    </div>
+
+                    {quoteHotelCategory && matchedTierHotels.length > 0 && (
+                      <div className="bg-white/90 rounded-lg border border-purple-100 px-3 py-2 text-[11px] text-stone-700 flex flex-wrap items-center gap-x-3 gap-y-1">
+                        <span className="font-bold text-purple-900">
+                          {quoteHotelCategory} Stays ({matchedTierHotels.length}):
+                        </span>
+                        {matchedTierHotels.map((h, i) => (
+                          <span key={h.id || i} className="inline-flex items-center gap-1 text-stone-700">
+                            <span className="font-semibold text-stone-900">{h.name}</span>
+                            <span className="text-stone-400">({h.location || h.city || activeQuotePkg?.destination}{h.nights ? `, ${h.nights}N` : ''})</span>
+                            {i < matchedTierHotels.length - 1 ? <span className="text-stone-300">•</span> : null}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
 
               {/* Title & Destination */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
