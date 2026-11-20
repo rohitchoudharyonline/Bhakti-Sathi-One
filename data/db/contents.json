@@ -91,14 +91,14 @@
     "structured_content": {
       "storageKey": "hh_blog_posts_v2",
       "value": "[]",
-      "updatedAt": "2026-11-10T19:36:55.093Z"
+      "updatedAt": "2026-11-19T15:27:30.419Z"
     },
     "seo_title": "",
     "seo_description": "",
     "seo_keywords": "",
     "status": "published",
     "created_at": "2026-09-16T04:18:58.170Z",
-    "updated_at": "2026-11-10T19:36:55.163Z"
+    "updated_at": "2026-11-19T15:27:29.645Z"
   },
   "registry-blog-categories-v2": {
     "id": "registry-blog-categories-v2",
@@ -111,14 +111,14 @@
     "structured_content": {
       "storageKey": "hh_blog_categories_v2",
       "value": "[]",
-      "updatedAt": "2026-11-10T19:36:55.095Z"
+      "updatedAt": "2026-11-19T15:27:30.419Z"
     },
     "seo_title": "",
     "seo_description": "",
     "seo_keywords": "",
     "status": "published",
     "created_at": "2026-09-16T04:18:58.381Z",
-    "updated_at": "2026-11-10T19:36:55.170Z"
+    "updated_at": "2026-11-19T15:27:29.643Z"
   },
   "registry-guides-v1": {
     "id": "registry-guides-v1",
@@ -223,7 +223,7 @@
   "registry-inquiries-v2": {
     "id": "registry-inquiries-v2",
     "content_type": "shared_local_state",
-    "title": "Booking Inquiries & Newsletter Registry",
+    "title": "Booking Inquiries & Tours Registry",
     "slug": "hh_booking_inquiries_v2",
     "subtitle": "",
     "summary": "",
@@ -231,14 +231,14 @@
     "structured_content": {
       "storageKey": "hh_booking_inquiries_v2",
       "value": "[]",
-      "updatedAt": "2026-11-10T20:55:00.000Z"
+      "updatedAt": "2026-11-19T15:27:30.193Z"
     },
     "seo_title": "",
     "seo_description": "",
     "seo_keywords": "",
     "status": "published",
     "created_at": "2026-09-18T14:46:39.067Z",
-    "updated_at": "2026-11-10T20:55:00.000Z"
+    "updated_at": "2026-11-19T15:27:29.438Z"
   },
   "registry-deleted-guides": {
     "id": "registry-deleted-guides",
@@ -251,14 +251,14 @@
     "structured_content": {
       "storageKey": "hh_deleted_guide_ids",
       "value": "[]",
-      "updatedAt": "2026-11-10T19:36:55.063Z"
+      "updatedAt": "2026-11-19T15:27:30.419Z"
     },
     "seo_title": "",
     "seo_description": "",
     "seo_keywords": "",
     "status": "published",
     "created_at": "2026-11-10T19:30:42.271Z",
-    "updated_at": "2026-11-10T19:36:55.156Z"
+    "updated_at": "2026-11-19T15:27:29.651Z"
   },
   "registry-deleted-guide-categories": {
     "id": "registry-deleted-guide-categories",
@@ -271,14 +271,14 @@
     "structured_content": {
       "storageKey": "hh_deleted_guide_category_ids",
       "value": "[]",
-      "updatedAt": "2026-11-10T19:36:55.064Z"
+      "updatedAt": "2026-11-19T15:27:30.419Z"
     },
     "seo_title": "",
     "seo_description": "",
     "seo_keywords": "",
     "status": "published",
     "created_at": "2026-11-10T19:30:42.274Z",
-    "updated_at": "2026-11-10T19:36:55.151Z"
+    "updated_at": "2026-11-19T15:27:29.648Z"
   },
   "registry-deleted-packages": {
     "id": "registry-deleted-packages",

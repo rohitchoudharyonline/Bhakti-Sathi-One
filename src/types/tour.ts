@@ -536,6 +536,18 @@ export interface Invoice {
   createdAt: string;
 }
 
+export interface ProposalHotelEntry {
+  id: string;
+  name: string;
+  alternativeHotel?: string;
+  location: string;
+  nights: number;
+  roomType?: string;
+  mealPlan?: string;
+  starRating?: 2 | 3 | 4 | 5;
+  amenities?: string[];
+}
+
 export interface InquiryQuotation {
   id?: string;
   packageId?: string;
@@ -550,6 +562,7 @@ export interface InquiryQuotation {
   finalPrice: number;
   validUntil: string;
   hotels?: string;
+  hotelEntries?: ProposalHotelEntry[];
   cabType?: string;
   inclusions?: string[];
   exclusions?: string[];

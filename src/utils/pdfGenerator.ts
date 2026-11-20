@@ -1,6 +1,6 @@
 import { jsPDF } from 'jspdf';
 import { TourPackage, AgencySettings, Invoice, VendorPayment, Vendor, BookingInquiry, InquiryQuotation, PricingTiers, resolveTourPolicies, HotelTierKey } from '../types/tour';
-import { formatHotelCategoryLabel, getHotelsForTier, getPackageAvailableTiers } from './hotelCategories';
+import { formatHotelCategoryLabel, getHotelsForTier, getPackageAvailableTiers, resolveItineraryDayStays } from './hotelCategories';
 
 const GOLD:[number,number,number]=[155,0,0], GOLD_DARK:[number,number,number]=[125,0,0], INK:[number,number,number]=[10,10,10], BODY:[number,number,number]=[68,64,60], MUTED:[number,number,number]=[120,113,108], LINE:[number,number,number]=[231,229,228], SOFT:[number,number,number]=[255,255,255], CREAM:[number,number,number]=[250,248,245], GREEN:[number,number,number]=[13,148,136];
 
@@ -150,6 +150,22 @@ function next(d:jsPDF,a:AgencySettings,label:string,p:number,logoData?:any, bgCo
   header(d,a,label,p,logoData);
   return 72;
 }
+function drawVectorStar(d: jsPDF, cx: number, cy: number, outerR: number, color: [number, number, number] = [217, 119, 6]) {
+  const innerR = outerR * 0.44;
+  const pts: Array<[number, number]> = [];
+  for (let i = 0; i < 10; i++) {
+    const r = i % 2 === 0 ? outerR : innerR;
+    const angle = (-Math.PI / 2) + (i * Math.PI) / 5;
+    pts.push([cx + r * Math.cos(angle), cy + r * Math.sin(angle)]);
+  }
+  d.setFillColor(...color);
+  // Draw star triangles fan from center for crisp solid fill across all jsPDF versions
+  for (let i = 0; i < 10; i++) {
+    const p1 = pts[i];
+    const p2 = pts[(i + 1) % 10];
+    d.triangle(cx, cy, p1[0], p1[1], p2[0], p2[1], 'F');
+  }
+}
 
 export async function generateQuotationPDF(inq:BookingInquiry,pkg:TourPackage|undefined,q:InquiryQuotation,a:AgencySettings):Promise<void>{
   const d=doc();
@@ -191,7 +207,7 @@ export async function generateQuotationPDF(inq:BookingInquiry,pkg:TourPackage|un
   d.text('PERSONALISED TRAVEL PROPOSAL', margin, y);
   y+=24;
   
-  y=title(d,inq.packageTitle||pkg?.title||'Custom Holiday',y,15)+4;
+  y=title(d,q.packageTitle||pkg?.title||inq.packageTitle||'Custom Holiday',y,15)+4;
   y=para(d,pkg?.tagline||'A thoughtfully designed journey by Holidays Hunt',y,539,9.5)+10;
   
   // Traveller & Validity Card
@@ -276,11 +292,19 @@ export async function generateQuotationPDF(inq:BookingInquiry,pkg:TourPackage|un
         return `${h.location ? h.location + ': ' : ''}${h.name}${h.alternativeHotel ? ' / ' + h.alternativeHotel : ''}${cat ? ` (${cat})` : ''}`;
       });
     } else {
-      hotelItems = ['Handpicked Deluxe Hotels with Mountain View', '1 Night Luxury Houseboat Stay'];
+      hotelItems = [
+        hotelCategoryLabel
+          ? `${hotelCategoryLabel} Category Verified Stays (To Be Confirmed)`
+          : 'Verified Category Hotels (As Per Final Confirmation)',
+      ];
     }
   }
   if (hotelItems.length === 0) {
-    hotelItems = ['Handpicked Deluxe Hotels + Luxury Houseboat'];
+    hotelItems = [
+      hotelCategoryLabel
+        ? `${hotelCategoryLabel} Category Verified Stays`
+        : 'Verified Category Hotels',
+    ];
   }
 
   let transItems: string[] = [];
@@ -295,113 +319,25 @@ export async function generateQuotationPDF(inq:BookingInquiry,pkg:TourPackage|un
     transItems = ['Dedicated Private AC Chauffeur Vehicle'];
   }
 
-  const halfWidth = (contentWidth - 28) / 2; // ~255.5pt
-  
-  d.setFont('helvetica', 'bold');
-  d.setFontSize(9);
-  const destLines = d.splitTextToSize(clean(destVal), halfWidth);
-  const durLines = d.splitTextToSize(
-    clean(hotelCategoryLabel ? `${durVal}  |  ${hotelCategoryLabel}` : durVal),
-    halfWidth
-  );
-
-  const row1TextH = Math.max(destLines.length, durLines.length) * 11.5;
+  // Proposed Package Value Card (No "Journey snapshot" section and no "Commercial proposal" headline)
+  const hasDiscount = Boolean(q.discount && Number(q.discount) > 0);
+  const baseCardH = hasDiscount ? 74 : 62;
 
   d.setFont('helvetica', 'normal');
   d.setFontSize(8.5);
+  const tripMetaText = `Destination: ${clean(destVal)}   |   Duration: ${clean(durVal)}`;
+  const tripMetaLines = d.splitTextToSize(tripMetaText, contentWidth - 24);
+  const transMetaText = `Transport & Transfers: ${clean(transItems.join(' | '))}`;
+  const transMetaLines = d.splitTextToSize(transMetaText, contentWidth - 24);
+  const metaStripH = 12 + (tripMetaLines.length * 11.5) + 4 + (transMetaLines.length * 11.5) + 8;
+  const commH = baseCardH + metaStripH;
 
-  const colTextW = halfWidth - 18;
-  let totalHotelH = 0;
-  const parsedHotelLines = hotelItems.map(item => {
-    const lines = d.splitTextToSize(clean(item), colTextW);
-    totalHotelH += lines.length * 11 + 4;
-    return lines;
-  });
-
-  let totalTransH = 0;
-  const parsedTransLines = transItems.map(item => {
-    const lines = d.splitTextToSize(clean(item), colTextW);
-    totalTransH += lines.length * 11 + 4;
-    return lines;
-  });
-
-  const row2TextH = Math.max(totalHotelH, totalTransH, 24);
-  const snapH = 14 + 11 + row1TextH + 6 + 10 + 11 + row2TextH + 12;
-
-  if (y + snapH > maxPageHeight) { p++; y = next(d, a, 'Travel Proposal', p, logoData, SOFT); }
-  y = drawSecHeader(d, 'Journey snapshot', y);
-  drawCard(d, margin, y, contentWidth, snapH);
-
-  // Row 1: Destination & Duration (+ Hotel Category)
-  let curSnapY = y + 14;
-  d.setFont('helvetica', 'bold');
-  d.setFontSize(7);
-  d.setTextColor(...MUTED);
-  d.text('DESTINATION', margin + 12, curSnapY);
-  d.text(hotelCategoryLabel ? 'DURATION & HOTEL CATEGORY' : 'DURATION', margin + 12 + halfWidth + 14, curSnapY);
-
-  curSnapY += 11;
-  d.setFont('helvetica', 'bold');
-  d.setFontSize(9);
-  d.setTextColor(...INK);
-  d.text(destLines, margin + 12, curSnapY, { lineHeightFactor: 1.25 });
-  d.text(durLines, margin + 12 + halfWidth + 14, curSnapY, { lineHeightFactor: 1.25 });
-
-  curSnapY += row1TextH + 6;
-
-  // Divider Line
-  d.setDrawColor(...LINE);
-  d.setLineWidth(0.4);
-  d.line(margin + 12, curSnapY, margin + contentWidth - 12, curSnapY);
-
-  curSnapY += 9;
-
-  // Row 2: Hotels & Transport Headers
-  d.setFont('helvetica', 'bold');
-  d.setFontSize(7);
-  d.setTextColor(...MUTED);
-  d.text(hotelCategoryLabel ? `HOTELS (${hotelCategoryLabel.toUpperCase()})` : 'HOTELS & ACCOMMODATION', margin + 12, curSnapY);
-  d.text('TRANSPORT & TRANSFERS', margin + 12 + halfWidth + 14, curSnapY);
-
-  curSnapY += 12;
-
-  // Render Hotels with Bullets (Column 1)
-  let curHotelY = curSnapY;
-  parsedHotelLines.forEach(lines => {
-    d.setFillColor(...GOLD);
-    d.circle(margin + 15, curHotelY - 2.8, 2, 'F');
-    d.setFont('helvetica', 'normal');
-    d.setFontSize(8.5);
-    d.setTextColor(...BODY);
-    d.text(lines, margin + 22, curHotelY, { lineHeightFactor: 1.25 });
-    curHotelY += lines.length * 11 + 4;
-  });
-
-  // Render Transport with Bullets (Column 2)
-  const col2Left = margin + 12 + halfWidth + 14;
-  let curTransY = curSnapY;
-  parsedTransLines.forEach(lines => {
-    d.setFillColor(...GOLD);
-    d.circle(col2Left + 3, curTransY - 2.8, 2, 'F');
-    d.setFont('helvetica', 'normal');
-    d.setFontSize(8.5);
-    d.setTextColor(...BODY);
-    d.text(lines, col2Left + 10, curTransY, { lineHeightFactor: 1.25 });
-    curTransY += lines.length * 11 + 4;
-  });
-
-  y += snapH + 24;
-  
-  // Commercial Proposal Card
-  const hasDiscount = Boolean(q.discount && Number(q.discount) > 0);
-  const commH = hasDiscount ? 76 : 64;
   if (y + commH + 10 > maxPageHeight) { p++; y = next(d, a, 'Travel Proposal', p, logoData, SOFT); }
-  y = drawSecHeader(d, 'Commercial proposal', y);
   drawCard(d, margin, y, contentWidth, commH, CREAM, GOLD);
   d.setFont('helvetica', 'normal');
   d.setFontSize(8.5);
   d.setTextColor(...MUTED);
-  d.text('PROPOSED PACKAGE VALUE', margin + 10, y + 18);
+  d.text('PROPOSED PACKAGE VALUE', margin + 12, y + 18);
 
   if (hotelCategoryLabel) {
     const badgeTxt = clean(hotelCategoryLabel.toUpperCase());
@@ -420,85 +356,120 @@ export async function generateQuotationPDF(inq:BookingInquiry,pkg:TourPackage|un
   d.setFont('helvetica', 'bold');
   d.setFontSize(18);
   d.setTextColor(...GOLD);
-  d.text(money(q.finalPrice), margin + 10, y + 38);
+  d.text(money(q.finalPrice), margin + 12, y + 38);
   
   if (hasDiscount) {
     d.setFont('helvetica', 'normal');
     d.setFontSize(8.5);
     d.setTextColor(...BODY);
     const baseVal = q.basePrice && q.basePrice > q.finalPrice ? q.basePrice : (q.finalPrice + Number(q.discount));
-    d.text(`Base ${money(baseVal)}    Discount ${money(q.discount)}`, margin + 10, y + 52);
+    d.text(`Base ${money(baseVal)}    Discount ${money(q.discount)}`, margin + 12, y + 52);
     
     d.setFont('helvetica', 'bold');
     d.setFontSize(8);
     d.setTextColor(...GOLD);
-    d.text('CUSTOMISED PRICE - CONFIRMATION REQUIRED', margin + 10, y + 65);
-    y += commH + 30;
+    d.text('CUSTOMISED PRICE - CONFIRMATION REQUIRED', margin + 12, y + 65);
   } else {
-    // No discount: do NOT show discount or base price line!
     d.setFont('helvetica', 'bold');
     d.setFontSize(8);
     d.setTextColor(...GOLD);
-    d.text('CUSTOMISED PRICE - CONFIRMATION REQUIRED', margin + 10, y + 53);
-    y += commH + 30;
+    d.text('CUSTOMISED PRICE - CONFIRMATION REQUIRED', margin + 12, y + 53);
   }
 
-  // Structured Accommodation & Stays Cards (Matched to Proposed Hotels & Category)
+  // Divider & Compact Non-Hotel Trip Details (Destination, Duration, Transport)
+  const metaDivY = y + baseCardH;
+  d.setDrawColor(...LINE);
+  d.setLineWidth(0.5);
+  d.line(margin + 12, metaDivY, margin + contentWidth - 12, metaDivY);
+
+  let metaCurY = metaDivY + 13;
+  d.setFont('helvetica', 'normal');
+  d.setFontSize(8.5);
+  d.setTextColor(...INK);
+  d.text(tripMetaLines, margin + 12, metaCurY, { lineHeightFactor: 1.25 });
+  metaCurY += tripMetaLines.length * 11.5 + 4;
+  d.setTextColor(...BODY);
+  d.text(transMetaLines, margin + 12, metaCurY, { lineHeightFactor: 1.25 });
+
+  y += commH + 26;
+
+  // Structured Accommodation & Stays Cards (Hotels shown ONCE cleanly here)
   const tierPkgHotels = getHotelsForTier(pkg, q.hotelTierKey || hotelCategoryLabel);
   const tierPkgConfig = q.hotelTierKey ? pkg?.pricingTiers?.[q.hotelTierKey] : undefined;
-  const proposalHotelCards = hotelItems.map((rawLine) => {
-    const lineLower = rawLine.toLowerCase();
-    const matchedHotel = tierPkgHotels.find(
-      (h) => h.name && lineLower.includes(h.name.trim().toLowerCase())
-    );
-    if (matchedHotel) {
-      const cardCat = formatHotelCategoryLabel(matchedHotel.starRating) || hotelCategoryLabel;
-      const locText = getHotelLocation(matchedHotel, pkg);
-      const nightsCount = matchedHotel.nights || 1;
-      const bulletsList = [
-        ...(matchedHotel.alternativeHotel ? [`Alternative: ${clean(matchedHotel.alternativeHotel)}`] : []),
-        `Location & Stay: ${locText} (${nightsCount} ${nightsCount === 1 ? 'Night' : 'Nights'})`,
-        `Room Type: ${clean(matchedHotel.roomType || tierPkgConfig?.roomType || 'Deluxe Room')}`,
-        `Meal Plan: ${clean(matchedHotel.mealPlan || tierPkgConfig?.mealPlan || 'Daily Breakfast & Dinner Included')}`,
-        ...(matchedHotel.amenities && matchedHotel.amenities.length > 0
-          ? [`Amenities: ${clean(matchedHotel.amenities.join(', '))}`]
-          : []),
-      ];
-      return {
-        name: clean(matchedHotel.name),
-        category: cardCat,
-        bullets: bulletsList,
-      };
-    }
+  const structuredEntries = (q.hotelEntries || []).filter((e) => e.name && e.name.trim().length > 0);
 
-    // Parse manual line e.g. "Srinagar: Blanco / The Azara (3-Star) - 2N"
-    const colonIdx = rawLine.indexOf(':');
-    const locPart = colonIdx > 0 && colonIdx < 28 ? rawLine.slice(0, colonIdx).trim() : '';
-    let restPart = colonIdx > 0 && colonIdx < 28 ? rawLine.slice(colonIdx + 1).trim() : rawLine.trim();
-    const nightsMatch = restPart.match(/\s*[-–]\s*(\d+)\s*N(?:ights?)?\b/i);
-    const parsedNights = nightsMatch ? Number(nightsMatch[1]) : 0;
-    if (nightsMatch) restPart = restPart.replace(nightsMatch[0], '').trim();
-    const catMatch = restPart.match(/\((Budget|3[\s-]*Star|4[\s-]*Star|5[\s-]*Star)\)/i);
-    const parsedCat = catMatch ? formatHotelCategoryLabel(catMatch[1]) : hotelCategoryLabel;
-    if (catMatch) restPart = restPart.replace(catMatch[0], '').trim();
+  const proposalHotelCards =
+    structuredEntries.length > 0
+      ? structuredEntries.map((entry) => {
+          const cardCat = formatHotelCategoryLabel(entry.starRating) || hotelCategoryLabel;
+          const nightsCount = Math.max(1, Number(entry.nights || 1));
+          const locText = clean((entry.location || destVal || '').trim());
+          const bulletsList = [
+            ...(entry.alternativeHotel && entry.alternativeHotel.trim()
+              ? [`Alternative: ${clean(entry.alternativeHotel.trim())}`]
+              : []),
+            `Location & Stay: ${locText} (${nightsCount} ${nightsCount === 1 ? 'Night' : 'Nights'})`,
+            `Room Type: ${clean(entry.roomType || tierPkgConfig?.roomType || 'Deluxe Room')}`,
+            `Meal Plan: ${clean(entry.mealPlan || tierPkgConfig?.mealPlan || 'Daily Breakfast & Dinner Included')}`,
+            ...(entry.amenities && entry.amenities.length > 0
+              ? [`Amenities: ${clean(entry.amenities.join(', '))}`]
+              : []),
+          ];
+          return {
+            name: clean(entry.name.trim()),
+            category: cardCat,
+            bullets: bulletsList,
+          };
+        })
+      : hotelItems.map((rawLine) => {
+          const lineLower = rawLine.toLowerCase();
+          const matchedHotel = tierPkgHotels.find(
+            (h) => h.name && lineLower.includes(h.name.trim().toLowerCase())
+          );
+          if (matchedHotel) {
+            const cardCat = formatHotelCategoryLabel(matchedHotel.starRating) || hotelCategoryLabel;
+            const locText = getHotelLocation(matchedHotel, pkg);
+            const nightsCount = matchedHotel.nights || 1;
+            const bulletsList = [
+              ...(matchedHotel.alternativeHotel ? [`Alternative: ${clean(matchedHotel.alternativeHotel)}`] : []),
+              `Location & Stay: ${locText} (${nightsCount} ${nightsCount === 1 ? 'Night' : 'Nights'})`,
+              `Room Type: ${clean(matchedHotel.roomType || tierPkgConfig?.roomType || 'Deluxe Room')}`,
+              `Meal Plan: ${clean(matchedHotel.mealPlan || tierPkgConfig?.mealPlan || 'Daily Breakfast & Dinner Included')}`,
+              ...(matchedHotel.amenities && matchedHotel.amenities.length > 0
+                ? [`Amenities: ${clean(matchedHotel.amenities.join(', '))}`]
+                : []),
+            ];
+            return {
+              name: clean(matchedHotel.name),
+              category: cardCat,
+              bullets: bulletsList,
+            };
+          }
 
-    const bulletsList: string[] = [];
-    if (locPart || parsedNights > 0) {
-      const nText = parsedNights > 0 ? ` (${parsedNights} ${parsedNights === 1 ? 'Night' : 'Nights'})` : '';
-      bulletsList.push(`Location & Stay: ${clean(locPart || destVal)}${nText}`);
-    }
-    if (tierPkgConfig?.roomType) {
-      bulletsList.push(`Room Type: ${clean(tierPkgConfig.roomType)}`);
-    }
-    if (tierPkgConfig?.mealPlan) {
-      bulletsList.push(`Meal Plan: ${clean(tierPkgConfig.mealPlan)}`);
-    }
-    return {
-      name: clean(restPart || rawLine),
-      category: parsedCat,
-      bullets: bulletsList,
-    };
-  });
+          // Parse manual line e.g. "Srinagar: Blanco / The Azara (3-Star) - 2N"
+          const colonIdx = rawLine.indexOf(':');
+          const locPart = colonIdx > 0 && colonIdx < 28 ? rawLine.slice(0, colonIdx).trim() : '';
+          let restPart = colonIdx > 0 && colonIdx < 28 ? rawLine.slice(colonIdx + 1).trim() : rawLine.trim();
+          const nightsMatch = restPart.match(/\s*[-–]\s*(\d+)\s*N(?:ights?)?\b/i);
+          const parsedNights = nightsMatch ? Number(nightsMatch[1]) : 0;
+          if (nightsMatch) restPart = restPart.replace(nightsMatch[0], '').trim();
+          const catMatch = restPart.match(/\((Budget|3[\s-]*Star|4[\s-]*Star|5[\s-]*Star)\)/i);
+          const parsedCat = catMatch ? formatHotelCategoryLabel(catMatch[1]) : hotelCategoryLabel;
+          if (catMatch) restPart = restPart.replace(catMatch[0], '').trim();
+
+          const bulletsList: string[] = [];
+          if (locPart || parsedNights > 0) {
+            const nText = parsedNights > 0 ? ` (${parsedNights} ${parsedNights === 1 ? 'Night' : 'Nights'})` : '';
+            bulletsList.push(`Location & Stay: ${clean(locPart || destVal)}${nText}`);
+          }
+          bulletsList.push(`Room Type: ${clean(tierPkgConfig?.roomType || 'Deluxe Room')}`);
+          bulletsList.push(`Meal Plan: ${clean(tierPkgConfig?.mealPlan || 'Daily Breakfast & Dinner Included')}`);
+          return {
+            name: clean(restPart || rawLine),
+            category: parsedCat,
+            bullets: bulletsList,
+          };
+        });
 
   if (proposalHotelCards.length > 0) {
     if (y + 90 > maxPageHeight) { p++; y = next(d, a, 'Travel Proposal - Accommodations', p, logoData, SOFT); }
@@ -628,22 +599,39 @@ export async function generateQuotationPDF(inq:BookingInquiry,pkg:TourPackage|un
     y += excH + 36; // proper space
   }
   
-  // Day-by-Day Itinerary if any
+  // Day-by-Day Itinerary if any (showing Hotel Name, Star Category Rating & Verified Stay badge per day)
   if(pkg?.itinerary?.length){
     if (y + 100 > maxPageHeight) { p++; y = next(d, a, 'Travel Proposal - Itinerary', p, logoData, SOFT); }
     y=drawSecHeader(d,'Day-by-day itinerary',y);
+    const dayStayMap = resolveItineraryDayStays(pkg, q.hotels, q.hotelTierKey || hotelCategoryLabel, q.hotelEntries);
     for(const day of pkg.itinerary){
+      const dayStay = dayStayMap[day.dayNumber];
+      const stayHotelText = dayStay
+        ? `${dayStay.isCheckoutDay ? 'Check-out Hotel: ' : 'Hotel: '}${clean(dayStay.hotelName)}${dayStay.alternativeHotel ? ` / ${clean(dayStay.alternativeHotel)}` : ''}`
+        : ((day as any).accommodation ? `Hotel: ${clean((day as any).accommodation)}` : '');
+      const mealsText = Array.isArray(day.meals) && day.meals.length > 0
+        ? `Meals: ${clean(day.meals.join(', '))}`
+        : (typeof day.meals === 'string' && String(day.meals).trim() ? `Meals: ${clean(day.meals)}` : '');
+
       d.setFont('helvetica','bold'); d.setFontSize(10.5); // SET FONT BEFORE SPLIT
       const titleLines = d.splitTextToSize(clean(day.title), contentWidth - 90);
       d.setFont('helvetica','normal'); d.setFontSize(8.5);
       const locLines = day.location ? d.splitTextToSize(`Location: ${clean(day.location)}`, contentWidth - 90) : [];
       d.setFont('helvetica','normal'); d.setFontSize(10);
       const descLines = d.splitTextToSize(clean(day.description||''), contentWidth - 32);
-      d.setFont('helvetica','italic'); d.setFontSize(9);
-      const stayLines = (day as any).accommodation ? d.splitTextToSize(`Stay: ${clean((day as any).accommodation)} | Meals: ${clean(day.meals||'')}`, contentWidth - 32) : [];
-      
+
+      // Measure stay strip height (leaving room on top-right of strip for Verified Stay badge + Category Stars)
+      d.setFont('helvetica', 'bold'); d.setFontSize(9);
+      const stayTextMaxW = contentWidth - 210;
+      const hotelNameLines = stayHotelText ? d.splitTextToSize(stayHotelText, stayTextMaxW) : [];
+      d.setFont('helvetica', 'normal'); d.setFontSize(8.5);
+      const mealLines = mealsText ? d.splitTextToSize(mealsText, contentWidth - 52) : [];
+
+      const stayTextH = (hotelNameLines.length * 11.5) + (mealLines.length ? mealLines.length * 11 + 4 : 0);
+      const stayStripH = Math.max(30, stayTextH + 16);
+
       const topSectionH = Math.max(30, (titleLines.length * 13) + (locLines.length * 11) + 4);
-      const dayCardH = 16 + topSectionH + 12 + (descLines.length * 14.5) + (stayLines.length ? stayLines.length * 12 + 8 : 0) + 16;
+      const dayCardH = 16 + topSectionH + 10 + (descLines.length * 14.5) + 12 + stayStripH + 14;
       
       if(y + dayCardH > maxPageHeight){
         p++;
@@ -666,18 +654,78 @@ export async function generateQuotationPDF(inq:BookingInquiry,pkg:TourPackage|un
         d.setFont('helvetica','normal'); d.setFontSize(8.5); d.setTextColor(...MUTED);
         d.text(locLines, margin+76, cy, {lineHeightFactor: 1.25});
       }
-      cy = y + 16 + topSectionH + 12;
+      cy = y + 16 + topSectionH + 10;
       
-      d.setFontSize(10); d.setTextColor(...BODY);
+      d.setFont('helvetica','normal'); d.setFontSize(10); d.setTextColor(...BODY);
       d.text(descLines, margin+16, cy, {lineHeightFactor: 1.45});
       cy += descLines.length * 14.5 + 10;
-      
-      if (stayLines.length > 0) {
-        d.setFont('helvetica','italic'); d.setFontSize(9); d.setTextColor(...MUTED);
-        d.text(stayLines, margin+16, cy, {lineHeightFactor: 1.3});
+
+      // Stay Strip inside Day Card: Hotel Name + Category Rating (Stars) + Verified Stay Badge
+      const stripX = margin + 12;
+      const stripW = contentWidth - 24;
+      d.setFillColor(250, 248, 245);
+      d.setDrawColor(231, 229, 228);
+      d.setLineWidth(0.5);
+      d.roundedRect(stripX, cy, stripW, stayStripH, 5, 5, 'FD');
+
+      // Left: Hotel Name & Meals
+      let sy = cy + 14;
+      if (hotelNameLines.length > 0) {
+        d.setFont('helvetica', 'bold');
+        d.setFontSize(9);
+        d.setTextColor(...INK);
+        d.text(hotelNameLines, stripX + 10, sy, { lineHeightFactor: 1.25 });
+        sy += hotelNameLines.length * 11.5 + 3;
       }
-      
-      y += dayCardH + 24; // proper space
+      if (mealLines.length > 0) {
+        d.setFont('helvetica', 'normal');
+        d.setFontSize(8);
+        d.setTextColor(...MUTED);
+        d.text(mealLines, stripX + 10, sy, { lineHeightFactor: 1.2 });
+      }
+
+      // Right: Verified Stay Badge + Star Rating Category Pill
+      const vBadgeW = 74;
+      const vBadgeH = 16;
+      const vBadgeX = stripX + stripW - vBadgeW - 8;
+      const vBadgeY = cy + 7;
+      d.setFillColor(236, 253, 245); // emerald-50
+      d.setDrawColor(16, 185, 129);  // emerald-500
+      d.setLineWidth(0.6);
+      d.roundedRect(vBadgeX, vBadgeY, vBadgeW, vBadgeH, 4, 4, 'FD');
+      // Small green check dot
+      d.setFillColor(5, 150, 105);
+      d.circle(vBadgeX + 8, vBadgeY + 8, 2.2, 'F');
+      d.setFont('helvetica', 'bold');
+      d.setFontSize(7);
+      d.setTextColor(6, 95, 70);
+      d.text('VERIFIED STAY', vBadgeX + 13, vBadgeY + 10.5);
+
+      // Category & Vector Stars Pill directly left of Verified Stay Badge
+      if (dayStay && (dayStay.categoryLabel || dayStay.starRating)) {
+        const starCount = dayStay.starRating || 0;
+        const catTxt = clean((dayStay.categoryLabel || 'Verified').toUpperCase());
+        d.setFont('helvetica', 'bold');
+        d.setFontSize(7);
+        const catTxtW = d.getTextWidth(catTxt);
+        const starsSpace = starCount > 0 ? (starCount * 7.5 + 5) : 0;
+        const cBadgeW = catTxtW + starsSpace + 14;
+        const cBadgeX = vBadgeX - cBadgeW - 6;
+        d.setFillColor(255, 251, 235); // amber-50
+        d.setDrawColor(217, 119, 6);   // amber-600
+        d.setLineWidth(0.5);
+        d.roundedRect(cBadgeX, vBadgeY, cBadgeW, vBadgeH, 4, 4, 'FD');
+        d.setTextColor(180, 83, 9);
+        d.text(catTxt, cBadgeX + 7, vBadgeY + 10.5);
+        if (starCount > 0) {
+          const starsStartX = cBadgeX + 7 + catTxtW + 6;
+          for (let s = 0; s < starCount; s++) {
+            drawVectorStar(d, starsStartX + s * 7.5, vBadgeY + 8, 2.9, [217, 119, 6]);
+          }
+        }
+      }
+
+      y += dayCardH + 20; // proper space
     }
   }
   

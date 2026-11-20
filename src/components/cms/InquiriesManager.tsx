@@ -1,15 +1,21 @@
 import React, { useState } from 'react';
 import { useTours } from '../../context/TourContext';
-import { BookingInquiry, HotelTierKey, InquiryQuotation } from '../../types/tour';
+import { BookingInquiry, HOTEL_CATEGORY_OPTIONS, HotelTierKey, InquiryQuotation, ProposalHotelEntry } from '../../types/tour';
 import { generateQuotationPDF } from '../../utils/pdfGenerator';
 import { formatBookingNumber, generateBookingNumber } from '../../utils/bookingHelper';
 import {
+  buildProposalHotelEntriesForTier,
   detectTierFromInquiry,
   formatHotelCategoryLabel,
   formatHotelsTextForTier,
+  getHotelCategoryOptionByKey,
   getHotelsForTier,
   getPackageAvailableTiers,
   getTierUnitPrice,
+  normalizeHotelStar,
+  parseHotelsTextToEntries,
+  resolveItineraryDayStays,
+  serializeProposalHotelEntries,
 } from '../../utils/hotelCategories';
 import {
   MessageSquare,
@@ -38,6 +44,9 @@ import {
   Edit,
   Edit3,
   Building2,
+  Star,
+  ShieldCheck,
+  MapPin,
 } from 'lucide-react';
 
 export const InquiriesManager: React.FC<{
@@ -97,6 +106,7 @@ export const InquiriesManager: React.FC<{
     new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0]
   );
   const [quoteHotels, setQuoteHotels] = useState<string>('4-Star Luxury Deluxe Hotel + 1 Night Luxury Houseboat');
+  const [quoteHotelEntries, setQuoteHotelEntries] = useState<ProposalHotelEntry[]>([]);
   const [quoteCab, setQuoteCab] = useState<string>('Dedicated Private AC Sedan / Innova with Chauffeur');
   const [quoteInclusions, setQuoteInclusions] = useState<string>(
     'Daily Breakfast & Dinner\nAirport Pickup & Drop\nPrivate Chauffeur Vehicle for Sightseeing\nTolls, Parking & Driver Allowance'
@@ -107,6 +117,12 @@ export const InquiriesManager: React.FC<{
   const [quoteNotes, setQuoteNotes] = useState<string>(
     'Customized tailored proposal prepared with verified stays and 24/7 on-trip concierge assistance.'
   );
+
+  const syncHotelEntriesState = (entries: ProposalHotelEntry[], categoryLabelOverride?: string) => {
+    setQuoteHotelEntries(entries);
+    const serialized = serializeProposalHotelEntries(entries, categoryLabelOverride ?? quoteHotelCategory);
+    setQuoteHotels(serialized);
+  };
 
   const formatPackageHotels = (pkg?: any, tierKey?: HotelTierKey | ''): string => {
     return formatHotelsTextForTier(pkg, tierKey || undefined);
@@ -127,9 +143,15 @@ export const InquiriesManager: React.FC<{
     setQuoteHotelTierKey(tierKey);
     const label = tierKey ? formatHotelCategoryLabel(tierKey) : '';
     setQuoteHotelCategory(label);
-    if (!pkg) return;
+    if (!pkg) {
+      const targetStar = normalizeHotelStar(tierKey) || undefined;
+      const updated = quoteHotelEntries.map((e) => ({ ...e, starRating: targetStar }));
+      syncHotelEntriesState(updated, label);
+      return;
+    }
 
-    setQuoteHotels(formatHotelsTextForTier(pkg, tierKey || undefined));
+    const entries = buildProposalHotelEntriesForTier(pkg, tierKey || undefined);
+    syncHotelEntriesState(entries, label);
     const pax = selectedInquiryForQuote ? (selectedInquiryForQuote.adults || 2) : 2;
     const { unitPrice } = getTierUnitPrice(pkg, tierKey || undefined);
     if (unitPrice > 0) {
@@ -144,20 +166,23 @@ export const InquiriesManager: React.FC<{
 
     const availableTiers = getPackageAvailableTiers(pkg);
     const chosenTier: HotelTierKey | '' =
-      overrideTierKey && availableTiers.some((t) => t.key === overrideTierKey)
-        ? overrideTierKey
-        : detectTierFromInquiry(selectedInquiryForQuote, pkg) || availableTiers[0]?.key || '';
+      overrideTierKey ||
+      detectTierFromInquiry(selectedInquiryForQuote, pkg) ||
+      availableTiers[0]?.key ||
+      '';
+    const chosenLabel = chosenTier ? formatHotelCategoryLabel(chosenTier) : '';
 
     setQuotePackageId(pkg.id);
     setQuoteHotelTierKey(chosenTier);
-    setQuoteHotelCategory(chosenTier ? formatHotelCategoryLabel(chosenTier) : '');
+    setQuoteHotelCategory(chosenLabel);
     setQuotePackageTitle(pkg.title);
     setQuoteDestination(pkg.destination || 'Jammu & Kashmir');
     setQuoteDuration(`${pkg.durationDays} Days / ${pkg.durationNights} Nights`);
     const pax = selectedInquiryForQuote ? (selectedInquiryForQuote.adults || 2) : 2;
     const { unitPrice } = getTierUnitPrice(pkg, chosenTier || undefined);
     setQuotePrice((unitPrice > 0 ? unitPrice : 15000) * pax);
-    setQuoteHotels(formatHotelsTextForTier(pkg, chosenTier || undefined));
+    const entries = buildProposalHotelEntriesForTier(pkg, chosenTier || undefined);
+    syncHotelEntriesState(entries, chosenLabel);
     setQuoteCab(formatCabType(selectedInquiryForQuote || {}, pkg, chosenTier));
     setQuoteInclusions(
       pkg.inclusions && pkg.inclusions.length > 0
@@ -295,12 +320,13 @@ export const InquiriesManager: React.FC<{
     if (inq.quotation) {
       const q = inq.quotation;
       const savedTier: HotelTierKey | '' =
-        q.hotelTierKey && availableTiers.some((t) => t.key === q.hotelTierKey)
-          ? q.hotelTierKey
-          : detectedTier;
+        q.hotelTierKey ||
+        (q.hotelCategory ? getHotelCategoryOptionByKey(q.hotelCategory)?.key || '' : '') ||
+        detectedTier;
+      const savedCatLabel = q.hotelCategory || (savedTier ? formatHotelCategoryLabel(savedTier) : '');
       setQuotePackageId(q.packageId || matchedPkg?.id || '');
       setQuoteHotelTierKey(savedTier);
-      setQuoteHotelCategory(q.hotelCategory || (savedTier ? formatHotelCategoryLabel(savedTier) : ''));
+      setQuoteHotelCategory(savedCatLabel);
       setQuotePackageTitle(q.packageTitle || inq.packageTitle || matchedPkg?.title || 'Custom Tour Proposal');
       setQuoteDestination(q.destination || matchedPkg?.destination || 'Jammu & Kashmir');
       setQuoteDuration(q.duration || (matchedPkg ? `${matchedPkg.durationDays} Days / ${matchedPkg.durationNights} Nights` : '6 Days / 5 Nights'));
@@ -308,15 +334,27 @@ export const InquiriesManager: React.FC<{
       setQuotePrice(q.basePrice || q.finalPrice || (unitPrice > 0 ? unitPrice * (inq.adults || 2) : 15000));
       setQuoteDiscount(q.discount || 0);
       setQuoteValidity(q.validUntil || new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0]);
-      setQuoteHotels(q.hotels || formatPackageHotels(matchedPkg, savedTier));
+      const initialEntries =
+        q.hotelEntries && q.hotelEntries.length > 0
+          ? q.hotelEntries
+          : q.hotels && q.hotels.trim()
+          ? parseHotelsTextToEntries(q.hotels, matchedPkg, savedTier || savedCatLabel)
+          : buildProposalHotelEntriesForTier(matchedPkg, savedTier || savedCatLabel);
+      setQuoteHotelEntries(initialEntries);
+      setQuoteHotels(
+        serializeProposalHotelEntries(initialEntries, savedCatLabel) ||
+          q.hotels ||
+          formatPackageHotels(matchedPkg, savedTier)
+      );
       setQuoteCab(q.cabType || formatCabType(inq, matchedPkg, savedTier));
       setQuoteInclusions(Array.isArray(q.inclusions) ? q.inclusions.join('\n') : (q.inclusions || ''));
       setQuoteExclusions(Array.isArray(q.exclusions) ? q.exclusions.join('\n') : (q.exclusions || ''));
       setQuoteNotes(q.notes || 'Customized tailored proposal prepared with verified stays and 24/7 on-trip concierge assistance.');
     } else {
+      const detectedLabel = detectedTier ? formatHotelCategoryLabel(detectedTier) : '';
       setQuotePackageId(matchedPkg?.id || '');
       setQuoteHotelTierKey(detectedTier);
-      setQuoteHotelCategory(detectedTier ? formatHotelCategoryLabel(detectedTier) : '');
+      setQuoteHotelCategory(detectedLabel);
       setQuotePackageTitle(matchedPkg?.title || inq.packageTitle || 'Custom Tour Proposal');
       setQuoteDestination(matchedPkg?.destination || 'Jammu & Kashmir');
       setQuoteDuration(matchedPkg ? `${matchedPkg.durationDays} Days / ${matchedPkg.durationNights} Nights` : '6 Days / 5 Nights');
@@ -325,7 +363,9 @@ export const InquiriesManager: React.FC<{
       setQuotePrice(baseP);
       setQuoteDiscount(0);
       setQuoteValidity(new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0]);
-      setQuoteHotels(formatPackageHotels(matchedPkg, detectedTier));
+      const initialEntries = buildProposalHotelEntriesForTier(matchedPkg, detectedTier || undefined);
+      setQuoteHotelEntries(initialEntries);
+      setQuoteHotels(serializeProposalHotelEntries(initialEntries, detectedLabel) || formatPackageHotels(matchedPkg, detectedTier));
       setQuoteCab(formatCabType(inq, matchedPkg, detectedTier));
       setQuoteInclusions(
         matchedPkg?.inclusions && matchedPkg.inclusions.length > 0
@@ -353,6 +393,23 @@ export const InquiriesManager: React.FC<{
         .map((s) => s.trim().replace(/^[-•*]\s*/, ''))
         .filter(Boolean);
 
+    const activeStar = normalizeHotelStar(quoteHotelTierKey || quoteHotelCategory) || undefined;
+    const validHotelEntries = quoteHotelEntries
+      .filter((entry) => entry.name && entry.name.trim().length > 0)
+      .map((entry) => ({
+        ...entry,
+        name: entry.name.trim(),
+        alternativeHotel: entry.alternativeHotel?.trim() || undefined,
+        location: (entry.location || quoteDestination || '').trim(),
+        nights: Math.max(1, Number(entry.nights || 1)),
+        roomType: entry.roomType?.trim() || 'Deluxe Room',
+        mealPlan: entry.mealPlan?.trim() || 'Daily Breakfast & Dinner Included',
+        starRating: entry.starRating || activeStar,
+      }));
+
+    const serializedHotels =
+      serializeProposalHotelEntries(validHotelEntries, quoteHotelCategory) || quoteHotels;
+
     const quotation: InquiryQuotation = {
       id: selectedInquiryForQuote.quotation?.id || `quote-${Date.now().toString(36)}`,
       packageId: quotePackageId,
@@ -365,7 +422,8 @@ export const InquiriesManager: React.FC<{
       discount: quoteDiscount,
       finalPrice: Math.max(0, quotePrice - quoteDiscount),
       validUntil: quoteValidity,
-      hotels: quoteHotels,
+      hotels: serializedHotels,
+      hotelEntries: validHotelEntries,
       cabType: quoteCab,
       inclusions: parseList(quoteInclusions),
       exclusions: parseList(quoteExclusions),
@@ -386,6 +444,9 @@ export const InquiriesManager: React.FC<{
     const detectedTier = detectTierFromInquiry(inq, matchedPkg);
     const { unitPrice } = getTierUnitPrice(matchedPkg, detectedTier);
     const defaultTotal = unitPrice > 0 ? unitPrice * (inq.adults || 2) : 15000;
+    const defaultEntries = buildProposalHotelEntriesForTier(matchedPkg, detectedTier).filter(
+      (e) => e.name && e.name.trim().length > 0
+    );
 
     const quotation: InquiryQuotation = inq.quotation || {
       id: `quote-std-${inq.id}`,
@@ -400,6 +461,7 @@ export const InquiriesManager: React.FC<{
       finalPrice: defaultTotal,
       validUntil: new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0],
       hotels: formatPackageHotels(matchedPkg, detectedTier),
+      hotelEntries: defaultEntries,
       cabType: formatCabType(inq, matchedPkg, detectedTier),
       inclusions: matchedPkg?.inclusions && matchedPkg.inclusions.length > 0 ? matchedPkg.inclusions : [
         'Exclusive Private Chauffeur vehicle for all transfers and sightseeing',
@@ -968,53 +1030,48 @@ export const InquiriesManager: React.FC<{
                       </button>
                     </div>
 
-                    {/* Hotel Category Selector (Strictly from Categories Configured in Package) */}
+                    {/* Hotel Category Selector (All 4 Tiers: Budget, 3-Star, 4-Star, 5-Star) */}
                     <div className="pt-2.5 border-t border-purple-200/70 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
                       <div className="flex items-center gap-2">
                         <Building2 className="w-4 h-4 text-purple-700 shrink-0" />
                         <div>
                           <div className="text-[11px] font-bold text-purple-950 uppercase tracking-wider">
-                            Hotel Category in Package
+                            Hotel Category in Quote
                           </div>
                           <div className="text-[10px] text-purple-700">
-                            {availableQuoteTiers.length > 0
-                              ? 'Select which hotel category to quote — updates hotels & price automatically.'
-                              : 'No separate star categories configured on this package.'}
+                            Select Budget, 3-Star, 4-Star, or 5-Star — auto-fills package stays & price when configured.
                           </div>
                         </div>
                       </div>
 
-                      {availableQuoteTiers.length > 0 ? (
-                        <div className="flex flex-wrap items-center gap-1.5">
-                          {availableQuoteTiers.map((tierOpt) => {
-                            const isSelected = quoteHotelTierKey === tierOpt.key;
-                            const { unitPrice, isPriceOnRequest } = getTierUnitPrice(activeQuotePkg, tierOpt.key);
-                            return (
-                              <button
-                                key={tierOpt.key}
-                                type="button"
-                                onClick={() => handleSelectHotelCategory(tierOpt.key)}
-                                className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition cursor-pointer flex items-center gap-1.5 ${
-                                  isSelected
-                                    ? 'bg-purple-700 text-white border-purple-700 shadow-xs'
-                                    : 'bg-white text-stone-800 border-purple-200 hover:bg-purple-100/70'
-                                }`}
-                              >
-                                <span>{tierOpt.label}</span>
-                                {!isPriceOnRequest && unitPrice > 0 && (
-                                  <span className={`text-[10px] ${isSelected ? 'text-purple-100' : 'text-stone-500'}`}>
-                                    (₹{unitPrice.toLocaleString('en-IN')})
-                                  </span>
-                                )}
-                              </button>
-                            );
-                          })}
-                        </div>
-                      ) : (
-                        <span className="px-2.5 py-1 rounded-lg bg-white border border-purple-200 text-[11px] font-semibold text-stone-600">
-                          Standard Package Hotels
-                        </span>
-                      )}
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        {HOTEL_CATEGORY_OPTIONS.map((tierOpt) => {
+                          const isSelected = quoteHotelTierKey === tierOpt.key;
+                          const isConfiguredInPkg = availableQuoteTiers.some((t) => t.key === tierOpt.key);
+                          const { unitPrice, isPriceOnRequest } = isConfiguredInPkg
+                            ? getTierUnitPrice(activeQuotePkg, tierOpt.key)
+                            : { unitPrice: 0, isPriceOnRequest: true };
+                          return (
+                            <button
+                              key={tierOpt.key}
+                              type="button"
+                              onClick={() => handleSelectHotelCategory(tierOpt.key)}
+                              className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition cursor-pointer flex items-center gap-1.5 ${
+                                isSelected
+                                  ? 'bg-purple-700 text-white border-purple-700 shadow-xs'
+                                  : 'bg-white text-stone-800 border-purple-200 hover:bg-purple-100/70'
+                              }`}
+                            >
+                              <span>{tierOpt.label}</span>
+                              {isConfiguredInPkg && !isPriceOnRequest && unitPrice > 0 && (
+                                <span className={`text-[10px] ${isSelected ? 'text-purple-100' : 'text-stone-500'}`}>
+                                  (₹{unitPrice.toLocaleString('en-IN')})
+                                </span>
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
                     </div>
 
                     {quoteHotelCategory && matchedTierHotels.length > 0 && (
@@ -1029,6 +1086,12 @@ export const InquiriesManager: React.FC<{
                             {i < matchedTierHotels.length - 1 ? <span className="text-stone-300">•</span> : null}
                           </span>
                         ))}
+                      </div>
+                    )}
+
+                    {quoteHotelCategory && matchedTierHotels.length === 0 && (
+                      <div className="bg-amber-50/90 rounded-lg border border-amber-200 px-3 py-2 text-[11px] text-amber-900">
+                        <span className="font-bold">{quoteHotelCategory}</span> has no pre-uploaded hotels on this tour — enter your custom <span className="font-semibold">{quoteHotelCategory}</span> hotels and quotation price below.
                       </div>
                     )}
                   </div>
@@ -1133,22 +1196,316 @@ export const InquiriesManager: React.FC<{
                 </div>
               </div>
 
-              {/* Hotels & Stays */}
-              <div>
-                <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1">
-                  Proposed Hotels & Accommodation (Included in Snapshot)
-                </label>
-                <textarea
-                  rows={3}
-                  value={quoteHotels}
-                  onChange={(e) => setQuoteHotels(e.target.value)}
-                  className="w-full px-3.5 py-2 rounded-xl border border-stone-200 bg-white text-xs font-medium leading-relaxed"
-                  placeholder={"e.g. Srinagar: Blanco / The Azara\nPahalgam: White Water Resort\nSrinagar: Houseboat Harmus / Sheikh Palace"}
-                />
-                <p className="text-[11px] text-stone-500 mt-0.5">
-                  Enter hotel details (one per line or comma-separated). Each will appear neatly with its own bullet in the PDF.
-                </p>
-              </div>
+              {/* Structured Editable Hotels & Stays */}
+              {(() => {
+                const activeQuotePkg = packages.find((p) => p.id === quotePackageId);
+                const hasPkgHotelsForTier =
+                  getHotelsForTier(activeQuotePkg, quoteHotelTierKey || quoteHotelCategory || undefined).length > 0;
+                const activeStar = normalizeHotelStar(quoteHotelTierKey || quoteHotelCategory) || undefined;
+
+                const handleUpdateEntry = (idx: number, patch: Partial<ProposalHotelEntry>) => {
+                  const next = quoteHotelEntries.map((item, i) =>
+                    i === idx ? { ...item, ...patch } : item
+                  );
+                  syncHotelEntriesState(next);
+                };
+
+                const handleRemoveEntry = (idx: number) => {
+                  const next = quoteHotelEntries.filter((_, i) => i !== idx);
+                  syncHotelEntriesState(next);
+                };
+
+                const handleAddEntry = () => {
+                  const next: ProposalHotelEntry[] = [
+                    ...quoteHotelEntries,
+                    {
+                      id: `prop-hotel-add-${Date.now().toString(36)}`,
+                      name: '',
+                      alternativeHotel: '',
+                      location: quoteDestination.split(',')[0]?.trim() || activeQuotePkg?.destination || '',
+                      nights: 1,
+                      roomType: 'Deluxe Room',
+                      mealPlan: 'Daily Breakfast & Dinner Included',
+                      starRating: activeStar,
+                    },
+                  ];
+                  syncHotelEntriesState(next);
+                };
+
+                const handleResetToPkgHotels = () => {
+                  if (!activeQuotePkg) return;
+                  const entries = buildProposalHotelEntriesForTier(
+                    activeQuotePkg,
+                    quoteHotelTierKey || quoteHotelCategory || undefined
+                  );
+                  syncHotelEntriesState(entries);
+                };
+
+                return (
+                  <div className="bg-stone-50/80 border border-stone-200 rounded-xl p-3.5 space-y-3">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <div>
+                        <label className="block text-xs font-bold text-stone-800 uppercase tracking-wider">
+                          Proposed Hotels & Accommodation ({quoteHotelCategory || 'Custom'})
+                        </label>
+                        <p className="text-[11px] text-stone-500 mt-0.5">
+                          {hasPkgHotelsForTier
+                            ? 'Pre-loaded from tour package — edit any field, remove, or add hotels for this proposal.'
+                            : 'No hotels uploaded on tour for this category — enter hotel names & stay details below.'}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        {hasPkgHotelsForTier && (
+                          <button
+                            type="button"
+                            onClick={handleResetToPkgHotels}
+                            className="px-2.5 py-1.5 rounded-lg border border-stone-200 bg-white hover:bg-stone-100 text-[11px] font-bold text-stone-700 transition cursor-pointer"
+                          >
+                            Reset Tour Hotels
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={handleAddEntry}
+                          className="px-2.5 py-1.5 rounded-lg bg-[#9b0000] hover:bg-[#820000] text-white text-[11px] font-bold flex items-center gap-1 transition cursor-pointer shadow-2xs"
+                        >
+                          <Plus className="w-3.5 h-3.5" />
+                          <span>Add Hotel</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    {quoteHotelEntries.length === 0 ? (
+                      <div className="bg-white border border-dashed border-stone-300 rounded-xl p-4 text-center space-y-2">
+                        <p className="text-xs text-stone-500">
+                          No hotels listed yet for this proposal.
+                        </p>
+                        <button
+                          type="button"
+                          onClick={handleAddEntry}
+                          className="px-3 py-1.5 rounded-lg bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer"
+                        >
+                          <Plus className="w-3.5 h-3.5" />
+                          Add First Hotel
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="space-y-2.5">
+                        {quoteHotelEntries.map((entry, idx) => (
+                          <div
+                            key={entry.id || idx}
+                            className="bg-white border border-stone-200 rounded-xl p-3 space-y-2.5 shadow-2xs"
+                          >
+                            <div className="flex items-center justify-between gap-2">
+                              <div className="flex items-center gap-2">
+                                <span className="px-2 py-0.5 rounded-md bg-stone-100 text-stone-700 text-[10px] font-black uppercase">
+                                  Hotel {idx + 1}
+                                </span>
+                                {(entry.starRating || quoteHotelCategory) && (
+                                  <span className="px-2 py-0.5 rounded-md bg-amber-50 border border-amber-200 text-amber-900 text-[10px] font-bold">
+                                    {formatHotelCategoryLabel(entry.starRating) || quoteHotelCategory}
+                                  </span>
+                                )}
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveEntry(idx)}
+                                className="p-1 text-stone-400 hover:text-red-600 rounded-lg hover:bg-red-50 transition cursor-pointer"
+                                title="Remove Hotel"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                              <div>
+                                <label className="block text-[10px] font-bold text-stone-500 uppercase mb-1">
+                                  Hotel Name *
+                                </label>
+                                <input
+                                  type="text"
+                                  value={entry.name}
+                                  onChange={(e) => handleUpdateEntry(idx, { name: e.target.value })}
+                                  placeholder={`Enter ${quoteHotelCategory || ''} Hotel Name`}
+                                  className="w-full px-3 py-1.5 rounded-lg border border-stone-200 text-xs font-semibold text-stone-900 focus:border-purple-500 outline-none"
+                                />
+                              </div>
+
+                              <div>
+                                <label className="block text-[10px] font-bold text-stone-500 uppercase mb-1">
+                                  Alternative / Similar Hotel
+                                </label>
+                                <input
+                                  type="text"
+                                  value={entry.alternativeHotel || ''}
+                                  onChange={(e) => handleUpdateEntry(idx, { alternativeHotel: e.target.value })}
+                                  placeholder="e.g. Similar Category Resort"
+                                  className="w-full px-3 py-1.5 rounded-lg border border-stone-200 text-xs text-stone-800 focus:border-purple-500 outline-none"
+                                />
+                              </div>
+
+                              <div>
+                                <label className="block text-[10px] font-bold text-stone-500 uppercase mb-1">
+                                  Location / City
+                                </label>
+                                <input
+                                  type="text"
+                                  value={entry.location}
+                                  onChange={(e) => handleUpdateEntry(idx, { location: e.target.value })}
+                                  placeholder="e.g. Srinagar"
+                                  className="w-full px-3 py-1.5 rounded-lg border border-stone-200 text-xs text-stone-800 focus:border-purple-500 outline-none"
+                                />
+                              </div>
+
+                              <div className="grid grid-cols-2 gap-2">
+                                <div>
+                                  <label className="block text-[10px] font-bold text-stone-500 uppercase mb-1">
+                                    Nights
+                                  </label>
+                                  <input
+                                    type="number"
+                                    min={1}
+                                    max={30}
+                                    value={entry.nights}
+                                    onChange={(e) =>
+                                      handleUpdateEntry(idx, { nights: Math.max(1, Number(e.target.value) || 1) })
+                                    }
+                                    className="w-full px-3 py-1.5 rounded-lg border border-stone-200 text-xs font-semibold text-stone-900 focus:border-purple-500 outline-none"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-[10px] font-bold text-stone-500 uppercase mb-1">
+                                    Room Type
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={entry.roomType || ''}
+                                    onChange={(e) => handleUpdateEntry(idx, { roomType: e.target.value })}
+                                    placeholder="Deluxe Room"
+                                    className="w-full px-3 py-1.5 rounded-lg border border-stone-200 text-xs text-stone-800 focus:border-purple-500 outline-none"
+                                  />
+                                </div>
+                              </div>
+
+                              <div className="sm:col-span-2">
+                                <label className="block text-[10px] font-bold text-stone-500 uppercase mb-1">
+                                  Meal Plan
+                                </label>
+                                <input
+                                  type="text"
+                                  value={entry.mealPlan || ''}
+                                  onChange={(e) => handleUpdateEntry(idx, { mealPlan: e.target.value })}
+                                  placeholder="Daily Breakfast & Dinner Included"
+                                  className="w-full px-3 py-1.5 rounded-lg border border-stone-200 text-xs text-stone-800 focus:border-purple-500 outline-none"
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
+
+              {/* Day-by-Day Itinerary & Verified Hotel Breakdown Preview */}
+              {(() => {
+                const activeQuotePkg = packages.find((p) => p.id === quotePackageId);
+                if (!activeQuotePkg?.itinerary?.length) return null;
+                const dayStayMap = resolveItineraryDayStays(
+                  activeQuotePkg,
+                  quoteHotels,
+                  quoteHotelTierKey || quoteHotelCategory,
+                  quoteHotelEntries
+                );
+                return (
+                  <div className="bg-stone-50/90 border border-stone-200 rounded-xl p-3.5 space-y-2.5">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-1.5">
+                        <Calendar className="w-4 h-4 text-[#9b0000]" />
+                        <span className="text-xs font-bold text-stone-900 uppercase tracking-wider">
+                          Day-by-Day Itinerary & Verified Stay Preview ({activeQuotePkg.itinerary.length} Days)
+                        </span>
+                      </div>
+                      {quoteHotelCategory && (
+                        <span className="px-2 py-0.5 rounded-full bg-purple-100 text-purple-900 text-[10px] font-black uppercase">
+                          {quoteHotelCategory}
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
+                      {activeQuotePkg.itinerary.map((day) => {
+                        const stay = dayStayMap[day.dayNumber];
+                        const starCount = stay?.starRating || 0;
+                        return (
+                          <div
+                            key={day.id || day.dayNumber}
+                            className="bg-white border border-stone-200 rounded-xl p-2.5 space-y-2 shadow-2xs"
+                          >
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="flex items-start gap-2 min-w-0">
+                                <span className="px-2 py-0.5 rounded-md bg-[#9b0000] text-white text-[10px] font-black uppercase shrink-0 mt-0.5">
+                                  Day {day.dayNumber}
+                                </span>
+                                <div className="min-w-0">
+                                  <div className="text-xs font-bold text-stone-900 leading-snug">
+                                    {day.title}
+                                  </div>
+                                  {day.location && (
+                                    <div className="text-[10px] text-stone-500 flex items-center gap-1 mt-0.5">
+                                      <MapPin className="w-3 h-3 text-[#9b0000] shrink-0" />
+                                      <span className="truncate">{day.location}</span>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+
+                            {stay && (
+                              <div className="bg-stone-50 border border-stone-200/80 rounded-lg px-2.5 py-2 flex flex-wrap items-center justify-between gap-2">
+                                <div className="flex items-center gap-1.5 min-w-0">
+                                  <Building2 className="w-3.5 h-3.5 text-[#9b0000] shrink-0" />
+                                  <div className="text-[11px] font-bold text-stone-900 truncate">
+                                    {stay.isCheckoutDay ? 'Check-out: ' : ''}
+                                    {stay.hotelName}
+                                    {stay.alternativeHotel ? (
+                                      <span className="font-normal text-stone-500"> / {stay.alternativeHotel}</span>
+                                    ) : null}
+                                  </div>
+                                </div>
+
+                                <div className="flex flex-wrap items-center gap-1.5 shrink-0">
+                                  {(stay.categoryLabel || starCount > 0) && (
+                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-50 border border-amber-200 text-amber-900 text-[10px] font-extrabold">
+                                      <span>{stay.categoryLabel}</span>
+                                      {starCount > 0 && (
+                                        <span className="inline-flex items-center gap-0.5" aria-label={`${starCount} stars`}>
+                                          {Array.from({ length: starCount }).map((_, idx) => (
+                                            <Star
+                                              key={idx}
+                                              className="w-2.5 h-2.5 fill-amber-400 text-amber-500"
+                                            />
+                                          ))}
+                                        </span>
+                                      )}
+                                    </span>
+                                  )}
+
+                                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-50 border border-emerald-200 text-emerald-800 text-[10px] font-extrabold">
+                                    <ShieldCheck className="w-3 h-3 text-emerald-600 shrink-0" />
+                                    <span>Verified Stay</span>
+                                  </span>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })()}
 
               {/* Vehicle & Transportation */}
               <div>
