@@ -5,7 +5,9 @@ import { generateQuotationPDF } from '../../utils/pdfGenerator';
 import { formatBookingNumber, generateBookingNumber } from '../../utils/bookingHelper';
 import {
   buildProposalHotelEntriesForTier,
+  detectProposalPropertyType,
   detectTierFromInquiry,
+  formatAssignedNightsLabel,
   formatHotelCategoryLabel,
   formatHotelsTextForTier,
   getHotelCategoryOptionByKey,
@@ -14,7 +16,6 @@ import {
   getTierUnitPrice,
   normalizeHotelStar,
   parseHotelsTextToEntries,
-  resolveItineraryDayStays,
   serializeProposalHotelEntries,
 } from '../../utils/hotelCategories';
 import {
@@ -44,9 +45,7 @@ import {
   Edit,
   Edit3,
   Building2,
-  Star,
-  ShieldCheck,
-  MapPin,
+  Ship,
 } from 'lucide-react';
 
 export const InquiriesManager: React.FC<{
@@ -396,16 +395,23 @@ export const InquiriesManager: React.FC<{
     const activeStar = normalizeHotelStar(quoteHotelTierKey || quoteHotelCategory) || undefined;
     const validHotelEntries = quoteHotelEntries
       .filter((entry) => entry.name && entry.name.trim().length > 0)
-      .map((entry) => ({
-        ...entry,
-        name: entry.name.trim(),
-        alternativeHotel: entry.alternativeHotel?.trim() || undefined,
-        location: (entry.location || quoteDestination || '').trim(),
-        nights: Math.max(1, Number(entry.nights || 1)),
-        roomType: entry.roomType?.trim() || 'Deluxe Room',
-        mealPlan: entry.mealPlan?.trim() || 'Daily Breakfast & Dinner Included',
-        starRating: entry.starRating || activeStar,
-      }));
+      .map((entry) => {
+        const cleanNights = Array.from(
+          new Set((entry.assignedNights || []).map((n) => Number(n)).filter((n) => Number.isFinite(n) && n >= 1))
+        ).sort((a, b) => a - b);
+        return {
+          ...entry,
+          name: entry.name.trim(),
+          propertyType: entry.propertyType || detectProposalPropertyType(entry.name),
+          alternativeHotel: entry.alternativeHotel?.trim() || undefined,
+          location: (entry.location || quoteDestination || '').trim(),
+          assignedNights: cleanNights,
+          nights: cleanNights.length > 0 ? cleanNights.length : Math.max(1, Number(entry.nights || 1)),
+          roomType: entry.roomType?.trim() || 'Deluxe Room',
+          mealPlan: entry.mealPlan?.trim() || 'Daily Breakfast & Dinner Included',
+          starRating: entry.starRating || activeStar,
+        };
+      });
 
     const serializedHotels =
       serializeProposalHotelEntries(validHotelEntries, quoteHotelCategory) || quoteHotels;
@@ -1196,12 +1202,24 @@ export const InquiriesManager: React.FC<{
                 </div>
               </div>
 
-              {/* Structured Editable Hotels & Stays */}
+              {/* Structured Editable Accommodation (Hotels & Houseboats with Day-wise Night Marking) */}
               {(() => {
                 const activeQuotePkg = packages.find((p) => p.id === quotePackageId);
                 const hasPkgHotelsForTier =
                   getHotelsForTier(activeQuotePkg, quoteHotelTierKey || quoteHotelCategory || undefined).length > 0;
                 const activeStar = normalizeHotelStar(quoteHotelTierKey || quoteHotelCategory) || undefined;
+
+                const parsedDurMatch = quoteDuration.match(/(\d+)\s*Nights?/i);
+                const maxAssigned = quoteHotelEntries.reduce((max, e) => {
+                  const m = Math.max(0, ...(e.assignedNights || []));
+                  return Math.max(max, m);
+                }, 0);
+                const baseTourNights =
+                  (parsedDurMatch ? Number(parsedDurMatch[1]) : 0) ||
+                  Number(activeQuotePkg?.durationNights || 0) ||
+                  Math.max(1, (activeQuotePkg?.itinerary?.length || 2) - 1);
+                const selectableNightsCount = Math.max(1, baseTourNights, maxAssigned);
+                const nightNumbers = Array.from({ length: selectableNightsCount }, (_, i) => i + 1);
 
                 const handleUpdateEntry = (idx: number, patch: Partial<ProposalHotelEntry>) => {
                   const next = quoteHotelEntries.map((item, i) =>
@@ -1210,20 +1228,54 @@ export const InquiriesManager: React.FC<{
                   syncHotelEntriesState(next);
                 };
 
+                const handleToggleNightForEntry = (idx: number, nightNum: number) => {
+                  const targetHasNight = (quoteHotelEntries[idx]?.assignedNights || []).includes(nightNum);
+                  const next = quoteHotelEntries.map((item, i) => {
+                    const current = (item.assignedNights || []).filter((n) => n !== nightNum);
+                    if (i === idx) {
+                      const updatedNights = targetHasNight
+                        ? current
+                        : [...current, nightNum].sort((a, b) => a - b);
+                      return {
+                        ...item,
+                        assignedNights: updatedNights,
+                        nights: updatedNights.length > 0 ? updatedNights.length : item.nights,
+                      };
+                    }
+                    // Remove nightNum from other hotels so each night belongs to one property
+                    if (!targetHasNight && current.length !== (item.assignedNights || []).length) {
+                      return {
+                        ...item,
+                        assignedNights: current,
+                        nights: current.length > 0 ? current.length : item.nights,
+                      };
+                    }
+                    return item;
+                  });
+                  syncHotelEntriesState(next);
+                };
+
                 const handleRemoveEntry = (idx: number) => {
                   const next = quoteHotelEntries.filter((_, i) => i !== idx);
                   syncHotelEntriesState(next);
                 };
 
-                const handleAddEntry = () => {
+                const handleAddEntry = (defaultType: 'hotel' | 'houseboat' = 'hotel') => {
+                  const assignedSet = new Set(
+                    quoteHotelEntries.flatMap((e) => e.assignedNights || [])
+                  );
+                  const nextUnassigned = nightNumbers.find((n) => !assignedSet.has(n));
+                  const initialNights = nextUnassigned ? [nextUnassigned] : [];
                   const next: ProposalHotelEntry[] = [
                     ...quoteHotelEntries,
                     {
                       id: `prop-hotel-add-${Date.now().toString(36)}`,
                       name: '',
+                      propertyType: defaultType,
                       alternativeHotel: '',
                       location: quoteDestination.split(',')[0]?.trim() || activeQuotePkg?.destination || '',
-                      nights: 1,
+                      nights: Math.max(1, initialNights.length || 1),
+                      assignedNights: initialNights,
                       roomType: 'Deluxe Room',
                       mealPlan: 'Daily Breakfast & Dinner Included',
                       starRating: activeStar,
@@ -1246,15 +1298,13 @@ export const InquiriesManager: React.FC<{
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <div>
                         <label className="block text-xs font-bold text-stone-800 uppercase tracking-wider">
-                          Proposed Hotels & Accommodation ({quoteHotelCategory || 'Custom'})
+                          Accommodation — Hotels & Houseboats ({quoteHotelCategory || 'Custom'})
                         </label>
                         <p className="text-[11px] text-stone-500 mt-0.5">
-                          {hasPkgHotelsForTier
-                            ? 'Pre-loaded from tour package — edit any field, remove, or add hotels for this proposal.'
-                            : 'No hotels uploaded on tour for this category — enter hotel names & stay details below.'}
+                          Mark <span className="font-semibold text-stone-700">Hotel</span> or <span className="font-semibold text-stone-700">Houseboat</span> and select which nights apply to each stay. Shown under <span className="font-semibold text-stone-700">ACCOMMODATION</span> in the PDF.
                         </p>
                       </div>
-                      <div className="flex items-center gap-1.5">
+                      <div className="flex flex-wrap items-center gap-1.5">
                         {hasPkgHotelsForTier && (
                           <button
                             type="button"
@@ -1266,113 +1316,230 @@ export const InquiriesManager: React.FC<{
                         )}
                         <button
                           type="button"
-                          onClick={handleAddEntry}
+                          onClick={() => handleAddEntry('hotel')}
                           className="px-2.5 py-1.5 rounded-lg bg-[#9b0000] hover:bg-[#820000] text-white text-[11px] font-bold flex items-center gap-1 transition cursor-pointer shadow-2xs"
                         >
                           <Plus className="w-3.5 h-3.5" />
                           <span>Add Hotel</span>
                         </button>
+                        <button
+                          type="button"
+                          onClick={() => handleAddEntry('houseboat')}
+                          className="px-2.5 py-1.5 rounded-lg bg-teal-700 hover:bg-teal-800 text-white text-[11px] font-bold flex items-center gap-1 transition cursor-pointer shadow-2xs"
+                        >
+                          <Ship className="w-3.5 h-3.5" />
+                          <span>Add Houseboat</span>
+                        </button>
                       </div>
+                    </div>
+
+                    {/* Night Coverage Overview Bar */}
+                    <div className="flex flex-wrap items-center gap-1.5 bg-white border border-stone-200 rounded-lg px-2.5 py-2">
+                      <span className="text-[10px] font-bold text-stone-500 uppercase tracking-wider mr-1">
+                        Night Plan ({selectableNightsCount}N):
+                      </span>
+                      {nightNumbers.map((n) => {
+                        const assignedEntry = quoteHotelEntries.find((e) =>
+                          (e.assignedNights || []).includes(n)
+                        );
+                        const hasName = Boolean(assignedEntry?.name && assignedEntry.name.trim());
+                        const isHB = assignedEntry?.propertyType === 'houseboat';
+                        return (
+                          <span
+                            key={n}
+                            title={
+                              assignedEntry
+                                ? `Night ${n}: ${assignedEntry.name || 'Unnamed Stay'} (${isHB ? 'Houseboat' : 'Hotel'})`
+                                : `Night ${n}: Not assigned yet`
+                            }
+                            className={`px-2 py-0.5 rounded-md text-[10px] font-bold border ${
+                              assignedEntry
+                                ? hasName
+                                  ? isHB
+                                    ? 'bg-teal-50 border-teal-300 text-teal-800'
+                                    : 'bg-emerald-50 border-emerald-300 text-emerald-800'
+                                  : 'bg-amber-50 border-amber-300 text-amber-800'
+                                : 'bg-stone-100 border-stone-200 text-stone-500'
+                            }`}
+                          >
+                            N{n}{assignedEntry ? (isHB ? ' • HB' : ' • ✓') : ' (—)'}
+                          </span>
+                        );
+                      })}
                     </div>
 
                     {quoteHotelEntries.length === 0 ? (
                       <div className="bg-white border border-dashed border-stone-300 rounded-xl p-4 text-center space-y-2">
                         <p className="text-xs text-stone-500">
-                          No hotels listed yet for this proposal.
+                          No hotels or houseboats added yet for this proposal.
                         </p>
-                        <button
-                          type="button"
-                          onClick={handleAddEntry}
-                          className="px-3 py-1.5 rounded-lg bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer"
-                        >
-                          <Plus className="w-3.5 h-3.5" />
-                          Add First Hotel
-                        </button>
+                        <div className="flex flex-wrap items-center justify-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => handleAddEntry('hotel')}
+                            className="px-3 py-1.5 rounded-lg bg-[#9b0000] hover:bg-[#820000] text-white text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer"
+                          >
+                            <Plus className="w-3.5 h-3.5" />
+                            Add Hotel
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleAddEntry('houseboat')}
+                            className="px-3 py-1.5 rounded-lg bg-teal-700 hover:bg-teal-800 text-white text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer"
+                          >
+                            <Ship className="w-3.5 h-3.5" />
+                            Add Houseboat
+                          </button>
+                        </div>
                       </div>
                     ) : (
                       <div className="space-y-2.5">
-                        {quoteHotelEntries.map((entry, idx) => (
-                          <div
-                            key={entry.id || idx}
-                            className="bg-white border border-stone-200 rounded-xl p-3 space-y-2.5 shadow-2xs"
-                          >
-                            <div className="flex items-center justify-between gap-2">
-                              <div className="flex items-center gap-2">
-                                <span className="px-2 py-0.5 rounded-md bg-stone-100 text-stone-700 text-[10px] font-black uppercase">
-                                  Hotel {idx + 1}
-                                </span>
-                                {(entry.starRating || quoteHotelCategory) && (
-                                  <span className="px-2 py-0.5 rounded-md bg-amber-50 border border-amber-200 text-amber-900 text-[10px] font-bold">
-                                    {formatHotelCategoryLabel(entry.starRating) || quoteHotelCategory}
+                        {quoteHotelEntries.map((entry, idx) => {
+                          const isHouseboat = entry.propertyType === 'houseboat';
+                          const assigned = entry.assignedNights || [];
+                          return (
+                            <div
+                              key={entry.id || idx}
+                              className={`bg-white border rounded-xl p-3 space-y-2.5 shadow-2xs ${
+                                isHouseboat ? 'border-teal-200' : 'border-stone-200'
+                              }`}
+                            >
+                              <div className="flex flex-wrap items-center justify-between gap-2">
+                                <div className="flex flex-wrap items-center gap-1.5">
+                                  <span className="px-2 py-0.5 rounded-md bg-stone-100 text-stone-700 text-[10px] font-black uppercase">
+                                    Stay {idx + 1}
                                   </span>
-                                )}
-                              </div>
-                              <button
-                                type="button"
-                                onClick={() => handleRemoveEntry(idx)}
-                                className="p-1 text-stone-400 hover:text-red-600 rounded-lg hover:bg-red-50 transition cursor-pointer"
-                                title="Remove Hotel"
-                              >
-                                <Trash2 className="w-3.5 h-3.5" />
-                              </button>
-                            </div>
 
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                              <div>
-                                <label className="block text-[10px] font-bold text-stone-500 uppercase mb-1">
-                                  Hotel Name *
-                                </label>
-                                <input
-                                  type="text"
-                                  value={entry.name}
-                                  onChange={(e) => handleUpdateEntry(idx, { name: e.target.value })}
-                                  placeholder={`Enter ${quoteHotelCategory || ''} Hotel Name`}
-                                  className="w-full px-3 py-1.5 rounded-lg border border-stone-200 text-xs font-semibold text-stone-900 focus:border-purple-500 outline-none"
-                                />
-                              </div>
+                                  {/* Property Type Switch: Hotel vs Houseboat */}
+                                  <div className="inline-flex rounded-lg border border-stone-200 p-0.5 bg-stone-50">
+                                    <button
+                                      type="button"
+                                      onClick={() => handleUpdateEntry(idx, { propertyType: 'hotel' })}
+                                      className={`px-2 py-0.5 rounded-md text-[10px] font-bold flex items-center gap-1 transition cursor-pointer ${
+                                        !isHouseboat
+                                          ? 'bg-[#9b0000] text-white shadow-2xs'
+                                          : 'text-stone-600 hover:text-stone-900'
+                                      }`}
+                                    >
+                                      <Building2 className="w-3 h-3" />
+                                      <span>Hotel</span>
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => handleUpdateEntry(idx, { propertyType: 'houseboat' })}
+                                      className={`px-2 py-0.5 rounded-md text-[10px] font-bold flex items-center gap-1 transition cursor-pointer ${
+                                        isHouseboat
+                                          ? 'bg-teal-700 text-white shadow-2xs'
+                                          : 'text-stone-600 hover:text-stone-900'
+                                      }`}
+                                    >
+                                      <Ship className="w-3 h-3" />
+                                      <span>Houseboat</span>
+                                    </button>
+                                  </div>
 
-                              <div>
-                                <label className="block text-[10px] font-bold text-stone-500 uppercase mb-1">
-                                  Alternative / Similar Hotel
-                                </label>
-                                <input
-                                  type="text"
-                                  value={entry.alternativeHotel || ''}
-                                  onChange={(e) => handleUpdateEntry(idx, { alternativeHotel: e.target.value })}
-                                  placeholder="e.g. Similar Category Resort"
-                                  className="w-full px-3 py-1.5 rounded-lg border border-stone-200 text-xs text-stone-800 focus:border-purple-500 outline-none"
-                                />
-                              </div>
+                                  {(entry.starRating || quoteHotelCategory) && (
+                                    <span className="px-2 py-0.5 rounded-md bg-amber-50 border border-amber-200 text-amber-900 text-[10px] font-bold">
+                                      {formatHotelCategoryLabel(entry.starRating) || quoteHotelCategory}
+                                    </span>
+                                  )}
+                                </div>
 
-                              <div>
-                                <label className="block text-[10px] font-bold text-stone-500 uppercase mb-1">
-                                  Location / City
-                                </label>
-                                <input
-                                  type="text"
-                                  value={entry.location}
-                                  onChange={(e) => handleUpdateEntry(idx, { location: e.target.value })}
-                                  placeholder="e.g. Srinagar"
-                                  className="w-full px-3 py-1.5 rounded-lg border border-stone-200 text-xs text-stone-800 focus:border-purple-500 outline-none"
-                                />
+                                <button
+                                  type="button"
+                                  onClick={() => handleRemoveEntry(idx)}
+                                  className="p-1 text-stone-400 hover:text-red-600 rounded-lg hover:bg-red-50 transition cursor-pointer"
+                                  title="Remove Stay"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
                               </div>
 
-                              <div className="grid grid-cols-2 gap-2">
+                              {/* Day-Wise Night Selection Pills */}
+                              <div className="bg-stone-50/80 border border-stone-200/80 rounded-lg px-2.5 py-2 space-y-1.5">
+                                <div className="flex flex-wrap items-center justify-between gap-1">
+                                  <span className="text-[10px] font-bold text-stone-600 uppercase tracking-wider">
+                                    Mark Night(s) for This {isHouseboat ? 'Houseboat' : 'Hotel'}:
+                                  </span>
+                                  <span className="text-[10px] font-bold text-purple-800">
+                                    {formatAssignedNightsLabel(assigned, entry.nights)}
+                                  </span>
+                                </div>
+                                <div className="flex flex-wrap items-center gap-1.5">
+                                  {nightNumbers.map((nightNum) => {
+                                    const isSelected = assigned.includes(nightNum);
+                                    const takenElsewhere =
+                                      !isSelected &&
+                                      quoteHotelEntries.some(
+                                        (other, oIdx) =>
+                                          oIdx !== idx && (other.assignedNights || []).includes(nightNum)
+                                      );
+                                    return (
+                                      <button
+                                        key={nightNum}
+                                        type="button"
+                                        onClick={() => handleToggleNightForEntry(idx, nightNum)}
+                                        className={`px-2.5 py-1 rounded-md text-[11px] font-bold border transition cursor-pointer ${
+                                          isSelected
+                                            ? isHouseboat
+                                              ? 'bg-teal-700 text-white border-teal-700 shadow-2xs'
+                                              : 'bg-purple-700 text-white border-purple-700 shadow-2xs'
+                                            : takenElsewhere
+                                            ? 'bg-stone-100 text-stone-400 border-stone-200 hover:bg-purple-50 hover:text-purple-700 hover:border-purple-200'
+                                            : 'bg-white text-stone-700 border-stone-200 hover:bg-purple-50 hover:border-purple-300'
+                                        }`}
+                                      >
+                                        Night {nightNum}
+                                      </button>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                                 <div>
                                   <label className="block text-[10px] font-bold text-stone-500 uppercase mb-1">
-                                    Nights
+                                    {isHouseboat ? 'Houseboat Name *' : 'Hotel Name *'}
                                   </label>
                                   <input
-                                    type="number"
-                                    min={1}
-                                    max={30}
-                                    value={entry.nights}
-                                    onChange={(e) =>
-                                      handleUpdateEntry(idx, { nights: Math.max(1, Number(e.target.value) || 1) })
+                                    type="text"
+                                    value={entry.name}
+                                    onChange={(e) => handleUpdateEntry(idx, { name: e.target.value })}
+                                    placeholder={
+                                      isHouseboat
+                                        ? `Enter ${quoteHotelCategory || ''} Houseboat Name`
+                                        : `Enter ${quoteHotelCategory || ''} Hotel Name`
                                     }
                                     className="w-full px-3 py-1.5 rounded-lg border border-stone-200 text-xs font-semibold text-stone-900 focus:border-purple-500 outline-none"
                                   />
                                 </div>
+
+                                <div>
+                                  <label className="block text-[10px] font-bold text-stone-500 uppercase mb-1">
+                                    Alternative / Similar {isHouseboat ? 'Houseboat' : 'Hotel'}
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={entry.alternativeHotel || ''}
+                                    onChange={(e) => handleUpdateEntry(idx, { alternativeHotel: e.target.value })}
+                                    placeholder="e.g. Similar Category Property"
+                                    className="w-full px-3 py-1.5 rounded-lg border border-stone-200 text-xs text-stone-800 focus:border-purple-500 outline-none"
+                                  />
+                                </div>
+
+                                <div>
+                                  <label className="block text-[10px] font-bold text-stone-500 uppercase mb-1">
+                                    Location / City
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={entry.location}
+                                    onChange={(e) => handleUpdateEntry(idx, { location: e.target.value })}
+                                    placeholder={isHouseboat ? 'e.g. Dal Lake, Srinagar' : 'e.g. Srinagar'}
+                                    className="w-full px-3 py-1.5 rounded-lg border border-stone-200 text-xs text-stone-800 focus:border-purple-500 outline-none"
+                                  />
+                                </div>
+
                                 <div>
                                   <label className="block text-[10px] font-bold text-stone-500 uppercase mb-1">
                                     Room Type
@@ -1385,124 +1552,25 @@ export const InquiriesManager: React.FC<{
                                     className="w-full px-3 py-1.5 rounded-lg border border-stone-200 text-xs text-stone-800 focus:border-purple-500 outline-none"
                                   />
                                 </div>
-                              </div>
 
-                              <div className="sm:col-span-2">
-                                <label className="block text-[10px] font-bold text-stone-500 uppercase mb-1">
-                                  Meal Plan
-                                </label>
-                                <input
-                                  type="text"
-                                  value={entry.mealPlan || ''}
-                                  onChange={(e) => handleUpdateEntry(idx, { mealPlan: e.target.value })}
-                                  placeholder="Daily Breakfast & Dinner Included"
-                                  className="w-full px-3 py-1.5 rounded-lg border border-stone-200 text-xs text-stone-800 focus:border-purple-500 outline-none"
-                                />
+                                <div className="sm:col-span-2">
+                                  <label className="block text-[10px] font-bold text-stone-500 uppercase mb-1">
+                                    Meal Plan
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={entry.mealPlan || ''}
+                                    onChange={(e) => handleUpdateEntry(idx, { mealPlan: e.target.value })}
+                                    placeholder="Daily Breakfast & Dinner Included"
+                                    className="w-full px-3 py-1.5 rounded-lg border border-stone-200 text-xs text-stone-800 focus:border-purple-500 outline-none"
+                                  />
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        ))}
+                          );
+                        })}
                       </div>
                     )}
-                  </div>
-                );
-              })()}
-
-              {/* Day-by-Day Itinerary & Verified Hotel Breakdown Preview */}
-              {(() => {
-                const activeQuotePkg = packages.find((p) => p.id === quotePackageId);
-                if (!activeQuotePkg?.itinerary?.length) return null;
-                const dayStayMap = resolveItineraryDayStays(
-                  activeQuotePkg,
-                  quoteHotels,
-                  quoteHotelTierKey || quoteHotelCategory,
-                  quoteHotelEntries
-                );
-                return (
-                  <div className="bg-stone-50/90 border border-stone-200 rounded-xl p-3.5 space-y-2.5">
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-1.5">
-                        <Calendar className="w-4 h-4 text-[#9b0000]" />
-                        <span className="text-xs font-bold text-stone-900 uppercase tracking-wider">
-                          Day-by-Day Itinerary & Verified Stay Preview ({activeQuotePkg.itinerary.length} Days)
-                        </span>
-                      </div>
-                      {quoteHotelCategory && (
-                        <span className="px-2 py-0.5 rounded-full bg-purple-100 text-purple-900 text-[10px] font-black uppercase">
-                          {quoteHotelCategory}
-                        </span>
-                      )}
-                    </div>
-
-                    <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
-                      {activeQuotePkg.itinerary.map((day) => {
-                        const stay = dayStayMap[day.dayNumber];
-                        const starCount = stay?.starRating || 0;
-                        return (
-                          <div
-                            key={day.id || day.dayNumber}
-                            className="bg-white border border-stone-200 rounded-xl p-2.5 space-y-2 shadow-2xs"
-                          >
-                            <div className="flex items-start justify-between gap-2">
-                              <div className="flex items-start gap-2 min-w-0">
-                                <span className="px-2 py-0.5 rounded-md bg-[#9b0000] text-white text-[10px] font-black uppercase shrink-0 mt-0.5">
-                                  Day {day.dayNumber}
-                                </span>
-                                <div className="min-w-0">
-                                  <div className="text-xs font-bold text-stone-900 leading-snug">
-                                    {day.title}
-                                  </div>
-                                  {day.location && (
-                                    <div className="text-[10px] text-stone-500 flex items-center gap-1 mt-0.5">
-                                      <MapPin className="w-3 h-3 text-[#9b0000] shrink-0" />
-                                      <span className="truncate">{day.location}</span>
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-
-                            {stay && (
-                              <div className="bg-stone-50 border border-stone-200/80 rounded-lg px-2.5 py-2 flex flex-wrap items-center justify-between gap-2">
-                                <div className="flex items-center gap-1.5 min-w-0">
-                                  <Building2 className="w-3.5 h-3.5 text-[#9b0000] shrink-0" />
-                                  <div className="text-[11px] font-bold text-stone-900 truncate">
-                                    {stay.isCheckoutDay ? 'Check-out: ' : ''}
-                                    {stay.hotelName}
-                                    {stay.alternativeHotel ? (
-                                      <span className="font-normal text-stone-500"> / {stay.alternativeHotel}</span>
-                                    ) : null}
-                                  </div>
-                                </div>
-
-                                <div className="flex flex-wrap items-center gap-1.5 shrink-0">
-                                  {(stay.categoryLabel || starCount > 0) && (
-                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-50 border border-amber-200 text-amber-900 text-[10px] font-extrabold">
-                                      <span>{stay.categoryLabel}</span>
-                                      {starCount > 0 && (
-                                        <span className="inline-flex items-center gap-0.5" aria-label={`${starCount} stars`}>
-                                          {Array.from({ length: starCount }).map((_, idx) => (
-                                            <Star
-                                              key={idx}
-                                              className="w-2.5 h-2.5 fill-amber-400 text-amber-500"
-                                            />
-                                          ))}
-                                        </span>
-                                      )}
-                                    </span>
-                                  )}
-
-                                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-50 border border-emerald-200 text-emerald-800 text-[10px] font-extrabold">
-                                    <ShieldCheck className="w-3 h-3 text-emerald-600 shrink-0" />
-                                    <span>Verified Stay</span>
-                                  </span>
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        );
-                      })}
-                    </div>
                   </div>
                 );
               })()}

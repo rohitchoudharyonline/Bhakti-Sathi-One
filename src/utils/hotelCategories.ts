@@ -277,6 +277,45 @@ const matchesDayLocation = (dayLocation?: string, hotelLocation?: string): boole
   return hTokens.some((tok) => d.includes(tok));
 };
 
+export function detectProposalPropertyType(name?: string, extra?: string): 'hotel' | 'houseboat' {
+  const combined = `${name || ''} ${extra || ''}`.toLowerCase();
+  return /houseboat|house\s*boat|shikara\s*stay|dal\s*lake\s*boat/i.test(combined) ? 'houseboat' : 'hotel';
+}
+
+function assignSequentialNightsToEntries(entries: ProposalHotelEntry[], maxNights?: number): ProposalHotelEntry[] {
+  let cursor = 1;
+  return entries.map((entry) => {
+    if (entry.assignedNights && entry.assignedNights.length > 0) {
+      return entry;
+    }
+    const count = Math.max(1, Number(entry.nights || 1));
+    const nightsList: number[] = [];
+    for (let i = 0; i < count; i++) {
+      if (!maxNights || cursor <= maxNights) {
+        nightsList.push(cursor);
+        cursor++;
+      }
+    }
+    return {
+      ...entry,
+      assignedNights: nightsList,
+    };
+  });
+}
+
+export function formatAssignedNightsLabel(assignedNights?: number[], fallbackNights?: number): string {
+  const sorted = Array.from(
+    new Set((assignedNights || []).map((n) => Number(n)).filter((n) => Number.isFinite(n) && n >= 1))
+  ).sort((a, b) => a - b);
+
+  if (sorted.length > 0) {
+    const labels = sorted.map((n) => `Night ${n}`).join(', ');
+    return `${labels} (${sorted.length} ${sorted.length === 1 ? 'Night' : 'Nights'})`;
+  }
+  const count = Math.max(1, Number(fallbackNights || 1));
+  return `${count} ${count === 1 ? 'Night' : 'Nights'}`;
+}
+
 export function parseHotelsTextToEntries(
   hotelsText?: string,
   pkg?: TourPackage | null,
@@ -287,7 +326,7 @@ export function parseHotelsTextToEntries(
   const tierHotels = getHotelsForTier(pkg, defaultOpt?.key || tierKeyOrLabel);
   const rawLines = parseRawHotelLines(hotelsText || '');
 
-  return rawLines.map((rawLine, idx) => {
+  const parsed = rawLines.map((rawLine, idx) => {
     const normalizedLine = rawLine
       .replace(/\(2[\s-]*Star\)/gi, '(Budget)')
       .replace(/\b2[\s-]*Star\b/gi, 'Budget');
@@ -300,6 +339,7 @@ export function parseHotelsTextToEntries(
       return {
         id: matched.id || `prop-hotel-${idx}-${Date.now().toString(36)}`,
         name: matched.name,
+        propertyType: detectProposalPropertyType(matched.name, matched.houseboatDetails),
         alternativeHotel: matched.alternativeHotel || '',
         location: matched.location || matched.city || pkg?.destination || '',
         nights: Math.max(1, Number(matched.nights || 1)),
@@ -314,6 +354,12 @@ export function parseHotelsTextToEntries(
     const locPart = colonIdx > 0 && colonIdx < 28 ? normalizedLine.slice(0, colonIdx).trim() : '';
     let restPart =
       colonIdx > 0 && colonIdx < 28 ? normalizedLine.slice(colonIdx + 1).trim() : normalizedLine.trim();
+    const typeMatch = restPart.match(/\[(Houseboat|Hotel)\]/i);
+    const explicitType: 'hotel' | 'houseboat' | undefined = typeMatch
+      ? (typeMatch[1].toLowerCase() === 'houseboat' ? 'houseboat' : 'hotel')
+      : undefined;
+    if (typeMatch) restPart = restPart.replace(typeMatch[0], '').trim();
+
     const nightsMatch = restPart.match(/\s*[-–]\s*(\d+)\s*N(?:ights?)?\b/i);
     const parsedNights = nightsMatch ? Math.max(1, Number(nightsMatch[1])) : 1;
     if (nightsMatch) restPart = restPart.replace(nightsMatch[0], '').trim();
@@ -332,6 +378,7 @@ export function parseHotelsTextToEntries(
     return {
       id: `prop-hotel-${idx}-${Date.now().toString(36)}`,
       name: primaryName,
+      propertyType: explicitType || detectProposalPropertyType(primaryName, normalizedLine),
       alternativeHotel: altName,
       location: locPart || pkg?.destination || '',
       nights: parsedNights,
@@ -340,6 +387,8 @@ export function parseHotelsTextToEntries(
       starRating: parsedStar,
     };
   });
+
+  return assignSequentialNightsToEntries(parsed, pkg?.durationNights || undefined);
 }
 
 export function buildProposalHotelEntriesForTier(
@@ -349,19 +398,24 @@ export function buildProposalHotelEntriesForTier(
   const opt = getHotelCategoryOptionByKey(tierKeyOrLabel);
   const tierPkgConfig = opt ? pkg?.pricingTiers?.[opt.key] : undefined;
   const tierHotels = getHotelsForTier(pkg, opt?.key || tierKeyOrLabel);
+  const maxTourNights = pkg?.durationNights ? Math.max(1, Number(pkg.durationNights)) : undefined;
 
   if (tierHotels.length > 0) {
-    return tierHotels.map((h, idx) => ({
-      id: h.id || `prop-hotel-${idx}-${Date.now().toString(36)}`,
-      name: h.name || '',
-      alternativeHotel: h.alternativeHotel || '',
-      location: (h.location || h.city || pkg?.destination || '').trim(),
-      nights: Math.max(1, Number(h.nights || 1)),
-      roomType: h.roomType || tierPkgConfig?.roomType || 'Deluxe Room',
-      mealPlan: h.mealPlan || tierPkgConfig?.mealPlan || 'Daily Breakfast & Dinner Included',
-      starRating: normalizeHotelStar(h.starRating) || opt?.starRating || undefined,
-      amenities: h.amenities,
-    }));
+    return assignSequentialNightsToEntries(
+      tierHotels.map((h, idx) => ({
+        id: h.id || `prop-hotel-${idx}-${Date.now().toString(36)}`,
+        name: h.name || '',
+        propertyType: detectProposalPropertyType(h.name, h.houseboatDetails),
+        alternativeHotel: h.alternativeHotel || '',
+        location: (h.location || h.city || pkg?.destination || '').trim(),
+        nights: Math.max(1, Number(h.nights || 1)),
+        roomType: h.roomType || tierPkgConfig?.roomType || 'Deluxe Room',
+        mealPlan: h.mealPlan || tierPkgConfig?.mealPlan || 'Daily Breakfast & Dinner Included',
+        starRating: normalizeHotelStar(h.starRating) || opt?.starRating || undefined,
+        amenities: h.amenities,
+      })),
+      maxTourNights
+    );
   }
 
   // Check legacy pricingTier hotelNames / hotels array
@@ -380,25 +434,32 @@ export function buildProposalHotelEntriesForTier(
     availableTiers.length > 0 ? getHotelsForTier(pkg, availableTiers[0].key) : (pkg?.hotels || []);
 
   if (blueprintHotels.length > 0) {
-    return blueprintHotels.map((h, idx) => ({
-      id: `prop-custom-${idx}-${Date.now().toString(36)}`,
-      name: '',
-      alternativeHotel: '',
-      location: (h.location || h.city || pkg?.destination || '').trim(),
-      nights: Math.max(1, Number(h.nights || 1)),
-      roomType: tierPkgConfig?.roomType || h.roomType || 'Deluxe Room',
-      mealPlan: tierPkgConfig?.mealPlan || h.mealPlan || 'Daily Breakfast & Dinner Included',
-      starRating: opt?.starRating || undefined,
-    }));
+    return assignSequentialNightsToEntries(
+      blueprintHotels.map((h, idx) => ({
+        id: `prop-custom-${idx}-${Date.now().toString(36)}`,
+        name: '',
+        propertyType: detectProposalPropertyType(h.name, h.houseboatDetails),
+        alternativeHotel: '',
+        location: (h.location || h.city || pkg?.destination || '').trim(),
+        nights: Math.max(1, Number(h.nights || 1)),
+        roomType: tierPkgConfig?.roomType || h.roomType || 'Deluxe Room',
+        mealPlan: tierPkgConfig?.mealPlan || h.mealPlan || 'Daily Breakfast & Dinner Included',
+        starRating: opt?.starRating || undefined,
+      })),
+      maxTourNights
+    );
   }
 
+  const fallbackNights = Math.max(1, Number(pkg?.durationNights || 1));
   return [
     {
       id: `prop-custom-0-${Date.now().toString(36)}`,
       name: '',
+      propertyType: 'hotel',
       alternativeHotel: '',
       location: pkg?.destination || '',
-      nights: Math.max(1, Number(pkg?.durationNights || 1)),
+      nights: fallbackNights,
+      assignedNights: Array.from({ length: fallbackNights }, (_, i) => i + 1),
       roomType: tierPkgConfig?.roomType || 'Deluxe Room',
       mealPlan: tierPkgConfig?.mealPlan || 'Daily Breakfast & Dinner Included',
       starRating: opt?.starRating || undefined,
@@ -417,8 +478,10 @@ export function serializeProposalHotelEntries(
       const alt = e.alternativeHotel && e.alternativeHotel.trim() ? ` / ${e.alternativeHotel.trim()}` : '';
       const catLabel = formatHotelCategoryLabel(e.starRating) || fallbackCategoryLabel || '';
       const catSuffix = catLabel ? ` (${catLabel})` : '';
-      const nightsSuffix = e.nights ? ` - ${e.nights}N` : '';
-      return `${loc ? `${loc}: ` : ''}${e.name.trim()}${alt}${catSuffix}${nightsSuffix}`;
+      const typePrefix = e.propertyType === 'houseboat' ? '[Houseboat] ' : '';
+      const count = e.assignedNights && e.assignedNights.length > 0 ? e.assignedNights.length : e.nights;
+      const nightsSuffix = count ? ` - ${count}N` : '';
+      return `${loc ? `${loc}: ` : ''}${typePrefix}${e.name.trim()}${alt}${catSuffix}${nightsSuffix}`;
     })
     .join('\n');
 }

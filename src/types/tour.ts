@@ -539,9 +539,11 @@ export interface Invoice {
 export interface ProposalHotelEntry {
   id: string;
   name: string;
+  propertyType?: 'hotel' | 'houseboat';
   alternativeHotel?: string;
   location: string;
   nights: number;
+  assignedNights?: number[];
   roomType?: string;
   mealPlan?: string;
   starRating?: 2 | 3 | 4 | 5;
